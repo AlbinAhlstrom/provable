@@ -9,7 +9,7 @@ import ast
 
 REQUIREMENTS_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src', 'requirements.json'))
 WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
-API_KEY = os.environ.get("LLM_API_KEY", "${LLM_API_KEY}")
+API_KEY = os.environ.get("LLM_API_KEY", "")
 
 def parse_docstring_fields(docstring):
     """Extract id, req, Given, When, Then from docstring."""
