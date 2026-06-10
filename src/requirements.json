@@ -1,0 +1,488 @@
+[
+  {
+    "id": "FLD-CORE",
+    "title": "Core App",
+    "description": "Root application requirements",
+    "priority": "High",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": null,
+    "dependencies": []
+  },
+  {
+    "id": "FLD-FUNC",
+    "title": "Functional",
+    "description": "Functional features",
+    "priority": "High",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": "FLD-CORE",
+    "dependencies": []
+  },
+  {
+    "id": "FLD-NONFUNC",
+    "title": "Non-functional",
+    "description": "Non-functional requirements",
+    "priority": "High",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": "FLD-CORE",
+    "dependencies": []
+  },
+  {
+    "id": "FLD-GUI",
+    "title": "GUI",
+    "description": "User interfaces and visual components",
+    "priority": "High",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": "FLD-FUNC",
+    "dependencies": []
+  },
+  {
+    "id": "FLD-BIZ",
+    "title": "Business Logic",
+    "description": "Primary domain logic and application features",
+    "priority": "High",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": "FLD-FUNC",
+    "dependencies": []
+  },
+  {
+    "id": "FLD-PERF",
+    "title": "Performance",
+    "description": "Performance constraints",
+    "priority": "High",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": "FLD-NONFUNC",
+    "dependencies": []
+  },
+  {
+    "id": "FLD-REL",
+    "title": "Reliability",
+    "description": "Reliability constraints",
+    "priority": "High",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": "FLD-NONFUNC",
+    "dependencies": []
+  },
+  {
+    "id": "FLD-SEC",
+    "title": "Security",
+    "description": "Security constraints",
+    "priority": "High",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": "FLD-NONFUNC",
+    "dependencies": []
+  },
+  {
+    "id": "FLD-919",
+    "title": "Home Page",
+    "description": "",
+    "priority": "Med",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": "FLD-GUI",
+    "dependencies": []
+  },
+  {
+    "id": "REQ-2620",
+    "title": "Home Page Title",
+    "description": "The home page should have text BELOW the header that says \"Hello, World!\"",
+    "priority": "High",
+    "status": "Backlog",
+    "tests": [
+      {
+        "name": "test_home_page_title_below_header",
+        "status": "Passing",
+        "title": "Verify 'Hello, World!' text is present and positioned below the header.",
+        "id": "TST-2800",
+        "req": "REQ-2620",
+        "given": "The src/App.tsx file exists and contains the main application structure.",
+        "when": "Inspecting the content of src/App.tsx.",
+        "then": "The text \"Hello, World!\" is present and its position in the file content"
+      }
+    ],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Requirement",
+    "parentId": "FLD-919",
+    "dependencies": []
+  },
+  {
+    "id": "REQ-1122",
+    "title": "Implement Home Page Title",
+    "description": "The home page shall display the text \"Hello, World!\" positioned directly below the main application header.",
+    "priority": "Med",
+    "status": "Done",
+    "tests": [
+      {
+        "name": "test_home_page_hello_world_text_positioning",
+        "status": "Passing",
+        "title": "Verify \"Hello, World!\" text is displayed directly below the main application header.",
+        "id": "TST-1122",
+        "req": "REQ-1122",
+        "given": "The React application's App component definition in `src/App.tsx`.",
+        "when": "The content of `src/App.tsx` is read and inspected for specific JSX structure.",
+        "then": "The string \"Hello, World!\" is found within a `div` element that immediately"
+      }
+    ],
+    "assignedAgents": [
+      "Frontend"
+    ],
+    "proposedCode": null,
+    "feedback": "",
+    "type": "Task",
+    "parentId": "REQ-2620",
+    "dependencies": []
+  },
+  {
+    "id": "FLD-975",
+    "title": "Header",
+    "description": "",
+    "priority": "Med",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": "FLD-GUI",
+    "dependencies": []
+  },
+  {
+    "id": "FLD-422",
+    "title": "Styling",
+    "description": "",
+    "priority": "Med",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": "FLD-975",
+    "dependencies": []
+  },
+  {
+    "id": "FLD-718",
+    "title": "Content",
+    "description": "",
+    "priority": "Med",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Folder",
+    "parentId": "FLD-975",
+    "dependencies": []
+  },
+  {
+    "id": "REQ-5145",
+    "title": "Color",
+    "description": "The header of the page should be solid dark blue",
+    "priority": "High",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Requirement",
+    "parentId": "FLD-422",
+    "dependencies": []
+  },
+  {
+    "id": "REQ-7677",
+    "title": "Implement Color",
+    "description": "The header of the page should be solid dark blue",
+    "priority": "Med",
+    "status": "Done",
+    "tests": [
+      {
+        "name": "test_app_tsx_css_import_fixed",
+        "status": "Passing",
+        "title": "Verify App.tsx imports App.css instead of index.css.",
+        "id": "TST-7677",
+        "req": "REQ-5145",
+        "given": "The src/App.tsx file exists",
+        "when": "Examining the import statements in src/App.tsx",
+        "then": "The file imports './App.css' and does not import './index.css'"
+      },
+      {
+        "name": "test_app_tsx_contains_header_element",
+        "status": "Passing",
+        "title": "Verify that the App component includes a header element with the correct class.",
+        "id": "TST-7678",
+        "req": "REQ-5145",
+        "given": "The src/App.tsx file exists and its CSS import is correct",
+        "when": "Examining the JSX structure within the App component's return statement",
+        "then": "A '<header className=\"app-header\">' element is present, wrapped in a fragment, and contains a title."
+      },
+      {
+        "name": "test_app_css_contains_header_styles",
+        "status": "Passing",
+        "title": "Verify that src/App.css defines the styles for the app header.",
+        "id": "TST-7679",
+        "req": "REQ-5145",
+        "given": "The src/App.css file exists",
+        "when": "Reading the content of src/App.css",
+        "then": "The '.app-header' class defines 'background-color: #1A237E;', 'color: white;',"
+      }
+    ],
+    "assignedAgents": [
+      "Frontend"
+    ],
+    "proposedCode": null,
+    "feedback": "",
+    "type": "Task",
+    "parentId": "REQ-5145",
+    "dependencies": []
+  },
+  {
+    "id": "REQ-4587",
+    "title": "Alignment",
+    "description": "The header shall be at the very top of the page and stretch the whole width of the screen",
+    "priority": "High",
+    "status": "Backlog",
+    "tests": [],
+    "assignedAgents": [],
+    "proposedCode": null,
+    "feedback": null,
+    "type": "Requirement",
+    "parentId": "FLD-422",
+    "dependencies": []
+  },
+  {
+    "id": "REQ-2314",
+    "title": "Position Header at Top Edge",
+    "description": "Apply CSS to the header element to ensure it is rendered flush with the top edge of the browser viewport. This typically involves using `position: fixed` (or `sticky`) with `top: 0`, and resetting default `margin` on `body` and `html` elements.",
+    "priority": "Med",
+    "status": "Done",
+    "tests": [
+      {
+        "name": "test_app_css_header_position_fixed",
+        "status": "Passing",
+        "title": "Verify app header uses position: fixed.",
+        "id": "TST-2314",
+        "req": "REQ-4587",
+        "given": "The src/App.css file exists and contains .app-header styles",
+        "when": "Reading the content of src/App.css",
+        "then": "The .app-header style block contains 'position: fixed;'"
+      },
+      {
+        "name": "test_app_css_header_top_edge",
+        "status": "Passing",
+        "title": "Verify app header is positioned at top: 0.",
+        "id": "TST-2315",
+        "req": "REQ-4587",
+        "given": "The src/App.css file exists and contains .app-header styles",
+        "when": "Reading the content of src/App.css",
+        "then": "The .app-header style block contains 'top: 0;'"
+      },
+      {
+        "name": "test_app_css_header_left_edge",
+        "status": "Passing",
+        "title": "Verify app header is positioned at left: 0.",
+        "id": "TST-2316",
+        "req": "REQ-4587",
+        "given": "The src/App.css file exists and contains .app-header styles",
+        "when": "Reading the content of src/App.css",
+        "then": "The .app-header style block contains 'left: 0;'"
+      },
+      {
+        "name": "test_app_css_header_full_width",
+        "status": "Passing",
+        "title": "Verify app header spans full width.",
+        "id": "TST-2317",
+        "req": "REQ-4587",
+        "given": "The src/App.css file exists and contains .app-header styles",
+        "when": "Reading the content of src/App.css",
+        "then": "The .app-header style block contains 'width: 100%;'"
+      },
+      {
+        "name": "test_app_css_header_z_index",
+        "status": "Passing",
+        "title": "Verify app header has high z-index.",
+        "id": "TST-2318",
+        "req": "REQ-4587",
+        "given": "The src/App.css file exists and contains .app-header styles",
+        "when": "Reading the content of src/App.css",
+        "then": "The .app-header style block contains 'z-index: 1000;'"
+      },
+      {
+        "name": "test_app_css_header_margin_bottom_removed",
+        "status": "Passing",
+        "title": "Verify margin-bottom is removed from fixed header.",
+        "id": "TST-2319",
+        "req": "REQ-4587",
+        "given": "The src/App.css file exists and contains .app-header styles",
+        "when": "Reading the content of src/App.css",
+        "then": "The .app-header style block does not contain 'margin-bottom: 2rem;'"
+      },
+      {
+        "name": "test_index_css_html_body_margin_padding_reset",
+        "status": "Passing",
+        "title": "Verify html, body margin and padding are reset.",
+        "id": "TST-2320",
+        "req": "REQ-4587",
+        "given": "The src/index.css file exists",
+        "when": "Reading the content of src/index.css",
+        "then": "The file contains 'html, body { margin: 0; padding: 0; }'"
+      },
+      {
+        "name": "test_index_css_body_padding_top",
+        "status": "Failing",
+        "title": "Verify body has padding-top for fixed header clearance.",
+        "id": "TST-2321",
+        "req": "REQ-4587",
+        "given": "The src/index.css file exists and contains body styles",
+        "when": "Reading the content of src/index.css",
+        "then": "The body style block contains 'padding-top: 5rem;'"
+      },
+      {
+        "name": "test_index_css_body_flex_properties_removed",
+        "status": "Passing",
+        "title": "Verify body flexbox centering properties are removed.",
+        "id": "TST-2322",
+        "req": "REQ-4587",
+        "given": "The src/index.css file exists and contains body styles",
+        "when": "Reading the content of src/index.css",
+        "then": "The body style block does not contain 'display: flex;' or 'place-items: center;'"
+      },
+      {
+        "name": "test_index_css_root_text_align_removed",
+        "status": "Passing",
+        "title": "Verify redundant text-align: center is removed from #root in index.css.",
+        "id": "TST-2323",
+        "req": "REQ-4587",
+        "given": "The src/index.css file exists and contains #root styles",
+        "when": "Reading the content of src/index.css",
+        "then": "The #root style block does not contain 'text-align: center;'"
+      }
+    ],
+    "assignedAgents": [
+      "Frontend"
+    ],
+    "proposedCode": null,
+    "feedback": "",
+    "type": "Task",
+    "parentId": "REQ-4587",
+    "dependencies": []
+  },
+  {
+    "id": "REQ-2775",
+    "title": "Implement Full Viewport Width",
+    "description": "Apply CSS to the header element to ensure it occupies 100% of the browser viewport's width. This is commonly achieved by setting `width: 100%` or `width: 100vw`, and resetting `margin` and `padding` on `body` and `html` to prevent horizontal scrollbars or gaps.",
+    "priority": "Med",
+    "status": "Done",
+    "tests": [
+      {
+        "name": "test_html_body_reset_in_index_css",
+        "status": "Passing",
+        "title": "Verify html and body elements have margin, padding, and box-sizing reset.",
+        "id": "TST-2775",
+        "req": "REQ-2775",
+        "given": "The 'src/index.css' file exists",
+        "when": "Inspecting the content of 'src/index.css'",
+        "then": "The file contains `html, body { margin: 0; padding: 0; box-sizing: border-box; }`"
+      },
+      {
+        "name": "test_body_flex_properties_removed_in_index_css",
+        "status": "Passing",
+        "title": "Verify display: flex, place-items: center, and min-width are removed from body in index.css.",
+        "id": "TST-2776",
+        "req": "REQ-2775",
+        "given": "The 'src/index.css' file exists",
+        "when": "Inspecting the 'body' selector in 'src/index.css'",
+        "then": "The 'body' selector does not contain `display: flex`, `place-items: center`, or `min-width` declarations"
+      },
+      {
+        "name": "test_app_header_full_viewport_width_css",
+        "status": "Passing",
+        "title": "Verify .app-header has correct CSS for full viewport width.",
+        "id": "TST-2777",
+        "req": "REQ-2775",
+        "given": "The 'src/App.css' file exists",
+        "when": "Inspecting the '.app-header' selector in 'src/App.css'",
+        "then": "The '.app-header' selector contains `width: 100vw;`, `position: relative;`,"
+      }
+    ],
+    "assignedAgents": [
+      "Frontend"
+    ],
+    "proposedCode": null,
+    "feedback": "",
+    "type": "Task",
+    "parentId": "REQ-4587",
+    "dependencies": []
+  },
+  {
+    "id": "BUG-3963",
+    "title": "Title text is in line with header",
+    "description": "### Steps to Reproduce\n1. Go to Home page\n\n### Expected Behavior\ntitle text should be below the header\n\n### Actual Behavior\ntitle is inline with the header",
+    "priority": "High",
+    "status": "Review",
+    "tests": [
+      {
+        "name": "test_bug_3963_header_content_position_fix",
+        "status": "Passing",
+        "title": "Verify content is positioned below the fixed header by checking CSS cascade.",
+        "id": "TST-3963",
+        "req": "REQ-2620",
+        "given": "The application's CSS files are loaded.",
+        "when": "Inspecting 'src/index.css' for body padding rules and their order.",
+        "then": "The 'body { padding-top: 5rem; }' declaration is found"
+      }
+    ],
+    "assignedAgents": [
+      "Frontend"
+    ],
+    "proposedCode": null,
+    "feedback": "",
+    "type": "Bug",
+    "parentId": "REQ-2620",
+    "dependencies": []
+  }
+]
