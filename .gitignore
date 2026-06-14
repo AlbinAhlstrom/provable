@@ -1,0 +1,26 @@
+# Node
+node_modules/
+dist/
+
+# Python
+backend/venv/
+backend/__pycache__/
+backend/logs/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Workspace managed by agents (has its own .git)
+workspace/node_modules/
+workspace/.downloads/
+
+# Editor
+.DS_Store
+*.swp
+*.swo
+
+# Env
+.env
+.env.local
