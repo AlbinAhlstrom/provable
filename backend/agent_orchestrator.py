@@ -126,25 +126,35 @@ def run_pytest(workspace_base):
     return test_results
 
 def call_gemini(prompt):
-    """Call Gemini API with retry logic for rate limiting."""
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
-    data = {
-        "contents": [{"parts": [{"text": prompt}]}]
-    }
+    """Call Gemini API with fallback models and retry logic."""
+    models = ["gemini-2.5-flash-lite", "gemini-2.5-flash"]
+    last_error = None
     
-    for attempt in range(5):
-        try:
-            req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers={'Content-Type': 'application/json'})
-            with urllib.request.urlopen(req, timeout=60) as response:
-                result = json.loads(response.read().decode('utf-8'))
-                return result['candidates'][0]['content']['parts'][0]['text']
-        except urllib.error.HTTPError as e:
-            if e.code in (429, 503) and attempt < 4:
-                wait_time = (2 ** attempt) * 5  # 5, 10, 20, 40 seconds
-                print(f"    API returned {e.code}. Retrying in {wait_time}s (attempt {attempt + 1}/5)...")
-                time.sleep(wait_time)
-            else:
-                raise
+    for model in models:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={API_KEY}"
+        data = {
+            "contents": [{"parts": [{"text": prompt}]}]
+        }
+        for attempt in range(3):
+            try:
+                req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers={'Content-Type': 'application/json'})
+                with urllib.request.urlopen(req, timeout=60) as response:
+                    result = json.loads(response.read().decode('utf-8'))
+                    return result['candidates'][0]['content']['parts'][0]['text']
+            except urllib.error.HTTPError as e:
+                last_error = e
+                if e.code in (400, 403, 404):
+                    break
+                if e.code in (429, 503) and attempt < 2:
+                    wait_time = (2 ** attempt) * 3
+                    print(f"    API returned {e.code} for {model}. Retrying in {wait_time}s (attempt {attempt + 1}/3)...")
+                    time.sleep(wait_time)
+                else:
+                    break
+            except Exception as e:
+                last_error = e
+                break
+    raise last_error
 
 def read_workspace_files():
     """Read all source files in the workspace to give context to the LLM."""

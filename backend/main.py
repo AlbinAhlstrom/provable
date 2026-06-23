@@ -9,7 +9,7 @@ import dotenv
 dotenv.load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
 
 from fastapi.middleware.cors import CORSMiddleware
-from agent_orchestrator import run_openhands_loop, resolve_merge_conflict, run_requirement_audit
+from agent_orchestrator import run_openhands_loop, resolve_merge_conflict, run_requirement_audit, call_gemini
 
 app = FastAPI(title="ScrumSim Backend")
 
@@ -400,9 +400,6 @@ def create_requirement(payload: CreateRequirementPayload, background_tasks: Back
     
     new_items = [parent_req.dict()]
     
-    api_key = os.environ.get("LLM_API_KEY", "")
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
-    
     prompt = (
         f"Break down the following requirement into 1 to 3 distinct technical tasks. "
         f"Requirement Title: {payload.title}. Description: {payload.description}. "
@@ -412,22 +409,15 @@ def create_requirement(payload: CreateRequirementPayload, background_tasks: Back
         f"'id' (string, e.g. \"t1\"), 'title' (string), 'description' (string), and 'dependencies' (array of strings of temporary IDs, e.g. [\"t1\"])."
     )
     
-    data = {
-        "contents": [{"parts": [{"text": prompt}]}]
-    }
-    
     try:
-        req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers={'Content-Type': 'application/json'})
-        with urllib.request.urlopen(req, timeout=10) as response:
-            result = json.loads(response.read().decode('utf-8'))
-            text_response = result['candidates'][0]['content']['parts'][0]['text']
-            
-            # Clean up markdown JSON block if present
-            text_response = text_response.strip()
-            if text_response.startswith('```json'):
-                text_response = text_response[7:-3]
-            elif text_response.startswith('```'):
-                text_response = text_response[3:-3]
+        text_response = call_gemini(prompt)
+        
+        # Clean up markdown JSON block if present
+        text_response = text_response.strip()
+        if text_response.startswith('```json'):
+            text_response = text_response[7:-3]
+        elif text_response.startswith('```'):
+            text_response = text_response[3:-3]
                 
             tasks = json.loads(text_response)
             
