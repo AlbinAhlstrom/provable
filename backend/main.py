@@ -3,6 +3,11 @@ from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import json
 import os
+import dotenv
+
+# Load environment variables from root .env file if present
+dotenv.load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
+
 from fastapi.middleware.cors import CORSMiddleware
 from agent_orchestrator import run_openhands_loop, resolve_merge_conflict, run_requirement_audit
 

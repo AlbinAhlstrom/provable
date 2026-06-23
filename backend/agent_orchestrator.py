@@ -6,6 +6,10 @@ import urllib.error
 import re
 import time
 import ast
+import dotenv
+
+# Load environment variables from root .env file if present
+dotenv.load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
 
 REQUIREMENTS_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src', 'requirements.json'))
 WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
