@@ -1021,10 +1021,15 @@ const App: React.FC = () => {
     setSelectedReviewId(null);
     const updated = requirements.map(r => r.id === req.id ? { ...r, status: 'Backlog' as KanbanStatus, feedback } : r);
     setRequirements(updated);
-    await fetch('/api/requirements', { method: 'POST', body: JSON.stringify(updated) });
+    await fetch('/api/requirements', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated) 
+    });
     
     // Trigger agents again to process the feedback
     await fetch('/api/trigger-agents', { method: 'POST' });
+    await fetchReqs();
   };
 
   const renderCodeReview = () => {
