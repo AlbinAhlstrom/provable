@@ -1125,7 +1125,7 @@ const App: React.FC = () => {
     <div className="app-container">
       <header className="app-header-nav">
         <div className="nav-logo" onClick={() => setCurrentView('Kanban')}>
-          🚀 PM Studio
+          🚀 Provable
         </div>
         <div className="nav-links">
           {navItems.map(item => {
