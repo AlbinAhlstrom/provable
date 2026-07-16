@@ -24,3 +24,7 @@ workspace/.downloads/
 # Env
 .env
 .env.local
+
+# Database
+backend/provable.db
+

@@ -7,20 +7,127 @@ import re
 import time
 import ast
 import dotenv
+import socket
+import base64
+import yaml
+from openai import OpenAI
+import db.store as store
 
 # Load environment variables from root .env file if present
 dotenv.load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
 
-REQUIREMENTS_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src', 'requirements.json'))
 WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
-API_KEY = os.environ.get("LLM_API_KEY", "")
+
+AGENT_STATUS = {
+    "active": False,
+    "ticket_id": None,
+    "step": "Idle",
+    "attempt": 0,
+    "max_attempts": 3,
+    "last_update": ""
+}
+
+def update_agent_status(active=None, ticket_id=None, step=None, attempt=None, max_attempts=None):
+    global AGENT_STATUS
+    if active is not None:
+        AGENT_STATUS["active"] = active
+    if ticket_id is not None:
+        AGENT_STATUS["ticket_id"] = ticket_id
+    if step is not None:
+        AGENT_STATUS["step"] = step
+    if attempt is not None:
+        AGENT_STATUS["attempt"] = attempt
+    if max_attempts is not None:
+        AGENT_STATUS["max_attempts"] = max_attempts
+    AGENT_STATUS["last_update"] = time.strftime("%H:%M:%S")
+
+def is_port_active(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.connect(('127.0.0.1', port))
+            return True
+        except Exception:
+            return False
+
+def ensure_preview_server():
+    """Ensure that the Vite preview server is active on port 5174."""
+    PORT = 5174
+    if is_port_active(PORT):
+        print(f"🤖 Preview server already active on port {PORT}.")
+        return None, PORT
+        
+    print(f"🤖 Preview server not active. Starting Vite dev server in workspace...")
+    process = subprocess.Popen(
+        ["npm", "run", "dev"],
+        cwd=WORKSPACE_BASE,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        text=True
+    )
+    
+    for _ in range(30):
+        if is_port_active(PORT):
+            print(f"🤖 Preview server successfully started on port {PORT}.")
+            time.sleep(1)
+            return process, PORT
+        time.sleep(0.5)
+        
+    process.terminate()
+    raise RuntimeError(f"Failed to start preview server on port {PORT} within 15 seconds.")
+
+def capture_app_screenshots(port, screenshot_paths):
+    """Start headless Chrome, open the app, and take screenshots for multiple viewports."""
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    
+    chrome_options = Options()
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--remote-debugging-port=9222")
+    
+    if os.path.exists("/usr/bin/chromium-browser"):
+        chrome_options.binary_location = "/usr/bin/chromium-browser"
+        
+    driver = webdriver.Chrome(options=chrome_options)
+    try:
+        url = f"http://127.0.0.1:{port}"
+        print(f"🤖 Selenium navigating to {url} for screenshots...")
+        driver.get(url)
+        
+        wait = WebDriverWait(driver, 10)
+        wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+        
+        time.sleep(2)
+        
+        # 1. Desktop viewport (1280x800)
+        if "desktop" in screenshot_paths:
+            driver.set_window_size(1280, 800)
+            time.sleep(0.5)
+            driver.save_screenshot(screenshot_paths["desktop"])
+            print(f"🤖 Desktop screenshot saved to {screenshot_paths['desktop']}")
+            
+        # 2. Mobile viewport (375x812)
+        if "mobile" in screenshot_paths:
+            driver.set_window_size(375, 812)
+            time.sleep(0.5)
+            driver.save_screenshot(screenshot_paths["mobile"])
+            print(f"🤖 Mobile screenshot saved to {screenshot_paths['mobile']}")
+            
+    finally:
+        driver.quit()
+
+def capture_app_screenshot(port, output_path):
+    capture_app_screenshots(port, {"desktop": output_path})
 
 def parse_docstring_fields(docstring):
-    """Extract id, req, Given, When, Then from docstring."""
     fields = {}
     lines = [line.strip() for line in docstring.split('\n')]
     
-    # Title is the first non-empty line
     title = ""
     for line in lines:
         if line:
@@ -28,7 +135,6 @@ def parse_docstring_fields(docstring):
             break
     fields['title'] = title
     
-    # Parse key-value lines
     for line in lines:
         if line.lower().startswith('id:'):
             fields['id'] = line[3:].strip()
@@ -44,7 +150,6 @@ def parse_docstring_fields(docstring):
     return fields
 
 def parse_test_docstrings(filepath):
-    """Parse docstrings from a python file using AST."""
     docstrings = {}
     if not os.path.exists(filepath):
         return docstrings
@@ -61,15 +166,11 @@ def parse_test_docstrings(filepath):
     return docstrings
 
 def run_pytest(workspace_base):
-    """Run pytest in workspace and return parsed list of test results."""
-    # We use the python executable in the venv to run pytest
     venv_pytest = os.path.abspath(os.path.join(os.path.dirname(__file__), 'venv', 'bin', 'pytest'))
     if not os.path.exists(venv_pytest):
-        # Fallback to system pytest
         venv_pytest = 'pytest'
         
     try:
-        # Run pytest with verbose output
         result = subprocess.run(
             [venv_pytest, "-v"], 
             cwd=workspace_base, 
@@ -89,11 +190,9 @@ def run_pytest(workspace_base):
     lines = stdout.split('\n')
     for line in lines:
         if '::' in line and ('PASSED' in line or 'FAILED' in line or 'ERROR' in line):
-            # Extract test name and status
             match = re.search(r'([^:\s]+::[^\s]+)\s+(PASSED|FAILED|ERROR)', line)
             if match:
                 test_path_name = match.group(1)
-                # Just take the test function name for cleaner display
                 test_name = test_path_name.split('::')[-1]
                 raw_status = match.group(2)
                 status = 'Passing' if raw_status == 'PASSED' else 'Failing'
@@ -114,7 +213,6 @@ def run_pytest(workspace_base):
                 "status": "Failing"
             })
             
-    # Parse docstrings of tests/test_example.py to enrich results
     test_filepath = os.path.join(workspace_base, 'tests', 'test_example.py')
     docstrings = parse_test_docstrings(test_filepath)
     
@@ -125,39 +223,80 @@ def run_pytest(workspace_base):
             
     return test_results
 
-def call_gemini(prompt):
-    """Call Gemini API with fallback models and retry logic."""
-    models = ["gemini-2.5-flash-lite", "gemini-2.5-flash"]
+def load_models_config():
+    config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'config', 'models.yaml'))
+    if os.path.exists(config_path):
+        with open(config_path, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f)
+    return {}
+
+def load_prompt(template_name: str, variables: dict) -> str:
+    prompt_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'prompts'))
+    prompt_path = os.path.join(prompt_dir, template_name)
+    with open(prompt_path, 'r', encoding='utf-8') as f:
+        template = f.read()
+    return template.format(**variables)
+
+def call_gemini(prompt, image_path=None, image_paths=None, stage=None):
+    """Call LLM using OpenAI SDK based on models.yaml configuration, supporting optional visual inputs."""
+    config = load_models_config()
+    stage_config = config.get('stages', {}).get(stage) if stage else None
+    if not stage_config:
+        stage_config = config.get('default', {})
+        
+    model = stage_config.get('model', 'gemini-2.5-flash')
+    base_url = stage_config.get('base_url', 'https://generativelanguage.googleapis.com/v1beta/openai/')
+    api_key_env = stage_config.get('api_key_env', 'LLM_API_KEY')
+    api_key = os.environ.get(api_key_env, "")
+    
+    client = OpenAI(api_key=api_key, base_url=base_url)
+    
+    parts = [{"type": "text", "text": prompt}]
+    
+    paths_to_load = []
+    if image_path:
+        paths_to_load.append(image_path)
+    if image_paths:
+        if isinstance(image_paths, list):
+            paths_to_load.extend(image_paths)
+        elif isinstance(image_paths, dict):
+            paths_to_load.extend(image_paths.values())
+        else:
+            paths_to_load.append(image_paths)
+            
+    for path in paths_to_load:
+        try:
+            with open(path, 'rb') as f:
+                b64_data = base64.b64encode(f.read()).decode('utf-8')
+            parts.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/png;base64,{b64_data}"
+                }
+            })
+        except Exception as e:
+            print(f"Error loading image {path} for LLM: {e}")
+            
+    messages = [{"role": "user", "content": parts}]
     last_error = None
     
-    for model in models:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={API_KEY}"
-        data = {
-            "contents": [{"parts": [{"text": prompt}]}]
-        }
-        for attempt in range(3):
-            try:
-                req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers={'Content-Type': 'application/json'})
-                with urllib.request.urlopen(req, timeout=60) as response:
-                    result = json.loads(response.read().decode('utf-8'))
-                    return result['candidates'][0]['content']['parts'][0]['text']
-            except urllib.error.HTTPError as e:
-                last_error = e
-                if e.code in (400, 403, 404):
-                    break
-                if e.code in (429, 503) and attempt < 2:
-                    wait_time = (2 ** attempt) * 3
-                    print(f"    API returned {e.code} for {model}. Retrying in {wait_time}s (attempt {attempt + 1}/3)...")
-                    time.sleep(wait_time)
-                else:
-                    break
-            except Exception as e:
-                last_error = e
-                break
+    for attempt in range(3):
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                timeout=60
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            last_error = e
+            print(f"    LLM API attempt {attempt + 1}/3 failed with error: {e}")
+            wait_time = 15 * (attempt + 1)
+            time.sleep(wait_time)
+            
     raise last_error
 
 def read_workspace_files():
-    """Read all source files in the workspace to give context to the LLM."""
     context = []
     for root, dirs, files in os.walk(os.path.join(WORKSPACE_BASE, 'src')):
         dirs[:] = [d for d in dirs if d not in ['node_modules', '.git', 'assets']]
@@ -170,7 +309,6 @@ def read_workspace_files():
                 context.append(f"--- FILE: {rel_path} ---\n{content}\n")
             except Exception:
                 pass
-    # Also include index.html
     index_path = os.path.join(WORKSPACE_BASE, 'index.html')
     if os.path.exists(index_path):
         with open(index_path, 'r') as f:
@@ -178,13 +316,6 @@ def read_workspace_files():
     return "\n".join(context)
 
 def parse_file_blocks(response_text):
-    """Parse the LLM response to extract file path and content blocks.
-    
-    Expected format:
-    === FILE: src/App.tsx ===
-    <file content>
-    === END FILE ===
-    """
     files = {}
     lines = response_text.split('\n')
     current_file = None
@@ -192,7 +323,6 @@ def parse_file_blocks(response_text):
     
     for line in lines:
         if line.startswith('=== FILE:') and line.endswith('==='):
-            # Save previous file if any
             if current_file:
                 files[current_file] = '\n'.join(current_content)
             current_file = line.replace('=== FILE:', '').replace('===', '').strip()
@@ -203,564 +333,592 @@ def parse_file_blocks(response_text):
             current_content = []
         elif current_file is not None:
             current_content.append(line)
-    
-    # Handle last file if no END marker
+            
     if current_file and current_content:
         files[current_file] = '\n'.join(current_content)
-    
+        
     return files
 
-def run_openhands_loop():
-    print("🤖 Agent Orchestrator: Waking up...")
-    
-    if not os.path.exists(REQUIREMENTS_FILE):
-        return
-    
-    with open(REQUIREMENTS_FILE, 'r') as f:
-        reqs = json.load(f)
+def run_vision_validation(ticket_id, title, description, screenshot_paths, file_blocks):
+    code_context = ""
+    for path, content in file_blocks.items():
+        code_context += f"--- FILE: {path} ---\n{content}\n\n"
         
-    items_to_process = [r for r in reqs if r.get('status') == 'Backlog' and r.get('type') in ('Task', 'Bug')]
+    try:
+        prompt = load_prompt("visual_qa.md", {
+            "ticket_id": ticket_id,
+            "title": title,
+            "description": description,
+            "code_context": code_context
+        })
+        response_text = call_gemini(prompt, image_paths=screenshot_paths, stage="visual_qa")
+        
+        clean_text = response_text.strip()
+        if clean_text.startswith("```json"):
+            clean_text = clean_text[7:]
+        if clean_text.endswith("```"):
+            clean_text = clean_text[:-3]
+        clean_text = clean_text.strip()
+        
+        result = json.loads(clean_text)
+        return result
+    except Exception as e:
+        print(f"🤖 Vision Validation API call failed: {e}")
+        return {
+            "passed": False,
+            "reasoning_and_discrepancy": f"Vision validation failed to execute: {str(e)}",
+            "test_adequacy": "Unknown",
+            "correction_advice": "Retry the generation and ensure code compiles and runs."
+        }
+
+def log_validation_fault(ticket_id, attempt, requirement_desc, file_blocks, screenshot_path, vision_result):
+    audit_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logs', 'visual_validation_audit.json'))
     
-    # Filter items to only process those with all dependencies in 'Done' status
-    status_map = {r['id']: r.get('status', 'Backlog') for r in reqs}
-    ready_items = []
-    for item in items_to_process:
-        # Check standard dependencies
-        deps = item.get('dependencies', [])
-        incomplete_deps = [dep for dep in deps if status_map.get(dep) != 'Done']
-        if incomplete_deps:
-            print(f"🤖 Agent Orchestrator: Skipping {item['id']} because of incomplete dependencies: {incomplete_deps}")
-            continue
+    audit_logs = []
+    if os.path.exists(audit_file):
+        try:
+            with open(audit_file, 'r') as f:
+                audit_logs = json.load(f)
+        except Exception:
+            pass
             
-        # Check bug parent requirements tasks constraints
-        if item.get('type') == 'Bug':
-            parent_id = item.get('parentId')
-            if parent_id:
-                sibling_tasks = [r for r in reqs if r.get('parentId') == parent_id and r.get('type') == 'Task']
-                incomplete_siblings = [r['id'] for r in sibling_tasks if r.get('status') != 'Done']
-                if incomplete_siblings:
-                    print(f"🤖 Agent Orchestrator: Skipping Bug {item['id']} because parent requirement tasks {incomplete_siblings} are not Done.")
+    code_context = {path: content for path, content in file_blocks.items()}
+    
+    new_entry = {
+        "ticket_id": ticket_id,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "attempt": attempt,
+        "requirement": requirement_desc,
+        "code_changes": code_context,
+        "screenshot_path": screenshot_path,
+        "vision_analysis": vision_result
+    }
+    
+    audit_logs.append(new_entry)
+    
+    try:
+        os.makedirs(os.path.dirname(audit_file), exist_ok=True)
+        with open(audit_file, 'w') as f:
+            json.dump(audit_logs, f, indent=2)
+        print(f"🤖 Logged validation fault to central audit: {audit_file}")
+    except Exception as e:
+        print(f"🤖 Failed to write audit log: {e}")
+
+def sync_test_results(test_results):
+    grouped = {}
+    for t in test_results:
+        req_id = t.get('req')
+        if req_id:
+            grouped.setdefault(req_id, []).append(t)
+    for req_id, tests in grouped.items():
+        store._upsert_test_results(req_id, tests)
+
+def run_openhands_loop(target_ticket_id: str = None):
+    print("🤖 Agent Orchestrator: Waking up...")
+    update_agent_status(active=True, step="Scanning Backlog", ticket_id=None, attempt=0)
+    
+    try:
+        reqs = store.get_requirements_for_frontend()
+            
+        if target_ticket_id:
+            ready_items = [r for r in reqs if r.get('id') == target_ticket_id]
+            if not ready_items:
+                print(f"🤖 Agent Orchestrator: Target ticket {target_ticket_id} not found in backlog or requirements.")
+                return
+        else:
+            items_to_process = [r for r in reqs if r.get('status') == 'Backlog' and r.get('type') in ('Task', 'Bug')]
+            status_map = {r['id']: r.get('status', 'Backlog') for r in reqs}
+            ready_items = []
+            for item in items_to_process:
+                deps = item.get('dependencies', [])
+                incomplete_deps = [dep for dep in deps if status_map.get(dep) != 'Done']
+                if incomplete_deps:
+                    print(f"🤖 Agent Orchestrator: Skipping {item['id']} because of incomplete dependencies: {incomplete_deps}")
                     continue
                     
-        ready_items.append(item)
+                if item.get('type') == 'Bug':
+                    parent_id = item.get('parentId')
+                    if parent_id:
+                        sibling_tasks = [r for r in reqs if r.get('parentId') == parent_id and r.get('type') == 'Task']
+                        incomplete_siblings = [r['id'] for r in sibling_tasks if r.get('status') != 'Done']
+                        if incomplete_siblings:
+                            print(f"🤖 Agent Orchestrator: Skipping Bug {item['id']} because parent requirement tasks {incomplete_siblings} are not Done.")
+                            continue
+                            
+                ready_items.append(item)
+        
+        if not ready_items:
+            print("🤖 Agent Orchestrator: No ready backlog tasks to process.")
+            return
+            
+        for item in ready_items:
+            ticket_id = item['id']
+            print(f"  -> Processing {ticket_id}: {item['title']}")
+            update_agent_status(active=True, ticket_id=ticket_id, step="Preparing branch", attempt=0)
+            
+            item['status'] = 'InProgress'
+            store.update_requirement(ticket_id, {'status': 'InProgress'})
+            
+            branch_name = f"ticket/{ticket_id}"
+            branch_exists_res = subprocess.run(
+                ["git", "show-ref", f"refs/heads/{branch_name}"],
+                cwd=WORKSPACE_BASE, capture_output=True
+            )
+            if branch_exists_res.returncode == 0:
+                subprocess.run(["git", "checkout", branch_name], cwd=WORKSPACE_BASE, capture_output=True)
+            else:
+                subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
+                subprocess.run(["git", "branch", "-D", branch_name], cwd=WORKSPACE_BASE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.run(["git", "checkout", "-b", branch_name], cwd=WORKSPACE_BASE, capture_output=True)
+            
+            workspace_context = read_workspace_files()
+            parent_id = item.get('parentId', 'N/A')
+            is_bug = item.get('type') == 'Bug'
+            
+            bug_context = ""
+            bug_test_instruction = ""
+            if is_bug:
+                parent_req = next((r for r in reqs if r['id'] == parent_id), None)
+                parent_desc = parent_req.get('description', '') if parent_req else 'N/A'
+                bug_context = (
+                    f"\nThis is a BUG report. Your task is to fix this bug.\n"
+                    f"The parent requirement defines the expected behavior of this feature:\n"
+                    f"{parent_desc}\n"
+                )
+                bug_test_instruction = (
+                    "\nSince this is a BUG, you MUST write a test case in `tests/test_example.py` "
+                    "that specifically asserts the correct behavior to reproduce/verify the bug fix.\n"
+                )
+                
+            task_desc = f"Ticket ID: {ticket_id}\nParent Requirement ID: {parent_id}\nTitle: {item.get('title')}\nDescription: {item.get('description')}\n"
+            if is_bug:
+                task_desc += bug_context
+                
+            feedback_note = ""
+            if item.get('feedback'):
+                feedback_note = f"\nCRITICAL FEEDBACK FROM PM on previous attempt: {item['feedback']}\n"
+                
+            try:
+                log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logs'))
+                os.makedirs(log_dir, exist_ok=True)
+                log_file_path = os.path.join(log_dir, f"{ticket_id}.log")
+                
+                with open(log_file_path, 'w') as log_file:
+                    log_file.write(f"🤖 Agent starting work on: {item['title']}\n")
+                    
+                max_attempts = 3
+                success = False
+                qa_feedback = ""
+                
+                started_server_proc, active_port = ensure_preview_server()
+                
+                for attempt in range(1, max_attempts + 1):
+                    with open(log_file_path, 'a') as log_file:
+                        log_file.write(f"\n=========================================\n")
+                        log_file.write(f"🔄 ATTEMPT {attempt}/{max_attempts}\n")
+                        log_file.write(f"=========================================\n")
+                    
+                    update_agent_status(active=True, ticket_id=ticket_id, step="Generating code changes", attempt=attempt, max_attempts=max_attempts)
+                    
+                    current_workspace_context = read_workspace_files()
+                    
+                    feedback_note_attempt = feedback_note
+                    if attempt > 1 and qa_feedback:
+                        feedback_note_attempt = feedback_note + f"\n\n{qa_feedback}\n"
+                    
+                    attempt_prompt = load_prompt("code_generation.md", {
+                        "current_workspace_context": current_workspace_context,
+                        "task_desc": task_desc,
+                        "feedback_note_attempt": feedback_note_attempt,
+                        "bug_test_instruction": bug_test_instruction,
+                        "parent_id": parent_id
+                    })
+                    
+                    with open(log_file_path, 'a') as log_file:
+                        log_file.write(f"Calling Gemini API...\n")
+                    
+                    response_text = call_gemini(attempt_prompt, stage="code_generation")
+                    
+                    update_agent_status(active=True, ticket_id=ticket_id, step="Writing code changes", attempt=attempt)
+                    
+                    with open(log_file_path, 'a') as log_file:
+                        log_file.write(f"Gemini responded. Parsing file blocks...\n")
+                        log_file.write(f"--- RAW RESPONSE ---\n{response_text}\n--- END RAW ---\n")
+                    
+                    file_blocks = parse_file_blocks(response_text)
+                    
+                    if not file_blocks:
+                        with open(log_file_path, 'a') as log_file:
+                            log_file.write("WARNING: No file blocks parsed from response.\n")
+                    
+                    for file_path, content in file_blocks.items():
+                        full_path = os.path.join(WORKSPACE_BASE, file_path)
+                        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+                        with open(full_path, 'w') as f:
+                            f.write(content)
+                        with open(log_file_path, 'a') as log_file:
+                            log_file.write(f"✅ Wrote file: {file_path}\n")
+                    
+                    with open(log_file_path, 'a') as log_file:
+                        log_file.write("Running pytest suite...\n")
+                    
+                    update_agent_status(active=True, ticket_id=ticket_id, step="Running automated tests", attempt=attempt)
+                    
+                    test_results = run_pytest(WORKSPACE_BASE)
+                    item['tests'] = test_results
+                    sync_test_results(test_results)
+                    
+                    with open(log_file_path, 'a') as log_file:
+                        log_file.write(f"Test execution complete. Results: {json.dumps(test_results)}\n")
+                    
+                    all_passing = all(t.get('status') == 'Passing' for t in test_results)
+                    if not all_passing:
+                        failed_tests = [t.get('name') for t in test_results if t.get('status') == 'Failing']
+                        with open(log_file_path, 'a') as log_file:
+                            log_file.write(f"❌ Pytest failed. Failed tests: {failed_tests}\n")
+                        
+                        qa_feedback = f"""AUTOMATED QA FEEDBACK (Attempt {attempt} failed):
+    Your code changes failed automated pytest verification.
+    Failed tests: {', '.join(failed_tests)}
+    Please review the test failures and correct the implementation and/or test assertions."""
+                        continue
+                    
+                    screenshot_paths = {
+                        "desktop": os.path.join(log_dir, f"screenshot_{ticket_id}_attempt_{attempt}_desktop.png"),
+                        "mobile": os.path.join(log_dir, f"screenshot_{ticket_id}_attempt_{attempt}_mobile.png")
+                    }
+                    
+                    try:
+                        with open(log_file_path, 'a') as log_file:
+                            log_file.write("Capturing app screenshots (desktop and mobile) using Selenium...\n")
+                        update_agent_status(active=True, ticket_id=ticket_id, step="Capturing preview screenshots", attempt=attempt)
+                        capture_app_screenshots(active_port, screenshot_paths)
+                    except Exception as screenshot_err:
+                        with open(log_file_path, 'a') as log_file:
+                            log_file.write(f"❌ Failed to capture screenshots: {screenshot_err}\n")
+                        qa_feedback = f"AUTOMATED QA FEEDBACK (Attempt {attempt} failed):\nFailed to capture screenshots of preview app: {str(screenshot_err)}"
+                        continue
+                    
+                    with open(log_file_path, 'a') as log_file:
+                        log_file.write("Calling Gemini Vision API to validate layout and responsiveness...\n")
+                    
+                    update_agent_status(active=True, ticket_id=ticket_id, step="Running visual validation", attempt=attempt)
+                    
+                    vision_result = run_vision_validation(
+                        ticket_id,
+                        item.get('title'),
+                        item.get('description'),
+                        screenshot_paths,
+                        file_blocks
+                    )
+                    
+                    with open(log_file_path, 'a') as log_file:
+                        log_file.write(f"Vision validation response: {json.dumps(vision_result)}\n")
+                    
+                    if vision_result.get('passed') is True:
+                        with open(log_file_path, 'a') as log_file:
+                            log_file.write("✅ Visual validation passed successfully!\n")
+                        success = True
+                        break
+                    else:
+                        with open(log_file_path, 'a') as log_file:
+                            log_file.write(f"❌ Visual validation failed: {vision_result.get('reasoning_and_discrepancy')}\n")
+                        
+                        log_validation_fault(
+                            ticket_id,
+                            attempt,
+                            item.get('description'),
+                            file_blocks,
+                            screenshot_paths,
+                            vision_result
+                        )
+                        
+                        qa_feedback = f"""AUTOMATED QA FEEDBACK (Attempt {attempt} failed):
+    Your code changes did not pass the visual verification gate.
+    Visual Discrepancies: {vision_result.get('reasoning_and_discrepancy')}
+    Test Adequacy: {vision_result.get('test_adequacy')}
+    Correction Advice: {vision_result.get('correction_advice')}
+    Please revise your code, styles, and test assertions to address these issues."""
+                        continue
+                
+                if started_server_proc:
+                    started_server_proc.terminate()
+                    
+                if success:
+                    update_agent_status(active=True, ticket_id=ticket_id, step="Committing changes", attempt=attempt)
+                    subprocess.run(["git", "add", "-A"], cwd=WORKSPACE_BASE, capture_output=True)
+                    commit_msg = f"feat({ticket_id}): {item['title']}"
+                    subprocess.run(["git", "commit", "-m", commit_msg], cwd=WORKSPACE_BASE, capture_output=True)
+                    
+                    item['status'] = 'Review'
+                    item['feedback'] = ""
+                    
+                    with open(log_file_path, 'a') as log_file:
+                        log_file.write(f"✅ Committed changes: {commit_msg}\n")
+                        log_file.write(f"🎉 Agent completed successfully!\n")
+                    print(f"  ✅ Agent completed {ticket_id} successfully.")
+                else:
+                    subprocess.run(["git", "checkout", "--", "."], cwd=WORKSPACE_BASE, capture_output=True)
+                    subprocess.run(["git", "clean", "-fd"], cwd=WORKSPACE_BASE, capture_output=True)
+                    
+                    item['status'] = 'Backlog'
+                    item['feedback'] = f"QA Validation failed after 3 attempts. Final QA Feedback:\n{qa_feedback}"
+                    
+                    with open(log_file_path, 'a') as log_file:
+                        log_file.write(f"❌ Visual validation failed after 3 attempts. Reverting code and returning to Backlog.\n")
+                    print(f"  ❌ Agent failed QA validation for {ticket_id}.")
+                    
+            except Exception as e:
+                if started_server_proc:
+                    started_server_proc.terminate()
+                print(f"  ❌ Agent failed for {ticket_id}: {e}")
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write(f"\n❌ Agent failed: {e}\n")
+                item['status'] = 'Backlog'
+                item['feedback'] = f"Agent failed: {str(e)}"
+                subprocess.run(["git", "checkout", "--", "."], cwd=WORKSPACE_BASE, capture_output=True)
+                subprocess.run(["git", "clean", "-fd"], cwd=WORKSPACE_BASE, capture_output=True)
+                
+            subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
+            
+            store.update_requirement_status(ticket_id, item['status'], feedback=item.get('feedback'), tests=item.get('tests'))
+                
+        print("🤖 Agent Orchestrator: Finished processing all tasks.")
+    finally:
+        update_agent_status(active=False, step="Idle", ticket_id=None, attempt=0)
+
+def resolve_merge_conflict(ticket_id):
+    print(f"🤖 Merge Agent: Starting conflict resolution for {ticket_id}")
+    update_agent_status(active=True, ticket_id=ticket_id, step="Conflict Resolution", attempt=1, max_attempts=1)
     
-    if not ready_items:
-        print("🤖 Agent Orchestrator: No ready backlog tasks to process.")
-        return
-        
-    for item in ready_items:
-        ticket_id = item['id']
-        print(f"  -> Processing {ticket_id}: {item['title']}")
-        
-        # 1. Prepare Git Branch
-        branch_name = f"ticket/{ticket_id}"
-        subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
-        subprocess.run(["git", "branch", "-D", branch_name], cwd=WORKSPACE_BASE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        subprocess.run(["git", "checkout", "-b", branch_name], cwd=WORKSPACE_BASE, capture_output=True)
-        
-        # 2. Read current workspace context
-        workspace_context = read_workspace_files()
-        
-        # 3. Build prompt for Gemini
-        parent_id = item.get('parentId', 'N/A')
-        is_bug = item.get('type') == 'Bug'
-        
-        bug_context = ""
-        bug_test_instruction = ""
-        if is_bug:
-            # Find the parent requirement description
-            parent_req = next((r for r in reqs if r['id'] == parent_id), None)
-            parent_desc = parent_req.get('description', '') if parent_req else 'N/A'
-            bug_context = (
-                f"\nThis is a BUG report. Your task is to fix this bug.\n"
-                f"The parent requirement defines the expected behavior of this feature:\n"
-                f"{parent_desc}\n"
-            )
-            bug_test_instruction = (
-                "\nSince this is a BUG, you MUST write a test case in `tests/test_example.py` "
-                "that specifically asserts the correct behavior to reproduce/verify the bug fix.\n"
-            )
-            
-        task_desc = f"Ticket ID: {ticket_id}\nParent Requirement ID: {parent_id}\nTitle: {item.get('title')}\nDescription: {item.get('description')}\n"
-        if is_bug:
-            task_desc += bug_context
-            
-        feedback_note = ""
-        if item.get('feedback'):
-            feedback_note = f"\nCRITICAL FEEDBACK FROM PM on previous attempt: {item['feedback']}\n"
-            
-        full_prompt = f"""You are a developer working on a React (Vite + TypeScript) application.
-
-Here are the current source files in the project:
-{workspace_context}
-
-Please implement the following ticket:
-{task_desc}
-{feedback_note}
-
-You MUST implement the requested changes in the codebase AND write a corresponding automated pytest test file under `tests/test_example.py` to verify the functionality.{bug_test_instruction}
-The pytest tests should run in a Python environment and verify that the correct files have been modified or contain the expected code/behavior. For example, checking if specific strings, React elements, or features are present in the files (e.g., in `src/App.tsx` or other modified files).
-
-CRITICAL REQUIREMENT FOR TEST CASES:
-Each test case function in `tests/test_example.py` MUST contain a docstring formatted EXACTLY like this:
-\"\"\"<Short title of the test>
-
-<Detailed description of the test>
-
-id: TST-<unique 4-digit number>
-req: {parent_id}
-Given: <Preconditions for the test>
-When: <Action or triggers taken in the test>
-Then: <Expected outcomes or assertions>
-\"\"\"
-
-Example:
-\"\"\"Test home page title.
-
-Verify that the app homepage renders the correct welcome message.
-
-id: TST-1001
-req: {parent_id}
-Given: The App component is rendered
-When: Reading the content of src/App.tsx
-Then: The title text 'Hello, World!' is present
-\"\"\"
-
-Modify the necessary files to implement the requested changes. Only output files that need to be changed or created.
-
-IMPORTANT: Respond ONLY with file blocks in this exact format (no markdown fences):
-=== FILE: src/App.tsx ===
-<full file content here>
-=== END FILE ===
-=== FILE: tests/test_example.py ===
-<full pytest test content here>
-=== END FILE ===
-
-You may output multiple file blocks. Each block must contain the COMPLETE file content (not a diff). Do NOT include any other text outside the file blocks."""
-        
-        # Update state to InProgress
-        item['status'] = 'InProgress'
-        with open(REQUIREMENTS_FILE, 'w') as f:
-            json.dump(reqs, f, indent=2)
-        
+    try:
         log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logs'))
         os.makedirs(log_dir, exist_ok=True)
         log_file_path = os.path.join(log_dir, f"{ticket_id}.log")
         
+        with open(log_file_path, 'a') as log_file:
+            log_file.write(f"\n⚡ --- AUTOMATED MERGE AGENT ACTIVATED ---\n")
+            log_file.write(f"Merge conflict detected during merge of ticket/{ticket_id}.\n")
+            log_file.write(f"Identifying conflicted files...\n")
+            
         try:
-            with open(log_file_path, 'w') as log_file:
-                log_file.write(f"🤖 Agent starting work on: {item['title']}\n")
-                log_file.write(f"Calling Gemini API...\n")
-            
-            # 4. Call Gemini API
-            response_text = call_gemini(full_prompt)
-            
-            with open(log_file_path, 'a') as log_file:
-                log_file.write(f"Gemini responded. Parsing file blocks...\n")
-                log_file.write(f"--- RAW RESPONSE ---\n{response_text}\n--- END RAW ---\n")
-            
-            # 5. Parse response and write files
-            file_blocks = parse_file_blocks(response_text)
-            
-            if not file_blocks:
-                with open(log_file_path, 'a') as log_file:
-                    log_file.write("WARNING: No file blocks parsed from response.\n")
-            
-            for file_path, content in file_blocks.items():
-                full_path = os.path.join(WORKSPACE_BASE, file_path)
-                os.makedirs(os.path.dirname(full_path), exist_ok=True)
-                with open(full_path, 'w') as f:
-                    f.write(content)
-                with open(log_file_path, 'a') as log_file:
-                    log_file.write(f"✅ Wrote file: {file_path}\n")
-            
-            # Run pytest and parse the results
-            with open(log_file_path, 'a') as log_file:
-                log_file.write("Running pytest suite...\n")
-            
-            test_results = run_pytest(WORKSPACE_BASE)
-            item['tests'] = test_results
-            
-            with open(log_file_path, 'a') as log_file:
-                log_file.write(f"Test execution complete. Results: {json.dumps(test_results)}\n")
-            
-            # 6. Git add and commit
-            subprocess.run(["git", "add", "-A"], cwd=WORKSPACE_BASE, capture_output=True)
-            commit_msg = f"feat({ticket_id}): {item['title']}"
-            subprocess.run(["git", "commit", "-m", commit_msg], cwd=WORKSPACE_BASE, capture_output=True)
-            
-            # Update state on success
-            item['status'] = 'Review'
-            item['feedback'] = ""
-
-            with open(log_file_path, 'a') as log_file:
-                log_file.write(f"✅ Committed changes: {commit_msg}\n")
-                log_file.write(f"🎉 Agent completed successfully!\n")
-            
-            print(f"  ✅ Agent completed {ticket_id} successfully.")
-            
-        except Exception as e:
-            print(f"  ❌ Agent failed for {ticket_id}: {e}")
-            with open(log_file_path, 'a') as log_file:
-                log_file.write(f"\n❌ Agent failed: {e}\n")
-            # Update state on failure
-            item['status'] = 'Backlog'
-            item['feedback'] = f"Agent failed: {str(e)}"
-            
-        # 7. Return to main branch so PM can review diff
-        subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
-        
-        with open(REQUIREMENTS_FILE, 'w') as f:
-            json.dump(reqs, f, indent=2)
-            
-    print("🤖 Agent Orchestrator: Finished processing all tasks.")
-
-
-def resolve_merge_conflict(ticket_id):
-    print(f"🤖 Merge Agent: Starting conflict resolution for {ticket_id}")
-    log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logs'))
-    os.makedirs(log_dir, exist_ok=True)
-    log_file_path = os.path.join(log_dir, f"{ticket_id}.log")
-    
-    with open(log_file_path, 'a') as log_file:
-        log_file.write(f"\n⚡ --- AUTOMATED MERGE AGENT ACTIVATED ---\n")
-        log_file.write(f"Merge conflict detected during merge of ticket/{ticket_id}.\n")
-        log_file.write(f"Identifying conflicted files...\n")
-        
-    try:
-        # 1. Get conflicted files
-        result = subprocess.run(
-            ["git", "diff", "--name-only", "--diff-filter=U"], 
-            cwd=WORKSPACE_BASE, capture_output=True, text=True, check=True
-        )
-        conflicted_files = [f.strip() for f in result.stdout.splitlines() if f.strip()]
-        
-        with open(log_file_path, 'a') as log_file:
-            log_file.write(f"Conflicted files found: {conflicted_files}\n")
-            
-        for fname in conflicted_files:
-            file_path = os.path.join(WORKSPACE_BASE, fname)
-            if not os.path.exists(file_path):
-                continue
-                
-            with open(log_file_path, 'a') as log_file:
-                log_file.write(f"Reading content of {fname}...\n")
-                
-            with open(file_path, 'r') as f:
-                content = f.read()
-                
-            with open(log_file_path, 'a') as log_file:
-                log_file.write(f"Calling Gemini to resolve conflicts in {fname}...\n")
-                
-            prompt = f"""You are a senior software engineer resolving a git merge conflict in the file '{fname}'.
-     
-Here is the content of the file containing merge conflict markers:
-{content}
-
-Please resolve all the conflict markers ('<<<<<<< HEAD', '=======', '>>>>>>>') in this file and combine the changes from both sides logically and cleanly.
-
-CRITICAL REQUIREMENTS:
-1. Do NOT include any git conflict markers ('<<<<<<< HEAD', '=======', '>>>>>>>') in your output.
-2. If you are resolving conflicts in CSS files (especially 'src/index.css'), you MUST ensure that the 'body {{ ... }}' style block is placed BEFORE the 'html, body {{ ... }}' style block (or similar) to prevent regex/index matching errors in the test suite.
-3. Output the COMPLETE resolved file contents and absolutely NOTHING else. No markdown block formatting, no explanation, just the plain text of the resolved file.
-4. Keep modifications minimal and preserve the exact styling rules and declarations of unaffected lines. Do not merge body block properties (like font-size) into the global html, body block.
-"""
-            resolved_content = call_gemini(prompt).strip()
-            
-            # Strip markdown code blocks if the model returned them
-            if resolved_content.startswith("```"):
-                lines = resolved_content.splitlines()
-                if lines[0].startswith("```"):
-                    lines = lines[1:]
-                if lines and lines[-1].startswith("```"):
-                    lines = lines[:-1]
-                resolved_content = "\n".join(lines)
-                
-            with open(file_path, 'w') as f:
-                f.write(resolved_content)
-                
-            with open(log_file_path, 'a') as log_file:
-                log_file.write(f"✅ Resolved and saved: {fname}\n")
-                
-            # Stage the resolved file
-            subprocess.run(["git", "add", fname], cwd=WORKSPACE_BASE, check=True)
-            
-        # 2. Run pytest to verify the fix
-        with open(log_file_path, 'a') as log_file:
-            log_file.write("Running pytest suite to verify resolution...\n")
-            
-        test_results = run_pytest(WORKSPACE_BASE)
-        all_passing = all(t.get('status') == 'Passing' for t in test_results)
-        
-        with open(log_file_path, 'a') as log_file:
-            log_file.write(f"Pytest results: {json.dumps(test_results)}\n")
-            
-        if all_passing:
-            with open(log_file_path, 'a') as log_file:
-                log_file.write("All tests passed! Finalizing git merge...\n")
-                
-            # Commit the merge
-            subprocess.run(
-                ["git", "commit", "-m", f"Merge branch 'ticket/{ticket_id}' (auto-resolved)"], 
-                cwd=WORKSPACE_BASE, check=True
+            result = subprocess.run(
+                ["git", "diff", "--name-only", "--diff-filter=U"], 
+                cwd=WORKSPACE_BASE, capture_output=True, text=True, check=True
             )
-            # Delete branch
-            subprocess.run(["git", "branch", "-d", f"ticket/{ticket_id}"], cwd=WORKSPACE_BASE)
+            conflicted_files = [f.strip() for f in result.stdout.splitlines() if f.strip()]
             
-            # Update status in requirements.json to Done
-            if os.path.exists(REQUIREMENTS_FILE):
-                with open(REQUIREMENTS_FILE, 'r') as f:
-                    reqs = json.load(f)
-                for r in reqs:
-                    if r['id'] == ticket_id:
-                        r['status'] = 'Done'
-                        r['tests'] = test_results
-                        r['feedback'] = ""
-                        break
-                with open(REQUIREMENTS_FILE, 'w') as f:
-                    json.dump(reqs, f, indent=2)
-                    
             with open(log_file_path, 'a') as log_file:
-                log_file.write("🎉 Conflict resolved successfully and merged!\n")
-        else:
-            # Tests failed, abort the merge
-            with open(log_file_path, 'a') as log_file:
-                log_file.write("❌ Tests failed after merge resolution. Aborting merge...\n")
+                log_file.write(f"Conflicted files found: {conflicted_files}\n")
                 
-            subprocess.run(["git", "merge", "--abort"], cwd=WORKSPACE_BASE)
-            subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE)
-            
-            # Construct feedback message containing the failed tests
-            failed_test_names = [t.get('name') for t in test_results if t.get('status') != 'Passing']
-            feedback = f"Automated merge failed: tests {failed_test_names} failed after conflict resolution."
-            
-            # Revert status to Review and save tests/feedback
-            if os.path.exists(REQUIREMENTS_FILE):
-                with open(REQUIREMENTS_FILE, 'r') as f:
-                    reqs = json.load(f)
-                for r in reqs:
-                    if r['id'] == ticket_id:
-                        r['status'] = 'Review'
-                        r['tests'] = test_results
-                        r['feedback'] = feedback
-                        break
-                with open(REQUIREMENTS_FILE, 'w') as f:
-                    json.dump(reqs, f, indent=2)
+            for fname in conflicted_files:
+                file_path = os.path.join(WORKSPACE_BASE, fname)
+                if not os.path.exists(file_path):
+                    continue
                     
-    except Exception as e:
-        print(f"❌ Error in merge resolution agent: {e}")
-        with open(log_file_path, 'a') as log_file:
-            log_file.write(f"❌ Exception in merge agent: {str(e)}. Aborting merge...\n")
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write(f"Reading content of {fname}...\n")
+                    
+                with open(file_path, 'r') as f:
+                    content = f.read()
+                    
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write(f"Calling Gemini to resolve conflicts in {fname}...\n")
+                    
+                prompt = load_prompt("merge_resolution.md", {
+                    "fname": fname,
+                    "content": content
+                })
+                resolved_content = call_gemini(prompt, stage="merge_resolution").strip()
+                
+                if resolved_content.startswith("```"):
+                    lines = resolved_content.splitlines()
+                    if lines[0].startswith("```"):
+                        lines = lines[1:]
+                    if lines and lines[-1].startswith("```"):
+                        lines = lines[:-1]
+                    resolved_content = "\n".join(lines)
+                    
+                with open(file_path, 'w') as f:
+                    f.write(resolved_content)
+                    
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write(f"✅ Resolved and saved: {fname}\n")
+                    
+                subprocess.run(["git", "add", fname], cwd=WORKSPACE_BASE, check=True)
+                
+            with open(log_file_path, 'a') as log_file:
+                log_file.write("Running pytest suite to verify resolution...\n")
+                
+            test_results = run_pytest(WORKSPACE_BASE)
+            all_passing = all(t.get('status') == 'Passing' for t in test_results)
+            sync_test_results(test_results)
             
-        try:
-            subprocess.run(["git", "merge", "--abort"], cwd=WORKSPACE_BASE)
-            subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE)
-        except Exception:
-            pass
-            
-        if os.path.exists(REQUIREMENTS_FILE):
-            with open(REQUIREMENTS_FILE, 'r') as f:
-                reqs = json.load(f)
-            for r in reqs:
-                if r['id'] == ticket_id:
-                    r['status'] = 'Review'
-                    r['feedback'] = f"Automated merge failed with error: {str(e)}"
-                    break
-            with open(REQUIREMENTS_FILE, 'w') as f:
-                json.dump(reqs, f, indent=2)
-    except Exception as e:
-        print(f"❌ Error in merge resolution agent: {e}")
-        with open(log_file_path, 'a') as log_file:
-            log_file.write(f"❌ Exception in merge agent: {str(e)}. Aborting merge...\n")
+            with open(log_file_path, 'a') as log_file:
+                log_file.write(f"Pytest results: {json.dumps(test_results)}\n")
+                
+            if all_passing:
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write("All tests passed! Finalizing git merge...\n")
+                    
+                subprocess.run(
+                    ["git", "commit", "-m", f"Merge branch 'ticket/{ticket_id}' (auto-resolved)"], 
+                    cwd=WORKSPACE_BASE, check=True
+                )
+                subprocess.run(["git", "branch", "-d", f"ticket/{ticket_id}"], cwd=WORKSPACE_BASE)
+                
+                store.update_requirement_status(ticket_id, 'Done', feedback="", tests=test_results)
+                        
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write("🎉 Conflict resolved successfully and merged!\n")
+            else:
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write("❌ Tests failed after merge resolution. Aborting merge...\n")
+                    
+                subprocess.run(["git", "merge", "--abort"], cwd=WORKSPACE_BASE)
+                subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE)
+                
+                failed_test_names = [t.get('name') for t in test_results if t.get('status') != 'Passing']
+                feedback = f"Automated merge failed: tests {failed_test_names} failed after conflict resolution."
+                
+                store.update_requirement_status(ticket_id, 'Review', feedback=feedback, tests=test_results)
+                        
+        except Exception as e:
+            print(f"❌ Error in merge resolution agent: {e}")
+            with open(log_file_path, 'a') as log_file:
+                log_file.write(f"❌ Exception in merge agent: {str(e)}. Aborting merge...\n")
+                
+            try:
+                subprocess.run(["git", "merge", "--abort"], cwd=WORKSPACE_BASE)
+                subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE)
+            except Exception:
+                pass
+                
+            store.update_requirement_status(ticket_id, 'Review', feedback=f"Automated merge failed with error: {str(e)}")
+    finally:
+        update_agent_status(active=False, step="Idle", ticket_id=None, attempt=0)
 
 def run_requirement_audit(req_id: str):
     print(f"🤖 Audit Agent: Auditing requirement {req_id}...")
-    log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logs'))
-    os.makedirs(log_dir, exist_ok=True)
-    log_file_path = os.path.join(log_dir, f"audit_{req_id}.log")
+    update_agent_status(active=True, ticket_id=req_id, step="Auditing Requirement", attempt=1, max_attempts=1)
     
-    with open(log_file_path, 'w') as log_file:
-        log_file.write(f"🤖 Audit Agent starting work on requirement: {req_id}\n")
-        
     try:
-        # 1. Load requirements.json
-        if not os.path.exists(REQUIREMENTS_FILE):
-            print(f"❌ Audit Agent failed: {REQUIREMENTS_FILE} not found.")
-            return
-            
-        with open(REQUIREMENTS_FILE, 'r') as f:
-            reqs = json.load(f)
-            
-        target_req = next((r for r in reqs if r['id'] == req_id), None)
-        if not target_req:
-            print(f"❌ Audit Agent failed: Requirement {req_id} not found.")
-            return
-            
-        child_tasks = [r for r in reqs if r.get('parentId') == req_id and r.get('type') == 'Task']
+        log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logs'))
+        os.makedirs(log_dir, exist_ok=True)
+        log_file_path = os.path.join(log_dir, f"audit_{req_id}.log")
         
-        # 2. Read workspace/tests/test_example.py
-        test_filepath = os.path.join(WORKSPACE_BASE, 'tests', 'test_example.py')
-        test_code = ""
-        if os.path.exists(test_filepath):
-            with open(test_filepath, 'r') as f:
-                test_code = f.read()
+        with open(log_file_path, 'w') as log_file:
+            log_file.write(f"🤖 Audit Agent starting work on requirement: {req_id}\n")
+            
+        try:
+            reqs = store.get_requirements_for_frontend()
+            target_req = next((r for r in reqs if r['id'] == req_id), None)
+            if not target_req:
+                print(f"❌ Audit Agent failed: Requirement {req_id} not found.")
+                return
                 
-        # 3. Read current workspace codebase files (for context)
-        workspace_context = read_workspace_files()
-        
-        # 4. Formulate prompt for Gemini
-        existing_tasks_summary = json.dumps([
-            {"id": t['id'], "title": t['title'], "description": t['description'], "status": t.get('status')}
-            for t in child_tasks
-        ], indent=2)
-        
-        prompt = f"""You are a senior product manager and developer agent auditing a requirement modification.
-The parent requirement has been updated. You need to analyze the changes to determine if:
-1. Any new technical tasks (tickets) are needed to implement this new behavior.
-2. Any existing technical tasks' descriptions/titles need to be modified.
-3. Any new python/pytest tests are needed in `tests/test_example.py`.
-4. Any existing python/pytest tests in `tests/test_example.py` are expected to fail now because of the updated requirement (and thus should be decorated with `@pytest.mark.xfail(reason="...")`).
-
---- REQUIREMENT ---
-ID: {req_id}
-Title: {target_req.get('title')}
-Description: {target_req.get('description')}
-
---- EXISTING CHILD TASKS ---
-{existing_tasks_summary}
-
---- CURRENT WORKSPACE CODEBASE ---
-{workspace_context}
-
---- CURRENT TESTS FILE (tests/test_example.py) ---
-{test_code}
-
---- INSTRUCTIONS ---
-Based on the requirement, analyze the existing tasks and test file.
-If the requirement changed the expected behavior, decorate the obsolete/failing tests with `@pytest.mark.xfail(reason="...")` in the updated test code.
-If new tests are needed, append them to the updated test code. Every test function in `tests/test_example.py` MUST contain a docstring with:
-  id: TST-<unique 4-digit number>
-  req: {req_id}
-  Given: ...
-  When: ...
-  Then: ...
-Ensure all imports like `import pytest` are preserved.
-
-Respond ONLY with a JSON object. No markdown formatting, no explanation. The JSON object must have EXACTLY these fields:
-{{
-  "new_tasks": [
-    {{
-      "title": "Task title",
-      "description": "Task description explaining what to change/implement"
-    }}
-  ],
-  "update_tasks": [
-    {{
-      "id": "REQ-XXXX",
-      "description": "New updated task description"
-    }}
-  ],
-  "updated_test_code": "<the complete contents of tests/test_example.py with new tests added and target existing tests decorated with @pytest.mark.xfail(...)>"
-}}
-"""
-        with open(log_file_path, 'a') as log_file:
-            log_file.write("Calling Gemini API...\n")
+            child_tasks = [r for r in reqs if r.get('parentId') == req_id and r.get('type') == 'Task']
             
-        response_text = call_gemini(prompt).strip()
-        
-        with open(log_file_path, 'a') as log_file:
-            log_file.write(f"Gemini raw response:\n{response_text}\n")
-            
-        # Clean up markdown JSON block if present
-        if response_text.startswith('```json'):
-            response_text = response_text[7:-3]
-        elif response_text.startswith('```'):
-            response_text = response_text[3:-3]
-            
-        audit_result = json.loads(response_text)
-        
-        new_tasks = audit_result.get('new_tasks', [])
-        update_tasks = audit_result.get('update_tasks', [])
-        updated_test_code = audit_result.get('updated_test_code', '')
-        
-        # 5. Write updated test code if returned
-        if updated_test_code:
-            os.makedirs(os.path.dirname(test_filepath), exist_ok=True)
-            with open(test_filepath, 'w') as f:
-                f.write(updated_test_code)
-            with open(log_file_path, 'a') as log_file:
-                log_file.write("✅ Updated tests/test_example.py\n")
-                
-            # Commit the updated test suite to main
-            subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
-            subprocess.run(["git", "add", "tests/test_example.py"], cwd=WORKSPACE_BASE, capture_output=True)
-            subprocess.run(["git", "commit", "-m", f"test(audit): update tests for requirement {req_id}"], cwd=WORKSPACE_BASE, capture_output=True)
-            with open(log_file_path, 'a') as log_file:
-                log_file.write("✅ Committed tests update to main\n")
-                
-        # 6. Apply database changes to requirements.json
-        import random
-        changes_made = False
-        
-        # Create new tasks
-        for task in new_tasks:
-            task_id = f"REQ-{random.randint(1000, 9999)}"
-            new_task = {
-                "id": task_id,
-                "title": task.get('title', 'Audit Generated Task'),
-                "description": task.get('description', 'Task description'),
-                "priority": "Med",
-                "status": "Backlog",
-                "tests": [],
-                "assignedAgents": ["Frontend"],
-                "type": "Task",
-                "parentId": req_id,
-                "dependencies": []
-            }
-            reqs.append(new_task)
-            changes_made = True
-            with open(log_file_path, 'a') as log_file:
-                log_file.write(f"➕ Created new task {task_id}: {new_task['title']}\n")
-                
-        # Update existing tasks
-        for task in update_tasks:
-            t_id = task.get('id')
-            t_desc = task.get('description')
-            for r in reqs:
-                if r['id'] == t_id:
-                    r['description'] = t_desc
-                    r['status'] = 'Backlog'  # Reset to backlog so developer works on it
-                    changes_made = True
-                    with open(log_file_path, 'a') as log_file:
-                        log_file.write(f"✏️ Updated task {t_id} and reset to Backlog\n")
-                    break
+            test_filepath = os.path.join(WORKSPACE_BASE, 'tests', 'test_example.py')
+            test_code = ""
+            if os.path.exists(test_filepath):
+                with open(test_filepath, 'r') as f:
+                    test_code = f.read()
                     
-        # Update tests fields in requirements.json by running pytest
-        if updated_test_code or changes_made:
-            test_results = run_pytest(WORKSPACE_BASE)
-            # Group tests by req id
-            # We will clear out existing tests and update them
-            for r in reqs:
-                if r.get('parentId') == req_id or r['id'] == req_id:
-                    r['tests'] = [t for t in test_results if t.get('req') == r['id']]
-                    
-            with open(log_file_path, 'a') as log_file:
-                log_file.write(f"✅ Updated test execution states in requirements.json\n")
-                
-        with open(REQUIREMENTS_FILE, 'w') as f:
-            json.dump(reqs, f, indent=2)
+            workspace_context = read_workspace_files()
             
-        # 7. If tasks were added or updated, trigger developer agent
-        if changes_made:
+            existing_tasks_summary = json.dumps([
+                {"id": t['id'], "title": t['title'], "description": t['description'], "status": t.get('status')}
+                for t in child_tasks
+            ], indent=2)
+            
+            prompt = load_prompt("requirement_audit.md", {
+                "req_id": req_id,
+                "title": target_req.get('title'),
+                "description": target_req.get('description'),
+                "existing_tasks_summary": existing_tasks_summary,
+                "workspace_context": workspace_context,
+                "test_code": test_code
+            })
+            
             with open(log_file_path, 'a') as log_file:
-                log_file.write("🚀 Backlog updated. Dispatched developer agent.\n")
-            run_openhands_loop()
-        else:
-            with open(log_file_path, 'a') as log_file:
-                log_file.write("No backlog changes needed. Audit complete.\n")
+                log_file.write("Calling Gemini API...\n")
                 
-    except Exception as e:
-        print(f"❌ Error in requirement audit agent: {e}")
-        with open(log_file_path, 'a') as log_file:
-            log_file.write(f"❌ Exception in audit agent: {str(e)}\n")
-
+            response_text = call_gemini(prompt, stage="requirement_audit").strip()
+            
+            with open(log_file_path, 'a') as log_file:
+                log_file.write(f"Gemini raw response:\n{response_text}\n")
+                
+            if response_text.startswith('```json'):
+                response_text = response_text[7:-3]
+            elif response_text.startswith('```'):
+                response_text = response_text[3:-3]
+                
+            audit_result = json.loads(response_text)
+            
+            new_tasks = audit_result.get('new_tasks', [])
+            update_tasks = audit_result.get('update_tasks', [])
+            updated_test_code = audit_result.get('updated_test_code', '')
+            
+            if updated_test_code:
+                os.makedirs(os.path.dirname(test_filepath), exist_ok=True)
+                with open(test_filepath, 'w') as f:
+                    f.write(updated_test_code)
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write("✅ Updated tests/test_example.py\n")
+                    
+                subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
+                subprocess.run(["git", "add", "tests/test_example.py"], cwd=WORKSPACE_BASE, capture_output=True)
+                subprocess.run(["git", "commit", "-m", f"test(audit): update tests for requirement {req_id}"], cwd=WORKSPACE_BASE, capture_output=True)
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write("✅ Committed tests update to main\n")
+                    
+            import random
+            changes_made = False
+            
+            for task in new_tasks:
+                task_id = f"REQ-{random.randint(1000, 9999)}"
+                store.create_requirement({
+                    "id": task_id,
+                    "title": task.get('title', 'Audit Generated Task'),
+                    "description": task.get('description', 'Task description'),
+                    "priority": "Med",
+                    "status": "Backlog",
+                    "type": "Task",
+                    "parentId": req_id,
+                    "dependencies": [],
+                    "assignedAgents": ["Frontend"]
+                })
+                changes_made = True
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write(f"➕ Created new task {task_id}: {task['title']}\n")
+                    
+            for task in update_tasks:
+                t_id = task.get('id')
+                t_desc = task.get('description')
+                store.update_requirement(t_id, {'description': t_desc, 'status': 'Backlog'})
+                changes_made = True
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write(f"✏️ Updated task {t_id} and reset to Backlog\n")
+                        
+            if updated_test_code or changes_made:
+                test_results = run_pytest(WORKSPACE_BASE)
+                sync_test_results(test_results)
+                        
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write(f"✅ Updated test execution states in database\n")
+                    
+            if changes_made:
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write("🚀 Backlog updated. Dispatched developer agent.\n")
+                run_openhands_loop()
+            else:
+                with open(log_file_path, 'a') as log_file:
+                    log_file.write("No backlog changes needed. Audit complete.\n")
+                    
+        except Exception as e:
+            print(f"❌ Error in requirement audit agent: {e}")
+            with open(log_file_path, 'a') as log_file:
+                log_file.write(f"❌ Exception in audit agent: {str(e)}\n")
+    finally:
+        update_agent_status(active=False, step="Idle", ticket_id=None, attempt=0)

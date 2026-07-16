@@ -1,0 +1,19 @@
+# Integration configuration for Provable
+# Set enabled: true and fill credentials to activate each integration.
+
+strictdoc:
+  enabled: true
+  requirements_dir: ../workspace/requirements  # relative to backend/
+
+allure:
+  enabled: false
+  server_url: http://localhost:5050
+  project_id: provable
+
+jira:
+  enabled: false
+  base_url: ''
+  email: ''
+  api_token_env: JIRA_API_TOKEN
+  project_key: ''
+  auto_create_project: true
