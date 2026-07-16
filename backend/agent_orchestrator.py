@@ -10,8 +10,10 @@ import dotenv
 import socket
 import base64
 import yaml
+from typing import List, Dict, Any, Optional, TypedDict
 from openai import OpenAI
 import db.store as store
+from langgraph.graph import StateGraph, START, END
 
 # Load environment variables from root .env file if present
 dotenv.load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
@@ -414,6 +416,309 @@ def sync_test_results(test_results):
     for req_id, tests in grouped.items():
         store._upsert_test_results(req_id, tests)
 
+
+# ── LangGraph Architecture ───────────────────────────────────────────────────
+
+class AgentState(TypedDict):
+    ticket_id: str
+    item: Dict[str, Any]
+    attempt: int
+    max_attempts: int
+    qa_feedback: str
+    success: bool
+    branch_name: str
+    active_port: int
+    started_server_proc: Any
+    file_blocks: Dict[str, str]
+    screenshot_paths: Dict[str, str]
+    test_results: List[Dict[str, Any]]
+    log_file_path: str
+    task_desc: str
+    feedback_note: str
+    bug_test_instruction: str
+    parent_id: str
+
+
+def prepare_branch_node(state: AgentState) -> Dict[str, Any]:
+    ticket_id = state['ticket_id']
+    item = state['item']
+    print(f"🤖 [LangGraph] Node: Prepare Branch | Processing {ticket_id}")
+    update_agent_status(active=True, ticket_id=ticket_id, step="Preparing branch", attempt=0)
+    
+    # Immediately move ticket status in SQLite to InProgress
+    item['status'] = 'InProgress'
+    store.update_requirement(ticket_id, {'status': 'InProgress'})
+    
+    branch_name = f"ticket/{ticket_id}"
+    branch_exists_res = subprocess.run(
+        ["git", "show-ref", f"refs/heads/{branch_name}"],
+        cwd=WORKSPACE_BASE, capture_output=True
+    )
+    if branch_exists_res.returncode == 0:
+        subprocess.run(["git", "checkout", branch_name], cwd=WORKSPACE_BASE, capture_output=True)
+    else:
+        subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
+        subprocess.run(["git", "branch", "-D", branch_name], cwd=WORKSPACE_BASE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(["git", "checkout", "-b", branch_name], cwd=WORKSPACE_BASE, capture_output=True)
+        
+    return {"branch_name": branch_name, "item": item}
+
+
+def code_generation_node(state: AgentState) -> Dict[str, Any]:
+    ticket_id = state['ticket_id']
+    attempt = state['attempt'] + 1
+    max_attempts = state['max_attempts']
+    log_file_path = state['log_file_path']
+    task_desc = state['task_desc']
+    feedback_note = state['feedback_note']
+    bug_test_instruction = state['bug_test_instruction']
+    parent_id = state['parent_id']
+    qa_feedback = state['qa_feedback']
+    
+    print(f"🤖 [LangGraph] Node: Code Generation | Attempt {attempt}/{max_attempts}")
+    update_agent_status(active=True, ticket_id=ticket_id, step="Generating code changes", attempt=attempt, max_attempts=max_attempts)
+    
+    with open(log_file_path, 'a') as log_file:
+        log_file.write(f"\n=========================================\n")
+        log_file.write(f"🔄 ATTEMPT {attempt}/{max_attempts}\n")
+        log_file.write(f"=========================================\n")
+        log_file.write(f"Calling Gemini API for code generation...\n")
+        
+    current_workspace_context = read_workspace_files()
+    
+    feedback_note_attempt = feedback_note
+    if attempt > 1 and qa_feedback:
+        feedback_note_attempt = feedback_note + f"\n\n{qa_feedback}\n"
+        
+    attempt_prompt = load_prompt("code_generation.md", {
+        "current_workspace_context": current_workspace_context,
+        "task_desc": task_desc,
+        "feedback_note_attempt": feedback_note_attempt,
+        "bug_test_instruction": bug_test_instruction,
+        "parent_id": parent_id
+    })
+    
+    response_text = call_gemini(attempt_prompt, stage="code_generation")
+    file_blocks = parse_file_blocks(response_text)
+    
+    with open(log_file_path, 'a') as log_file:
+        log_file.write(f"Gemini responded. Writing files...\n")
+        
+    for file_path, content in file_blocks.items():
+        full_path = os.path.join(WORKSPACE_BASE, file_path)
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, 'w') as f:
+            f.write(content)
+        with open(log_file_path, 'a') as log_file:
+            log_file.write(f"   Wrote file: {file_path}\n")
+            
+    return {"attempt": attempt, "file_blocks": file_blocks}
+
+
+def test_runner_node(state: AgentState) -> Dict[str, Any]:
+    ticket_id = state['ticket_id']
+    attempt = state['attempt']
+    log_file_path = state['log_file_path']
+    
+    print(f"🤖 [LangGraph] Node: Test Runner | Running tests for {ticket_id}")
+    update_agent_status(active=True, ticket_id=ticket_id, step="Running automated tests", attempt=attempt)
+    
+    with open(log_file_path, 'a') as log_file:
+        log_file.write("Running pytest suite...\n")
+        
+    test_results = run_pytest(WORKSPACE_BASE)
+    sync_test_results(test_results)
+    
+    with open(log_file_path, 'a') as log_file:
+        log_file.write(f"Test execution complete. Results: {json.dumps(test_results)}\n")
+        
+    # Check if all tests pass
+    all_passing = all(t.get('status') == 'Passing' for t in test_results)
+    
+    qa_feedback = ""
+    if not all_passing:
+        failed_tests = [t.get('name') for t in test_results if t.get('status') == 'Failing']
+        qa_feedback = f"""AUTOMATED QA FEEDBACK (Attempt {attempt} failed):
+    Your code changes failed automated pytest verification.
+    Failed tests: {', '.join(failed_tests)}
+    Please review the test failures and correct the implementation and/or test assertions."""
+    
+    return {"test_results": test_results, "qa_feedback": qa_feedback}
+
+
+def visual_qa_node(state: AgentState) -> Dict[str, Any]:
+    ticket_id = state['ticket_id']
+    attempt = state['attempt']
+    item = state['item']
+    log_file_path = state['log_file_path']
+    active_port = state['active_port']
+    file_blocks = state['file_blocks']
+    
+    print(f"🤖 [LangGraph] Node: Visual QA | Validating UI design for {ticket_id}")
+    update_agent_status(active=True, ticket_id=ticket_id, step="Running visual validation", attempt=attempt)
+    
+    screenshot_paths = {
+        "desktop": os.path.join(os.path.dirname(log_file_path), f"screenshot_{ticket_id}_attempt_{attempt}_desktop.png"),
+        "mobile": os.path.join(os.path.dirname(log_file_path), f"screenshot_{ticket_id}_attempt_{attempt}_mobile.png")
+    }
+    
+    try:
+        with open(log_file_path, 'a') as log_file:
+            log_file.write("Capturing app screenshots (desktop and mobile) using Selenium...\n")
+        capture_app_screenshots(active_port, screenshot_paths)
+    except Exception as screenshot_err:
+        with open(log_file_path, 'a') as log_file:
+            log_file.write(f"❌ Failed to capture screenshots: {screenshot_err}\n")
+        qa_feedback = f"AUTOMATED QA FEEDBACK (Attempt {attempt} failed):\nFailed to capture screenshots of preview app: {str(screenshot_err)}"
+        return {"success": False, "qa_feedback": qa_feedback, "screenshot_paths": screenshot_paths}
+        
+    with open(log_file_path, 'a') as log_file:
+        log_file.write("Calling Gemini Vision API to validate layout and responsiveness...\n")
+        
+    vision_result = run_vision_validation(
+        ticket_id,
+        item.get('title'),
+        item.get('description'),
+        screenshot_paths,
+        file_blocks
+    )
+    
+    with open(log_file_path, 'a') as log_file:
+        log_file.write(f"Vision validation response: {json.dumps(vision_result)}\n")
+        
+    if vision_result.get('passed') is True:
+        with open(log_file_path, 'a') as log_file:
+            log_file.write("✅ Visual validation passed successfully!\n")
+        return {"success": True, "screenshot_paths": screenshot_paths}
+    else:
+        with open(log_file_path, 'a') as log_file:
+            log_file.write(f"❌ Visual validation failed: {vision_result.get('reasoning_and_discrepancy')}\n")
+            
+        log_validation_fault(
+            ticket_id,
+            attempt,
+            item.get('description'),
+            file_blocks,
+            screenshot_paths,
+            vision_result
+        )
+        
+        qa_feedback = f"""AUTOMATED QA FEEDBACK (Attempt {attempt} failed):
+    Your code changes did not pass the visual verification gate.
+    Visual Discrepancies: {vision_result.get('reasoning_and_discrepancy')}
+    Test Adequacy: {vision_result.get('test_adequacy')}
+    Correction Advice: {vision_result.get('correction_advice')}
+    Please revise your code, styles, and test assertions to address these issues."""
+    
+        return {"success": False, "qa_feedback": qa_feedback, "screenshot_paths": screenshot_paths}
+
+
+def finalize_node(state: AgentState) -> Dict[str, Any]:
+    ticket_id = state['ticket_id']
+    item = state['item']
+    success = state['success']
+    log_file_path = state['log_file_path']
+    started_server_proc = state['started_server_proc']
+    attempt = state['attempt']
+    qa_feedback = state['qa_feedback']
+    test_results = state['test_results']
+    
+    print(f"🤖 [LangGraph] Node: Finalize | Concluding run (Success: {success})")
+    
+    if started_server_proc:
+        try:
+            started_server_proc.terminate()
+        except Exception:
+            pass
+        
+    if success:
+        update_agent_status(active=True, ticket_id=ticket_id, step="Committing changes", attempt=attempt)
+        subprocess.run(["git", "add", "-A"], cwd=WORKSPACE_BASE, capture_output=True)
+        commit_msg = f"feat({ticket_id}): {item['title']}"
+        subprocess.run(["git", "commit", "-m", commit_msg], cwd=WORKSPACE_BASE, capture_output=True)
+        
+        item['status'] = 'Review'
+        item['feedback'] = ""
+        
+        with open(log_file_path, 'a') as log_file:
+            log_file.write(f"✅ Committed changes: {commit_msg}\n")
+            log_file.write(f"🎉 Agent completed successfully!\n")
+        print(f"  ✅ Agent completed {ticket_id} successfully.")
+    else:
+        # Revert changes to prevent unclean state on failure
+        subprocess.run(["git", "checkout", "--", "."], cwd=WORKSPACE_BASE, capture_output=True)
+        subprocess.run(["git", "clean", "-fd"], cwd=WORKSPACE_BASE, capture_output=True)
+        
+        item['status'] = 'Backlog'
+        item['feedback'] = f"QA Validation failed after {attempt} attempts. Final QA Feedback:\n{qa_feedback}"
+        
+        with open(log_file_path, 'a') as log_file:
+            log_file.write(f"❌ Visual validation failed after all attempts. Reverting code and returning to Backlog.\n")
+        print(f"  ❌ Agent failed QA validation for {ticket_id}.")
+        
+    subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
+    store.update_requirement_status(ticket_id, item['status'], feedback=item.get('feedback'), tests=test_results)
+    
+    return {}
+
+
+def route_after_test(state: AgentState):
+    all_passing = all(t.get('status') == 'Passing' for t in state['test_results'])
+    if not all_passing:
+        if state['attempt'] < state['max_attempts']:
+            return "code_generation"
+        else:
+            return "finalize"
+    return "visual_qa"
+
+
+def route_after_visual(state: AgentState):
+    if state['success']:
+        return "finalize"
+    else:
+        if state['attempt'] < state['max_attempts']:
+            return "code_generation"
+        else:
+            return "finalize"
+
+
+# Define LangGraph StateGraph
+workflow = StateGraph(AgentState)
+workflow.add_node("prepare_branch", prepare_branch_node)
+workflow.add_node("code_generation", code_generation_node)
+workflow.add_node("test_runner", test_runner_node)
+workflow.add_node("visual_qa", visual_qa_node)
+workflow.add_node("finalize", finalize_node)
+
+workflow.set_entry_point("prepare_branch")
+workflow.add_edge("prepare_branch", "code_generation")
+workflow.add_edge("code_generation", "test_runner")
+
+workflow.add_conditional_edges(
+    "test_runner",
+    route_after_test,
+    {
+        "code_generation": "code_generation",
+        "visual_qa": "visual_qa",
+        "finalize": "finalize"
+    }
+)
+
+workflow.add_conditional_edges(
+    "visual_qa",
+    route_after_visual,
+    {
+        "code_generation": "code_generation",
+        "finalize": "finalize"
+    }
+)
+
+workflow.add_edge("finalize", END)
+compiled_graph = workflow.compile()
+
+
+# ── Business Flow Actions ────────────────────────────────────────────────────
+
 def run_openhands_loop(target_ticket_id: str = None):
     print("🤖 Agent Orchestrator: Waking up...")
     update_agent_status(active=True, step="Scanning Backlog", ticket_id=None, attempt=0)
@@ -446,6 +751,10 @@ def run_openhands_loop(target_ticket_id: str = None):
                             print(f"🤖 Agent Orchestrator: Skipping Bug {item['id']} because parent requirement tasks {incomplete_siblings} are not Done.")
                             continue
                             
+                # Allow requirements to be processed if they have test cases defined
+                if item.get('type') == 'Requirement' and not item.get('tests'):
+                    continue
+                    
                 ready_items.append(item)
         
         if not ready_items:
@@ -454,25 +763,14 @@ def run_openhands_loop(target_ticket_id: str = None):
             
         for item in ready_items:
             ticket_id = item['id']
-            print(f"  -> Processing {ticket_id}: {item['title']}")
-            update_agent_status(active=True, ticket_id=ticket_id, step="Preparing branch", attempt=0)
+            log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logs'))
+            os.makedirs(log_dir, exist_ok=True)
+            log_file_path = os.path.join(log_dir, f"{ticket_id}.log")
             
-            item['status'] = 'InProgress'
-            store.update_requirement(ticket_id, {'status': 'InProgress'})
-            
-            branch_name = f"ticket/{ticket_id}"
-            branch_exists_res = subprocess.run(
-                ["git", "show-ref", f"refs/heads/{branch_name}"],
-                cwd=WORKSPACE_BASE, capture_output=True
-            )
-            if branch_exists_res.returncode == 0:
-                subprocess.run(["git", "checkout", branch_name], cwd=WORKSPACE_BASE, capture_output=True)
-            else:
-                subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
-                subprocess.run(["git", "branch", "-D", branch_name], cwd=WORKSPACE_BASE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                subprocess.run(["git", "checkout", "-b", branch_name], cwd=WORKSPACE_BASE, capture_output=True)
-            
-            workspace_context = read_workspace_files()
+            with open(log_file_path, 'w') as log_file:
+                log_file.write(f"🤖 Agent starting work on: {item['title']}\n")
+                
+            # Setup task variables
             parent_id = item.get('parentId', 'N/A')
             is_bug = item.get('type') == 'Bug'
             
@@ -499,190 +797,45 @@ def run_openhands_loop(target_ticket_id: str = None):
             if item.get('feedback'):
                 feedback_note = f"\nCRITICAL FEEDBACK FROM PM on previous attempt: {item['feedback']}\n"
                 
+            started_server_proc, active_port = ensure_preview_server()
+            
+            # Setup initial StateGraph dict
+            initial_state = {
+                "ticket_id": ticket_id,
+                "item": item,
+                "attempt": 0,
+                "max_attempts": 3,
+                "qa_feedback": "",
+                "success": False,
+                "branch_name": "",
+                "active_port": active_port,
+                "started_server_proc": started_server_proc,
+                "file_blocks": {},
+                "screenshot_paths": {},
+                "test_results": [],
+                "log_file_path": log_file_path,
+                "task_desc": task_desc,
+                "feedback_note": feedback_note,
+                "bug_test_instruction": bug_test_instruction,
+                "parent_id": parent_id
+            }
+            
             try:
-                log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logs'))
-                os.makedirs(log_dir, exist_ok=True)
-                log_file_path = os.path.join(log_dir, f"{ticket_id}.log")
-                
-                with open(log_file_path, 'w') as log_file:
-                    log_file.write(f"🤖 Agent starting work on: {item['title']}\n")
-                    
-                max_attempts = 3
-                success = False
-                qa_feedback = ""
-                
-                started_server_proc, active_port = ensure_preview_server()
-                
-                for attempt in range(1, max_attempts + 1):
-                    with open(log_file_path, 'a') as log_file:
-                        log_file.write(f"\n=========================================\n")
-                        log_file.write(f"🔄 ATTEMPT {attempt}/{max_attempts}\n")
-                        log_file.write(f"=========================================\n")
-                    
-                    update_agent_status(active=True, ticket_id=ticket_id, step="Generating code changes", attempt=attempt, max_attempts=max_attempts)
-                    
-                    current_workspace_context = read_workspace_files()
-                    
-                    feedback_note_attempt = feedback_note
-                    if attempt > 1 and qa_feedback:
-                        feedback_note_attempt = feedback_note + f"\n\n{qa_feedback}\n"
-                    
-                    attempt_prompt = load_prompt("code_generation.md", {
-                        "current_workspace_context": current_workspace_context,
-                        "task_desc": task_desc,
-                        "feedback_note_attempt": feedback_note_attempt,
-                        "bug_test_instruction": bug_test_instruction,
-                        "parent_id": parent_id
-                    })
-                    
-                    with open(log_file_path, 'a') as log_file:
-                        log_file.write(f"Calling Gemini API...\n")
-                    
-                    response_text = call_gemini(attempt_prompt, stage="code_generation")
-                    
-                    update_agent_status(active=True, ticket_id=ticket_id, step="Writing code changes", attempt=attempt)
-                    
-                    with open(log_file_path, 'a') as log_file:
-                        log_file.write(f"Gemini responded. Parsing file blocks...\n")
-                        log_file.write(f"--- RAW RESPONSE ---\n{response_text}\n--- END RAW ---\n")
-                    
-                    file_blocks = parse_file_blocks(response_text)
-                    
-                    if not file_blocks:
-                        with open(log_file_path, 'a') as log_file:
-                            log_file.write("WARNING: No file blocks parsed from response.\n")
-                    
-                    for file_path, content in file_blocks.items():
-                        full_path = os.path.join(WORKSPACE_BASE, file_path)
-                        os.makedirs(os.path.dirname(full_path), exist_ok=True)
-                        with open(full_path, 'w') as f:
-                            f.write(content)
-                        with open(log_file_path, 'a') as log_file:
-                            log_file.write(f"✅ Wrote file: {file_path}\n")
-                    
-                    with open(log_file_path, 'a') as log_file:
-                        log_file.write("Running pytest suite...\n")
-                    
-                    update_agent_status(active=True, ticket_id=ticket_id, step="Running automated tests", attempt=attempt)
-                    
-                    test_results = run_pytest(WORKSPACE_BASE)
-                    item['tests'] = test_results
-                    sync_test_results(test_results)
-                    
-                    with open(log_file_path, 'a') as log_file:
-                        log_file.write(f"Test execution complete. Results: {json.dumps(test_results)}\n")
-                    
-                    all_passing = all(t.get('status') == 'Passing' for t in test_results)
-                    if not all_passing:
-                        failed_tests = [t.get('name') for t in test_results if t.get('status') == 'Failing']
-                        with open(log_file_path, 'a') as log_file:
-                            log_file.write(f"❌ Pytest failed. Failed tests: {failed_tests}\n")
-                        
-                        qa_feedback = f"""AUTOMATED QA FEEDBACK (Attempt {attempt} failed):
-    Your code changes failed automated pytest verification.
-    Failed tests: {', '.join(failed_tests)}
-    Please review the test failures and correct the implementation and/or test assertions."""
-                        continue
-                    
-                    screenshot_paths = {
-                        "desktop": os.path.join(log_dir, f"screenshot_{ticket_id}_attempt_{attempt}_desktop.png"),
-                        "mobile": os.path.join(log_dir, f"screenshot_{ticket_id}_attempt_{attempt}_mobile.png")
-                    }
-                    
-                    try:
-                        with open(log_file_path, 'a') as log_file:
-                            log_file.write("Capturing app screenshots (desktop and mobile) using Selenium...\n")
-                        update_agent_status(active=True, ticket_id=ticket_id, step="Capturing preview screenshots", attempt=attempt)
-                        capture_app_screenshots(active_port, screenshot_paths)
-                    except Exception as screenshot_err:
-                        with open(log_file_path, 'a') as log_file:
-                            log_file.write(f"❌ Failed to capture screenshots: {screenshot_err}\n")
-                        qa_feedback = f"AUTOMATED QA FEEDBACK (Attempt {attempt} failed):\nFailed to capture screenshots of preview app: {str(screenshot_err)}"
-                        continue
-                    
-                    with open(log_file_path, 'a') as log_file:
-                        log_file.write("Calling Gemini Vision API to validate layout and responsiveness...\n")
-                    
-                    update_agent_status(active=True, ticket_id=ticket_id, step="Running visual validation", attempt=attempt)
-                    
-                    vision_result = run_vision_validation(
-                        ticket_id,
-                        item.get('title'),
-                        item.get('description'),
-                        screenshot_paths,
-                        file_blocks
-                    )
-                    
-                    with open(log_file_path, 'a') as log_file:
-                        log_file.write(f"Vision validation response: {json.dumps(vision_result)}\n")
-                    
-                    if vision_result.get('passed') is True:
-                        with open(log_file_path, 'a') as log_file:
-                            log_file.write("✅ Visual validation passed successfully!\n")
-                        success = True
-                        break
-                    else:
-                        with open(log_file_path, 'a') as log_file:
-                            log_file.write(f"❌ Visual validation failed: {vision_result.get('reasoning_and_discrepancy')}\n")
-                        
-                        log_validation_fault(
-                            ticket_id,
-                            attempt,
-                            item.get('description'),
-                            file_blocks,
-                            screenshot_paths,
-                            vision_result
-                        )
-                        
-                        qa_feedback = f"""AUTOMATED QA FEEDBACK (Attempt {attempt} failed):
-    Your code changes did not pass the visual verification gate.
-    Visual Discrepancies: {vision_result.get('reasoning_and_discrepancy')}
-    Test Adequacy: {vision_result.get('test_adequacy')}
-    Correction Advice: {vision_result.get('correction_advice')}
-    Please revise your code, styles, and test assertions to address these issues."""
-                        continue
-                
-                if started_server_proc:
-                    started_server_proc.terminate()
-                    
-                if success:
-                    update_agent_status(active=True, ticket_id=ticket_id, step="Committing changes", attempt=attempt)
-                    subprocess.run(["git", "add", "-A"], cwd=WORKSPACE_BASE, capture_output=True)
-                    commit_msg = f"feat({ticket_id}): {item['title']}"
-                    subprocess.run(["git", "commit", "-m", commit_msg], cwd=WORKSPACE_BASE, capture_output=True)
-                    
-                    item['status'] = 'Review'
-                    item['feedback'] = ""
-                    
-                    with open(log_file_path, 'a') as log_file:
-                        log_file.write(f"✅ Committed changes: {commit_msg}\n")
-                        log_file.write(f"🎉 Agent completed successfully!\n")
-                    print(f"  ✅ Agent completed {ticket_id} successfully.")
-                else:
-                    subprocess.run(["git", "checkout", "--", "."], cwd=WORKSPACE_BASE, capture_output=True)
-                    subprocess.run(["git", "clean", "-fd"], cwd=WORKSPACE_BASE, capture_output=True)
-                    
-                    item['status'] = 'Backlog'
-                    item['feedback'] = f"QA Validation failed after 3 attempts. Final QA Feedback:\n{qa_feedback}"
-                    
-                    with open(log_file_path, 'a') as log_file:
-                        log_file.write(f"❌ Visual validation failed after 3 attempts. Reverting code and returning to Backlog.\n")
-                    print(f"  ❌ Agent failed QA validation for {ticket_id}.")
-                    
+                # Invoke the LangGraph pipeline
+                compiled_graph.invoke(initial_state)
             except Exception as e:
+                print(f"❌ LangGraph execution failed for {ticket_id}: {e}")
                 if started_server_proc:
-                    started_server_proc.terminate()
-                print(f"  ❌ Agent failed for {ticket_id}: {e}")
-                with open(log_file_path, 'a') as log_file:
-                    log_file.write(f"\n❌ Agent failed: {e}\n")
-                item['status'] = 'Backlog'
-                item['feedback'] = f"Agent failed: {str(e)}"
+                    try:
+                        started_server_proc.terminate()
+                    except Exception:
+                        pass
+                # Rollback on fatal crash
                 subprocess.run(["git", "checkout", "--", "."], cwd=WORKSPACE_BASE, capture_output=True)
                 subprocess.run(["git", "clean", "-fd"], cwd=WORKSPACE_BASE, capture_output=True)
-                
-            subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
-            
-            store.update_requirement_status(ticket_id, item['status'], feedback=item.get('feedback'), tests=item.get('tests'))
+                item['status'] = 'Backlog'
+                item['feedback'] = f"LangGraph pipeline crash: {str(e)}"
+                store.update_requirement_status(ticket_id, 'Backlog', feedback=item['feedback'])
                 
         print("🤖 Agent Orchestrator: Finished processing all tasks.")
     finally:
