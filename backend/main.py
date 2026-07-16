@@ -22,6 +22,19 @@ sync_sdoc_to_db()
 from integrations.jira_client import sync_jira_to_db
 sync_jira_to_db()
 
+# Auto-create Allure project if enabled
+try:
+    from integrations.allure_client import load_allure_config
+    allure_cfg = load_allure_config()
+    if allure_cfg.get('enabled'):
+        import requests
+        allure_url = f"{allure_cfg.get('server_url', 'http://localhost:5050').rstrip('/')}/projects"
+        res = requests.post(allure_url, json={"id": allure_cfg.get('project_id', 'provable')}, timeout=5)
+        print(f"📊 Allure Integration: Project initialization response: {res.status_code}")
+except Exception as allure_init_err:
+    print(f"📊 Allure Integration: Could not auto-create project (service might not be started yet): {allure_init_err}")
+
+
 
 
 # Allow CORS for local dev
