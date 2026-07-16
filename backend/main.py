@@ -600,8 +600,42 @@ def edit_requirement(payload: EditRequirementPayload, background_tasks: Backgrou
     background_tasks.add_task(run_requirement_audit, payload.id)
     return {"success": True, "message": f"Updated requirement {payload.id} and scheduled Audit Agent."}
 
+@app.get("/api/coverage")
+def get_coverage():
+    from integrations.allure_client import get_allure_report_url, get_coverage_summary
+    
+    summary = get_coverage_summary()
+    reqs = store.get_requirements_for_frontend()
+    
+    coverage_reqs = []
+    for r in reqs:
+        if r.get('type') != 'Requirement':
+            continue
+            
+        tcs = r.get('tests', [])
+        if not tcs:
+            state = "uncovered"
+        elif all(t.get('status') == 'Passing' for t in tcs):
+            state = "passing"
+        else:
+            state = "failing"
+            
+        coverage_reqs.append({
+            "id": r['id'],
+            "title": r['title'],
+            "coverage_state": state,
+            "tests": tcs
+        })
+        
+    return {
+        "summary": summary,
+        "requirements": coverage_reqs,
+        "allure_report_url": get_allure_report_url()
+    }
+
 @app.post("/api/requirements/{req_id}/create-test-case")
 def create_test_case(req_id: str, background_tasks: BackgroundTasks):
+
     import random
     from agent_orchestrator import load_prompt, call_gemini, run_pytest
     

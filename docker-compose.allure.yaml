@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  allure:
+    image: frankescobar/allure-docker-service:latest
+    container_name: allure-service
+    ports:
+      - "5050:5050"
+    environment:
+      CHECK_RESULTS_EVERY_SECONDS: "5"
+      KEEP_HISTORY: "1"
+      # Enable API so we can trigger report generation and fetch results programmatically
+      ALLURE_API_ENABLED: "1"
+    volumes:
+      - ./workspace/allure-results:/app/allure-results
+      - allure-history:/app/allure-report
+      - allure-config:/app/allure-config
+
+volumes:
+  allure-history:
+  allure-config:

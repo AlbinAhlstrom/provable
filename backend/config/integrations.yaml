@@ -6,7 +6,7 @@ strictdoc:
   requirements_dir: ../workspace/requirements  # relative to backend/
 
 allure:
-  enabled: false
+  enabled: true
   server_url: http://localhost:5050
   project_id: provable
 

@@ -171,8 +171,9 @@ def run_pytest(workspace_base):
         venv_pytest = 'pytest'
         
     try:
+        allure_dir = os.path.join(workspace_base, 'allure-results')
         result = subprocess.run(
-            [venv_pytest, "-v"], 
+            [venv_pytest, "-v", f"--alluredir={allure_dir}"], 
             cwd=workspace_base, 
             capture_output=True, 
             text=True, 

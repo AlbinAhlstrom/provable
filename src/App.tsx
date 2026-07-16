@@ -425,6 +425,29 @@ const App: React.FC = () => {
   // Test case generation state
   const [isGeneratingTestCase, setIsGeneratingTestCase] = useState(false);
   const [generatedTestCode, setGeneratedTestCode] = useState<string | null>(null);
+  
+  // Test coverage states
+  const [coverageData, setCoverageData] = useState<any>(null);
+  const [loadingCoverage, setLoadingCoverage] = useState(false);
+
+  const fetchCoverage = async () => {
+    setLoadingCoverage(true);
+    try {
+      const res = await fetch('/api/coverage');
+      const data = await res.json();
+      setCoverageData(data);
+    } catch (err) {
+      console.error("Failed to fetch coverage details", err);
+    } finally {
+      setLoadingCoverage(false);
+    }
+  };
+
+  useEffect(() => {
+    if (currentView === 'Tests') {
+      fetchCoverage();
+    }
+  }, [currentView]);
 
   useEffect(() => {
     setGeneratedTestCode(null);
@@ -441,6 +464,7 @@ const App: React.FC = () => {
       if (data.success) {
         setGeneratedTestCode(data.test_code);
         await fetchReqs();
+        await fetchCoverage();
       } else {
         alert("Failed to generate test case: " + (data.error || "Unknown error"));
       }
@@ -1054,51 +1078,156 @@ const App: React.FC = () => {
   };
 
   const renderTestSuite = () => {
-    const testItems = requirements.filter(r => r.tests && r.tests.length > 0);
+    if (!coverageData) {
+      return (
+        <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 150px)' }}>
+          <div className="spinner" style={{ border: '4px solid rgba(255,255,255,0.1)', borderTopColor: 'var(--accent-primary)', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
+          <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>Loading coverage data...</p>
+        </div>
+      );
+    }
+
+    const { summary, requirements: reqList, allure_report_url } = coverageData;
+    const total = summary.total_requirements || 0;
+    const passing = summary.passing || 0;
+    const failing = summary.failing || 0;
+    const uncovered = summary.uncovered || 0;
     
+    const passPercent = total > 0 ? Math.round((passing / total) * 100) : 0;
+    const failPercent = total > 0 ? Math.round((failing / total) * 100) : 0;
+    const uncoverPercent = total > 0 ? Math.round((uncovered / total) * 100) : 0;
+
     return (
-      <div className="glass-panel" style={{ padding: '2rem', overflowY: 'auto', height: 'calc(100vh - 150px)' }}>
-        <h2>Pytest Suite (Live Results)</h2>
-        <p className="text-muted">Automated test cases and execution status for tasks.</p>
-        
-        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {testItems.map(req => {
-            const passingTests = req.tests?.filter(t => t.status === 'Passing').length || 0;
-            const totalTests = req.tests?.length || 0;
-            return (
-              <div key={req.id} className="glass-card" style={{ borderLeft: `4px solid ${passingTests === totalTests ? 'var(--accent-success)' : 'var(--accent-danger)'}` }}>
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                   <h4 style={{ margin: 0 }}>{req.id}: {req.title}</h4>
-                   <span className="text-muted" style={{ fontSize: '0.85rem' }}>Status: {req.status}</span>
-                 </div>
-                 
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '1rem 0', background: 'rgba(0,0,0,0.1)', padding: '0.8rem', borderRadius: '4px' }}>
-                   {req.tests.map((test, idx) => (
-                     <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', padding: '0.8rem', background: 'rgba(255,255,255,0.02)', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontFamily: 'monospace', fontWeight: 'bold', fontSize: '0.85rem' }}>🧪 {test.name}</span>
-                          <span style={{ color: test.status === 'Passing' ? '#4ade80' : '#f87171', fontWeight: 'bold', fontSize: '0.85rem' }}>{test.status}</span>
-                        </div>
-                        {test.title && <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent-primary)', marginTop: '0.2rem' }}>{test.title}</div>}
-                        {test.id && (
-                         <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                           <span>ID: {test.id}</span> | <span>Req: {test.req}</span>
-                         </div>
-                       )}
-                       {test.given && (
-                         <div style={{ fontSize: '0.75rem', color: '#cbd5e1', marginLeft: '0.5rem', borderLeft: '2px solid rgba(255,255,255,0.1)', paddingLeft: '0.5rem', marginTop: '0.2rem' }}>
-                           <div><strong>Given:</strong> {test.given}</div>
-                           <div><strong>When:</strong> {test.when}</div>
-                           <div><strong>Then:</strong> {test.then}</div>
-                         </div>
-                       )}
-                     </div>
-                   ))}
-                 </div>
+      <div className="glass-panel" style={{ padding: '2rem', overflowY: 'auto', height: 'calc(100vh - 150px)', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: '1.8rem', background: 'linear-gradient(135deg, #fff, #cbd5e1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Requirements Coverage Hub</h2>
+          <p className="text-muted" style={{ margin: '0.5rem 0 0 0' }}>Track requirement verification, test execution, and history in real-time.</p>
+        </div>
+
+        {/* Coverage Progress Bar & Aggregates */}
+        <div className="glass-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ display: 'flex', gap: '2rem' }}>
+              <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white' }}>{total}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Total Specs</div>
               </div>
-            );
-          })}
-          {testItems.length === 0 && <p className="text-muted">No test results available.</p>}
+              <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--accent-success)' }}>{passing}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Passing</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--accent-danger)' }}>{failing}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Failing</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>{uncovered}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Uncovered</div>
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--accent-primary)' }}>{passPercent}%</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Covered & Passing</div>
+            </div>
+          </div>
+
+          <div style={{ height: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '5px', overflow: 'hidden', display: 'flex' }}>
+            <div style={{ width: `${passPercent}%`, background: 'var(--accent-success)', height: '100%' }} title={`Passing: ${passPercent}%`}></div>
+            <div style={{ width: `${failPercent}%`, background: 'var(--accent-danger)', height: '100%' }} title={`Failing: ${failPercent}%`}></div>
+            <div style={{ width: `${uncoverPercent}%`, background: 'rgba(255,255,255,0.1)', height: '100%' }} title={`Uncovered: ${uncoverPercent}%`}></div>
+          </div>
+        </div>
+
+        {/* Coverage Grid Table */}
+        <div className="glass-card" style={{ padding: '1.5rem', overflowX: 'auto' }}>
+          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem' }}>Coverage Status Matrix</h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-glass)', color: 'var(--text-secondary)' }}>
+                <th style={{ padding: '0.75rem 1rem' }}>Requirement</th>
+                <th style={{ padding: '0.75rem 1rem' }}>Test Case</th>
+                <th style={{ padding: '0.75rem 1rem' }}>Coverage State</th>
+                <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reqList.map((req: any) => {
+                const test = req.tests && req.tests[0];
+                return (
+                  <tr key={req.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', background: 'rgba(255,255,255,0.01)' }}>
+                    <td style={{ padding: '1rem' }}>
+                      <div style={{ fontWeight: 600, color: 'white' }}>{req.id}</div>
+                      <div className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>{req.title}</div>
+                    </td>
+                    <td style={{ padding: '1rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+                      {test ? (
+                        <div style={{ color: 'var(--accent-primary)' }}>🧪 {test.name}</div>
+                      ) : (
+                        <div style={{ color: 'var(--text-muted)' }}>None Linked</div>
+                      )}
+                    </td>
+                    <td style={{ padding: '1rem' }}>
+                      {req.coverage_state === 'passing' && (
+                        <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-success)' }}>Passing</span>
+                      )}
+                      {req.coverage_state === 'failing' && (
+                        <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.15)', color: 'var(--accent-danger)' }}>Failing</span>
+                      )}
+                      {req.coverage_state === 'uncovered' && (
+                        <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)' }}>Not Covered</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '1rem', textAlign: 'right' }}>
+                      {req.coverage_state === 'uncovered' && (
+                        <button 
+                          className="btn btn-outline" 
+                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderColor: 'var(--accent-success)', color: 'var(--accent-success)' }}
+                          onClick={() => {
+                            setCurrentView('Requirements');
+                            setSelectedReqId(req.id);
+                          }}
+                        >
+                          Create Test
+                        </button>
+                      )}
+                      {req.coverage_state === 'failing' && (
+                        <button 
+                          className="btn btn-outline" 
+                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderColor: 'var(--accent-warning)', color: 'var(--accent-warning)' }}
+                          onClick={async () => {
+                            const siblingTasks = requirements.filter(r => r.parentId === req.id && r.status !== 'Done');
+                            const targetId = siblingTasks[0]?.id || req.id;
+                            
+                            alert(`Dispatching Agent to fix failing test for ${targetId}...`);
+                            try {
+                              await fetch(`/api/trigger-ticket/${targetId}`, { method: 'POST' });
+                            } catch (e) {
+                              console.error(e);
+                            }
+                          }}
+                        >
+                          Fix Failing Test
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Allure Detail Embed */}
+        <div className="glass-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Allure Test Report Dashboard</h3>
+          <p className="text-muted" style={{ margin: 0, fontSize: '0.85rem' }}>View complete test history, execution trends, and screenshots below.</p>
+          <div style={{ width: '100%', height: '600px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-glass)' }}>
+            <iframe 
+              src={allure_report_url} 
+              style={{ width: '100%', height: '100%', border: 'none', background: '#1e293b' }} 
+              title="Allure Report" 
+            />
+          </div>
         </div>
       </div>
     );
