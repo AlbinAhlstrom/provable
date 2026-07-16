@@ -1,9 +1,7 @@
 import React from 'react';
-import { Requirement } from '../hooks/useRequirements';
 
 interface CoverageHubProps {
   coverageData: any;
-  requirements: Requirement[];
   setCurrentView: (view: string) => void;
   setSelectedReqId: (id: string | null) => void;
   fetchReqs: () => Promise<void>;
@@ -12,7 +10,6 @@ interface CoverageHubProps {
 
 const CoverageHub: React.FC<CoverageHubProps> = ({
   coverageData,
-  requirements,
   setCurrentView,
   setSelectedReqId,
   fetchReqs,

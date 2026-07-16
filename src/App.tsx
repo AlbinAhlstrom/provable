@@ -41,7 +41,6 @@ const App: React.FC = () => {
 
   // Test coverage states
   const [coverageData, setCoverageData] = useState<any>(null);
-  const [loadingCoverage, setLoadingCoverage] = useState(false);
 
   const fetchAgentStatus = async () => {
     try {
@@ -78,15 +77,12 @@ const App: React.FC = () => {
   }, [requirements]);
 
   const fetchCoverage = async () => {
-    setLoadingCoverage(true);
     try {
       const res = await fetch('/api/coverage');
       const data = await res.json();
       setCoverageData(data);
     } catch (err) {
       console.error("Failed to fetch coverage details", err);
-    } finally {
-      setLoadingCoverage(false);
     }
   };
 
@@ -218,8 +214,6 @@ const App: React.FC = () => {
     { id: 'Review', label: 'Review', badge: reviewCount }
   ];
 
-  const activeReview = requirements.find(r => r.id === selectedReviewId);
-
   // Contextualize preview window: only show in Review or dedicated states
   const isReviewActive = currentView === 'Review' && selectedReviewId !== null;
   const shouldRenderPreview = showPreview && (isReviewActive || currentView === 'Kanban');
@@ -293,7 +287,6 @@ const App: React.FC = () => {
               {currentView === 'Tests' && (
                 <CoverageHub 
                   coverageData={coverageData}
-                  requirements={requirements}
                   setCurrentView={setCurrentView}
                   setSelectedReqId={setSelectedReqId}
                   fetchReqs={fetchReqs}

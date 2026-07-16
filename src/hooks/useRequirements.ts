@@ -9,13 +9,14 @@ export interface Requirement {
   description: string;
   priority: Priority;
   status: KanbanStatus;
-  type: 'Folder' | 'Requirement' | 'Task' | 'Bug';
+  type: 'Folder' | 'Epic' | 'Requirement' | 'Task' | 'Bug';
   parentId: string | null;
   dependencies?: string[];
   assignedAgents?: string[];
   jira_key?: string;
   jiraKey?: string;
   tests?: any[];
+  feedback?: string;
 }
 
 export function useRequirements() {

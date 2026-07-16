@@ -323,3 +323,5 @@ const DiffViewer = ({ ticketId }: { ticketId: string }) => {
     </div>
   );
 };
+
+export default DiffViewer;
