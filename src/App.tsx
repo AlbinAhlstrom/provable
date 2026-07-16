@@ -381,18 +381,77 @@ const App: React.FC = () => {
   const [showPreview, setShowPreview] = useState<boolean>(true);
   const [previewBranch, setPreviewBranch] = useState<'pre' | 'post'>('post');
 
-  useEffect(() => {
-    const inReview = requirements.some(r => r.status === 'Review');
-    if (!inReview) {
-      setReviews([]);
-      return;
+  // Agent Status & Backlog states
+  const [agentStatus, setAgentStatus] = useState<any>({
+    active: false,
+    ticket_id: null,
+    step: 'Idle',
+    attempt: 0,
+    max_attempts: 3,
+    last_update: ''
+  });
+  const [backlogAnalysis, setBacklogAnalysis] = useState<any[]>([]);
+  const [isTrayExpanded, setIsTrayExpanded] = useState<boolean>(false);
+
+  const fetchAgentStatus = async () => {
+    try {
+      const res = await fetch('/api/agent-status');
+      const data = await res.json();
+      if (data.status) {
+        setAgentStatus(data.status);
+      }
+      if (data.backlog_analysis) {
+        setBacklogAnalysis(data.backlog_analysis);
+      }
+    } catch (e) {
+      console.error("Error fetching agent status:", e);
     }
+  };
+
+  useEffect(() => {
+    fetchAgentStatus();
+    const interval = setInterval(fetchAgentStatus, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     fetch('/api/reviews')
       .then(res => res.json())
       .then(data => setReviews(data))
       .catch(err => console.error(err));
   }, [requirements]);
   const [loading, setLoading] = useState(true);
+
+  // Test case generation state
+  const [isGeneratingTestCase, setIsGeneratingTestCase] = useState(false);
+  const [generatedTestCode, setGeneratedTestCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    setGeneratedTestCode(null);
+  }, [selectedReqId]);
+
+  const handleCreateTestCase = async (reqId: string) => {
+    setIsGeneratingTestCase(true);
+    setGeneratedTestCode(null);
+    try {
+      const res = await fetch(`/api/requirements/${reqId}/create-test-case`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGeneratedTestCode(data.test_code);
+        await fetchReqs();
+      } else {
+        alert("Failed to generate test case: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error calling test case generation API.");
+    } finally {
+      setIsGeneratingTestCase(false);
+    }
+  };
+
 
   // Form state
   const [newTitle, setNewTitle] = useState('');
@@ -414,8 +473,6 @@ const App: React.FC = () => {
 
   // Agent live logs state
   const [agentLogs, setAgentLogs] = useState<string>('');
-
-
 
   // Requirements Tree State
   const [selectedReqId, setSelectedReqId] = useState<string | null>(null);
@@ -460,16 +517,13 @@ const App: React.FC = () => {
   }, [selectedReviewId]);
 
   useEffect(() => {
-    const inProgress = requirements.filter(r => r.status === 'InProgress');
-    if (inProgress.length === 0) {
-      setAgentLogs('');
+    if (!agentStatus.active || !agentStatus.ticket_id) {
       return;
     }
     
-    const ticketId = inProgress[0].id;
     const fetchLogs = async () => {
       try {
-        const res = await fetch(`/api/logs/${ticketId}`);
+        const res = await fetch(`/api/logs/${agentStatus.ticket_id}`);
         const data = await res.json();
         if (data.logs) {
           setAgentLogs(data.logs);
@@ -482,7 +536,7 @@ const App: React.FC = () => {
     fetchLogs();
     const logInterval = setInterval(fetchLogs, 2000);
     return () => clearInterval(logInterval);
-  }, [requirements]);
+  }, [agentStatus.active, agentStatus.ticket_id]);
 
   const handleCreateReq = async (req: Requirement) => {
     const updated = [...requirements, req];
@@ -670,6 +724,15 @@ const App: React.FC = () => {
                         ))}
                       </div>
                     </div>
+                    {req.status === 'Backlog' && (
+                      <button 
+                        className="btn btn-outline" 
+                        style={{ marginTop: '0.75rem', width: '100%', fontSize: '0.75rem', padding: '0.25rem 0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
+                        onClick={() => handleTriggerAgent(req.id)}
+                      >
+                        ⚡ Trigger Agent (Temp)
+                      </button>
+                    )}
                   </div>
                 );
               })}
@@ -914,6 +977,16 @@ const App: React.FC = () => {
                           {selectedNode.type === 'Requirement' && (
                             <button className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', borderColor: 'var(--accent-warning)', color: 'var(--accent-warning)' }} onClick={() => setIsReportingBug(true)}>🐛 Report Bug</button>
                           )}
+                          {selectedNode.type === 'Requirement' && (!selectedNode.tests || selectedNode.tests.length === 0) && (
+                            <button 
+                              className="btn btn-outline" 
+                              style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', borderColor: 'var(--accent-success)', color: 'var(--accent-success)' }} 
+                              onClick={() => handleCreateTestCase(selectedNode.id)}
+                              disabled={isGeneratingTestCase}
+                            >
+                              {isGeneratingTestCase ? '🧪 Generating...' : '🧪 Create Test Case'}
+                            </button>
+                          )}
                           <button className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }} onClick={() => {
                             setEditTitle(selectedNode.title);
                             setEditDesc(selectedNode.description);
@@ -933,6 +1006,42 @@ const App: React.FC = () => {
                           <textarea value={selectedNode.description} readOnly style={{ width: '100%', height: '100%', minHeight: '130px', background: 'transparent', border: 'none', color: 'white', resize: 'vertical', outline: 'none' }} />
                         </div>
                       </div>
+
+                      {/* Linked Test Cases */}
+                      {selectedNode.tests && selectedNode.tests.length > 0 && (
+                        <div style={{ marginTop: '1.5rem' }}>
+                          <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Linked Test Cases</label>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            {selectedNode.tests.map((test: any, idx: number) => (
+                              <div key={idx} style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.02)', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <h4 style={{ margin: 0, fontSize: '0.95rem', color: 'white' }}>{test.name || test.title}</h4>
+                                  <span className="badge" style={{ fontSize: '0.75rem', background: test.status === 'Passing' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: test.status === 'Passing' ? 'var(--accent-success)' : 'var(--accent-danger)' }}>
+                                    {test.status}
+                                  </span>
+                                </div>
+                                {test.given && (
+                                  <div style={{ fontSize: '0.85rem', marginTop: '0.4rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                                    <strong>Given:</strong> {test.given} <br/>
+                                    <strong>When:</strong> {test.when} <br/>
+                                    <strong>Then:</strong> {test.then}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Generated Code Preview */}
+                      {generatedTestCode && (
+                        <div style={{ marginTop: '1.5rem' }}>
+                          <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.3rem', color: 'var(--text-secondary)' }}>Generated Test Code</label>
+                          <pre style={{ padding: '1rem', background: '#1e293b', border: '1px solid var(--border-glass)', borderRadius: '4px', overflowX: 'auto', fontSize: '0.85rem', maxHeight: '300px' }}>
+                            <code style={{ color: '#38bdf8' }}>{generatedTestCode}</code>
+                          </pre>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
@@ -1015,8 +1124,8 @@ const App: React.FC = () => {
     await fetchReqs();
   };
 
-  const handleRejectCode = async (req: Requirement) => {
-    const feedback = prompt("Provide feedback to the agent on why this code was rejected:");
+  const handleProvideFeedback = async (req: Requirement) => {
+    const feedback = prompt("Provide feedback to the agent on why this code is not accepted:");
     if (!feedback) return;
     setSelectedReviewId(null);
     const updated = requirements.map(r => r.id === req.id ? { ...r, status: 'Backlog' as KanbanStatus, feedback } : r);
@@ -1031,6 +1140,42 @@ const App: React.FC = () => {
     await fetch('/api/trigger-agents', { method: 'POST' });
     await fetchReqs();
   };
+
+  const handleAbandonTicket = async (req: Requirement) => {
+    if (!confirm(`Are you sure you want to abandon ticket ${req.id}? This will discard the agent's changes and delete the branch.`)) {
+      return;
+    }
+    setSelectedReviewId(null);
+    try {
+      const res = await fetch(`/api/abandon-ticket/${req.id}`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        await fetchReqs();
+      } else {
+        alert(`Failed to abandon ticket: ${data.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error occurred while abandoning the ticket.");
+    }
+  };
+
+
+  const handleTriggerAgent = async (ticketId: string) => {
+    try {
+      const res = await fetch(`/api/trigger-ticket/${ticketId}`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        await fetchReqs();
+      } else {
+        alert(`Failed to trigger agent: ${data.error || data.message || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error occurred while triggering the agent.");
+    }
+  };
+
 
   const renderCodeReview = () => {
     if (selectedReviewId === null) {
@@ -1117,7 +1262,7 @@ const App: React.FC = () => {
   };
 
 
-  const reviewCount = requirements.filter(r => (r.status === 'Review' || r.status === 'Conflict') && (r.type === 'Task' || r.type === 'Bug')).length;
+  const reviewCount = reviews.length;
 
   const navItems = [
     { id: 'Kanban', label: 'Kanban' },
@@ -1261,6 +1406,59 @@ const App: React.FC = () => {
                             <div className="spinner-small" style={{ border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#fbbf24', borderRadius: '50%', width: '14px', height: '14px', animation: 'spin 1s linear infinite' }}></div>
                             <span>Merge conflict detected. Automated agent is resolving and running pytest...</span>
                           </div>
+                        ) : req.status === 'InProgress' ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div 
+                              className="glass-panel" 
+                              style={{ 
+                                padding: '0.5rem 1rem', 
+                                border: '1px solid var(--accent-primary)', 
+                                background: 'rgba(59, 130, 246, 0.1)', 
+                                borderRadius: '6px', 
+                                color: '#60a5fa', 
+                                fontSize: '0.9rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem'
+                              }}
+                            >
+                              <div className="spinner-small" style={{ border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#60a5fa', borderRadius: '50%', width: '14px', height: '14px', animation: 'spin 1s linear infinite' }}></div>
+                              <span>Agent is actively reworking this ticket based on feedback...</span>
+                            </div>
+                            <button 
+                              className="btn btn-outline" 
+                              style={{ borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)' }} 
+                              onClick={() => handleAbandonTicket(req)}
+                            >
+                              Abandon
+                            </button>
+                          </div>
+                        ) : req.status === 'Backlog' ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div 
+                              className="glass-panel" 
+                              style={{ 
+                                padding: '0.5rem 1rem', 
+                                border: '1px solid var(--text-muted)', 
+                                background: 'rgba(255, 255, 255, 0.05)', 
+                                borderRadius: '6px', 
+                                color: 'var(--text-muted)', 
+                                fontSize: '0.9rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem'
+                              }}
+                            >
+                              <span>⌛ Waiting for agent to start reworking...</span>
+                            </div>
+                            <button 
+                              className="btn btn-outline" 
+                              style={{ borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)' }} 
+                              onClick={() => handleAbandonTicket(req)}
+                            >
+                              Abandon
+                            </button>
+                          </div>
                         ) : (
                           <div style={{ display: 'flex', gap: '0.75rem' }}>
                             <button className="btn btn-primary" onClick={() => handleApproveCode(req)}>
@@ -1268,10 +1466,16 @@ const App: React.FC = () => {
                             </button>
                             <button 
                               className="btn btn-outline" 
-                              style={{ borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)' }} 
-                              onClick={() => handleRejectCode(req)}
+                              onClick={() => handleProvideFeedback(req)}
                             >
-                              Reject
+                              Feedback
+                            </button>
+                            <button 
+                              className="btn btn-outline" 
+                              style={{ borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)' }} 
+                              onClick={() => handleAbandonTicket(req)}
+                            >
+                              Abandon
                             </button>
                           </div>
                         )}
@@ -1294,7 +1498,7 @@ const App: React.FC = () => {
         </main>
 
         <aside className="preview-sidebar" style={{ display: showPreview ? undefined : 'none' }}>
-          <iframe src="http://localhost:5174" style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }} title="Workspace Preview" />
+          <iframe src={`${window.location.protocol}//${window.location.hostname}:5174`} style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }} title="Workspace Preview" />
         </aside>
       </div>
 
@@ -1330,6 +1534,94 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
+      
+      {/* Collapsible Bottom Agent Dashboard Tray */}
+      <div className={`agent-dashboard-tray ${isTrayExpanded ? 'expanded' : 'collapsed'}`}>
+        <div className="agent-tray-header" onClick={() => setIsTrayExpanded(!isTrayExpanded)}>
+          <div className="agent-status-indicator">
+            <div className={`agent-status-glow ${agentStatus.active ? 'active' : 'idle'}`}></div>
+            <span>
+              <strong>Agent Status:</strong>{' '}
+              {agentStatus.active ? (
+                <span style={{ color: 'var(--accent-success)' }}>
+                  Active ({agentStatus.step} - Ticket {agentStatus.ticket_id || 'N/A'}, Attempt {agentStatus.attempt}/{agentStatus.max_attempts})
+                </span>
+              ) : (
+                <span style={{ color: 'var(--accent-warning)' }}>Idle</span>
+              )}
+            </span>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button
+              className="btn btn-outline"
+              style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem', borderColor: 'rgba(255,255,255,0.2)' }}
+              onClick={async (e) => {
+                e.stopPropagation();
+                try {
+                  const res = await fetch('/api/trigger-agents', { method: 'POST' });
+                  const data = await res.json();
+                  alert(data.message || "Agent loop dispatched.");
+                  fetchAgentStatus();
+                } catch (err) {
+                  alert("Failed to trigger agent.");
+                }
+              }}
+            >
+              🚀 Dispatch Agent
+            </button>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              Last Update: {agentStatus.last_update || 'N/A'}
+            </span>
+            <span style={{ fontSize: '0.8rem', transform: isTrayExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+              ▲
+            </span>
+          </div>
+        </div>
+
+        {isTrayExpanded && (
+          <div className="agent-tray-content">
+            <div className="agent-tray-section" style={{ flex: 1.5 }}>
+              <div className="agent-tray-section-title">Live Agent Console Logs</div>
+              <div className="agent-terminal-panel">
+                <pre style={{ margin: 0, whiteSpace: 'pre-wrap', color: '#c9d1d9' }}>
+                  {agentLogs || (agentStatus.active ? "Connecting to agent log stream..." : "Agent is idle. No logs to stream.")}
+                </pre>
+              </div>
+            </div>
+
+            <div className="agent-tray-section" style={{ flex: 1 }}>
+              <div className="agent-tray-section-title">Backlog Dispatch Queue</div>
+              <div className="agent-queue-panel">
+                {backlogAnalysis.length === 0 ? (
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', margin: 'auto' }}>
+                    No pending tasks in backlog.
+                  </div>
+                ) : (
+                  backlogAnalysis.map((item: any) => (
+                    <div key={item.id} className={`queue-item ${item.is_blocked ? 'blocked' : 'ready'}`}>
+                      <div className="queue-item-header">
+                        <span style={{ fontFamily: 'monospace', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{item.id}</span>
+                        <span className={item.is_blocked ? 'status-badge-blocked' : 'status-badge-ready'}>
+                          {item.is_blocked ? 'Blocked' : 'Ready'}
+                        </span>
+                      </div>
+                      <div className="queue-item-title" title={item.title}>{item.title}</div>
+                      {item.is_blocked && item.reasons.length > 0 && (
+                        <div className="queue-item-reasons">
+                          {item.reasons.map((r: string, idx: number) => (
+                            <div key={idx}>⚠️ {r}</div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -8,6 +8,14 @@ import os
 import random
 from typing import List, Optional, Dict, Any
 
+def _trigger_sdoc_export():
+    try:
+        from integrations.strictdoc_client import export_sdoc
+        export_sdoc()
+    except Exception as e:
+        print(f"📦 DataStore: Failed to export SDoc: {e}")
+
+
 DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'provable.db'))
 SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'schema.sql'))
 REQUIREMENTS_JSON = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'requirements.json'))
@@ -175,6 +183,7 @@ def create_requirement(data: Dict) -> Dict:
     )
     conn.commit()
     conn.close()
+    _trigger_sdoc_export()
     return get_requirement(req_id)
 
 
@@ -207,6 +216,7 @@ def update_requirement(req_id: str, fields: Dict) -> Optional[Dict]:
     conn.execute(f"UPDATE requirements SET {set_clause} WHERE id = ?", values)
     conn.commit()
     conn.close()
+    _trigger_sdoc_export()
     return get_requirement(req_id)
 
 
@@ -222,6 +232,7 @@ def delete_requirement_cascade(req_id: str):
     conn.execute("DELETE FROM requirements WHERE id = ?", (req_id,))
     conn.commit()
     conn.close()
+    _trigger_sdoc_export()
 
 
 def update_requirement_status(req_id: str, status: str, feedback: str = None, tests: List = None):

@@ -17,6 +17,9 @@ app = FastAPI(title="ScrumSim Backend")
 
 # Initialize database on startup
 store.init_db()
+from integrations.strictdoc_client import sync_sdoc_to_db
+sync_sdoc_to_db()
+
 
 # Allow CORS for local dev
 app.add_middleware(
@@ -597,6 +600,92 @@ def edit_requirement(payload: EditRequirementPayload, background_tasks: Backgrou
     background_tasks.add_task(run_requirement_audit, payload.id)
     return {"success": True, "message": f"Updated requirement {payload.id} and scheduled Audit Agent."}
 
+@app.post("/api/requirements/{req_id}/create-test-case")
+def create_test_case(req_id: str, background_tasks: BackgroundTasks):
+    import random
+    from agent_orchestrator import load_prompt, call_gemini, run_pytest
+    
+    # 1. Load requirement
+    req = store.get_requirement(req_id)
+    if not req:
+        return {"success": False, "error": f"Requirement {req_id} not found."}
+        
+    test_case_id = f"TST-{random.randint(1000, 9999)}"
+    
+    # 2. Call LLM to generate test
+    try:
+        prompt = load_prompt("test_case_generation.md", {
+            "req_id": req_id,
+            "title": req.get('title', ''),
+            "description": req.get('description', ''),
+            "test_case_id": test_case_id
+        })
+        test_code = call_gemini(prompt, stage="test_case_generation")
+        
+        # Clean up markdown code block formatting if present
+        test_code = test_code.strip()
+        if test_code.startswith("```python"):
+            test_code = test_code[9:-3]
+        elif test_code.startswith("```"):
+            test_code = test_code[3:-3]
+        test_code = test_code.strip()
+        
+        # 3. Write test file
+        workspace_base = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
+        test_dir = os.path.join(workspace_base, 'tests')
+        os.makedirs(test_dir, exist_ok=True)
+        test_file_path = os.path.join(test_dir, f"test_{req_id}.py")
+        
+        with open(test_file_path, 'w', encoding='utf-8') as f:
+            f.write(test_code)
+            
+        # Run pytest (sanity check / registers the test in pytest output)
+        background_tasks.add_task(run_pytest, workspace_base)
+        
+        # 4. Parse docstring fields from test code
+        test_func_name = "test_case"
+        for line in test_code.splitlines():
+            if line.strip().startswith("def test_"):
+                test_func_name = line.split("def ")[1].split("(")[0].strip()
+                break
+                
+        from agent_orchestrator import parse_test_docstrings
+        docstrings = parse_test_docstrings(test_file_path)
+        tc_doc = docstrings.get(test_func_name, {})
+        
+        conn = store.get_connection()
+        conn.execute(
+            """INSERT OR REPLACE INTO test_cases
+               (id, requirement_id, title, given_text, when_text, then_text, file_path, last_result)
+               VALUES (?,?,?,?,?,?,?,?)""",
+            (
+                test_case_id,
+                req_id,
+                tc_doc.get('title') or f"Test for {req_id}",
+                tc_doc.get('given', ''),
+                tc_doc.get('when', ''),
+                tc_doc.get('then', ''),
+                f"tests/test_{req_id}.py",
+                'fail'  # always fails at creation (TDD red)
+            )
+        )
+        conn.commit()
+        conn.close()
+        
+        store._trigger_sdoc_export()
+        
+        return {
+            "success": True,
+            "test_case_id": test_case_id,
+            "test_code": test_code,
+            "file_path": f"tests/test_{req_id}.py"
+        }
+        
+    except Exception as e:
+        print(f"❌ Failed to create test case: {e}")
+        return {"success": False, "error": str(e)}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
