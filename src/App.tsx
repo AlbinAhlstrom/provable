@@ -1195,14 +1195,20 @@ const App: React.FC = () => {
                           className="btn btn-outline" 
                           style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderColor: 'var(--accent-warning)', color: 'var(--accent-warning)' }}
                           onClick={async () => {
-                            const siblingTasks = requirements.filter(r => r.parentId === req.id && r.status !== 'Done');
-                            const targetId = siblingTasks[0]?.id || req.id;
-                            
-                            alert(`Dispatching Agent to fix failing test for ${targetId}...`);
+                            alert(`Creating Jira ticket and dispatching Agent to fix failing test for ${req.id}...`);
                             try {
-                              await fetch(`/api/trigger-ticket/${targetId}`, { method: 'POST' });
+                              const res = await fetch(`/api/requirements/${req.id}/fix-test-case`, { method: 'POST' });
+                              const data = await res.json();
+                              if (data.success) {
+                                alert(`Successfully created Jira ticket ${data.jira_key}! Agent dispatched.`);
+                                await fetchReqs();
+                                await fetchCoverage();
+                              } else {
+                                alert(`Failed to fix test case: ${data.error}`);
+                              }
                             } catch (e) {
                               console.error(e);
+                              alert("Network error while trying to fix test case.");
                             }
                           }}
                         >

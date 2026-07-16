@@ -19,6 +19,9 @@ app = FastAPI(title="ScrumSim Backend")
 store.init_db()
 from integrations.strictdoc_client import sync_sdoc_to_db
 sync_sdoc_to_db()
+from integrations.jira_client import sync_jira_to_db
+sync_jira_to_db()
+
 
 
 # Allow CORS for local dev
@@ -718,6 +721,41 @@ def create_test_case(req_id: str, background_tasks: BackgroundTasks):
     except Exception as e:
         print(f"❌ Failed to create test case: {e}")
         return {"success": False, "error": str(e)}
+
+@app.post("/api/requirements/{req_id}/fix-test-case")
+def fix_test_case(req_id: str, background_tasks: BackgroundTasks):
+    from integrations.jira_client import create_jira_ticket
+    
+    # 1. Load requirement
+    req = store.get_requirement(req_id)
+    if not req:
+        return {"success": False, "error": f"Requirement {req_id} not found."}
+        
+    # 2. Get the failing test case
+    tcs = store.get_test_cases_for_requirement(req_id)
+    if not tcs:
+        return {"success": False, "error": f"No test cases linked to requirement {req_id}."}
+        
+    # 3. Create Jira ticket
+    title = f"Fix failing test for {req.get('title')}"
+    description = f"The automated test case for requirement {req_id} is failing.\nImplement the missing behavior and ensure the test case passes."
+    jira_key = create_jira_ticket(title, description, req_id)
+    
+    # 4. Update status in database to Backlog and link JIRA key
+    store.update_requirement(req_id, {
+        "status": "Backlog",
+        "jira_key": jira_key,
+        "feedback": ""
+    })
+    
+    # 5. Trigger developer agent in background to fix the failing test case
+    background_tasks.add_task(run_openhands_loop, req_id)
+    
+    return {
+        "success": True,
+        "jira_key": jira_key,
+        "message": f"Created Jira ticket {jira_key} and dispatched developer agent."
+    }
 
 if __name__ == "__main__":
     import uvicorn
