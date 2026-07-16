@@ -40,3 +40,12 @@ When initializing the workspace services for coding, testing, or review tasks:
    ```
    *Note: `dev.sh` runs Vite on port 5173 and the FastAPI backend on port 8000. Under-the-hood, the backend startup routine will automatically register and configure the Allure project settings on port 5050.*
 
+## Requirements-Driven TDD Architecture
+When modifying the application codebase or writing developer agent iterations:
+1. **SQLite DataStore**: Always read and update requirements, test cases, and runs via `backend/db/store.py` (which wraps SQLite `provable.db`) rather than legacy JSON files.
+2. **StrictDoc Sync**: Requirements are version-controlled inside the git repository under `workspace/requirements/requirements.sdoc`. Updates to requirements database models must trigger the bidirectional sync hook `export_sdoc()` to keep spec files aligned.
+3. **TDD Flow Execution**: Every feature task must begin by generating a failing BDD test case (`workspace/tests/test_{req_id}.py`) containing `@allure` metadata and BDD step docstrings (`Given/When/Then`).
+4. **Allure Matrix**: All test results must be published to the containerized Allure service on port `5050` (`frankescobar/allure-docker-service`) to update the coverage metrics seen in the frontend.
+5. **OpenAI SDK & Templates**: All LLM queries must route through the OpenAI Python client using configurations inside `backend/config/models.yaml` and load system prompts dynamically from `backend/prompts/` Markdown templates.
+
+
