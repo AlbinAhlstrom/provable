@@ -10,6 +10,11 @@ export default defineConfig({
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         secure: false,
+      },
+      '/allure-docker-service': {
+        target: 'http://127.0.0.1:5050',
+        changeOrigin: true,
+        secure: false,
       }
     }
   }

@@ -6,10 +6,11 @@ Here are the current source files in the project:
 Please implement the following ticket:
 {task_desc}
 {feedback_note_attempt}
+{test_context}
 
-You MUST implement the requested changes in the codebase AND write a corresponding automated pytest test file under `tests/test_example.py` to verify the functionality.{bug_test_instruction}
+You MUST implement the requested changes in the codebase AND write a corresponding automated pytest test file under `{test_file_path}` to verify the functionality.{bug_test_instruction}
 The pytest tests should run in a Python environment using Selenium WebDriver in headless mode to verify that the app behaves correctly at runtime.
-Your test file `tests/test_example.py` should define test functions that setup a headless Selenium webdriver, navigate to 'http://localhost:5174' (where the workspace application runs), and perform functional/layout checks.
+Your test file `{test_file_path}` should define test functions that setup a headless Selenium webdriver, navigate to 'http://localhost:5174' (where the workspace application runs), and perform functional/layout checks.
 
 CRITICAL INSTRUCTIONS FOR BROWSER RUNTIME TESTS:
 1. Always run Chrome in headless mode with parameters '--headless=new', '--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', and '--remote-debugging-port=9222'.
@@ -22,7 +23,7 @@ CRITICAL INSTRUCTIONS FOR BROWSER RUNTIME TESTS:
 8. CLEAN UP OVERRIDDEN STYLES: When updating or moving layouts (e.g., changing header positioning), ensure you clean up and remove any old properties (such as relative centering offsets like `left: 50%` or `transform: translateX(-50%)`) rather than leaving them to conflict with the new styles.
 
 CRITICAL REQUIREMENT FOR TEST CASES:
-Each test case function in `tests/test_example.py` MUST contain a docstring formatted EXACTLY like this:
+Each test case function in `{test_file_path}` MUST contain a docstring formatted EXACTLY like this:
 \"\"\"<Short title of the test>
 
 <Detailed description of the test>
@@ -52,7 +53,7 @@ IMPORTANT: Respond ONLY with file blocks in this exact format (no markdown fence
 === FILE: src/App.tsx ===
 <full file content here>
 === END FILE ===
-=== FILE: tests/test_example.py ===
+=== FILE: {test_file_path} ===
 <full pytest test content here>
 === END FILE ===
 

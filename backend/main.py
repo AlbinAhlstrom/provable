@@ -12,30 +12,51 @@ dotenv.load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 from fastapi.middleware.cors import CORSMiddleware
 from agent_orchestrator import run_openhands_loop, resolve_merge_conflict, run_requirement_audit, call_gemini
 import db.store as store
-
-app = FastAPI(title="ScrumSim Backend")
-
-# Initialize database on startup
-store.init_db()
 from integrations.strictdoc_client import sync_sdoc_to_db
-sync_sdoc_to_db()
-from integrations.jira_client import sync_jira_to_db
-sync_jira_to_db()
+from config_loader import (
+    get_workspace_base, get_project_settings, get_all_projects,
+    set_active_project, add_project
+)
 
-# Auto-create Allure project if enabled
-try:
-    from integrations.allure_client import load_allure_config
-    allure_cfg = load_allure_config()
-    if allure_cfg.get('enabled'):
-        import requests
-        allure_url = f"{allure_cfg.get('server_url', 'http://localhost:5050').rstrip('/')}/projects"
-        res = requests.post(allure_url, json={"id": allure_cfg.get('project_id', 'provable')}, timeout=5)
-        print(f"📊 Allure Integration: Project initialization response: {res.status_code}")
-except Exception as allure_init_err:
-    print(f"📊 Allure Integration: Could not auto-create project (service might not be started yet): {allure_init_err}")
+app = FastAPI(title="Provable Backend")
 
+@app.on_event("startup")
+def startup_event():
+    import sys
+    # Skip live DB initialization and sync during test suite execution
+    if os.environ.get("DATABASE_URL") or "pytest" in sys.modules:
+        print("📦 Startup: Test execution context detected. Skipping live DB sync.")
+        return
 
+    # ── Startup: initialise per-project database ────────────────────────────────
+    _active_db = os.path.join(get_workspace_base(), 'requirements', 'provable.db')
+    store.set_active_db(_active_db)
+    store.init_db()
+    
+    try:
+        from integrations.strictdoc_client import sync_sdoc_to_db
+        sync_sdoc_to_db()
+    except Exception as e:
+        print(f"📦 Startup: Failed to sync SDoc: {e}")
+        
+    try:
+        from integrations.jira_client import sync_jira_to_db
+        sync_jira_to_db()
+    except Exception as e:
+        print(f"📦 Startup: Failed to sync Jira: {e}")
 
+    # Auto-create Allure project if enabled
+    try:
+        from integrations.allure_client import load_allure_config, get_allure_project_id
+        allure_cfg = load_allure_config()
+        if allure_cfg.get('enabled'):
+            import requests
+            _proj_slug = get_allure_project_id()
+            allure_url = f"{allure_cfg.get('server_url', 'http://localhost:5050').rstrip('/')}/projects"
+            res = requests.post(allure_url, json={"id": _proj_slug}, timeout=5)
+            print(f"📊 Allure Integration: Project '{_proj_slug}' init response: {res.status_code}")
+    except Exception as allure_init_err:
+        print(f"📊 Allure Integration: Could not auto-create project: {allure_init_err}")
 
 # Allow CORS for local dev
 app.add_middleware(
@@ -48,7 +69,125 @@ app.add_middleware(
 
 SETTINGS_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), 'config', 'integrations.yaml'))
 
+
+# ── Project Management Endpoints ─────────────────────────────────────────────
+
+@app.get("/api/projects")
+def list_projects():
+    """Return all registered projects and which one is currently active."""
+    projects = get_all_projects()
+    active_path = get_workspace_base()
+    result = []
+    for p in projects:
+        result.append({
+            "name": p.get("name", os.path.basename(p["path"])),
+            "path": p["path"],
+            "active": os.path.abspath(p["path"]) == os.path.abspath(active_path)
+        })
+    return result
+
+
+@app.get("/api/project/settings")
+def get_active_project_settings():
+    """Return configuration for the currently active project."""
+    settings = get_project_settings()
+    settings["workspace_path"] = get_workspace_base()
+    return settings
+
+
+class ProjectSwitchPayload(BaseModel):
+    path: str
+
+@app.post("/api/projects/switch")
+def switch_project(payload: ProjectSwitchPayload, background_tasks: BackgroundTasks):
+    """Switch the active project workspace, re-initialise the DB, and re-sync requirements."""
+    project_path = os.path.abspath(payload.path)
+    if not os.path.exists(project_path):
+        return {"success": False, "error": f"Path does not exist: {project_path}"}
+
+    try:
+        # 1. Switch workspace env
+        set_active_project(project_path)
+
+        # 2. Switch per-project database
+        db_path = os.path.join(project_path, 'requirements', 'provable.db')
+        store.set_active_db(db_path)
+        store.init_db()
+
+        # 3. Re-sync requirements from the project's sdoc (clearing old data first)
+        sync_sdoc_to_db(clear_first=True)
+
+        # 4. Auto-create the Allure project for this workspace
+        try:
+            from integrations.allure_client import load_allure_config, get_allure_project_id
+            allure_cfg = load_allure_config()
+            if allure_cfg.get('enabled'):
+                import requests as _req
+                slug = get_allure_project_id()
+                allure_url = f"{allure_cfg['server_url'].rstrip('/')}/projects"
+                _req.post(allure_url, json={"id": slug}, timeout=5)
+        except Exception:
+            pass
+
+        # 5. Launch the project's dev server in background
+        try:
+            from onboarding.server_manager import start_project_servers
+            background_tasks.add_task(start_project_servers, project_path)
+        except Exception as server_err:
+            print(f"⚠️ Failed to schedule server start: {server_err}")
+
+        settings = get_project_settings()
+        return {
+            "success": True,
+            "project": {
+                "name": settings.get("name"),
+                "path": project_path,
+                "preview_url": settings.get("dev_server", {}).get("base_url", "http://localhost:5174")
+            }
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+class ProjectAddPayload(BaseModel):
+    path: str
+    run_synthesis: bool = True
+
+@app.post("/api/projects/add")
+def add_project_endpoint(payload: ProjectAddPayload, background_tasks: BackgroundTasks):
+    """Onboard a new local project folder (runs the full onboarding pipeline in background)."""
+    project_path = os.path.abspath(payload.path)
+    if not os.path.exists(project_path):
+        return {"success": False, "error": f"Path does not exist: {project_path}"}
+
+    def _run_onboarding():
+        from onboarding.onboard import onboard_project
+        onboard_project(project_path, run_synthesis=payload.run_synthesis)
+
+    background_tasks.add_task(_run_onboarding)
+    return {
+        "success": True,
+        "message": f"Onboarding started for {project_path}. This may take a minute."
+    }
+
+
+@app.post("/api/requirements/synthesize-from-tests")
+def synthesize_requirements(background_tasks: BackgroundTasks):
+    """Run the reverse-TDD synthesizer on the active project's test suite."""
+    workspace = get_workspace_base()
+
+    def _run_synthesis():
+        from onboarding.requirements_synthesizer import synthesize_requirements_from_tests
+        synthesize_requirements_from_tests(workspace)
+
+    background_tasks.add_task(_run_synthesis)
+    return {"success": True, "message": "Requirement synthesis started in background."}
+
+
+# ── Requirements Models ───────────────────────────────────────────────────────
+
 class Requirement(BaseModel):
+
     id: str
     title: str
     description: str
@@ -76,6 +215,14 @@ def update_requirements(reqs: List[Requirement]):
             store.create_requirement(r.dict())
     return {"success": True}
 
+@app.delete("/api/requirements/{req_id}")
+def delete_requirement(req_id: str):
+    existing = store.get_requirement(req_id)
+    if not existing:
+        return {"success": False, "error": f"Requirement {req_id} not found"}
+    store.delete_requirement_cascade(req_id)
+    return {"success": True}
+
 @app.get("/api/settings")
 def get_settings():
     if not os.path.exists(SETTINGS_FILE):
@@ -92,7 +239,7 @@ def update_settings(payload: dict):
 @app.get("/api/diff/{ticket_id}")
 def get_diff(ticket_id: str):
     import subprocess
-    WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
+    WORKSPACE_BASE = get_workspace_base()
     try:
         # Get the diff between main and the ticket branch
         result = subprocess.run(["git", "diff", "main...ticket/" + ticket_id], cwd=WORKSPACE_BASE, capture_output=True, text=True)
@@ -104,7 +251,7 @@ def get_diff(ticket_id: str):
 def get_diff_files(ticket_id: str):
     import subprocess
     import difflib
-    WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
+    WORKSPACE_BASE = get_workspace_base()
     try:
         # Find merge base
         mb_res = subprocess.run(
@@ -126,6 +273,7 @@ def get_diff_files(ticket_id: str):
             and '__pycache__' not in f
             and not f.endswith('.pyo')
             and not f.endswith('.pyd')
+            and not f.endswith('.sdoc')
             and '.git/' not in f
         ]
         
@@ -240,7 +388,7 @@ def get_diff_files(ticket_id: str):
 def get_reviews():
     import subprocess
     import time
-    WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
+    WORKSPACE_BASE = get_workspace_base()
     
     requirements = store.get_all_requirements()
         
@@ -260,8 +408,8 @@ def get_reviews():
             cwd=WORKSPACE_BASE, capture_output=True
         )
         
-        # Include if branch exists OR status is Review/Conflict
-        if branch_exists_res.returncode == 0 or status in ('Review', 'Conflict'):
+        # Include if branch exists AND status is Review/Conflict
+        if branch_exists_res.returncode == 0 and status in ('Review', 'Conflict'):
             review_items.append(r)
     
     results = []
@@ -408,7 +556,7 @@ def approve_code(payload: ApprovePayload):
 @app.post("/api/merge-code")
 def merge_code(payload: ApprovePayload, background_tasks: BackgroundTasks):
     import subprocess
-    WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
+    WORKSPACE_BASE = get_workspace_base()
     branch_name = f"ticket/{payload.id}"
     
     try:
@@ -434,6 +582,33 @@ class CreateRequirementPayload(BaseModel):
     title: str
     description: str
     parentId: Optional[str] = None
+
+class CreateFolderPayload(BaseModel):
+    title: str
+    description: Optional[str] = ""
+    parentId: Optional[str] = None
+
+@app.post("/api/create-folder")
+def create_folder(payload: CreateFolderPayload):
+    import random
+    folder_id = f"FLD-{random.randint(100, 999)}"
+    store.create_requirement({
+        "id": folder_id,
+        "title": payload.title,
+        "description": payload.description or "",
+        "priority": "Med",
+        "status": "Backlog",
+        "type": "Folder",
+        "parentId": payload.parentId,
+    })
+    return {"success": True, "id": folder_id}
+
+@app.post("/api/requirements/{req_id}/move")
+def move_requirement(req_id: str, payload: dict):
+    """Change a requirement's parent (or unparent it)."""
+    new_parent = payload.get("parentId")  # None to move to root
+    store.update_requirement(req_id, {"parent_id": new_parent})
+    return {"success": True}
 
 @app.post("/api/create-requirement")
 def create_requirement(payload: CreateRequirementPayload, background_tasks: BackgroundTasks):
@@ -539,7 +714,7 @@ def abandon_ticket(ticket_id: str):
     if not re.match(r'^[A-Za-z0-9_\-]+$', ticket_id):
         return {"success": False, "error": "Invalid ticket ID format."}
         
-    WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
+    WORKSPACE_BASE = get_workspace_base()
     
     try:
         subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
@@ -584,7 +759,7 @@ class CheckoutPreviewPayload(BaseModel):
 @app.post("/api/checkout-preview")
 def checkout_preview(payload: CheckoutPreviewPayload):
     import subprocess
-    WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
+    WORKSPACE_BASE = get_workspace_base()
     
     branch = payload.branch.strip()
     import re
@@ -631,10 +806,12 @@ def get_coverage():
         tcs = r.get('tests', [])
         if not tcs:
             state = "uncovered"
+        elif any(t.get('status') == 'Failing' for t in tcs):
+            state = "failing"
         elif all(t.get('status') == 'Passing' for t in tcs):
             state = "passing"
         else:
-            state = "failing"
+            state = "pending"
             
         coverage_reqs.append({
             "id": r['id'],
@@ -681,7 +858,7 @@ def create_test_case(req_id: str, background_tasks: BackgroundTasks):
         test_code = test_code.strip()
         
         # 3. Write test file
-        workspace_base = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
+        workspace_base = get_workspace_base()
         test_dir = os.path.join(workspace_base, 'tests')
         os.makedirs(test_dir, exist_ok=True)
         test_file_path = os.path.join(test_dir, f"test_{req_id}.py")
@@ -711,7 +888,7 @@ def create_test_case(req_id: str, background_tasks: BackgroundTasks):
             (
                 test_case_id,
                 req_id,
-                tc_doc.get('title') or f"Test for {req_id}",
+                test_func_name,
                 tc_doc.get('given', ''),
                 tc_doc.get('when', ''),
                 tc_doc.get('then', ''),
@@ -761,14 +938,56 @@ def fix_test_case(req_id: str, background_tasks: BackgroundTasks):
         "feedback": ""
     })
     
-    # 5. Trigger developer agent in background to fix the failing test case
-    background_tasks.add_task(run_openhands_loop, req_id)
+    # 5. Find the child Task to dispatch (agent only processes Task/Bug, not Requirement)
+    child_tasks = [
+        r for r in store.get_all_requirements()
+        if r.get('parent_id') == req_id and r.get('type') in ('Task', 'Bug')
+    ]
+    backlog_tasks = [r for r in child_tasks if r.get('status') == 'Backlog']
+    task_to_dispatch = (backlog_tasks or child_tasks or [None])[0]
+
+    if task_to_dispatch:
+        background_tasks.add_task(run_openhands_loop, task_to_dispatch['id'])
+    else:
+        # No child task — dispatch general loop to pick up whatever is ready
+        background_tasks.add_task(run_openhands_loop)
     
     return {
         "success": True,
         "jira_key": jira_key,
         "message": f"Created Jira ticket {jira_key} and dispatched developer agent."
     }
+
+@app.post("/api/tests/run")
+def run_all_tests(background_tasks: BackgroundTasks):
+    from agent_orchestrator import run_pytest, sync_test_results
+    from integrations.allure_client import trigger_allure_generation
+    WORKSPACE_BASE = get_workspace_base()
+    test_results, failures = run_pytest(WORKSPACE_BASE)
+    sync_test_results(test_results)
+    background_tasks.add_task(trigger_allure_generation)
+    return {"success": True, "results": test_results, "failures": failures}
+
+@app.post("/api/tests/{test_id}/run")
+def run_single_test(test_id: str, background_tasks: BackgroundTasks):
+    from agent_orchestrator import run_pytest, sync_test_results
+    from integrations.allure_client import trigger_allure_generation
+    WORKSPACE_BASE = get_workspace_base()
+    conn = store.get_connection()
+    row = conn.execute("SELECT title, file_path FROM test_cases WHERE id = ?", (test_id,)).fetchone()
+    conn.close()
+    if not row or not row['title']:
+        return {"success": False, "error": f"Test case {test_id} not found or has no title."}
+    test_name = row['title']
+    file_path = row['file_path'] or f"tests/test_{test_id}.py"
+    if test_name.startswith("Linked test:"):
+        test_target = file_path
+    else:
+        test_target = f"{file_path}::{test_name}"
+    test_results, failures = run_pytest(WORKSPACE_BASE, test_target=test_target)
+    sync_test_results(test_results)
+    background_tasks.add_task(trigger_allure_generation)
+    return {"success": True, "results": test_results, "failures": failures}
 
 if __name__ == "__main__":
     import uvicorn

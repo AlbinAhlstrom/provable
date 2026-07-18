@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS test_cases (
     file_path       TEXT,
     last_result     TEXT CHECK(last_result IN ('pass','fail','skip','pending','never_run')) DEFAULT 'never_run',
     allure_id       TEXT,
+    failure_message TEXT,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

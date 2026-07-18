@@ -4,6 +4,14 @@ import { Requirement, Priority, KanbanStatus } from '../hooks/useRequirements';
 interface KanbanBoardProps {
   requirements: Requirement[];
   agentLogs: string;
+  agentStatus: {
+    active: boolean;
+    ticket_id: string | null;
+    step: string;
+    attempt: number;
+    max_attempts: number;
+    last_update: string;
+  };
   fetchReqs: () => Promise<void>;
 }
 
@@ -26,6 +34,7 @@ const columns: { id: KanbanStatus; title: string }[] = [
 const KanbanBoard: React.FC<KanbanBoardProps> = ({
   requirements,
   agentLogs,
+  agentStatus,
   fetchReqs
 }) => {
   const inProgressReqs = requirements.filter(r => r.status === 'InProgress');
@@ -47,24 +56,23 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
   return (
     <section className="kanban-board" style={{ padding: '2rem' }}>
-      {inProgressReqs.length > 0 && (
-        <div className="active-agent-banner" style={{ gridColumn: '1 / -1', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--accent-primary)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div className="spinner" style={{ border: '3px solid rgba(255,255,255,0.1)', borderTopColor: 'var(--accent-primary)', borderRadius: '50%', width: '20px', height: '20px', animation: 'spin 1s linear infinite' }}></div>
-            <div>
-              <div style={{ color: 'var(--accent-primary)', fontWeight: 'bold' }}>Agent Active</div>
-              <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Working on {inProgressReqs.map(r => r.id).join(', ')}...</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', width: '100%' }}>
+        {agentStatus?.active && (
+          <div className="active-agent-banner" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid var(--accent-primary)', padding: '1rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '1rem', height: '100%', minHeight: '500px', boxSizing: 'border-box' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div className="spinner" style={{ border: '3px solid rgba(255,255,255,0.1)', borderTopColor: 'var(--accent-primary)', borderRadius: '50%', width: '20px', height: '20px', animation: 'spin 1s linear infinite' }}></div>
+              <div>
+                <div style={{ color: 'var(--accent-primary)', fontWeight: 'bold' }}>Agent Active</div>
+                <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Working on {inProgressReqs.map(r => r.id).join(', ')}...</div>
+              </div>
+            </div>
+            <div className="agent-terminal" style={{ background: '#0d1117', padding: '0.8rem', borderRadius: '4px', border: '1px solid #30363d', flex: 1, overflowY: 'auto' }}>
+              <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: '0.75rem', color: '#c9d1d9', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                {agentLogs || "Connecting to agent console..."}
+              </pre>
             </div>
           </div>
-          <div className="agent-terminal" style={{ background: '#0d1117', padding: '0.8rem', borderRadius: '4px', border: '1px solid #30363d', maxHeight: '150px', overflowY: 'auto' }}>
-            <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: '0.75rem', color: '#c9d1d9', whiteSpace: 'pre-wrap' }}>
-              {agentLogs || "Connecting to agent console..."}
-            </pre>
-          </div>
-        </div>
-      )}
-      
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', width: '100%' }}>
+        )}
         {columns.map(col => {
           const columnReqs = requirements.filter(r => {
             if (col.id === 'Review') {

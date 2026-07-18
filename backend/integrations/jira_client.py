@@ -13,22 +13,48 @@ SETTINGS_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'c
 
 
 def load_jira_config() -> Dict[str, Any]:
+    default_config = {"enabled": False, "server_url": "", "username": "", "api_token": "", "project_key": "MOCK"}
     if not os.path.exists(SETTINGS_FILE):
-        return {"enabled": False, "server_url": "", "username": "", "api_token": "", "project_key": "MOCK"}
+        return default_config
     try:
         with open(SETTINGS_FILE, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
-            return config.get('jira', {"enabled": False, "server_url": "", "username": "", "api_token": "", "project_key": "MOCK"})
+            jira_cfg = config.get('jira', default_config)
+            
+            # Normalize keys to support both integrations.yaml naming and jira_client.py naming
+            normalized = {}
+            normalized['enabled'] = jira_cfg.get('enabled', False)
+            normalized['server_url'] = jira_cfg.get('server_url') or jira_cfg.get('base_url', '')
+            normalized['username'] = jira_cfg.get('username') or jira_cfg.get('email', '')
+            normalized['project_key'] = jira_cfg.get('project_key', 'PROV')
+            
+            # Resolve api token from either 'api_token' directly or environment variable
+            api_token = jira_cfg.get('api_token', '')
+            api_token_env = jira_cfg.get('api_token_env', 'JIRA_API_TOKEN')
+            if not api_token and api_token_env:
+                api_token = os.environ.get(api_token_env, '')
+            normalized['api_token'] = api_token
+            normalized['api_token_env'] = api_token_env
+            
+            return normalized
     except Exception:
-        return {"enabled": False, "server_url": "", "username": "", "api_token": "", "project_key": "MOCK"}
+        return default_config
 
 
 def is_jira_mock_mode() -> bool:
     cfg = load_jira_config()
     if not cfg.get('enabled'):
         return True
+    
+    server_url = cfg.get('server_url', '')
+    username = cfg.get('username', '')
+    api_token = cfg.get('api_token', '')
+    
+    if not server_url or not username or not api_token:
+        return True
+        
     # Check if credentials are placeholders
-    if 'your-domain' in cfg.get('server_url', '') or 'YOUR_JIRA_API_TOKEN' in cfg.get('api_key_env', cfg.get('api_token', '')):
+    if 'your-domain' in server_url or 'YOUR_JIRA_API_TOKEN' in api_token or 'YOUR_JIRA_EMAIL' in username:
         return True
     return False
 

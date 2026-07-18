@@ -16,13 +16,43 @@ def _trigger_sdoc_export():
         print(f"📦 DataStore: Failed to export SDoc: {e}")
 
 
-DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'provable.db'))
 SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'schema.sql'))
 REQUIREMENTS_JSON = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'requirements.json'))
 
+# Default DB path (resolved at runtime so it reflects any workspace switch)
+_FALLBACK_DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'provable.db'))
+_active_db_path: Optional[str] = None
+
+
+def get_db_path() -> str:
+    """Return the active per-project database path, resolving dynamically each call."""
+    # Respect test database overrides set by test suites
+    env_db = os.environ.get("DATABASE_URL")
+    if env_db:
+        cleaned = env_db.replace("sqlite+aiosqlite:///", "").replace("sqlite:///", "")
+        return cleaned
+
+    if _active_db_path:
+        return _active_db_path
+    # Derive from the active workspace set by config_loader
+    try:
+        from config_loader import get_workspace_base
+        workspace = get_workspace_base()
+        return os.path.join(workspace, 'requirements', 'provable.db')
+    except Exception:
+        return _FALLBACK_DB_PATH
+
+
+def set_active_db(path: str) -> None:
+    """Switch the active database to a given file path and initialise it."""
+    global _active_db_path
+    _active_db_path = os.path.abspath(path)
+    os.makedirs(os.path.dirname(_active_db_path), exist_ok=True)
+    print(f"📦 DataStore: Active DB switched to {_active_db_path}")
+
 
 def get_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(get_db_path())
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")  # allow concurrent reads during writes
     conn.execute("PRAGMA foreign_keys=ON")
@@ -35,6 +65,13 @@ def init_db():
     with open(SCHEMA_PATH, 'r') as f:
         conn.executescript(f.read())
     conn.commit()
+
+    # Ensure failure_message column exists
+    try:
+        conn.execute("ALTER TABLE test_cases ADD COLUMN failure_message TEXT")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass
 
     # One-time migration from requirements.json
     cursor = conn.execute("SELECT COUNT(*) FROM requirements")
@@ -133,11 +170,16 @@ def get_requirements_for_frontend() -> List[Dict]:
                 'id': tc['id'],
                 'name': tc['title'],
                 'title': tc['title'],
-                'status': 'Passing' if tc.get('last_result') == 'pass' else 'Failing',
-                'given': tc.get('given_text', ''),
-                'when': tc.get('when_text', ''),
-                'then': tc.get('then_text', ''),
+                'status': (
+                    'Passing' if tc.get('last_result') == 'pass'
+                    else 'Pending' if tc.get('last_result') in ('never_run', None, 'pending')
+                    else 'Failing'
+                ),
+                'given': tc.get('given_text', '') or 'Given the test is configured',
+                'when': tc.get('when_text', '') or f"When executing {tc['title']}",
+                'then': tc.get('then_text', '') or "Then it should complete without error",
                 'req': tc.get('requirement_id', ''),
+                'failureMessage': tc.get('failure_message', ''),
             })
     result = []
     for r in reqs:
@@ -262,18 +304,41 @@ def update_requirement_status(req_id: str, status: str, feedback: str = None, te
 
 def _upsert_test_results(req_id: str, tests: List[Dict]):
     conn = get_connection()
+    existing_rows = conn.execute("SELECT title, id FROM test_cases WHERE requirement_id = ?", (req_id,)).fetchall()
+    title_to_id = {row['title']: row['id'] for row in existing_rows}
     for t in tests:
-        tc_id = t.get('id') or f"TC-{random.randint(1000,9999)}"
+        test_name = t.get('name','')
+        tc_id = title_to_id.get(test_name) or t.get('id') or f"TC-{random.randint(1000,9999)}"
         result = 'pass' if t.get('status') == 'Passing' else 'fail'
         existing = conn.execute("SELECT id FROM test_cases WHERE id = ?", (tc_id,)).fetchone()
         if existing:
-            conn.execute("UPDATE test_cases SET last_result = ? WHERE id = ?", (result, tc_id))
+            conn.execute("UPDATE test_cases SET last_result = ?, file_path = ?, failure_message = ? WHERE id = ?", (result, t.get('file_path'), t.get('failure_message'), tc_id))
         else:
             conn.execute(
-                """INSERT INTO test_cases (id, requirement_id, title, given_text, when_text, then_text, last_result)
-                   VALUES (?,?,?,?,?,?,?)""",
-                (tc_id, req_id, t.get('name',''), t.get('given',''), t.get('when',''), t.get('then',''), result)
+                """INSERT INTO test_cases (id, requirement_id, title, given_text, when_text, then_text, last_result, file_path, failure_message)
+                   VALUES (?,?,?,?,?,?,?,?,?)""",
+                (tc_id, req_id, test_name, t.get('given',''), t.get('when',''), t.get('then',''), result, t.get('file_path'), t.get('failure_message'))
             )
+    conn.commit()
+    conn.close()
+
+
+def replace_test_results_for_requirement(req_id: str, tests: List[Dict]):
+    """Delete all existing test cases for req_id then insert the fresh results.
+    Use this after a successful agent run to avoid accumulating stale fail rows."""
+    conn = get_connection()
+    existing_rows = conn.execute("SELECT title, id FROM test_cases WHERE requirement_id = ?", (req_id,)).fetchall()
+    title_to_id = {row['title']: row['id'] for row in existing_rows}
+    conn.execute("DELETE FROM test_cases WHERE requirement_id = ?", (req_id,))
+    for t in tests:
+        test_name = t.get('name','')
+        tc_id = title_to_id.get(test_name) or t.get('id') or f"TC-{random.randint(1000,9999)}"
+        result = 'pass' if t.get('status') == 'Passing' else 'fail'
+        conn.execute(
+            """INSERT OR REPLACE INTO test_cases (id, requirement_id, title, given_text, when_text, then_text, last_result, file_path, failure_message)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
+            (tc_id, req_id, test_name, t.get('given',''), t.get('when',''), t.get('then',''), result, t.get('file_path'), t.get('failure_message'))
+        )
     conn.commit()
     conn.close()
 

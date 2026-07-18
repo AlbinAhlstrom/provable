@@ -153,26 +153,26 @@
   {
     "id": "REQ-1122",
     "title": "Implement Home Page Title",
-    "description": "The home page shall display the text \"Hello, World!\" positioned directly below the main application header.",
+    "description": "The home page shall display the text \"Hello, World!\" in yellow and positioned directly below the main application header.",
     "priority": "Med",
     "status": "Done",
     "tests": [
       {
-        "name": "test_home_page_hello_world_text_positioning",
-        "status": "Passing",
-        "title": "Verify \"Hello, World!\" text is displayed directly below the main application header.",
-        "id": "TST-1122",
+        "name": "test_hello_world_color_and_position",
+        "status": "Failing",
+        "title": "Test that the 'Hello, World!' text is yellow and positioned below the header.",
+        "id": "TST-3004",
         "req": "REQ-1122",
-        "given": "The React application's App component definition in `src/App.tsx`.",
-        "when": "The content of `src/App.tsx` is read and inspected for specific JSX structure.",
-        "then": "The string \"Hello, World!\" is found within a `div` element that immediately"
+        "given": "The Vite app is running at http://localhost:5174",
+        "when": "The home page is loaded",
+        "then": "The 'Hello, World!' text should be yellow and positioned directly below the main application header."
       }
     ],
     "assignedAgents": [
       "Frontend"
     ],
     "proposedCode": null,
-    "feedback": "",
+    "feedback": "Agent failed: HTTP Error 429: Too Many Requests",
     "type": "Task",
     "parentId": "REQ-2620",
     "dependencies": []
@@ -463,17 +463,27 @@
     "title": "Title text is in line with header",
     "description": "### Steps to Reproduce\n1. Go to Home page\n\n### Expected Behavior\ntitle text should be below the header\n\n### Actual Behavior\ntitle is inline with the header",
     "priority": "High",
-    "status": "Review",
+    "status": "Done",
     "tests": [
       {
-        "name": "test_bug_3963_header_content_position_fix",
+        "name": "test_header_and_main_title_positioning_desktop",
         "status": "Passing",
-        "title": "Verify content is positioned below the fixed header by checking CSS cascade.",
-        "id": "TST-3963",
+        "title": "Test header and main title positioning on desktop.",
+        "id": "TST-4001",
         "req": "REQ-2620",
-        "given": "The application's CSS files are loaded.",
-        "when": "Inspecting 'src/index.css' for body padding rules and their order.",
-        "then": "The 'body { padding-top: 5rem; }' declaration is found"
+        "given": "The Vite app is running and accessible at {BASE_URL}",
+        "when": "Opening the page in headless Chrome on a desktop viewport and observing the header and main title",
+        "then": "The header should be fixed at the top, and the main title ('Welcome to My App') should be visibly below it with no overlap."
+      },
+      {
+        "name": "test_header_and_main_title_positioning_mobile",
+        "status": "Passing",
+        "title": "Test header and main title positioning on mobile.",
+        "id": "TST-4002",
+        "req": "REQ-2620",
+        "given": "The Vite app is running and accessible at {BASE_URL}",
+        "when": "Opening the page in headless Chrome on a mobile viewport and observing the header and main title",
+        "then": "The header should be fixed at the top, and the main title ('Welcome to My App') should be visibly below it with no overlap."
       }
     ],
     "assignedAgents": [
@@ -484,5 +494,88 @@
     "type": "Bug",
     "parentId": "REQ-2620",
     "dependencies": []
+  },
+  {
+    "id": "BUG-2500",
+    "title": "The header only goes half way",
+    "description": "### Steps to Reproduce\n1. Go to home page\n\n### Expected Behavior\nHeader should cover the full width of the page\n\n### Actual Behavior\nThe header covers only half of the page",
+    "priority": "High",
+    "status": "Done",
+    "tests": [
+      {
+        "name": "test_header_full_width",
+        "status": "Passing",
+        "title": "Test that the header covers the full width of the page.",
+        "id": "TST-3001",
+        "req": "REQ-4587",
+        "given": "The Vite app is running at http://localhost:5174",
+        "when": "The page is loaded in a headless Chrome browser",
+        "then": "The header element's width should match the viewport width, accounting for scrollbars."
+      },
+      {
+        "name": "test_content_below_header",
+        "status": "Passing",
+        "title": "Test that the main content is positioned below the fixed header.",
+        "id": "TST-3002",
+        "req": "REQ-4587",
+        "given": "The Vite app is running at http://localhost:5174",
+        "when": "The page is loaded in a headless Chrome browser",
+        "then": "The main content container should start below the header."
+      }
+    ],
+    "assignedAgents": [
+      "Frontend"
+    ],
+    "proposedCode": null,
+    "feedback": "",
+    "type": "Bug",
+    "parentId": "REQ-4587",
+    "dependencies": []
+  },
+  {
+    "id": "REQ-1625",
+    "title": "Implement Home Page Title Styling",
+    "description": "Style the \"Hello, World!\" text to be yellow and positioned directly below the main application header. This involves adding CSS for the color and ensuring proper spacing/layout.",
+    "priority": "Med",
+    "status": "Done",
+    "tests": [
+      {
+        "name": "test_app_renders_and_header_is_fixed",
+        "status": "Passing",
+        "title": "Test app renders and header is fixed at the top.",
+        "id": "TST-1001",
+        "req": "REQ-1122, REQ-2314",
+        "given": "The Vite app is running at http://localhost:5174",
+        "when": "Navigating to the home page in a headless Chrome browser",
+        "then": "The header element is visible and its 'top' computed style is '0px'."
+      },
+      {
+        "name": "test_hello_world_styling_and_position",
+        "status": "Passing",
+        "title": "Test Hello, World! styling and position.",
+        "id": "TST-1625",
+        "req": "REQ-1625, REQ-1122, REQ-2314",
+        "given": "The Vite app is running at http://localhost:5174",
+        "when": "Navigating to the home page in a headless Chrome browser and checking the styling and positioning of elements",
+        "then": "The \"Hello, World!\" text has computed style 'color: yellow;', the main title \"Welcome to My App\" is visible and below the header, and \"Hello, World!\" is also below the header."
+      },
+      {
+        "name": "test_responsive_layout_mobile",
+        "status": "Passing",
+        "title": "Test responsive layout on mobile viewport.",
+        "id": "TST-1002",
+        "req": "REQ-2775, REQ-1122",
+        "given": "The Vite app is running at http://localhost:5174",
+        "when": "Setting the browser viewport to a mobile size (375px width) and navigating to the home page",
+        "then": "The header spans the full viewport width, and no horizontal scrollbars are present."
+      }
+    ],
+    "assignedAgents": [
+      "Frontend"
+    ],
+    "type": "Task",
+    "parentId": "REQ-1122",
+    "dependencies": [],
+    "feedback": ""
   }
 ]

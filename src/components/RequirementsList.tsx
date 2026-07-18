@@ -29,8 +29,33 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
   generatedTestCode,
   handleCreateTestCase
 }) => {
-  // Tree state
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['FLD-CORE']));
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const pendingDeleteTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Tree state persisted in localStorage
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('provable_expanded_requirements');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return new Set(parsed);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load expanded requirements state:", e);
+    }
+    return new Set(['FLD-CORE']);
+  });
+
+  // Persist expandedNodes to localStorage when they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('provable_expanded_requirements', JSON.stringify(Array.from(expandedNodes)));
+    } catch (e) {
+      console.error("Failed to save expanded requirements state:", e);
+    }
+  }, [expandedNodes]);
   
   // Creation form state
   const [newTitle, setNewTitle] = useState('');
@@ -49,6 +74,13 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
   const [bugSteps, setBugSteps] = useState('');
   const [bugExpected, setBugExpected] = useState('');
   const [bugActual, setBugActual] = useState('');
+
+  // Add-child state
+  const [isAddingChild, setIsAddingChild] = useState(false);
+  const [addChildType, setAddChildType] = useState<'Folder' | 'Requirement'>('Requirement');
+  const [addChildTitle, setAddChildTitle] = useState('');
+  const [addChildDesc, setAddChildDesc] = useState('');
+  const [isSubmittingChild, setIsSubmittingChild] = useState(false);
 
   const selectedNode = requirements.find(r => r.id === selectedReqId);
 
@@ -118,37 +150,60 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
   };
 
   const handleDeleteReq = async (id: string) => {
-    const isFolder = requirements.find(r => r.id === id)?.type === 'Folder';
-    const message = isFolder 
-      ? "Are you sure you want to delete this folder and ALL its contents (nested folders, requirements, and tasks)?"
-      : "Are you sure you want to delete this requirement and its sub-tasks?";
-      
-    if (!window.confirm(message)) return;
-    
-    const getDescendantIds = (targetId: string, reqs: Requirement[]): Set<string> => {
-      const ids = new Set<string>([targetId]);
-      let sizeBefore: number;
-      do {
-        sizeBefore = ids.size;
-        reqs.forEach(r => {
-          if (r.parentId && ids.has(r.parentId)) {
-            ids.add(r.id);
-          }
-        });
-      } while (ids.size > sizeBefore);
-      return ids;
-    };
-    
-    const descendants = getDescendantIds(id, requirements);
-    const updated = requirements.filter(r => !descendants.has(r.id));
-    
+    if (pendingDeleteId !== id) {
+      // First press — arm the button
+      setPendingDeleteId(id);
+      if (pendingDeleteTimer.current) clearTimeout(pendingDeleteTimer.current);
+      pendingDeleteTimer.current = setTimeout(() => setPendingDeleteId(null), 3000);
+      return;
+    }
+
+    // Second press — execute
+    if (pendingDeleteTimer.current) clearTimeout(pendingDeleteTimer.current);
+    setPendingDeleteId(null);
     setSelectedReqId(null);
     setIsEditingReq(false);
-    
-    await fetch('/api/requirements', { 
-      method: 'POST', 
+
+    const res = await fetch(`/api/requirements/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!data.success) {
+      alert(`Failed to delete: ${data.error || 'Unknown error'}`);
+    }
+    await fetchReqs();
+  };
+
+  const handleAddChild = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedReqId || !addChildTitle.trim()) return;
+    setIsSubmittingChild(true);
+    try {
+      if (addChildType === 'Folder') {
+        await fetch('/api/create-folder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: addChildTitle, description: addChildDesc, parentId: selectedReqId }),
+        });
+      } else {
+        await fetch('/api/create-requirement', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: addChildTitle, description: addChildDesc, parentId: selectedReqId }),
+        });
+      }
+      setAddChildTitle('');
+      setAddChildDesc('');
+      setIsAddingChild(false);
+      await fetchReqs();
+    } finally {
+      setIsSubmittingChild(false);
+    }
+  };
+
+  const handleRemoveChild = async (childId: string) => {
+    await fetch(`/api/requirements/${childId}/move`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updated) 
+      body: JSON.stringify({ parentId: null }),
     });
     await fetchReqs();
   };
@@ -289,23 +344,74 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
                       <h2 style={{ margin: 0 }}>📁 {selectedNode.title}</h2>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <button className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }} onClick={() => setIsEditingReq(true)}>✏️ Edit</button>
-                        <button className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)' }} onClick={() => handleDeleteReq(selectedNode.id)}>🗑️ Delete</button>
+                        <button
+                          className="btn btn-outline"
+                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)', transition: 'background 0.15s', ...(pendingDeleteId === selectedNode.id ? { background: 'var(--accent-danger)', color: '#fff' } : {}) }}
+                          onClick={() => handleDeleteReq(selectedNode.id)}
+                        >
+                          {pendingDeleteId === selectedNode.id ? '⚠️ Confirm Delete' : '🗑️ Delete'}
+                        </button>
                       </div>
                     </div>
                     <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>{selectedNode.description || 'No description provided.'}</p>
                     
-                    <h3>Nested Items</h3>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                      <h3 style={{ margin: 0 }}>Nested Items</h3>
+                      <button
+                        className="btn btn-primary"
+                        style={{ padding: '0.3rem 0.7rem', fontSize: '0.8rem' }}
+                        onClick={() => { setIsAddingChild(v => !v); setAddChildTitle(''); setAddChildDesc(''); }}
+                      >
+                        {isAddingChild ? '✕ Cancel' : '➕ Add Child'}
+                      </button>
+                    </div>
+
+                    {isAddingChild && (
+                      <form onSubmit={handleAddChild} style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '1rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button type="button" onClick={() => setAddChildType('Requirement')} className={`btn ${addChildType === 'Requirement' ? 'btn-primary' : 'btn-outline'}`} style={{ flex: 1, fontSize: '0.8rem', padding: '0.3rem' }}>📄 Requirement</button>
+                          <button type="button" onClick={() => setAddChildType('Folder')} className={`btn ${addChildType === 'Folder' ? 'btn-primary' : 'btn-outline'}`} style={{ flex: 1, fontSize: '0.8rem', padding: '0.3rem' }}>📁 Sub-Folder</button>
+                        </div>
+                        <input
+                          required
+                          value={addChildTitle}
+                          onChange={e => setAddChildTitle(e.target.value)}
+                          placeholder={addChildType === 'Folder' ? 'Folder name...' : 'Requirement title...'}
+                          style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-glass)', background: 'rgba(0,0,0,0.2)', color: 'white', boxSizing: 'border-box' }}
+                        />
+                        <textarea
+                          value={addChildDesc}
+                          onChange={e => setAddChildDesc(e.target.value)}
+                          placeholder="Description (optional for folders, required for requirements)..."
+                          required={addChildType === 'Requirement'}
+                          rows={3}
+                          style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-glass)', background: 'rgba(0,0,0,0.2)', color: 'white', resize: 'vertical', boxSizing: 'border-box' }}
+                        />
+                        <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-start', fontSize: '0.85rem' }} disabled={isSubmittingChild}>
+                          {isSubmittingChild ? 'Creating...' : `Create ${addChildType}`}
+                        </button>
+                      </form>
+                    )}
+
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       {childNodes.map(child => (
-                        <div key={child.id} className="glass-card" style={{ padding: '1rem', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onClick={() => setSelectedReqId(child.id)}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div key={child.id} className="glass-card" style={{ padding: '0.75rem 1rem', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: 0 }} onClick={() => setSelectedReqId(child.id)}>
                             <span>{child.type === 'Folder' ? '📁' : (child.type === 'Bug' ? '🐛' : '📄')}</span>
-                            <strong>{child.id}: {child.title}</strong>
+                            <strong style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{child.id}: {child.title}</strong>
                           </div>
-                          <span className={`badge ${getBadgeClass(child.priority)}`}>{child.priority}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                            <span className={`badge ${getBadgeClass(child.priority)}`}>{child.priority}</span>
+                            <button
+                              className="btn btn-outline"
+                              title="Remove from this folder (moves to root)"
+                              style={{ padding: '0.15rem 0.4rem', fontSize: '0.75rem', borderColor: 'rgba(255,255,255,0.2)', color: 'var(--text-muted)' }}
+                              onClick={e => { e.stopPropagation(); handleRemoveChild(child.id); }}
+                            >✕</button>
+                          </div>
                         </div>
                       ))}
-                      {childNodes.length === 0 && <p className="text-muted">This folder is empty.</p>}
+                      {childNodes.length === 0 && !isAddingChild && <p className="text-muted">This folder is empty. Add a child above.</p>}
                     </div>
                   </>
                 )}
@@ -370,7 +476,13 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
                           </button>
                         )}
                         <button className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }} onClick={() => setIsEditingReq(true)}>✏️ Edit</button>
-                        <button className="btn btn-outline" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)' }} onClick={() => handleDeleteReq(selectedNode.id)}>🗑️ Delete</button>
+                        <button
+                          className="btn btn-outline"
+                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)', transition: 'background 0.15s', ...(pendingDeleteId === selectedNode.id ? { background: 'var(--accent-danger)', color: '#fff' } : {}) }}
+                          onClick={() => handleDeleteReq(selectedNode.id)}
+                        >
+                          {pendingDeleteId === selectedNode.id ? '⚠️ Confirm Delete' : '🗑️ Delete'}
+                        </button>
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '0.5rem' }}>

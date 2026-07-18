@@ -1,19 +1,22 @@
-# Integration configuration for Provable
-# Set enabled: true and fill credentials to activate each integration.
-
-strictdoc:
-  enabled: true
-  requirements_dir: ../workspace/requirements  # relative to backend/
-
+active_project: /home/albin/projects/v_chess
 allure:
   enabled: true
+  project_id: default
   server_url: http://localhost:5050
-  project_id: provable
-
 jira:
-  enabled: false
+  api_token_env: JIRA_API_TOKEN
+  auto_create_project: true
   base_url: ''
   email: ''
-  api_token_env: JIRA_API_TOKEN
+  enabled: false
   project_key: ''
-  auto_create_project: true
+project:
+  workspace_path: /home/albin/projects/v_chess
+projects:
+- name: v-chess
+  path: /home/albin/projects/v_chess
+- name: provable-demo
+  path: /home/albin/projects/pme/workspace
+strictdoc:
+  enabled: true
+  requirements_dir: ../workspace/requirements

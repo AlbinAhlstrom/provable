@@ -35,19 +35,19 @@ echo ""
   cd "$ROOT/backend"
   source venv/bin/activate
   exec uvicorn main:app --reload --host 0.0.0.0 --port 8000
-) 2>&1 | sed "s/^/${RED}[backend] ${NC}/" &
+) 2>&1 | sed -u "s/^/${RED}[backend] ${NC}/" &
 
 # 2. Main Vite app
 (
   cd "$ROOT"
   exec npm run dev
-) 2>&1 | sed "s/^/${GREEN}[app]     ${NC}/" &
+) 2>&1 | sed -u "s/^/${GREEN}[app]     ${NC}/" &
 
 # 3. Workspace live preview
 (
   cd "$ROOT/workspace"
   exec npm run dev
-) 2>&1 | sed "s/^/${BLUE}[preview] ${NC}/" &
+) 2>&1 | sed -u "s/^/${BLUE}[preview] ${NC}/" &
 
 # Wait for all background jobs
 wait

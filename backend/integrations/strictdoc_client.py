@@ -6,117 +6,195 @@ import os
 import re
 import db.store as store
 from typing import List, Dict, Any
+from config_loader import get_workspace_base
 
-SDOC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'workspace', 'requirements', 'requirements.sdoc'))
+def get_sdoc_path() -> str:
+    return os.path.abspath(os.path.join(get_workspace_base(), 'requirements', 'requirements.sdoc'))
+
+
+def _slugify_section_title(title: str) -> str:
+    """Convert a section title to a stable, DB-safe ID.  e.g. 'Game Board UI' → 'FOLDER-game-board-ui'"""
+    slug = re.sub(r'[^a-zA-Z0-9]+', '-', title.strip()).strip('-').lower()
+    return f"FOLDER-{slug}"
 
 
 def parse_sdoc(file_path: str) -> List[Dict[str, Any]]:
-    """Parse an .sdoc file into a list of requirement dicts."""
+    """Parse an .sdoc file into a list of requirement/folder dicts.
+
+    [SECTION] blocks are emitted as Folder rows.  Every [REQUIREMENT] inside
+    a section gets its parent_id set to that section's folder ID, building
+    the full nested tree structure.
+    """
     if not os.path.exists(file_path):
         return []
 
-    requirements = []
-    current_req = None
-    current_field = None
-    current_content = []
-    
-    # We parse [DOCUMENT], [SECTION], and [REQUIREMENT] blocks
     with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
+    # ── First pass: extract raw blocks ──────────────────────────────────────
+    # Each entry is either a section event or a requirement dict
+    events: List[Dict] = []        # {'kind': 'section_open'/'section_close'/'req', ...}
+    current_req: Optional[Dict] = None
+    current_field: Optional[str] = None
+    current_content: List[str] = []
+
     for line in lines:
         stripped = line.strip()
-        
-        # Check block tags
+
+        if stripped == "[SECTION]":
+            if current_req:
+                if current_field:
+                    current_req[current_field] = "\n".join(current_content).strip()
+                events.append({'kind': 'req', 'data': current_req})
+                current_req = None
+            current_field = None
+            current_content = []
+            # The next TITLE: line will name this section
+            events.append({'kind': 'section_open', 'title': None})
+            continue
+
+        if stripped == "[/SECTION]":
+            if current_req:
+                if current_field:
+                    current_req[current_field] = "\n".join(current_content).strip()
+                events.append({'kind': 'req', 'data': current_req})
+                current_req = None
+            current_field = None
+            current_content = []
+            events.append({'kind': 'section_close'})
+            continue
+
+        if stripped in ("[DOCUMENT]", "[TASK]"):
+            if current_req:
+                if current_field:
+                    current_req[current_field] = "\n".join(current_content).strip()
+                events.append({'kind': 'req', 'data': current_req})
+                current_req = None
+            current_field = None
+            current_content = []
+            if stripped == "[TASK]":
+                current_req = {"type": "Task"}
+            continue
+
         if stripped == "[REQUIREMENT]":
             if current_req:
                 if current_field:
                     current_req[current_field] = "\n".join(current_content).strip()
-                requirements.append(current_req)
+                events.append({'kind': 'req', 'data': current_req})
             current_req = {"type": "Requirement"}
             current_field = None
             current_content = []
             continue
-        elif stripped in ("[DOCUMENT]", "[SECTION]", "[/SECTION]"):
-            if current_req:
-                if current_field:
-                    current_req[current_field] = "\n".join(current_content).strip()
-                requirements.append(current_req)
-                current_req = None
-            current_field = None
-            current_content = []
-            continue
+
+        # Capture TITLE for a pending section_open
+        if events and events[-1]['kind'] == 'section_open' and events[-1]['title'] is None:
+            m = re.match(r'^TITLE:\s*(.*)', stripped)
+            if m:
+                events[-1]['title'] = m.group(1).strip()
+                continue
 
         if current_req is None:
             continue
 
-        # Inside [REQUIREMENT] block, match keys
+        # Key: value inside a block
         match = re.match(r"^([A-Z_]+):\s*(.*)", line)
         if match:
-            # Save previous field if any
             if current_field:
                 current_req[current_field] = "\n".join(current_content).strip()
-            
-            key = match.group(1)
-            val = match.group(2)
-            
-            current_field = key.lower()
-            current_content = [val]
+            current_field = match.group(1).lower()
+            current_content = [match.group(2)]
         else:
-            # Continuation of multi-line field
             current_content.append(line.rstrip('\n'))
 
     if current_req:
         if current_field:
             current_req[current_field] = "\n".join(current_content).strip()
-        requirements.append(current_req)
+        events.append({'kind': 'req', 'data': current_req})
 
-    # Process relations and fields for each parsed requirement
-    processed = []
-    for req in requirements:
-        uid = req.get("uid")
-        if not uid:
-            continue
+    # ── Second pass: walk events with a section stack ────────────────────────
+    # Stack entries: {'id': folder_id, 'title': title, 'parent_id': ...}
+    section_stack: List[Dict] = []
+    processed: List[Dict[str, Any]] = []
+    seen_folder_ids: set = set()
 
-        # Parse STATEMENT from statement attribute
-        statement = req.get("statement", "")
-        
-        # Parse RELATIONS block if present
-        relations_str = req.get("relations", "")
-        parent_id = None
-        test_file = None
-        
-        # Simple relations parser
-        if relations_str:
-            rel_lines = relations_str.split("\n")
-            current_rel_type = None
-            for rline in rel_lines:
-                rline_strip = rline.strip()
-                if rline_strip.startswith("- TYPE:"):
-                    current_rel_type = rline_strip.replace("- TYPE:", "").strip()
-                elif rline_strip.startswith("VALUE:") and current_rel_type:
-                    val = rline_strip.replace("VALUE:", "").strip()
-                    if current_rel_type.lower() == "parent":
-                        parent_id = val
-                    elif current_rel_type.lower() == "file":
-                        test_file = val
-                    current_rel_type = None
+    for event in events:
+        if event['kind'] == 'section_open':
+            title = event.get('title') or 'Untitled'
+            folder_id = _slugify_section_title(title)
 
-        processed.append({
-            "id": uid,
-            "title": req.get("title", ""),
-            "description": statement,
-            "type": req.get("req_type", "Requirement"),
-            "priority": req.get("priority", "Med"),
-            "status": req.get("status", "Backlog"),
-            "parent_id": parent_id,
-            "jira_key": req.get("jira_key"),
-            "sdoc_uid": uid,
-            # we will store test_file in test_cases if mapped
-            "test_file": test_file
-        })
+            # Make ID unique if the same title appears at different nesting levels
+            base_id = folder_id
+            counter = 1
+            while folder_id in seen_folder_ids:
+                folder_id = f"{base_id}-{counter}"
+                counter += 1
+            seen_folder_ids.add(folder_id)
+
+            parent_id = section_stack[-1]['id'] if section_stack else None
+            section_stack.append({'id': folder_id, 'title': title, 'parent_id': parent_id})
+
+            processed.append({
+                'id': folder_id,
+                'title': title,
+                'description': '',
+                'type': 'Folder',
+                'priority': 'Med',
+                'status': 'Backlog',
+                'parent_id': parent_id,
+                'jira_key': None,
+                'sdoc_uid': folder_id,
+                'test_file': None,
+            })
+
+        elif event['kind'] == 'section_close':
+            if section_stack:
+                section_stack.pop()
+
+        elif event['kind'] == 'req':
+            req = event['data']
+            uid = req.get('uid')
+            if not uid:
+                continue
+
+            # Determine parent: innermost section on the stack
+            parent_id = section_stack[-1]['id'] if section_stack else None
+
+            # Parse RELATIONS block for additional overrides
+            relations_str = req.get('relations', '')
+            rel_parent_id = None
+            test_file = None
+            if relations_str:
+                current_rel_type = None
+                for rline in relations_str.split('\n'):
+                    rline_strip = rline.strip()
+                    if rline_strip.startswith('- TYPE:'):
+                        current_rel_type = rline_strip.replace('- TYPE:', '').strip()
+                    elif rline_strip.startswith('VALUE:') and current_rel_type:
+                        val = rline_strip.replace('VALUE:', '').strip()
+                        if current_rel_type.lower() == 'parent':
+                            rel_parent_id = val
+                        elif current_rel_type.lower() == 'file':
+                            test_file = val
+                        current_rel_type = None
+
+            # RELATIONS Parent overrides section nesting only if explicitly set
+            effective_parent = rel_parent_id or parent_id
+
+            processed.append({
+                'id': uid,
+                'title': req.get('title', ''),
+                'description': req.get('statement', ''),
+                'type': req.get('req_type', req.get('type', 'Requirement')),
+                'priority': req.get('priority', 'Med'),
+                'status': req.get('status', 'Backlog'),
+                'parent_id': effective_parent,
+                'jira_key': req.get('jira_key'),
+                'sdoc_uid': uid,
+                'test_file': test_file,
+            })
 
     return processed
+
 
 
 def generate_sdoc_content(requirements: List[Dict[str, Any]]) -> str:
@@ -176,24 +254,36 @@ def export_sdoc():
     reqs = store.get_all_requirements()
     content = generate_sdoc_content(reqs)
     
-    os.makedirs(os.path.dirname(SDOC_PATH), exist_ok=True)
-    with open(SDOC_PATH, 'w', encoding='utf-8') as f:
+    os.makedirs(os.path.dirname(get_sdoc_path()), exist_ok=True)
+    with open(get_sdoc_path(), 'w', encoding='utf-8') as f:
         f.write(content)
-    print(f"📄 strictdoc_client: Exported requirements to {SDOC_PATH}")
+    print(f"📄 strictdoc_client: Exported requirements to {get_sdoc_path()}")
 
 
-def sync_sdoc_to_db():
-    """Sync workspace/requirements/requirements.sdoc into SQLite database."""
-    if not os.path.exists(SDOC_PATH):
+def sync_sdoc_to_db(clear_first: bool = False):
+    """Sync workspace/requirements/requirements.sdoc into SQLite database.
+
+    Args:
+        clear_first: If True, DELETE all existing requirements and test_cases before
+                     re-importing. Use this on project switch to prevent stale rows
+                     from the previous project appearing in the Kanban board.
+    """
+    if not os.path.exists(get_sdoc_path()):
         # If .sdoc doesn't exist yet, seed it from SQLite database
         export_sdoc()
         return
 
-    print(f"📄 strictdoc_client: Syncing {SDOC_PATH} → SQLite...")
-    parsed_reqs = parse_sdoc(SDOC_PATH)
-    
+    print(f"📄 strictdoc_client: Syncing {get_sdoc_path()} → SQLite...")
+    parsed_reqs = parse_sdoc(get_sdoc_path())
+
     conn = store.get_connection()
     try:
+        if clear_first:
+            conn.execute("DELETE FROM test_cases")
+            conn.execute("DELETE FROM requirements")
+            conn.commit()
+            print("📄 strictdoc_client: Cleared existing requirements for fresh project sync.")
+
         for r in parsed_reqs:
             # Check if it exists in SQLite
             existing = conn.execute("SELECT id FROM requirements WHERE id = ?", (r['id'],)).fetchone()
@@ -233,12 +323,25 @@ def sync_sdoc_to_db():
                     )
                 )
             
-            # Sync test case file path reference if present
+            # Sync test case file path reference if present — INSERT row if missing
             if r.get('test_file'):
-                conn.execute(
-                    "UPDATE test_cases SET file_path = ? WHERE requirement_id = ?",
-                    (r['test_file'], r['id'])
-                )
+                tc_id = f"TC-FILE-{r['id']}"
+                existing_tc = conn.execute(
+                    "SELECT id FROM test_cases WHERE requirement_id = ? AND file_path = ?",
+                    (r['id'], r['test_file'])
+                ).fetchone()
+                if not existing_tc:
+                    conn.execute(
+                        """INSERT OR IGNORE INTO test_cases
+                           (id, requirement_id, title, file_path, last_result)
+                           VALUES (?, ?, ?, ?, ?)""",
+                        (tc_id, r['id'], f"Linked test: {os.path.basename(r['test_file'])}", r['test_file'], 'never_run')
+                    )
+                else:
+                    conn.execute(
+                        "UPDATE test_cases SET file_path = ? WHERE requirement_id = ?",
+                        (r['test_file'], r['id'])
+                    )
                 
         conn.commit()
         print(f"📄 strictdoc_client: Synced {len(parsed_reqs)} requirements successfully.")

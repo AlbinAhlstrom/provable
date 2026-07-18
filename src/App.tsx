@@ -5,6 +5,7 @@ import RequirementsList from './components/RequirementsList';
 import CodeReview from './components/CodeReview';
 import CoverageHub from './components/CoverageHub';
 import AgentTray from './components/AgentTray';
+import ProjectSelector from './components/ProjectSelector';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<string>('Kanban');
@@ -12,6 +13,7 @@ const App: React.FC = () => {
   const [reviews, setReviews] = useState<any[]>([]);
   const [showPreview, setShowPreview] = useState<boolean>(true);
   const [previewBranch, setPreviewBranch] = useState<'pre' | 'post'>('post');
+  const [previewUrl, setPreviewUrl] = useState<string>(`${window.location.protocol}//${window.location.hostname}:5174`);
 
   // Custom hook for requirements state
   const {
@@ -41,6 +43,28 @@ const App: React.FC = () => {
 
   // Test coverage states
   const [coverageData, setCoverageData] = useState<any>(null);
+
+  // Fetch active project settings (preview URL, name)
+  const fetchProjectSettings = async () => {
+    try {
+      const res = await fetch('/api/project/settings');
+      if (res.ok) {
+        const data = await res.json();
+        const url = data?.dev_server?.base_url;
+        if (url) setPreviewUrl(url);
+      }
+    } catch (e) { /* ignore */ }
+  };
+
+  useEffect(() => {
+    fetchProjectSettings();
+  }, []);
+
+  const handleProjectSwitch = (newPreviewUrl: string) => {
+    setPreviewUrl(newPreviewUrl);
+    fetchReqs();
+    fetchCoverage();
+  };
 
   const fetchAgentStatus = async () => {
     try {
@@ -134,6 +158,7 @@ const App: React.FC = () => {
   // Log streaming effect
   useEffect(() => {
     if (!agentStatus.active || !agentStatus.ticket_id) {
+      setAgentLogs('');
       return;
     }
     
@@ -247,6 +272,7 @@ const App: React.FC = () => {
           })}
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <ProjectSelector onProjectSwitch={handleProjectSwitch} />
           {(isReviewActive || currentView === 'Kanban') && (
             <button
               id="toggle-preview-btn"
@@ -270,6 +296,7 @@ const App: React.FC = () => {
                 <KanbanBoard 
                   requirements={requirements}
                   agentLogs={agentLogs}
+                  agentStatus={agentStatus}
                   fetchReqs={fetchReqs}
                 />
               )}
@@ -287,6 +314,8 @@ const App: React.FC = () => {
               {currentView === 'Tests' && (
                 <CoverageHub 
                   coverageData={coverageData}
+                  agentStatus={agentStatus}
+                  requirements={requirements}
                   setCurrentView={setCurrentView}
                   setSelectedReqId={setSelectedReqId}
                   fetchReqs={fetchReqs}
@@ -313,7 +342,7 @@ const App: React.FC = () => {
 
         {shouldRenderPreview && (
           <aside className="preview-sidebar">
-            <iframe src={`${window.location.protocol}//${window.location.hostname}:5174`} style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }} title="Workspace Preview" />
+            <iframe src={previewUrl} style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }} title="Workspace Preview" />
           </aside>
         )}
       </div>

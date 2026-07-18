@@ -14,11 +14,21 @@ from typing import List, Dict, Any, Optional, TypedDict
 from openai import OpenAI
 import db.store as store
 from langgraph.graph import StateGraph, START, END
+from config_loader import get_workspace_base, get_project_settings
 
 # Load environment variables from root .env file if present
 dotenv.load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
 
-WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
+
+class DynamicWorkspaceBase:
+    def __fspath__(self):
+        return get_workspace_base()
+    def __str__(self):
+        return get_workspace_base()
+    def __repr__(self):
+        return get_workspace_base()
+
+WORKSPACE_BASE = DynamicWorkspaceBase()
 
 AGENT_STATUS = {
     "active": False,
@@ -167,27 +177,93 @@ def parse_test_docstrings(filepath):
         print(f"AST parsing failed for {filepath}: {e}")
     return docstrings
 
-def run_pytest(workspace_base):
-    venv_pytest = os.path.abspath(os.path.join(os.path.dirname(__file__), 'venv', 'bin', 'pytest'))
-    if not os.path.exists(venv_pytest):
-        venv_pytest = 'pytest'
+
+def parse_pytest_failures(stdout: str) -> dict:
+    failures = {}
+    idx = stdout.find("=== FAILURES ===")
+    if idx == -1:
+        idx = stdout.find(" FAILURES ")
+    if idx == -1:
+        return failures
         
+    failures_text = stdout[idx:]
+    import re
+    matches = list(re.finditer(r'_{3,}\s*(\w+)\s*_{3,}', failures_text))
+    for i, match in enumerate(matches):
+        test_name = match.group(1)
+        start = match.end()
+        if i + 1 < len(matches):
+            end = matches[i+1].start()
+        else:
+            end_match = re.search(r'\n={3,}', failures_text[start:])
+            if end_match:
+                end = start + end_match.start()
+            else:
+                end = len(failures_text)
+        failures[test_name] = failures_text[start:end].strip()
+    return failures
+
+
+def run_pytest(workspace_base, test_target: str = None):
+    # Retrieve project settings
+    settings = get_project_settings()
+    test_runner_cfg = settings.get('test_runner', {})
+    
+    # Base command (e.g., "pytest" or "pytest tests/")
+    base_cmd = test_runner_cfg.get('test_command', 'pytest -v')
+    
+    # Auto-detect local virtual environments in the target workspace
+    venv_prefix = ""
+    for venv_dir in ('venv', '.venv'):
+        activate_path = os.path.join(workspace_base, venv_dir, 'bin', 'activate')
+        if os.path.exists(activate_path):
+            venv_prefix = f"source {venv_dir}/bin/activate && "
+            break
+
+    # Build the full command string
+    allure_dir = os.path.join(workspace_base, 'allure-results')
+    
+    # If a specific target is provided, strip any default test folder (like tests/ or tests) from the command
+    if test_target:
+        # Keep only the pytest command and flags, removing default directory targets
+        tokens = base_cmd.split()
+        cleaned_tokens = []
+        for t in tokens:
+            # Keep commands, executors, and options/flags, discard target folders
+            if t.startswith('-') or t in ('pytest', 'python', 'python3', 'poetry', 'run', 'pip', 'pytest-3'):
+                cleaned_tokens.append(t)
+        # Ensure verbose mode is enabled so we can parse '::' lines from stdout
+        if '-v' not in cleaned_tokens and '-vv' not in cleaned_tokens:
+            cleaned_tokens.append('-v')
+        cleaned_base = " ".join(cleaned_tokens)
+        full_cmd = f"{venv_prefix}{cleaned_base} {test_target} --alluredir={allure_dir} --timeout=25"
+    else:
+        # Ensure verbose mode for general base command execution
+        cmd_parts = base_cmd.split()
+        if '-v' not in cmd_parts and '-vv' not in cmd_parts:
+            cmd_parts.append('-v')
+        full_cmd = f"{venv_prefix}{' '.join(cmd_parts)} --alluredir={allure_dir} --clean-alluredir --timeout=25"
+
+    stdout = ""
+    stderr = ""
     try:
-        allure_dir = os.path.join(workspace_base, 'allure-results')
+        print(f"🚀 Running test command: {full_cmd}")
         result = subprocess.run(
-            [venv_pytest, "-v", f"--alluredir={allure_dir}"], 
-            cwd=workspace_base, 
-            capture_output=True, 
-            text=True, 
-            timeout=30
+            full_cmd,
+            shell=True,
+            executable='/bin/bash', # use bash to support source/activation
+            cwd=workspace_base,
+            capture_output=True,
+            text=True,
+            timeout=240
         )
         stdout = result.stdout
         stderr = result.stderr
-        print(f"Pytest stdout:\n{stdout}")
-        print(f"Pytest stderr:\n{stderr}")
+        print(f"Pytest stdout length: {len(stdout)}")
+        print(f"Pytest stderr length: {len(stderr)}")
     except Exception as e:
         print(f"Error running pytest: {e}")
-        return [{"name": "pytest execution", "status": "Failing"}]
+        return [{"name": "pytest execution", "status": "Failing"}], f"Error running pytest: {e}"
         
     test_results = []
     lines = stdout.split('\n')
@@ -196,35 +272,77 @@ def run_pytest(workspace_base):
             match = re.search(r'([^:\s]+::[^\s]+)\s+(PASSED|FAILED|ERROR)', line)
             if match:
                 test_path_name = match.group(1)
-                test_name = test_path_name.split('::')[-1]
+                parts = test_path_name.split('::')
+                test_name = parts[-1]
+                file_path = parts[0]
                 raw_status = match.group(2)
                 status = 'Passing' if raw_status == 'PASSED' else 'Failing'
                 test_results.append({
                     "name": test_name,
-                    "status": status
+                    "status": status,
+                    "file_path": file_path
                 })
                 
     if not test_results:
+        fallback_file_path = test_target.split('::')[0] if test_target else ""
         if "no tests ran" in stdout.lower() or "collected 0 items" in stdout.lower():
             test_results.append({
                 "name": "No tests defined",
-                "status": "Failing"
+                "status": "Failing",
+                "file_path": fallback_file_path
             })
         else:
             test_results.append({
                 "name": "Test Suite Execution",
-                "status": "Failing"
+                "status": "Failing",
+                "file_path": fallback_file_path
             })
             
-    test_filepath = os.path.join(workspace_base, 'tests', 'test_example.py')
-    docstrings = parse_test_docstrings(test_filepath)
+    # Extract tracebacks/errors
+    failures_summary = ""
+    failures_idx = stdout.find("=== FAILURES ===")
+    if failures_idx == -1:
+        failures_idx = stdout.find(" FAILURES ")
+    errors_idx = stdout.find("=== ERRORS ===")
+    if errors_idx == -1:
+        errors_idx = stdout.find(" ERRORS ")
+        
+    parts = []
+    if failures_idx != -1 or errors_idx != -1:
+        indices = [idx for idx in (failures_idx, errors_idx) if idx != -1]
+        start_idx = min(indices)
+        failures_part = stdout[start_idx:]
+        lines = failures_part.split('\n')
+        for line in lines:
+            if line.startswith("===") and "FAILURES" not in line and "ERRORS" not in line:
+                break
+            parts.append(line)
+        failures_summary = "\n".join(parts)
+            
+    # Parse docstrings from all test files in the tests/ directory
+    docstrings = {}
+    tests_dir = os.path.join(workspace_base, 'tests')
+    if os.path.exists(tests_dir):
+        for fname in os.listdir(tests_dir):
+            if fname.startswith('test_') and fname.endswith('.py'):
+                fpath = os.path.join(tests_dir, fname)
+                try:
+                    file_docs = parse_test_docstrings(fpath)
+                    rel_fpath = os.path.relpath(fpath, workspace_base)
+                    for test_name, info in file_docs.items():
+                        info['file_path'] = rel_fpath
+                    docstrings.update(file_docs)
+                except Exception as parse_err:
+                    print(f"Error parsing docstrings from {fname}: {parse_err}")
     
+    failures_map = parse_pytest_failures(stdout)
     for result in test_results:
         test_name = result['name']
         if test_name in docstrings:
             result.update(docstrings[test_name])
+        result['failure_message'] = failures_map.get(test_name, '')
             
-    return test_results
+    return test_results, failures_summary
 
 def load_models_config():
     config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'config', 'models.yaml'))
@@ -299,23 +417,167 @@ def call_gemini(prompt, image_path=None, image_paths=None, stage=None):
             
     raise last_error
 
-def read_workspace_files():
+def select_relevant_files(workspace_base, ticket_desc, test_code_or_desc):
+    """Fast pre-check using LLM to select the top 3-5 most relevant source files to minimize prompt size on attempt 1."""
+    all_files = []
+    for root, dirs, files in os.walk(os.path.join(workspace_base, 'src')):
+        dirs[:] = [d for d in dirs if d not in ['node_modules', '.git', 'assets']]
+        for fname in files:
+            fpath = os.path.join(root, fname)
+            rel_path = os.path.relpath(fpath, workspace_base)
+            all_files.append(rel_path.replace('\\', '/'))
+            
+    index_path = os.path.join(workspace_base, 'index.html')
+    if os.path.exists(index_path):
+        all_files.append('index.html')
+        
+    if not all_files:
+        return []
+        
+    prompt = f"""You are an expert developer agent analyzing a repository.
+Your task is to select the most relevant source files that need to be read or modified to implement the following ticket or fix the following test case.
+
+--- TICKET DESCRIPTION ---
+{ticket_desc}
+
+--- TEST CASE / DETAILS ---
+{test_code_or_desc}
+
+--- SOURCE FILES IN THE PROJECT ---
+{chr(10).join(f"- {f}" for f in all_files)}
+
+Respond ONLY with a JSON array of relative file paths (from the list above) that are most relevant. Do NOT wrap the JSON in markdown fences, and do not include any other text.
+Example:
+[
+  "src/App.tsx",
+  "src/App.css"
+]
+"""
+    try:
+        response = call_gemini(prompt, stage="code_generation")
+        response = response.strip()
+        if response.startswith("```json"):
+            response = response[7:-3].strip()
+        elif response.startswith("```"):
+            response = response[3:-3].strip()
+            
+        selected = json.loads(response)
+        if isinstance(selected, list):
+            valid_selected = [f for f in selected if f.replace('\\', '/') in all_files]
+            if valid_selected:
+                return valid_selected
+    except Exception as e:
+        print(f"Error in select_relevant_files LLM selector: {e}")
+        
+    fallback = []
+    for candidate in ["src/App.tsx", "src/App.css", "src/index.css", "index.html"]:
+        if candidate in all_files:
+            fallback.append(candidate)
+    return fallback
+
+def update_system_spec(workspace_base, ticket_desc, git_diff):
+    """Auto-generates or updates system_spec.md in requirements/ to keep a high-level layout description of the app."""
+    spec_dir = os.path.join(workspace_base, 'requirements')
+    os.makedirs(spec_dir, exist_ok=True)
+    spec_path = os.path.join(spec_dir, 'system_spec.md')
+    
+    current_spec = ""
+    if os.path.exists(spec_path):
+        try:
+            with open(spec_path, 'r', encoding='utf-8') as f:
+                current_spec = f.read()
+        except Exception:
+            pass
+
+    prompt = f"""You are an automated system architect keeping a layout and style specification sheet of the application up to date.
+Below is the existing system specification sheet (which may be empty if this is the first run), the ticket that was just implemented, and the git diff of the implementation.
+
+Your task is to update the system specification sheet (in Markdown format) to document:
+1. The page layout (elements, fixed headers, content containers).
+2. Key CSS classes and their functions.
+3. Design tokens (colors used, text styling, heights, paddings).
+4. Responsiveness behavior on mobile vs desktop.
+
+Ensure you retain existing documentation about components that were NOT changed by the diff. Keep the description concise but clear.
+
+--- CURRENT SPECIFICATION SHEET ---
+{current_spec}
+
+--- TICKET COMPLETED ---
+{ticket_desc}
+
+--- GIT DIFF OF CHANGES ---
+{git_diff}
+
+Respond ONLY with the complete updated system specification markdown text. Do NOT wrap it in markdown fences, and do not write any other explanation.
+"""
+    try:
+        updated_spec = call_gemini(prompt, stage="code_generation").strip()
+        if updated_spec.startswith("```markdown"):
+            updated_spec = updated_spec[11:-3].strip()
+        elif updated_spec.startswith("```"):
+            updated_spec = updated_spec[3:-3].strip()
+            
+        with open(spec_path, 'w', encoding='utf-8') as f:
+            f.write(updated_spec)
+        print(f"✅ Auto-updated system_spec.md for the workspace app.")
+    except Exception as e:
+        print(f"Failed to update system specification sheet: {e}")
+
+def read_workspace_files(include_tests=False, limit_files=None):
     context = []
+    
+    # Prepend the system specification spec sheet if it exists
+    spec_path = os.path.join(WORKSPACE_BASE, 'requirements', 'system_spec.md')
+    if os.path.exists(spec_path):
+        try:
+            with open(spec_path, 'r', encoding='utf-8') as f:
+                context.append(f"--- SYSTEM SPECIFICATION (WIP) ---\n{f.read()}\n")
+        except Exception:
+            pass
+
+    # Gather source files
     for root, dirs, files in os.walk(os.path.join(WORKSPACE_BASE, 'src')):
         dirs[:] = [d for d in dirs if d not in ['node_modules', '.git', 'assets']]
         for fname in files:
             fpath = os.path.join(root, fname)
             rel_path = os.path.relpath(fpath, WORKSPACE_BASE)
+            rel_path_norm = rel_path.replace('\\', '/')
+            if limit_files is not None:
+                limit_files_norm = [lf.replace('\\', '/') for lf in limit_files]
+                if rel_path_norm not in limit_files_norm:
+                    continue
             try:
-                with open(fpath, 'r') as f:
+                with open(fpath, 'r', encoding='utf-8') as f:
                     content = f.read()
-                context.append(f"--- FILE: {rel_path} ---\n{content}\n")
+                context.append(f"--- FILE: {rel_path_norm} ---\n{content}\n")
             except Exception:
                 pass
+
     index_path = os.path.join(WORKSPACE_BASE, 'index.html')
     if os.path.exists(index_path):
-        with open(index_path, 'r') as f:
-            context.append(f"--- FILE: index.html ---\n{f.read()}\n")
+        rel_index = 'index.html'
+        if limit_files is None or rel_index in [lf.replace('\\', '/') for lf in limit_files]:
+            try:
+                with open(index_path, 'r', encoding='utf-8') as f:
+                    context.append(f"--- FILE: index.html ---\n{f.read()}\n")
+            except Exception:
+                pass
+
+    if include_tests:
+        tests_dir = os.path.join(WORKSPACE_BASE, 'tests')
+        if os.path.exists(tests_dir):
+            for fname in os.listdir(tests_dir):
+                if fname.startswith('test_') and fname.endswith('.py'):
+                    fpath = os.path.join(tests_dir, fname)
+                    rel_path = os.path.relpath(fpath, WORKSPACE_BASE).replace('\\', '/')
+                    try:
+                        with open(fpath, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        context.append(f"--- FILE: {rel_path} ---\n{content}\n")
+                    except Exception:
+                        pass
+
     return "\n".join(context)
 
 def parse_file_blocks(response_text):
@@ -408,11 +670,56 @@ def log_validation_fault(ticket_id, attempt, requirement_desc, file_blocks, scre
         print(f"🤖 Failed to write audit log: {e}")
 
 def sync_test_results(test_results):
+    conn = store.get_connection()
+    try:
+        # Load title -> (requirement_id, test_case_id) mapping
+        rows = conn.execute("SELECT title, id, requirement_id FROM test_cases").fetchall()
+        title_map = {row['title']: (row['requirement_id'], row['id']) for row in rows}
+        
+        # Sync file-level test cases (Linked test: <basename>)
+        linked_rows = conn.execute("SELECT id, file_path FROM test_cases WHERE title LIKE 'Linked test:%'").fetchall()
+        for row in linked_rows:
+            row_path = row['file_path']
+            if not row_path:
+                continue
+            norm_row_path = os.path.normpath(row_path)
+            file_results = [
+                t for t in test_results
+                if t.get('file_path') and os.path.normpath(t['file_path']) == norm_row_path
+            ]
+            if file_results:
+                overall_status = "pass"
+                if any(t.get('status') == 'Failing' for t in file_results) or any(t.get('name') == 'No tests defined' for t in file_results):
+                    overall_status = "fail"
+                conn.execute(
+                    "UPDATE test_cases SET last_result = ? WHERE id = ?",
+                    (overall_status, row['id'])
+                )
+        conn.commit()
+    except Exception as e:
+        print(f"⚠️ sync_test_results: Failed to read/update test_cases mapping: {e}")
+        title_map = {}
+    finally:
+        conn.close()
+
     grouped = {}
     for t in test_results:
-        req_id = t.get('req')
+        test_name = t.get('name')
+        # Try to resolve req ID from DB mapping
+        req_id = None
+        if test_name in title_map:
+            req_id = title_map[test_name][0]
+            t['id'] = title_map[test_name][1]
+        
+        # Fallback to 'req' tag if present in result dictionary
+        if not req_id:
+            req_id = t.get('req')
+            
         if req_id:
-            grouped.setdefault(req_id, []).append(t)
+            req_ids = [r.strip() for r in str(req_id).split(',') if r.strip()]
+            for rid in req_ids:
+                grouped.setdefault(rid, []).append(t)
+                
     for req_id, tests in grouped.items():
         store._upsert_test_results(req_id, tests)
 
@@ -484,7 +791,44 @@ def code_generation_node(state: AgentState) -> Dict[str, Any]:
         log_file.write(f"=========================================\n")
         log_file.write(f"Calling Gemini API for code generation...\n")
         
-    current_workspace_context = read_workspace_files()
+    # Resolve the correct test file path linked to this ticket/requirement
+    test_file_path = None
+    conn = store.get_connection()
+    row = conn.execute("SELECT file_path FROM test_cases WHERE requirement_id = ?", (ticket_id,)).fetchone()
+    if row and row['file_path']:
+        test_file_path = row['file_path']
+    elif parent_id and parent_id != 'N/A':
+        row = conn.execute("SELECT file_path FROM test_cases WHERE requirement_id = ?", (parent_id,)).fetchone()
+        if row and row['file_path']:
+            test_file_path = row['file_path']
+    conn.close()
+    
+    if not test_file_path:
+        if parent_id and parent_id != 'N/A':
+            test_file_path = f"tests/test_{parent_id}.py"
+        else:
+            test_file_path = f"tests/test_{ticket_id}.py"
+
+    # Load test case context
+    test_context = ""
+    full_test_path = os.path.join(WORKSPACE_BASE, test_file_path)
+    if os.path.exists(full_test_path):
+        try:
+            with open(full_test_path, 'r', encoding='utf-8') as f:
+                test_context = f"\nHere are the existing test cases associated with this ticket that your code changes must pass:\n--- TEST FILE: {test_file_path} ---\n{f.read()}\n"
+        except Exception as e:
+            print(f"Failed to read test file {test_file_path}: {e}")
+
+    # Implement Staged Context
+    if attempt == 1:
+        selected_files = select_relevant_files(WORKSPACE_BASE, task_desc, test_context or bug_test_instruction)
+        with open(log_file_path, 'a') as log_file:
+            log_file.write(f"Attempt 1: Targeted context selected: {json.dumps(selected_files)}\n")
+        current_workspace_context = read_workspace_files(include_tests=True, limit_files=selected_files)
+    else:
+        with open(log_file_path, 'a') as log_file:
+            log_file.write(f"Attempt {attempt}: Expanding context to full workspace source files.\n")
+        current_workspace_context = read_workspace_files(include_tests=True)
     
     feedback_note_attempt = feedback_note
     if attempt > 1 and qa_feedback:
@@ -495,7 +839,9 @@ def code_generation_node(state: AgentState) -> Dict[str, Any]:
         "task_desc": task_desc,
         "feedback_note_attempt": feedback_note_attempt,
         "bug_test_instruction": bug_test_instruction,
-        "parent_id": parent_id
+        "parent_id": parent_id,
+        "test_file_path": test_file_path,
+        "test_context": test_context
     })
     
     response_text = call_gemini(attempt_prompt, stage="code_generation")
@@ -526,11 +872,13 @@ def test_runner_node(state: AgentState) -> Dict[str, Any]:
     with open(log_file_path, 'a') as log_file:
         log_file.write("Running pytest suite...\n")
         
-    test_results = run_pytest(WORKSPACE_BASE)
+    test_results, failures_summary = run_pytest(WORKSPACE_BASE)
     sync_test_results(test_results)
     
     with open(log_file_path, 'a') as log_file:
         log_file.write(f"Test execution complete. Results: {json.dumps(test_results)}\n")
+        if failures_summary:
+            log_file.write(f"Pytest failures/errors traceback:\n{failures_summary}\n")
         
     # Check if all tests pass
     all_passing = all(t.get('status') == 'Passing' for t in test_results)
@@ -540,8 +888,10 @@ def test_runner_node(state: AgentState) -> Dict[str, Any]:
         failed_tests = [t.get('name') for t in test_results if t.get('status') == 'Failing']
         qa_feedback = f"""AUTOMATED QA FEEDBACK (Attempt {attempt} failed):
     Your code changes failed automated pytest verification.
-    Failed tests: {', '.join(failed_tests)}
-    Please review the test failures and correct the implementation and/or test assertions."""
+    Failed tests: {', '.join(failed_tests)}"""
+        if failures_summary:
+            qa_feedback += f"\n\nPytest Failure details:\n{failures_summary}"
+        qa_feedback += "\n\nPlease review the test failures and correct the implementation and/or test assertions."
     
     return {"test_results": test_results, "qa_feedback": qa_feedback}
 
@@ -633,6 +983,16 @@ def finalize_node(state: AgentState) -> Dict[str, Any]:
         
     if success:
         update_agent_status(active=True, ticket_id=ticket_id, step="Committing changes", attempt=attempt)
+        
+        # Get git diff before committing so LLM knows what changed to update system spec
+        diff_res = subprocess.run(["git", "diff", "main"], cwd=WORKSPACE_BASE, capture_output=True, text=True)
+        git_diff = diff_res.stdout
+        
+        try:
+            update_system_spec(WORKSPACE_BASE, f"Ticket ID: {ticket_id}\nTitle: {item['title']}\nDescription: {item.get('description', '')}", git_diff)
+        except Exception as spec_err:
+            print(f"Error updating system spec: {spec_err}")
+            
         subprocess.run(["git", "add", "-A"], cwd=WORKSPACE_BASE, capture_output=True)
         commit_msg = f"feat({ticket_id}): {item['title']}"
         subprocess.run(["git", "commit", "-m", commit_msg], cwd=WORKSPACE_BASE, capture_output=True)
@@ -657,6 +1017,14 @@ def finalize_node(state: AgentState) -> Dict[str, Any]:
         print(f"  ❌ Agent failed QA validation for {ticket_id}.")
         
     subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
+
+    if success and test_results:
+        # Replace (not just upsert) so stale fail rows from previous runs are cleared
+        parent_id = state.get('parent_id', 'N/A')
+        store.replace_test_results_for_requirement(ticket_id, test_results)
+        if parent_id and parent_id != 'N/A':
+            store.replace_test_results_for_requirement(parent_id, test_results)
+
     store.update_requirement_status(ticket_id, item['status'], feedback=item.get('feedback'), tests=test_results)
     
     return {}
@@ -722,7 +1090,16 @@ compiled_graph = workflow.compile()
 def run_openhands_loop(target_ticket_id: str = None):
     print("🤖 Agent Orchestrator: Waking up...")
     update_agent_status(active=True, step="Scanning Backlog", ticket_id=None, attempt=0)
-    
+
+    # Reset any tickets left stuck in InProgress from a previous crashed run
+    try:
+        stale = [r for r in store.get_all_requirements() if r.get('status') == 'InProgress']
+        for r in stale:
+            print(f"🤖 Agent Orchestrator: Resetting stale InProgress ticket {r['id']} → Backlog")
+            store.update_requirement(r['id'], {'status': 'Backlog'})
+    except Exception as cleanup_err:
+        print(f"🤖 Agent Orchestrator: Cleanup error: {cleanup_err}")
+
     try:
         reqs = store.get_requirements_for_frontend()
             
@@ -774,6 +1151,24 @@ def run_openhands_loop(target_ticket_id: str = None):
             parent_id = item.get('parentId', 'N/A')
             is_bug = item.get('type') == 'Bug'
             
+            # Resolve test file path dynamically
+            test_file_path = None
+            conn = store.get_connection()
+            row = conn.execute("SELECT file_path FROM test_cases WHERE requirement_id = ?", (ticket_id,)).fetchone()
+            if row and row['file_path']:
+                test_file_path = row['file_path']
+            elif parent_id and parent_id != 'N/A':
+                row = conn.execute("SELECT file_path FROM test_cases WHERE requirement_id = ?", (parent_id,)).fetchone()
+                if row and row['file_path']:
+                    test_file_path = row['file_path']
+            conn.close()
+            
+            if not test_file_path:
+                if parent_id and parent_id != 'N/A':
+                    test_file_path = f"tests/test_{parent_id}.py"
+                else:
+                    test_file_path = f"tests/test_{ticket_id}.py"
+            
             bug_context = ""
             bug_test_instruction = ""
             if is_bug:
@@ -785,7 +1180,7 @@ def run_openhands_loop(target_ticket_id: str = None):
                     f"{parent_desc}\n"
                 )
                 bug_test_instruction = (
-                    "\nSince this is a BUG, you MUST write a test case in `tests/test_example.py` "
+                    f"\nSince this is a BUG, you MUST write a test case in `{test_file_path}` "
                     "that specifically asserts the correct behavior to reproduce/verify the bug fix.\n"
                 )
                 
@@ -904,7 +1299,7 @@ def resolve_merge_conflict(ticket_id):
             with open(log_file_path, 'a') as log_file:
                 log_file.write("Running pytest suite to verify resolution...\n")
                 
-            test_results = run_pytest(WORKSPACE_BASE)
+            test_results, _ = run_pytest(WORKSPACE_BASE)
             all_passing = all(t.get('status') == 'Passing' for t in test_results)
             sync_test_results(test_results)
             
@@ -973,13 +1368,23 @@ def run_requirement_audit(req_id: str):
                 
             child_tasks = [r for r in reqs if r.get('parentId') == req_id and r.get('type') == 'Task']
             
-            test_filepath = os.path.join(WORKSPACE_BASE, 'tests', 'test_example.py')
+            # Query for the test file path linked to this requirement in database
+            test_file_path = None
+            conn = store.get_connection()
+            row = conn.execute("SELECT file_path FROM test_cases WHERE requirement_id = ?", (req_id,)).fetchone()
+            conn.close()
+            if row and row['file_path']:
+                test_file_path = row['file_path']
+            else:
+                test_file_path = f"tests/test_{req_id}.py"
+
+            test_filepath = os.path.join(WORKSPACE_BASE, test_file_path)
             test_code = ""
             if os.path.exists(test_filepath):
-                with open(test_filepath, 'r') as f:
+                with open(test_filepath, 'r', encoding='utf-8') as f:
                     test_code = f.read()
                     
-            workspace_context = read_workspace_files()
+            workspace_context = read_workspace_files(include_tests=True)
             
             existing_tasks_summary = json.dumps([
                 {"id": t['id'], "title": t['title'], "description": t['description'], "status": t.get('status')}
@@ -992,7 +1397,8 @@ def run_requirement_audit(req_id: str):
                 "description": target_req.get('description'),
                 "existing_tasks_summary": existing_tasks_summary,
                 "workspace_context": workspace_context,
-                "test_code": test_code
+                "test_code": test_code,
+                "test_file_path": test_file_path
             })
             
             with open(log_file_path, 'a') as log_file:
@@ -1016,13 +1422,13 @@ def run_requirement_audit(req_id: str):
             
             if updated_test_code:
                 os.makedirs(os.path.dirname(test_filepath), exist_ok=True)
-                with open(test_filepath, 'w') as f:
+                with open(test_filepath, 'w', encoding='utf-8') as f:
                     f.write(updated_test_code)
                 with open(log_file_path, 'a') as log_file:
-                    log_file.write("✅ Updated tests/test_example.py\n")
+                    log_file.write(f"✅ Updated {test_file_path}\n")
                     
                 subprocess.run(["git", "checkout", "main"], cwd=WORKSPACE_BASE, capture_output=True)
-                subprocess.run(["git", "add", "tests/test_example.py"], cwd=WORKSPACE_BASE, capture_output=True)
+                subprocess.run(["git", "add", test_file_path], cwd=WORKSPACE_BASE, capture_output=True)
                 subprocess.run(["git", "commit", "-m", f"test(audit): update tests for requirement {req_id}"], cwd=WORKSPACE_BASE, capture_output=True)
                 with open(log_file_path, 'a') as log_file:
                     log_file.write("✅ Committed tests update to main\n")
@@ -1056,7 +1462,7 @@ def run_requirement_audit(req_id: str):
                     log_file.write(f"✏️ Updated task {t_id} and reset to Backlog\n")
                         
             if updated_test_code or changes_made:
-                test_results = run_pytest(WORKSPACE_BASE)
+                test_results, _ = run_pytest(WORKSPACE_BASE)
                 sync_test_results(test_results)
                         
                 with open(log_file_path, 'a') as log_file:
