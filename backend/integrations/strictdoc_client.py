@@ -279,9 +279,13 @@ def sync_sdoc_to_db(clear_first: bool = False):
     conn = store.get_connection()
     try:
         if clear_first:
-            conn.execute("DELETE FROM test_cases")
-            conn.execute("DELETE FROM requirements")
-            conn.commit()
+            if parsed_reqs:
+                sdoc_ids = [r['id'] for r in parsed_reqs]
+                placeholders = ', '.join('?' for _ in sdoc_ids)
+                conn.execute(f"DELETE FROM test_cases WHERE requirement_id NOT IN ({placeholders})", sdoc_ids)
+                conn.execute(f"DELETE FROM requirements WHERE id NOT IN ({placeholders})", sdoc_ids)
+                conn.commit()
+                print("📄 strictdoc_client: Cleaned up stale requirements and associated test cases.")
             print("📄 strictdoc_client: Cleared existing requirements for fresh project sync.")
 
         for r in parsed_reqs:
