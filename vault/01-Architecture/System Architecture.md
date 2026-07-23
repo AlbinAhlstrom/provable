@@ -1,42 +1,43 @@
 # System Architecture
 
-Provable is an agentic software development simulator. It features a React-based PM Studio frontend and a FastAPI backend that runs and evaluates autonomous coding agents within a sandboxed git repository (`workspace/`).
+Provable is an agentic software development simulator. It features a React-based PM Studio frontend and a FastAPI backend that orchestrates autonomous developer agents within a sandboxed target git repository (`workspace/`).
 
 ```mermaid
 graph TD
-    subgraph Frontend [PM Studio Frontend]
-        App[App.tsx] --> KanbanBoard[components/KanbanBoard.tsx]
+    subgraph Frontend [PM Studio Frontend - React / Vite]
+        App[App.tsx Entrypoint] --> ProjectSelector[components/ProjectSelector.tsx]
+        App --> KanbanBoard[components/KanbanBoard.tsx]
         App --> RequirementsList[components/RequirementsList.tsx]
         App --> CodeReview[components/CodeReview.tsx]
         App --> CoverageHub[components/CoverageHub.tsx]
         App --> AgentTray[components/AgentTray.tsx]
         CodeReview --> DiffViewer[components/DiffViewer.tsx]
-        App --> useRequirements[hooks/useRequirements.ts]
+        App --> useRequirements[hooks/useRequirements.ts Hook]
     end
 
-    subgraph Backend [FastAPI Backend]
-        API[main.py API] --> Store[db/store.py DataStore]
-        API --> Orchestrator[agent_orchestrator.py]
-        API --> Prompts[prompts/ Markdown Templates]
+    subgraph Backend [FastAPI Backend Engine]
+        API[main.py REST API] --> Store[db/store.py DataStore API]
+        API --> Orchestrator[agent_orchestrator.py LangGraph]
+        API --> Prompts[prompts/ Externalized Templates]
         API --> Config[config/models.yaml & integrations.yaml]
         Orchestrator --> LLM[OpenAI Client - Abstraction]
-        Orchestrator --> Git[Git CLI Operations]
-        Orchestrator --> Pytest[Pytest Sandbox Runner]
+        Orchestrator --> Git[Git CLI Sandbox Manager]
+        Orchestrator --> Pytest[Pytest Test Runner]
         Orchestrator --> Selenium[Selenium Screenshot Capture]
-        Orchestrator --> Vision[Gemini Vision Gate]
+        Orchestrator --> Vision[Gemini Vision Quality Gate]
     end
 
-    subgraph DB [Storage]
-        Store --> SQLite[SQLite provable.db]
+    subgraph DB [Persistence Layer]
+        Store --> SQLite[SQLite provable.db Database]
+        Store <-->|Bidirectional Sync| SDoc[requirements/requirements.sdoc]
     end
 
-    subgraph Workspace [Target Codebase]
-        Git --> TargetCode[workspace/ files]
-        Pytest --> TargetTests[workspace/tests/]
-        Store <-->|strictdoc_client| SDoc[workspace/requirements/requirements.sdoc]
+    subgraph Workspace [Target Project Sandbox]
+        Git --> TargetCode[workspace/ Source Files]
+        Pytest --> TargetTests[workspace/tests/ Test Files]
     end
 
-    subgraph Docker [Allure Reporting]
+    subgraph Docker [Allure Reporting Container]
         Orchestrator --> AllureContainer[Allure Docker Service :5050]
         CoverageHub --> AllureContainer
     end
@@ -44,24 +45,28 @@ graph TD
     App <-->|REST API / JSON| API
 ```
 
-## 1. PM Studio Frontend (`src/`)
-Built with React, TypeScript, and Vite. It is fully modularized:
-- **`App.tsx`**: Lightweight entry point managing routing, navigation tabs, and basic layout.
-- **`components/KanbanBoard.tsx`**: Displays active tasks in columns: `Backlog`, `In Progress`, `Review`, `Conflict`, and `Done`.
-- **`components/RequirementsList.tsx`**: Nested folder hierarchy supporting full CRUD for folders, requirements, tasks, and bugs. Integrates "Create Test Case" triggers that generate failing pytest specs.
-- **`components/CodeReview.tsx`**: Displays code submissions from active developer agent branches, embedding the **`DiffViewer`** side-by-side with pytest results.
-- **`components/CoverageHub.tsx`**: High-level test summary and coverage analytics embedding the Allure Docker Service live dashboard via an iframe.
-- **`components/AgentTray.tsx`**: Collapsible bottom console tray showing active execution steps, attempts, real-time log streaming, and backlog blockers queue.
-- **`hooks/useRequirements.ts`**: Encapsulates all query fetching and database mutation hooks for requirements metadata.
+## 1. Subsystem Breakdown
 
-## 2. FastAPI Backend (`backend/`)
-The engine of the simulator, handling API requests and background agent orchestration:
-- **`main.py`**: Exposes endpoints for requirements, settings, git diffs, review lists, agent-status, and ticket merging. Configures an automatic POST hook on startup to register the `provable` project in the Allure container.
-- **`agent_orchestrator.py`**: Executes the agent loop. It uses LangGraph to orchestrate coding agents, git commits, test runs, and screenshot evaluation.
-- **LLM Abstraction**: Backend routes all LLM queries via the OpenAI Python SDK and configurations in `config/models.yaml`.
-- **Externalized Prompts**: System and retry prompts are externalized as markdown templates inside the `backend/prompts/` directory.
+### PM Studio Frontend (`src/`)
+Built with React, TypeScript, Vite, and custom CSS styling. It provides project management control over autonomous developer agents:
+- **`App.tsx`**: Main application container housing header controls, navigation tabs (Kanban, Requirements Explorer, Code Review, Coverage Hub), and global agent status banners.
+- **`components/KanbanBoard.tsx`**: Displays tickets in Kanban lifecycle columns (`Backlog`, `In Progress`, `Review`, `Conflict`, `Done`) with real-time state badges.
+- **`components/RequirementsList.tsx`**: Hierarchical tree viewer for folders, requirements, tasks, and bugs. Supports full CRUD operations, parent assignment, dependency management, and TDD test spec generation triggers.
+- **`components/CodeReview.tsx`**: Embeds side-by-side git diffs (`DiffViewer`), pytest log tracebacks, and review approval/rejection action buttons.
+- **`components/CoverageHub.tsx`**: Aggregates requirement-to-test mapping matrices and embeds the live Allure Docker portal (`:5050`) within an iframe.
+- **`components/AgentTray.tsx`**: Collapsible console tray displaying active LangGraph execution nodes, attempt counters, streaming stdout/stderr log output, and review queue items.
+- **`components/ProjectSelector.tsx`**: Drawer modal for switching workspace project directories and configuring model provider keys.
 
-## 3. Data Storage
-- SQLite Database (`backend/provable.db`) stores all requirements, test cases, and agent runs.
-- Initial migrations and fallback syncing utilize `src/requirements.json`.
-- Integrations automatically export SQLite records to StrictDoc specs and Jira (when enabled).
+### FastAPI Backend Engine (`backend/`)
+The core orchestrator and REST service layer:
+- **`main.py`**: Exposes endpoints for requirement CRUD, project selection, git diff generation, agent run statuses, and ticket merge approvals. Performs automatic project initialization against the Allure Docker container on startup.
+- **`agent_orchestrator.py`**: Executes the autonomous agent state machine using **LangGraph**. Coordinates branch creation, LLM code generation, preview dev server execution, pytest runner, Selenium screenshot capture, Gemini Vision visual layout evaluation, and git rollbacks.
+- **`db/store.py`**: High-performance SQLite wrapper (`provable.db`) managing relational data for requirements, test cases, and agent runs.
+- **`integrations/`**: Modules for syncing SQLite state with StrictDoc specification files (`strictdoc_client.py`), Jira tickets (`jira_client.py`), and Allure Docker API endpoints (`allure_client.py`).
+
+### Data Storage & Specifications
+- **SQLite Database (`backend/provable.db`)**: Primary operational database powering real-time queries.
+- **StrictDoc Specs (`requirements/requirements.sdoc`)**: Text-based specification files synchronized bidirectionally with the SQLite database to maintain version-controlled requirements in Git.
+
+### Containerized Infrastructure
+- **Allure Docker Service (`frankescobar/allure-docker-service:5050`)**: Containerized reporting service that aggregates pytest execution outputs from `workspace/allure-results/` and renders coverage metrics.

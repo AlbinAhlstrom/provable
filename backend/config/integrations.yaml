@@ -1,4 +1,4 @@
-active_project: /home/albin/projects/v_chess
+active_project: C:\Users\ahlst\AppData\Local\Temp\pytest-of-ahlst\pytest-12\test_add_project0\new_project
 allure:
   enabled: true
   project_id: default
@@ -11,12 +11,28 @@ jira:
   enabled: false
   project_key: ''
 project:
-  workspace_path: /home/albin/projects/v_chess
+  workspace_path: C:\Users\ahlst\AppData\Local\Temp\pytest-of-ahlst\pytest-12\test_add_project0\new_project
 projects:
+- name: provable
+  path: C:\Users\ahlst\Documents\GitHub\provable
 - name: v-chess
-  path: /home/albin/projects/v_chess
-- name: provable-demo
-  path: /home/albin/projects/pme/workspace
+  path: C:\Users\ahlst\Documents\GitHub\v-chess
+- name: provable
+  path: C:\Users\ahlst\AppData\Local\Temp\pytest-of-ahlst\pytest-5\test_add_project0\new_project
+- name: new_project
+  path: C:\Users\ahlst\AppData\Local\Temp\pytest-of-ahlst\pytest-6\test_add_project0\new_project
+- name: new_project
+  path: C:\Users\ahlst\AppData\Local\Temp\pytest-of-ahlst\pytest-7\test_add_project0\new_project
+- name: provable
+  path: C:\Users\ahlst\AppData\Local\Temp\pytest-of-ahlst\pytest-8\test_add_project0\new_project
+- name: new_project
+  path: C:\Users\ahlst\AppData\Local\Temp\pytest-of-ahlst\pytest-9\test_add_project0\new_project
+- name: new_project
+  path: C:\Users\ahlst\AppData\Local\Temp\pytest-of-ahlst\pytest-10\test_add_project0\new_project
+- name: new_project
+  path: C:\Users\ahlst\AppData\Local\Temp\pytest-of-ahlst\pytest-11\test_add_project0\new_project
+- name: new_project
+  path: C:\Users\ahlst\AppData\Local\Temp\pytest-of-ahlst\pytest-12\test_add_project0\new_project
 strictdoc:
   enabled: true
   requirements_dir: ../workspace/requirements

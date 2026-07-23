@@ -4,6 +4,11 @@ Reads launch configuration from a project's .provable.yaml and manages PIDs.
 """
 import os
 import sys
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='backslashreplace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='backslashreplace')
+
 import subprocess
 import time
 import socket
@@ -59,8 +64,16 @@ def start_project_servers(project_path: Optional[str] = None) -> bool:
     settings = get_project_settings()
     dev_cfg = settings.get('dev_server', {})
 
-    start_cmd = dev_cfg.get('start_command', 'npm run dev')
-    port = int(dev_cfg.get('port', 5174))
+    if not dev_cfg.get('enabled', True):
+        print(f"ℹ️ server_manager: Dev server disabled for {os.path.basename(base)}")
+        return False
+
+    start_cmd = dev_cfg.get('start_command', '')
+    if not start_cmd:
+        print(f"ℹ️ server_manager: No start_command defined for {os.path.basename(base)}")
+        return False
+
+    port = int(dev_cfg.get('port') or 5174)
 
     # Support multi-process launch (e.g. backend + frontend for v-chess)
     # If start_command is a list, launch each sequentially
@@ -69,6 +82,15 @@ def start_project_servers(project_path: Optional[str] = None) -> bool:
     print(f"🚀 server_manager: Starting dev server(s) for {os.path.basename(base)}...")
 
     for cmd in commands:
+        cmd_has_pkg = (
+            os.path.exists(os.path.join(base, 'package.json')) or
+            any(os.path.exists(os.path.join(base, sub, 'package.json')) for sub in ['frontend', 'client', 'app', 'ui', 'web'])
+        )
+
+        if ('npm' in cmd or 'npx' in cmd) and not cmd_has_pkg:
+            print(f"⚠️ server_manager: Skipping '{cmd}' — package.json not found in {base} or subfolders")
+            continue
+
         try:
             proc = subprocess.Popen(
                 cmd,
@@ -83,6 +105,10 @@ def start_project_servers(project_path: Optional[str] = None) -> bool:
         except Exception as e:
             print(f"❌ server_manager: Failed to start '{cmd}': {e}")
             return False
+
+    if not _running_procs:
+        print(f"ℹ️ server_manager: No processes launched for {os.path.basename(base)}")
+        return False
 
     # Wait for the primary frontend port to come up
     print(f"  ⏳ Waiting for port {port}...")

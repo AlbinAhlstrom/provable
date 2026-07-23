@@ -26,12 +26,18 @@ export function useRequirements() {
   const fetchReqs = async () => {
     try {
       const res = await fetch('/api/requirements');
-      const data = await res.json();
-      setRequirements(data);
-      setLoading(false);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setRequirements(data);
+          setLoading(false);
+        }
+      } else {
+        setTimeout(fetchReqs, 1500);
+      }
     } catch (e) {
-      console.error("Error fetching requirements:", e);
-      setLoading(false);
+      console.warn("Retrying requirements fetch (backend initializing)...", e);
+      setTimeout(fetchReqs, 1500);
     }
   };
 

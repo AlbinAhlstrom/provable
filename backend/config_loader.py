@@ -21,14 +21,14 @@ def get_workspace_base() -> str:
     """Return the active workspace directory path."""
     # 1. Environment variable override (highest priority — set on project switch)
     env_workspace = os.environ.get("PROVABLE_WORKSPACE")
-    if env_workspace:
+    if env_workspace and os.path.exists(env_workspace):
         return os.path.abspath(env_workspace)
 
     # 2. integrations.yaml active_project field
     try:
         cfg = _load_config()
         active = cfg.get('active_project') or cfg.get('project', {}).get('workspace_path')
-        if active:
+        if active and os.path.exists(active):
             return os.path.abspath(active)
     except Exception as e:
         print(f"⚠️ config_loader: Error reading integrations.yaml: {e}")
@@ -55,7 +55,14 @@ def set_active_project(path: str) -> None:
 def get_all_projects() -> List[Dict[str, Any]]:
     """Return the list of registered projects from integrations.yaml."""
     cfg = _load_config()
-    return cfg.get('projects', [])
+    projects = cfg.get('projects', [])
+
+    # Ensure default workspace project is always present in the list
+    default_ws = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
+    if not any(os.path.normcase(os.path.abspath(p.get('path', ''))) == os.path.normcase(default_ws) for p in projects):
+        projects.insert(0, {'name': 'Default Workspace', 'path': default_ws})
+
+    return projects
 
 
 def add_project(name: str, path: str) -> None:
@@ -65,7 +72,7 @@ def add_project(name: str, path: str) -> None:
     projects = cfg.get('projects', [])
 
     # Avoid duplicates
-    if not any(p['path'] == path for p in projects):
+    if not any(os.path.normcase(os.path.abspath(p['path'])) == os.path.normcase(path) for p in projects):
         projects.append({'name': name, 'path': path})
         cfg['projects'] = projects
         _save_config(cfg)
@@ -76,13 +83,31 @@ def get_project_settings() -> dict:
     """Return project-specific settings from the active project's .provable.yaml."""
     base = get_workspace_base()
 
-    # Defaults suitable for a Vite/React app (matches old workspace behaviour)
+    # Find name from registered projects if matched
+    proj_name = os.path.basename(base)
+    norm_base = os.path.normcase(os.path.abspath(base))
+    for p in get_all_projects():
+        if os.path.normcase(os.path.abspath(p.get('path', ''))) == norm_base:
+            proj_name = p.get('name', proj_name)
+            break
+
+    has_pkg_json = (
+        os.path.exists(os.path.join(base, 'package.json')) or
+        any(os.path.exists(os.path.join(base, sub, 'package.json')) for sub in ['frontend', 'client', 'app', 'ui', 'web'])
+    )
+    provable_yaml = os.path.join(base, '.provable.yaml')
+    has_provable_yaml = os.path.exists(provable_yaml)
+
+    # Only default dev_server to enabled if package.json or .provable.yaml exists
+    has_dev_server = has_pkg_json or has_provable_yaml
+
     settings = {
-        "name": os.path.basename(base),
+        "name": proj_name,
         "dev_server": {
-            "start_command": "npm run dev",
-            "port": 5174,
-            "base_url": f"http://localhost:5174"
+            "enabled": has_dev_server,
+            "start_command": "npm run dev" if has_pkg_json else "",
+            "port": 5174 if has_dev_server else None,
+            "base_url": "http://localhost:5174" if has_dev_server else ""
         },
         "test_runner": {
             "test_command": "pytest -v",
@@ -90,18 +115,18 @@ def get_project_settings() -> dict:
         }
     }
 
-    provable_yaml = os.path.join(base, '.provable.yaml')
-    if os.path.exists(provable_yaml):
+    if has_provable_yaml:
         try:
             with open(provable_yaml, 'r', encoding='utf-8') as f:
                 proj_cfg = yaml.safe_load(f)
                 if proj_cfg:
-                    # Deep-merge so partial .provable.yaml overrides still work
                     for key, val in proj_cfg.items():
                         if isinstance(val, dict) and isinstance(settings.get(key), dict):
                             settings[key].update(val)
                         else:
                             settings[key] = val
+                    if 'dev_server' in proj_cfg:
+                        settings['dev_server']['enabled'] = True
         except Exception as e:
             print(f"⚠️ config_loader: Error loading .provable.yaml: {e}")
 

@@ -62,8 +62,14 @@ def is_port_active(port):
             return False
 
 def ensure_preview_server():
-    """Ensure that the Vite preview server is active on port 5174."""
+    """Ensure that the dev server for the active workspace is active on port 5174."""
     PORT = 5174
+    ws_path = str(WORKSPACE_BASE)
+
+    if not os.path.exists(os.path.join(ws_path, 'package.json')):
+        print(f"🤖 Preview server skipped: package.json not found in {ws_path}.")
+        return None, None
+
     if is_port_active(PORT):
         print(f"🤖 Preview server already active on port {PORT}.")
         return None, PORT
@@ -71,7 +77,7 @@ def ensure_preview_server():
     print(f"🤖 Preview server not active. Starting Vite dev server in workspace...")
     process = subprocess.Popen(
         ["npm", "run", "dev"],
-        cwd=WORKSPACE_BASE,
+        cwd=ws_path,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         text=True
@@ -368,9 +374,22 @@ def call_gemini(prompt, image_path=None, image_paths=None, stage=None):
     model = stage_config.get('model', 'gemini-2.5-flash')
     base_url = stage_config.get('base_url', 'https://generativelanguage.googleapis.com/v1beta/openai/')
     api_key_env = stage_config.get('api_key_env', 'LLM_API_KEY')
-    api_key = os.environ.get(api_key_env, "")
+    api_key = os.environ.get(api_key_env) or os.environ.get("GEMINI_API_KEY") or os.environ.get("OPENAI_API_KEY") or ""
     
-    client = OpenAI(api_key=api_key, base_url=base_url)
+    if not api_key:
+        print(f"⚠️ call_gemini: No API key found in {api_key_env}, GEMINI_API_KEY, or OPENAI_API_KEY.")
+        if stage == "test_case_generation":
+            return '''```python
+def test_generated_bdd_spec():
+    """
+    Given: The application is configured
+    When: Inspecting target requirement
+    Then: Expected behavior should hold
+    """
+    assert False, "Failing TDD initial test case (LLM API key not configured)"
+```'''
+
+    client = OpenAI(api_key=api_key or "dummy-key", base_url=base_url)
     
     parts = [{"type": "text", "text": prompt}]
     
@@ -412,6 +431,18 @@ def call_gemini(prompt, image_path=None, image_paths=None, stage=None):
         except Exception as e:
             last_error = e
             print(f"    LLM API attempt {attempt + 1}/3 failed with error: {e}")
+            if "Missing credentials" in str(e) or "api_key" in str(e):
+                if stage == "test_case_generation":
+                    return '''```python
+def test_generated_bdd_spec():
+    """
+    Given: The application is configured
+    When: Inspecting target requirement
+    Then: Expected behavior should hold
+    """
+    assert False, "Failing TDD initial test case (LLM API key missing)"
+```'''
+                raise last_error
             wait_time = 15 * (attempt + 1)
             time.sleep(wait_time)
             
@@ -1144,7 +1175,7 @@ def run_openhands_loop(target_ticket_id: str = None):
             os.makedirs(log_dir, exist_ok=True)
             log_file_path = os.path.join(log_dir, f"{ticket_id}.log")
             
-            with open(log_file_path, 'w') as log_file:
+            with open(log_file_path, 'w', encoding='utf-8') as log_file:
                 log_file.write(f"🤖 Agent starting work on: {item['title']}\n")
                 
             # Setup task variables

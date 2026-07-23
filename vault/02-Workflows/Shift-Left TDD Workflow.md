@@ -1,6 +1,6 @@
 # Shift-Left TDD Workflow
 
-Provable operates on a Shift-Left Test-Driven Development (TDD) workflow. Rather than writing verification suites after approval, developers write or auto-generate failing test cases before implementation begins. The source of development tasks originates from coverage gaps on the Allure Coverage Hub, ensuring complete traceability.
+Provable enforces a strict Shift-Left Test-Driven Development (TDD) lifecycle. Instead of writing verification tests after feature implementation, failing pytest test specs are auto-generated before any source code is modified.
 
 ```mermaid
 sequenceDiagram
@@ -26,27 +26,29 @@ sequenceDiagram
     PM->>PM: 4. Approve & Merge code changes to main
 ```
 
-## Core Steps
+## Detailed TDD Lifecycle Steps
 
-### 1. Requirement Creation
-*   A new specification (or bug report) is created in the **Requirements Explorer**.
-*   This requirement starts in `Backlog` status with **no linked test cases** (represented by a white circle icon `○`).
+### 1. Specification Creation
+- A Project Manager creates a requirement, task, or bug in the **Requirements Explorer**.
+- The item is created in `Backlog` status with **no linked test cases** (indicated by a white circle icon `○`).
 
 ### 2. Failing Test Case Generation (TDD Red)
-*   The PM clicks the **"Create Test Case"** button on the requirement detail panel.
-*   The backend calls the LLM with `prompts/test_case_generation.md` to write a BDD-structured pytest file (`workspace/tests/test_{req_id}.py`) that exercises the described behavior.
-*   The test case is generated with `@allure.id`, `@allure.link`, and BDD docstrings (`Given`, `When`, `Then`).
-*   The backend runs the test immediately to verify that it **fails**. If it passes, the test is discarded and regenerated. This establishes the initial TDD "Red" state (represented by a red cross icon `✗`).
+- The PM clicks **"Create Test Case"** on the requirement detail panel.
+- The backend loads `prompts/test_case_generation.md` and calls the LLM to write a BDD-structured pytest file (`workspace/tests/test_<REQ_ID>.py`).
+- The generated test includes `@allure.id`, `@allure.title`, and BDD docstrings (`Given`, `When`, `Then`).
+- The backend immediately executes the new test file to verify that it **fails**. If it passes unexpectedly, it is discarded and regenerated with stricter assertions.
+- This establishes the verified **TDD Red** baseline (represented by a red cross icon `✗`).
 
-### 3. Allure Coverage Matrix
-*   The **Coverage Hub** aggregates all requirements and their verification states.
-*   Failing tests are automatically compiled by the Allure Docker Service and displayed inside the coverage matrix alongside an embed of the Allure Report portal.
+### 3. Coverage Matrix & Allure Sync
+- The **Coverage Hub** aggregates all requirements and their linked test status.
+- Test execution results are uploaded to the containerized Allure Docker Service (`:5050`) and displayed in the embedded iframe.
 
-### 4. Ticket Dispatch & Implementation
-*   To start implementing code, the PM clicks **"Fix Failing Test"** next to the failing test case inside the Coverage Hub.
-*   The backend creates a Jira ticket mapped to the requirement and starts the LangGraph agent loop.
-*   The agent's success criterion is clear: modify source code until the specific failing test case passes, without breaking any existing test cases.
+### 4. Developer Agent Execution (TDD Green)
+- The PM clicks **"Fix Failing Test"** next to the failing item.
+- The backend dispatches the LangGraph developer agent loop.
+- The agent modifies source code files inside `workspace/` until the target pytest spec passes without breaking existing tests.
 
-### 5. Code Review & Merge
-*   Once the test passes, the agent uploads the results to Allure (transitioning the coverage matrix to a green checkmark `✅`) and submits the code to `Review` status.
-*   The PM reviews the diff side-by-side with the BDD test docstring and clicks **"Approve"** to merge the changes directly into the `main` branch.
+### 5. Review & Merge Approval
+- Upon test pass (TDD Green), the agent submits the branch to `Review` status.
+- The PM inspects the git diff in **Code Review** and clicks **Approve**.
+- The backend merges `ticket/<TICKET_ID>` into `main` and updates requirement status to `Done`.

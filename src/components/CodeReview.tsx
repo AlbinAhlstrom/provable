@@ -7,9 +7,6 @@ interface CodeReviewProps {
   selectedReviewId: string | null;
   setSelectedReviewId: (id: string | null) => void;
   requirements: Requirement[];
-  showPreview: boolean;
-  previewBranch: 'pre' | 'post';
-  setPreviewBranch: (branch: 'pre' | 'post') => void;
   handleApproveCode: (req: Requirement) => Promise<void>;
   handleProvideFeedback: (req: Requirement) => Promise<void>;
   handleAbandonTicket: (req: Requirement) => Promise<void>;
@@ -20,9 +17,6 @@ const CodeReview: React.FC<CodeReviewProps> = ({
   selectedReviewId,
   setSelectedReviewId,
   requirements,
-  showPreview,
-  previewBranch,
-  setPreviewBranch,
   handleApproveCode,
   handleProvideFeedback,
   handleAbandonTicket
@@ -39,34 +33,36 @@ const CodeReview: React.FC<CodeReviewProps> = ({
               <tr style={{ borderBottom: '1px solid var(--border-glass)', color: 'var(--text-secondary)' }}>
                 <th className="gerrit-header-cell" style={{ width: '120px', padding: '0.75rem 1rem', textAlign: 'left' }}>ID</th>
                 <th className="gerrit-header-cell" style={{ padding: '0.75rem 1rem', textAlign: 'left' }}>Subject</th>
-                <th className="gerrit-header-cell" style={{ width: '100px', padding: '0.75rem 1rem', textAlign: 'left' }}>Size</th>
-                <th className="gerrit-header-cell" style={{ width: '120px', padding: '0.75rem 1rem', textAlign: 'left' }}>Wait Time</th>
+                <th className="gerrit-header-cell" style={{ width: '120px', padding: '0.75rem 1rem', textAlign: 'left' }}>Status</th>
+                <th className="gerrit-header-cell" style={{ width: '120px', padding: '0.75rem 1rem', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {reviews.map(review => (
-                <tr 
-                  key={review.id} 
-                  className="gerrit-row"
-                  onClick={() => setSelectedReviewId(review.id)}
-                  style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', cursor: 'pointer', background: 'rgba(255,255,255,0.01)' }}
-                >
-                  <td className="gerrit-cell" style={{ fontFamily: 'monospace', padding: '1rem' }}>{review.id}</td>
-                  <td className="gerrit-cell gerrit-subject" style={{ padding: '1rem', color: 'white' }}>
-                    {review.title}
-                    {review.status === 'Conflict' && (
-                      <span className="badge" style={{ marginLeft: '0.5rem', background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                        ⚠️ Conflict (Resolving...)
-                      </span>
-                    )}
+              {reviews.map((req) => (
+                <tr key={req.id} className="gerrit-row" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <td className="gerrit-cell-mono" style={{ padding: '0.75rem 1rem', fontFamily: 'monospace', color: 'var(--accent-primary)' }}>{req.id}</td>
+                  <td className="gerrit-cell" style={{ padding: '0.75rem 1rem', fontWeight: 500 }}>
+                    <a 
+                      href={`#review-${req.id}`} 
+                      onClick={(e) => { e.preventDefault(); setSelectedReviewId(req.id); }}
+                      style={{ color: '#f8fafc', textDecoration: 'none' }}
+                      onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                      onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                    >
+                      {req.title}
+                    </a>
                   </td>
-                  <td className="gerrit-cell" style={{ padding: '1rem' }}>
-                    <span className={`gerrit-size-badge gerrit-size-${review.size.toLowerCase()}`}>
-                      {review.size}
-                    </span>
+                  <td className="gerrit-cell" style={{ padding: '0.75rem 1rem' }}>
+                    <span className={`status-tag status-${req.status.toLowerCase()}`}>{req.status}</span>
                   </td>
-                  <td className="gerrit-cell" style={{ color: 'var(--text-muted)', padding: '1rem' }}>
-                    {review.waitingTime}
+                  <td className="gerrit-cell" style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                    <button 
+                      className="btn btn-outline" 
+                      style={{ padding: '0.25rem 0.6rem', fontSize: '0.8rem' }}
+                      onClick={() => setSelectedReviewId(req.id)}
+                    >
+                      Review
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -78,36 +74,17 @@ const CodeReview: React.FC<CodeReviewProps> = ({
   }
 
   const req = requirements.find(r => r.id === selectedReviewId);
-  if (!req) {
-    return (
-      <div style={{ padding: '2rem' }}>
-        <button className="btn btn-outline" onClick={() => setSelectedReviewId(null)}>
-          ← Back to Dashboard
-        </button>
-        <p className="text-muted" style={{ marginTop: '1rem' }}>Review not found.</p>
-      </div>
-    );
-  }
+  if (!req) return <div style={{ padding: '2rem' }}>Review not found.</div>;
 
   return (
-    <div className="gerrit-detail-container" style={{ padding: '2rem' }}>
-      <header className="header" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="code-review-detail" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%', overflowY: 'auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', paddingBottom: '1rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
             <button 
               className="btn btn-outline" 
               style={{ padding: '0.25rem 0.6rem', fontSize: '0.8rem' }} 
-              onClick={() => {
-                setSelectedReviewId(null);
-                if (previewBranch === 'pre') {
-                  setPreviewBranch('post');
-                  fetch('/api/checkout-preview', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ branch: 'main' })
-                  });
-                }
-              }}
+              onClick={() => setSelectedReviewId(null)}
             >
               ← Back
             </button>
@@ -119,43 +96,6 @@ const CodeReview: React.FC<CodeReviewProps> = ({
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {showPreview && (
-            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-glass)' }}>
-              <button
-                className={`btn ${previewBranch === 'pre' ? 'btn-primary' : ''}`}
-                style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem', borderRadius: '6px', background: previewBranch === 'pre' ? undefined : 'transparent', color: previewBranch === 'pre' ? undefined : 'var(--text-secondary)', border: 'none' }}
-                onClick={async () => {
-                  if (previewBranch === 'pre') return;
-                  setPreviewBranch('pre');
-                  await fetch('/api/checkout-preview', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ branch: 'main' })
-                  });
-                }}
-                title="Preview before this commit (main branch)"
-              >
-                Before
-              </button>
-              <button
-                className={`btn ${previewBranch === 'post' ? 'btn-primary' : ''}`}
-                style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem', borderRadius: '6px', background: previewBranch === 'post' ? undefined : 'transparent', color: previewBranch === 'post' ? undefined : 'var(--text-secondary)', border: 'none' }}
-                onClick={async () => {
-                  if (previewBranch === 'post') return;
-                  setPreviewBranch('post');
-                  await fetch('/api/checkout-preview', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ branch: `ticket/${selectedReviewId}` })
-                  });
-                }}
-                title="Preview after this commit (branch)"
-              >
-                After
-              </button>
-            </div>
-          )}
-
           {req.status === 'Conflict' ? (
             <div 
               className="glass-panel" 
@@ -163,110 +103,97 @@ const CodeReview: React.FC<CodeReviewProps> = ({
                 padding: '0.5rem 1rem', 
                 border: '1px solid var(--accent-warning)', 
                 background: 'rgba(245, 158, 11, 0.1)', 
-                borderRadius: '6px', 
-                color: '#fbbf24', 
-                fontSize: '0.9rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
+                color: 'var(--accent-warning)', 
+                borderRadius: '8px', 
+                fontWeight: 600,
+                fontSize: '0.9rem' 
               }}
             >
-              <div className="spinner-small" style={{ border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#fbbf24', borderRadius: '50%', width: '14px', height: '14px', animation: 'spin 1s linear infinite' }}></div>
-              <span>Merge conflict detected. Automated agent is resolving...</span>
-            </div>
-          ) : req.status === 'InProgress' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div 
-                className="glass-panel" 
-                style={{ 
-                  padding: '0.5rem 1rem', 
-                  border: '1px solid var(--accent-primary)', 
-                  background: 'rgba(59, 130, 246, 0.1)', 
-                  borderRadius: '6px', 
-                  color: '#60a5fa', 
-                  fontSize: '0.9rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                <div className="spinner-small" style={{ border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#60a5fa', borderRadius: '50%', width: '14px', height: '14px', animation: 'spin 1s linear infinite' }}></div>
-                <span>Agent is actively reworking this ticket...</span>
-              </div>
-              <button 
-                className="btn btn-outline" 
-                style={{ borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)' }} 
-                onClick={() => handleAbandonTicket(req)}
-              >
-                Abandon
-              </button>
-            </div>
-          ) : req.status === 'Backlog' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div 
-                className="glass-panel" 
-                style={{ 
-                  padding: '0.5rem 1rem', 
-                  border: '1px solid var(--text-muted)', 
-                  background: 'rgba(255, 255, 255, 0.05)', 
-                  borderRadius: '6px', 
-                  color: 'var(--text-muted)', 
-                  fontSize: '0.9rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                <span>⌛ Waiting for agent to start reworking...</span>
-              </div>
-              <button 
-                className="btn btn-outline" 
-                style={{ borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)' }} 
-                onClick={() => handleAbandonTicket(req)}
-              >
-                Abandon
-              </button>
+              ⚠️ Git Merge Conflict
             </div>
           ) : (
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button className="btn btn-primary" onClick={() => handleApproveCode(req)}>
-                Approve (Merge)
-              </button>
+            <>
               <button 
                 className="btn btn-outline" 
-                onClick={() => handleProvideFeedback(req)}
-              >
-                Feedback
-              </button>
-              <button 
-                className="btn btn-outline" 
-                style={{ borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)' }} 
+                style={{ borderColor: 'rgba(239, 68, 68, 0.3)', color: '#ef4444' }}
                 onClick={() => handleAbandonTicket(req)}
               >
                 Abandon
               </button>
-            </div>
+              <button 
+                className="btn btn-outline"
+                onClick={() => handleProvideFeedback(req)}
+              >
+                Request Changes
+              </button>
+              <button 
+                className="btn btn-primary"
+                onClick={() => handleApproveCode(req)}
+              >
+                Approve & Merge
+              </button>
+            </>
           )}
         </div>
-      </header>
+      </div>
 
-      {req.feedback && (
-        <div 
-          style={{ 
-            padding: '0.8rem 1rem', 
-            border: '1px solid var(--accent-danger)', 
-            background: 'rgba(239, 68, 68, 0.1)', 
-            borderRadius: '6px', 
-            color: '#f87171', 
-            fontSize: '0.9rem',
-            marginBottom: '1.5rem'
-          }}
-        >
-          <strong>⚠️ Merge Warning:</strong> {req.feedback}
+      <div style={{ display: 'flex', gap: '1.5rem', flex: 1, minHeight: 0 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-secondary)' }}>Requirement Description</h3>
+            <p style={{ margin: 0, lineHeight: 1.6 }}>{req.description}</p>
+            
+            {req.feedback && (
+              <div style={{ marginTop: '0.5rem', padding: '1rem', background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '6px' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-warning)', fontSize: '0.9rem' }}>Previous Review Feedback</h4>
+                <p style={{ margin: 0, fontSize: '0.9rem', whiteSpace: 'pre-wrap' }}>{req.feedback}</p>
+              </div>
+            )}
+          </div>
+
+          <div style={{ flex: 1, minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', color: 'var(--text-secondary)' }}>Proposed Code Changes</h3>
+            <div style={{ flex: 1, minHeight: 0 }}>
+              <DiffViewer ticketId={selectedReviewId} />
+            </div>
+          </div>
         </div>
-      )}
-      
-      <DiffViewer ticketId={req.id} />
+
+        <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="glass-panel" style={{ padding: '1.5rem' }}>
+            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', color: 'var(--text-secondary)' }}>Test Execution Results</h3>
+            {req.tests && req.tests.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                {req.tests.map((test: any, idx: number) => (
+                  <div 
+                    key={idx} 
+                    style={{ 
+                      padding: '0.8rem', 
+                      background: test.status === 'Passing' ? 'rgba(16, 185, 129, 0.05)' : 'rgba(239, 68, 68, 0.05)', 
+                      border: `1px solid ${test.status === 'Passing' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
+                      borderRadius: '6px' 
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 600, fontFamily: 'monospace' }}>{test.name || test.title}</span>
+                      <span className={`status-tag status-${test.status.toLowerCase()}`} style={{ fontSize: '0.75rem', padding: '0.1rem 0.4rem' }}>
+                        {test.status}
+                      </span>
+                    </div>
+                    {test.failureMessage && (
+                      <pre style={{ margin: '0.4rem 0 0 0', padding: '0.5rem', background: 'rgba(0,0,0,0.3)', color: '#f87171', fontSize: '0.75rem', borderRadius: '4px', overflowX: 'auto' }}>
+                        {test.failureMessage}
+                      </pre>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted" style={{ fontSize: '0.9rem', margin: 0 }}>No automated test results attached.</p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

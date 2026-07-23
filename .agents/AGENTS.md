@@ -15,8 +15,8 @@ You must NOT:
 - Edit any files inside `workspace/`
 - Run `git add`, `git commit`, `git revert`, or `git reset` inside `workspace/`
 
-## Headless Chrome & Selenium in WSL
-When executing headless Chrome or Selenium automation inside WSL or containerized remote environments:
+## Headless Chrome & Selenium
+When executing headless Chrome or Selenium automation in containerized remote environments or headless hosts:
 - Always include the `--disable-gpu` and `--remote-debugging-port=9222` options in the webdriver initialization arguments to prevent `DevToolsActivePort` initialization failures.
 
 ## Obsidian Vault Documentation
@@ -36,9 +36,9 @@ When initializing the workspace services for coding, testing, or review tasks:
    ```
 3. **Start the Development stack (FastAPI backend + Vite frontend)**:
    ```bash
-   wsl -e bash dev.sh
+   python run.py
    ```
-   *Note: `dev.sh` runs Vite on port 5173 and the FastAPI backend on port 8000. Under-the-hood, the backend startup routine will automatically register and configure the Allure project settings on port 5050.*
+   *Note: `run.py` runs Vite on port 5173 and the FastAPI backend on port 8000. Under-the-hood, the backend startup routine will automatically register and configure the Allure project settings on port 5050.*
 
 ## Requirements-Driven TDD Architecture
 When modifying the application codebase or writing developer agent iterations:

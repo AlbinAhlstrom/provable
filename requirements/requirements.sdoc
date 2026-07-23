@@ -1,0 +1,261 @@
+[DOCUMENT]
+TITLE: Provable System Requirements Specification
+
+[SECTION]
+TITLE: 1. PM Studio Frontend (React / Vite)
+
+[REQUIREMENT]
+UID: REQ-PM-001
+TITLE: Interactive Kanban Board
+STATEMENT: The PM Studio shall display an interactive Kanban board with columns for Backlog, In Progress, Review, Conflict, and Done states, supporting real-time item transitions and active execution indicators.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-PM-002
+TITLE: Requirements Explorer Hierarchy Tree
+STATEMENT: The PM Studio shall provide a hierarchical tree view supporting folders, requirements, tasks, and bugs with full CRUD operations, parent-child relationships, dependency linking, and agent role assignment.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-PM-003
+TITLE: Coverage Hub & Embedded Allure Report Portal
+STATEMENT: The PM Studio shall render aggregated test coverage metrics, requirement-to-test mapping tables, and embed the containerized Allure reporting portal (:5050) inside an iframe view.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-PM-004
+TITLE: Code Review & Side-by-Side Diff Viewer
+STATEMENT: The PM Studio shall render side-by-side git diffs for developer agent code submissions, display pytest assertion outputs, and provide one-click Approval (Merge to Main) and Rejection workflows.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-PM-005
+TITLE: Agent Tray & Real-time Console Log Streaming
+STATEMENT: The PM Studio shall feature a collapsible bottom Agent Tray displaying active execution nodes, current retry attempt counts, streaming log feeds, and pending review queue items.
+REQ_TYPE: Requirement
+PRIORITY: Med
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-PM-006
+TITLE: Multi-Project Workspace Selector & Settings Modal
+STATEMENT: The PM Studio shall allow selecting target projects/workspaces, configuring LLM model endpoints, and customizing integration tokens via a dedicated settings drawer.
+REQ_TYPE: Requirement
+PRIORITY: Med
+STATUS: Backlog
+
+[/SECTION]
+
+[SECTION]
+TITLE: 2. FastAPI Backend Engine
+
+[REQUIREMENT]
+UID: REQ-BE-001
+TITLE: SQLite DataStore Storage Engine
+STATEMENT: The backend shall manage all requirements, test cases, and agent execution runs using an SQLite database (`backend/provable.db`) managed via `backend/db/store.py`.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-BE-002
+TITLE: Database Schema & Automated Triggers
+STATEMENT: The SQLite database shall enforce relational foreign keys across `requirements`, `test_cases`, and `agent_runs` tables, with SQL triggers for `updated_at` timestamps.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-BE-003
+TITLE: StrictDoc Real-time Bidirectional Sync
+STATEMENT: The backend shall automatically parse `.sdoc` specification files into SQLite on startup and trigger `export_sdoc()` on database modifications to maintain repository file alignment.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-BE-004
+TITLE: REST API Endpoints & State Management
+STATEMENT: The FastAPI application (`backend/main.py`) shall expose REST endpoints for requirement CRUD, project selection, git diff generation, agent run statuses, and ticket merge approvals.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-BE-005
+TITLE: Startup Allure Project Registration
+STATEMENT: The backend startup lifecycle shall automatically register the `provable` project with the containerized Allure Docker Service on port `5050`.
+REQ_TYPE: Requirement
+PRIORITY: Med
+STATUS: Backlog
+
+[/SECTION]
+
+[SECTION]
+TITLE: 3. Agent Orchestration Engine (LangGraph)
+
+[REQUIREMENT]
+UID: REQ-AG-001
+TITLE: StateGraph Orchestration Machine
+STATEMENT: The orchestrator shall manage autonomous developer agent loops using a LangGraph StateGraph state machine with configurable node transitions and retry state context.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-AG-002
+TITLE: Isolated Git Branch Management (`prepare_branch`)
+STATEMENT: The orchestrator shall isolate development on a dedicated git branch (`ticket/<TICKET_ID>`) created from `main`, resetting clean workspace state before code modification.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-AG-003
+TITLE: Context-Aware Code Generation (`code_generation`)
+STATEMENT: The agent shall load externalized prompt templates (`prompts/code_generation.md`), inject requirement specs, test assertion tracebacks, and prior attempt feedback to generate targeted code changes.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-AG-004
+TITLE: Sandbox Pytest & Allure Upload (`test_runner`)
+STATEMENT: The orchestrator shall launch preview dev servers, run pytest suites with `--alluredir`, parse assertion results, and post execution results to the Allure Docker container.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-AG-005
+TITLE: Selenium & Gemini Vision Quality Gate (`visual_qa`)
+STATEMENT: The orchestrator shall capture mobile (`375x812`) and desktop (`1280x800`) screenshots via headless Selenium and evaluate visual layout regressions using Gemini Vision.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-AG-006
+TITLE: Retry Loops & Git Branch Rollback (`finalize`)
+STATEMENT: Upon test or visual failure within `max_attempts` limits, the agent shall retry code generation with error context; upon reaching `max_attempts`, it shall perform a clean `git checkout -- .` and `git clean -fd` rollback.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-AG-007
+TITLE: Code Review Submission & Branch Merge Finalization
+STATEMENT: Upon successful verification, the orchestrator shall commit code to the ticket branch and update requirement status to `Review`. Upon PM approval, it shall merge the ticket branch into `main`.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[/SECTION]
+
+[SECTION]
+TITLE: 4. Integrations Layer
+
+[REQUIREMENT]
+UID: REQ-INT-001
+TITLE: StrictDoc Integration Client
+STATEMENT: The integration layer shall provide `strictdoc_client.py` for bidirectional mapping between `.sdoc` plain text files and SQLite DataStore records.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-INT-002
+TITLE: Jira Issue Tracker Integration Client
+STATEMENT: The integration layer shall provide `jira_client.py` to synchronize ticket creation, description updates, and status transitions across Jira boards.
+REQ_TYPE: Requirement
+PRIORITY: Med
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-INT-003
+TITLE: Allure Docker Service REST Integration
+STATEMENT: The integration layer shall provide `allure_client.py` to send test result payloads and trigger report generation on the Allure Docker Service.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[/SECTION]
+
+[SECTION]
+TITLE: 5. Model Abstraction & Prompt Templates
+
+[REQUIREMENT]
+UID: REQ-MDL-001
+TITLE: OpenAI SDK Model Abstraction Layer
+STATEMENT: All LLM requests shall route through an OpenAI Python SDK wrapper, enabling model-agnostic switching configured via `backend/config/models.yaml`.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-MDL-002
+TITLE: Externalized Markdown Prompt System
+STATEMENT: Prompt instructions for code generation, test spec generation, task decomposition, requirement audit, and visual QA shall be externalized in `backend/prompts/` as markdown templates.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[/SECTION]
+
+[SECTION]
+TITLE: 6. Shift-Left TDD & Testing Architecture
+
+[REQUIREMENT]
+UID: REQ-TST-001
+TITLE: Shift-Left TDD Red-Green Lifecycle
+STATEMENT: PM Studio shall enforce writing failing pytest BDD test cases (`workspace/tests/test_<REQ_ID>.py`) before dispatching developer agents to write implementation code.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-TST-002
+TITLE: 5-Tier Test Architecture
+STATEMENT: The system shall maintain tests categorized into Unit (`tests/unit`), API (`tests/api`), Integration (`tests/integration`), System (`tests/system`), and E2E (`tests/e2e`).
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-TST-003
+TITLE: BDD Test Docstring & Allure Metadata Tagging
+STATEMENT: Generated test cases shall include BDD docstrings (`Given`, `When`, `Then`) and `@allure` metadata decorators (`@allure.id`, `@allure.title`, `@allure.link`).
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[/SECTION]
+
+[SECTION]
+TITLE: 7. Application Launcher & Operations
+
+[REQUIREMENT]
+UID: REQ-OPS-001
+TITLE: Cross-Platform Single Application Launcher (`run.py`)
+STATEMENT: The project root shall include `run.py` to verify dependencies, launch Docker containers, start FastAPI (:8000), and start Vite dev servers (:5173).
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[REQUIREMENT]
+UID: REQ-OPS-002
+TITLE: OS Environment & Dependency Resolution
+STATEMENT: The launcher script shall automatically detect Windows vs WSL/Linux environments, resolve Python virtualenv requirements, and run `npm install` when dependencies are missing.
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[/SECTION]

@@ -309,7 +309,7 @@ def _upsert_test_results(req_id: str, tests: List[Dict]):
     for t in tests:
         test_name = t.get('name','')
         tc_id = title_to_id.get(test_name) or t.get('id') or f"TC-{random.randint(1000,9999)}"
-        result = 'pass' if t.get('status') == 'Passing' else 'fail'
+        result = 'pass' if t.get('status') in ('Passing', 'pass') else 'fail'
         existing = conn.execute("SELECT id FROM test_cases WHERE id = ?", (tc_id,)).fetchone()
         if existing:
             conn.execute("UPDATE test_cases SET last_result = ?, file_path = ?, failure_message = ? WHERE id = ?", (result, t.get('file_path'), t.get('failure_message'), tc_id))
@@ -333,7 +333,7 @@ def replace_test_results_for_requirement(req_id: str, tests: List[Dict]):
     for t in tests:
         test_name = t.get('name','')
         tc_id = title_to_id.get(test_name) or t.get('id') or f"TC-{random.randint(1000,9999)}"
-        result = 'pass' if t.get('status') == 'Passing' else 'fail'
+        result = 'pass' if t.get('status') in ('Passing', 'pass') else 'fail'
         conn.execute(
             """INSERT OR REPLACE INTO test_cases (id, requirement_id, title, given_text, when_text, then_text, last_result, file_path, failure_message)
                VALUES (?,?,?,?,?,?,?,?,?)""",

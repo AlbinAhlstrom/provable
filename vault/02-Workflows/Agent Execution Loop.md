@@ -1,4 +1,4 @@
-# Agent Execution Loop
+# Agent Execution Loop & LangGraph State Machine
 
 Provable orchestrates autonomous coding agents using a StateGraph state machine implemented via **LangGraph**. The orchestrator manages branch checkout, code generation, preview serving, pytest execution, Allure reporting uploads, selenium screenshot captures, visual layout validations, and clean git rollback controls.
 
@@ -19,38 +19,64 @@ graph TD
     finalize --> END([END])
 ```
 
-## LangGraph Nodes & Logic
+---
 
-### 1. `prepare_branch`
-*   Sets up the clean developer sandbox environment.
-*   Determines if a target git branch (prefixed with `ticket/`) already exists.
-*   Resets and checks out the branch, ensuring a clean slate.
+## AgentState TypedDict Schema
 
-### 2. `code_generation`
-*   Loads external prompt templates (from `backend/prompts/code_generation.md`).
-*   Injects the requirement context (title, description), failing test code, and any prior loop execution errors/hints (from test or visual QA failures).
-*   Calls the LLM (Gemini 2.5 Flash) via the OpenAI abstraction layer to generate source file edits.
-*   Writes the generated code files directly into the `workspace/` project.
+To deterministically recreate the LangGraph orchestrator state, implement this TypedDict:
 
-### 3. `test_runner`
-*   Launches the Vite preview dev server on port `5174` (via `ensure_preview_server`).
-*   Executes the test suite inside the workspace sandbox using `pytest -v --alluredir=allure-results`.
-*   Uploads generated results to the Allure container (`allure_client.py`).
-*   Evaluates outcome:
-    *   If the target test case fails and the current attempt is below the maximum limit, loops back to `code_generation` with stderr log feedback.
-    *   If it fails and the maximum limit (default: 3) is reached, routes directly to `finalize` as a failure.
-    *   If tests pass, routes to `visual_qa`.
+```python
+from typing import TypedDict, List, Dict, Optional
 
-### 4. `visual_qa`
-*   Initializes a headless Selenium Webdriver inside WSL.
-*   Takes application screenshots at mobile (`375x812`) and desktop (`1280x800`) resolutions.
-*   Calls Gemini Vision with the screenshots and proposed code to perform a layout check (checking for overflows, text overlaps, or broken styles).
-*   Evaluates outcome:
-    *   If visual discrepancies are found and attempts remain, loops back to `code_generation` with visual layout corrective suggestions.
-    *   If it fails and attempts are exhausted, routes to `finalize` as a failure.
-    *   If it passes, routes to `finalize` as a success.
+class AgentState(TypedDict):
+    ticket_id: str
+    requirement_id: str
+    requirement: Dict
+    attempts: int
+    max_attempts: int
+    branch_name: str
+    proposed_code: str
+    test_results: Dict
+    visual_results: Dict
+    error_feedback: str
+    logs: List[str]
+    status: str  # "running" | "success" | "failed"
+```
 
-### 5. `finalize`
-*   Wraps up the execution run.
-*   **On Success**: Stages and commits code changes to the ticket branch using git, and sets the SQLite requirement status to `Review`.
-*   **On Failure**: Discards all uncommitted changes (`git checkout -- .` and `git clean -fd`), reverts the workspace state, updates the ticket feedback column in SQLite with run failure reasons, and resets status to `Backlog`.
+---
+
+## LangGraph Node Handlers & Routing Rules
+
+```python
+# Node 1: Prepare Branch
+def prepare_branch_node(state: AgentState) -> AgentState: ...
+
+# Node 2: Code Generation
+def code_generation_node(state: AgentState) -> AgentState: ...
+
+# Node 3: Test Runner & Allure Upload
+def test_runner_node(state: AgentState) -> AgentState: ...
+
+# Node 4: Visual QA & Vision Layout Gate
+def visual_qa_node(state: AgentState) -> AgentState: ...
+
+# Node 5: Finalize & Git Rollback / Commit Staging
+def finalize_node(state: AgentState) -> AgentState: ...
+
+# Conditional Edge Routing
+def route_after_test(state: AgentState) -> str:
+    if state["test_results"].get("passed", False):
+        return "visual_qa"
+    elif state["attempts"] < state["max_attempts"]:
+        return "code_generation"
+    else:
+        return "finalize"
+
+def route_after_visual(state: AgentState) -> str:
+    if state["visual_results"].get("passed", False):
+        return "finalize"
+    elif state["attempts"] < state["max_attempts"]:
+        return "code_generation"
+    else:
+        return "finalize"
+```

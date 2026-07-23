@@ -1,3 +1,9 @@
+import sys
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
+
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
@@ -53,10 +59,17 @@ def startup_event():
             import requests
             _proj_slug = get_allure_project_id()
             allure_url = f"{allure_cfg.get('server_url', 'http://localhost:5050').rstrip('/')}/projects"
-            res = requests.post(allure_url, json={"id": _proj_slug}, timeout=5)
+            res = requests.post(allure_url, json={"id": _proj_slug}, timeout=1)
             print(f"📊 Allure Integration: Project '{_proj_slug}' init response: {res.status_code}")
     except Exception as allure_init_err:
         print(f"📊 Allure Integration: Could not auto-create project: {allure_init_err}")
+
+    # Launch dev server for active project if enabled
+    try:
+        from onboarding.server_manager import start_project_servers
+        start_project_servers()
+    except Exception as server_err:
+        print(f"⚠️ Startup: Failed to start project servers: {server_err}")
 
 # Allow CORS for local dev
 app.add_middleware(
@@ -77,12 +90,14 @@ def list_projects():
     """Return all registered projects and which one is currently active."""
     projects = get_all_projects()
     active_path = get_workspace_base()
+    norm_active = os.path.normcase(os.path.abspath(active_path))
     result = []
     for p in projects:
+        norm_p = os.path.normcase(os.path.abspath(p["path"]))
         result.append({
             "name": p.get("name", os.path.basename(p["path"])),
             "path": p["path"],
-            "active": os.path.abspath(p["path"]) == os.path.abspath(active_path)
+            "active": norm_p == norm_active
         })
     return result
 

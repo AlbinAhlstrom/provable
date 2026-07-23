@@ -1,0 +1,9 @@
+name: provable
+dev_server:
+  enabled: false
+  start_command: ""
+  port: null
+  base_url: ""
+test_runner:
+  test_command: pytest tests/
+  framework: pytest

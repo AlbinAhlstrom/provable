@@ -1,28 +1,65 @@
-# Integrations
+# Integrations Engine & Data Formats
 
-Provable supports external tool syncing through integrations located in `backend/integrations/`. These clients bridge Provable's local SQLite database with Jira, StrictDoc, and Allure.
+Provable supports external tool syncing through integrations located in `backend/integrations/`. These clients bridge Provable's local SQLite database with StrictDoc, Jira, and Allure.
+
+---
 
 ## 1. StrictDoc Client (`strictdoc_client.py`)
-[StrictDoc](https://github.com/strictdoc-project/strictdoc) is a requirements engineering tool that uses text-based `.sdoc` specification files.
-- **Path**: Syncs with `workspace/requirements/requirements.sdoc`.
-- **Sync Direction**: Bidirectional.
-  - **Import**: `sync_sdoc_to_db()` parses `.sdoc` requirement blocks on startup and inserts/updates them in SQLite.
-  - **Export**: `export_sdoc()` is triggered on DataStore changes, rewriting the `.sdoc` file with updated node properties (like title, description, parent ID, priority).
-- **Format**: Parses documents using custom tag-matching (`[REQUIREMENT]`, `[SECTION]`, `UID:`, `STATEMENT:`, `RELATIONS:`).
+
+[StrictDoc](https://github.com/strictdoc-project/strictdoc) uses text-based `.sdoc` specification files.
+
+### Standard `.sdoc` Block Syntax
+```
+[DOCUMENT]
+TITLE: Document Title
+
+[SECTION]
+TITLE: Section Title
+
+[REQUIREMENT]
+UID: REQ-PM-001
+TITLE: Interactive Kanban Board
+STATEMENT: Requirement description text...
+REQ_TYPE: Requirement
+PRIORITY: High
+STATUS: Backlog
+
+[/SECTION]
+```
+
+### Sync Functions
+- `sync_sdoc_to_db(sdoc_path: str = "requirements/requirements.sdoc") -> None`: Reads `.sdoc` file on startup and populates SQLite `requirements` table.
+- `export_sdoc(sdoc_path: str = "requirements/requirements.sdoc") -> None`: Writes SQLite requirements back out to `.sdoc` plain text.
+
+---
 
 ## 2. Jira Client (`jira_client.py`)
-Provides issue tracking capabilities by mapping SQLite requirements and bugs to Atlassian Jira.
-- **Triggers**: Runs status updates asynchronously on task completion, transition to code review, and merge events.
-- **Endpoints**:
-  - `sync_jira_to_db()`: Pulls tickets and issues from the configured Jira board, importing them as Backlog items.
-  - `update_ticket_status(jira_key, status)`: Transitions Jira tickets dynamically when tasks move between Kanban columns (`In Progress`, `Review`, `Done`).
-- **Configuration**: Mapped via `backend/config/integrations.yaml`.
+
+Maps SQLite requirements and bugs to Atlassian Jira tickets.
+
+### Configuration (`backend/config/integrations.yaml`)
+```yaml
+jira:
+  enabled: true
+  server: "https://your-domain.atlassian.net"
+  email_env: "JIRA_EMAIL"
+  api_token_env: "JIRA_API_TOKEN"
+  project_key: "PROV"
+
+status_mapping:
+  Backlog: "To Do"
+  In Progress: "In Progress"
+  Review: "In Review"
+  Done: "Done"
+```
+
+---
 
 ## 3. Allure Client (`allure_client.py`)
-Allure is an industry-standard test reporting portal.
-- **Project Setup**: Backend attempts to auto-initialize the `provable` project on startup:
-  ```python
-  requests.post("http://localhost:5050/projects", json={"id": "provable"})
-  ```
-- **Result Output**: Pytest execution outputs allure-compatible results into `workspace/allure-results/`.
-- **Dashboard**: The frontend Test Suite tab embeds Allure live dashboards when loaded, displaying execution timelines, suites, and coverage analytics.
+
+Allure Docker Service API client.
+- **Base URL**: `http://localhost:5050`
+- **Endpoints**:
+  - `POST /projects`: Registers project ID `provable`.
+  - `POST /send-results?project_id=provable`: Uploads pytest JSON results from `workspace/allure-results/`.
+  - `GET /generate-report?project_id=provable`: Triggers HTML report rendering.

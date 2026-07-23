@@ -11,9 +11,6 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<string>('Kanban');
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [reviews, setReviews] = useState<any[]>([]);
-  const [showPreview, setShowPreview] = useState<boolean>(true);
-  const [previewBranch, setPreviewBranch] = useState<'pre' | 'post'>('post');
-  const [previewUrl, setPreviewUrl] = useState<string>(`${window.location.protocol}//${window.location.hostname}:5174`);
 
   // Custom hook for requirements state
   const {
@@ -44,24 +41,7 @@ const App: React.FC = () => {
   // Test coverage states
   const [coverageData, setCoverageData] = useState<any>(null);
 
-  // Fetch active project settings (preview URL, name)
-  const fetchProjectSettings = async () => {
-    try {
-      const res = await fetch('/api/project/settings');
-      if (res.ok) {
-        const data = await res.json();
-        const url = data?.dev_server?.base_url;
-        if (url) setPreviewUrl(url);
-      }
-    } catch (e) { /* ignore */ }
-  };
-
-  useEffect(() => {
-    fetchProjectSettings();
-  }, []);
-
   const handleProjectSwitch = (newPreviewUrl: string) => {
-    setPreviewUrl(newPreviewUrl);
     fetchReqs();
     fetchCoverage();
   };
@@ -69,99 +49,56 @@ const App: React.FC = () => {
   const fetchAgentStatus = async () => {
     try {
       const res = await fetch('/api/agent-status');
-      const data = await res.json();
-      if (data.status) {
-        setAgentStatus(data.status);
+      if (res.ok) {
+        const data = await res.json();
+        setAgentStatus(data.status || { active: false, ticket_id: null, step: 'Idle', attempt: 0, max_attempts: 3, last_update: '' });
+        setBacklogAnalysis(data.backlog_analysis || []);
       }
-      if (data.backlog_analysis) {
-        setBacklogAnalysis(data.backlog_analysis);
-      }
-    } catch (e) {
-      console.error("Error fetching agent status:", e);
-    }
+    } catch (e) { /* ignore */ }
   };
 
-  useEffect(() => {
-    fetchAgentStatus();
-    const interval = setInterval(fetchAgentStatus, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchReviews = () => {
-    fetch('/api/reviews')
-      .then(res => res.json())
-      .then(data => setReviews(data))
-      .catch(err => console.error(err));
+  const fetchReviews = async () => {
+    try {
+      const res = await fetch('/api/reviews');
+      if (res.ok) {
+        const data = await res.json();
+        setReviews(data);
+      }
+    } catch (e) { /* ignore */ }
   };
-
-  useEffect(() => {
-    fetchReviews();
-    const interval = setInterval(fetchReviews, 5000);
-    return () => clearInterval(interval);
-  }, [requirements]);
 
   const fetchCoverage = async () => {
     try {
       const res = await fetch('/api/coverage');
-      const data = await res.json();
-      setCoverageData(data);
-    } catch (err) {
-      console.error("Failed to fetch coverage details", err);
-    }
-  };
-
-  useEffect(() => {
-    if (currentView === 'Tests') {
-      fetchCoverage();
-    }
-  }, [currentView]);
-
-  useEffect(() => {
-    setGeneratedTestCode(null);
-  }, [selectedReqId]);
-
-  const handleCreateTestCase = async (reqId: string) => {
-    setIsGeneratingTestCase(true);
-    setGeneratedTestCode(null);
-    try {
-      const res = await fetch(`/api/requirements/${reqId}/create-test-case`, {
-        method: 'POST'
-      });
-      const data = await res.json();
-      if (data.success) {
-        setGeneratedTestCode(data.test_code);
-        await fetchReqs();
-        await fetchCoverage();
-      } else {
-        alert("Failed to generate test case: " + (data.error || "Unknown error"));
+      if (res.ok) {
+        const data = await res.json();
+        setCoverageData(data);
       }
-    } catch (err) {
-      console.error(err);
-      alert("Error calling test case generation API.");
-    } finally {
-      setIsGeneratingTestCase(false);
-    }
+    } catch (e) { /* ignore */ }
   };
 
-  // Reset branch preview state when leaving review detail
   useEffect(() => {
-    if (selectedReviewId === null && previewBranch === 'pre') {
-      setPreviewBranch('post');
-      fetch('/api/checkout-preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ branch: 'main' })
-      }).catch(() => {/* ignore */});
-    }
-  }, [selectedReviewId]);
+    fetchReqs();
+    fetchAgentStatus();
+    fetchReviews();
+    fetchCoverage();
 
-  // Log streaming effect
+    const interval = setInterval(() => {
+      fetchAgentStatus();
+      fetchReviews();
+      fetchCoverage();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Poll logs if agent is running
   useEffect(() => {
     if (!agentStatus.active || !agentStatus.ticket_id) {
       setAgentLogs('');
       return;
     }
-    
+
     const fetchLogs = async () => {
       try {
         const res = await fetch(`/api/logs/${agentStatus.ticket_id}`);
@@ -169,11 +106,9 @@ const App: React.FC = () => {
         if (data.logs) {
           setAgentLogs(data.logs);
         }
-      } catch (e) {
-        // ignore log fetch errors
-      }
+      } catch (e) { /* ignore */ }
     };
-    
+
     fetchLogs();
     const logInterval = setInterval(fetchLogs, 2000);
     return () => clearInterval(logInterval);
@@ -203,10 +138,9 @@ const App: React.FC = () => {
     const feedback = prompt("Provide feedback to the agent on why this code is not accepted:");
     if (!feedback) return;
     setSelectedReviewId(null);
-    
+
     await handleUpdateReq(req.id, { status: 'Backlog', feedback });
-    
-    // Trigger agents again to process the feedback
+
     await fetch('/api/trigger-agents', { method: 'POST' });
     await fetchReqs();
   };
@@ -230,6 +164,35 @@ const App: React.FC = () => {
     }
   };
 
+  const handleCreateTestCase = async (reqId: string, givenText: string, whenText: string, thenText: string) => {
+    setIsGeneratingTestCase(true);
+    setGeneratedTestCode(null);
+    try {
+      const res = await fetch(`/api/requirements/${reqId}/create-test-case`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          given: givenText,
+          when: whenText,
+          then: thenText
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGeneratedTestCode(data.test_code);
+        await fetchReqs();
+        await fetchCoverage();
+      } else {
+        alert("Failed to generate test case: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error calling test case generation API.");
+    } finally {
+      setIsGeneratingTestCase(false);
+    }
+  };
+
   const reviewCount = reviews.length;
 
   const navItems = [
@@ -238,10 +201,6 @@ const App: React.FC = () => {
     { id: 'Tests', label: 'Tests' },
     { id: 'Review', label: 'Review', badge: reviewCount }
   ];
-
-  // Contextualize preview window: only show in Review or dedicated states
-  const isReviewActive = currentView === 'Review' && selectedReviewId !== null;
-  const shouldRenderPreview = showPreview && (isReviewActive || currentView === 'Kanban');
 
   return (
     <div className="app-container">
@@ -273,18 +232,6 @@ const App: React.FC = () => {
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <ProjectSelector onProjectSwitch={handleProjectSwitch} />
-          {(isReviewActive || currentView === 'Kanban') && (
-            <button
-              id="toggle-preview-btn"
-              className={`btn ${shouldRenderPreview ? 'btn-primary' : 'btn-outline'}`}
-              style={{ padding: '0.35rem 0.9rem', fontSize: '0.85rem', gap: '0.4rem' }}
-              onClick={() => setShowPreview(p => !p)}
-              title={shouldRenderPreview ? 'Hide Live Preview' : 'Show Live Preview'}
-            >
-              <span style={{ fontSize: '1rem' }}>{shouldRenderPreview ? '🖥️' : '📺'}</span>
-              {shouldRenderPreview ? 'Hide Preview' : 'Show Preview'}
-            </button>
-          )}
         </div>
       </header>
 
@@ -328,9 +275,6 @@ const App: React.FC = () => {
                   selectedReviewId={selectedReviewId}
                   setSelectedReviewId={setSelectedReviewId}
                   requirements={requirements}
-                  showPreview={shouldRenderPreview}
-                  previewBranch={previewBranch}
-                  setPreviewBranch={setPreviewBranch}
                   handleApproveCode={handleApproveCode}
                   handleProvideFeedback={handleProvideFeedback}
                   handleAbandonTicket={handleAbandonTicket}
@@ -339,12 +283,6 @@ const App: React.FC = () => {
             </>
           )}
         </main>
-
-        {shouldRenderPreview && (
-          <aside className="preview-sidebar">
-            <iframe src={previewUrl} style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }} title="Workspace Preview" />
-          </aside>
-        )}
       </div>
 
       <AgentTray 
