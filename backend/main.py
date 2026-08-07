@@ -29,6 +29,21 @@ from onboarding.visual_auditor import audit_visual_presentation
 
 from contextlib import asynccontextmanager
 
+def sync_workspace_app_shell():
+    try:
+        ws_base = get_workspace_base()
+        schema = get_active_domain_params()
+        from onboarding.dynamic_domain_generator import generate_universal_domain_files
+        files = generate_universal_domain_files(schema, ws_base)
+        for path, content in files.items():
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(content)
+        print("⚡ Workspace App Shell synchronized cleanly with SQLite provable.db!")
+    except Exception as e:
+        print(f"⚠️ Notice syncing workspace app shell: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import sys
@@ -39,6 +54,9 @@ async def lifespan(app: FastAPI):
         store.set_active_db(_active_db)
         store.init_db()
 
+        # Sync App.tsx shell with provable.db requirements on startup
+        sync_workspace_app_shell()
+
         # Guarantee a valid working React scaffold exists so Vite port 5174 is always active
         if not (os.path.exists(os.path.join(_ws_base, 'package.json')) and os.path.exists(os.path.join(_ws_base, 'src', 'App.tsx'))):
             create_default_workspace_scaffold(_ws_base)
@@ -48,6 +66,7 @@ async def lifespan(app: FastAPI):
             sync_sdoc_to_db(clear_first=True)
         except Exception as e:
             print(f"📦 Startup: Failed to sync SDoc: {e}")
+
             
         try:
             from integrations.jira_client import sync_jira_to_db
@@ -1304,10 +1323,17 @@ def kickstart_synthesize(req: KickstartSynthesisRequest):
     blocks_list = req.selected_blocks or req.selected_block_ids or []
     reqs_list = req.requirements or req.extracted_requirements or []
 
-    # 1. Build domain schema
+    # 1. Build domain schema with normalized canonical feature keys
+    normalized_blocks = []
+    for blk in blocks_list:
+        info = resolve_canonical_feature(blk)
+        c_key = info['canonical_key']
+        if c_key not in normalized_blocks:
+            normalized_blocks.append(c_key)
+
     schema = build_pitch_specific_domain_schema(pitch_text)
     schema["pitch"] = pitch_text
-    schema["enabled_features"] = blocks_list
+    schema["enabled_features"] = normalized_blocks
 
     # 2. Seed extracted requirements into store as Done
     for rspec in reqs_list:
@@ -1343,16 +1369,17 @@ def kickstart_synthesize(req: KickstartSynthesisRequest):
     # Save synthesized state
     store.save_kickstart_state({
         "business_pitch": pitch_text,
-        "blocks": blocks_list,
+        "blocks": normalized_blocks,
         "extracted_requirements": reqs_list,
         "synthesized": True
     })
 
-
-    # 3. Call synthesis pipeline
+    # 3. Call synthesis pipeline and sync workspace files live
     syn_req = DomainSynthesisRequest(domain_schema=schema)
     res = synthesize_domain_code(syn_req)
+    sync_workspace_app_shell()
     return res
+
 
 
 def generate_dynamic_requirements(schema: dict) -> List[dict]:
