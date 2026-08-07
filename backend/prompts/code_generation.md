@@ -9,8 +9,16 @@ Please implement the following ticket:
 {test_context}
 
 You MUST implement the requested changes in the codebase AND write a corresponding automated pytest test file under `{test_file_path}` to verify the functionality.{bug_test_instruction}
+
+ARCHITECTURE & LAYERING RULES:
+- Follow clean Domain-Driven Design (DDD) boundaries (Domain Model -> Repository Pattern -> Service Layer / Unit of Work -> Presentation / Entrypoints).
+- Domain models must remain pure (no database framework/ORM imports).
+- Abstract data persistence behind Repositories and manage transactions with Unit of Work (UoW).
+- Keep API route handlers thin: NEVER place SQL/ORM queries or business rules directly inside HTTP routes.
+
 The pytest tests should run in a Python environment using Selenium WebDriver in headless mode to verify that the app behaves correctly at runtime.
 Your test file `{test_file_path}` should define test functions that setup a headless Selenium webdriver, navigate to 'http://localhost:5174' (where the workspace application runs), and perform functional/layout checks.
+
 
 CRITICAL INSTRUCTIONS FOR BROWSER RUNTIME TESTS:
 1. Always run Chrome in headless mode with parameters '--headless=new', '--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', and '--remote-debugging-port=9222'.

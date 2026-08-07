@@ -1,28 +1,30 @@
 # Project Rules
 
-## workspace/ is off-limits
+## workspace/ is strictly off-limits (No Bandages Invariant)
 
-The `workspace/` directory contains the application being built by the developer agents.
-**Never directly read, write, edit, or commit files inside `workspace/`.**
+The `workspace/` directory contains the application produced by the automated generation pipeline.
+**NEVER directly write, edit, patch, or commit files inside `workspace/`.**
 
-All changes to `workspace/` must be made exclusively by the automated developer agent (the `run_openhands_loop` pipeline), which generates code via Gemini, runs tests, and commits on the appropriate ticket branch.
+Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/dynamic_domain_generator.py`, `backend/main.py`, `backend/prompts/ui_generation.md`). Editing `workspace/` files directly is an unacceptable band-aid that will immediately be overwritten when the pipeline runs.
 
 You may:
-- Read `workspace/` files to **diagnose** agent failures
-- Run `git log`, `git status`, `git diff` inside `workspace/` for inspection only
+- Read `workspace/` files to **diagnose** runtime/build errors or inspect generated output.
+- Run `git log`, `git status`, `git diff` inside `workspace/` for inspection only.
 
 You must NOT:
-- Edit any files inside `workspace/`
-- Run `git add`, `git commit`, `git revert`, or `git reset` inside `workspace/`
+- Edit or create any files directly inside `workspace/` (always edit generator templates in `backend/` instead).
+- Run `git add`, `git commit`, `git revert`, or `git reset` inside `workspace/`.
 
 ## Headless Chrome & Selenium
 When executing headless Chrome or Selenium automation in containerized remote environments or headless hosts:
 - Always include the `--disable-gpu` and `--remote-debugging-port=9222` options in the webdriver initialization arguments to prevent `DevToolsActivePort` initialization failures.
 
-## Obsidian Vault Documentation
+## Obsidian Vault Documentation & Handover Continuity
 Maintain a well-structured Obsidian vault under the `vault/` directory in the root of the project. Whenever adding, modifying, or deleting features, update the corresponding documentation:
 - Keep the `vault/Home.md` index file up-to-date.
 - Read relevant files in `vault/` during the research phase of a task to understand system context and existing architecture.
+- **Cross-Chat Handover Invariant**: At the start of EVERY chat session or task, read `vault/HANDOVER.md` to restore full architectural state, active context, and planned unexecuted work items.
+- **Session Wrap-Up Invariant**: At the conclusion of any task where architectural decisions or roadmap items are planned/modified, update `vault/HANDOVER.md` so future agents and chats pick up seamlessly.
 - Document architectural changes under `vault/01-Architecture/`.
 - Document new agent behaviors or workflow changes under `vault/02-Workflows/`.
 - Use standard double-bracket internal links (e.g. `[[System Architecture]]`) to link related concepts.
@@ -34,11 +36,10 @@ When initializing the workspace services for coding, testing, or review tasks:
    ```powershell
    docker compose -f docker-compose.allure.yaml up -d
    ```
-3. **Start the Development stack (FastAPI backend + Vite frontend)**:
-   ```bash
-   python run.py
-   ```
-   *Note: `run.py` runs Vite on port 5173 and the FastAPI backend on port 8000. Under-the-hood, the backend startup routine will automatically register and configure the Allure project settings on port 5050.*
+
+## Application Stack Execution Invariant
+**NEVER execute `python run.py` via `run_command` in background tasks.**
+Executing `python run.py` spawns long-lived WatchFiles reloader processes that trigger system restarts, interrupting the agent's turn and breaking the chat session. The user manages `python run.py` in their own terminal session, while Uvicorn and Vite handle hot-module-reloading (HMR) automatically whenever code edits are made.
 
 ## Requirements-Driven TDD Architecture
 When modifying the application codebase or writing developer agent iterations:
@@ -48,6 +49,8 @@ When modifying the application codebase or writing developer agent iterations:
 4. **Allure Matrix**: All test results must be published to the containerized Allure service on port `5050` (`frankescobar/allure-docker-service`) to update the coverage metrics seen in the frontend.
 5. **OpenAI SDK & Templates**: All LLM queries must route through the OpenAI Python client using configurations inside `backend/config/models.yaml` and load system prompts dynamically from `backend/prompts/` Markdown templates.
 6. **Agent Log Inspection**: When debugging why a developer agent loop failed or is stuck, inspect the logs under `backend/logs/{ticket_id}.log`. The full LangGraph orchestration execution log, LLM request/response prompts, visual QA screenshot status, and pytest command stderr output are all written here.
+7. **DDD Architecture Enforcement**: All target application code produced by developer agents must follow clean Domain-Driven Design (DDD) layer boundaries (Domain Model $\rightarrow$ Repository Pattern $\rightarrow$ Application Service / Unit of Work $\rightarrow$ Presentation / Entrypoints). Database queries or ORM objects must NEVER be embedded inside API route handlers.
+
 
 
 

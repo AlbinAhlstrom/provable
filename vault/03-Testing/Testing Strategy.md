@@ -51,13 +51,13 @@ import allure
 import pytest
 
 @allure.id("REQ-1002")
-@allure.title("Kanban Board Drag and Drop Transition")
+@allure.title("Requirements Explorer Tree Selection")
 @allure.link("http://localhost:5173/#/requirements/REQ-1002", name="Requirement REQ-1002")
-def test_kanban_drag_drop():
+def test_requirements_tree_selection():
     """
-    Given an interactive Kanban board with columns
-    When a PM drags a ticket card from Backlog to In Progress
-    Then the requirement status is updated to In Progress in SQLite
+    Given a hierarchical Requirements Explorer tree
+    When a PM selects a requirement node
+    Then the detail panel displays linked BDD test cases and execution status
     """
     # Test implementation
     ...

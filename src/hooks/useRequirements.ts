@@ -1,106 +1,142 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export type Priority = 'High' | 'Med' | 'Low';
-export type KanbanStatus = 'Backlog' | 'InProgress' | 'Review' | 'Conflict' | 'Done';
+export type RequirementType = 'Folder' | 'Requirement' | 'Task' | 'Bug' | 'Epic';
+export type KanbanStatus = 'Backlog' | 'In Progress' | 'Review' | 'Conflict' | 'Done';
+export type RequirementStatus = KanbanStatus;
+
+export interface TestCase {
+  id: string;
+  requirement_id: string;
+  title: string;
+  given_text?: string;
+  when_text?: string;
+  then_text?: string;
+  file_path: string;
+  last_result: 'pass' | 'fail' | 'skip' | 'pending' | 'never_run';
+  allure_id?: string;
+  failure_message?: string;
+}
 
 export interface Requirement {
   id: string;
   title: string;
   description: string;
+  type: RequirementType;
   priority: Priority;
-  status: KanbanStatus;
-  type: 'Folder' | 'Epic' | 'Requirement' | 'Task' | 'Bug';
-  parentId: string | null;
-  dependencies?: string[];
-  assignedAgents?: string[];
+  status: RequirementStatus;
+  parent_id: string | null;
+  parentId?: string | null;
   jira_key?: string;
-  jiraKey?: string;
-  tests?: any[];
+  sdoc_uid?: string;
+  dependencies: string[];
+  assigned_agents: string[];
+  assignedAgents?: string[];
+  proposed_code?: string;
   feedback?: string;
+  created_at: string;
+  updated_at: string;
+  test_cases?: TestCase[];
+  tests?: TestCase[];
 }
 
 export function useRequirements() {
   const [requirements, setRequirements] = useState<Requirement[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchReqs = async () => {
+  const fetchRequirements = useCallback(async () => {
     try {
-      const res = await fetch('/api/requirements');
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setRequirements(data);
-          setLoading(false);
-        }
-      } else {
-        setTimeout(fetchReqs, 1500);
-      }
-    } catch (e) {
-      console.warn("Retrying requirements fetch (backend initializing)...", e);
-      setTimeout(fetchReqs, 1500);
+      setLoading(true);
+      const res = await fetch('http://localhost:8000/api/requirements');
+      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+      const data = await res.json();
+      setRequirements(data);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch requirements');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchReqs();
-    const interval = setInterval(fetchReqs, 5000);
-    return () => clearInterval(interval);
   }, []);
 
-  const handleCreateReq = async (req: Requirement) => {
-    const updated = [...requirements, req];
-    setRequirements(updated);
-    await fetch('/api/requirements', { 
-      method: 'POST', 
+  useEffect(() => {
+    fetchRequirements();
+  }, [fetchRequirements]);
+
+  const createRequirement = async (reqData: Partial<Requirement>) => {
+    const res = await fetch('http://localhost:8000/api/requirements', {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updated) 
+      body: JSON.stringify(reqData)
     });
+    if (!res.ok) throw new Error('Failed to create requirement');
+    await fetchRequirements();
   };
 
-  const handleUpdateReq = async (id: string, fields: Partial<Requirement>) => {
-    const updated = requirements.map(r => r.id === id ? { ...r, ...fields } : r);
-    setRequirements(updated);
-    
-    await fetch('/api/edit-requirement', { 
-      method: 'POST', 
+  const updateRequirement = async (id: string, updates: Partial<Requirement>) => {
+    const res = await fetch(`http://localhost:8000/api/requirements/${id}`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, ...fields }) 
+      body: JSON.stringify(updates)
     });
+    if (!res.ok) throw new Error('Failed to update requirement');
+    await fetchRequirements();
   };
 
-  const handleDeleteReq = async (id: string) => {
-    const getDescendantIds = (targetId: string, reqs: Requirement[]): Set<string> => {
-      const ids = new Set<string>([targetId]);
-      let sizeBefore: number;
-      do {
-        sizeBefore = ids.size;
-        reqs.forEach(r => {
-          if (r.parentId && ids.has(r.parentId)) {
-            ids.add(r.id);
-          }
-        });
-      } while (ids.size > sizeBefore);
-      return ids;
-    };
-    
-    const descendants = getDescendantIds(id, requirements);
-    const updated = requirements.filter(r => !descendants.has(r.id));
-    
-    setRequirements(updated);
-    
-    await fetch('/api/requirements', { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updated) 
+  const deleteRequirement = async (id: string) => {
+    const res = await fetch(`http://localhost:8000/api/requirements/${id}`, {
+      method: 'DELETE'
     });
+    if (!res.ok) throw new Error('Failed to delete requirement');
+    await fetchRequirements();
+  };
+
+  const generateTestCase = async (id: string) => {
+    const res = await fetch(`http://localhost:8000/api/requirements/${id}/generate-test`, {
+      method: 'POST'
+    });
+    if (!res.ok) throw new Error('Failed to generate test case');
+    await fetchRequirements();
+  };
+
+  const triggerAgent = async (id: string) => {
+    const res = await fetch(`http://localhost:8000/api/requirements/${id}/run-agent`, {
+      method: 'POST'
+    });
+    if (!res.ok) throw new Error('Failed to trigger agent');
+    await fetchRequirements();
+  };
+
+  const approveMerge = async (id: string) => {
+    const res = await fetch(`http://localhost:8000/api/requirements/${id}/merge`, {
+      method: 'POST'
+    });
+    if (!res.ok) throw new Error('Failed to approve merge');
+    await fetchRequirements();
+  };
+
+  const rejectSubmission = async (id: string, feedback: string) => {
+    const res = await fetch(`http://localhost:8000/api/requirements/${id}/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feedback })
+    });
+    if (!res.ok) throw new Error('Failed to reject submission');
+    await fetchRequirements();
   };
 
   return {
     requirements,
     loading,
-    fetchReqs,
-    handleCreateReq,
-    handleUpdateReq,
-    handleDeleteReq
+    error,
+    fetchRequirements,
+    createRequirement,
+    updateRequirement,
+    deleteRequirement,
+    generateTestCase,
+    triggerAgent,
+    approveMerge,
+    rejectSubmission
   };
 }

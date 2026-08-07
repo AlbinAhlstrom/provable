@@ -20,7 +20,8 @@ SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'schema.sq
 REQUIREMENTS_JSON = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'requirements.json'))
 
 # Default DB path (resolved at runtime so it reflects any workspace switch)
-_FALLBACK_DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'provable.db'))
+from config_loader import get_workspace_base
+_FALLBACK_DB_PATH = os.path.abspath(os.path.join(get_workspace_base(), 'requirements', 'provable.db'))
 _active_db_path: Optional[str] = None
 
 
@@ -51,12 +52,40 @@ def set_active_db(path: str) -> None:
     print(f"📦 DataStore: Active DB switched to {_active_db_path}")
 
 
-def get_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(get_db_path())
+def get_connection(timeout: float = 30.0) -> sqlite3.Connection:
+    conn = sqlite3.connect(get_db_path(), timeout=timeout)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")  # allow concurrent reads during writes
+    conn.execute("PRAGMA busy_timeout=30000") # wait up to 30 seconds for locks to clear
     conn.execute("PRAGMA foreign_keys=ON")
     return conn
+
+
+def reset_database() -> None:
+    """Wipe all requirements, test cases, and agent runs safely with busy_timeout and retry logic."""
+    import time
+    db_path = get_db_path()
+    for attempt in range(5):
+        try:
+            conn = sqlite3.connect(db_path, timeout=30.0)
+            conn.execute("PRAGMA busy_timeout=30000")
+            conn.execute("DELETE FROM agent_runs")
+            conn.execute("DELETE FROM test_cases")
+            conn.execute("DELETE FROM requirements")
+            try:
+                conn.execute("DELETE FROM kickstart_state")
+            except Exception:
+                pass
+            conn.commit()
+            conn.close()
+            print("📦 DataStore: Wiped database tables successfully.")
+            return
+        except sqlite3.OperationalError as e:
+            if "locked" in str(e).lower() and attempt < 4:
+                time.sleep(0.5)
+            else:
+                print(f"⚠️ DataStore: reset_database lock warning: {e}")
+                raise e
 
 
 def init_db():
@@ -73,11 +102,7 @@ def init_db():
     except sqlite3.OperationalError:
         pass
 
-    # One-time migration from requirements.json
-    cursor = conn.execute("SELECT COUNT(*) FROM requirements")
-    if cursor.fetchone()[0] == 0 and os.path.exists(REQUIREMENTS_JSON):
-        _migrate_from_json(conn)
-
+    # Table initialisation complete
     conn.close()
 
 
@@ -205,7 +230,7 @@ def create_requirement(data: Dict) -> Dict:
     conn = get_connection()
     req_id = data.get('id') or f"REQ-{random.randint(1000, 9999)}"
     conn.execute(
-        """INSERT INTO requirements
+        """INSERT OR REPLACE INTO requirements
            (id, title, description, type, priority, status, parent_id,
             dependencies, assigned_agents, proposed_code, feedback)
            VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
@@ -291,6 +316,8 @@ def delete_requirement_cascade(req_id: str):
     conn.commit()
     conn.close()
     _trigger_sdoc_export()
+
+delete_requirement = delete_requirement_cascade
 
 
 def update_requirement_status(req_id: str, status: str, feedback: str = None, tests: List = None):
@@ -418,9 +445,6 @@ def update_agent_run(run_id: str, status: str = None, attempts: int = None, stag
     values.append(run_id)
     conn.execute(f"UPDATE agent_runs SET {', '.join(set_parts)} WHERE id = ?", values)
     conn.commit()
-    conn.close()
-
-
 def get_agent_runs(limit: int = 50) -> List[Dict]:
     conn = get_connection()
     rows = conn.execute(
@@ -428,3 +452,83 @@ def get_agent_runs(limit: int = 50) -> List[Dict]:
     ).fetchall()
     conn.close()
     return [_row_to_dict(r) for r in rows]
+
+
+# ── Kickstart Session State ───────────────────────────────────────────────────
+
+
+def get_kickstart_state() -> Dict[str, Any]:
+    conn = get_connection()
+    try:
+        conn.execute("""CREATE TABLE IF NOT EXISTS kickstart_state (
+            id INTEGER PRIMARY KEY,
+            business_pitch TEXT,
+            blocks_json TEXT,
+            extracted_reqs_json TEXT,
+            synthesized INTEGER DEFAULT 0,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )""")
+        row = conn.execute("SELECT * FROM kickstart_state WHERE id = 1").fetchone()
+        conn.close()
+        if row:
+            return {
+                "business_pitch": row['business_pitch'],
+                "blocks": json.loads(row['blocks_json']) if row['blocks_json'] else [],
+                "extracted_requirements": json.loads(row['extracted_reqs_json']) if row['extracted_reqs_json'] else [],
+                "synthesized": bool(row['synthesized'])
+            }
+    except Exception as e:
+        print(f"📦 DataStore: Error fetching kickstart state: {e}")
+        try:
+            conn.close()
+        except Exception:
+            pass
+    return {
+        "business_pitch": "We operate a pizzeria. Customers place orders specified by pizza name, size, quantity, and price. The customer will get an estimated pickup time based on how many other orders have been made recently. The order is then marked Ready for pickup",
+        "blocks": [],
+        "extracted_requirements": [],
+        "synthesized": False
+    }
+
+
+def save_kickstart_state(state: Dict[str, Any]):
+    conn = get_connection()
+    try:
+        conn.execute("""CREATE TABLE IF NOT EXISTS kickstart_state (
+            id INTEGER PRIMARY KEY,
+            business_pitch TEXT,
+            blocks_json TEXT,
+            extracted_reqs_json TEXT,
+            synthesized INTEGER DEFAULT 0,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )""")
+        
+        # Check if row exists
+        existing = conn.execute("SELECT * FROM kickstart_state WHERE id = 1").fetchone()
+        
+        pitch = state.get("business_pitch", "")
+        blocks = json.dumps(state.get("blocks", []))
+        reqs = json.dumps(state.get("extracted_requirements", []))
+        synthesized = 1 if state.get("synthesized") else 0
+        
+        if existing:
+            # If updating synthesis status or blocks, preserve existing blocks if new ones are passed as list of IDs
+            if synthesized:
+                # Keep existing blocks JSON if state passed only block IDs
+                if state.get("blocks") and isinstance(state["blocks"][0], str) if state.get("blocks") else False:
+                    blocks = existing['blocks_json']
+            conn.execute(
+                "UPDATE kickstart_state SET business_pitch = ?, blocks_json = ?, extracted_reqs_json = ?, synthesized = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1",
+                (pitch, blocks, reqs, synthesized)
+            )
+        else:
+            conn.execute(
+                "INSERT INTO kickstart_state (id, business_pitch, blocks_json, extracted_reqs_json, synthesized) VALUES (1, ?, ?, ?, ?)",
+                (pitch, blocks, reqs, synthesized)
+            )
+        conn.commit()
+    except Exception as e:
+        print(f"📦 DataStore: Error saving kickstart state: {e}")
+    finally:
+        conn.close()
+

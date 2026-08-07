@@ -1,30 +1,29 @@
 # System Architecture
 
-Provable is an agentic software development simulator. It features a React-based PM Studio frontend and a FastAPI backend that orchestrates autonomous developer agents within a sandboxed target git repository (`workspace/`).
+Provable is an agentic software engineering simulation platform. It features a React-based PM Studio frontend and a FastAPI backend that orchestrates autonomous OpenHands developer agents and dynamic Domain-Driven Design (DDD) application stacks within a sandboxed target git repository (`workspace/`).
 
 ```mermaid
 graph TD
     subgraph Frontend [PM Studio Frontend - React / Vite]
         App[App.tsx Entrypoint] --> ProjectSelector[components/ProjectSelector.tsx]
-        App --> KanbanBoard[components/KanbanBoard.tsx]
-        App --> RequirementsList[components/RequirementsList.tsx]
-        App --> CodeReview[components/CodeReview.tsx]
-        App --> CoverageHub[components/CoverageHub.tsx]
-        App --> AgentTray[components/AgentTray.tsx]
+        App --> DomainModeling[components/DomainModeling.tsx Discovery Canvas]
+        App --> RequirementsList[components/RequirementsList.tsx Explorer]
+        App --> AppPreview[components/AppPreview.tsx Live App Preview]
+        App --> CodeReview[components/CodeReview.tsx Review Queue]
+        App --> CoverageHub[components/CoverageHub.tsx Coverage Matrix]
+        App --> AgentTray[components/AgentTray.tsx Console]
         CodeReview --> DiffViewer[components/DiffViewer.tsx]
-        App --> useRequirements[hooks/useRequirements.ts Hook]
     end
 
     subgraph Backend [FastAPI Backend Engine]
         API[main.py REST API] --> Store[db/store.py DataStore API]
-        API --> Orchestrator[agent_orchestrator.py LangGraph]
+        API --> Generator[onboarding/dynamic_domain_generator.py Universal AST Builder]
+        API --> Audit[audit_domain_vocabulary Vocabulary Audit Gate]
+        API --> HealthGate[verify_preview_health Web App Health Gate]
+        API --> Orchestrator[agent_orchestrator.py OpenHands Runner]
         API --> Prompts[prompts/ Externalized Templates]
-        API --> Config[config/models.yaml & integrations.yaml]
-        Orchestrator --> LLM[OpenAI Client - Abstraction]
-        Orchestrator --> Git[Git CLI Sandbox Manager]
+        Orchestrator --> OpenHands[OpenHands Execution Engine]
         Orchestrator --> Pytest[Pytest Test Runner]
-        Orchestrator --> Selenium[Selenium Screenshot Capture]
-        Orchestrator --> Vision[Gemini Vision Quality Gate]
     end
 
     subgraph DB [Persistence Layer]
@@ -33,8 +32,9 @@ graph TD
     end
 
     subgraph Workspace [Target Project Sandbox]
-        Git --> TargetCode[workspace/ Source Files]
-        Pytest --> TargetTests[workspace/tests/ Test Files]
+        Generator --> TargetCode[workspace/src/ DDD Source Stack]
+        Generator --> TargetUI[workspace/src/App.tsx React App]
+        TargetUI <-->|Vite Server :5174| AppPreview
     end
 
     subgraph Docker [Allure Reporting Container]
@@ -45,28 +45,31 @@ graph TD
     App <-->|REST API / JSON| API
 ```
 
-## 1. Subsystem Breakdown
+---
+
+## Subsystem Breakdown
 
 ### PM Studio Frontend (`src/`)
-Built with React, TypeScript, Vite, and custom CSS styling. It provides project management control over autonomous developer agents:
-- **`App.tsx`**: Main application container housing header controls, navigation tabs (Kanban, Requirements Explorer, Code Review, Coverage Hub), and global agent status banners.
-- **`components/KanbanBoard.tsx`**: Displays tickets in Kanban lifecycle columns (`Backlog`, `In Progress`, `Review`, `Conflict`, `Done`) with real-time state badges.
-- **`components/RequirementsList.tsx`**: Hierarchical tree viewer for folders, requirements, tasks, and bugs. Supports full CRUD operations, parent assignment, dependency management, and TDD test spec generation triggers.
-- **`components/CodeReview.tsx`**: Embeds side-by-side git diffs (`DiffViewer`), pytest log tracebacks, and review approval/rejection action buttons.
-- **`components/CoverageHub.tsx`**: Aggregates requirement-to-test mapping matrices and embeds the live Allure Docker portal (`:5050`) within an iframe.
-- **`components/AgentTray.tsx`**: Collapsible console tray displaying active LangGraph execution nodes, attempt counters, streaming stdout/stderr log output, and review queue items.
-- **`components/ProjectSelector.tsx`**: Drawer modal for switching workspace project directories and configuring model provider keys.
+Built with React, TypeScript, Vite, and custom CSS styling across 5 primary tabs:
+- **`App.tsx`**: Main application shell housing top navigation tabs (Domain Model, Requirements Explorer, Live App, Code Review, Coverage Hub).
+- **`components/DomainModeling.tsx`**: Interactive Domain Storming canvas supporting raw business pitch discovery, pitch-specific UML diagram rendering, 6-part DDD specification review, and 1-click synthesis.
+- **`components/AppPreview.tsx`**: Live Web App Preview component embedding the workspace Vite dev server iframe (`http://localhost:5174/`) with dual-port switching, device responsive modes, refresh, and external window popout.
+- **`components/RequirementsList.tsx`**: Hierarchical specification tree supporting folders, requirements, tasks, and bugs. Supports CRUD operations, status indicators (`Backlog` vs `Done`), and TDD test spec generation triggers.
+- **`components/CodeReview.tsx`**: Renders side-by-side git diffs (`DiffViewer`), pytest log tracebacks, and 1-click Approval (Merge to Main) / Rejection workflows.
+- **`components/CoverageHub.tsx`**: Aggregates requirement-to-test mapping matrices and embeds the live Allure Docker portal (`:5050`).
+- **`components/AgentTray.tsx`**: Collapsible console tray displaying active execution step, attempt counters, and streaming stdout/stderr log output.
 
 ### FastAPI Backend Engine (`backend/`)
-The core orchestrator and REST service layer:
-- **`main.py`**: Exposes endpoints for requirement CRUD, project selection, git diff generation, agent run statuses, and ticket merge approvals. Performs automatic project initialization against the Allure Docker container on startup.
-- **`agent_orchestrator.py`**: Executes the autonomous agent state machine using **LangGraph**. Coordinates branch creation, LLM code generation, preview dev server execution, pytest runner, Selenium screenshot capture, Gemini Vision visual layout evaluation, and git rollbacks.
-- **`db/store.py`**: High-performance SQLite wrapper (`provable.db`) managing relational data for requirements, test cases, and agent runs.
-- **`integrations/`**: Modules for syncing SQLite state with StrictDoc specification files (`strictdoc_client.py`), Jira tickets (`jira_client.py`), and Allure Docker API endpoints (`allure_client.py`).
+- **`main.py`**: Exposes endpoints for domain discovery/synthesis, requirement CRUD, project selection, git diff generation, agent run statuses, and project resets (`reset_database`).
+- **`onboarding/dynamic_domain_generator.py`**: Universal Dynamic Domain AST Generator synthesizing pure DDD backend modules (`model.py`, `commands.py`, `events.py`, `orm.py`, `bootstrap.py`, `app.py`) and React UIs (`App.tsx`) for ANY arbitrary domain schema without template leakage.
+- **`agent_orchestrator.py`**: Executes the OpenHands agent runner loop (`run_openhands_loop`), managing branch isolation, task prompt formulation, pytest verification, and git rollbacks.
+- **`db/store.py`**: SQLite database wrapper (`provable.db`) managing relational data for requirements, test cases, and agent runs.
 
-### Data Storage & Specifications
-- **SQLite Database (`backend/provable.db`)**: Primary operational database powering real-time queries.
-- **StrictDoc Specs (`requirements/requirements.sdoc`)**: Text-based specification files synchronized bidirectionally with the SQLite database to maintain version-controlled requirements in Git.
+---
 
-### Containerized Infrastructure
-- **Allure Docker Service (`frankescobar/allure-docker-service:5050`)**: Containerized reporting service that aggregates pytest execution outputs from `workspace/allure-results/` and renders coverage metrics.
+## 🔗 Related Documentation
+- [[Universal-Dynamic-Domain-AST-Generator]]
+- [[Automated-Verification-And-Self-Healing-Pipeline]]
+- [[05-DDD-TDD-Architecture-Guidelines]]
+- [[Frontend Components]]
+- [[Backend REST API]]

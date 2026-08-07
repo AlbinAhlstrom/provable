@@ -18,7 +18,7 @@ TITLE: Section Title
 
 [REQUIREMENT]
 UID: REQ-PM-001
-TITLE: Interactive Kanban Board
+TITLE: Simplified Specification Explorer View
 STATEMENT: Requirement description text...
 REQ_TYPE: Requirement
 PRIORITY: High

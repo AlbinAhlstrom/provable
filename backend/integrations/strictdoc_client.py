@@ -269,8 +269,9 @@ def sync_sdoc_to_db(clear_first: bool = False):
                      from the previous project appearing in the Kanban board.
     """
     if not os.path.exists(get_sdoc_path()):
-        # If .sdoc doesn't exist yet, seed it from SQLite database
-        export_sdoc()
+        os.makedirs(os.path.dirname(get_sdoc_path()), exist_ok=True)
+        with open(get_sdoc_path(), 'w', encoding='utf-8') as f:
+            f.write('[DOCUMENT]\nTITLE: System Architecture & Business Requirements\n')
         return
 
     print(f"📄 strictdoc_client: Syncing {get_sdoc_path()} → SQLite...")
@@ -286,7 +287,11 @@ def sync_sdoc_to_db(clear_first: bool = False):
                 conn.execute(f"DELETE FROM requirements WHERE id NOT IN ({placeholders})", sdoc_ids)
                 conn.commit()
                 print("📄 strictdoc_client: Cleaned up stale requirements and associated test cases.")
-            print("📄 strictdoc_client: Cleared existing requirements for fresh project sync.")
+            else:
+                conn.execute("DELETE FROM test_cases")
+                conn.execute("DELETE FROM requirements")
+                conn.commit()
+                print("📄 strictdoc_client: Purged all requirements and test cases from SQLite.")
 
         for r in parsed_reqs:
             # Check if it exists in SQLite

@@ -107,7 +107,7 @@ def get_project_settings() -> dict:
             "enabled": has_dev_server,
             "start_command": "npm run dev" if has_pkg_json else "",
             "port": 5174 if has_dev_server else None,
-            "base_url": "http://localhost:5174" if has_dev_server else ""
+            "base_url": "http://localhost:5174"
         },
         "test_runner": {
             "test_command": "pytest -v",

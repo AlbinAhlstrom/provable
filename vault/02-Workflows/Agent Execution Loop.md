@@ -1,82 +1,53 @@
-# Agent Execution Loop & LangGraph State Machine
+# OpenHands Agent Execution Pipeline
 
-Provable orchestrates autonomous coding agents using a StateGraph state machine implemented via **LangGraph**. The orchestrator manages branch checkout, code generation, preview serving, pytest execution, Allure reporting uploads, selenium screenshot captures, visual layout validations, and clean git rollback controls.
+Provable utilizes an **OpenHands Agent Execution Runner** (`backend/agent_orchestrator.py`) to execute developer tasks inside target workspaces (`workspace/`).
 
 ```mermaid
-graph TD
-    START([START]) --> prepare_branch[Node: prepare_branch]
-    prepare_branch --> code_generation[Node: code_generation]
-    code_generation --> test_runner[Node: test_runner]
+sequenceDiagram
+    participant PM as PM Studio UI
+    participant Backend as FastAPI Backend
+    participant Runner as OpenHands Execution Runner
+    participant Git as Workspace Git Repository
+    participant Pytest as Pytest Runner / Allure
+
+    PM->>Backend: 1. Trigger Agent for Requirement (REQ-101)
+    Backend->>Runner: 2. Invoke run_openhands_loop(REQ-101)
+    activate Runner
+    Runner->>Git: 3. Create & Checkout ticket/REQ-101 branch from main
+    Runner->>Runner: 4. Formulate Task Prompt (Requirement + Failing Test Spec)
+    Runner->>Git: 5. OpenHands executes edits in workspace/
+    Runner->>Pytest: 6. Run pytest on workspace/tests/test_REQ-101.py
     
-    test_runner -->|Failed & attempt < max| code_generation
-    test_runner -->|Failed & attempt >= max| finalize[Node: finalize]
-    test_runner -->|Passed| visual_qa[Node: visual_qa]
-    
-    visual_qa -->|Failed & attempt < max| code_generation
-    visual_qa -->|Failed & attempt >= max| finalize
-    visual_qa -->|Passed| finalize
-    
-    finalize --> END([END])
+    alt Test Verification Passed (Green)
+        Pytest-->>Runner: 0 Errors / All Tests Passed
+        Runner->>Git: Commit changes to ticket/REQ-101
+        Runner->>Backend: Update status to "Review"
+        Backend-->>PM: Submit to Code Review Queue
+    else Test Verification Failed (Red)
+        Pytest-->>Runner: Assertion Error / Test Failures
+        Runner->>Git: Rollback workspace (git checkout -- . & git clean -fd)
+        Runner->>Backend: Update status to "Backlog" with error log
+        Backend-->>PM: Display failure log in Agent Tray
+    end
+    deactivate Runner
 ```
 
----
+## Detailed Execution Steps
 
-## AgentState TypedDict Schema
+### 1. Task Selection & Initialization
+- `run_openhands_loop(req_id)` identifies the target `Backlog` item.
+- Initializes agent status tracking and creates log stream at `backend/logs/<TICKET_ID>.log`.
 
-To deterministically recreate the LangGraph orchestrator state, implement this TypedDict:
+### 2. Git Branch Isolation
+- Checks out `main` and creates/resets dedicated working branch `ticket/<TICKET_ID>`.
 
-```python
-from typing import TypedDict, List, Dict, Optional
+### 3. OpenHands Task Prompt Assembly
+- Formulates the task prompt containing requirement title, detailed description, and path to target BDD pytest spec (`workspace/tests/test_<REQ_ID>.py`).
 
-class AgentState(TypedDict):
-    ticket_id: str
-    requirement_id: str
-    requirement: Dict
-    attempts: int
-    max_attempts: int
-    branch_name: str
-    proposed_code: str
-    test_results: Dict
-    visual_results: Dict
-    error_feedback: str
-    logs: List[str]
-    status: str  # "running" | "success" | "failed"
-```
+### 4. Sandbox Execution
+- OpenHands runs inside the target workspace directory (`workspace/`), performing code modifications to satisfy the failing test spec.
 
----
-
-## LangGraph Node Handlers & Routing Rules
-
-```python
-# Node 1: Prepare Branch
-def prepare_branch_node(state: AgentState) -> AgentState: ...
-
-# Node 2: Code Generation
-def code_generation_node(state: AgentState) -> AgentState: ...
-
-# Node 3: Test Runner & Allure Upload
-def test_runner_node(state: AgentState) -> AgentState: ...
-
-# Node 4: Visual QA & Vision Layout Gate
-def visual_qa_node(state: AgentState) -> AgentState: ...
-
-# Node 5: Finalize & Git Rollback / Commit Staging
-def finalize_node(state: AgentState) -> AgentState: ...
-
-# Conditional Edge Routing
-def route_after_test(state: AgentState) -> str:
-    if state["test_results"].get("passed", False):
-        return "visual_qa"
-    elif state["attempts"] < state["max_attempts"]:
-        return "code_generation"
-    else:
-        return "finalize"
-
-def route_after_visual(state: AgentState) -> str:
-    if state["visual_results"].get("passed", False):
-        return "finalize"
-    elif state["attempts"] < state["max_attempts"]:
-        return "code_generation"
-    else:
-        return "finalize"
-```
+### 5. Verification & Review Queue Finalization
+- Executes `run_pytest()` on the target test spec.
+- On **PASS**: Commits branch `ticket/<TICKET_ID>` and transitions ticket to `Review` status for PM git diff inspection and 1-click merge approval.
+- On **FAIL**: Cleans up workspace (`git checkout -- .`, `git clean -fd`) and records failure logs in DataStore.

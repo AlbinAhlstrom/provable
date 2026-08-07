@@ -120,8 +120,13 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
         status: 'Backlog',
         tests: [],
         assignedAgents: [],
+        assigned_agents: [],
+        dependencies: [],
         type: 'Folder',
-        parentId: null
+        parentId: null,
+        parent_id: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
       const updated = [...requirements, newReq];
       await fetch('/api/requirements', { 

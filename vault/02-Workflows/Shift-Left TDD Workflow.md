@@ -16,7 +16,7 @@ sequenceDiagram
     Workspace-->>AllureHub: Publish failing result to Allure container (:5050)
     AllureHub-->>PM: Display ✗ failing test in Coverage Table
     PM->>AllureHub: 3. Click "Fix Failing Test"
-    AllureHub->>Agent: Create Jira ticket + dispatch coding agent
+    AllureHub->>Agent: Dispatch autonomous coding agent
     activate Agent
     Agent->>Workspace: Write source edits to satisfy test_REQ_XXX.py
     Agent->>Workspace: Run tests (Verify target test passes)
@@ -35,20 +35,18 @@ sequenceDiagram
 ### 2. Failing Test Case Generation (TDD Red)
 - The PM clicks **"Create Test Case"** on the requirement detail panel.
 - The backend loads `prompts/test_case_generation.md` and calls the LLM to write a BDD-structured pytest file (`workspace/tests/test_<REQ_ID>.py`).
-- The generated test includes `@allure.id`, `@allure.title`, and BDD docstrings (`Given`, `When`, `Then`).
-- The backend immediately executes the new test file to verify that it **fails**. If it passes unexpectedly, it is discarded and regenerated with stricter assertions.
-- This establishes the verified **TDD Red** baseline (represented by a red cross icon `✗`).
+- The backend immediately executes the new test file to verify that it **fails**. This establishes the verified **TDD Red** baseline (represented by a red cross icon `✗`).
 
 ### 3. Coverage Matrix & Allure Sync
 - The **Coverage Hub** aggregates all requirements and their linked test status.
 - Test execution results are uploaded to the containerized Allure Docker Service (`:5050`) and displayed in the embedded iframe.
 
 ### 4. Developer Agent Execution (TDD Green)
-- The PM clicks **"Fix Failing Test"** next to the failing item.
+- The PM clicks **"Fix Failing Test"** next to the failing item in the Coverage Hub or Requirements Explorer.
 - The backend dispatches the LangGraph developer agent loop.
 - The agent modifies source code files inside `workspace/` until the target pytest spec passes without breaking existing tests.
 
 ### 5. Review & Merge Approval
-- Upon test pass (TDD Green), the agent submits the branch to `Review` status.
+- Upon test pass (TDD Green), the agent submits the branch to the **Code Review Queue**.
 - The PM inspects the git diff in **Code Review** and clicks **Approve**.
 - The backend merges `ticket/<TICKET_ID>` into `main` and updates requirement status to `Done`.

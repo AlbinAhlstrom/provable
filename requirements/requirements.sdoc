@@ -6,8 +6,8 @@ TITLE: 1. PM Studio Frontend (React / Vite)
 
 [REQUIREMENT]
 UID: REQ-PM-001
-TITLE: Interactive Kanban Board
-STATEMENT: The PM Studio shall display an interactive Kanban board with columns for Backlog, In Progress, Review, Conflict, and Done states, supporting real-time item transitions and active execution indicators.
+TITLE: Simplified Specification Explorer View
+STATEMENT: The PM Studio shall display a streamlined Requirements Explorer as the primary navigation workspace, tracking requirement completion status (Backlog vs Done) without redundant Kanban board columns.
 REQ_TYPE: Requirement
 PRIORITY: High
 STATUS: Backlog

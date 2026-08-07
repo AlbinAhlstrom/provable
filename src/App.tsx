@@ -1,104 +1,164 @@
-import React, { useState, useEffect } from 'react';
-import { useRequirements, Requirement } from './hooks/useRequirements';
-import KanbanBoard from './components/KanbanBoard';
+import { useState, useEffect } from 'react';
+import KickstartStudio from './components/KickstartStudio';
 import RequirementsList from './components/RequirementsList';
-import CodeReview from './components/CodeReview';
 import CoverageHub from './components/CoverageHub';
-import AgentTray from './components/AgentTray';
 import ProjectSelector from './components/ProjectSelector';
+import { Requirement } from './hooks/useRequirements';
 
-const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<string>('Kanban');
-  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
-  const [reviews, setReviews] = useState<any[]>([]);
-
-  // Custom hook for requirements state
-  const {
-    requirements,
-    loading,
-    fetchReqs,
-    handleUpdateReq
-  } = useRequirements();
-
-  // Agent Status & Backlog states
+export function App() {
+  const [currentView, setCurrentView] = useState<string>('Domain');
+  const [requirements, setRequirements] = useState<Requirement[]>([]);
+  const [selectedReqId, setSelectedReqId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  
+  const [coverageData, setCoverageData] = useState<any>(null);
   const [agentStatus, setAgentStatus] = useState<any>({
     active: false,
     ticket_id: null,
-    step: 'Idle',
+    step: 'idle',
     attempt: 0,
     max_attempts: 3,
     last_update: ''
   });
   const [backlogAnalysis, setBacklogAnalysis] = useState<any[]>([]);
-  const [isTrayExpanded, setIsTrayExpanded] = useState<boolean>(false);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+  
+  const [previewUrl, setPreviewUrl] = useState<string>('http://localhost:5174');
+  const [showPreview, setShowPreview] = useState<boolean>(false);
+  const [previewBranch, setPreviewBranch] = useState<'post' | 'pre'>('post');
+  
   const [agentLogs, setAgentLogs] = useState<string>('');
-
-  // Test case generation states
-  const [isGeneratingTestCase, setIsGeneratingTestCase] = useState(false);
+  const [isTrayExpanded, setIsTrayExpanded] = useState<boolean>(false);
+  
+  const [isGeneratingTestCase, setIsGeneratingTestCase] = useState<boolean>(false);
   const [generatedTestCode, setGeneratedTestCode] = useState<string | null>(null);
-  const [selectedReqId, setSelectedReqId] = useState<string | null>(null);
 
-  // Test coverage states
-  const [coverageData, setCoverageData] = useState<any>(null);
-
-  const handleProjectSwitch = (newPreviewUrl: string) => {
-    fetchReqs();
-    fetchCoverage();
-  };
-
-  const fetchAgentStatus = async () => {
+  const fetchReqs = async () => {
     try {
-      const res = await fetch('/api/agent-status');
-      if (res.ok) {
-        const data = await res.json();
-        setAgentStatus(data.status || { active: false, ticket_id: null, step: 'Idle', attempt: 0, max_attempts: 3, last_update: '' });
-        setBacklogAnalysis(data.backlog_analysis || []);
-      }
-    } catch (e) { /* ignore */ }
-  };
-
-  const fetchReviews = async () => {
-    try {
-      const res = await fetch('/api/reviews');
-      if (res.ok) {
-        const data = await res.json();
-        setReviews(data);
-      }
-    } catch (e) { /* ignore */ }
+      const res = await fetch('/api/requirements');
+      const data = await res.json();
+      setRequirements(data);
+    } catch (err) {
+      console.error("Failed to fetch requirements:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchCoverage = async () => {
     try {
       const res = await fetch('/api/coverage');
-      if (res.ok) {
-        const data = await res.json();
-        setCoverageData(data);
-      }
-    } catch (e) { /* ignore */ }
+      const data = await res.json();
+      setCoverageData(data);
+    } catch (err) {
+      console.error("Failed to fetch coverage data:", err);
+    }
+  };
+
+  const fetchAgentStatus = async () => {
+    try {
+      const res = await fetch('/api/agent-status');
+      const data = await res.json();
+      setAgentStatus(data.status);
+      setBacklogAnalysis(data.backlog_analysis || []);
+    } catch (err) {
+      console.error("Failed to fetch agent status:", err);
+    }
+  };
+
+  const fetchReviews = async () => {
+    try {
+      const res = await fetch('/api/reviews');
+      const data = await res.json();
+      setReviews(data);
+    } catch (err) {
+      console.error("Failed to fetch reviews:", err);
+    }
   };
 
   useEffect(() => {
-    fetchReqs();
-    fetchAgentStatus();
-    fetchReviews();
-    fetchCoverage();
+    const initData = async () => {
+      await fetchReqs();
+      await fetchCoverage();
+      await fetchAgentStatus();
+      await fetchReviews();
+    };
+    initData();
 
     const interval = setInterval(() => {
+      fetchReqs();
+      fetchCoverage();
       fetchAgentStatus();
       fetchReviews();
-      fetchCoverage();
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
 
-  // Poll logs if agent is running
+  const handleProjectSwitch = (newPreviewUrl: string) => {
+    setPreviewUrl(newPreviewUrl);
+    fetchReqs();
+    fetchCoverage();
+    fetchAgentStatus();
+    fetchReviews();
+  };
+
+  const handleUpdateReq = async (id: string, updates: Partial<Requirement>) => {
+    try {
+      const res = await fetch(`/api/requirements/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (res.ok) {
+        await fetchReqs();
+      }
+    } catch (err) {
+      console.error("Failed to update requirement:", err);
+    }
+  };
+
+  const handleCreateTestCase = async (reqId: string) => {
+    setIsGeneratingTestCase(true);
+    setGeneratedTestCode(null);
+    try {
+      const res = await fetch(`/api/requirements/${reqId}/generate-test`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGeneratedTestCode(data.test_code);
+        await fetchReqs();
+        await fetchCoverage();
+      } else {
+        alert("Failed to generate test case: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error calling test case generation API.");
+    } finally {
+      setIsGeneratingTestCase(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedReviewId === null && previewBranch === 'pre') {
+      setPreviewBranch('post');
+      fetch('/api/checkout-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ branch: 'main' })
+      }).catch(() => {});
+    }
+  }, [selectedReviewId, previewBranch]);
+
   useEffect(() => {
     if (!agentStatus.active || !agentStatus.ticket_id) {
       setAgentLogs('');
       return;
     }
-
+    
     const fetchLogs = async () => {
       try {
         const res = await fetch(`/api/logs/${agentStatus.ticket_id}`);
@@ -106,9 +166,9 @@ const App: React.FC = () => {
         if (data.logs) {
           setAgentLogs(data.logs);
         }
-      } catch (e) { /* ignore */ }
+      } catch (e) {}
     };
-
+    
     fetchLogs();
     const logInterval = setInterval(fetchLogs, 2000);
     return () => clearInterval(logInterval);
@@ -138,9 +198,8 @@ const App: React.FC = () => {
     const feedback = prompt("Provide feedback to the agent on why this code is not accepted:");
     if (!feedback) return;
     setSelectedReviewId(null);
-
+    
     await handleUpdateReq(req.id, { status: 'Backlog', feedback });
-
     await fetch('/api/trigger-agents', { method: 'POST' });
     await fetchReqs();
   };
@@ -164,48 +223,36 @@ const App: React.FC = () => {
     }
   };
 
-  const handleCreateTestCase = async (reqId: string, givenText: string, whenText: string, thenText: string) => {
-    setIsGeneratingTestCase(true);
-    setGeneratedTestCode(null);
+  const [resetting, setResetting] = useState<boolean>(false);
+  
+  const handleResetAllProjects = async () => {
+    setResetting(true);
     try {
-      const res = await fetch(`/api/requirements/${reqId}/create-test-case`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          given: givenText,
-          when: whenText,
-          then: thenText
-        })
-      });
+      const res = await fetch('/api/projects/reset-all', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
-        setGeneratedTestCode(data.test_code);
         await fetchReqs();
         await fetchCoverage();
-      } else {
-        alert("Failed to generate test case: " + (data.error || "Unknown error"));
+        await fetchAgentStatus();
+        await fetchReviews();
       }
     } catch (err) {
-      console.error(err);
-      alert("Error calling test case generation API.");
+      console.error("Error resetting projects:", err);
     } finally {
-      setIsGeneratingTestCase(false);
+      setResetting(false);
     }
   };
 
-  const reviewCount = reviews.length;
-
   const navItems = [
-    { id: 'Kanban', label: 'Kanban' },
+    { id: 'Domain', label: '🚀 Kickstart' },
     { id: 'Requirements', label: 'Requirements' },
-    { id: 'Tests', label: 'Tests' },
-    { id: 'Review', label: 'Review', badge: reviewCount }
+    { id: 'Tests', label: 'Tests' }
   ];
 
   return (
     <div className="app-container">
       <header className="app-header-nav">
-        <div className="nav-logo" onClick={() => setCurrentView('Kanban')}>
+        <div className="nav-logo" onClick={() => setCurrentView('Requirements')}>
           🚀 Provable
         </div>
         <div className="nav-links">
@@ -216,16 +263,10 @@ const App: React.FC = () => {
                 key={item.id} 
                 onClick={() => {
                   setCurrentView(item.id);
-                  if (item.id === 'Review') {
-                    setSelectedReviewId(null);
-                  }
                 }}
                 className={`nav-item ${isActive ? 'active' : ''}`}
               >
                 {item.label}
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className="nav-badge">{item.badge}</span>
-                )}
               </button>
             );
           })}
@@ -236,16 +277,14 @@ const App: React.FC = () => {
       </header>
 
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <main className="main-content">
+        <main className="main-content" style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: currentView === 'Preview' ? '1rem 1.5rem' : undefined }}>
           {loading ? <p style={{ padding: '2rem' }}>Loading data...</p> : (
             <>
-              {currentView === 'Kanban' && (
-                <KanbanBoard 
-                  requirements={requirements}
-                  agentLogs={agentLogs}
-                  agentStatus={agentStatus}
-                  fetchReqs={fetchReqs}
-                />
+              {currentView === 'Domain' && (
+                <KickstartStudio onAppSynthesized={async () => {
+                  await fetchReqs();
+                  await fetchCoverage();
+                }} />
               )}
               {currentView === 'Requirements' && (
                 <RequirementsList 
@@ -269,32 +308,12 @@ const App: React.FC = () => {
                   fetchCoverage={fetchCoverage}
                 />
               )}
-              {currentView === 'Review' && (
-                <CodeReview 
-                  reviews={reviews}
-                  selectedReviewId={selectedReviewId}
-                  setSelectedReviewId={setSelectedReviewId}
-                  requirements={requirements}
-                  handleApproveCode={handleApproveCode}
-                  handleProvideFeedback={handleProvideFeedback}
-                  handleAbandonTicket={handleAbandonTicket}
-                />
-              )}
             </>
           )}
         </main>
       </div>
-
-      <AgentTray 
-        agentStatus={agentStatus}
-        backlogAnalysis={backlogAnalysis}
-        agentLogs={agentLogs}
-        isTrayExpanded={isTrayExpanded}
-        setIsTrayExpanded={setIsTrayExpanded}
-        fetchAgentStatus={fetchAgentStatus}
-      />
     </div>
   );
-};
+}
 
 export default App;
