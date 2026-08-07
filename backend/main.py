@@ -3832,9 +3832,11 @@ def update_requirement_param(req: ParamUpdateRequest):
         from onboarding.dynamic_domain_generator import generate_universal_domain_files
         schema = get_active_domain_params()
         files = generate_universal_domain_files(schema, ws_base)
-        app_path = os.path.join(ws_base, 'src', 'App.tsx')
-        with open(app_path, 'w', encoding='utf-8') as f:
-            f.write(files[app_path])
+        for path, content in files.items():
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(content)
+
 
         return {"success": True, "param_key": req.param_key, "value": req.value}
     except Exception as e:
@@ -3874,9 +3876,11 @@ def toggle_requirement_feature(req: FeatureToggleRequest):
         from onboarding.dynamic_domain_generator import generate_universal_domain_files
         schema = get_active_domain_params()
         files = generate_universal_domain_files(schema, ws_base)
-        app_path = os.path.join(ws_base, 'src', 'App.tsx')
-        with open(app_path, 'w', encoding='utf-8') as f:
-            f.write(files[app_path])
+        for path, content in files.items():
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(content)
+
 
         return {"success": True, "feature_id": req.feature_id, "canonical_key": info['canonical_key'], "enabled": req.enabled, "requirement_id": primary_req_id}
     except Exception as e:
@@ -3930,9 +3934,11 @@ def add_dynamic_component(req: ComponentAddRequest):
         from onboarding.dynamic_domain_generator import generate_universal_domain_files
         schema = get_active_domain_params()
         files = generate_universal_domain_files(schema, ws_base)
-        app_path = os.path.join(ws_base, 'src', 'App.tsx')
-        with open(app_path, 'w', encoding='utf-8') as f:
-            f.write(files[app_path])
+        for path, content in files.items():
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(content)
+
 
         return {
             "success": True,
@@ -3965,9 +3971,11 @@ def delete_dynamic_component(req: ComponentDeleteRequest):
         from onboarding.dynamic_domain_generator import generate_universal_domain_files
         schema = get_active_domain_params()
         files = generate_universal_domain_files(schema, ws_base)
-        app_path = os.path.join(ws_base, 'src', 'App.tsx')
-        with open(app_path, 'w', encoding='utf-8') as f:
-            f.write(files[app_path])
+        for path, content in files.items():
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(content)
+
 
         return {"success": True, "canonical_key": req.canonical_key}
     except Exception as e:

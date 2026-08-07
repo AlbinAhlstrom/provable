@@ -106,3 +106,24 @@ def test_step3_sidebar_api_contracts():
         assert not any(r["id"] == "REQ-CMP-PAYMENT_SYSTEM-001" for r in reqs_after)
 
 
+def test_step4_modular_component_generation():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_db = os.path.join(tmpdir, "test_provable4.db")
+        store.set_active_db(test_db)
+        store.init_db()
+
+        from main import get_active_domain_params, get_workspace_base
+        from onboarding.dynamic_domain_generator import generate_universal_domain_files
+        
+        ws = get_workspace_base()
+        schema = get_active_domain_params()
+        files = generate_universal_domain_files(schema, ws)
+        
+        assert any("App.tsx" in k for k in files.keys())
+        
+        app_path = os.path.join(ws, 'src', 'App.tsx')
+        assert app_path in files
+        assert "enabledFeatures" in files[app_path]
+
+
+
