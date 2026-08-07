@@ -382,6 +382,11 @@ export default function App() {
   };
 
   const estimatedPickupMinutes = Math.max(15, orders.filter(o => o.status === 'Baking').length * 5 + 10);
+  const recentOrdersCount = orders.filter(o => o.status !== 'Delivered').length;
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const tax = subtotal * 0.08;
+  const total = subtotal + tax + (deliveryType === 'delivery' ? 4.99 : 0);
+
 
   const handleAddReview = (e: React.FormEvent) => {
     e.preventDefault();
