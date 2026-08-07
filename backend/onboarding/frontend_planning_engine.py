@@ -835,3 +835,100 @@ export default function App() {
 '''
     return tmpl.replace('__TITLE__', title).replace('__SEED_JSON__', seed_json).replace('__CSS_VARS__', css_vars_style).replace('__PITCH__', bp.business_pitch)
 
+
+def analyze_pitch_components_and_suggestions(pitch: str) -> Dict[str, Any]:
+    """
+    LLM Pitch Analysis Agent.
+    Dynamically deconstructs any natural language business pitch into its required UI components
+    (mapping reusable ones to premade template keys or creating custom component specs)
+    and generates 6 domain-specific suggested prompts.
+    """
+    prompt = f"""
+You are a Lead Product Architect. Analyze the following business pitch:
+"{pitch}"
+
+Deconstruct the application into:
+1. Active Components: Identify all UI components required for this application idea.
+   - For standard capabilities, map to canonical keys: "catalog" (menu/product grid), "cart" (shopping cart/checkout), "tracking" (order tracking pipeline), "kds" (admin/kitchen dashboard), "reviews" (ratings & feedback), "auth" (user login/profiles), "calendar" (booking/appointments).
+   - For custom concepts mentioned in pitch (e.g. "flappy bird game", "topping builder", "crypto wallet"), specify a clean canonical_key (e.g. "flappy_bird_game"), descriptive title, and component_type "custom".
+2. Suggested Prompts: Generate 3 to 6 dynamic, domain-aware feature suggestions that the user might want to add next (e.g. "Add payment system", "Add live chat", "Add leaderboard").
+
+Return ONLY valid JSON in this exact format (no markdown, no preamble):
+{{
+  "components": [
+    {{
+      "canonical_key": "catalog",
+      "title": "Menu Catalog",
+      "component_type": "premade",
+      "description": "Product grid with category filters"
+    }},
+    {{
+      "canonical_key": "flappy_bird_game",
+      "title": "Flappy Bird Mini-Game",
+      "component_type": "custom",
+      "description": "Interactive mini-game in application header"
+    }}
+  ],
+  "suggestions": [
+    "Add payment system",
+    "Add loyalty points",
+    "Add table reservation"
+  ]
+}}
+"""
+    try:
+        raw_res = call_gemini(prompt, stage="pitch_component_analysis")
+        json_match = re.search(r'\{.*\}', raw_res, re.DOTALL)
+        if json_match:
+            raw_res = json_match.group(0)
+        data = json.loads(raw_res)
+        return {
+            "pitch": pitch,
+            "active_components": data.get("components", []),
+            "suggestions": data.get("suggestions", [])
+        }
+    except Exception as e:
+        print(f"LLM pitch analysis notice: {e}, executing heuristic fallback")
+        return _heuristic_pitch_analysis_fallback(pitch)
+
+
+
+def _heuristic_pitch_analysis_fallback(pitch: str) -> Dict[str, Any]:
+    p_lower = pitch.lower()
+    components = []
+    
+    if any(k in p_lower for k in ['menu', 'product', 'catalog', 'item', 'pizza', 'store', 'shop']):
+        components.append({'canonical_key': 'catalog', 'title': 'Menu Catalog', 'component_type': 'premade', 'description': 'Product catalog & menu grid'})
+    if any(k in p_lower for k in ['cart', 'order', 'checkout', 'buy', 'purchase', 'pizza', 'store']):
+        components.append({'canonical_key': 'cart', 'title': 'Shopping Cart', 'component_type': 'premade', 'description': 'Shopping cart & checkout drawer'})
+    if any(k in p_lower for k in ['track', 'status', 'delivery', 'dispatch', 'pipeline', 'pizza']):
+        components.append({'canonical_key': 'tracking', 'title': 'Order Tracking', 'component_type': 'premade', 'description': 'Real-time status tracking pipeline'})
+    if any(k in p_lower for k in ['kitchen', 'kds', 'admin', 'merchant', 'dashboard', 'cook']):
+        components.append({'canonical_key': 'kds', 'title': 'Kitchen KDS', 'component_type': 'premade', 'description': 'Merchant kitchen display system'})
+    if any(k in p_lower for k in ['review', 'rating', 'star', 'feedback']):
+        components.append({'canonical_key': 'reviews', 'title': 'Reviews', 'component_type': 'premade', 'description': 'Customer reviews & rating system'})
+
+    if not components:
+        components = [
+            {'canonical_key': 'catalog', 'title': 'Menu Catalog', 'component_type': 'premade', 'description': 'Product catalog'},
+            {'canonical_key': 'cart', 'title': 'Shopping Cart', 'component_type': 'premade', 'description': 'Shopping cart'},
+            {'canonical_key': 'tracking', 'title': 'Order Tracking', 'component_type': 'premade', 'description': 'Order tracking'}
+        ]
+
+    suggestions = [
+        "Payment system",
+        "Loyalty points & rewards",
+        "Live chat support",
+        "Table reservation calendar",
+        "Custom item builder",
+        "Promo code voucher"
+    ]
+
+    return {
+        "pitch": pitch,
+        "active_components": components,
+        "suggestions": suggestions
+    }
+
+
+

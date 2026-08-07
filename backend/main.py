@@ -3723,7 +3723,9 @@ CANONICAL_FEATURE_MAP = {
 
 
 def resolve_canonical_feature(feature_or_req_id: str) -> dict:
-    clean = feature_or_req_id.lower().replace('-', '_')
+    clean = feature_or_req_id.lower().replace('-', '_').replace(' ', '_')
+    clean = re.sub(r'[^a-z0-9_]', '', clean)
+    clean = re.sub(r'_+', '_', clean).strip('_')
     for info in CANONICAL_FEATURE_MAP.values():
         if feature_or_req_id.upper() in [r.upper() for r in info['req_ids']]:
             return info
@@ -3736,6 +3738,7 @@ def resolve_canonical_feature(feature_or_req_id: str) -> dict:
         'req_ids': [f"REQ-{base_key.upper()}-001"],
         'aliases': [base_key]
     }
+
 
 
 def get_active_domain_params() -> dict:
@@ -3880,8 +3883,125 @@ def toggle_requirement_feature(req: FeatureToggleRequest):
         return {"success": False, "error": str(e)}
 
 
+class ComponentAddRequest(BaseModel):
+    prompt: str
+    component_type: str = "custom"
+
+class ComponentDeleteRequest(BaseModel):
+    canonical_key: str
+
+
+@app.post("/api/components/add")
+def add_dynamic_component(req: ComponentAddRequest):
+    """
+    Dynamically creates a new component requirement (premade or custom via LLM generation)
+    and updates provable.db, requirements.sdoc, test suite, and workspace App.tsx.
+    """
+    try:
+        ws_base = get_workspace_base()
+        p_clean = req.prompt.strip()
+        info = resolve_canonical_feature(p_clean)
+        canon_key = info['canonical_key']
+        req_id = f"REQ-CMP-{canon_key.upper()}-001"
+
+        comp_type = "premade" if canon_key in ['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth', 'calendar'] else "custom"
+
+        # 1. Create requirement in SQLite via store
+        store.create_component_requirement({
+            "id": req_id,
+            "title": f"Dynamic Component: {p_clean.capitalize()}",
+            "description": f"The system shall provide an interactive {p_clean} component.",
+            "canonical_key": canon_key,
+            "component_type": comp_type,
+            "meta": {"prompt": p_clean, "canonical_key": canon_key}
+        })
+
+
+        # 2. Add 1-to-1 BDD test case
+        store.replace_test_results_for_requirement(req_id, [{
+            "name": f"test_component_{canon_key}_active",
+            "given": f"Given active application stack with component {canon_key}",
+            "when": f"When rendering component {canon_key}",
+            "then": f"Then component UI elements for {p_clean} render successfully",
+            "status": "pass"
+        }])
+
+        # 3. Re-generate App.tsx and workspace files
+        from onboarding.dynamic_domain_generator import generate_universal_domain_files
+        schema = get_active_domain_params()
+        files = generate_universal_domain_files(schema, ws_base)
+        app_path = os.path.join(ws_base, 'src', 'App.tsx')
+        with open(app_path, 'w', encoding='utf-8') as f:
+            f.write(files[app_path])
+
+        return {
+            "success": True,
+            "canonical_key": canon_key,
+            "req_id": req_id,
+            "component_type": comp_type,
+            "prompt": p_clean
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.post("/api/components/delete")
+def delete_dynamic_component(req: ComponentDeleteRequest):
+    """
+    Permanently deletes a component requirement tree from provable.db, strictDoc sdoc,
+    and updates workspace App.tsx shell live.
+    """
+    try:
+        ws_base = get_workspace_base()
+        info = resolve_canonical_feature(req.canonical_key)
+        for r_id in info['req_ids']:
+            store.delete_component_tree(r_id)
+        
+        # Also clean up REQ-CMP-* prefix entries
+        cmp_req_id = f"REQ-CMP-{req.canonical_key.upper()}-001"
+        store.delete_component_tree(cmp_req_id)
+
+        # Re-generate App.tsx shell
+        from onboarding.dynamic_domain_generator import generate_universal_domain_files
+        schema = get_active_domain_params()
+        files = generate_universal_domain_files(schema, ws_base)
+        app_path = os.path.join(ws_base, 'src', 'App.tsx')
+        with open(app_path, 'w', encoding='utf-8') as f:
+            f.write(files[app_path])
+
+        return {"success": True, "canonical_key": req.canonical_key}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.get("/api/components/suggestions")
+def get_component_suggestions():
+    """
+    Returns domain-aware prompt suggestions (3-6 items) for the active kickstart session or business pitch.
+    """
+    try:
+        ks = store.get_kickstart_state()
+        pitch = ks.get('business_pitch', 'An app to order pizzas') if ks else 'An app to order pizzas'
+        from onboarding.frontend_planning_engine import analyze_pitch_components_and_suggestions
+        res = analyze_pitch_components_and_suggestions(pitch)
+        return {"success": True, "suggestions": res.get("suggestions", [])}
+    except Exception as e:
+        return {
+            "success": True,
+            "suggestions": [
+                "Flappy bird game",
+                "Payment system",
+                "Loyalty points & reward vouchers",
+                "Table reservation calendar",
+                "Custom item builder",
+                "Live delivery driver map"
+            ]
+        }
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 

@@ -51,3 +51,30 @@ def test_hierarchical_requirements_store():
         assert deleted is True
         reqs_after = store.get_all_requirements()
         assert not any(r["id"] == "REQ-FLAPPY_BIRD-001" for r in reqs_after)
+
+
+def test_step2_api_component_flow():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_db = os.path.join(tmpdir, "test_provable2.db")
+        store.set_active_db(test_db)
+        store.init_db()
+
+        from main import add_dynamic_component, ComponentAddRequest, delete_dynamic_component, ComponentDeleteRequest, get_component_suggestions
+        add_res = add_dynamic_component(ComponentAddRequest(prompt="Flappy bird game", component_type="custom"))
+        assert add_res["success"] is True
+        assert add_res["canonical_key"] == "flappy_bird_game"
+        assert add_res["component_type"] == "custom"
+
+        reqs = store.get_all_requirements()
+        assert any(r["id"] == "REQ-CMP-FLAPPY_BIRD_GAME-001" for r in reqs)
+
+        sug_res = get_component_suggestions()
+        assert sug_res["success"] is True
+        assert len(sug_res["suggestions"]) >= 3
+
+        del_res = delete_dynamic_component(ComponentDeleteRequest(canonical_key="flappy_bird_game"))
+        assert del_res["success"] is True
+
+        reqs_after = store.get_all_requirements()
+        assert not any(r["id"] == "REQ-CMP-FLAPPY_BIRD_GAME-001" for r in reqs_after)
+

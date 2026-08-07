@@ -72,7 +72,7 @@ FEATURE_BLOCK_CATALOG = [
         "category": "Engagement",
         "description": "Customer feedback collection, star rating components, and review list display.",
         "keywords": ["review", "rating", "star", "feedback", "comment", "score"],
-        "default_selected": False
+        "default_selected": True
     }
 ]
 
@@ -83,12 +83,14 @@ def analyze_pitch_for_kickstart(pitch: str) -> Dict[str, Any]:
     and extract domain business requirements.
     """
     pitch_lower = pitch.lower()
+    pitch_words = [w.strip('s.,!?') for w in pitch_lower.split()]
+    pitch_text_clean = " ".join(pitch_words) + " " + pitch_lower
     
-    # 1. Match catalog blocks dynamically based on pitch relevance (no hardcoded default selection forcing)
+    # 1. Match catalog blocks dynamically based on pitch relevance
     analyzed_blocks = []
     for block in FEATURE_BLOCK_CATALOG:
-        match_count = sum(1 for kw in block["keywords"] if kw in pitch_lower)
-        is_recommended = match_count > 0
+        match_count = sum(1 for kw in block["keywords"] if kw in pitch_text_clean)
+        is_recommended = match_count > 0 or block.get("default_selected", False)
         
         analyzed_blocks.append({
             "id": block["id"],
@@ -103,6 +105,7 @@ def analyze_pitch_for_kickstart(pitch: str) -> Dict[str, Any]:
         
     # Sort blocks by relevance
     analyzed_blocks.sort(key=lambda x: (x["is_recommended"], x["relevance_score"]), reverse=True)
+
     
     # 2. Extract Business Rules / Invariants
     extracted_requirements = []
