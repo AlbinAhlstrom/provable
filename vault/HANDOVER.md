@@ -12,38 +12,39 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
   - Vite PM Studio Frontend: Running on `http://localhost:5173/`
   - Workspace App Preview: Running on `http://localhost:5174/`
   - Containerized Allure Service: Running on `http://localhost:5050/`
-- **Active Synthesized Domain Stack**: Pizzeria Kitchen & Pickup System prompt with all Kickstart pre-baked feature blocks (`Product Catalog`, `Shopping Cart & Checkout`, `Live Order Tracking Pipeline`, `Estimated Pickup Engine`, `Kitchen KDS Dashboard`, `Reviews & Ratings`, `User Auth`).
-- **Verified Build Status**: `100% PASS` (0 Vite JSX/TypeScript compilation errors, 0 vocabulary violations).
+- **Active Domain Stack**: Pizzeria Order & Delivery system (`"An app to order pizzas"`) with active components (`Catalog`, `Cart`, `Tracking`, `KDS`, `Reviews`).
+- **Verified Build Status**: `100% PASS` (0 Vite JSX/TypeScript compilation errors, 4/4 pytest suite passed).
 
 ---
 
-## 🏛️ Completed Architectural Achievements (Phases 1-5 + Universal AST Engine)
+## 🏛️ Completed Architectural Achievements
 
-1. **Universal Dynamic Domain AST Generator** ([`backend/onboarding/dynamic_domain_generator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/dynamic_domain_generator.py)):
+1. **Dynamic Component Architecture & PM Studio UX Redesign** (Steps 1–4 Complete):
+   - **Step 1: SQLite Schema & Store Foundation (`Commit 99fa15f`)**:
+     - Added `component_type` (TEXT) and `component_meta` (TEXT) columns to `provable.db`.
+     - Implemented `create_component_requirement()`, `get_hierarchical_requirements()`, and `delete_component_tree()`.
+   - **Step 2: Backend API & LLM Component Generator Engine (`Commit f986567`)**:
+     - Endpoints `/api/components/add`, `/api/components/delete`, and `/api/components/suggestions` in [`backend/main.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/main.py).
+     - LLM Pitch Analysis Agent `analyze_pitch_components_and_suggestions()` in [`backend/onboarding/frontend_planning_engine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/frontend_planning_engine.py) dynamically deconstructs ANY prompt into active components and 3–6 domain suggestions.
+   - **Step 3: PM Studio Sidebar UI Redesign (`Commit e5ac3ce`)**:
+     - Redesigned [`RequirementControlPanel.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/components/RequirementControlPanel.tsx) with active components canvas (only active initial components listed, no static/unused checkboxes).
+     - Permanent **Delete (🗑️)** buttons on each card.
+     - Natural language prompt input field (`➕ Add Dynamic Component`).
+     - 3 interactive domain suggestion chips (1-click addition).
+     - Progressive feedback skeleton loader card (*"Generating component..."*).
+   - **Step 4: Modular App Shell Router & Startup Sync (`Commit fbe295a`, `Commit 19a792d`)**:
+     - `sync_workspace_app_shell()` on server startup in FastAPI `lifespan` hook ensures `workspace/src/App.tsx` is always 100% synchronized on initial load.
+     - Automated test suite `backend/tests/test_dynamic_components.py` `4/4 PASSED in 1.27s`.
+
+2. **Universal Dynamic Domain AST Generator** ([`backend/onboarding/dynamic_domain_generator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/dynamic_domain_generator.py)):
    - Generates contract-first 6-part DDD backend modules (`model.py`, `commands.py`, `events.py`, `orm.py`, `bootstrap.py`, `app.py`) and React 18 UI applications (`App.tsx`) for ANY domain pitch without template leakage.
 
-2. **Automated Verification & Self-Healing Pipeline** ([`backend/main.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/main.py)):
+3. **Automated Verification & Self-Healing Pipeline** ([`backend/main.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/main.py)):
    - **Vocabulary Audit Gate** (`audit_domain_vocabulary`): Enforces 0 leftover retail terms (`sku`, `batch`, `_purchased_quantity`) for non-retail pitches.
    - **Web App Preview Health Gate** (`verify_preview_health`): Executes `npx vite build` zero-error compilation and `GET http://localhost:5174/` HTTP 200 OK reachability check.
-   - **Clean Workspace Scaffold Invariant**: `create_default_workspace_scaffold()` guarantees port 5174 is always online and rendering.
 
-3. **End-of-Book Cosmic Python Architecture**:
-   - **Chapter 7 Aggregates & Concurrency**: DB-enforced optimistic concurrency locks (`version_number`, `version_id_col=pizza_orders.c.version_number`).
-   - **Chapter 13 Bootstrap Container**: `bootstrap.bootstrap()` container injecting `uow` and `publish` dependencies dynamically via `inspect.signature`.
-
-4. **PM Studio UI & Clean Navigation**:
-   - **Streamlined Top Bar** ([`src/components/KickstartStudio.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/components/KickstartStudio.tsx) & [`src/components/AppPreview.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/components/AppPreview.tsx)): Removed duplicate header banners (`Synthesized Stack:...`) and moved the `🗑️ Reset Workspace` action into the main action bar, replacing the `Active Server Connected` badge.
-
-5. **4-Layer Generic Domain Light-Theme Invariant Architecture**:
-   - **Aesthetic Archetype Engine** ([`backend/onboarding/planning_contracts.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/planning_contracts.py)): Enforces curated Light Theme Design Systems (`warm_lifestyle_light` with Cream `#FAF7F2`, Coral `#C85A44`, Mint `#E2F6ED`, Serif typography; `modern_fresh_light`; `clean_b2b_light`; `dark_developer_terminal`).
-   - **Dynamic Domain Entity Profile Extraction** (`_extract_domain_entity_profile` in [`backend/onboarding/frontend_planning_engine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/frontend_planning_engine.py)): Parses domain pitches dynamically to extract pitch-specific nouns (`band`, `tutor`, `sitter`, `court`, `wash package`), headlines (`Live Bands & Musicians booked for your event.`), badges (`Verified audio samples & background-checked bands`), and seed data (**The Neon Revival**, **Velvet Jazz Trio**, **Electric Skyline**). Filters out meta stop words (`site`, `application`, `process`).
-   - **Vocabulary Isolation Invariant Gate** (`sanitize_domain_vocabulary_leakage` in [`backend/onboarding/frontend_planning_engine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/frontend_planning_engine.py)): AST transformer that mathematically guarantees zero vocabulary leakage across non-matching domains (e.g. 0 babysitter/Nestly terms inside band booking, tutoring, laundry, or bakery apps).
-   - **Multi-Domain Synthesis Benchmark Suite** ([`backend/tests/test_multi_domain_synthesis.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/test_multi_domain_synthesis.py)): Automated Pytest suite verifying 6 diverse domain pitches (Babysitter Care, Artisan Bakery, Wash & Fold Laundry, Luxury Car Rental, Student Tutoring, Kitchen KDS Board) + explicit vocabulary isolation test. Verified `7/7 PASS in 0.93s`. Verified Vite build compilation in 506ms.
-
-6. **Canonical Feature Toggling & Live View Sync Engine**:
-   - **Canonical Feature Resolution** ([`backend/main.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/main.py)): Unified `CANONICAL_FEATURE_MAP` and `resolve_canonical_feature()` matching all block ID aliases (`catalog_grid`, `shopping_cart`, `order_tracking`, `admin_dashboard`, `reviews_ratings`, `user_auth`, `booking_calendar`) to requirement ID variants (`REQ-CATALOG-001`, `REQ-CART-001`, `REQ-TRACK-001`, `REQ-KDS-001`, `REQ-REVIEWS-001`, `REQ-AUTH-001`, `REQ-CALENDAR-001`).
-   - **PM Studio Control Panel Hydration** ([`src/components/RequirementControlPanel.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/components/RequirementControlPanel.tsx)): `checkFeatureEnabled()` dynamically checks backend requirement status rather than hardcoding checkboxes to `enabled: true`.
-   - **Live View Dynamic Conditional Rendering** ([`backend/onboarding/dynamic_domain_generator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/dynamic_domain_generator.py)): Injects `__ENABLED_FEATURES_ARRAY__` and `isTabEnabled()` guards across navbar buttons, action controls, and view sections. Automatically switches `activeTab` to remaining enabled features or displays an empty state banner when all features are unchecked. Verified via automated pytest suite (`7/7 PASS`) and live feature toggle simulation (`PASS`).
+4. **4-Layer Generic Domain Light-Theme Invariant Architecture**:
+   - Multi-domain benchmark suite (`test_multi_domain_synthesis.py`) verifying diverse pitches (Bakery, Babysitter Care, Laundry, Luxury Rental, Tutoring, KDS Board).
 
 ---
 
@@ -73,4 +74,4 @@ When starting a new chat session:
 4. **Resume Next Action**: Execute Item #1 in the Planned & Unexecuted Roadmap (Live Agent Execution Graph Visualizer).
 
 ---
-*Updated by Antigravity on 2026-08-06.*
+*Updated by Antigravity on 2026-08-07.*
