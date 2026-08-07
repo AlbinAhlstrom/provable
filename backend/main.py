@@ -1309,7 +1309,7 @@ def kickstart_synthesize(req: KickstartSynthesisRequest):
     schema["pitch"] = pitch_text
     schema["enabled_features"] = blocks_list
 
-    # 2. Seed extracted requirements into store
+    # 2. Seed extracted requirements into store as Done
     for rspec in reqs_list:
         try:
             store.create_requirement({
@@ -1318,11 +1318,27 @@ def kickstart_synthesize(req: KickstartSynthesisRequest):
                 "description": rspec.get("description", rspec.get("title", "")),
                 "type": rspec.get("type", "Domain Invariant"),
                 "priority": rspec.get("priority", "High"),
-                "status": "Backlog",
-                "tests": []
+                "status": "Done",
+                "tests": rspec.get("tests", [])
             })
         except Exception as e:
             print(f"Requirement creation notice ({rspec.get('id')}): {e}")
+
+    # Seed selected block requirements into store as Done
+    for blk in blocks_list:
+        try:
+            info = resolve_canonical_feature(blk)
+            for r_id in info['req_ids']:
+                store.create_requirement({
+                    "id": r_id,
+                    "title": f"Capability Block {info['canonical_key'].upper()} Active",
+                    "description": f"The application shall enable and support the {info['canonical_key']} feature workflow.",
+                    "type": "Requirement",
+                    "priority": "High",
+                    "status": "Done"
+                })
+        except Exception as e:
+            print(f"Block requirement creation notice ({blk}): {e}")
 
     # Save synthesized state
     store.save_kickstart_state({
@@ -1331,6 +1347,7 @@ def kickstart_synthesize(req: KickstartSynthesisRequest):
         "extracted_requirements": reqs_list,
         "synthesized": True
     })
+
 
     # 3. Call synthesis pipeline
     syn_req = DomainSynthesisRequest(domain_schema=schema)
