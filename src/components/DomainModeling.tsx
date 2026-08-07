@@ -5,10 +5,10 @@ interface DomainModelingProps {
   onDomainSynthesized?: () => void;
 }
 
-export const DomainModeling: React.FC<DomainModelingProps> = ({ onDomainSynthesized }) => {
   const [pitch, setPitch] = useState<string>(
-    'We operate a pizzeria. Customers place orders specified by pizza name, size, quantity, and price. The customer will get an estimated pickup time based on how many other orders have been made recently. The order is then marked Ready for pickup'
+    'An app to order pizzas'
   );
+
   const [loading, setLoading] = useState<boolean>(false);
   const [schema, setSchema] = useState<any>(null);
   const [diagramTab, setDiagramTab] = useState<'class' | 'sequence'>('class');
@@ -177,11 +177,10 @@ export const DomainModeling: React.FC<DomainModelingProps> = ({ onDomainSynthesi
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.75rem', alignItems: 'center' }}>
           <button
             type="button"
-            disabled={!!schema || loading || synthesizing}
-            style={{ background: 'transparent', border: 'none', color: '#38bdf8', cursor: (schema || loading || synthesizing) ? 'not-allowed' : 'pointer', fontSize: '0.85rem', textDecoration: 'underline', opacity: schema ? 0.5 : 1 }}
-            onClick={() => setPitch('We operate a pizzeria. Customers place orders specified by pizza name, size, quantity, and price. The customer will get an estimated pickup time based on how many other orders have been made recently. The order is then marked Ready for pickup')}
+            onClick={() => setPitch('An app to order pizzas')}
           >
             📋 Load Pizzeria Benchmark Pitch
+
           </button>
           <button
             onClick={handleDiscover}

@@ -8,8 +8,9 @@ export interface KickstartStudioProps {
 
 export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesized }) => {
   const [pitch, setPitch] = useState<string>(
-    'We operate a pizzeria. Customers place orders specified by pizza name, size, quantity, and price. The customer will get an estimated pickup time based on how many other orders have been made recently. The order is then marked Ready for pickup'
+    'An app to order pizzas'
   );
+
 
   const [building, setBuilding] = useState<boolean>(false);
   const [resetting, setResetting] = useState<boolean>(false);
@@ -208,9 +209,10 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
       {/* Domain Examples Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
         <div 
-          onClick={() => setPitch('We operate a wood-fired pizzeria. Customers order by pizza name, size, quantity, and price. They receive a live estimated pickup time based on queue volume and track status from baking to ready for pickup.')}
+          onClick={() => setPitch('An app to order pizzas')}
           style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.75rem', padding: '1rem', cursor: 'pointer' }}
         >
+
           <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🍕</div>
           <strong style={{ display: 'block', color: '#f8fafc', marginBottom: '0.25rem' }}>Artisanal Pizzeria</strong>
           <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Menu customizer, dynamic pickup queue &amp; live tracking.</span>

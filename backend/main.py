@@ -3739,22 +3739,26 @@ def get_active_domain_params() -> dict:
         if status == 'Disabled':
             continue
 
+        is_internal_ddd = any(r_id.upper().startswith(p) for p in ['REQ-DOM', 'REQ-SVC', 'REQ-PERS', 'REQ-API', 'REQ-BRAND', 'REQ-DELIVERY'])
+        if is_internal_ddd:
+            if r_id == 'REQ-BRAND-001':
+                txt = r.get('statement') or r.get('title') or r.get('description') or ''
+                if "'" in txt:
+                    parts = txt.split("'")
+                    if len(parts) >= 3:
+                        brand_title = parts[1]
+            elif r_id == 'REQ-DELIVERY-001':
+                txt = r.get('statement') or r.get('title') or r.get('description') or ''
+                if "'" in txt:
+                    parts = txt.split("'")
+                    if len(parts) >= 3:
+                        delivery_sla = parts[1]
+            continue
+
         info = resolve_canonical_feature(r_id)
-        if any(r_id.upper() == req_var.upper() for req_var in info['req_ids']):
-            if info['canonical_key'] not in enabled_features:
-                enabled_features.append(info['canonical_key'])
-        elif r_id == 'REQ-BRAND-001':
-            txt = r.get('statement') or r.get('title') or r.get('description') or ''
-            if "'" in txt:
-                parts = txt.split("'")
-                if len(parts) >= 3:
-                    brand_title = parts[1]
-        elif r_id == 'REQ-DELIVERY-001':
-            txt = r.get('statement') or r.get('title') or r.get('description') or ''
-            if "'" in txt:
-                parts = txt.split("'")
-                if len(parts) >= 3:
-                    delivery_sla = parts[1]
+        if info['canonical_key'] not in enabled_features:
+            enabled_features.append(info['canonical_key'])
+
 
     return {
         "pitch": "Pizzeria",

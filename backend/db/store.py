@@ -497,7 +497,8 @@ def get_kickstart_state() -> Dict[str, Any]:
         except Exception:
             pass
     return {
-        "business_pitch": "We operate a pizzeria. Customers place orders specified by pizza name, size, quantity, and price. The customer will get an estimated pickup time based on how many other orders have been made recently. The order is then marked Ready for pickup",
+        "business_pitch": "An app to order pizzas",
+
         "blocks": [],
         "extracted_requirements": [],
         "synthesized": False
