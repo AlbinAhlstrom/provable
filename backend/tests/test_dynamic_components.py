@@ -78,3 +78,31 @@ def test_step2_api_component_flow():
         reqs_after = store.get_all_requirements()
         assert not any(r["id"] == "REQ-CMP-FLAPPY_BIRD_GAME-001" for r in reqs_after)
 
+
+def test_step3_sidebar_api_contracts():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_db = os.path.join(tmpdir, "test_provable3.db")
+        store.set_active_db(test_db)
+        store.init_db()
+
+        store.create_component_requirement({
+            "id": "REQ-CMP-PAYMENT_SYSTEM-001",
+            "title": "Payment System",
+            "description": "Stripe/PayPal payment gateway component",
+            "canonical_key": "payment_system",
+            "component_type": "custom",
+            "meta": {"prompt": "Payment system"}
+        })
+
+        reqs = store.get_all_requirements()
+        active_ids = [r["id"] for r in reqs if r["status"] != "Disabled"]
+        assert "REQ-CMP-PAYMENT_SYSTEM-001" in active_ids
+
+        from main import delete_dynamic_component, ComponentDeleteRequest
+        res = delete_dynamic_component(ComponentDeleteRequest(canonical_key="payment_system"))
+        assert res["success"] is True
+
+        reqs_after = store.get_all_requirements()
+        assert not any(r["id"] == "REQ-CMP-PAYMENT_SYSTEM-001" for r in reqs_after)
+
+
