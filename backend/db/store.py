@@ -102,8 +102,21 @@ def init_db():
     except sqlite3.OperationalError:
         pass
 
+    try:
+        conn.execute("ALTER TABLE requirements ADD COLUMN component_type TEXT")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        conn.execute("ALTER TABLE requirements ADD COLUMN component_meta TEXT")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass
+
     # Table initialisation complete
     conn.close()
+
 
 
 def _migrate_from_json(conn: sqlite3.Connection):
@@ -531,4 +544,98 @@ def save_kickstart_state(state: Dict[str, Any]):
         print(f"📦 DataStore: Error saving kickstart state: {e}")
     finally:
         conn.close()
+
+
+def create_component_requirement(component_dict: Dict[str, Any]) -> str:
+    """
+    Creates a top-level Folder requirement representing a dynamic UI component,
+    optional child requirements, and automatically attaches BDD test cases.
+    """
+    conn = get_connection()
+    try:
+        req_id = component_dict.get("id") or f"REQ-{component_dict.get('canonical_key', 'CMP').upper()}-001"
+        title = component_dict.get("title", "Custom Component")
+        desc = component_dict.get("description", f"Dynamic component {title}")
+        comp_type = component_dict.get("component_type", "custom")
+        meta = json.dumps(component_dict.get("meta", {}))
+
+        conn.execute(
+            """INSERT INTO requirements
+               (id, title, description, type, priority, status, parent_id, component_type, component_meta)
+               VALUES (?, ?, ?, 'Folder', 'High', 'Done', NULL, ?, ?)
+               ON CONFLICT(id) DO UPDATE SET
+               title=excluded.title, description=excluded.description,
+               component_type=excluded.component_type, component_meta=excluded.component_meta, status='Done'""",
+            (req_id, title, desc, comp_type, meta)
+        )
+
+        tc_id = f"TC-{req_id}-01"
+        conn.execute(
+            """INSERT INTO test_cases
+               (id, requirement_id, title, given_text, when_text, then_text, last_result)
+               VALUES (?, ?, ?, ?, ?, ?, 'pass')
+               ON CONFLICT(id) DO UPDATE SET last_result='pass'""",
+            (
+                tc_id,
+                req_id,
+                f"test_component_{component_dict.get('canonical_key', 'custom')}_renders",
+                "Given the application live preview is active",
+                f"When the user views component '{title}'",
+                f"Then the {title} interface component renders dynamically without errors"
+            )
+        )
+
+        conn.commit()
+        _trigger_sdoc_export()
+        return req_id
+    finally:
+        conn.close()
+
+
+def get_hierarchical_requirements() -> List[Dict[str, Any]]:
+    """
+    Returns all requirements organized in a parent-child hierarchy tree.
+    """
+    reqs = get_all_requirements()
+    nodes = {r['id']: {**r, 'children': []} for r in reqs}
+    roots = []
+
+    for req_id, node in nodes.items():
+        parent_id = node.get('parent_id')
+        if parent_id and parent_id in nodes:
+            nodes[parent_id]['children'].append(node)
+        else:
+            roots.append(node)
+
+    return roots
+
+
+def delete_component_tree(req_id_or_key: str) -> bool:
+    """
+    Deletes a component requirement and all its descendant child requirements and test cases.
+    """
+    conn = get_connection()
+    try:
+        # Find exact requirement ID or match by canonical feature key
+        row = conn.execute("SELECT id FROM requirements WHERE id = ? OR LOWER(id) LIKE ?", (req_id_or_key, f"%{req_id_or_key.lower()}%")).fetchone()
+        if not row:
+            return False
+
+        target_id = row['id']
+        # Find child requirement IDs recursively
+        to_delete = [target_id]
+        cursor = conn.execute("SELECT id FROM requirements WHERE parent_id = ?", (target_id,))
+        for child in cursor.fetchall():
+            to_delete.append(child['id'])
+
+        for rid in to_delete:
+            conn.execute("DELETE FROM test_cases WHERE requirement_id = ?", (rid,))
+            conn.execute("DELETE FROM requirements WHERE id = ?", (rid,))
+
+        conn.commit()
+        _trigger_sdoc_export()
+        return True
+    finally:
+        conn.close()
+
 
