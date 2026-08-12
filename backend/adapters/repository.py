@@ -88,7 +88,6 @@ class SqliteRequirementRepository(AbstractRequirementRepository):
             assigned_agents=raw.get("assignedAgents") or raw.get("assigned_agents") or [],
             proposed_code=raw.get("proposedCode") or raw.get("proposed_code"),
             feedback=raw.get("feedback"),
-            jira_key=raw.get("jiraKey") or raw.get("jira_key"),
             dependencies=raw.get("dependencies") or [],
             component_type=raw.get("component_type"),
             component_meta=raw.get("component_meta")
@@ -110,7 +109,6 @@ class SqliteRequirementRepository(AbstractRequirementRepository):
                 assigned_agents=raw.get("assignedAgents") or raw.get("assigned_agents") or [],
                 proposed_code=raw.get("proposedCode") or raw.get("proposed_code"),
                 feedback=raw.get("feedback"),
-                jira_key=raw.get("jiraKey") or raw.get("jira_key"),
                 dependencies=raw.get("dependencies") or [],
                 component_type=raw.get("component_type"),
                 component_meta=raw.get("component_meta")

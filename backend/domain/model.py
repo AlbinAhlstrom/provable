@@ -152,7 +152,6 @@ class Requirement:
     assigned_agents: List[str] = field(default_factory=list)
     proposed_code: Optional[str] = None
     feedback: Optional[str] = None
-    jira_key: Optional[str] = None
     dependencies: List[str] = field(default_factory=list)
     component_type: Optional[str] = None
     component_meta: Optional[str] = None
@@ -214,7 +213,6 @@ class Requirement:
             'priority': self.priority,
             'status': self.status,
             'parentId': self.parent_id,
-            'jiraKey': self.jira_key,
             'dependencies': self.dependencies,
             'assignedAgents': self.assigned_agents,
             'proposedCode': self.proposed_code,

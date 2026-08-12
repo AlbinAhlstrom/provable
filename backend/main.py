@@ -36,13 +36,7 @@ from entrypoints.routers.components import (
     get_component_suggestions, get_active_domain_params,
     resolve_canonical_feature, sync_workspace_app_shell, CANONICAL_FEATURE_MAP
 )
-from entrypoints.routers.reviews import (
-    get_diff, get_diff_files, get_reviews, approve_code,
-    merge_code, report_bug, checkout_preview
-)
-from entrypoints.routers.agents import (
-    get_logs, get_agent_status, trigger_agents, trigger_ticket, abandon_ticket
-)
+
 from config_loader import get_workspace_base
 from onboarding.verification import audit_domain_vocabulary, verify_preview_health
 from onboarding.templates.workspace_scaffold import create_default_workspace_scaffold

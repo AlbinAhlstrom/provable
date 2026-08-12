@@ -2,7 +2,7 @@ import React from 'react';
 
 interface CoverageHubProps {
   coverageData: any;
-  agentStatus: {
+  agentStatus?: {
     active: boolean;
     ticket_id: string | null;
     step: string;
@@ -19,7 +19,7 @@ interface CoverageHubProps {
 
 const CoverageHub: React.FC<CoverageHubProps> = ({
   coverageData,
-  agentStatus,
+  agentStatus = { active: false, ticket_id: null, step: 'idle', attempt: 0, max_attempts: 3, last_update: '' },
   requirements,
   setCurrentView,
   setSelectedReqId,

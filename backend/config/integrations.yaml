@@ -3,13 +3,7 @@ allure:
   enabled: true
   project_id: default
   server_url: http://localhost:5050
-jira:
-  api_token_env: JIRA_API_TOKEN
-  auto_create_project: true
-  base_url: ''
-  email: ''
-  enabled: false
-  project_key: ''
+
 project:
   workspace_path: C:\Users\ahlst\Documents\GitHub\provable\workspace
 projects:

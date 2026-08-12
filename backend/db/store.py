@@ -232,7 +232,6 @@ def get_requirements_for_frontend() -> List[Dict]:
             'priority': r.get('priority', 'Med'),
             'status': r['status'],
             'parentId': r.get('parent_id'),
-            'jiraKey': r.get('jira_key'),
             'dependencies': r.get('dependencies', []),
             'assignedAgents': r.get('assigned_agents', []),
             'proposedCode': r.get('proposed_code'),
@@ -275,18 +274,13 @@ def create_requirement(data: Dict) -> Dict:
 def update_requirement(req_id: str, fields: Dict) -> Optional[Dict]:
     conn = get_connection()
     
-    # Fetch current jira_key and status to check for transitions
-    row = conn.execute("SELECT jira_key, status FROM requirements WHERE id = ?", (req_id,)).fetchone()
-    current_status = row['status'] if row else None
-    jira_key = row['jira_key'] if row else None
-    
     allowed = {
         'title', 'description', 'type', 'priority', 'status',
-        'parent_id', 'jira_key', 'sdoc_uid', 'dependencies',
+        'parent_id', 'sdoc_uid', 'dependencies',
         'assigned_agents', 'proposed_code', 'feedback',
     }
     camel_map = {
-        'parentId': 'parent_id', 'jiraKey': 'jira_key', 'sdocUid': 'sdoc_uid',
+        'parentId': 'parent_id', 'sdocUid': 'sdoc_uid',
         'assignedAgents': 'assigned_agents', 'proposedCode': 'proposed_code',
     }
     updates = {}
@@ -307,16 +301,6 @@ def update_requirement(req_id: str, fields: Dict) -> Optional[Dict]:
     conn.commit()
     conn.close()
     
-    # Trigger Jira sync if status changed
-    new_status = updates.get('status')
-    new_jira_key = updates.get('jira_key') or jira_key
-    if new_status and new_status != current_status and new_jira_key:
-        try:
-            from integrations.jira_client import update_ticket_status
-            update_ticket_status(new_jira_key, new_status)
-        except Exception as e:
-            print(f"📦 DataStore: Failed to update status in Jira for {new_jira_key}: {e}")
-            
     _trigger_sdoc_export()
     return get_requirement(req_id)
 

@@ -45,12 +45,6 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"📦 Startup: Failed to sync SDoc: {e}")
 
-        try:
-            from integrations.jira_client import sync_jira_to_db
-            sync_jira_to_db()
-        except Exception as e:
-            print(f"📦 Startup: Failed to sync Jira: {e}")
-
         # Auto-create Allure project if enabled
         try:
             from integrations.allure_client import load_allure_config, get_allure_project_id
@@ -89,14 +83,10 @@ from entrypoints.routers.requirements import router as requirements_router
 from entrypoints.routers.testing import router as testing_router
 from entrypoints.routers.kickstart import router as kickstart_router
 from entrypoints.routers.components import router as components_router
-from entrypoints.routers.reviews import router as reviews_router
-from entrypoints.routers.agents import router as agents_router
 
 app.include_router(projects_router)
 app.include_router(requirements_router)
 app.include_router(testing_router)
 app.include_router(kickstart_router)
 app.include_router(components_router)
-app.include_router(reviews_router)
-app.include_router(agents_router)
 
