@@ -8,7 +8,7 @@ and extracts custom domain business rules to seed into Provable's StrictDoc/SQLi
 
 import re
 import json
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 FEATURE_BLOCK_CATALOG = [
     {
@@ -17,8 +17,8 @@ FEATURE_BLOCK_CATALOG = [
         "icon": "📋",
         "category": "Customer Experience",
         "description": "Interactive grid view with category filters, product search, pricing, and detail modals.",
-        "keywords": ["product", "menu", "item", "catalog", "pizza", "furniture", "book", "listing", "store", "shop"],
-        "default_selected": True
+        "keywords": ["product", "menu", "item", "catalog", "pizza", "pizzeria", "bakery", "bread", "food", "furniture", "book_item", "listing", "store", "shop"],
+        "default_selected": False
     },
     {
         "id": "shopping_cart",
@@ -26,17 +26,17 @@ FEATURE_BLOCK_CATALOG = [
         "icon": "🛒",
         "category": "E-Commerce",
         "description": "Slide-out cart drawer, quantity modifiers, price calculations, and checkout form.",
-        "keywords": ["cart", "order", "buy", "checkout", "purchase", "pay", "pizza", "retail", "shop", "price"],
-        "default_selected": True
+        "keywords": ["cart", "order", "buy", "checkout", "purchase", "pay", "retail", "shop", "price"],
+        "default_selected": False
     },
     {
         "id": "order_tracking",
         "name": "Live Order Tracking & Pipeline",
         "icon": "📦",
         "category": "Operations",
-        "description": "Real-time visual status pipeline (Placed → Baking/Processing → Ready → Delivered).",
+        "description": "Real-time visual status pipeline (Placed → Processing → Ready → Delivered).",
         "keywords": ["track", "status", "delivery", "dispatch", "order", "pipeline", "progress", "eta", "shipment"],
-        "default_selected": True
+        "default_selected": False
     },
     {
         "id": "user_auth",
@@ -44,7 +44,7 @@ FEATURE_BLOCK_CATALOG = [
         "icon": "👤",
         "category": "Security",
         "description": "User login/signup modals, saved addresses, and order history view.",
-        "keywords": ["user", "customer", "account", "login", "profile", "auth", "member", "signup"],
+        "keywords": ["login", "signup", "user_auth", "authentication", "account_login", "sign_in"],
         "default_selected": False
     },
     {
@@ -62,8 +62,8 @@ FEATURE_BLOCK_CATALOG = [
         "icon": "🏪",
         "category": "Management",
         "description": "Kitchen display system / admin metrics, status update toggles, and inventory counts.",
-        "keywords": ["admin", "dashboard", "kitchen", "cook", "manage", "merchant", "staff", "inventory", "batch", "oven"],
-        "default_selected": True
+        "keywords": ["admin", "dashboard", "kitchen", "cook", "manage", "merchant", "staff", "inventory", "batch", "kds"],
+        "default_selected": False
     },
     {
         "id": "reviews_ratings",
@@ -72,9 +72,33 @@ FEATURE_BLOCK_CATALOG = [
         "category": "Engagement",
         "description": "Customer feedback collection, star rating components, and review list display.",
         "keywords": ["review", "rating", "star", "feedback", "comment", "score"],
-        "default_selected": True
+        "default_selected": False
+    },
+    {
+        "id": "flappy_bird",
+        "name": "Flappy Bird Arcade Mini-Game",
+        "icon": "🎮",
+        "category": "Gaming & Entertainment",
+        "description": "Interactive Canvas 2D game with score tracking, gravity physics, and high scores.",
+        "keywords": ["flappy", "flappy_bird", "flappybird"],
+        "default_selected": False
     }
 ]
+
+
+def extract_brand_name_from_pitch(pitch: str) -> Optional[str]:
+    """
+    Extracts explicit brand title from pitch prompts matching patterns like 'called X' or 'named X'.
+    Prevents hardcoded brand overrides.
+    """
+    match = re.search(r'\b(?:called|named)\s+([^,.\n]+?)(?:\s+(?:with|that|for|and|\.|,|$))', pitch, re.IGNORECASE)
+    if match:
+        raw_name = match.group(1).strip()
+        # Strip quotes if present
+        clean_name = raw_name.strip('\'" ')
+        if clean_name and len(clean_name) <= 50:
+            return clean_name
+    return None
 
 
 def analyze_pitch_for_kickstart(pitch: str) -> Dict[str, Any]:
@@ -86,11 +110,26 @@ def analyze_pitch_for_kickstart(pitch: str) -> Dict[str, Any]:
     pitch_words = [w.strip('s.,!?') for w in pitch_lower.split()]
     pitch_text_clean = " ".join(pitch_words) + " " + pitch_lower
     
+    # Check pitch domain intent keywords
+    is_game_or_tool_pitch = any(k in pitch_text_clean for k in ["game", "flappy", "arcade", "puzzle", "calculator", "tool", "widget"])
+    is_service_booking_pitch = any(k in pitch_text_clean for k in ["sitter", "babysitter", "nanny", "tutor", "appointment", "book", "calendar", "schedule", "slot", "care", "clinic"])
+    is_dashboard_pitch = any(k in pitch_text_clean for k in ["admin", "dashboard", "kitchen", "cook", "kds", "metrics", "analytics"])
+    
+    is_explicit_ecom_pitch = any(k in pitch_text_clean for k in ["shop", "buy", "cart", "store", "pizza", "pizzeria", "product", "bakery", "retail", "checkout", "menu"])
+
     # 1. Match catalog blocks dynamically based on pitch relevance
     analyzed_blocks = []
     for block in FEATURE_BLOCK_CATALOG:
         match_count = sum(1 for kw in block["keywords"] if kw in pitch_text_clean)
-        is_recommended = match_count > 0 or block.get("default_selected", False)
+        
+        # Only apply default_selected e-commerce blocks if pitch is an e-commerce pitch or has no specific domain intent
+        if is_game_or_tool_pitch or is_service_booking_pitch or is_dashboard_pitch:
+            if is_explicit_ecom_pitch:
+                is_recommended = match_count > 0 or block.get("default_selected", False)
+            else:
+                is_recommended = match_count > 0
+        else:
+            is_recommended = match_count > 0 or block.get("default_selected", False)
         
         analyzed_blocks.append({
             "id": block["id"],

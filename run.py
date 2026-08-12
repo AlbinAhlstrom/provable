@@ -121,18 +121,25 @@ def kill_port_occupants(ports=[8000, 5173, 5174]):
         except Exception as e:
             print(f"[setup] Port {port} cleanup notice: {e}", flush=True)
 
+def is_port_in_use(port: int) -> bool:
+    try:
+        with socket.create_connection(('localhost', port), timeout=0.5):
+            return True
+    except OSError:
+        return False
+
+
 def wait_for_port(port=8000, timeout=15):
     print(f"[backend] Waiting for backend API to be ready on port {port}...", flush=True)
     start = time.time()
     while time.time() - start < timeout:
-        try:
-            with socket.create_connection(('localhost', port), timeout=1):
-                print(f"[backend] Backend API ready on port {port}!", flush=True)
-                return True
-        except OSError:
-            time.sleep(0.5)
+        if is_port_in_use(port):
+            print(f"[backend] Backend API ready on port {port}!", flush=True)
+            return True
+        time.sleep(0.5)
     print(f"[backend] Warning: Backend API port {port} wait timed out.", flush=True)
     return False
+
 
 def main():
     print(f"=== Provable Application Launcher (OS: {sys.platform}) ===", flush=True)
@@ -192,8 +199,9 @@ def main():
         print(f"[allure] Docker notification: {e}", flush=True)
 
     # 4. Start Development Services (Scoped reload to backend/ directory, excluding log/db files)
+    run_server_script = os.path.join(backend_dir, "run_server.py")
     backend_cmd = [
-        py_exe, "-m", "uvicorn", "main:app",
+        py_exe, run_server_script, "main:app",
         "--reload",
         "--reload-dir", backend_dir,
         "--reload-exclude", "*.log",
@@ -220,8 +228,12 @@ def main():
         if not os.path.exists(os.path.join(ws_dir, "node_modules")):
             print("[preview] Running npm install in workspace...", flush=True)
             subprocess.run(npm_cmd + ["install"], cwd=ws_dir, check=False)
-        print("[preview] Starting Workspace Preview Vite dev server on port 5174...", flush=True)
-        start_process(npm_cmd + ["run", "dev"], cwd=ws_dir, prefix="[preview]")
+        if not is_port_in_use(5174):
+            print("[preview] Starting Workspace Preview Vite dev server on port 5174...", flush=True)
+            start_process(npm_cmd + ["run", "dev"], cwd=ws_dir, prefix="[preview]")
+        else:
+            print("[preview] Workspace Preview active on port 5174 (managed by backend server manager).", flush=True)
+
 
     print("\n[provable] All services running continuously with auto-recovery enabled. Press Ctrl+C to stop.\n", flush=True)
     try:

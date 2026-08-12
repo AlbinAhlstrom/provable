@@ -26,22 +26,9 @@ graph TD
 
 ## 🏛️ Key Architectural Features
 
-### 1. Zero Template Leakage & Strict Vocabulary Isolation
-Older systems relied on static code string templates containing hardcoded retail terms (`Batch`, `OrderLine`, `sku`, `ref`, `allocate`). The Universal AST Generator completely eliminates template leakage by:
-- Enforcing strict negative prompt constraints in [`backend/prompts/domain_discovery.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/prompts/domain_discovery.md):
-  > *"CRITICAL INSTRUCTION: You MUST use vocabulary native to the user's business domain (e.g. for Pizzeria: PizzaOrder, OvenStation, OrderItem). You MUST NOT use generic or unrelated terms like 'SKU', 'Batch', 'allocate', or '_purchased_quantity' unless the user's pitch explicitly describes retail stock allocation."*
-- Dynamically parsing `DomainSchema` fields, methods, value objects, commands, events, and exceptions to render native Python code.
-
-### 2. Generated 6-Part DDD Backend Architecture
-
-| Module File | Architectural Responsibility | Dynamic AST Generation Details |
-| :--- | :--- | :--- |
-| **`domain/model.py`** | Pure Domain Aggregate Roots & Value Objects | Renders `@dataclass(frozen=True)` value objects, aggregate root classes with `version_number` locks, and native business methods. |
-| **`domain/events.py`** | Domain Events | Renders dataclasses for events emitted during aggregate state transitions (e.g., `OrderPlaced`, `BakingStarted`). |
-| **`domain/commands.py`** | Command Objects | Renders dataclasses for user-initiated actions (e.g., `PlacePizzaOrder`, `StartBaking`). |
-| **`adapters/orm.py`** | Imperative SQLAlchemy Mappers | Generates SQLAlchemy `Table` definitions, relationship mappers, and DB-enforced optimistic concurrency locks (`version_id_col`). |
-| **`src/bootstrap.py`** | Dependency Injection Container | Generates `bootstrap.bootstrap()` container injecting `uow` and `publish` handlers via `inspect.signature`. |
-| **`src/App.tsx`** | React 18 Frontend Application | Renders dynamic domain forms for commands and real-time CQRS read view tables. |
+### 3. Zero Hardcoded Component & Pre-Selected Block Invariant
+- **Zero Default Pre-Selected Feature Blocks**: All feature blocks in [`block_catalog.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/block_catalog.py) default to `default_selected: False`. Feature topology is 100% pitch-driven.
+- **Contract-Driven Modular AST Compilation**: Zero hardcoded mini-games, custom builders, or delivery SLA badges in template strings. Specialized component containers (e.g. `__FLAPPY_HOOKS_JSX__`, `__BUILDER_CONTAINER_JSX__`) are conditionally compiled **ONLY when explicitly present in the site AST active keys**. Non-matching prompts (e.g., `"A chess game"`) compile clean, isolated custom component nodes without template leakage.
 
 ---
 

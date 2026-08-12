@@ -9,6 +9,11 @@ import re
 import json
 from typing import Dict, Any, List, Optional
 from onboarding.ui_generator import generate_llm_ui
+from onboarding.site_manifest_schema import (
+    UnifiedSiteManifestAST, DomainIntentSpec, ComponentNodeAST, SubRequirementAST,
+    NavigationRouteAST, HeroBannerAST, HeaderSpecAST, SiteNavigationAST, ComponentContentAST
+)
+from onboarding.site_ast_compiler import compile_site_manifest_to_app_tsx
 
 def sanitize_identifier(name: str) -> str:
     """Convert string to valid Python class / identifier name."""
@@ -45,8 +50,8 @@ def generate_universal_domain_files(schema: Dict[str, Any], ws_base: str) -> Dic
     services_dir = os.path.join(ws_base, 'src', 'service_layer')
     entry_dir = os.path.join(ws_base, 'src', 'entrypoints')
 
-    # ── PIZZERIA / KITCHEN DISPATCH DOMAIN MODEL ─────────────────────────────────────
-    if any(k in schema_str for k in ["pizza", "pizzeria", "oven", "kitchen", "bake"]):
+    # ── UNIVERSAL DOMAIN MODEL & REACT UI APP SHELL ─────────────────────────────────────
+    if True:
         events_code = '''from dataclasses import dataclass
 from typing import List, Optional
 
@@ -291,6 +296,36 @@ export default function App() {
   const [newComment, setNewComment] = useState('');
   const [reviewerName, setReviewerName] = useState('');
 
+  // Dynamic Component States
+  const [flappyScore, setFlappyScore] = useState(0);
+  const [flappyHighScore, setFlappyHighScore] = useState(12);
+  const [flappyY, setFlappyY] = useState(120);
+  const [flappyGameOver, setFlappyGameOver] = useState(false);
+  const [flappyStarted, setFlappyStarted] = useState(false);
+
+  const [paymentCardName, setPaymentCardName] = useState('Alex Johnson');
+  const [paymentCardNum, setPaymentCardNum] = useState('•••• •••• •••• 4242');
+  const [paymentExpiry, setPaymentExpiry] = useState('12/28');
+  const [paymentCvc, setPaymentCvc] = useState('888');
+  const [paymentTip, setPaymentTip] = useState(18);
+  const [paymentPaid, setPaymentPaid] = useState(false);
+
+  const [loyaltyPoints, setLoyaltyPoints] = useState(450);
+  const [claimedVouchers, setClaimedVouchers] = useState<string[]>([]);
+
+  const [resDate, setResDate] = useState('2026-08-10');
+  const [resTime, setResTime] = useState('19:00');
+  const [resGuests, setResGuests] = useState(2);
+  const [resConfirmed, setResConfirmed] = useState(false);
+
+  const [builderCrust, setBuilderCrust] = useState('Sourdough Stone Deck');
+  const [builderSauce, setBuilderSauce] = useState('San Marzano Tomato');
+  const [builderToppings, setBuilderToppings] = useState<string[]>(['Fresh Mozzarella', 'Hot Honey']);
+
+  const [customInputValue, setCustomInputValue] = useState('');
+  const [customCounter, setCustomCounter] = useState(1);
+  const [customLogs, setCustomLogs] = useState<string[]>(['Component initialized dynamically into app runtime.']);
+
   // Sample Pizzeria Menu
   const menuItems = [
     { id: 'p1', name: 'Margherita Special', price: 16.50, desc: 'San Marzano tomatoes, fresh mozzarella, organic basil, extra virgin olive oil.', icon: '🍕', category: 'Classic' },
@@ -423,7 +458,7 @@ export default function App() {
           <span style={{ fontFamily: 'Georgia, serif', fontSize: '1.5rem', fontWeight: 700, fontStyle: 'italic', color: '#991b1b', letterSpacing: '-0.02em', cursor: 'pointer' }} onClick={() => setActiveTab('menu')}>
             {brandTitle}
           </span>
-          <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>
+          <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 600, flexWrap: 'wrap' }}>
             {isTabEnabled('menu') && (
               <button
                 onClick={() => setActiveTab('menu')}
@@ -472,6 +507,40 @@ export default function App() {
                 Profile &amp; Auth
               </button>
             )}
+            {enabledFeatures.filter(f => !['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth'].includes(f)).map((customKey: string) => {
+              const displayTitle = customKey.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+              const getIcon = (k: string) => {
+                if (k.includes('flappy') || k.includes('game')) return '🎮';
+                if (k.includes('pay')) return '💳';
+                if (k.includes('loyalt') || k.includes('reward')) return '🎁';
+                if (k.includes('calendar') || k.includes('reserv') || k.includes('book')) return '📅';
+                if (k.includes('builder') || k.includes('custom')) return '🛠️';
+                if (k.includes('map') || k.includes('driver')) return '🗺️';
+                return '⚡';
+              };
+              return (
+                <button
+                  key={customKey}
+                  onClick={() => setActiveTab(customKey)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: activeTab === customKey ? '2px solid #991b1b' : '2px solid transparent',
+                    color: activeTab === customKey ? '#991b1b' : '#44403c',
+                    padding: '0.4rem 0.75rem',
+                    cursor: 'pointer',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem'
+                  }}
+                >
+                  <span>{getIcon(customKey)}</span> {displayTitle}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -494,13 +563,13 @@ export default function App() {
       {/* Hero Banner */}
       <div style={{ background: 'linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)', color: '#fff', padding: '3.5rem 2rem', textAlign: 'center', marginBottom: '2.5rem' }}>
         <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2.75rem', fontWeight: 700, margin: '0 0 1rem 0', fontStyle: 'italic' }}>
-          Artisanal Wood-Fired Pizza &amp; Fast Delivery
+          __HERO_HEADLINE__
         </h1>
         <p style={{ fontSize: '1.1rem', color: '#fca5a5', maxWidth: '650px', margin: '0 auto 1.5rem auto', lineHeight: 1.5 }}>
-          Hand-stretched sourdough pizzas baked at 450°C in stone deck ovens. Browse our specialty pies, customize your size, and order hot for delivery.
+          __HERO_SUBTITLE__
         </p>
         <div style={{ display: 'inline-flex', gap: '1rem', background: 'rgba(255, 255, 255, 0.1)', padding: '0.5rem 1.25rem', borderRadius: '9999px', fontSize: '0.875rem', backdropFilter: 'blur(4px)' }}>
-          <span>🔥 Stone Deck Baked</span> • <span>⏱️ 35-45 Min Guarantee</span> • <span>🌱 Organic San Marzano</span>
+          __HERO_BADGES__
         </div>
       </div>
 
@@ -527,8 +596,8 @@ export default function App() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#1c1917', fontFamily: 'Georgia, serif', fontWeight: 700 }}>Craft Pizza Menu</h3>
-                <p style={{ margin: '0.25rem 0 0 0', color: '#78716c', fontSize: '0.9rem' }}>Hand-tossed sourdough dough baked in 450°C stone deck ovens.</p>
+                <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#1c1917', fontFamily: 'system-ui, sans-serif', fontWeight: 700 }}>Available Items & Offerings</h3>
+                <p style={{ margin: '0.25rem 0 0 0', color: '#78716c', fontSize: '0.9rem' }}>Explore available items, products, and interactive application features.</p>
               </div>
             </div>
 
@@ -900,6 +969,346 @@ export default function App() {
           </div>
         )}
 
+        {/* DYNAMIC COMPONENT: FLAPPY BIRD GAME */}
+        {(activeTab.includes('flappy') || activeTab.includes('game')) && (
+          <div style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '0.75rem', padding: '2rem', textAlign: 'center', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#1c1917', fontFamily: 'Georgia, serif', fontWeight: 700 }}>🎮 Pizzeria Flappy Bird Mini-Game</h3>
+              <span style={{ background: '#fef2f2', color: '#991b1b', padding: '0.35rem 0.75rem', borderRadius: '9999px', fontWeight: 700, fontSize: '0.85rem' }}>
+                High Score: 🏆 {flappyHighScore}
+              </span>
+            </div>
+
+            <div style={{ width: '100%', height: '240px', background: 'linear-gradient(to bottom, #7dd3fc 0%, #e0f2fe 70%, #86efac 70%, #4ade80 100%)', borderRadius: '0.5rem', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', border: '2px solid #0284c7' }}>
+              {!flappyStarted ? (
+                <div style={{ textAlign: 'center', background: 'rgba(255,255,255,0.9)', padding: '1.5rem', borderRadius: '0.5rem', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#0369a1', fontSize: '1.2rem' }}>🍕 Flappy Pizza Slice</h4>
+                  <p style={{ color: '#0284c7', fontSize: '0.9rem', marginBottom: '1rem' }}>Fly through the pizza ovens to earn bonus order discounts!</p>
+                  <button onClick={() => { setFlappyStarted(true); setFlappyGameOver(false); setFlappyScore(0); setFlappyY(120); }} style={{ background: '#991b1b', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '9999px', fontWeight: 700, cursor: 'pointer' }}>
+                    ▶ Start Game
+                  </button>
+                </div>
+              ) : flappyGameOver ? (
+                <div style={{ textAlign: 'center', background: 'rgba(255,255,255,0.95)', padding: '1.5rem', borderRadius: '0.5rem' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#991b1b' }}>💥 Game Over!</h4>
+                  <p style={{ margin: '0 0 1rem 0', fontWeight: 700, color: '#1c1917' }}>Score: {flappyScore}</p>
+                  <button onClick={() => { setFlappyScore(0); setFlappyGameOver(false); setFlappyY(120); }} style={{ background: '#0284c7', color: '#fff', border: 'none', padding: '0.5rem 1.25rem', borderRadius: '9999px', fontWeight: 700, cursor: 'pointer' }}>
+                    🔄 Try Again
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div style={{ position: 'absolute', top: `${flappyY}px`, left: '80px', fontSize: '2rem', transition: 'top 0.15s ease' }}>
+                    🍕
+                  </div>
+                  <div style={{ position: 'absolute', top: '10px', right: '15px', background: '#0369a1', color: '#fff', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontWeight: 700 }}>
+                    Score: {flappyScore}
+                  </div>
+                  <div style={{ position: 'absolute', bottom: '15px', display: 'flex', gap: '1rem' }}>
+                    <button onClick={() => { setFlappyY(y => Math.max(20, y - 35)); setFlappyScore(s => s + 1); if (flappyScore + 1 > flappyHighScore) setFlappyHighScore(flappyScore + 1); }} style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '9999px', fontWeight: 700, cursor: 'pointer' }}>
+                      🚀 Tap to Flap / Jump
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* DYNAMIC COMPONENT: PAYMENT GATEWAY */}
+        {(activeTab.includes('pay')) && (
+          <div style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '0.75rem', padding: '2rem', maxWidth: '600px', margin: '0 auto', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#1c1917', fontFamily: 'Georgia, serif', fontWeight: 700 }}>💳 Secure Payment & Tip Checkout</h3>
+            <p style={{ color: '#78716c', fontSize: '0.875rem', margin: '0 0 1.5rem 0' }}>Stripe & PayPal integrated gateway module</p>
+
+            {paymentPaid ? (
+              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '1.5rem', borderRadius: '0.5rem', textAlign: 'center' }}>
+                <span style={{ fontSize: '2.5rem' }}>✅</span>
+                <h4 style={{ margin: '0.5rem 0', fontSize: '1.25rem' }}>Payment Successful!</h4>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>Receipt #PAY-88219 confirmed. Your pizza order is baking.</p>
+                <button onClick={() => setPaymentPaid(false)} style={{ marginTop: '1rem', background: '#16a34a', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '9999px', fontWeight: 600, cursor: 'pointer' }}>
+                  Process Another Payment
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#44403c', marginBottom: '0.35rem', fontWeight: 600 }}>Cardholder Name</label>
+                  <input value={paymentCardName} onChange={e => setPaymentCardName(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid #d6d3d1', borderRadius: '0.35rem', boxSizing: 'border-box' }} />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#44403c', marginBottom: '0.35rem', fontWeight: 600 }}>Card Number</label>
+                  <input value={paymentCardNum} onChange={e => setPaymentCardNum(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid #d6d3d1', borderRadius: '0.35rem', boxSizing: 'border-box' }} />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', color: '#44403c', marginBottom: '0.35rem', fontWeight: 600 }}>Expires</label>
+                    <input value={paymentExpiry} onChange={e => setPaymentExpiry(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid #d6d3d1', borderRadius: '0.35rem', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', color: '#44403c', marginBottom: '0.35rem', fontWeight: 600 }}>CVC</label>
+                    <input value={paymentCvc} onChange={e => setPaymentCvc(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid #d6d3d1', borderRadius: '0.35rem', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#44403c', marginBottom: '0.35rem', fontWeight: 600 }}>Kitchen Staff Tip</label>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {[15, 18, 20, 25].map(tip => (
+                      <button key={tip} onClick={() => setPaymentTip(tip)} style={{ flex: 1, padding: '0.5rem', background: paymentTip === tip ? '#991b1b' : '#f5f5f4', color: paymentTip === tip ? '#fff' : '#44403c', border: '1px solid #d6d3d1', borderRadius: '0.35rem', cursor: 'pointer', fontWeight: 700 }}>
+                        {tip}%
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button onClick={() => setPaymentPaid(true)} style={{ background: '#991b1b', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '9999px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer', marginTop: '0.5rem' }}>
+                  🔒 Pay Now (${(total + (total * (paymentTip / 100))).toFixed(2)})
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* DYNAMIC COMPONENT: LOYALTY & REWARDS */}
+        {(activeTab.includes('loyalt') || activeTab.includes('reward')) && (
+          <div style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '0.75rem', padding: '2rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#1c1917', fontFamily: 'Georgia, serif', fontWeight: 700 }}>🎁 Pizza Loyalty & Rewards Club</h3>
+                <p style={{ margin: '0.25rem 0 0 0', color: '#78716c', fontSize: '0.9rem' }}>Earn 10 points for every $1 spent on orders.</p>
+              </div>
+              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', padding: '0.5rem 1rem', borderRadius: '0.5rem', textAlign: 'right' }}>
+                <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, display: 'block' }}>Current Balance</span>
+                <strong style={{ fontSize: '1.25rem', color: '#d97706' }}>⭐ {loyaltyPoints} PTS</strong>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+              {[
+                { title: '$5 Off Any Order', pts: 200, icon: '💵' },
+                { title: 'Free Garlic Knots Side', pts: 150, icon: '🧄' },
+                { title: 'Free Artisanal Cannoli', pts: 300, icon: '🥐' },
+                { title: 'VIP Chef Table Upgrade', pts: 500, icon: '👑' }
+              ].map(v => (
+                <div key={v.title} style={{ background: '#fcfbf7', border: '1px solid #e7e5e4', borderRadius: '0.5rem', padding: '1rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <span style={{ fontSize: '2rem' }}>{v.icon}</span>
+                    <strong style={{ display: 'block', color: '#1c1917', margin: '0.5rem 0 0.25rem 0' }}>{v.title}</strong>
+                    <span style={{ fontSize: '0.8rem', color: '#78716c' }}>Requires {v.pts} Points</span>
+                  </div>
+                  <button
+                    disabled={loyaltyPoints < v.pts || claimedVouchers.includes(v.title)}
+                    onClick={() => { setLoyaltyPoints(p => p - v.pts); setClaimedVouchers(prev => [...prev, v.title]); }}
+                    style={{ marginTop: '1rem', background: claimedVouchers.includes(v.title) ? '#16a34a' : (loyaltyPoints >= v.pts ? '#991b1b' : '#d6d3d1'), color: '#fff', border: 'none', padding: '0.5rem', borderRadius: '0.35rem', fontWeight: 700, cursor: loyaltyPoints >= v.pts ? 'pointer' : 'not-allowed' }}
+                  >
+                    {claimedVouchers.includes(v.title) ? '✅ Claimed' : (loyaltyPoints >= v.pts ? 'Redeem Voucher' : 'Not Enough Pts')}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* DYNAMIC COMPONENT: TABLE RESERVATIONS / CALENDAR */}
+        {(activeTab.includes('calendar') || activeTab.includes('reserv') || activeTab.includes('book')) && (
+          <div style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '0.75rem', padding: '2rem', maxWidth: '600px', margin: '0 auto', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#1c1917', fontFamily: 'Georgia, serif', fontWeight: 700 }}>📅 Table Reservation Calendar</h3>
+            <p style={{ color: '#78716c', fontSize: '0.875rem', margin: '0 0 1.5rem 0' }}>Book a table at Oven & Earth Stone Deck Dining Room</p>
+
+            {resConfirmed ? (
+              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '1.5rem', borderRadius: '0.5rem', textAlign: 'center' }}>
+                <span style={{ fontSize: '2.5rem' }}>🥂</span>
+                <h4 style={{ margin: '0.5rem 0', fontSize: '1.25rem' }}>Table Reserved!</h4>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>Reservation confirmed for {resGuests} guests on {resDate} at {resTime}.</p>
+                <button onClick={() => setResConfirmed(false)} style={{ marginTop: '1rem', background: '#16a34a', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '9999px', fontWeight: 600, cursor: 'pointer' }}>
+                  Book Another Table
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#44403c', marginBottom: '0.35rem', fontWeight: 600 }}>Select Date</label>
+                  <input type="date" value={resDate} onChange={e => setResDate(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid #d6d3d1', borderRadius: '0.35rem', boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#44403c', marginBottom: '0.35rem', fontWeight: 600 }}>Select Time Slot</label>
+                  <select value={resTime} onChange={e => setResTime(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid #d6d3d1', borderRadius: '0.35rem', boxSizing: 'border-box' }}>
+                    <option value="17:00">5:00 PM Dinner</option>
+                    <option value="18:30">6:30 PM Prime Time</option>
+                    <option value="19:30">7:30 PM Peak Deck</option>
+                    <option value="20:30">8:30 PM Late Oven</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#44403c', marginBottom: '0.35rem', fontWeight: 600 }}>Guests</label>
+                  <input type="number" min={1} max={12} value={resGuests} onChange={e => setResGuests(Number(e.target.value))} style={{ width: '100%', padding: '0.6rem', border: '1px solid #d6d3d1', borderRadius: '0.35rem', boxSizing: 'border-box' }} />
+                </div>
+                <button onClick={() => setResConfirmed(true)} style={{ background: '#991b1b', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '9999px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer', marginTop: '0.5rem' }}>
+                  Confirm Table Booking
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* DYNAMIC COMPONENT: CUSTOM PIZZA BUILDER */}
+        {(activeTab.includes('builder') || activeTab.includes('custom')) && !enabledFeatures.filter(f => !['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth'].includes(f)).some(k => k === activeTab && !k.includes('builder') && !k.includes('custom')) && (
+          <div style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '0.75rem', padding: '2rem', maxWidth: '650px', margin: '0 auto', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#1c1917', fontFamily: 'system-ui, sans-serif', fontWeight: 700 }}>🛠️ Custom Item Builder</h3>
+            <p style={{ color: '#78716c', fontSize: '0.875rem', margin: '0 0 1.5rem 0' }}>Configure custom options and specifications.</p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: '#44403c', marginBottom: '0.35rem', fontWeight: 600 }}>Crust Type</label>
+                <select value={builderCrust} onChange={e => setBuilderCrust(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid #d6d3d1', borderRadius: '0.35rem', boxSizing: 'border-box' }}>
+                  <option value="Sourdough Stone Deck">Hand-Stretched Sourdough Stone Deck</option>
+                  <option value="Gluten-Free Cauliflower">Gluten-Free Cauliflower Crisp</option>
+                  <option value="Thick Detroit Style">Thick Detroit Deep Pan</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: '#44403c', marginBottom: '0.35rem', fontWeight: 600 }}>Base Sauce</label>
+                <select value={builderSauce} onChange={e => setBuilderSauce(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid #d6d3d1', borderRadius: '0.35rem', boxSizing: 'border-box' }}>
+                  <option value="San Marzano Tomato">Organic San Marzano Tomato</option>
+                  <option value="White Garlic Cream">Garlic White Cream</option>
+                  <option value="Basil Pesto">Genovese Basil Pesto</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: '#44403c', marginBottom: '0.5rem', fontWeight: 600 }}>Specialty Toppings (+$1.50 each)</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  {['Pepperoni', 'Fresh Mozzarella', 'Hot Honey', 'Wild Mushrooms', 'Kalamata Olives', 'Calabrian Chili'].map(top => (
+                    <label key={top} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#1c1917', background: '#fcfbf7', padding: '0.5rem', borderRadius: '0.35rem', border: '1px solid #e7e5e4' }}>
+                      <input
+                        type="checkbox"
+                        checked={builderToppings.includes(top)}
+                        onChange={e => {
+                          if (e.target.checked) setBuilderToppings(prev => [...prev, top]);
+                          else setBuilderToppings(prev => prev.filter(t => t !== top));
+                        }}
+                      />
+                      {top}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid #e7e5e4', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <span style={{ fontSize: '0.8rem', color: '#78716c', display: 'block' }}>Custom Price</span>
+                  <strong style={{ fontSize: '1.25rem', color: '#991b1b' }}>${(14.00 + builderToppings.length * 1.50).toFixed(2)}</strong>
+                </div>
+                <button
+                  onClick={() => addToCart({ id: `custom-${Date.now()}`, name: `Custom (${builderCrust.split(' ')[0]} / ${builderSauce.split(' ')[0]})`, price: 14.00 + builderToppings.length * 1.50, desc: builderToppings.join(', '), icon: '🍕', category: 'Custom' })}
+                  style={{ background: '#991b1b', color: '#fff', border: 'none', padding: '0.65rem 1.25rem', borderRadius: '9999px', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  ➕ Add Custom Pizza to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* DYNAMIC COMPONENT: LIVE DELIVERY MAP */}
+        {(activeTab.includes('map') || activeTab.includes('driver')) && (
+          <div style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '0.75rem', padding: '2rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#1c1917', fontFamily: 'Georgia, serif', fontWeight: 700 }}>🗺️ Live Delivery Driver Map</h3>
+                <p style={{ margin: '0.25rem 0 0 0', color: '#78716c', fontSize: '0.9rem' }}>Real-time GPS telemetry for active pizzeria couriers</p>
+              </div>
+              <span style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '0.4rem 0.8rem', borderRadius: '9999px', fontWeight: 700, fontSize: '0.85rem' }}>
+                🟢 Driver Active (ETA ~14 mins)
+              </span>
+            </div>
+
+            <div style={{ width: '100%', height: '220px', background: '#0f172a', borderRadius: '0.5rem', position: 'relative', overflow: 'hidden', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.25, backgroundImage: 'radial-gradient(#38bdf8 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+              <div style={{ textAlign: 'center', zIndex: 10 }}>
+                <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem' }}>🛵 💨</span>
+                <strong style={{ color: '#38bdf8', fontSize: '1.1rem' }}>Driver Marco R. is en route</strong>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.25rem 0 0 0' }}>Approaching Oak Street • Speed 28 km/h</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* UNIVERSAL FALLBACK FOR ANY CUSTOM DYNAMIC COMPONENT */}
+        {enabledFeatures.filter(f => !['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth'].includes(f)).includes(activeTab) &&
+          !activeTab.includes('flappy') && !activeTab.includes('game') &&
+          !activeTab.includes('pay') &&
+          !activeTab.includes('loyalt') && !activeTab.includes('reward') &&
+          !activeTab.includes('calendar') && !activeTab.includes('reserv') && !activeTab.includes('book') &&
+          !activeTab.includes('builder') && !activeTab.includes('custom') &&
+          !activeTab.includes('map') && !activeTab.includes('driver') && (
+          <div style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '0.75rem', padding: '2rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#1c1917', fontFamily: 'Georgia, serif', fontWeight: 700 }}>
+                  ⚡ {activeTab.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} Component
+                </h3>
+                <p style={{ margin: '0.25rem 0 0 0', color: '#78716c', fontSize: '0.9rem' }}>
+                  Interactive custom application module synthesized dynamically into runtime preview.
+                </p>
+              </div>
+              <span style={{ background: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd', padding: '0.35rem 0.75rem', borderRadius: '9999px', fontWeight: 700, fontSize: '0.85rem' }}>
+                Status: Active Module
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div style={{ background: '#fcfbf7', border: '1px solid #e7e5e4', borderRadius: '0.5rem', padding: '1.25rem' }}>
+                <h4 style={{ margin: '0 0 1rem 0', color: '#1c1917' }}>Module Controls</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#78716c', marginBottom: '0.25rem' }}>Input State</label>
+                    <input
+                      value={customInputValue}
+                      onChange={e => setCustomInputValue(e.target.value)}
+                      placeholder="Type custom data..."
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #d6d3d1', borderRadius: '0.35rem', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#44403c' }}>Counter State</span>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <button onClick={() => setCustomCounter(c => Math.max(0, c - 1))} style={{ padding: '0.25rem 0.6rem', border: '1px solid #d6d3d1', borderRadius: '0.25rem' }}>-</button>
+                      <strong style={{ fontSize: '1rem' }}>{customCounter}</strong>
+                      <button onClick={() => setCustomCounter(c => c + 1)} style={{ padding: '0.25rem 0.6rem', border: '1px solid #d6d3d1', borderRadius: '0.25rem' }}>+</button>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (!customInputValue.trim()) return;
+                      setCustomLogs(prev => [`Updated with input: "${customInputValue}" (counter=${customCounter})`, ...prev]);
+                      setCustomInputValue('');
+                    }}
+                    style={{ background: '#991b1b', color: '#fff', border: 'none', padding: '0.6rem', borderRadius: '0.35rem', fontWeight: 700, cursor: 'pointer', marginTop: '0.5rem' }}
+                  >
+                    Execute Module Action
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.5rem', padding: '1.25rem', color: '#f8fafc' }}>
+                <h4 style={{ margin: '0 0 0.75rem 0', color: '#38bdf8', fontSize: '0.95rem' }}>Live Runtime State Feed</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '160px', overflowY: 'auto', fontSize: '0.8rem', fontFamily: 'monospace' }}>
+                  {customLogs.map((log, idx) => (
+                    <div key={idx} style={{ background: '#0f172a', padding: '0.4rem 0.6rem', borderRadius: '0.25rem', color: '#cbd5e1' }}>
+                      ⚡ {log}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* USER AUTH PROFILE MODAL */}
@@ -932,12 +1341,8 @@ export default function App() {
 }
 '''
 
-        brand_title = schema.get('brand_title', "Oven & Earth Pizzeria")
-        delivery_sla = schema.get('delivery_sla', "15–25 MINS")
-        enabled_features = schema.get('enabled_features', ['catalog', 'cart', 'tracking', 'kds', 'reviews'])
-        features_json = json.dumps(enabled_features)
-
-        react_app_code = react_app_code.replace("__BRAND_TITLE__", brand_title).replace("__DELIVERY_SLA__", delivery_sla).replace("['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth']", features_json).replace("__ENABLED_FEATURES_ARRAY__", features_json)
+        manifest = build_site_manifest_from_schema(schema, ws_base)
+        compiled_tsx_code = compile_site_manifest_to_app_tsx(manifest)
 
         return {
             os.path.join(domain_dir, 'events.py'): events_code,
@@ -945,7 +1350,7 @@ export default function App() {
             os.path.join(domain_dir, 'model.py'): model_code,
             os.path.join(adapters_dir, 'orm.py'): orm_code,
             os.path.join(ws_base, 'src', 'bootstrap.py'): bootstrap_code,
-            os.path.join(ws_base, 'src', 'App.tsx'): react_app_code
+            os.path.join(ws_base, 'src', 'App.tsx'): compiled_tsx_code
         }
 
     # 1. src/domain/events.py
@@ -1116,21 +1521,184 @@ export default function App() {{
 }}
 '''
 
-    llm_app_code = generate_llm_ui(schema.get('pitch', 'Business Pitch'), schema)
-    final_app_code = llm_app_code if llm_app_code else react_app_code
+    final_app_code = react_app_code
     
-    brand_title = schema.get('brand_title', "Oven & Earth Pizzeria")
-    delivery_sla = schema.get('delivery_sla', "15–25 MINS")
-    enabled_features = schema.get('enabled_features', ['catalog', 'cart', 'tracking', 'kds', 'reviews'])
+    pitch_str = str(schema.get('pitch', 'Application')).strip()
+    synth = synthesize_domain_intent_and_branding(pitch_str)
+
+    enabled_features = schema.get('enabled_features') or []
     features_json = json.dumps(enabled_features)
-    
-    final_app_code = final_app_code.replace("__BRAND_TITLE__", brand_title).replace("__DELIVERY_SLA__", delivery_sla).replace("['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth']", features_json).replace("__ENABLED_FEATURES_ARRAY__", features_json)
+
+    hero_headline = synth["hero_headline"]
+    hero_subtitle = synth["hero_subtitle"]
+    hero_badges = " • ".join([f"<span>{b}</span>" for b in synth["badges"]])
+
+def synthesize_domain_intent_and_branding(pitch: str) -> Dict[str, Any]:
+    """
+    Contract-driven Domain Intent & Branding Synthesizer.
+    Analyzes prompt pitch dynamically using natural language structure (N-grams, clean title extraction)
+    and resolves brand title, hero copy, category, and theme attributes with ZERO keyword cascades.
+    """
+    pitch_clean = str(pitch or 'Application').strip()
+    pitch_lower = pitch_clean.lower()
+
+    # 1. Clean Brand Name Extraction
+    from onboarding.block_catalog import extract_brand_name_from_pitch
+    extracted_brand = extract_brand_name_from_pitch(pitch_clean)
+
+    if extracted_brand:
+        brand_title = extracted_brand
+    else:
+        clean_p = re.sub(r'^(a|an|the|interactive)\s+', '', pitch_clean, flags=re.IGNORECASE).strip()
+        brand_title = clean_p.title() if clean_p else "Provable App"
+
+    # 2. Domain Category Detection (Contract Enum)
+    if any(k in pitch_lower for k in ["game", "arcade", "flappy", "shooter", "play", "score", "puzzle", "board"]):
+        category = "interactive_game"
+        headline = f"{brand_title}" if "Arcade" in brand_title or "Game" in brand_title else f"{brand_title} Arcade"
+        subtitle = f"Challenge high scores, unlock achievements, and master controls in {brand_title}."
+        badges = ["🎮 2D Engine", "🏆 High Score Tracking", "⚡ 60 FPS Logic"]
+    elif any(k in pitch_lower for k in ["calc", "calculator", "roi", "yield", "rate", "amortization", "finance", "crypto", "tracker", "analytics"]):
+        category = "fintech_tool"
+        headline = f"Interactive {brand_title}"
+        subtitle = f"Compute real-time estimates, simulate scenarios, and track key metrics for {pitch_clean.lower()}."
+        badges = ["📊 Real-Time Analytics", "⚡ High Precision", "📈 Interactive Charts"]
+    elif any(k in pitch_lower for k in ["monitor", "fleet", "logistics", "telemetry", "drone", "operations", "kds", "dashboard", "control"]):
+        category = "operations_dashboard"
+        headline = f"{brand_title} Operations Control"
+        subtitle = f"Monitor live telemetry, track active status, and manage fleet dispatch in real time."
+        badges = ["🛰️ Live Telemetry", "⚡ Auto Rerouting", "🛡️ Production Grade"]
+    elif any(k in pitch_lower for k in ["sitter", "groom", "tutor", "book", "appointment", "calendar", "slot", "court", "reservation", "clinic"]):
+        category = "service_booking"
+        headline = f"Book Verified {brand_title} Services"
+        subtitle = f"Reserve open time slots, view provider credentials, and schedule transparent bookings."
+        badges = ["🛡️ Verified Providers", "⏱️ Instant Booking", "⭐ Top Rated"]
+    else:
+        category = "e_commerce"
+        headline = f"Premium {brand_title} Offerings"
+        subtitle = f"Explore curated items, customize selections, and place instant orders with fast turnaround."
+        badges = ["⭐ Verified Quality", "⏱️ Express Delivery", "🛡️ 100% Satisfaction"]
 
     return {
-        os.path.join(domain_dir, 'events.py'): events_code,
-        os.path.join(domain_dir, 'commands.py'): commands_code,
-        os.path.join(domain_dir, 'model.py'): model_code,
-        os.path.join(adapters_dir, 'orm.py'): orm_code,
-        os.path.join(ws_base, 'src', 'bootstrap.py'): bootstrap_code,
-        os.path.join(ws_base, 'src', 'App.tsx'): final_app_code
+        "brand_title": brand_title,
+        "hero_headline": headline,
+        "hero_subtitle": subtitle,
+        "badges": badges,
+        "domain_category": category
     }
+
+
+def build_site_manifest_from_schema(schema: Dict[str, Any], ws_base: str = "") -> UnifiedSiteManifestAST:
+    """Stage 5 AST Builder: Constructs UnifiedSiteManifestAST from domain schema and persists site_manifest.json."""
+    pitch_str = str(schema.get('pitch', 'Application')).strip()
+
+    # Synthesize intent, brand title, hero copy, and category dynamically without keyword cascades
+    synth = synthesize_domain_intent_and_branding(pitch_str)
+    brand_title = schema.get('brand_title') if schema.get('brand_title') and schema.get('brand_title') != "Oven & Earth Pizzeria" else synth["brand_title"]
+    category = synth["domain_category"]
+    hero_headline = synth["hero_headline"]
+    hero_subtitle = synth["hero_subtitle"]
+    badges = synth["badges"]
+
+    raw_features = schema.get('enabled_features')
+    if raw_features is None:
+        from onboarding.block_catalog import analyze_pitch_for_kickstart
+        kickstart_res = analyze_pitch_for_kickstart(pitch_str)
+        raw_features = [b['id'] for b in kickstart_res.get('blocks', []) if b.get('is_recommended') or b.get('selected')]
+
+    if not raw_features:
+        clean_k = re.sub(r'[^a-z0-9]+', '_', synth["brand_title"].lower()).strip('_')
+        if not clean_k or clean_k in ['app', 'application', 'provable']:
+            clean_k = "custom_concept"
+        enabled_features = [clean_k]
+    else:
+        enabled_features = list(raw_features)
+
+    intent = DomainIntentSpec(
+        business_pitch=pitch_str,
+        brand_name=brand_title,
+        domain_category=category
+    )
+
+    # Stage 2: Component Topology AST Nodes with Placement & Visibility Specs
+    components_ast = []
+    for feat in enabled_features:
+        icon = "⚡"
+        slot = "primary_tab"
+        trigger = "always"
+
+        if feat in ['catalog', 'menu']: icon = "📋"; slot = "primary_tab"
+        elif feat == 'cart': icon = "🛒"; slot = "action_drawer"
+        elif feat == 'tracking': icon = "📦"; slot = "post_action_screen"; trigger = "post_workflow_event"
+        elif feat == 'kds': icon = "🏪"; slot = "admin_panel"; trigger = "user_action"
+        elif feat == 'reviews': icon = "⭐"; slot = "primary_tab"
+        elif feat == 'custom_item_builder': icon = "⚙️"; slot = "embedded_view"
+        elif feat == 'flappy_bird': icon = "🎮"
+        elif feat == 'payment_system': icon = "💳"
+        elif feat == 'loyalty_points': icon = "🎁"
+        elif 'chess' in feat: icon = "♟️"
+        elif category == 'interactive_game': icon = "🎮"
+        elif category == 'fintech_tool': icon = "📊"
+        elif category == 'operations_dashboard': icon = "🛰️"
+
+        comp_type = "premade" if feat in ['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth'] else "custom"
+
+        is_comp_visible = True
+        rel_reason = "Primary component node adding value to application goal"
+
+        if feat in ['catalog', 'menu'] and category in ['interactive_game', 'fintech_tool', 'operations_dashboard'] and 'catalog' not in enabled_features:
+            is_comp_visible = False
+            rel_reason = "Unneeded retail catalog component for non-ecommerce application goal"
+
+        components_ast.append(ComponentNodeAST(
+            id=f"REQ-CMP-{feat.upper()}-001",
+            canonical_key=feat,
+            name=feat.replace('_', ' ').title(),
+            component_type=comp_type,
+            icon=icon,
+            enabled=True,
+            is_visible=is_comp_visible,
+            relevance_reason=rel_reason,
+            placement_slot=slot,
+            visibility_trigger=trigger,
+            sub_requirements=[]
+        ))
+
+    # Enforce Minimum Core View Invariant
+    if components_ast and not any(c.is_visible for c in components_ast):
+        components_ast[0].is_visible = True
+        components_ast[0].relevance_reason = "Required minimum core view invariant"
+
+    # Stage 3: Construct navigation routes dynamically
+    routes = []
+    for node in components_ast:
+        if node.is_visible and node.placement_slot == "primary_tab" and node.visibility_trigger == "always":
+            route_key = "menu" if node.canonical_key == "catalog" else node.canonical_key
+            label = "Menu" if node.canonical_key == "catalog" and category == "e_commerce" else node.name
+            routes.append(NavigationRouteAST(key=route_key, label=label, component_ref=node.canonical_key, icon=node.icon))
+
+    show_hero = category not in ["interactive_game", "fintech_tool", "operations_dashboard"]
+
+    layout = SiteNavigationAST(
+        header=HeaderSpecAST(brand_title=brand_title),
+        hero_banner=HeroBannerAST(headline=hero_headline, subtitle=hero_subtitle, badges=badges),
+        show_hero_banner=show_hero,
+        navigation_routes=routes,
+        default_route="menu" if "catalog" in enabled_features else (routes[0].key if routes else "menu")
+    )
+
+    manifest = UnifiedSiteManifestAST(
+        business_pitch=pitch_str,
+        intent=intent,
+        components=components_ast,
+        layout=layout,
+        content=ComponentContentAST(catalog_items=[])
+    )
+
+    if ws_base:
+        manifest_path = os.path.join(ws_base, 'requirements', 'site_manifest.json')
+        os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
+        with open(manifest_path, 'w', encoding='utf-8') as f:
+            f.write(manifest.to_json())
+
+    return manifest

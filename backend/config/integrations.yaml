@@ -1,4 +1,4 @@
-active_project: c:\Users\ahlst\Documents\GitHub\provable\workspace
+active_project: C:\Users\ahlst\Documents\GitHub\provable\workspace
 allure:
   enabled: true
   project_id: default
@@ -11,7 +11,7 @@ jira:
   enabled: false
   project_key: ''
 project:
-  workspace_path: c:\Users\ahlst\Documents\GitHub\provable\workspace
+  workspace_path: C:\Users\ahlst\Documents\GitHub\provable\workspace
 projects:
 - name: Default Workspace
   path: C:\Users\ahlst\Documents\GitHub\provable\workspace

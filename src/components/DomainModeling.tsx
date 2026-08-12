@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
+import { DomainDiscoveryRequestDTO, DomainRefinementRequestDTO, DomainSynthesisRequestDTO } from '../types/api';
 
 interface DomainModelingProps {
   onDomainSynthesized?: () => void;
 }
 
+export const DomainModeling: React.FC<DomainModelingProps> = ({ onDomainSynthesized }) => {
   const [pitch, setPitch] = useState<string>(
     'An app to order pizzas'
   );
@@ -56,10 +58,14 @@ interface DomainModelingProps {
     setSynthesizing(true);
     setError(null);
     try {
+      const payload: DomainSynthesisRequestDTO = {
+        domain_schema: s
+      };
+
       const res = await fetch('/api/domain/synthesize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ domain_schema: s })
+        body: JSON.stringify(payload)
       });
       const data = await res.json().catch(() => ({ success: false, error: `HTTP ${res.status} ${res.statusText}` }));
       if (data.success) {
@@ -82,10 +88,14 @@ interface DomainModelingProps {
     setError(null);
     setSynthesizeResult(null);
     try {
+      const payload: DomainDiscoveryRequestDTO = {
+        business_pitch: pitch
+      };
+
       const res = await fetch('/api/domain/discover', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ business_pitch: pitch })
+        body: JSON.stringify(payload)
       });
       const data = await res.json().catch(() => ({ success: false, error: `HTTP ${res.status} ${res.statusText}` }));
       if (data.success) {
@@ -97,6 +107,36 @@ interface DomainModelingProps {
     } catch (err: any) {
       console.error(err);
       setError(err?.message || "Network error running domain discovery.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefine = async (feedbackText: string) => {
+    if (!schema || !feedbackText.trim()) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const payload: DomainRefinementRequestDTO = {
+        current_schema: schema,
+        feedback: feedbackText
+      };
+
+      const res = await fetch('/api/domain/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(() => ({ success: false, error: `HTTP ${res.status} ${res.statusText}` }));
+      if (data.success) {
+        setSchema(data.data);
+        await handleSynthesize(data.data);
+      } else {
+        setError(data.error || "Failed to refine domain model.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.message || "Network error running domain refinement.");
     } finally {
       setLoading(false);
     }
@@ -136,17 +176,19 @@ interface DomainModelingProps {
             🌌 Universal Domain Discovery Engine (DDD)
           </h1>
           <p style={{ margin: '0.25rem 0 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>
-            Transform natural language business pitches into complete 6-part DDD Domain Models, interactive UML & Sequence diagrams, and Low-Gear TDD test suites.
+            Transform natural language business pitches into complete 6-part DDD Domain Models, interactive UML &amp; Sequence diagrams, and Low-Gear TDD test suites.
           </p>
         </div>
-        <button
-          onClick={handleResetAllProjects}
-          disabled={resetting}
-          className="btn btn-outline"
-          style={{ borderColor: '#ef4444', color: '#f87171', fontSize: '0.85rem', opacity: resetting ? 0.6 : 1 }}
-        >
-          {resetting ? '⏳ Resetting Workspace...' : '🗑️ Reset All Active Projects'}
-        </button>
+        {schema && (
+          <button
+            onClick={handleResetAllProjects}
+            disabled={resetting}
+            className="btn btn-outline"
+            style={{ borderColor: '#ef4444', color: '#f87171', fontSize: '0.85rem', opacity: resetting ? 0.6 : 1 }}
+          >
+            {resetting ? '⏳ Resetting Workspace...' : '🗑️ Reset All Active Projects'}
+          </button>
+        )}
       </div>
 
       {resetMessage && (
@@ -180,7 +222,6 @@ interface DomainModelingProps {
             onClick={() => setPitch('An app to order pizzas')}
           >
             📋 Load Pizzeria Benchmark Pitch
-
           </button>
           <button
             onClick={handleDiscover}
@@ -195,9 +236,9 @@ interface DomainModelingProps {
       {/* Synthesis Completion Banner */}
       {synthesizeResult && (
         <div style={{ marginBottom: '1.5rem', background: '#064e3b', border: '1px solid #059669', padding: '1rem 1.25rem', borderRadius: '0.75rem', color: '#a7f3d0' }}>
-          <strong style={{ fontSize: '1rem' }}>✅ Domain & Application Stack Synthesized!</strong>
+          <strong style={{ fontSize: '1rem' }}>✅ Domain &amp; Application Stack Synthesized!</strong>
           <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.9rem', color: '#6ee7b7' }}>
-            Synthesized pure domain code in <code>src/domain/model.py</code>, SQLAlchemy ORM & Unit of Work, FastAPI REST endpoints, and live React UI application preview on port 5174. To synthesize a new pitch, click <strong>🗑️ Reset All Active Projects</strong> above.
+            Synthesized pure domain code in <code>src/domain/model.py</code>, SQLAlchemy ORM &amp; Unit of Work, FastAPI REST endpoints, and live React UI application preview on port 5174. To synthesize a new pitch, click <strong>🗑️ Reset All Active Projects</strong> above.
           </p>
         </div>
       )}
@@ -287,7 +328,7 @@ interface DomainModelingProps {
             {schema.domain_services && (
               <div>
                 <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: '0 0 0.4rem 0', color: '#fb923c' }}>
-                  ⚡ Domain Services & Functions
+                  ⚡ Domain Services &amp; Functions
                 </h3>
                 <div style={{ background: '#0f172a', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #334155', fontSize: '0.8rem' }}>
                   {schema.domain_services.map((ds: any, i: number) => (

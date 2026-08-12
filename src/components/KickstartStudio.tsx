@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { RequirementControlPanel } from './RequirementControlPanel';
 import { AppPreview } from './AppPreview';
+import { KickstartAnalyzeRequestDTO, KickstartSynthesisRequestDTO } from '../types/api';
 
 export interface KickstartStudioProps {
   onAppSynthesized?: () => void;
@@ -10,7 +11,6 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
   const [pitch, setPitch] = useState<string>(
     'An app to order pizzas'
   );
-
 
   const [building, setBuilding] = useState<boolean>(false);
   const [resetting, setResetting] = useState<boolean>(false);
@@ -39,10 +39,14 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
     setResetMessage(null);
     try {
       // Step 1: Analyze pitch & get recommended blocks
+      const analyzePayload: KickstartAnalyzeRequestDTO = {
+        business_pitch: pitch
+      };
+
       const analyzeRes = await fetch('/api/kickstart/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ business_pitch: pitch })
+        body: JSON.stringify(analyzePayload)
       });
       const analyzeData = await analyzeRes.json();
       
@@ -51,28 +55,31 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
       const reqs = analyzeData?.data?.extracted_requirements || [];
 
       // Step 2: Immediately synthesize full app stack
+      const synthPayload: KickstartSynthesisRequestDTO = {
+        business_pitch: pitch,
+        pitch: pitch,
+        selected_blocks: selectedBlockIds,
+        selected_block_ids: selectedBlockIds,
+        requirements: reqs,
+        extracted_requirements: reqs
+      };
+
       const synthRes = await fetch('/api/kickstart/synthesize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          business_pitch: pitch,
-          pitch: pitch,
-          selected_blocks: selectedBlockIds.length > 0 ? selectedBlockIds : ['catalog_grid', 'shopping_cart', 'order_tracking'],
-          selected_block_ids: selectedBlockIds.length > 0 ? selectedBlockIds : ['catalog_grid', 'shopping_cart', 'order_tracking'],
-          requirements: reqs,
-          extracted_requirements: reqs
-        })
+        body: JSON.stringify(synthPayload)
       });
       const synthData = await synthRes.json();
       if (synthData.success) {
         setSynthesized(true);
         setResetMessage("✨ Application built successfully!");
+        if (onAppSynthesized) onAppSynthesized();
       } else {
         setResetMessage("⚠️ Synthesis notice: " + (synthData.error || 'Check backend logs'));
       }
     } catch (err) {
       console.error("Instant build failed:", err);
-      setResetMessage("❌ Error building application stack.");
+      setResetMessage("❌ Backend server offline (port 8000). Please ensure 'python run.py' is running in your terminal.");
     } finally {
       setBuilding(false);
     }
@@ -128,24 +135,6 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
               <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8' }}>Describe your application concept to instantly synthesize a verified DDD stack &amp; live UI.</p>
             </div>
           </div>
-
-          <button
-            onClick={handleResetAllProjects}
-            disabled={resetting}
-            style={{
-              background: '#450a0a',
-              border: '1px solid #991b1b',
-              color: '#fca5a5',
-              padding: '0.5rem 1rem',
-              borderRadius: '0.5rem',
-              fontWeight: 600,
-              fontSize: '0.85rem',
-              cursor: resetting ? 'not-allowed' : 'pointer',
-              opacity: resetting ? 0.6 : 1
-            }}
-          >
-            {resetting ? '⏳ Resetting...' : '🗑️ Reset Workspace'}
-          </button>
         </div>
 
         {/* Status Toast */}

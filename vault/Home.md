@@ -21,7 +21,9 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[Onboarding and Discovery Workflow]]: Business pitch discovery, dynamic schema derivation, contract-first domain synthesis, and clean workspace scaffold invariants.
 - [[Shift-Left TDD Workflow]]: Unified pre-review testing execution, requirement-driven failing test spec generation, and Allure coverage mapping.
 - [[Agent Execution Loop]]: LangGraph state machine breakdown (`prepare_branch`, `code_generation`, `test_runner`, `visual_qa`, `finalize`), retry loops, Vision gate, and git rollback mechanics.
+- [[DDD_TDD_Developer_Workflow]]: Pure DDD layer boundaries, subagent execution contract, 4-step execution loop, and anti-leakage verification gate.
 - [[Future Enhancements Roadmap]]: Detailed blueprints for the Live Agent Execution Graph Visualizer and Self-Healing TDD Feedback Loop.
+
 - [[Helper Scripts]]: Single cross-platform application launcher (`run.py`), PowerShell/Bash wrappers, and developer debugging utility scripts (`reset_ticket.py`, `update_json.py`, `tail_logs.sh`).
 
 

@@ -27,4 +27,9 @@ workspace/.downloads/
 
 # Database
 backend/provable.db
+provable.db
 
+# Scratch dumps
+architecture_patterns_with_python*.md
+test_out.png
+tmp_ast_test/

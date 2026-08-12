@@ -29,9 +29,13 @@ def isolated_db(tmp_path, monkeypatch):
     monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda prompt: mock_llm_response)
     monkeypatch.setattr(workspace_discovery_agent, "call_gemini", lambda prompt: mock_llm_response)
     
+    cfg_file = tmp_path / "test_integrations.yaml"
+    monkeypatch.setenv("PROVABLE_CONFIG_PATH", str(cfg_file))
+    
     monkeypatch.setattr(store, "REQUIREMENTS_JSON", str(dummy_json))
     store.set_active_db(str(db_file))
     store.init_db()
+
     
     yield db_file
     

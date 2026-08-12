@@ -53,7 +53,10 @@ def set_active_db(path: str) -> None:
 
 
 def get_connection(timeout: float = 30.0) -> sqlite3.Connection:
-    conn = sqlite3.connect(get_db_path(), timeout=timeout)
+    db_path = get_db_path()
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    conn = sqlite3.connect(db_path, timeout=timeout)
+
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")  # allow concurrent reads during writes
     conn.execute("PRAGMA busy_timeout=30000") # wait up to 30 seconds for locks to clear
@@ -234,6 +237,8 @@ def get_requirements_for_frontend() -> List[Dict]:
             'assignedAgents': r.get('assigned_agents', []),
             'proposedCode': r.get('proposed_code'),
             'feedback': r.get('feedback', ''),
+            'component_type': r.get('component_type'),
+            'component_meta': r.get('component_meta'),
             'tests': tc_by_req.get(r['id'], []),
         })
     return result
@@ -361,6 +366,28 @@ def _upsert_test_results(req_id: str, tests: List[Dict]):
             )
     conn.commit()
     conn.close()
+
+
+def save_test_case(tc: Dict[str, Any]) -> str:
+    """Inserts or updates a test case record in SQLite store."""
+    conn = get_connection()
+    tc_id = tc.get("id") or f"TC-{random.randint(1000, 9999)}"
+    existing = conn.execute("SELECT id FROM test_cases WHERE id = ?", (tc_id,)).fetchone()
+    if existing:
+        conn.execute(
+            """UPDATE test_cases SET requirement_id = ?, title = ?, given_text = ?, when_text = ?, then_text = ?, last_result = ?, file_path = ?, failure_message = ? WHERE id = ?""",
+            (tc.get("requirement_id"), tc.get("title"), tc.get("given_text"), tc.get("when_text"), tc.get("then_text"), tc.get("last_result", "pass"), tc.get("file_path"), tc.get("failure_message"), tc_id)
+        )
+    else:
+        conn.execute(
+            """INSERT INTO test_cases (id, requirement_id, title, given_text, when_text, then_text, last_result, file_path, failure_message)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (tc_id, tc.get("requirement_id"), tc.get("title", ""), tc.get("given_text", ""), tc.get("when_text", ""), tc.get("then_text", ""), tc.get("last_result", "pass"), tc.get("file_path"), tc.get("failure_message"))
+        )
+    conn.commit()
+    conn.close()
+    return tc_id
+
 
 
 def replace_test_results_for_requirement(req_id: str, tests: List[Dict]):
@@ -558,16 +585,17 @@ def create_component_requirement(component_dict: Dict[str, Any]) -> str:
         title = component_dict.get("title", "Custom Component")
         desc = component_dict.get("description", f"Dynamic component {title}")
         comp_type = component_dict.get("component_type", "custom")
+        req_type = component_dict.get("type", "Requirement")
         meta = json.dumps(component_dict.get("meta", {}))
 
         conn.execute(
             """INSERT INTO requirements
                (id, title, description, type, priority, status, parent_id, component_type, component_meta)
-               VALUES (?, ?, ?, 'Folder', 'High', 'Done', NULL, ?, ?)
+               VALUES (?, ?, ?, ?, 'High', 'Done', NULL, ?, ?)
                ON CONFLICT(id) DO UPDATE SET
                title=excluded.title, description=excluded.description,
                component_type=excluded.component_type, component_meta=excluded.component_meta, status='Done'""",
-            (req_id, title, desc, comp_type, meta)
+            (req_id, title, desc, req_type, comp_type, meta)
         )
 
         tc_id = f"TC-{req_id}-01"

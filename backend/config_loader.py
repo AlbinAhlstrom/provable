@@ -2,18 +2,25 @@ import os
 import yaml
 from typing import List, Dict, Any, Optional
 
-_CONFIG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'config', 'integrations.yaml'))
+def _get_config_path() -> str:
+    return os.environ.get(
+        "PROVABLE_CONFIG_PATH",
+        os.path.abspath(os.path.join(os.path.dirname(__file__), 'config', 'integrations.yaml'))
+    )
 
 
 def _load_config() -> dict:
-    if not os.path.exists(_CONFIG_PATH):
+    cfg_path = _get_config_path()
+    if not os.path.exists(cfg_path):
         return {}
-    with open(_CONFIG_PATH, 'r', encoding='utf-8') as f:
+    with open(cfg_path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f) or {}
 
 
 def _save_config(cfg: dict) -> None:
-    with open(_CONFIG_PATH, 'w', encoding='utf-8') as f:
+    cfg_path = _get_config_path()
+    os.makedirs(os.path.dirname(cfg_path), exist_ok=True)
+    with open(cfg_path, 'w', encoding='utf-8') as f:
         yaml.safe_dump(cfg, f, default_flow_style=False, allow_unicode=True)
 
 
@@ -35,6 +42,7 @@ def get_workspace_base() -> str:
 
     # 3. Fallback default workspace
     return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'workspace'))
+
 
 
 def set_active_project(path: str) -> None:

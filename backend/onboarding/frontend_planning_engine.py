@@ -892,6 +892,12 @@ Return ONLY valid JSON in this exact format (no markdown, no preamble):
         return _heuristic_pitch_analysis_fallback(pitch)
 
 
+def build_pitch_specific_domain_schema(pitch: str) -> Dict[str, Any]:
+    """Alias function wrapping _extract_domain_entity_profile for domain schema synthesis."""
+    return _extract_domain_entity_profile(pitch)
+
+
+
 
 def _heuristic_pitch_analysis_fallback(pitch: str) -> Dict[str, Any]:
     p_lower = pitch.lower()

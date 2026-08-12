@@ -4,8 +4,21 @@ import json
 import re
 import time
 import dotenv
+import asyncio
+import aiohttp
+import aiohttp.client_exceptions
+if not hasattr(aiohttp, 'SocketTimeoutError'):
+    aiohttp.SocketTimeoutError = getattr(aiohttp, 'ServerTimeoutError', Exception)
+if not hasattr(aiohttp.client_exceptions, 'NonHttpUrlClientError'):
+    aiohttp.client_exceptions.NonHttpUrlClientError = Exception
+if not hasattr(aiohttp.client_exceptions, 'InvalidUrlClientError'):
+    aiohttp.client_exceptions.InvalidUrlClientError = Exception
+
 from typing import List, Dict, Any, Optional
 from openai import OpenAI
+
+
+
 import db.store as store
 from config_loader import get_workspace_base, get_project_settings
 

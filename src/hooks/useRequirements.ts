@@ -1,47 +1,37 @@
 import { useState, useEffect, useCallback } from 'react';
+import { RequirementDTO, TestCaseDTO } from '../types/api';
 
-export type Priority = 'High' | 'Med' | 'Low';
-export type RequirementType = 'Folder' | 'Requirement' | 'Task' | 'Bug' | 'Epic';
-export type KanbanStatus = 'Backlog' | 'In Progress' | 'Review' | 'Conflict' | 'Done';
+export type { RequirementDTO, TestCaseDTO };
+export type Requirement = RequirementDTO;
+export type TestCase = TestCaseDTO;
+
+export type Priority = 'High' | 'Med' | 'Low' | string;
+export type RequirementType = 'Folder' | 'Requirement' | 'Task' | 'Bug' | 'Epic' | string;
+export type KanbanStatus = 'Backlog' | 'In Progress' | 'Review' | 'Conflict' | 'Done' | string;
 export type RequirementStatus = KanbanStatus;
 
-export interface TestCase {
-  id: string;
-  requirement_id: string;
-  title: string;
-  given_text?: string;
-  when_text?: string;
-  then_text?: string;
-  file_path: string;
-  last_result: 'pass' | 'fail' | 'skip' | 'pending' | 'never_run';
-  allure_id?: string;
-  failure_message?: string;
-}
+export function normalizeRequirement(req: any): RequirementDTO {
+  const parentId = req.parentId !== undefined ? req.parentId : (req.parent_id !== undefined ? req.parent_id : null);
+  const assignedAgents = req.assignedAgents || req.assigned_agents || [];
+  const proposedCode = req.proposedCode !== undefined ? req.proposedCode : (req.proposed_code !== undefined ? req.proposed_code : null);
+  const tests = req.tests || req.test_cases || [];
 
-export interface Requirement {
-  id: string;
-  title: string;
-  description: string;
-  type: RequirementType;
-  priority: Priority;
-  status: RequirementStatus;
-  parent_id: string | null;
-  parentId?: string | null;
-  jira_key?: string;
-  sdoc_uid?: string;
-  dependencies: string[];
-  assigned_agents: string[];
-  assignedAgents?: string[];
-  proposed_code?: string;
-  feedback?: string;
-  created_at: string;
-  updated_at: string;
-  test_cases?: TestCase[];
-  tests?: TestCase[];
+  return {
+    ...req,
+    parentId,
+    parent_id: parentId,
+    assignedAgents,
+    assigned_agents: assignedAgents,
+    proposedCode,
+    proposed_code: proposedCode,
+    tests,
+    test_cases: tests,
+    dependencies: req.dependencies || []
+  };
 }
 
 export function useRequirements() {
-  const [requirements, setRequirements] = useState<Requirement[]>([]);
+  const [requirements, setRequirements] = useState<RequirementDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,7 +41,8 @@ export function useRequirements() {
       const res = await fetch('http://localhost:8000/api/requirements');
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
-      setRequirements(data);
+      const normalizedData = Array.isArray(data) ? data.map(normalizeRequirement) : [];
+      setRequirements(normalizedData);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch requirements');
@@ -64,7 +55,7 @@ export function useRequirements() {
     fetchRequirements();
   }, [fetchRequirements]);
 
-  const createRequirement = async (reqData: Partial<Requirement>) => {
+  const createRequirement = async (reqData: Partial<RequirementDTO>) => {
     const res = await fetch('http://localhost:8000/api/requirements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -74,7 +65,7 @@ export function useRequirements() {
     await fetchRequirements();
   };
 
-  const updateRequirement = async (id: string, updates: Partial<Requirement>) => {
+  const updateRequirement = async (id: string, updates: Partial<RequirementDTO>) => {
     const res = await fetch(`http://localhost:8000/api/requirements/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

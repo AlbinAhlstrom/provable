@@ -189,6 +189,8 @@ def parse_sdoc(file_path: str) -> List[Dict[str, Any]]:
                 'status': req.get('status', 'Backlog'),
                 'parent_id': effective_parent,
                 'jira_key': req.get('jira_key'),
+                'component_type': req.get('component_type'),
+                'component_meta': req.get('component_meta'),
                 'sdoc_uid': uid,
                 'test_file': test_file,
             })
@@ -224,6 +226,11 @@ def generate_sdoc_content(requirements: List[Dict[str, Any]]) -> str:
         lines.append(f"STATUS: {r.get('status', 'Backlog')}")
         if r.get('jira_key'):
             lines.append(f"JIRA_KEY: {r['jira_key']}")
+        if r.get('component_type'):
+            lines.append(f"COMPONENT_TYPE: {r['component_type']}")
+        if r.get('component_meta'):
+            meta_val = r['component_meta'] if isinstance(r['component_meta'], str) else json.dumps(r['component_meta'])
+            lines.append(f"COMPONENT_META: {meta_val}")
             
         # Relations block (Parent and Test File links)
         relations = []
@@ -300,7 +307,7 @@ def sync_sdoc_to_db(clear_first: bool = False):
                 conn.execute(
                     """UPDATE requirements SET
                        title = ?, description = ?, type = ?, priority = ?, status = ?,
-                       parent_id = ?, jira_key = ?, sdoc_uid = ?
+                       parent_id = ?, jira_key = ?, component_type = ?, component_meta = ?, sdoc_uid = ?
                        WHERE id = ?""",
                     (
                         r['title'],
@@ -310,6 +317,8 @@ def sync_sdoc_to_db(clear_first: bool = False):
                         r['status'],
                         r['parent_id'],
                         r['jira_key'],
+                        r.get('component_type'),
+                        r.get('component_meta'),
                         r['sdoc_uid'],
                         r['id']
                     )
@@ -317,8 +326,8 @@ def sync_sdoc_to_db(clear_first: bool = False):
             else:
                 conn.execute(
                     """INSERT INTO requirements
-                       (id, title, description, type, priority, status, parent_id, jira_key, sdoc_uid)
-                       VALUES (?,?,?,?,?,?,?,?,?)""",
+                       (id, title, description, type, priority, status, parent_id, jira_key, component_type, component_meta, sdoc_uid)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
                     (
                         r['id'],
                         r['title'],
@@ -328,6 +337,8 @@ def sync_sdoc_to_db(clear_first: bool = False):
                         r['status'],
                         r['parent_id'],
                         r['jira_key'],
+                        r.get('component_type'),
+                        r.get('component_meta'),
                         r['sdoc_uid']
                     )
                 )

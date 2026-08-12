@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ComponentAddRequestDTO, ComponentDeleteRequestDTO } from '../types/api';
 
 export interface ComponentItem {
   id: string;
@@ -8,6 +9,7 @@ export interface ComponentItem {
   icon: string;
   desc: string;
   component_type: 'premade' | 'custom';
+  sub_requirements?: any[];
 }
 
 export interface RequirementControlPanelProps {
@@ -37,7 +39,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
       if (Array.isArray(reqs)) {
         // Filter out brand/sla and disabled items, build active list
         const activeItems: ComponentItem[] = reqs
-          .filter((r: any) => r.id && r.status !== 'Disabled' && !r.id.startsWith('REQ-BRAND') && !r.id.startsWith('REQ-DELIVERY'))
+          .filter((r: any) => r.id && r.status !== 'Disabled' && !r.id.startsWith('REQ-BRAND') && !r.id.startsWith('REQ-DELIVERY') && !r.id.startsWith('REQ-SUB') && !r.parentId && !r.parent_id)
           .map((r: any) => {
             const canonicalKey = extractCanonicalKey(r);
             const compType = r.component_type || (['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth', 'calendar'].includes(canonicalKey) ? 'premade' : 'custom');
@@ -48,7 +50,8 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
               reqId: r.id,
               icon: getComponentIcon(canonicalKey, r.title || ''),
               desc: r.description || 'Active application component',
-              component_type: compType
+              component_type: compType,
+              sub_requirements: r.sub_requirements
             };
           });
 
@@ -87,11 +90,16 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     setAddingPromptText(promptText);
     setStatusToast(`⚡ Synthesizing component for "${promptText}"...`);
 
+    const payload: ComponentAddRequestDTO = {
+      prompt: promptText,
+      component_type: 'custom'
+    };
+
     try {
       const res = await fetch('/api/components/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: promptText, component_type: 'custom' })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (data.success) {
@@ -116,11 +124,15 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     setDeletingKey(canonicalKey);
     setStatusToast(`🗑️ Deleting ${componentName}...`);
 
+    const payload: ComponentDeleteRequestDTO = {
+      canonical_key: canonicalKey
+    };
+
     try {
       const res = await fetch('/api/components/delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ canonical_key: canonicalKey })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (data.success) {
@@ -196,6 +208,23 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                   )}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.3 }}>{item.desc}</div>
+
+                {/* Dynamic Sub-Requirements List */}
+                {item.sub_requirements && item.sub_requirements.length > 0 && (
+                  <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #334155' }}>
+                    <div style={{ fontSize: '0.7rem', color: '#cbd5e1', fontWeight: 700, marginBottom: '0.3rem', textTransform: 'uppercase' }}>
+                      Child Sub-Requirements:
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      {item.sub_requirements.map((sub: any, idx: number) => (
+                        <div key={idx} style={{ background: '#0284c722', border: '1px solid #0284c744', borderRadius: '0.35rem', padding: '0.25rem 0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#38bdf8' }}>
+                          <span>{sub.title || sub.name}</span>
+                          <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>Nested</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Permanent Delete Button */}
