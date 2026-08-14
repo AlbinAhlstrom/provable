@@ -27,6 +27,7 @@ export interface RequirementDTO {
   description: string;
   priority: string;
   status: string;
+  layer?: 'PRESENTATION' | 'LOGIC' | 'INFRASTRUCTURE' | string;
   tests: TestCaseDTO[] | Record<string, any>[];
   assignedAgents: string[];
   proposedCode?: string | null;

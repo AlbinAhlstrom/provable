@@ -81,6 +81,7 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
   const [addChildTitle, setAddChildTitle] = useState('');
   const [addChildDesc, setAddChildDesc] = useState('');
   const [isSubmittingChild, setIsSubmittingChild] = useState(false);
+  const [selectedLayerFilter, setSelectedLayerFilter] = useState<string>('ALL');
 
   const selectedNode = requirements.find(r => r.id === selectedReqId);
 
@@ -149,31 +150,24 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
     await fetch('/api/edit-requirement', { 
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: selectedReqId, title: editTitle, description: editDesc, priority: editPrio }) 
+      body: JSON.stringify({
+        id: selectedReqId,
+        title: editTitle,
+        description: editDesc,
+        priority: editPrio
+      }) 
     });
     await fetchReqs();
   };
 
-  const handleDeleteReq = async (id: string) => {
-    if (pendingDeleteId !== id) {
-      // First press — arm the button
-      setPendingDeleteId(id);
-      if (pendingDeleteTimer.current) clearTimeout(pendingDeleteTimer.current);
-      pendingDeleteTimer.current = setTimeout(() => setPendingDeleteId(null), 3000);
-      return;
-    }
-
-    // Second press — execute
-    if (pendingDeleteTimer.current) clearTimeout(pendingDeleteTimer.current);
-    setPendingDeleteId(null);
+  const handleDeleteReq = async () => {
+    if (!selectedReqId) return;
+    await fetch('/api/delete-requirement', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: selectedReqId }) 
+    });
     setSelectedReqId(null);
-    setIsEditingReq(false);
-
-    const res = await fetch(`/api/requirements/${id}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (!data.success) {
-      alert(`Failed to delete: ${data.error || 'Unknown error'}`);
-    }
     await fetchReqs();
   };
 
@@ -215,8 +209,8 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
 
   const handleReportBug = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedReqId) return;
-    
+    if (!selectedReqId || !bugTitle.trim()) return;
+
     await fetch('/api/report-bug', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -238,7 +232,10 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
   };
 
   const renderTreeNodes = (parentId: string | null = null, depth = 0): React.ReactNode => {
-    const nodes = requirements.filter(r => r.parentId === parentId || (!r.parentId && parentId === null));
+    let nodes = requirements.filter(r => (r.parentId === parentId || r.parent_id === parentId || (!r.parentId && !r.parent_id && parentId === null)));
+    if (selectedLayerFilter !== 'ALL' && parentId === null) {
+      nodes = nodes.filter(r => (r.layer || 'LOGIC') === selectedLayerFilter || r.type === 'Folder' || r.type === 'Epic');
+    }
     if (nodes.length === 0) return null;
 
     return (
@@ -247,7 +244,9 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
           const isFolder = node.type === 'Folder' || node.type === 'Epic';
           const isExpanded = expandedNodes.has(node.id);
           const isSelected = selectedReqId === node.id;
-          const hasChildren = requirements.some(r => r.parentId === node.id);
+          const hasChildren = requirements.some(r => r.parentId === node.id || r.parent_id === node.id);
+          const layerLabel = node.layer === 'PRESENTATION' ? '🎨 UI' : (node.layer === 'INFRASTRUCTURE' ? '💾 API' : '⚡ Logic');
+          const layerColor = node.layer === 'PRESENTATION' ? '#38bdf8' : (node.layer === 'INFRASTRUCTURE' ? '#a855f7' : '#f59e0b');
 
           return (
             <div key={node.id}>
@@ -268,10 +267,15 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
                 >
                   {(isFolder || hasChildren) ? (isExpanded ? '▼' : '▶') : '•'}
                 </span>
-                <span style={{ marginRight: '0.5rem' }}>
+                <span style={{ marginRight: '0.4rem' }}>
                   {isFolder ? '📁' : (node.type === 'Bug' ? '🐛' : (node.type === 'Task' ? '📝' : '📄'))}
                 </span>
-                <span style={{ flex: 1, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{node.title}</span>
+                <span style={{ flex: 1, fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{node.title}</span>
+                {!isFolder && (
+                  <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: layerColor, border: `1px solid ${layerColor}44`, marginLeft: '0.3rem' }}>
+                    {layerLabel}
+                  </span>
+                )}
               </div>
               {isExpanded && renderTreeNodes(node.id, depth + 1)}
             </div>
@@ -281,16 +285,41 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
     );
   };
 
-  const childNodes = selectedNode ? requirements.filter(r => r.parentId === selectedNode.id) : requirements.filter(r => !r.parentId);
-
   return (
     <div style={{ display: 'flex', gap: '2rem', height: '100%', padding: '2rem' }}>
       {/* Left Pane: Tree Explorer */}
-      <div className="glass-panel" style={{ flex: '0 0 300px', overflowY: 'auto', padding: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Explorer</h3>
+      <div className="glass-panel" style={{ flex: '0 0 320px', overflowY: 'auto', padding: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+          <h3 style={{ margin: 0, fontSize: '1.1rem' }}>3-Layer Explorer</h3>
           <button className="btn btn-primary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }} onClick={() => setSelectedReqId(null)}>➕ New</button>
         </div>
+
+        {/* 3-Layer Filter Bar */}
+        <div style={{ display: 'flex', gap: '0.3rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+          {[
+            { id: 'ALL', label: 'All' },
+            { id: 'PRESENTATION', label: '🎨 UI' },
+            { id: 'LOGIC', label: '⚡ Logic' },
+            { id: 'INFRASTRUCTURE', label: '💾 API' },
+          ].map(f => (
+            <button
+              key={f.id}
+              onClick={() => setSelectedLayerFilter(f.id)}
+              style={{
+                fontSize: '0.75rem',
+                padding: '0.2rem 0.5rem',
+                borderRadius: '4px',
+                border: selectedLayerFilter === f.id ? '1px solid var(--accent-primary)' : '1px solid var(--border-glass)',
+                background: selectedLayerFilter === f.id ? 'var(--accent-primary)' : 'rgba(0,0,0,0.2)',
+                color: 'white',
+                cursor: 'pointer'
+              }}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
         {renderTreeNodes(null)}
       </div>
 

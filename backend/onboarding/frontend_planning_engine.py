@@ -260,6 +260,21 @@ def _extract_domain_entity_profile(pitch: str) -> Dict[str, Any]:
                 {"id": "4", "title": "Elin Sandberg", "subtitle": "Weekend specialist • comfortable with 3+ kids", "price_or_rate": "€21/hour", "badge_status": "Top Rated", "rating": 4.8, "initials": "ES"}
             ]
         }
+    elif any(k in p_lower for k in ["pizza", "pizzeria", "oven", "bake", "crust", "topping"]):
+        return {
+            "title": "SliceCraft Pizza",
+            "hero_headline": "Artisan Hand-Tossed Pizzas Delivered Fresh",
+            "guarantee_badge": "100% Organic San Marzano Tomatoes & Mozzarella",
+            "item_singular": "pizza",
+            "item_plural": "pizzas",
+            "action_button_text": "🍕 Add to Cart",
+            "domain_emoji": "🍕",
+            "seed": [
+                {"id": "1", "title": "Margherita Speciale", "subtitle": "Fresh mozzarella • San Marzano basil sauce • extra virgin olive oil", "price_or_rate": "$16.99", "badge_status": "Best Seller", "rating": 4.9, "initials": "MS"},
+                {"id": "2", "title": "Pepperoni Feast", "subtitle": "Double crispy cupping pepperoni • spicy honey drizzle", "price_or_rate": "$19.99", "badge_status": "Popular", "rating": 5.0, "initials": "PF"},
+                {"id": "3", "title": "Truffle Mushroom White", "subtitle": "Wild mushrooms • truffle ricotta cream • thyme & garlic", "price_or_rate": "$21.99", "badge_status": "Chef Pick", "rating": 4.8, "initials": "TM"}
+            ]
+        }
     elif any(k in p_lower for k in ["laundry", "wash", "fold", "dry cleaning", "laundromat"]):
         return {
             "title": "FreshFold",

@@ -37,9 +37,9 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
       const reqs = await reqRes.json();
 
       if (Array.isArray(reqs)) {
-        // Filter out brand/sla and disabled items, build active list
+        // Filter out non-UI items (like DB persistence rules or domain invariants), build active presentation list
         const activeItems: ComponentItem[] = reqs
-          .filter((r: any) => r.id && r.status !== 'Disabled' && !r.id.startsWith('REQ-BRAND') && !r.id.startsWith('REQ-DELIVERY') && !r.id.startsWith('REQ-SUB') && !r.parentId && !r.parent_id)
+          .filter((r: any) => r.id && r.status !== 'Disabled' && !r.parentId && !r.parent_id && (r.layer === 'PRESENTATION' || r.id.startsWith('REQ-UI') || r.id.startsWith('REQ-COMP') || ['catalog', 'cart', 'tracking', 'menu', 'customizer'].includes(extractCanonicalKey(r))))
           .map((r: any) => {
             const canonicalKey = extractCanonicalKey(r);
             const compType = r.component_type || (['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth', 'calendar'].includes(canonicalKey) ? 'premade' : 'custom');

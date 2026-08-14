@@ -9,11 +9,6 @@ import re
 import json
 from typing import Dict, Any, List, Optional
 from onboarding.ui_generator import generate_llm_ui
-from onboarding.site_manifest_schema import (
-    UnifiedSiteManifestAST, DomainIntentSpec, ComponentNodeAST, SubRequirementAST,
-    NavigationRouteAST, HeroBannerAST, HeaderSpecAST, SiteNavigationAST, ComponentContentAST
-)
-from onboarding.site_ast_compiler import compile_site_manifest_to_app_tsx
 
 def sanitize_identifier(name: str) -> str:
     """Convert string to valid Python class / identifier name."""
@@ -1341,8 +1336,26 @@ export default function App() {
 }
 '''
 
-        manifest = build_site_manifest_from_schema(schema, ws_base)
-        compiled_tsx_code = compile_site_manifest_to_app_tsx(manifest)
+        pitch_str = str(schema.get('pitch', 'Application')).strip()
+        compiled_tsx_code = generate_llm_ui(pitch_str, schema)
+        if not compiled_tsx_code or "export default" not in compiled_tsx_code:
+            synth = synthesize_domain_intent_and_branding(pitch_str)
+            brand_title = synth["brand_title"]
+            compiled_tsx_code = f'''import React, {{ useState }} from 'react';
+export default function App() {{
+  return (
+    <div style={{{{ padding: '2rem', fontFamily: 'system-ui, sans-serif', background: '#0f172a', color: '#f1f5f9', minHeight: '100vh' }}}}>
+      <header style={{{{ borderBottom: '1px solid #334155', paddingBottom: '1rem', marginBottom: '2rem' }}}}>
+        <h1 style={{{{ fontSize: '2rem', fontWeight: 800, margin: 0, color: '#38bdf8' }}}}>{brand_title}</h1>
+        <p style={{{{ color: '#94a3b8', marginTop: '0.5rem' }}}}>Powered by Provable — 3-Layer Requirements Engine</p>
+      </header>
+      <div style={{{{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.75rem', padding: '2rem', textAlign: 'center' }}}}>
+        <h2 style={{{{ color: '#38bdf8' }}}}>Bespoke Domain Workspace Ready</h2>
+        <p style={{{{ color: '#94a3b8' }}}}>Interactive React application shell is active.</p>
+      </div>
+    </div>
+  );
+}}'''
 
         return {
             os.path.join(domain_dir, 'events.py'): events_code,
@@ -1588,117 +1601,15 @@ def synthesize_domain_intent_and_branding(pitch: str) -> Dict[str, Any]:
     }
 
 
-def build_site_manifest_from_schema(schema: Dict[str, Any], ws_base: str = "") -> UnifiedSiteManifestAST:
-    """Stage 5 AST Builder: Constructs UnifiedSiteManifestAST from domain schema and persists site_manifest.json."""
+def build_site_manifest_from_schema(schema: Dict[str, Any], ws_base: str = "") -> Dict[str, Any]:
+    """Domain intent synthesizer for domain schema."""
     pitch_str = str(schema.get('pitch', 'Application')).strip()
-
-    # Synthesize intent, brand title, hero copy, and category dynamically without keyword cascades
     synth = synthesize_domain_intent_and_branding(pitch_str)
-    brand_title = schema.get('brand_title') if schema.get('brand_title') and schema.get('brand_title') != "Oven & Earth Pizzeria" else synth["brand_title"]
-    category = synth["domain_category"]
-    hero_headline = synth["hero_headline"]
-    hero_subtitle = synth["hero_subtitle"]
-    badges = synth["badges"]
-
-    raw_features = schema.get('enabled_features')
-    if raw_features is None:
-        from onboarding.block_catalog import analyze_pitch_for_kickstart
-        kickstart_res = analyze_pitch_for_kickstart(pitch_str)
-        raw_features = [b['id'] for b in kickstart_res.get('blocks', []) if b.get('is_recommended') or b.get('selected')]
-
-    if not raw_features:
-        clean_k = re.sub(r'[^a-z0-9]+', '_', synth["brand_title"].lower()).strip('_')
-        if not clean_k or clean_k in ['app', 'application', 'provable']:
-            clean_k = "custom_concept"
-        enabled_features = [clean_k]
-    else:
-        enabled_features = list(raw_features)
-
-    intent = DomainIntentSpec(
-        business_pitch=pitch_str,
-        brand_name=brand_title,
-        domain_category=category
-    )
-
-    # Stage 2: Component Topology AST Nodes with Placement & Visibility Specs
-    components_ast = []
-    for feat in enabled_features:
-        icon = "⚡"
-        slot = "primary_tab"
-        trigger = "always"
-
-        if feat in ['catalog', 'menu']: icon = "📋"; slot = "primary_tab"
-        elif feat == 'cart': icon = "🛒"; slot = "action_drawer"
-        elif feat == 'tracking': icon = "📦"; slot = "post_action_screen"; trigger = "post_workflow_event"
-        elif feat == 'kds': icon = "🏪"; slot = "admin_panel"; trigger = "user_action"
-        elif feat == 'reviews': icon = "⭐"; slot = "primary_tab"
-        elif feat == 'custom_item_builder': icon = "⚙️"; slot = "embedded_view"
-        elif feat == 'flappy_bird': icon = "🎮"
-        elif feat == 'payment_system': icon = "💳"
-        elif feat == 'loyalty_points': icon = "🎁"
-        elif 'chess' in feat: icon = "♟️"
-        elif category == 'interactive_game': icon = "🎮"
-        elif category == 'fintech_tool': icon = "📊"
-        elif category == 'operations_dashboard': icon = "🛰️"
-
-        comp_type = "premade" if feat in ['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth'] else "custom"
-
-        is_comp_visible = True
-        rel_reason = "Primary component node adding value to application goal"
-
-        if feat in ['catalog', 'menu'] and category in ['interactive_game', 'fintech_tool', 'operations_dashboard'] and 'catalog' not in enabled_features:
-            is_comp_visible = False
-            rel_reason = "Unneeded retail catalog component for non-ecommerce application goal"
-
-        components_ast.append(ComponentNodeAST(
-            id=f"REQ-CMP-{feat.upper()}-001",
-            canonical_key=feat,
-            name=feat.replace('_', ' ').title(),
-            component_type=comp_type,
-            icon=icon,
-            enabled=True,
-            is_visible=is_comp_visible,
-            relevance_reason=rel_reason,
-            placement_slot=slot,
-            visibility_trigger=trigger,
-            sub_requirements=[]
-        ))
-
-    # Enforce Minimum Core View Invariant
-    if components_ast and not any(c.is_visible for c in components_ast):
-        components_ast[0].is_visible = True
-        components_ast[0].relevance_reason = "Required minimum core view invariant"
-
-    # Stage 3: Construct navigation routes dynamically
-    routes = []
-    for node in components_ast:
-        if node.is_visible and node.placement_slot == "primary_tab" and node.visibility_trigger == "always":
-            route_key = "menu" if node.canonical_key == "catalog" else node.canonical_key
-            label = "Menu" if node.canonical_key == "catalog" and category == "e_commerce" else node.name
-            routes.append(NavigationRouteAST(key=route_key, label=label, component_ref=node.canonical_key, icon=node.icon))
-
-    show_hero = category not in ["interactive_game", "fintech_tool", "operations_dashboard"]
-
-    layout = SiteNavigationAST(
-        header=HeaderSpecAST(brand_title=brand_title),
-        hero_banner=HeroBannerAST(headline=hero_headline, subtitle=hero_subtitle, badges=badges),
-        show_hero_banner=show_hero,
-        navigation_routes=routes,
-        default_route="menu" if "catalog" in enabled_features else (routes[0].key if routes else "menu")
-    )
-
-    manifest = UnifiedSiteManifestAST(
-        business_pitch=pitch_str,
-        intent=intent,
-        components=components_ast,
-        layout=layout,
-        content=ComponentContentAST(catalog_items=[])
-    )
-
-    if ws_base:
-        manifest_path = os.path.join(ws_base, 'requirements', 'site_manifest.json')
-        os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
-        with open(manifest_path, 'w', encoding='utf-8') as f:
-            f.write(manifest.to_json())
-
-    return manifest
+    return {
+        "business_pitch": pitch_str,
+        "brand_name": synth["brand_title"],
+        "domain_category": synth["domain_category"],
+        "hero_headline": synth["hero_headline"],
+        "hero_subtitle": synth["hero_subtitle"],
+        "badges": synth["badges"]
+    }

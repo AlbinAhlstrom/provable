@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS requirements (
     title       TEXT NOT NULL,
     description TEXT DEFAULT '',
     type        TEXT CHECK(type IN ('Folder','Requirement','Task','Bug')),
+    layer       TEXT CHECK(layer IN ('PRESENTATION','LOGIC','INFRASTRUCTURE')) DEFAULT 'LOGIC',
     priority    TEXT DEFAULT 'Med',
     status      TEXT DEFAULT 'Backlog',
     parent_id   TEXT REFERENCES requirements(id),

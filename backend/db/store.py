@@ -117,6 +117,12 @@ def init_db():
     except sqlite3.OperationalError:
         pass
 
+    try:
+        conn.execute("ALTER TABLE requirements ADD COLUMN layer TEXT DEFAULT 'LOGIC'")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass
+
     # Table initialisation complete
     conn.close()
 
@@ -238,6 +244,7 @@ def get_requirements_for_frontend() -> List[Dict]:
             'feedback': r.get('feedback', ''),
             'component_type': r.get('component_type'),
             'component_meta': r.get('component_meta'),
+            'layer': r.get('layer', 'LOGIC'),
             'tests': tc_by_req.get(r['id'], []),
         })
     return result
@@ -249,8 +256,8 @@ def create_requirement(data: Dict) -> Dict:
     conn.execute(
         """INSERT OR REPLACE INTO requirements
            (id, title, description, type, priority, status, parent_id,
-            dependencies, assigned_agents, proposed_code, feedback)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            dependencies, assigned_agents, proposed_code, feedback, layer)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             req_id,
             data.get('title', ''),
@@ -263,6 +270,7 @@ def create_requirement(data: Dict) -> Dict:
             json.dumps(data.get('assignedAgents', data.get('assigned_agents', []))),
             data.get('proposedCode') or data.get('proposed_code'),
             data.get('feedback', ''),
+            data.get('layer', 'LOGIC'),
         )
     )
     conn.commit()
@@ -277,7 +285,7 @@ def update_requirement(req_id: str, fields: Dict) -> Optional[Dict]:
     allowed = {
         'title', 'description', 'type', 'priority', 'status',
         'parent_id', 'sdoc_uid', 'dependencies',
-        'assigned_agents', 'proposed_code', 'feedback',
+        'assigned_agents', 'proposed_code', 'feedback', 'layer',
     }
     camel_map = {
         'parentId': 'parent_id', 'sdocUid': 'sdoc_uid',

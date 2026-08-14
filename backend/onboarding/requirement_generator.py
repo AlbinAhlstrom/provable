@@ -9,24 +9,24 @@ from typing import List, Dict, Any
 from agent_orchestrator import call_gemini
 
 def generate_dynamic_requirements(schema: dict) -> List[dict]:
-    """Dynamically synthesize 8-12 formal ISO 29148 requirements based on input schema or pitch."""
+    """Dynamically synthesize 8-12 formal ISO 29148 requirements based on input schema or pitch across 3 layers."""
     prompt = f"""
 You are a Principal Lead Requirements Architect. Given the following DDD domain schema:
 {json.dumps(schema, indent=2)}
 
-Synthesize a comprehensive, multi-level hierarchy of 8 to 12 formal ISO/IEC/IEEE 29148 software requirements covering:
-1. Domain Invariants & Entity Rules (id prefix REQ-DOM-)
-2. Service Layer Policies & Idempotency (id prefix REQ-SVC-)
-3. Data Access, Repository & Unit of Work Contracts (id prefix REQ-PERS-)
-4. API Payloads & Status Code Contracts (id prefix REQ-API-)
+Synthesize a comprehensive 3-layer hierarchy of 8 to 12 formal ISO/IEC/IEEE 29148 software requirements covering:
+1. Presentation Layer UI Components & Views (id prefix REQ-UI-, layer "PRESENTATION")
+2. Domain Invariants & Business Logic (id prefix REQ-DOM- or REQ-SVC-, layer "LOGIC")
+3. Infrastructure, API Contracts & Persistence (id prefix REQ-API- or REQ-PERS-, layer "INFRASTRUCTURE")
 
 Return ONLY a JSON array of requirement objects in this exact format (no markdown, no explanation):
 [
   {{
-    "id": "REQ-DOM-001",
+    "id": "REQ-UI-001",
     "title": "<Requirement Title>",
-    "description": "<Formal requirement statement starting with 'The system shall...' or 'The service must...'>",
+    "description": "<Formal requirement statement starting with 'The UI component shall...' or 'The system must...'>",
     "type": "Requirement",
+    "layer": "PRESENTATION",
     "priority": "High",
     "status": "Done",
     "tests": [
@@ -48,6 +48,14 @@ Return ONLY a JSON array of requirement objects in this exact format (no markdow
             raw_clean = re.sub(r'\n?```$', '', raw_clean.strip())
             parsed = json.loads(raw_clean)
             if isinstance(parsed, list) and len(parsed) >= 4:
+                for r in parsed:
+                    rid = r.get("id", "")
+                    if rid.startswith("REQ-UI"):
+                        r["layer"] = "PRESENTATION"
+                    elif rid.startswith("REQ-API") or rid.startswith("REQ-PERS"):
+                        r["layer"] = "INFRASTRUCTURE"
+                    else:
+                        r["layer"] = r.get("layer", "LOGIC")
                 return parsed
     except Exception as e:
         print(f"⚠️ Dynamic LLM Requirement synthesis notice: {e}")
