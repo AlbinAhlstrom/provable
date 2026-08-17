@@ -82,3 +82,25 @@ def test_visual_verification_pipeline(benchmark: Dict[str, Any], tmp_path):
     for key in benchmark["forbidden_active_keys"]:
         assert key not in active_keys_str, f"Forbidden active key '{key}' present in enabledFeatures in compiled TSX for '{pitch}'!"
 
+    # 4. Assert Mobile-First Responsive CSS Invariants
+    assert "box-sizing" in compiled_lower or "boxsizing" in compiled_lower or "maxwidth" in compiled_lower or "max-width" in compiled_lower, \
+        f"Mobile-first responsive CSS tokens missing in compiled TSX for '{pitch}'!"
+
+
+def test_visual_auditor_dual_viewport_contract(tmp_path):
+    """Verifies that capture_preview_screenshot handles dual desktop and mobile viewports."""
+    desktop_out = str(tmp_path / "test_desktop.png")
+    mobile_out = str(tmp_path / "test_mobile.png")
+
+    # Verify signature supports width and height options
+    import inspect
+    sig = inspect.signature(capture_preview_screenshot)
+    assert "width" in sig.parameters
+    assert "height" in sig.parameters
+
+    # Test audit_visual_presentation structure returns passed payload
+    audit = audit_visual_presentation(url="http://localhost:5174", pitch="Test Pizza")
+    assert "passed" in audit
+    assert "summary" in audit
+
+

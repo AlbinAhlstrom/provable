@@ -18,6 +18,8 @@ def parse_args():
     return parser.parse_args()
 
 def main():
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
     args = parse_args()
     
     # Parse viewport size
@@ -44,11 +46,11 @@ def main():
         print(f"🤖 Navigating to: {args.url}")
         driver.get(args.url)
         
-        # Wait for page to load
+        # Wait for page to load & React hydration
         WebDriverWait(driver, 15).until(
             EC.presence_of_element_located((By.TAG_NAME, "body"))
         )
-        time.sleep(2) # Allow React app hydration
+        time.sleep(3) # Allow React app hydration
         
         if args.view:
             print(f"🤖 Locating view navigation tab: '{args.view}'")

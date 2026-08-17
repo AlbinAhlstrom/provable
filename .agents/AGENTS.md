@@ -64,10 +64,13 @@ When modifying the application codebase or writing developer agent iterations:
 - **Completion Commitment**: Every developer task or milestone MUST end with a clean git commit capturing the completed work.
 - **Commit Amending Rule**: If an immediate follow-up fix or adjustment is made for work that was just committed, ALWAYS append/amend the changes to the same commit (`git commit --amend --no-edit` or `git commit --amend -m "..."`) so the commit log remains clean without fragmented fix commits.
 
-## Strict Zero-Hardcoding & Universal Dynamic Synthesis Invariant
+## PM Studio UX Architecture & Mobile-First Responsive Invariants
 
-**NEVER hardcode domain-specific strings, mock items, or pitch-conditional branches in backend generator code.**
-- The core purpose of Provable is 100% dynamic, prompt-agnostic generation for any arbitrary user prompt (e.g. quantum physics labs, pizza shops, pet grooming, drone logistics, or space stations).
-- **Prohibited**: Checking for specific pitch keywords (e.g., `if "pizza" in pitch: ...` or `if "bakery" in pitch: ...`) or inserting hardcoded mock product items (e.g., `"Margherita Speciale"`) inside compiler or generator templates.
-- **Enforced Strategy**: All entity attributes, catalog offerings, headers, mock items, and components MUST be synthesized dynamically via the LLM pipeline (`call_gemini` / schema extractors) or constructed using prompt-agnostic AST metadata transformers (`manifest.intent.domain_name`, `manifest.business_pitch`).
+- **3-Pillar Component Hierarchy**: Organize all PM Studio navigation around 3 Pillars:
+  1. Top Pages/Views selector bar (`PageSelectorBar.tsx`) for route management (`/`, `/checkout`, `/tracking`).
+  2. Executable Test Spec cards with `🟢 PASS` / `🔴 FAIL` badges and formatted `GIVEN / WHEN / THEN` assertion steps (`RequirementControlPanel.tsx` Tab 1).
+  3. Inline Domain Entity CRUD (`RequirementControlPanel.tsx` Tab 2) bound directly to component cards.
+- **Mobile-First Responsiveness**: Default preview mode MUST be `'mobile'` (`375px`), collapsing preview flex frames tightly without side black bars, stacking vertically on screens `< 960px`, and enforcing `overflowX: 'hidden'` with zero horizontal scrollbars.
+- **Single Heavy E2E Invariant**: Keep strictly **1 E2E test** (`backend/tests/test_e2e_pizza_prompt_sanity.py`) and migrate all AST/compilation tests to `< 1.5s` unit tests under `backend/tests/unit/`.
+
 

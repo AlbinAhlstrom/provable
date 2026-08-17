@@ -27,10 +27,10 @@ Connect form submissions and list views to backend API endpoints. Use RESTful co
 - Maintain optimistic local state updates for instantaneous UI response.
 - Do NOT assume endpoints are `/batches` unless the pitch is about batch inventory.
 
-### 4. Required Structure
-- Export a single React component as `default function App()`.
-- Use standard React hooks (`useState`, `useEffect`, `useMemo`).
-- Do NOT import external file assets that do not exist (e.g. local images or uninstalled packages). Use SVG icons or styled elements.
-- Include at least one interactive feature directly tied to the core domain action (e.g. a booking form, calendar slot picker, order submission, etc.).
+### 5. Mobile-First Responsiveness Invariant
+- Every generated UI MUST be mobile-first responsive and render cleanly on 375px mobile viewports as well as 1280px desktop viewports.
+- Define global CSS reset rules in `:root` style: `* { box-sizing: border-box; } body { margin: 0; overflow-x: hidden; } img, svg { max-width: 100%; }`.
+- Header navigation bars MUST use `flex-wrap: wrap` and flexible gaps (`gap: '0.75rem'`) so titles and nav links wrap gracefully on mobile viewports without horizontal scrolling.
+- Slide-over drawers, modals, and card containers MUST use fluid max-width constraints (e.g. `width: '100%', maxWidth: '380px'`). NEVER use fixed width like `width: '380px'` without `maxWidth: '100%'`.
 
 Respond STRICTLY with valid React TypeScript code inside a single ```tsx code block. Do NOT include any Markdown conversational intro or outro text.

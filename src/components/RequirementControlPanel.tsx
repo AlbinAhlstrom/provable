@@ -18,6 +18,22 @@ export interface RequirementControlPanelProps {
   onParamUpdated?: () => void;
 }
 
+const getTestPlaceholder = (key: string) => {
+  const k = key.toLowerCase();
+  if (k.includes('cart')) return 'e.g. When item added, update subtotal & badge count...';
+  if (k.includes('catalog') || k.includes('menu')) return 'e.g. Given item selected, add to shopping cart...';
+  if (k.includes('track') || k.includes('status')) return 'e.g. Given active order, display live pickup ETA...';
+  if (k.includes('check')) return 'e.g. When payment submitted, clear cart & show receipt...';
+  return 'e.g. Given user action, when event occurs, then update state...';
+};
+
+const handleInsertBddPrefix = (value: string) => {
+  const prefixes = ['Given', 'When', 'Then'];
+  const words = value.trim().split(' ');
+  if (words.length > 0 && prefixes.includes(words[0])) return value;
+  return `Given ${value}`;
+};
+
 export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = ({ fullWidth = false, onParamUpdated }) => {
   const [components, setComponents] = useState<ComponentItem[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([
@@ -518,26 +534,79 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                           )}
                         </div>
 
-                        {/* Inline Add Test Spec Form */}
-                        <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.25rem' }}>
-                          <input
-                            type="text"
-                            placeholder={`Add test spec for ${item.name}...`}
-                            value={subPromptByComponent[item.canonical_key] || ''}
-                            onChange={e => setSubPromptByComponent({ ...subPromptByComponent, [item.canonical_key]: e.target.value })}
-                            onKeyDown={e => { if (e.key === 'Enter') handleAddSubRequirement(item.canonical_key); }}
-                            disabled={addingSubKey === item.canonical_key}
-                            style={{
-                              flex: 1,
-                              background: '#1e293b',
-                              border: '1px solid #334155',
-                              borderRadius: '0.4rem',
-                              padding: '0.35rem 0.6rem',
-                              fontSize: '0.75rem',
-                              color: '#f8fafc',
-                              outline: 'none'
-                            }}
-                          />
+                        {/* BDD Quick Action Chips & Input Form */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginTop: '0.35rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600 }}>Insert step:</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const cur = subPromptByComponent[item.canonical_key] || '';
+                                setSubPromptByComponent({ ...subPromptByComponent, [item.canonical_key]: cur ? `${cur} Given ` : 'Given ' });
+                              }}
+                              style={{ background: '#0f172a', border: '1px solid #334155', color: '#38bdf8', fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 700 }}
+                            >
+                              + GIVEN
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const cur = subPromptByComponent[item.canonical_key] || '';
+                                setSubPromptByComponent({ ...subPromptByComponent, [item.canonical_key]: cur ? `${cur} When ` : 'When ' });
+                              }}
+                              style={{ background: '#0f172a', border: '1px solid #334155', color: '#f59e0b', fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 700 }}
+                            >
+                              + WHEN
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const cur = subPromptByComponent[item.canonical_key] || '';
+                                setSubPromptByComponent({ ...subPromptByComponent, [item.canonical_key]: cur ? `${cur} Then ` : 'Then ' });
+                              }}
+                              style={{ background: '#0f172a', border: '1px solid #334155', color: '#4ade80', fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 700 }}
+                            >
+                              + THEN
+                            </button>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '0.35rem' }}>
+                            <input
+                              type="text"
+                              placeholder={getTestPlaceholder(item.canonical_key)}
+                              value={subPromptByComponent[item.canonical_key] || ''}
+                              onChange={e => setSubPromptByComponent({ ...subPromptByComponent, [item.canonical_key]: e.target.value })}
+                              onKeyDown={e => { if (e.key === 'Enter') handleAddSubRequirement(item.canonical_key); }}
+                              disabled={addingSubKey === item.canonical_key}
+                              style={{
+                                flex: 1,
+                                background: '#1e293b',
+                                border: '1px solid #334155',
+                                borderRadius: '0.4rem',
+                                padding: '0.35rem 0.6rem',
+                                fontSize: '0.75rem',
+                                color: '#f8fafc',
+                                outline: 'none'
+                              }}
+                            />
+                            <button
+                              onClick={() => handleAddSubRequirement(item.canonical_key)}
+                              disabled={addingSubKey === item.canonical_key || !(subPromptByComponent[item.canonical_key] || '').trim()}
+                              style={{
+                                background: (subPromptByComponent[item.canonical_key] || '').trim() ? '#0284c7' : '#334155',
+                                color: 'white',
+                                border: 'none',
+                                padding: '0.35rem 0.65rem',
+                                borderRadius: '0.4rem',
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                cursor: (subPromptByComponent[item.canonical_key] || '').trim() ? 'pointer' : 'not-allowed',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              {addingSubKey === item.canonical_key ? '⏳' : '➕ Add Test'}
+                            </button>
+                          </div>
                         </div>
                       </>
                     )}

@@ -490,9 +490,14 @@ You are a Master React TSX Developer. Synthesize a complete, production-grade `A
 
 ### Implementation Guidelines:
 1. Export a default React component `export default function App()`.
-2. Include a CSS root variable style block at top of App render.
+2. Include a CSS root variable style block at top of App render with global resets (`* {{ box-sizing: border-box; }} body {{ margin: 0; overflow-x: hidden; }} img, svg {{ max-width: 100%; }}`).
 3. Use CSS variables `var(--bg-main)`, `var(--bg-card)`, `var(--text-primary)`, `var(--color-primary)`, `var(--color-mint)`, `var(--border-color)`, `var(--font-heading)` instead of hardcoded hex strings.
 4. For service booking / babysitter apps: render warm cream background, serif headers, sitter cards with rates, and an interactive weekly calendar matrix with mint green availability pills.
+5. **CRITICAL MOBILE-FIRST RESPONSIVENESS INVARIANT**:
+   - The application MUST be fully mobile-first responsive and render flawlessly on mobile screens (`375px` viewport) as well as desktop screens (`1280px`).
+   - Headers and navigation bars MUST use `flexWrap: 'wrap'` and flexible gaps (`gap: '0.75rem'`) so header titles and navigation links wrap cleanly on 375px screens without horizontal scrolling.
+   - Any slide-over panel, drawer, or modal MUST use fluid width styling (e.g. `width: '100%', maxWidth: '380px'`). NEVER use hardcoded fixed pixel widths like `width: '380px'` without `maxWidth: '100%'`.
+   - Outer container padding MUST be responsive (e.g. `padding: '1rem 0.75rem'` on mobile).
 
 Respond STRICTLY with valid React TypeScript code inside a single ```tsx code block. Do NOT include markdown text.
 """
@@ -532,7 +537,12 @@ def _generate_fallback_assembled_app(bp: UnifiedFrontendBlueprint) -> str:
     seed_json = json.dumps(bp.aesthetics.mock_seed_data)
     cat_id = bp.category_layout.category_id
     raw_vars = bp.aesthetics.get_css_variables_style()
-    css_vars_style = f":root {{\n{raw_vars}\n}}"
+    css_vars_style = f"""* {{ box-sizing: border-box; }}
+html, body {{ margin: 0; padding: 0; overflow-x: hidden; width: 100%; }}
+img, svg {{ max-width: 100%; height: auto; }}
+:root {{
+{raw_vars}
+}}"""
 
     hero_headline = bp.aesthetics.hero_headline
     guarantee_badge = bp.aesthetics.guarantee_badge
@@ -832,23 +842,23 @@ export default function App() {
   const cartTotal = cart.reduce((sum, i) => sum + (parseFloat(String(i.price_or_rate).replace(/[^0-9.]/g, '')) || 15.00), 0);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: 'var(--text-primary)', fontFamily: 'var(--font-body)', padding: '2rem' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: 'var(--text-primary)', fontFamily: 'var(--font-body)', padding: '1.25rem 0.75rem' }}>
       <style>{`__CSS_VARS__`}</style>
 
       {/* Header */}
-      <header style={{ maxWidth: '1200px', margin: '0 auto 2rem auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 800, margin: 0, fontFamily: 'var(--font-heading)' }}>__TITLE__</h1>
-          <nav style={{ display: 'flex', gap: '0.5rem' }}>
+      <header style={{ maxWidth: '1200px', margin: '0 auto 1.5rem auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, fontFamily: 'var(--font-heading)' }}>__TITLE__</h1>
+          <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             <button
               onClick={() => setActiveTab('catalog')}
-              style={{ background: activeTab === 'catalog' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'catalog' ? '#fff' : 'var(--text-primary)', border: 'none', padding: '0.5rem 1rem', borderRadius: '0.5rem', fontWeight: 700, cursor: 'pointer' }}
+              style={{ background: activeTab === 'catalog' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'catalog' ? '#fff' : 'var(--text-primary)', border: 'none', padding: '0.5rem 0.85rem', borderRadius: '0.5rem', fontWeight: 700, cursor: 'pointer' }}
             >
               🍕 Menu Catalog
             </button>
             <button
               onClick={() => setActiveTab('tracking')}
-              style={{ background: activeTab === 'tracking' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'tracking' ? '#fff' : 'var(--text-primary)', border: 'none', padding: '0.5rem 1rem', borderRadius: '0.5rem', fontWeight: 700, cursor: 'pointer' }}
+              style={{ background: activeTab === 'tracking' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'tracking' ? '#fff' : 'var(--text-primary)', border: 'none', padding: '0.5rem 0.85rem', borderRadius: '0.5rem', fontWeight: 700, cursor: 'pointer' }}
             >
               📦 Live Order Status ({orders.length})
             </button>
@@ -869,9 +879,9 @@ export default function App() {
         )}
 
         {activeTab === 'catalog' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
             {items.map((item: any) => (
-              <div key={item.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: 'var(--shadow-card)' }}>
+              <div key={item.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '1.25rem', padding: '1.25rem', boxShadow: 'var(--shadow-card)' }}>
                 <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>{item.title}</h3>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{item.subtitle}</p>
                 <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', margin: '1rem 0' }}>{item.price_or_rate}</div>
@@ -884,16 +894,16 @@ export default function App() {
         )}
 
         {activeTab === 'tracking' && (
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--shadow-card)' }}>
-            <h2 style={{ fontSize: '1.4rem', margin: '0 0 1.5rem 0', fontFamily: 'var(--font-heading)' }}>📦 Live Order Status & Tracking Pipeline</h2>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: 'var(--shadow-card)' }}>
+            <h2 style={{ fontSize: '1.3rem', margin: '0 0 1.25rem 0', fontFamily: 'var(--font-heading)' }}>📦 Live Order Status & Tracking Pipeline</h2>
             {orders.length === 0 ? (
               <p style={{ color: 'var(--text-muted)' }}>No active orders being tracked. Place an order to start tracking!</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {orders.map((ord: any) => (
-                  <div key={ord.id} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '0.75rem', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={ord.id} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '0.75rem', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
                     <div>
-                      <div style={{ fontWeight: 800, fontSize: '1rem' }}>Order Ref: {ord.ref} ({ord.item})</div>
+                      <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>Order Ref: {ord.ref} ({ord.item})</div>
                       <div style={{ color: 'var(--color-primary)', fontSize: '0.85rem', fontWeight: 700, marginTop: '0.25rem' }}>Status: {ord.status}</div>
                     </div>
                     <div style={{ background: 'var(--color-mint)', color: 'var(--color-mint-text)', padding: '0.4rem 0.85rem', borderRadius: '9999px', fontWeight: 700, fontSize: '0.85rem' }}>
@@ -910,7 +920,7 @@ export default function App() {
       {/* Interactive Checkout Drawer / Modal */}
       {isCartOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'flex-end', zIndex: 999 }}>
-          <div style={{ width: '380px', background: 'var(--bg-card)', height: '100%', padding: '2rem', display: 'flex', flexDirection: 'column', boxShadow: '-4px 0 20px rgba(0,0,0,0.2)' }}>
+          <div style={{ width: '100%', maxWidth: '380px', background: 'var(--bg-card)', height: '100%', padding: '1.5rem', display: 'flex', flexDirection: 'column', boxShadow: '-4px 0 20px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.3rem', margin: 0, fontFamily: 'var(--font-heading)' }}>Your Cart ({cart.length})</h2>
               <button onClick={() => setIsCartOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: 'var(--text-primary)' }}>✕</button>

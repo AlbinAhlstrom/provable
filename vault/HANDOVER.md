@@ -69,6 +69,11 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
    - **JSX Compilation Integrity Test Suite**: Created [`backend/tests/unit/test_jsx_compilation_integrity.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/unit/test_jsx_compilation_integrity.py) to automatically verify `npx tsc --noEmit` and generated AST React code with zero syntax error overlays.
    - **Verified Build & Visual Status**: `100% PASS` (104/104 backend pytest suite passed, 0 TypeScript errors via `npx tsc --noEmit`, verified clean in browser).
 
+9. **Mobile-First Responsive Generator Architecture & Dual-Viewport Visual Auditor**:
+   - **Dual-Viewport Visual Auditor**: Refactored [`visual_auditor.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/visual_auditor.py) to capture both `preview_desktop.png` (`1280x800`) and `preview_mobile.png` (`375x812`), auditing both viewports against [`visual_qa.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/prompts/visual_qa.md) for horizontal overflow, text clipping, and responsive button wrapping.
+   - **Mobile-First CSS Resets & Fluid Drawers**: Enforced global CSS resets (`box-sizing: border-box`, `overflow-x: hidden`, `max-width: 100%`) and replaced fixed drawer widths (`width: '380px'`) with fluid bounds (`width: '100%', maxWidth: '380px'`) across all generator templates in [`frontend_planning_engine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/frontend_planning_engine.py) and [`ui_generation.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/prompts/ui_generation.md).
+   - **Verified Build Status**: `100% PASS` (105/105 backend pytest suite passed, 0 TypeScript compilation errors via `npx tsc --noEmit`).
+
 ---
 
-*Updated by Antigravity on 2026-08-17 (Implemented Mobile-First Responsive CSS Architecture, ReferenceError bugfix, Flex height collapse elimination, and Zero Horizontal Scrollbar Invariant across all screen breakpoints).*
+*Updated by Antigravity on 2026-08-17 (Implemented Mobile-First Responsive CSS Generator Architecture, Dual-Viewport Visual Auditor [Desktop 1280x800 + Mobile 375x812], and 105/105 test suite pass).*
