@@ -795,12 +795,13 @@ export default function App() {
                    .replace('__ACTION_BUTTON__', action_button)\
                    .replace('__DOMAIN_EMOJI__', domain_emoji)
 
-    # Generic E-Commerce or Storefront Fallback
+    # Generic E-Commerce or Storefront Fallback with Interactive Checkout Modal
     tmpl = '''import React, { useState } from 'react';
 
 export default function App() {
   const [items] = useState<any[]>(__SEED_JSON__);
   const [cart, setCart] = useState<any[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const handleAddToCart = (item: any) => {
@@ -809,22 +810,33 @@ export default function App() {
     setTimeout(() => setToast(null), 3000);
   };
 
+  const handleRemoveFromCart = (index: number) => {
+    setCart(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSimulatePayment = () => {
+    setToast("🎉 Order Placed! [ ⚡ Sandbox Mode — Simulated Transaction ]");
+    setCart([]);
+    setIsCartOpen(false);
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  const cartTotal = cart.reduce((sum, i) => sum + (parseFloat(String(i.price_or_rate).replace(/[^0-9.]/g, '')) || 15.00), 0);
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: 'var(--text-primary)', fontFamily: 'var(--font-body)', padding: '2rem' }}>
       <style>{`__CSS_VARS__`}</style>
 
+      {/* Header */}
       <header style={{ maxWidth: '1200px', margin: '0 auto 2rem auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h1 style={{ fontSize: '1.6rem', fontWeight: 800, margin: 0, fontFamily: 'var(--font-heading)' }}>__TITLE__</h1>
-        <button style={{ background: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.6rem 1.25rem', borderRadius: '9999px', fontWeight: 700, cursor: 'pointer' }}>
+        <button onClick={() => setIsCartOpen(true)} style={{ background: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.6rem 1.25rem', borderRadius: '9999px', fontWeight: 700, cursor: 'pointer' }}>
           Cart ({cart.length})
         </button>
       </header>
 
+      {/* Main Content */}
       <main style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '1.25rem', padding: '2rem', marginBottom: '2rem', boxShadow: 'var(--shadow-card)' }}>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem 0', fontFamily: 'var(--font-heading)', color: 'var(--color-primary)' }}>__PITCH__</h2>
-        </div>
-
         {toast && (
           <div style={{ background: 'var(--color-mint)', border: '1px solid var(--color-mint-text)', color: 'var(--color-mint-text)', padding: '0.85rem 1.25rem', borderRadius: '0.75rem', marginBottom: '1.5rem', fontWeight: 700 }}>
             {toast}
@@ -844,11 +856,51 @@ export default function App() {
           ))}
         </div>
       </main>
+
+      {/* Interactive Checkout Drawer / Modal */}
+      {isCartOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'flex-end', zIndex: 999 }}>
+          <div style={{ width: '380px', background: 'var(--bg-card)', height: '100%', padding: '2rem', display: 'flex', flexDirection: 'column', boxShadow: '-4px 0 20px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.3rem', margin: 0, fontFamily: 'var(--font-heading)' }}>Your Cart ({cart.length})</h2>
+              <button onClick={() => setIsCartOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: 'var(--text-primary)' }}>✕</button>
+            </div>
+
+            {cart.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', flex: 1 }}>Your cart is empty. Add items from the menu!</p>
+            ) : (
+              <>
+                <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {cart.map((item, index) => (
+                    <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{item.title}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-primary)' }}>{item.price_or_rate}</div>
+                      </div>
+                      <button onClick={() => handleRemoveFromCart(index)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 700 }}>Delete</button>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.1rem', marginBottom: '1rem' }}>
+                    <span>Total:</span>
+                    <span>${cartTotal.toFixed(2)}</span>
+                  </div>
+                  <button onClick={handleSimulatePayment} style={{ width: '100%', background: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.85rem', borderRadius: '0.75rem', fontWeight: 800, cursor: 'pointer' }}>
+                    💳 Simulate Payment [ Sandbox Mode ]
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 '''
-    return tmpl.replace('__TITLE__', title).replace('__SEED_JSON__', seed_json).replace('__CSS_VARS__', css_vars_style).replace('__PITCH__', bp.business_pitch)
+    return tmpl.replace('__TITLE__', title).replace('__SEED_JSON__', seed_json).replace('__CSS_VARS__', css_vars_style)
 
 
 def analyze_pitch_components_and_suggestions(pitch: str) -> Dict[str, Any]:

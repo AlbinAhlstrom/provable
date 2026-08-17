@@ -33,8 +33,15 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
    - **PM Studio 3-Layer UI & Presentation Sidebar**: Updated `RequirementsList.tsx` with a 3-Layer Explorer filter bar (`All`, `🎨 UI`, `⚡ Logic`, `💾 API`) and filtered `RequirementControlPanel.tsx` sidebar to ONLY render Presentation layer components (`layer == 'PRESENTATION'`).
    - **Verified Build Status**: `100% PASS` (0 TypeScript compilation errors via `npx tsc --noEmit`, 100% backend unit test pass).
 
+3. **Event-Driven BDD State Machine Requirements & Function-First UI Synthesis**:
+   - **Unified BDD Requirements**: Refactored `requirement_generator.py` to synthesize Feature-level requirements with embedded BDD Acceptance Criteria (`Given / When / Then`) and explicit Event/State transition contracts (`User Action ➔ Event ➔ State Transition`).
+   - **Function-First, Zero-Fluff Rule**: Removed decorative `__PITCH__` card boxes from `frontend_planning_engine.py` fallback templates and prohibited printing raw prompt text in white decorative hero cards.
+   - **Interactive Cart & Checkout Modal Wiring**: Mandated that any Cart component included in synthesis MUST provide state management (`isCartOpen`, `cartItems`), Cart Button toggle handlers, and a complete `CheckoutDrawer` / `CheckoutModal` rendering item lists, item deletion, subtotal calculations, and simulated payment triggers (`[ ⚡ Sandbox Mode ]`).
+   - **Verified Build Status**: `100% PASS` (0 TypeScript compilation errors via `npx tsc --noEmit`, 41/41 unit pytest suite passed in 13.58s).
+
 ---
 
-*Updated by Antigravity on 2026-08-14 (Completed 3-Layer Requirements-Driven Engine Pivot & Pipeline Purge).*
+*Updated by Antigravity on 2026-08-17 (Completed Event-Driven BDD Requirements & Function-First UI Synthesis).*
+
 
 

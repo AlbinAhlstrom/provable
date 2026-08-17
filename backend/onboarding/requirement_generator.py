@@ -9,32 +9,32 @@ from typing import List, Dict, Any
 from agent_orchestrator import call_gemini
 
 def generate_dynamic_requirements(schema: dict) -> List[dict]:
-    """Dynamically synthesize 8-12 formal ISO 29148 requirements based on input schema or pitch across 3 layers."""
+    """Dynamically synthesize formal ISO 29148 requirements across 3 layers with BDD scenarios & Event State Machine contracts."""
     prompt = f"""
 You are a Principal Lead Requirements Architect. Given the following DDD domain schema:
 {json.dumps(schema, indent=2)}
 
 Synthesize a comprehensive 3-layer hierarchy of 8 to 12 formal ISO/IEC/IEEE 29148 software requirements covering:
-1. Presentation Layer UI Components & Views (id prefix REQ-UI-, layer "PRESENTATION")
-2. Domain Invariants & Business Logic (id prefix REQ-DOM- or REQ-SVC-, layer "LOGIC")
-3. Infrastructure, API Contracts & Persistence (id prefix REQ-API- or REQ-PERS-, layer "INFRASTRUCTURE")
+1. Presentation Layer UI Components & Navigation (id prefix REQ-UI-, layer "PRESENTATION"). Must include Event-Driven Interaction contracts: User Action ➔ Triggered Event ➔ State Transition.
+2. Domain Invariants & Business Logic (id prefix REQ-DOM- or REQ-SVC-, layer "LOGIC"). Must include Feature-Level BDD Given/When/Then scenarios.
+3. Infrastructure, API Contracts & Persistence (id prefix REQ-API- or REQ-PERS-, layer "INFRASTRUCTURE").
 
 Return ONLY a JSON array of requirement objects in this exact format (no markdown, no explanation):
 [
   {{
     "id": "REQ-UI-001",
-    "title": "<Requirement Title>",
-    "description": "<Formal requirement statement starting with 'The UI component shall...' or 'The system must...'>",
+    "title": "Interactive Cart Button & Checkout Drawer Contract",
+    "description": "The UI component shall render an active cart quantity counter. User Action: Click Cart Button ➔ Triggered Event: OpenCheckoutDrawer ➔ State Transition: UI state sets isCartOpen=true and displays Checkout Modal.",
     "type": "Requirement",
     "layer": "PRESENTATION",
     "priority": "High",
     "status": "Done",
     "tests": [
       {{
-        "name": "test_<function_name>",
-        "given": "Given <precondition>",
-        "when": "When <action>",
-        "then": "Then <expected_result>",
+        "name": "test_cart_button_opens_checkout_modal",
+        "given": "Given the user has added items to the cart",
+        "when": "When the user clicks the Cart button",
+        "then": "Then the Checkout Drawer modal opens displaying item list, subtotal, and payment button",
         "status": "pass"
       }}
     ]
