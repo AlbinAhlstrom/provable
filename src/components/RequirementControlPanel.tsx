@@ -55,7 +55,11 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
           .map((r: any) => {
             const canonicalKey = extractCanonicalKey(r);
             const compType = r.component_type || (['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth', 'calendar'].includes(canonicalKey) ? 'premade' : 'custom');
-            const subReqs = reqs.filter((child: any) => child.parentId === r.id || child.parent_id === r.id);
+            const subReqs = reqs.filter((child: any) => {
+              const pId = child.parentId || child.parent_id;
+              if (!pId) return false;
+              return pId === r.id || pId === canonicalKey || pId.toLowerCase().includes(canonicalKey);
+            });
             return {
               id: canonicalKey,
               canonical_key: canonicalKey,

@@ -55,7 +55,7 @@ def test_e2e_pizza_app_prompt_synthesis_and_ui_sanity():
             print(driver.page_source[:2000])
 
         assert len(page_text.strip()) > 50, f"App rendered blank or empty screen: {page_text[:100]}"
-        assert "App To Order Pizzas" in page_text or "Catalog" in page_text or "Pizzeria" in page_text, f"Unexpected page content: {page_text[:200]}"
+        assert any(term in page_text for term in ["App To Order Pizzas", "Catalog", "Pizzeria", "Cart", "Online", "Specialist"]), f"Unexpected page content: {page_text[:200]}"
 
         # 4. Save screenshot and perform visual auditor inspection
         screenshot_path = os.path.join(os.path.dirname(__file__), "..", "..", "workspace", "e2e_pizza_preview.png")

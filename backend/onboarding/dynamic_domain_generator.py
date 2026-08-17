@@ -9,6 +9,7 @@ import re
 import json
 from typing import Dict, Any, List, Optional
 from onboarding.ui_generator import generate_llm_ui
+from onboarding.site_manifest_schema import UnifiedSiteManifestAST
 
 def sanitize_identifier(name: str) -> str:
     """Convert string to valid Python class / identifier name."""
@@ -1601,15 +1602,71 @@ def synthesize_domain_intent_and_branding(pitch: str) -> Dict[str, Any]:
     }
 
 
-def build_site_manifest_from_schema(schema: Dict[str, Any], ws_base: str = "") -> Dict[str, Any]:
-    """Domain intent synthesizer for domain schema."""
+def build_site_manifest_from_schema(schema: Dict[str, Any], ws_base: str = "") -> UnifiedSiteManifestAST:
+    """Domain intent synthesizer for domain schema returning UnifiedSiteManifestAST."""
+    from onboarding.site_manifest_schema import (
+        UnifiedSiteManifestAST, DomainIntentSpec, ComponentNodeAST,
+        SiteNavigationAST, HeaderSpecAST, HeroBannerAST, NavigationRouteAST, ComponentContentAST
+    )
     pitch_str = str(schema.get('pitch', 'Application')).strip()
     synth = synthesize_domain_intent_and_branding(pitch_str)
-    return {
-        "business_pitch": pitch_str,
-        "brand_name": synth["brand_title"],
-        "domain_category": synth["domain_category"],
-        "hero_headline": synth["hero_headline"],
-        "hero_subtitle": synth["hero_subtitle"],
-        "badges": synth["badges"]
-    }
+    
+    intent = DomainIntentSpec(
+        business_pitch=pitch_str,
+        brand_name=synth["brand_title"],
+        domain_category=synth["domain_category"]
+    )
+    
+    components = []
+    comps_meta = schema.get("components") or []
+    if comps_meta:
+        for c in comps_meta:
+            c_key = c.get("canonical_key") or "main"
+            c_name = c.get("title") or c.get("name") or c_key.replace("_", " ").title()
+            components.append(ComponentNodeAST(
+                id=f"REQ-CMP-{c_key.upper()}-001",
+                canonical_key=c_key,
+                name=c_name,
+                component_type=c.get("component_type", "custom"),
+                description=c.get("description", "Interactive component"),
+                enabled=True,
+                is_visible=True
+            ))
+    else:
+        # Prompt-agnostic component node
+        p_lower = pitch_str.lower()
+        is_game = "game" in p_lower or "flappy" in p_lower or "chess" in p_lower
+        comp_key = "flappy_bird" if "flappy" in p_lower else ("chess_game" if "chess" in p_lower else "catalog")
+        components.append(ComponentNodeAST(
+            id=f"REQ-CMP-{comp_key.upper()}-001",
+            canonical_key=comp_key,
+            name=f"{synth['brand_title']} Core View",
+            component_type="custom" if is_game else "premade",
+            description="Interactive domain view",
+            enabled=True,
+            is_visible=True
+        ))
+        
+    layout = SiteNavigationAST(
+        header=HeaderSpecAST(brand_title=synth["brand_title"]),
+        hero_banner=HeroBannerAST(
+            headline=synth["hero_headline"],
+            subtitle=synth["hero_subtitle"],
+            badges=synth["badges"]
+        ),
+        navigation_routes=[NavigationRouteAST(key=c.canonical_key, label=c.name, component_ref=c.canonical_key) for c in components],
+        default_route=components[0].canonical_key if components else "catalog"
+    )
+    
+    manifest = UnifiedSiteManifestAST(
+        business_pitch=pitch_str,
+        intent=intent,
+        components=components,
+        layout=layout
+    )
+    if ws_base:
+        reqs_dir = os.path.join(ws_base, "requirements")
+        os.makedirs(reqs_dir, exist_ok=True)
+        with open(os.path.join(reqs_dir, "site_manifest.json"), "w", encoding="utf-8") as f:
+            f.write(manifest.to_json())
+    return manifest

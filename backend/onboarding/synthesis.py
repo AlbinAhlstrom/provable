@@ -53,6 +53,7 @@ def synthesize_application_stack(domain_schema: Dict[str, Any], uow: Optional[Ab
                     priority=rspec.get("priority", "High"),
                     type=rspec.get("type", "Requirement"),
                     parent_id=rspec.get("parentId") or rspec.get("parent_id"),
+                    layer=rspec.get("layer", "LOGIC"),
                     tests=rspec.get("tests") or []
                 )
                 uow.requirements.add(req_obj)
@@ -738,7 +739,7 @@ def list_active_orders():
                 capture_output=True,
                 text=True
             )
-            print(f"📊 Test Verification Completed (exitcode {res.returncode}):\n{res.stdout}")
+            print(f"[Test] Verification Completed (exitcode {res.returncode}):\n{res.stdout}")
             
             with uow:
                 reqs = uow.requirements.list()
@@ -751,21 +752,21 @@ def list_active_orders():
                         uow.requirements.add(req)
                 uow.commit()
         except Exception as e:
-            print(f"⚠️ Test Verification Execution notice: {e}")
+            print(f"[Test] Execution notice: {e}")
 
         # ── STEP 6: Web App Preview & Vocabulary Isolation Verification Gates ─────────
         try:
             vocab_audit = audit_domain_vocabulary(str(schema), universal_files)
-            print(f"🛡️ Vocabulary Audit Gate: {vocab_audit['status'].upper()}")
+            print(f"[Audit] Vocabulary Audit Gate: {vocab_audit['status'].upper()}")
             
             preview_health = verify_preview_health(ws_base)
-            print(f"🖥️ Web App Preview Health Gate: {preview_health['status'].upper()}")
+            print(f"[Preview] Web App Preview Health Gate: {preview_health['status'].upper()}")
 
             pitch_text = str(schema.get('pitch', 'Application Pitch')) if isinstance(schema, dict) else 'Application Pitch'
             visual_audit = audit_visual_presentation("http://localhost:5174", pitch=pitch_text)
-            print(f"👁️ Visual Inspection Gate: {'PASS' if visual_audit.get('passed', True) else 'FAIL'} (Score: {visual_audit.get('score', 100)}/100)")
+            print(f"[Visual Audit] Visual Inspection Gate: {'PASS' if visual_audit.get('passed', True) else 'FAIL'} (Score: {visual_audit.get('score', 100)}/100)")
         except Exception as e:
-            print(f"⚠️ Verification Gate notice: {e}")
+            print(f"[Notice] Verification Gate notice: {e}")
             visual_audit = {"passed": True, "score": 100, "summary": "Audit notice"}
     else:
         visual_audit = {"passed": True, "score": 100, "summary": "Skipped for FakeUnitOfWork"}

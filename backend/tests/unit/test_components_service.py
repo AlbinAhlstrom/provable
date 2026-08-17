@@ -87,7 +87,7 @@ def test_add_sub_requirement_service():
 
     sub_req = uow.requirements.get(sub_id)
     assert sub_req is not None
-    assert sub_req.parent_id == "REQ-CATALOG-001"
+    assert sub_req.parent_id == "REQ-UI-CATALOG"
     assert "Filter by Price" in sub_req.title
     assert uow.committed is True
 

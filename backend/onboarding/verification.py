@@ -26,10 +26,10 @@ def audit_domain_vocabulary(pitch: str, code_files: Dict[str, str]) -> dict:
                 if word in content:
                     violations.append(f"{os.path.basename(filepath)} contains forbidden term '{word}'")
         if violations:
-            print(f"⚠️ Vocabulary Audit Violation: {', '.join(violations)}")
+            print(f"[Notice] Vocabulary Audit Violation: {', '.join(violations)}")
             return {"status": "fail", "violations": violations}
 
-    print("🛡️ Vocabulary Audit Gate: PASS (100% Native Domain Terminology Verified)")
+    print("[Audit] Vocabulary Audit Gate: PASS (100% Native Domain Terminology Verified)")
     return {"status": "pass"}
 
 
@@ -51,10 +51,10 @@ def verify_preview_health(ws_base: str) -> dict:
             timeout=30
         )
         if build_res.returncode != 0:
-            print(f"⚠️ Preview Verification Warning: Vite build failed:\n{build_res.stderr}")
+            print(f"[Notice] Preview Verification Warning: Vite build failed:\n{build_res.stderr}")
             return {"status": "fail", "step": "build", "error": build_res.stderr}
     except Exception as e:
-        print(f"⚠️ Preview Verification Build Check notice: {e}")
+        print(f"[Notice] Preview Verification Build Check notice: {e}")
 
     # 2. Verify Port 5174 HTTP GET Reachability
     try:
@@ -64,7 +64,7 @@ def verify_preview_health(ws_base: str) -> dict:
             if response.status != 200 or '<div id="root">' not in html:
                 return {"status": "fail", "step": "http", "error": "Invalid HTML payload on port 5174"}
     except Exception as e:
-        print(f"⚠️ Preview Verification HTTP Check notice: {e}")
+        print(f"[Notice] Preview Verification HTTP Check notice: {e}")
 
-    print("🖥️ Web App Preview Health Gate: PASS (Vite Bundle + HTTP 200 OK Verified)")
+    print("[Preview] Web App Preview Health Gate: PASS (Vite Bundle + HTTP 200 OK Verified)")
     return {"status": "pass"}

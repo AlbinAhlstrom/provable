@@ -11,63 +11,96 @@ from typing import Dict, Any, List
 from onboarding.site_manifest_schema import UnifiedSiteManifestAST, ComponentNodeAST, NavigationRouteAST
 
 
-def compile_site_manifest_to_app_tsx(manifest: UnifiedSiteManifestAST) -> str:
+def compile_site_manifest_to_app_tsx(manifest: Any) -> str:
     """
-    Compiles UnifiedSiteManifestAST directly into clean, syntactically valid React 18 TSX code.
+    Compiles UnifiedSiteManifestAST or dict manifest directly into clean, syntactically valid React 18 TSX code.
     """
-    brand_title = manifest.layout.header.brand_title
-    headline = manifest.layout.hero_banner.headline
-    subtitle = manifest.layout.hero_banner.subtitle
-    badges_html = " • ".join(f"<span>{b}</span>" for b in manifest.layout.hero_banner.badges)
+    if isinstance(manifest, dict):
+        brand_title = manifest.get("brand_name") or manifest.get("brand_title") or "Application Workspace"
+        headline = manifest.get("hero_headline") or f"Welcome to {brand_title}"
+        subtitle = manifest.get("hero_subtitle") or "Domain Management & Execution System"
+        badges = manifest.get("badges") or []
+        badges_html = " • ".join(f"<span>{b}</span>" for b in badges)
+        primary_color = "#0284c7"
+        bg_color = "#0f172a"
+        font_family = "system-ui, sans-serif"
+        comps = manifest.get("components") or []
+        active_keys = [c.get("canonical_key") if isinstance(c, dict) else getattr(c, "canonical_key", "main") for c in comps]
+        active_keys_json = json.dumps(active_keys)
+        nav_routes_json = json.dumps([{"key": k, "label": k.title(), "icon": "⚡", "component_ref": k} for k in active_keys])
+    else:
+        brand_title = manifest.layout.header.brand_title
+        headline = manifest.layout.hero_banner.headline
+        subtitle = manifest.layout.hero_banner.subtitle
+        badges_html = " • ".join(f"<span>{b}</span>" for b in manifest.layout.hero_banner.badges)
 
-    primary_color = manifest.layout.theme.primary_color
-    bg_color = manifest.layout.theme.bg_color
-    font_family = manifest.layout.theme.font_family
+        primary_color = manifest.layout.theme.primary_color
+        bg_color = manifest.layout.theme.bg_color
+        font_family = manifest.layout.theme.font_family
 
-    active_keys = [c.canonical_key for c in manifest.components if c.enabled]
-    active_keys_json = json.dumps(active_keys)
+        active_keys = [c.canonical_key for c in manifest.components if getattr(c, 'enabled', True)]
+        active_keys_json = json.dumps(active_keys)
 
-    nav_routes = []
-    for r in manifest.layout.navigation_routes:
-        nav_routes.append({
-            "key": r.key,
-            "label": r.label,
-            "icon": r.icon,
-            "component_ref": r.component_ref
-        })
-    nav_routes_json = json.dumps(nav_routes)
+        nav_routes = []
+        for r in manifest.layout.navigation_routes:
+            nav_routes.append({
+                "key": r.key,
+                "label": r.label,
+                "icon": r.icon,
+                "component_ref": r.component_ref
+            })
+        nav_routes_json = json.dumps(nav_routes)
 
     components_meta = []
-    for c in manifest.components:
-        components_meta.append({
-            "key": c.canonical_key,
-            "name": c.name,
-            "icon": c.icon,
-            "type": c.component_type,
-            "description": c.description,
-            "enabled": c.enabled
-        })
+    comps = manifest.get("components", []) if isinstance(manifest, dict) else manifest.components
+    for c in comps:
+        if isinstance(c, dict):
+            c_key = c.get("canonical_key") or "main"
+            c_name = c.get("name") or c_key.replace("_", " ").title()
+            components_meta.append({
+                "key": c_key,
+                "name": c_name,
+                "icon": c.get("icon", "⚡"),
+                "type": c.get("component_type", "custom"),
+                "description": c.get("description", "Interactive component"),
+                "enabled": True
+            })
+        else:
+            components_meta.append({
+                "key": c.canonical_key,
+                "name": c.name,
+                "icon": c.icon,
+                "type": c.component_type,
+                "description": c.description,
+                "enabled": getattr(c, "enabled", True)
+            })
     components_meta_json = json.dumps(components_meta)
 
-    catalog_items = manifest.content.catalog_items if (manifest.content.catalog_items is not None and len(manifest.content.catalog_items) > 0) else []
+    if isinstance(manifest, dict):
+        catalog_items = manifest.get("catalog_items") or manifest.get("seed", [])
+        reviews = manifest.get("review_items", [])
+    else:
+        catalog_items = manifest.content.catalog_items if (manifest.content.catalog_items is not None and len(manifest.content.catalog_items) > 0) else []
+        reviews = manifest.content.review_items if (manifest.content.review_items is not None and len(manifest.content.review_items) > 0) else []
+
     if not catalog_items:
         # Prompt-agnostic fallback generator derived dynamically from AST metadata
-        domain_title = manifest.intent.brand_name.capitalize() if getattr(manifest.intent, "brand_name", None) else "Offering"
+        domain_title = (manifest.get("brand_name") if isinstance(manifest, dict) else getattr(manifest.intent, "brand_name", "Offering")).capitalize()
+        b_pitch = manifest.get("business_pitch") if isinstance(manifest, dict) else manifest.business_pitch
         catalog_items = [
-            { "id": "item-1", "name": f"Standard {domain_title} Package", "desc": f"Essential core capabilities for {manifest.business_pitch}.", "price": 19.99, "icon": "⭐" },
-            { "id": "item-2", "name": f"Premium {domain_title} Suite", "desc": f"Enhanced features, priority support, and advanced options for {manifest.business_pitch}.", "price": 39.99, "icon": "⚡" },
+            { "id": "item-1", "name": f"Standard {domain_title} Package", "desc": f"Essential core capabilities for {b_pitch}.", "price": 19.99, "icon": "⭐" },
+            { "id": "item-2", "name": f"Premium {domain_title} Suite", "desc": f"Enhanced features, priority support, and advanced options for {b_pitch}.", "price": 39.99, "icon": "⚡" },
             { "id": "item-3", "name": f"Enterprise Custom {domain_title}", "desc": "Full custom specification tailored to your exact workflow.", "price": 79.99, "icon": "🚀" }
         ]
     catalog_json = json.dumps(catalog_items)
 
-    if manifest.content.review_items is not None and len(manifest.content.review_items) > 0:
-        reviews_items = manifest.content.review_items
-    else:
-        reviews_items = [
-            { "id": 1, "author": "Alex M.", "rating": 5, "comment": f"Great user experience for {manifest.business_pitch}.", "date": "10 mins ago" },
+    if not reviews:
+        b_pitch = manifest.get("business_pitch") if isinstance(manifest, dict) else manifest.business_pitch
+        reviews = [
+            { "id": 1, "author": "Alex M.", "rating": 5, "comment": f"Great user experience for {b_pitch}.", "date": "10 mins ago" },
             { "id": 2, "author": "Taylor K.", "rating": 5, "comment": "Smooth interface and intuitive design.", "date": "1 hour ago" }
         ]
-    reviews_json = json.dumps(reviews_items)
+    reviews_json = json.dumps(reviews)
 
     template = '''import React, { useState } from 'react';
 
@@ -286,13 +319,17 @@ export default function App() {
 }
 '''
 
-    builder_title = f"⚙️ Custom {manifest.intent.brand_name} Builder" if manifest.intent.brand_name else "⚙️ Custom Item Builder"
-    builder_subtitle = f"Configure custom options and specifications for {manifest.business_pitch}."
+    b_title = manifest.get("brand_name") if isinstance(manifest, dict) else getattr(getattr(manifest, "intent", None), "brand_name", None)
+    b_pitch = manifest.get("business_pitch") if isinstance(manifest, dict) else manifest.business_pitch
+    builder_title = f"⚙️ Custom {b_title} Builder" if b_title else "⚙️ Custom Item Builder"
+    builder_subtitle = f"Configure custom options and specifications for {b_pitch}."
     builder_toppings_json = json.dumps(['Standard Package', 'Premium Upgrade', 'Express Processing', 'Custom Note'])
     builder_crust_options = "<option>Standard Configuration</option><option>Extended Customization</option>"
     builder_btn = "Add Custom Item ($21.50)"
-    default_route_json = json.dumps(manifest.layout.default_route)
-    show_hero_str = "true" if manifest.layout.show_hero_banner else "false"
+    default_route = manifest.get("default_route", active_keys[0] if active_keys else "catalog") if isinstance(manifest, dict) else manifest.layout.default_route
+    default_route_json = json.dumps(default_route)
+    show_hero = manifest.get("show_hero_banner", True) if isinstance(manifest, dict) else manifest.layout.show_hero_banner
+    show_hero_str = "true" if show_hero else "false"
 
     has_flappy = any(k in active_keys for k in ['flappy_bird', 'flappy_bird_game'])
     if has_flappy:

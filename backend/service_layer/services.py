@@ -245,11 +245,12 @@ def toggle_requirement_feature(
                 }
                 req = Requirement(
                     id=r_id,
-                    title=f"Capability Block {info['canonical_key'].upper()} Active",
+                    title=f"Component: {info['canonical_key'].replace('_', ' ').title()}",
                     description=f"The application shall enable and support the {info['canonical_key']} feature workflow.",
                     type="Requirement",
                     priority="High",
                     status="Done",
+                    layer="PRESENTATION",
                     tests=[tc]
                 )
                 uow.requirements.add(req)
@@ -497,9 +498,9 @@ def sync_workspace_app_shell(ws_base: Optional[str] = None, uow: Optional[Abstra
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, 'w', encoding='utf-8') as f:
                 f.write(content)
-        print("⚡ Workspace App Shell synchronized cleanly with provable backend!")
+        print("[Shell] Workspace App Shell synchronized cleanly with provable backend!")
     except Exception as e:
-        print(f"⚠️ Notice syncing workspace app shell: {e}")
+        print(f"[Notice] Notice syncing workspace app shell: {e}")
 
 
 def discover_domain_model(pitch: str, uow: Optional[AbstractUnitOfWork] = None) -> Dict[str, Any]:
@@ -629,20 +630,21 @@ def synthesize_kickstart_stack(
             except Exception as e:
                 print(f"Requirement creation notice: {e}")
 
-        # Seed selected block requirements into store as Done
+        # Seed selected block requirements into store as Presentation Components
         for blk in blocks_list:
             try:
                 info = resolve_canonical_feature(blk)
-                for r_id in info['req_ids']:
-                    req_obj = Requirement(
-                        id=r_id,
-                        title=f"Capability Block {info['canonical_key'].upper()} Active",
-                        description=f"The application shall enable and support the {info['canonical_key']} feature workflow.",
-                        type="Requirement",
-                        priority="High",
-                        status="Done"
-                    )
-                    uow_context.requirements.add(req_obj)
+                r_id = f"REQ-UI-{info['canonical_key'].upper()}"
+                req_obj = Requirement(
+                    id=r_id,
+                    title=f"Component: {info['canonical_key'].replace('_', ' ').title()}",
+                    description=f"The application shall render and support the interactive {info['canonical_key']} component workflow.",
+                    type="Requirement",
+                    priority="High",
+                    status="Done",
+                    layer="PRESENTATION"
+                )
+                uow_context.requirements.add(req_obj)
             except Exception as e:
                 print(f"Block requirement creation notice ({blk}): {e}")
 

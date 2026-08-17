@@ -13,7 +13,7 @@ def _trigger_sdoc_export():
         from integrations.strictdoc_client import export_sdoc
         export_sdoc()
     except Exception as e:
-        print(f"📦 DataStore: Failed to export SDoc: {e}")
+        print(f"[DataStore] Failed to export SDoc: {e}")
 
 
 SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'schema.sql'))
@@ -48,8 +48,8 @@ def set_active_db(path: str) -> None:
     """Switch the active database to a given file path and initialise it."""
     global _active_db_path
     _active_db_path = os.path.abspath(path)
-    os.makedirs(os.path.dirname(_active_db_path), exist_ok=True)
-    print(f"📦 DataStore: Active DB switched to {_active_db_path}")
+    init_db()
+    print(f"[DataStore] Active DB switched to {_active_db_path}")
 
 
 def get_connection(timeout: float = 30.0) -> sqlite3.Connection:
@@ -64,117 +64,93 @@ def get_connection(timeout: float = 30.0) -> sqlite3.Connection:
     return conn
 
 
-def reset_database() -> None:
-    """Wipe all requirements, test cases, and agent runs safely with busy_timeout and retry logic."""
-    import time
+def wipe_database() -> None:
+    """Wipe all requirements and test cases from the active database."""
     db_path = get_db_path()
-    for attempt in range(5):
-        try:
-            conn = sqlite3.connect(db_path, timeout=30.0)
-            conn.execute("PRAGMA busy_timeout=30000")
-            conn.execute("DELETE FROM agent_runs")
+    if not os.path.exists(db_path):
+        init_db()
+        return
+    try:
+        conn = sqlite3.connect(db_path)
+        with conn:
             conn.execute("DELETE FROM test_cases")
             conn.execute("DELETE FROM requirements")
-            try:
-                conn.execute("DELETE FROM kickstart_state")
-            except Exception:
-                pass
-            conn.commit()
-            conn.close()
-            print("📦 DataStore: Wiped database tables successfully.")
-            return
-        except sqlite3.OperationalError as e:
-            if "locked" in str(e).lower() and attempt < 4:
-                time.sleep(0.5)
-            else:
-                print(f"⚠️ DataStore: reset_database lock warning: {e}")
-                raise e
+            conn.execute("DELETE FROM requirement_parameters")
+            conn.execute("DELETE FROM projects")
+        conn.close()
+        print("[DataStore] Wiped database tables successfully.")
+    except Exception as e:
+        print(f"[DataStore] reset_database lock warning: {e}")
+
+reset_database = wipe_database
 
 
-def init_db():
-    """Initialise the database, creating tables if they don't exist, then migrate from JSON if needed."""
-    conn = get_connection()
-    with open(SCHEMA_PATH, 'r') as f:
+def init_db() -> None:
+    """Ensure database schema is created and migrate requirements.json if DB is empty."""
+    db_path = get_db_path()
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    conn = sqlite3.connect(db_path)
+    with open(SCHEMA_PATH, 'r', encoding='utf-8') as f:
         conn.executescript(f.read())
-    conn.commit()
-
-    # Ensure failure_message column exists
-    try:
-        conn.execute("ALTER TABLE test_cases ADD COLUMN failure_message TEXT")
-        conn.commit()
-    except sqlite3.OperationalError:
-        pass
-
-    try:
-        conn.execute("ALTER TABLE requirements ADD COLUMN component_type TEXT")
-        conn.commit()
-    except sqlite3.OperationalError:
-        pass
-
-    try:
-        conn.execute("ALTER TABLE requirements ADD COLUMN component_meta TEXT")
-        conn.commit()
-    except sqlite3.OperationalError:
-        pass
-
-    try:
-        conn.execute("ALTER TABLE requirements ADD COLUMN layer TEXT DEFAULT 'LOGIC'")
-        conn.commit()
-    except sqlite3.OperationalError:
-        pass
-
-    # Table initialisation complete
     conn.close()
 
+    # Check if empty — migrate requirements.json on first run
+    conn = sqlite3.connect(db_path)
+    count = conn.execute("SELECT COUNT(*) FROM requirements").fetchone()[0]
+    conn.close()
+    if count == 0 and os.path.exists(REQUIREMENTS_JSON):
+        _migrate_json_to_sqlite()
 
 
-def _migrate_from_json(conn: sqlite3.Connection):
-    """Migrate existing requirements.json data into SQLite on first startup."""
-    print("📦 DataStore: Migrating requirements.json → SQLite...")
+def _migrate_json_to_sqlite() -> None:
+    """One-time migration helper: loads src/requirements.json into SQLite if DB is fresh."""
+    print("[DataStore] Migrating requirements.json -> SQLite...")
     try:
-        with open(REQUIREMENTS_JSON, 'r') as f:
+        with open(REQUIREMENTS_JSON, 'r', encoding='utf-8') as f:
             reqs = json.load(f)
-        for r in reqs:
-            conn.execute(
-                """INSERT OR IGNORE INTO requirements
-                   (id, title, description, type, priority, status, parent_id,
-                    dependencies, assigned_agents, proposed_code, feedback)
-                   VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
-                (
-                    r.get('id'),
-                    r.get('title', ''),
-                    r.get('description', ''),
-                    r.get('type'),
-                    r.get('priority', 'Med'),
-                    r.get('status', 'Backlog'),
-                    r.get('parentId'),
-                    json.dumps(r.get('dependencies', [])),
-                    json.dumps(r.get('assignedAgents', [])),
-                    r.get('proposedCode'),
-                    r.get('feedback', ''),
-                )
-            )
-            # Migrate test cases
-            for t in r.get('tests', []):
-                tc_id = t.get('id') or f"TC-{random.randint(1000,9999)}"
+        conn = sqlite3.connect(get_db_path())
+        with conn:
+            for r in reqs:
                 conn.execute(
-                    """INSERT OR IGNORE INTO test_cases
-                       (id, requirement_id, title, given_text, when_text, then_text, last_result)
-                       VALUES (?,?,?,?,?,?,?)""",
+                    """INSERT OR IGNORE INTO requirements
+                       (id, title, description, type, priority, status, parent_id, dependencies, assigned_agents, proposed_code, feedback, layer)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
                     (
-                        tc_id,
                         r.get('id'),
-                        t.get('name') or t.get('title', ''),
-                        t.get('given', ''),
-                        t.get('when', ''),
-                        t.get('then', ''),
-                        'pass' if t.get('status') == 'Passing' else 'fail',
+                        r.get('title', ''),
+                        r.get('description', ''),
+                        r.get('type', 'Requirement'),
+                        r.get('priority', 'Med'),
+                        r.get('status', 'Backlog'),
+                        r.get('parentId'),
+                        json.dumps(r.get('dependencies', [])),
+                        json.dumps(r.get('assignedAgents', [])),
+                        r.get('proposedCode'),
+                        r.get('feedback', ''),
+                        r.get('layer', 'LOGIC'),
                     )
                 )
-        conn.commit()
-        print(f"📦 DataStore: Migrated {len(reqs)} requirements from JSON.")
+                # Migrate test cases
+                for t in r.get('tests', []):
+                    tc_id = t.get('id') or f"TC-{random.randint(1000,9999)}"
+                    conn.execute(
+                        """INSERT OR IGNORE INTO test_cases
+                           (id, requirement_id, title, given_text, when_text, then_text, last_result)
+                           VALUES (?,?,?,?,?,?,?)""",
+                        (
+                            tc_id,
+                            r.get('id'),
+                            t.get('name') or t.get('title', ''),
+                            t.get('given', ''),
+                            t.get('when', ''),
+                            t.get('then', ''),
+                            'pass' if t.get('status') == 'Passing' else 'fail',
+                        )
+                    )
+            conn.commit()
+            print(f"[DataStore] Migrated {len(reqs)} requirements from JSON.")
     except Exception as e:
-        print(f"📦 DataStore: Migration failed: {e}")
+        print(f"[DataStore] Migration failed: {e}")
 
 
 def _row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
@@ -582,11 +558,11 @@ def create_component_requirement(component_dict: Dict[str, Any]) -> str:
 
         conn.execute(
             """INSERT INTO requirements
-               (id, title, description, type, priority, status, parent_id, component_type, component_meta)
-               VALUES (?, ?, ?, ?, 'High', 'Done', NULL, ?, ?)
+               (id, title, description, type, priority, status, parent_id, component_type, component_meta, layer)
+               VALUES (?, ?, ?, ?, 'High', 'Done', NULL, ?, ?, 'PRESENTATION')
                ON CONFLICT(id) DO UPDATE SET
                title=excluded.title, description=excluded.description,
-               component_type=excluded.component_type, component_meta=excluded.component_meta, status='Done'""",
+               component_type=excluded.component_type, component_meta=excluded.component_meta, status='Done', layer='PRESENTATION'""",
             (req_id, title, desc, req_type, comp_type, meta)
         )
 

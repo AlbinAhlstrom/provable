@@ -264,7 +264,7 @@ def export_sdoc():
     os.makedirs(os.path.dirname(get_sdoc_path()), exist_ok=True)
     with open(get_sdoc_path(), 'w', encoding='utf-8') as f:
         f.write(content)
-    print(f"📄 strictdoc_client: Exported requirements to {get_sdoc_path()}")
+    print(f"[StrictDoc] Exported requirements to {get_sdoc_path()}")
 
 
 def sync_sdoc_to_db(clear_first: bool = False):
@@ -281,7 +281,7 @@ def sync_sdoc_to_db(clear_first: bool = False):
             f.write('[DOCUMENT]\nTITLE: System Architecture & Business Requirements\n')
         return
 
-    print(f"📄 strictdoc_client: Syncing {get_sdoc_path()} → SQLite...")
+    print(f"[StrictDoc] Syncing {get_sdoc_path()} -> SQLite...")
     parsed_reqs = parse_sdoc(get_sdoc_path())
 
     conn = store.get_connection()
@@ -293,12 +293,12 @@ def sync_sdoc_to_db(clear_first: bool = False):
                 conn.execute(f"DELETE FROM test_cases WHERE requirement_id NOT IN ({placeholders})", sdoc_ids)
                 conn.execute(f"DELETE FROM requirements WHERE id NOT IN ({placeholders})", sdoc_ids)
                 conn.commit()
-                print("📄 strictdoc_client: Cleaned up stale requirements and associated test cases.")
+                print("[StrictDoc] Cleaned up stale requirements and associated test cases.")
             else:
                 conn.execute("DELETE FROM test_cases")
                 conn.execute("DELETE FROM requirements")
                 conn.commit()
-                print("📄 strictdoc_client: Purged all requirements and test cases from SQLite.")
+                print("[StrictDoc] Purged all requirements and test cases from SQLite.")
 
         for r in parsed_reqs:
             # Check if it exists in SQLite

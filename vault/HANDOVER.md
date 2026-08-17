@@ -13,7 +13,7 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
   - Workspace App Preview: Running on `http://localhost:5174/`
   - Containerized Allure Service: Running on `http://localhost:5050/`
 - **Active Backend Architecture**: Clean Layered DDD/TDD Architecture (Domain Model, Repository, Unit of Work, Service Layer, Routers).
-- **Verified Build Status**: `100% PASS` (0 Vite JSX/TypeScript compilation errors, 56/56 backend pytest suite passed in 13.97s, 41/41 unit pytest suite passed in 0.38s).
+- **Verified Build Status**: `100% PASS` (0 Vite JSX/TypeScript compilation errors, 101/101 backend pytest suite passed in 79.78s, 42/42 unit pytest suite passed in 0.42s).
 
 ---
 
@@ -44,10 +44,13 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
    - **Inline Sub-Requirement CRUD**: Added inline creation input forms (`➕ Add Sub-Req`) calling `POST /api/components/sub-requirements/add` and trash bin buttons (`🗑️`) calling `POST /api/components/sub-requirements/delete` to allow dynamically adding/deleting sub-requirements directly from the PM Studio sidebar.
    - **Verified Build Status**: `100% PASS` (0 TypeScript compilation errors via `npx tsc --noEmit`, 41/41 unit pytest suite passed in 13.58s).
 
+5. **Component ID Harmonization, Ghost Component Elimination & Sub-Requirement Tree Linkage**:
+   - **ID Harmonization**: Standardized Presentation component IDs across `model.py`, `services.py`, and `requirement_generator.py` to canonical `REQ-UI-{CANONICAL_KEY}` format (e.g. `REQ-UI-CATALOG`, `REQ-UI-CART`, `REQ-UI-TRACKING`).
+   - **Ghost Component Elimination**: Purged hardcoded creation of orphan fallback components (`REQ-UI-WORKFLOW` / `REQ-UI-STATUS`) in `_link_logic_reqs_to_ui_components`, ensuring sidebars display strictly active synthesized components.
+   - **Full Sub-Requirement Tree Linkage**: Automatically attaches synthesized logic requirements (`REQ-SVC-*`, `REQ-DOM-*`) as parent-linked sub-requirements under their respective `REQ-UI-*` components.
+   - **Order Tracking Pipeline in App.tsx**: Integrated live order tracking status view (`📦 Live Order Status`) into AST templates and e-commerce fallbacks.
+   - **Verified Build Status**: `100% PASS` (0 TypeScript compilation errors via `npx tsc --noEmit`, 101/101 backend pytest suite passed in 79.78s).
+
 ---
 
-*Updated by Antigravity on 2026-08-17 (Completed Active Components Collapsible Tree & Sub-Requirement CRUD).*
-
-
-
-
+*Updated by Antigravity on 2026-08-17 (Harmonized Presentation Component IDs, Eliminated Ghost Fallbacks, Linked Child Logic Sub-Requirements & Verified 101/101 Full Test Suite Pass).*

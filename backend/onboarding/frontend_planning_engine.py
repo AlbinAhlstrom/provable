@@ -801,6 +801,10 @@ export default function App() {
 export default function App() {
   const [items] = useState<any[]>(__SEED_JSON__);
   const [cart, setCart] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([
+    { id: "ORD-9021", ref: "ORD-9021", status: "Baking in Oven #2", eta: "12 Mins", item: "Pepperoni Feast" }
+  ]);
+  const [activeTab, setActiveTab] = useState<'catalog' | 'tracking'>('catalog');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -815,9 +819,13 @@ export default function App() {
   };
 
   const handleSimulatePayment = () => {
-    setToast("🎉 Order Placed! [ ⚡ Sandbox Mode — Simulated Transaction ]");
+    const orderNum = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+    const newOrder = { id: orderNum, ref: orderNum, status: "Order Received & Prep Started", eta: "15-25 Mins", item: cart[0]?.title || "Custom Order" };
+    setOrders(prev => [newOrder, ...prev]);
+    setToast("🎉 Order " + orderNum + " Placed! [ ⚡ Sandbox Mode — Simulated Transaction ]");
     setCart([]);
     setIsCartOpen(false);
+    setActiveTab('tracking');
     setTimeout(() => setToast(null), 4000);
   };
 
@@ -829,7 +837,24 @@ export default function App() {
 
       {/* Header */}
       <header style={{ maxWidth: '1200px', margin: '0 auto 2rem auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h1 style={{ fontSize: '1.6rem', fontWeight: 800, margin: 0, fontFamily: 'var(--font-heading)' }}>__TITLE__</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+          <h1 style={{ fontSize: '1.6rem', fontWeight: 800, margin: 0, fontFamily: 'var(--font-heading)' }}>__TITLE__</h1>
+          <nav style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              onClick={() => setActiveTab('catalog')}
+              style={{ background: activeTab === 'catalog' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'catalog' ? '#fff' : 'var(--text-primary)', border: 'none', padding: '0.5rem 1rem', borderRadius: '0.5rem', fontWeight: 700, cursor: 'pointer' }}
+            >
+              🍕 Menu Catalog
+            </button>
+            <button
+              onClick={() => setActiveTab('tracking')}
+              style={{ background: activeTab === 'tracking' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'tracking' ? '#fff' : 'var(--text-primary)', border: 'none', padding: '0.5rem 1rem', borderRadius: '0.5rem', fontWeight: 700, cursor: 'pointer' }}
+            >
+              📦 Live Order Status ({orders.length})
+            </button>
+          </nav>
+        </div>
+
         <button onClick={() => setIsCartOpen(true)} style={{ background: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.6rem 1.25rem', borderRadius: '9999px', fontWeight: 700, cursor: 'pointer' }}>
           Cart ({cart.length})
         </button>
@@ -843,18 +868,43 @@ export default function App() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-          {items.map((item: any) => (
-            <div key={item.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: 'var(--shadow-card)' }}>
-              <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>{item.title}</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{item.subtitle}</p>
-              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', margin: '1rem 0' }}>{item.price_or_rate}</div>
-              <button onClick={() => handleAddToCart(item)} style={{ width: '100%', background: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
-                Add to Cart
-              </button>
-            </div>
-          ))}
-        </div>
+        {activeTab === 'catalog' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+            {items.map((item: any) => (
+              <div key={item.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: 'var(--shadow-card)' }}>
+                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>{item.title}</h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{item.subtitle}</p>
+                <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', margin: '1rem 0' }}>{item.price_or_rate}</div>
+                <button onClick={() => handleAddToCart(item)} style={{ width: '100%', background: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
+                  Add to Cart
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'tracking' && (
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--shadow-card)' }}>
+            <h2 style={{ fontSize: '1.4rem', margin: '0 0 1.5rem 0', fontFamily: 'var(--font-heading)' }}>📦 Live Order Status & Tracking Pipeline</h2>
+            {orders.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)' }}>No active orders being tracked. Place an order to start tracking!</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {orders.map((ord: any) => (
+                  <div key={ord.id} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '0.75rem', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: '1rem' }}>Order Ref: {ord.ref} ({ord.item})</div>
+                      <div style={{ color: 'var(--color-primary)', fontSize: '0.85rem', fontWeight: 700, marginTop: '0.25rem' }}>Status: {ord.status}</div>
+                    </div>
+                    <div style={{ background: 'var(--color-mint)', color: 'var(--color-mint-text)', padding: '0.4rem 0.85rem', borderRadius: '9999px', fontWeight: 700, fontSize: '0.85rem' }}>
+                      Est. Delivery: ~{ord.eta}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Interactive Checkout Drawer / Modal */}

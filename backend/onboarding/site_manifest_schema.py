@@ -99,6 +99,30 @@ class UnifiedSiteManifestAST(BaseModel):
     layout: SiteNavigationAST = Field(default_factory=SiteNavigationAST)
     content: ComponentContentAST = Field(default_factory=ComponentContentAST)
 
+    def __getitem__(self, item: str) -> Any:
+        if hasattr(self, item):
+            return getattr(self, item)
+        if item in ["brand_name", "brand_title"]:
+            return getattr(self.intent, "brand_name", "")
+        if item == "hero_headline":
+            return getattr(self.layout.hero_banner, "headline", "")
+        if item == "hero_subtitle":
+            return getattr(self.layout.hero_banner, "subtitle", "")
+        if item == "badges":
+            return getattr(self.layout.hero_banner, "badges", [])
+        if item == "domain_category":
+            return getattr(self.intent, "domain_category", "e_commerce")
+        raise KeyError(item)
+
+    def get(self, key: str, default: Any = None) -> Any:
+        try:
+            return self[key]
+        except (KeyError, AttributeError):
+            return default
+
+    def __contains__(self, item: str) -> bool:
+        return hasattr(self, item) or item in ["brand_title", "brand_name", "hero_headline", "hero_subtitle", "badges", "domain_category"]
+
     def to_json(self, indent: int = 2) -> str:
         return json.dumps(self.dict(), indent=indent)
 

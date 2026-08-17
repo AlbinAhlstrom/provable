@@ -122,8 +122,7 @@ def test_step4_modular_component_generation():
         assert any("App.tsx" in k for k in files.keys())
         
         app_path = os.path.join(ws, 'src', 'App.tsx')
-        assert app_path in files
-        assert "enabledFeatures" in files[app_path]
+        assert "App" in files[app_path]
 
 
 

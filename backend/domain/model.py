@@ -12,37 +12,37 @@ import domain.events as events
 CANONICAL_FEATURE_MAP = {
     'catalog': {
         'canonical_key': 'catalog',
-        'req_ids': ['REQ-CATALOG-001', 'REQ-CATALOG_GRID-001'],
+        'req_ids': ['REQ-UI-CATALOG', 'REQ-CATALOG-001', 'REQ-CATALOG_GRID-001'],
         'aliases': ['catalog', 'catalog_grid', 'menu', 'product_catalog']
     },
     'cart': {
         'canonical_key': 'cart',
-        'req_ids': ['REQ-CART-001', 'REQ-SHOPPING_CART-001'],
+        'req_ids': ['REQ-UI-CART', 'REQ-CART-001', 'REQ-SHOPPING_CART-001'],
         'aliases': ['cart', 'shopping_cart', 'checkout']
     },
     'tracking': {
         'canonical_key': 'tracking',
-        'req_ids': ['REQ-TRACK-001', 'REQ-ORDER_TRACKING-001'],
+        'req_ids': ['REQ-UI-TRACKING', 'REQ-TRACK-001', 'REQ-ORDER_TRACKING-001'],
         'aliases': ['tracking', 'order_tracking', 'status_pipeline']
     },
     'kds': {
         'canonical_key': 'kds',
-        'req_ids': ['REQ-KDS-001', 'REQ-ADMIN_DASHBOARD-001'],
+        'req_ids': ['REQ-UI-KDS', 'REQ-KDS-001', 'REQ-ADMIN_DASHBOARD-001'],
         'aliases': ['kds', 'admin_dashboard', 'kitchen_kds', 'merchant_ops']
     },
     'reviews': {
         'canonical_key': 'reviews',
-        'req_ids': ['REQ-REVIEWS-001', 'REQ-REVIEWS_RATINGS-001'],
+        'req_ids': ['REQ-UI-REVIEWS', 'REQ-REVIEWS-001', 'REQ-REVIEWS_RATINGS-001'],
         'aliases': ['reviews', 'reviews_ratings', 'ratings']
     },
     'auth': {
         'canonical_key': 'auth',
-        'req_ids': ['REQ-AUTH-001', 'REQ-USER_AUTH-001'],
+        'req_ids': ['REQ-UI-AUTH', 'REQ-AUTH-001', 'REQ-USER_AUTH-001'],
         'aliases': ['auth', 'user_auth', 'customer_auth']
     },
     'calendar': {
         'canonical_key': 'calendar',
-        'req_ids': ['REQ-CALENDAR-001', 'REQ-BOOKING_CALENDAR-001'],
+        'req_ids': ['REQ-UI-CALENDAR', 'REQ-CALENDAR-001', 'REQ-BOOKING_CALENDAR-001'],
         'aliases': ['calendar', 'booking_calendar', 'schedule']
     }
 }
@@ -61,7 +61,7 @@ def resolve_canonical_feature(feature_or_req_id: str) -> dict:
     base_key = clean.replace('req_', '').replace('_001', '').replace('cmp_', '')
     return {
         'canonical_key': base_key,
-        'req_ids': [f"REQ-{base_key.upper()}-001"],
+        'req_ids': [f"REQ-UI-{base_key.upper()}", f"REQ-{base_key.upper()}-001"],
         'aliases': [base_key]
     }
 
@@ -148,6 +148,7 @@ class Requirement:
     priority: str = "High"
     type: str = "Requirement"
     parent_id: Optional[str] = None
+    layer: str = "LOGIC"
     tests: List[Dict[str, Any]] = field(default_factory=list)
     assigned_agents: List[str] = field(default_factory=list)
     proposed_code: Optional[str] = None

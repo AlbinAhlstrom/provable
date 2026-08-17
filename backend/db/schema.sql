@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS requirements (
     priority    TEXT DEFAULT 'Med',
     status      TEXT DEFAULT 'Backlog',
     parent_id   TEXT REFERENCES requirements(id),
+    component_type TEXT DEFAULT 'custom',
+    component_meta TEXT DEFAULT '{}',
     jira_key    TEXT,
     sdoc_uid    TEXT,
     dependencies TEXT DEFAULT '[]',   -- JSON array of requirement IDs

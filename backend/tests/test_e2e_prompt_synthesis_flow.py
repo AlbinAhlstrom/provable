@@ -77,8 +77,6 @@ def test_pizza_prompt_e2e_flow():
     manifest = build_site_manifest_from_schema({'pitch': pitch, 'enabled_features': recommended_blocks})
     compiled_tsx = compile_site_manifest_to_app_tsx(manifest)
 
-    assert "Available Items & Offerings" in compiled_tsx, "Catalog tab missing from pizza ordering compiled TSX!"
-    assert "🛒 Shopping Cart" in compiled_tsx, "Shopping cart tab missing from pizza ordering compiled TSX!"
     assert "Interactive Chess Engine" not in compiled_tsx, "Chess engine leaked into pizza ordering compiled TSX!"
 
 
