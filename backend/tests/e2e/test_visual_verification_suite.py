@@ -1,5 +1,5 @@
 """
-Automated Visual Verification & Screenshot Audit Test Suite.
+Automated Visual Verification & Screenshot Audit Test Suite (E2E / Browser Inspection).
 
 Generates full application stacks for benchmark prompts:
 1. "A pizza ordering website"
@@ -17,7 +17,7 @@ import pytest
 import re
 from typing import Dict, Any
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from onboarding.dynamic_domain_generator import build_site_manifest_from_schema
 from onboarding.site_ast_compiler import compile_site_manifest_to_app_tsx
@@ -102,5 +102,3 @@ def test_visual_auditor_dual_viewport_contract(tmp_path):
     audit = audit_visual_presentation(url="http://localhost:5174", pitch="Test Pizza")
     assert "passed" in audit
     assert "summary" in audit
-
-

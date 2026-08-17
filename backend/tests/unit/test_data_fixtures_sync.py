@@ -165,3 +165,36 @@ def test_bidirectional_data_fixtures_sync_app_preview_to_pm_studio():
     assert len(all_fixtures["tracking"]) == 1
     assert all_fixtures["tracking"][0]["id"] == "ORD-5555"
 
+
+def test_app_tsx_has_items_setter_and_message_listener():
+    """
+    Verify that generated App.tsx includes setItems state setter AND window.addEventListener('message')
+    handler to dynamically update catalog items when PM Studio sends FIXTURES_UPDATED events.
+    """
+    from onboarding.frontend_planning_engine import _generate_fallback_assembled_app
+    from onboarding.planning_contracts import (
+        UnifiedFrontendBlueprint, CategoryLayoutPlan, ComponentSlotAssignment, AestheticThemeSpec
+    )
+
+    bp = UnifiedFrontendBlueprint(
+        business_pitch="An app to order pizza online",
+        category_layout=CategoryLayoutPlan(
+            category_id="e_commerce",
+            layout_name="Storefront",
+            category_reasoning="Pizza ordering app",
+            slots=[]
+        ),
+        components=ComponentSlotAssignment(),
+        aesthetics=AestheticThemeSpec(
+            domain_display_title="Pizzeria App",
+            hero_headline="Fresh Pizza Delivered",
+            mock_seed_data=[{"id": "1", "name": "Margherita Speciale", "price": 16.99}]
+        )
+    )
+
+    code = _generate_fallback_assembled_app(bp)
+
+    assert "const [items, setItems] = useState" in code, "items state missing setter function (setItems)!"
+    assert "setItems(" in code, "App.tsx lacks setItems(...) call for dynamic catalog updates!"
+    assert "addEventListener('message'" in code, "App.tsx lacks window message listener!"
+

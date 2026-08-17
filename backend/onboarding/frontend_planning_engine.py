@@ -842,12 +842,69 @@ export default function App() {
     tmpl = '''import React, { useState } from 'react';
 
 export default function App() {
-  const [items] = useState<any[]>(__SEED_JSON__);
+  const [items, setItems] = useState<any[]>(__SEED_JSON__);
   const [cart, setCart] = useState<any[]>(__CART_JSON__);
   const [orders, setOrders] = useState<any[]>(__ORDERS_JSON__);
   const [activeTab, setActiveTab] = useState<'catalog' | 'tracking'>('catalog');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data && (e.data.type === 'FIXTURES_UPDATED' || e.data.type === 'UPDATE_FIXTURES')) {
+        const { canonical_key, fixtures } = e.data;
+        if ((canonical_key === 'catalog' || canonical_key === 'menu') && Array.isArray(fixtures)) {
+          const formatted = fixtures.map((f: any, idx: number) => {
+            const name = f.name || f.title || `Item #${idx+1}`;
+            const price = f.price !== undefined ? (typeof f.price === 'number' ? `$${f.price.toFixed(2)}` : String(f.price)) : (f.price_or_rate || '$14.99');
+            return {
+              id: String(f.id || idx+1),
+              title: name,
+              subtitle: f.desc || f.subtitle || 'Fresh artisan offering',
+              price_or_rate: price.startsWith('$') ? price : `$${price}`,
+              badge_status: f.badge_status || 'Popular',
+              rating: f.rating || 4.9,
+              initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || 'PI'
+            };
+          });
+          setItems(formatted);
+        } else if (canonical_key === 'cart' && Array.isArray(fixtures)) {
+          setCart(fixtures);
+        } else if (canonical_key === 'tracking' && Array.isArray(fixtures)) {
+          setOrders(fixtures);
+        }
+      }
+    };
+    window.addEventListener('message', handleMessage);
+
+    fetch('/api/components/fixtures')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success && data.fixtures) {
+          if (data.fixtures.catalog && data.fixtures.catalog.length > 0) {
+            const formatted = data.fixtures.catalog.map((f: any, idx: number) => {
+              const name = f.name || f.title || `Item #${idx+1}`;
+              const price = f.price !== undefined ? (typeof f.price === 'number' ? `$${f.price.toFixed(2)}` : String(f.price)) : (f.price_or_rate || '$14.99');
+              return {
+                id: String(f.id || idx+1),
+                title: name,
+                subtitle: f.desc || f.subtitle || 'Fresh artisan offering',
+                price_or_rate: price.startsWith('$') ? price : `$${price}`,
+                badge_status: f.badge_status || 'Popular',
+                rating: f.rating || 4.9,
+                initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || 'PI'
+              };
+            });
+            setItems(formatted);
+          }
+          if (data.fixtures.cart) setCart(data.fixtures.cart);
+          if (data.fixtures.tracking) setOrders(data.fixtures.tracking);
+        }
+      })
+      .catch(() => {});
+
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   const syncFixtureToBackendAndHost = (canonicalKey: string, fixtures: any[]) => {
     try {
@@ -859,7 +916,7 @@ export default function App() {
     } catch (e) {}
 
     try {
-      if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+      if (typeof window !== 'undefined' && window.parent) {
         window.parent.postMessage({
           type: 'FIXTURES_UPDATED',
           canonical_key: canonicalKey,
