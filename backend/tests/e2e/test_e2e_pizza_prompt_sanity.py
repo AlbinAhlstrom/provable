@@ -108,7 +108,7 @@ def test_cart_drawer_interactions(driver):
     
     # Click first Add to Cart button
     add_buttons[0].click()
-    time.sleep(0.5)
+    time.sleep(1.5)  # HMR and state sync wait
 
     # Locate Cart button in header
     cart_buttons = driver.find_elements(By.XPATH, "//button[contains(text(), 'Cart (')]")
@@ -120,7 +120,7 @@ def test_cart_drawer_interactions(driver):
     drawer = driver.find_elements(By.XPATH, "//*[contains(text(), 'Your Cart')]")
     if len(drawer) == 0:
         cart_buttons[0].click()
-        time.sleep(0.5)
+        time.sleep(1.0)
 
     # Assert drawer header and payment button
     drawer_heading = driver.find_element(By.XPATH, "//*[contains(text(), 'Your Cart')]")
@@ -141,16 +141,16 @@ def test_simulated_payments(driver):
         add_btns = driver.find_elements(By.XPATH, "//button[contains(text(), 'Add to Cart')]")
         if add_btns:
             add_btns[0].click()
-            time.sleep(0.5)
+            time.sleep(1.5)
         cart_btns = driver.find_elements(By.XPATH, "//button[contains(text(), 'Cart (')]")
         if cart_btns:
             cart_btns[0].click()
-            time.sleep(0.5)
+            time.sleep(1.0)
         payment_btns = driver.find_elements(By.XPATH, "//button[contains(text(), 'Simulate Payment')]")
 
     assert len(payment_btns) > 0, "Simulate Payment button not found!"
     payment_btns[0].click()
-    time.sleep(1.0)
+    time.sleep(2.0)
 
     # Assert tracking tab or order toast is visible
     page_text = driver.find_element(By.ID, "root").text
@@ -187,3 +187,49 @@ def test_post_message_state_sync(driver):
     last_msg = msgs[-1]
     assert last_msg.get("type") == "FIXTURES_UPDATED", f"Unexpected message type: {last_msg}"
     assert last_msg.get("canonical_key") in ["cart", "tracking"], f"Unexpected canonical key: {last_msg}"
+
+
+def test_add_new_menu_item_fixture_renders_in_live_preview(driver):
+    """
+    Given a new menu item fixture is added to the backend SQLite store or posted to iframe
+    When the live preview app receives the fixture update or is reloaded
+    Then the new menu item ('Spicy Diavola Pizza') is dynamically rendered in the preview DOM.
+    """
+    import json
+    from service_layer.unit_of_work import SqliteUnitOfWork
+    from service_layer import services
+
+    uow = SqliteUnitOfWork()
+
+    # 1. Fetch current fixtures and append 'Spicy Diavola Pizza' ($22.99)
+    current_res = services.get_component_data_fixtures(uow=uow)
+    current_catalog = current_res.get("fixtures", {}).get("catalog", [])
+
+    new_item = {"id": "fix-spicy-diavola", "name": "Spicy Diavola Pizza", "price": 22.99, "desc": "Spicy salami, chili flake, hot honey"}
+    updated_catalog = current_catalog + [new_item]
+
+    # 2. Update fixtures in SQLite store and sync workspace App.tsx
+    update_res = services.update_component_data_fixtures(
+        canonical_key="catalog",
+        fixtures=updated_catalog,
+        uow=uow
+    )
+    assert update_res.get("success") is True, f"Failed to update catalog fixtures: {update_res}"
+
+    # 3. Dispatch FIXTURES_UPDATED postMessage to active preview driver and wait for React state update
+    driver.execute_script(
+        "window.postMessage({ type: 'FIXTURES_UPDATED', canonical_key: 'catalog', fixtures: " + json.dumps(updated_catalog) + " }, '*');"
+    )
+    time.sleep(1.0)
+
+    # 4. Assert new menu item title and price exist in rendered page text
+    root_text = driver.find_element(By.ID, "root").text
+    if "Spicy Diavola Pizza" not in root_text:
+        # Reload driver if postMessage didn't catch in test sandbox
+        driver.get("http://localhost:5174")
+        time.sleep(2.0)
+        root_text = driver.find_element(By.ID, "root").text
+
+    assert "Spicy Diavola Pizza" in root_text, f"Newly added menu item 'Spicy Diavola Pizza' not found in rendered DOM! Root text: {root_text[:300]}"
+    assert "$22.99" in root_text or "22.99" in root_text, f"Newly added menu item price '$22.99' missing from rendered DOM!"
+

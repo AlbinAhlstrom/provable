@@ -521,14 +521,123 @@ Respond STRICTLY with valid React TypeScript code inside a single ```tsx code bl
         cleaned = sanitize_domain_vocabulary_leakage(cleaned, pitch)
 
         if "export default" in cleaned and ("function App" in cleaned or "const App" in cleaned):
-            return cleaned
+            return inject_data_fixtures_sync_to_tsx(cleaned, custom_fixtures=custom_fixtures)
 
     except Exception as e:
         print(f"[notice] App assembly error: {e}")
 
     # Safety Fallback App if LLM unavailable
     fallback_code = _generate_fallback_assembled_app(blueprint, custom_fixtures=custom_fixtures)
-    return sanitize_domain_vocabulary_leakage(fallback_code, pitch)
+    return inject_data_fixtures_sync_to_tsx(sanitize_domain_vocabulary_leakage(fallback_code, pitch), custom_fixtures=custom_fixtures)
+
+
+def inject_data_fixtures_sync_to_tsx(code: str, custom_fixtures: Optional[Dict[str, Any]] = None) -> str:
+    """Injects setItems state setter and window.addEventListener('message') fixture sync handler into TSX code."""
+    if not code:
+        return code
+
+    # 1. If custom_fixtures provided, override initial items seed state in code
+    if custom_fixtures and isinstance(custom_fixtures, dict) and custom_fixtures.get("catalog"):
+        catalog_items = custom_fixtures["catalog"]
+        formatted_seed = []
+        for idx, item in enumerate(catalog_items):
+            item_title = item.get("name") or item.get("title") or f"Item #{idx+1}"
+            price_val = item.get("price")
+            if price_val is not None and isinstance(price_val, (int, float)):
+                price_str = f"${price_val:.2f}"
+            else:
+                price_str = str(item.get("price_or_rate") or "$14.99")
+            subtitle = item.get("desc") or item.get("subtitle") or "Fresh artisan offering"
+            formatted_seed.append({
+                "id": str(item.get("id", idx+1)),
+                "title": item_title,
+                "subtitle": subtitle,
+                "price_or_rate": price_str if price_str.startswith("$") else f"${price_str}",
+                "badge_status": item.get("badge_status", "Popular"),
+                "rating": item.get("rating", 4.9),
+                "initials": "".join([w[0].upper() for w in item_title.split()[:2]]) or "PI"
+            })
+        seed_json = json.dumps(formatted_seed)
+        code = re.sub(
+            r'const\s+\[(?:items|menuItems|catalogItems)(?:,\s*set\w+)?\]\s*=\s*useState(?:<[^>]+>)?\([\s\S]*?\);',
+            f'const [items, setItems] = useState<any[]>({seed_json});',
+            code
+        )
+
+    # 2. Ensure items state setter exists if not replaced by regex
+    if "const [items] = useState" in code:
+        code = code.replace("const [items] = useState", "const [items, setItems] = useState")
+
+    # 3. Inject useEffect message listener & backend API fetcher if missing
+    if "addEventListener('message'" not in code and "FIXTURES_UPDATED" not in code:
+        sync_snippet = '''
+  React.useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data && (e.data.type === 'FIXTURES_UPDATED' || e.data.type === 'UPDATE_FIXTURES')) {
+        const { canonical_key, fixtures } = e.data;
+        if ((canonical_key === 'catalog' || canonical_key === 'menu') && Array.isArray(fixtures)) {
+          const formatted = fixtures.map((f: any, idx: number) => {
+            const name = f.name || f.title || `Item #${idx+1}`;
+            const price = f.price !== undefined ? (typeof f.price === 'number' ? `$${f.price.toFixed(2)}` : String(f.price)) : (f.price_or_rate || '$14.99');
+            return {
+              id: String(f.id || idx+1),
+              title: name,
+              subtitle: f.desc || f.subtitle || 'Fresh artisan offering',
+              price_or_rate: price.startsWith('$') ? price : `$${price}`,
+              badge_status: f.badge_status || 'Popular',
+              rating: f.rating || 4.9,
+              initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || 'PI'
+            };
+          });
+          setItems(formatted);
+        } else if (canonical_key === 'cart' && Array.isArray(fixtures)) {
+          setCart(fixtures);
+        } else if (canonical_key === 'tracking' && Array.isArray(fixtures)) {
+          setOrders(fixtures);
+        }
+      }
+    };
+    window.addEventListener('message', handleMessage);
+
+    const apiUrl = typeof window !== 'undefined' && window.location.origin.includes('5174')
+      ? 'http://localhost:8000/api/components/fixtures'
+      : '/api/components/fixtures';
+
+    fetch(apiUrl)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success && data.fixtures) {
+          if (data.fixtures.catalog && data.fixtures.catalog.length > 0) {
+            const formatted = data.fixtures.catalog.map((f: any, idx: number) => {
+              const name = f.name || f.title || `Item #${idx+1}`;
+              const price = f.price !== undefined ? (typeof f.price === 'number' ? `$${f.price.toFixed(2)}` : String(f.price)) : (f.price_or_rate || '$14.99');
+              return {
+                id: String(f.id || idx+1),
+                title: name,
+                subtitle: f.desc || f.subtitle || 'Fresh artisan offering',
+                price_or_rate: price.startsWith('$') ? price : `$${price}`,
+                badge_status: f.badge_status || 'Popular',
+                rating: f.rating || 4.9,
+                initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || 'PI'
+              };
+            });
+            setItems(formatted);
+          }
+          if (data.fixtures.cart) setCart(data.fixtures.cart);
+          if (data.fixtures.tracking) setOrders(data.fixtures.tracking);
+        }
+      })
+      .catch(() => {});
+
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+'''
+        app_match = re.search(r'(export\s+default\s+function\s+\w+\s*\([^)]*\)\s*\{)', code)
+        if app_match:
+            header = app_match.group(1)
+            code = code.replace(header, header + sync_snippet)
+
+    return code
 
 
 def _generate_fallback_assembled_app(bp: UnifiedFrontendBlueprint, custom_fixtures: Optional[Dict[str, Any]] = None) -> str:
@@ -877,7 +986,13 @@ export default function App() {
     };
     window.addEventListener('message', handleMessage);
 
-    fetch('/api/components/fixtures')
+    const getApiUrl = (endpoint: string) => {
+      return typeof window !== 'undefined' && window.location.origin.includes('5174')
+        ? 'http://localhost:8000' + endpoint
+        : endpoint;
+    };
+
+    fetch(getApiUrl('/api/components/fixtures'))
       .then(res => res.json())
       .then(data => {
         if (data && data.success && data.fixtures) {
@@ -908,7 +1023,10 @@ export default function App() {
 
   const syncFixtureToBackendAndHost = (canonicalKey: string, fixtures: any[]) => {
     try {
-      fetch('/api/components/fixtures/update', {
+      const updateUrl = typeof window !== 'undefined' && window.location.origin.includes('5174')
+        ? 'http://localhost:8000/api/components/fixtures/update'
+        : '/api/components/fixtures/update';
+      fetch(updateUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ canonical_key: canonicalKey, fixtures: fixtures })

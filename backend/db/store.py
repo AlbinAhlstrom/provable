@@ -453,6 +453,8 @@ def update_agent_run(run_id: str, status: str = None, attempts: int = None, stag
     values.append(run_id)
     conn.execute(f"UPDATE agent_runs SET {', '.join(set_parts)} WHERE id = ?", values)
     conn.commit()
+    conn.close()
+
 def get_agent_runs(limit: int = 50) -> List[Dict]:
     conn = get_connection()
     rows = conn.execute(
@@ -474,16 +476,26 @@ def get_kickstart_state() -> Dict[str, Any]:
             blocks_json TEXT,
             extracted_reqs_json TEXT,
             synthesized INTEGER DEFAULT 0,
+            custom_fixtures_json TEXT,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""")
+        # Auto-migrate column if missing
+        try:
+            conn.execute("ALTER TABLE kickstart_state ADD COLUMN custom_fixtures_json TEXT")
+        except Exception:
+            pass
+
         row = conn.execute("SELECT * FROM kickstart_state WHERE id = 1").fetchone()
         conn.close()
         if row:
+            keys = row.keys()
+            cust_fix = json.loads(row['custom_fixtures_json']) if ('custom_fixtures_json' in keys and row['custom_fixtures_json']) else {}
             return {
                 "business_pitch": row['business_pitch'],
                 "blocks": json.loads(row['blocks_json']) if row['blocks_json'] else [],
                 "extracted_requirements": json.loads(row['extracted_reqs_json']) if row['extracted_reqs_json'] else [],
-                "synthesized": bool(row['synthesized'])
+                "synthesized": bool(row['synthesized']),
+                "custom_fixtures": cust_fix
             }
     except Exception as e:
         print(f"📦 DataStore: Error fetching kickstart state: {e}")
@@ -493,10 +505,10 @@ def get_kickstart_state() -> Dict[str, Any]:
             pass
     return {
         "business_pitch": "An app to order pizzas",
-
         "blocks": [],
         "extracted_requirements": [],
-        "synthesized": False
+        "synthesized": False,
+        "custom_fixtures": {}
     }
 
 
@@ -509,8 +521,13 @@ def save_kickstart_state(state: Dict[str, Any]):
             blocks_json TEXT,
             extracted_reqs_json TEXT,
             synthesized INTEGER DEFAULT 0,
+            custom_fixtures_json TEXT,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""")
+        try:
+            conn.execute("ALTER TABLE kickstart_state ADD COLUMN custom_fixtures_json TEXT")
+        except Exception:
+            pass
         
         # Check if row exists
         existing = conn.execute("SELECT * FROM kickstart_state WHERE id = 1").fetchone()
@@ -519,6 +536,7 @@ def save_kickstart_state(state: Dict[str, Any]):
         blocks = json.dumps(state.get("blocks", []))
         reqs = json.dumps(state.get("extracted_requirements", []))
         synthesized = 1 if state.get("synthesized") else 0
+        cust_fix = json.dumps(state.get("custom_fixtures", {}))
         
         if existing:
             # If updating synthesis status or blocks, preserve existing blocks if new ones are passed as list of IDs
@@ -527,13 +545,13 @@ def save_kickstart_state(state: Dict[str, Any]):
                 if state.get("blocks") and isinstance(state["blocks"][0], str) if state.get("blocks") else False:
                     blocks = existing['blocks_json']
             conn.execute(
-                "UPDATE kickstart_state SET business_pitch = ?, blocks_json = ?, extracted_reqs_json = ?, synthesized = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1",
-                (pitch, blocks, reqs, synthesized)
+                "UPDATE kickstart_state SET business_pitch = ?, blocks_json = ?, extracted_reqs_json = ?, synthesized = ?, custom_fixtures_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1",
+                (pitch, blocks, reqs, synthesized, cust_fix)
             )
         else:
             conn.execute(
-                "INSERT INTO kickstart_state (id, business_pitch, blocks_json, extracted_reqs_json, synthesized) VALUES (1, ?, ?, ?, ?)",
-                (pitch, blocks, reqs, synthesized)
+                "INSERT INTO kickstart_state (id, business_pitch, blocks_json, extracted_reqs_json, synthesized, custom_fixtures_json) VALUES (1, ?, ?, ?, ?, ?)",
+                (pitch, blocks, reqs, synthesized, cust_fix)
             )
         conn.commit()
     except Exception as e:

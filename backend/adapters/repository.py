@@ -278,7 +278,8 @@ class SqliteKickstartRepository(AbstractKickstartRepository):
             business_pitch=raw.get("business_pitch", "An app to order pizzas"),
             blocks=raw.get("blocks", []),
             extracted_requirements=raw.get("extracted_requirements", []),
-            synthesized=raw.get("synthesized", False)
+            synthesized=raw.get("synthesized", False),
+            custom_fixtures=raw.get("custom_fixtures", {})
         )
 
     def save(self, state: KickstartState) -> None:
