@@ -48,7 +48,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
       name: 'Order',
       description: 'Active pizza orders and status pipeline',
       attributes: { id: 'string', status: 'string', total: 'number' },
-      seed_items: [{ id: 'ORD-9021', status: 'Baking', total: 31.98 }]
+      seed_items: []
     }
   ]);
   const [isEntitiesOpen, setIsEntitiesOpen] = useState<boolean>(false);

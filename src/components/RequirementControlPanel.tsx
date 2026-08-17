@@ -53,20 +53,8 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   // 2-Tab Component Inspector State ('tests' | 'data')
   const [activeTabByComponent, setActiveTabByComponent] = useState<Record<string, 'tests' | 'data'>>({});
 
-  // Entity Data Fixtures State with default seed items
-  const [dataFixturesByComponent, setDataFixturesByComponent] = useState<Record<string, Array<{ id: string, name: string, price: number }>>>({
-    catalog: [
-      { id: 'item-1', name: 'Margherita Pizza', price: 14.99 },
-      { id: 'item-2', name: 'Pepperoni Supreme', price: 16.99 },
-      { id: 'item-3', name: 'Truffle Mushroom Deluxe', price: 18.99 }
-    ],
-    cart: [
-      { id: 'cart-1', name: 'Standard Delivery Tax', price: 2.99 }
-    ],
-    tracking: [
-      { id: 'track-1', name: 'Order ORD-9021 (Baking)', price: 31.98 }
-    ]
-  });
+  // Entity Data Fixtures State
+  const [dataFixturesByComponent, setDataFixturesByComponent] = useState<Record<string, Array<{ id: string, name: string, price: number }>>>({});
 
   // Entity Fixture Inline Editing State
   const [editingFixtureId, setEditingFixtureId] = useState<string | null>(null);
@@ -77,6 +65,23 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
 
   const toggleComponentTab = (key: string, tab: 'tests' | 'data') => {
     setActiveTabByComponent(prev => ({ ...prev, [key]: tab }));
+  };
+
+  const persistFixtureUpdate = async (canonicalKey: string, updatedList: Array<{ id: string, name: string, price: number }>) => {
+    try {
+      setDataFixturesByComponent(prev => ({ ...prev, [canonicalKey]: updatedList }));
+      const res = await fetch('/api/components/fixtures/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ canonical_key: canonicalKey, fixtures: updatedList })
+      });
+      const data = await res.json();
+      if (data.success && onParamUpdated) {
+        onParamUpdated();
+      }
+    } catch (err) {
+      console.error("Error updating fixtures:", err);
+    }
   };
 
   const handleAddFixture = (canonicalKey: string) => {
@@ -90,10 +95,8 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
       price: isNaN(priceVal) ? 14.99 : priceVal
     };
 
-    setDataFixturesByComponent(prev => ({
-      ...prev,
-      [canonicalKey]: [...(prev[canonicalKey] || []), newItem]
-    }));
+    const updatedList = [...(dataFixturesByComponent[canonicalKey] || []), newItem];
+    persistFixtureUpdate(canonicalKey, updatedList);
 
     setNewFixtureName(prev => ({ ...prev, [canonicalKey]: '' }));
     setNewFixturePrice(prev => ({ ...prev, [canonicalKey]: '' }));
@@ -105,14 +108,13 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     if (!editFixtureName.trim()) return;
     const priceVal = parseFloat(editFixturePrice);
 
-    setDataFixturesByComponent(prev => ({
-      ...prev,
-      [canonicalKey]: (prev[canonicalKey] || []).map(item =>
-        item.id === fixId
-          ? { ...item, name: editFixtureName.trim(), price: isNaN(priceVal) ? item.price : priceVal }
-          : item
-      )
-    }));
+    const updatedList = (dataFixturesByComponent[canonicalKey] || []).map(item =>
+      item.id === fixId
+        ? { ...item, name: editFixtureName.trim(), price: isNaN(priceVal) ? item.price : priceVal }
+        : item
+    );
+
+    persistFixtureUpdate(canonicalKey, updatedList);
 
     setEditingFixtureId(null);
     setStatusToast(`✨ Updated entity item`);
@@ -120,10 +122,9 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   };
 
   const handleDeleteFixture = (canonicalKey: string, fixId: string) => {
-    setDataFixturesByComponent(prev => ({
-      ...prev,
-      [canonicalKey]: (prev[canonicalKey] || []).filter(item => item.id !== fixId)
-    }));
+    const updatedList = (dataFixturesByComponent[canonicalKey] || []).filter(item => item.id !== fixId);
+    persistFixtureUpdate(canonicalKey, updatedList);
+
     setStatusToast(`🗑️ Deleted entity item`);
     setTimeout(() => setStatusToast(null), 2000);
   };
@@ -190,6 +191,13 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
       const sugData = await sugRes.json();
       if (sugData && Array.isArray(sugData.suggestions) && sugData.suggestions.length > 0) {
         setSuggestions(sugData.suggestions.slice(0, 3));
+      }
+
+      // 3. Fetch active data fixtures from backend API
+      const fixRes = await fetch('/api/components/fixtures');
+      const fixData = await fixRes.json();
+      if (fixData && fixData.success && fixData.fixtures) {
+        setDataFixturesByComponent(fixData.fixtures);
       }
     } catch (e) {
       console.error("Hydration error in RequirementControlPanel:", e);

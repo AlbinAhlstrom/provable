@@ -118,6 +118,10 @@ class SubRequirementDeleteRequest(BaseModel):
     parent_canonical_key: str
     sub_id: str
 
+class ComponentFixturesUpdateRequest(BaseModel):
+    canonical_key: str
+    fixtures: List[Dict[str, Any]]
+
 # ── Generator Scaffolding Test Models (Benchmark Domain) ─────────────────────
 
 class BatchIn(BaseModel):

@@ -811,9 +811,7 @@ export default function App() {
 export default function App() {
   const [items] = useState<any[]>(__SEED_JSON__);
   const [cart, setCart] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([
-    { id: "ORD-9021", ref: "ORD-9021", status: "Baking in Oven #2", eta: "12 Mins", item: "Pepperoni Feast" }
-  ]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'catalog' | 'tracking'>('catalog');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);

@@ -5,7 +5,8 @@ Components API Router — Handles active application component canvas, dynamic a
 from fastapi import APIRouter
 from entrypoints.schemas import (
     ComponentAddRequest, ComponentDeleteRequest,
-    SubRequirementAddRequest, SubRequirementDeleteRequest
+    SubRequirementAddRequest, SubRequirementDeleteRequest,
+    ComponentFixturesUpdateRequest
 )
 from domain.model import CANONICAL_FEATURE_MAP, resolve_canonical_feature
 from service_layer import services
@@ -86,3 +87,27 @@ def get_component_suggestions():
         return services.get_component_suggestions(uow=uow)
     except Exception as e:
         return {"success": True, "suggestions": ["Loyalty Points", "Live Chat Support", "Customer Reviews"]}
+
+
+@router.get("/api/components/fixtures")
+def get_component_data_fixtures_api():
+    """Returns active domain data fixtures grouped by canonical component key."""
+    try:
+        uow = SqliteUnitOfWork()
+        return services.get_component_data_fixtures(uow=uow)
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@router.post("/api/components/fixtures/update")
+def update_component_data_fixtures_api(req: ComponentFixturesUpdateRequest):
+    """Updates entity data fixtures for a component key and syncs workspace App.tsx live."""
+    try:
+        uow = SqliteUnitOfWork()
+        return services.update_component_data_fixtures(
+            canonical_key=req.canonical_key,
+            fixtures=req.fixtures,
+            uow=uow
+        )
+    except Exception as e:
+        return {"success": False, "error": str(e)}

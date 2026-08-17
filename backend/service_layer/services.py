@@ -1,4 +1,5 @@
 import os
+import re
 import random
 from typing import List, Optional, Dict, Any
 from domain.model import Requirement, Project, Component, TestSpec, AgentRun, KickstartState, MOCK_DOMAIN_SCHEMA, resolve_canonical_feature, CANONICAL_FEATURE_MAP
@@ -479,18 +480,24 @@ def get_active_domain_params(uow: Optional[AbstractUnitOfWork] = None) -> dict:
         kickstart_analysis = analyze_pitch_for_kickstart(pitch_clean)
         enabled_features = [b['id'] for b in kickstart_analysis.get('blocks', []) if b.get('id')]
 
+    custom_fixtures = ks.get('custom_fixtures') or {}
+
     return {
         "pitch": active_pitch,
         "brand_title": brand_title,
-        "enabled_features": enabled_features
+        "enabled_features": enabled_features,
+        "custom_fixtures": custom_fixtures
     }
 
 
-def sync_workspace_app_shell(ws_base: Optional[str] = None, uow: Optional[AbstractUnitOfWork] = None):
+def sync_workspace_app_shell(ws_base: Optional[str] = None, uow: Optional[AbstractUnitOfWork] = None, workspace: Optional[Any] = None):
     try:
         if not ws_base:
-            from config_loader import get_workspace_base
-            ws_base = get_workspace_base()
+            if workspace and hasattr(workspace, 'workspace_dir'):
+                ws_base = workspace.workspace_dir
+            else:
+                from config_loader import get_workspace_base
+                ws_base = get_workspace_base()
         schema = get_active_domain_params(uow=uow)
         from onboarding.dynamic_domain_generator import generate_universal_domain_files
         files = generate_universal_domain_files(schema, ws_base)
@@ -501,6 +508,101 @@ def sync_workspace_app_shell(ws_base: Optional[str] = None, uow: Optional[Abstra
         print("[Shell] Workspace App Shell synchronized cleanly with provable backend!")
     except Exception as e:
         print(f"[Notice] Notice syncing workspace app shell: {e}")
+
+
+def get_component_data_fixtures(uow: Optional[AbstractUnitOfWork] = None) -> Dict[str, Any]:
+    """
+    Returns active data fixtures grouped by canonical component key.
+    Initializes catalog items from domain pitch schema, and cart/tracking as empty [] by default.
+    """
+    if uow is None:
+        from service_layer.unit_of_work import SqliteUnitOfWork
+        uow_context = SqliteUnitOfWork()
+    else:
+        uow_context = uow
+
+    with uow_context:
+        try:
+            ks_obj = uow_context.kickstart.get()
+            ks = ks_obj.to_dict() if ks_obj else {}
+        except Exception:
+            ks = {}
+
+    pitch = ks.get('business_pitch', 'Application') if (ks and ks.get('business_pitch')) else 'Application'
+    custom_fixtures = ks.get('custom_fixtures') or {}
+
+    from onboarding.frontend_planning_engine import _extract_domain_entity_profile
+    profile = _extract_domain_entity_profile(pitch)
+    raw_seed = profile.get("seed") or []
+
+    default_catalog = []
+    for idx, item in enumerate(raw_seed):
+        price_val = 14.99
+        p_str = str(item.get("price_or_rate", ""))
+        p_match = re.search(r'([0-9]+(?:\.[0-9]+)?)', p_str)
+        if p_match:
+            try:
+                price_val = float(p_match.group(1))
+            except ValueError:
+                price_val = 14.99
+        default_catalog.append({
+            "id": f"item-{item.get('id', idx+1)}",
+            "name": item.get("title", f"Item #{idx+1}"),
+            "price": price_val
+        })
+
+    fixtures = {
+        "catalog": custom_fixtures.get("catalog", default_catalog),
+        "cart": custom_fixtures.get("cart", []),
+        "tracking": custom_fixtures.get("tracking", [])
+    }
+
+    for k, v in custom_fixtures.items():
+        if k not in fixtures:
+            fixtures[k] = v
+
+    return {"success": True, "fixtures": fixtures}
+
+
+def update_component_data_fixtures(
+    canonical_key: str,
+    fixtures: List[Dict[str, Any]],
+    uow: Optional[AbstractUnitOfWork] = None,
+    workspace: Optional[Any] = None
+) -> Dict[str, Any]:
+    """
+    Updates entity fixtures for a canonical component key in SQLite/kickstart state,
+    and re-syncs workspace App.tsx shell live.
+    """
+    if uow is None:
+        from service_layer.unit_of_work import SqliteUnitOfWork
+        uow_context = SqliteUnitOfWork()
+    else:
+        uow_context = uow
+
+    with uow_context:
+        try:
+            ks_state = uow_context.kickstart.get()
+        except Exception:
+            ks_state = None
+
+        if not ks_state:
+            from domain.model import KickstartState
+            ks_state = KickstartState(business_pitch="Application")
+
+        if not hasattr(ks_state, 'custom_fixtures') or ks_state.custom_fixtures is None:
+            ks_state.custom_fixtures = {}
+
+        cust = dict(ks_state.custom_fixtures or {})
+        cust[canonical_key] = fixtures
+        ks_state.custom_fixtures = cust
+
+        uow_context.kickstart.save(ks_state)
+        uow_context.commit()
+
+    sync_workspace_app_shell(uow=uow_context, workspace=workspace)
+
+    return {"success": True, "canonical_key": canonical_key, "fixtures": fixtures}
 
 
 def discover_domain_model(pitch: str, uow: Optional[AbstractUnitOfWork] = None) -> Dict[str, Any]:

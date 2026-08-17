@@ -431,13 +431,15 @@ class KickstartState:
     blocks: List[str] = field(default_factory=list)
     extracted_requirements: List[Dict[str, Any]] = field(default_factory=list)
     synthesized: bool = False
+    custom_fixtures: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "business_pitch": self.business_pitch,
             "blocks": self.blocks,
             "extracted_requirements": self.extracted_requirements,
-            "synthesized": self.synthesized
+            "synthesized": self.synthesized,
+            "custom_fixtures": self.custom_fixtures
         }
 
 
