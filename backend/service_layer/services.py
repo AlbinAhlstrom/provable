@@ -606,6 +606,8 @@ def synthesize_kickstart_stack(
                     r_desc = rspec.get("description", r_title)
                     r_priority = rspec.get("priority", "High")
                     r_tests = rspec.get("tests", [])
+                    r_parent_id = rspec.get("parentId") or rspec.get("parent_id")
+                    r_layer = rspec.get("layer", "LOGIC")
                 else:
                     req_type = getattr(rspec, "type", "Requirement")
                     r_id = getattr(rspec, "id", None) or f"REQ-{os.urandom(3).hex().upper()}"
@@ -613,6 +615,8 @@ def synthesize_kickstart_stack(
                     r_desc = getattr(rspec, "description", r_title)
                     r_priority = getattr(rspec, "priority", "High")
                     r_tests = getattr(rspec, "tests", [])
+                    r_parent_id = getattr(rspec, "parent_id", None)
+                    r_layer = getattr(rspec, "layer", "LOGIC")
 
                 if req_type not in ('Folder', 'Requirement', 'Task', 'Bug'):
                     req_type = "Requirement"
@@ -624,6 +628,8 @@ def synthesize_kickstart_stack(
                     type=req_type,
                     priority=r_priority,
                     status="Done",
+                    parent_id=r_parent_id,
+                    layer=r_layer,
                     tests=r_tests
                 )
                 uow_context.requirements.add(req_obj)

@@ -187,6 +187,8 @@ Return ONLY a JSON array of requirement objects in this exact format (no markdow
     exceptions = schema.get("exceptions", [])
     invariants = schema.get("invariants", [])
     components_meta = schema.get("components") or []
+    if not components_meta and schema.get("enabled_features"):
+        components_meta = [{"canonical_key": feat, "title": feat.replace("_", " ").title()} for feat in schema.get("enabled_features", [])]
 
     results = []
     req_counter = 1

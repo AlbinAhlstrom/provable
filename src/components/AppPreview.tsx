@@ -73,9 +73,6 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
       {/* Top Action Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', background: '#1e293b', padding: '0.75rem 1.25rem', borderRadius: '0.75rem', border: '1px solid #334155' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#38bdf8' }}>
-            ⚡ Application Live Preview {isSynthesized && '& Spec Control'}
-          </h2>
           {activeResetMessage && (
             <span style={{ fontSize: '0.8rem', color: activeResetMessage.includes('✨') ? '#4ade80' : '#f87171' }}>
               {activeResetMessage}
@@ -120,7 +117,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
                 cursor: 'pointer'
               }}
             >
-              React App (5174)
+              Preview
             </button>
             <button
               onClick={() => setTargetPort('8000')}
@@ -135,7 +132,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
                 cursor: 'pointer'
               }}
             >
-              FastAPI Dashboard (8000)
+              API
             </button>
           </div>
 
@@ -146,21 +143,21 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
               style={{ background: deviceMode === 'desktop' ? '#334155' : 'transparent', color: '#f8fafc', border: 'none', padding: '0.35rem 0.6rem', borderRadius: '0.35rem', fontSize: '0.8rem', cursor: 'pointer' }}
               title="Desktop View"
             >
-              🖥️ Desktop
+              🖥️
             </button>
             <button
               onClick={() => setDeviceMode('tablet')}
               style={{ background: deviceMode === 'tablet' ? '#334155' : 'transparent', color: '#f8fafc', border: 'none', padding: '0.35rem 0.6rem', borderRadius: '0.35rem', fontSize: '0.8rem', cursor: 'pointer' }}
               title="Tablet View"
             >
-              📱 Tablet
+              📱
             </button>
             <button
               onClick={() => setDeviceMode('mobile')}
               style={{ background: deviceMode === 'mobile' ? '#334155' : 'transparent', color: '#f8fafc', border: 'none', padding: '0.35rem 0.6rem', borderRadius: '0.35rem', fontSize: '0.8rem', cursor: 'pointer' }}
               title="Mobile View"
             >
-              📲 Mobile
+              📲
             </button>
           </div>
 
@@ -168,8 +165,9 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
           <button
             onClick={() => setKey(k => k + 1)}
             style={{ background: '#334155', color: '#f8fafc', border: 'none', padding: '0.45rem 0.85rem', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
+            title="Refresh Preview"
           >
-            🔄 Refresh
+            🔄
           </button>
           <button
             onClick={() => window.open(previewUrl, '_blank')}

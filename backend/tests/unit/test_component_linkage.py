@@ -66,3 +66,25 @@ def test_link_logic_reqs_attaches_to_active_components_without_ghosts():
     assert catalog_logic.get("parentId") == "REQ-UI-CATALOG" or catalog_logic.get("parent_id") == "REQ-UI-CATALOG"
     assert cart_logic.get("parentId") == "REQ-UI-CART" or cart_logic.get("parent_id") == "REQ-UI-CART"
     assert track_logic.get("parentId") == "REQ-UI-TRACKING" or track_logic.get("parent_id") == "REQ-UI-TRACKING"
+
+
+def test_synthesize_kickstart_stack_preserves_parent_linkage():
+    from service_layer.services import synthesize_kickstart_stack
+    from service_layer.unit_of_work import FakeUnitOfWork
+    
+    uow = FakeUnitOfWork()
+    res = synthesize_kickstart_stack(
+        business_pitch="Order artisan pizzas with real-time tracking",
+        selected_blocks=["catalog", "cart", "tracking"],
+        uow=uow
+    )
+
+    all_reqs = uow.requirements.list()
+    presentation_reqs = [r for r in all_reqs if r.layer == "PRESENTATION" or r.id.startswith("REQ-UI")]
+    child_reqs = [r for r in all_reqs if r.parent_id is not None]
+
+    assert len(presentation_reqs) >= 3
+    assert len(child_reqs) >= 1
+    for child in child_reqs:
+        assert child.parent_id in [p.id for p in presentation_reqs]
+

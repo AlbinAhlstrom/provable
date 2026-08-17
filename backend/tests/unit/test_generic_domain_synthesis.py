@@ -181,7 +181,7 @@ def test_minimum_core_view_invariant():
 
 def test_zero_sla_badge_in_onboarding_codebase():
     """Verify sla_badge is completely purged from onboarding codebase files."""
-    onboarding_dir = os.path.join(os.path.dirname(__file__), "..", "onboarding")
+    onboarding_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "onboarding"))
     for filename in os.listdir(onboarding_dir):
         if filename.endswith(".py"):
             filepath = os.path.join(onboarding_dir, filename)

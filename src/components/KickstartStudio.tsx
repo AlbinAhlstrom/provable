@@ -190,7 +190,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
               gap: '0.6rem'
             }}
           >
-            {building ? '⏳ Building DDD Stack & Live UI...' : '⚡ Build App Stack'}
+            {building ? '⏳ Generating...' : '⚡ Build App Stack'}
           </button>
         </div>
       </div>

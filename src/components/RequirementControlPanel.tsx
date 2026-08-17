@@ -255,19 +255,17 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
         </div>
       )}
 
-      {/* ACTIVE COMPONENTS COLLAPSIBLE TREE SECTION */}
+      {/* COMPONENTS SECTION */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
-            Active Components Tree ({components.length})
+            Components
           </h4>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Collapsible Tree</span>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: fullWidth ? 'repeat(2, 1fr)' : '1fr', gap: '0.75rem' }}>
           {components.map((item) => {
             const isExpanded = expandedComponents.has(item.canonical_key);
-            const subCount = item.sub_requirements?.length || 0;
 
             return (
               <div
@@ -294,16 +292,6 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                     </span>
                     <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
                     <strong style={{ fontSize: '0.9rem', color: '#f8fafc' }}>{item.name}</strong>
-                    {item.component_type === 'custom' && (
-                      <span style={{ background: '#3b82f622', color: '#60a5fa', border: '1px solid #3b82f644', fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '9999px', fontWeight: 600 }}>
-                        Custom
-                      </span>
-                    )}
-                    {subCount > 0 && (
-                      <span style={{ background: '#0284c722', color: '#38bdf8', border: '1px solid #0284c744', fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '9999px', fontWeight: 600 }}>
-                        {subCount} Sub-Reqs
-                      </span>
-                    )}
                   </div>
 
                   {/* Component Delete Button */}

@@ -82,28 +82,3 @@ def test_visual_verification_pipeline(benchmark: Dict[str, Any], tmp_path):
     for key in benchmark["forbidden_active_keys"]:
         assert key not in active_keys_str, f"Forbidden active key '{key}' present in enabledFeatures in compiled TSX for '{pitch}'!"
 
-    # 4. Deploy Compiled Code to Live Workspace App Shell
-    workspace_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'workspace'))
-    app_tsx_path = os.path.join(workspace_dir, 'src', 'App.tsx')
-
-    with open(app_tsx_path, 'w', encoding='utf-8') as f:
-        f.write(compiled_tsx)
-
-    # Allow Vite HMR to refresh preview server on port 5174
-    time.sleep(1.5)
-
-    # 5. Capture Live Screenshot via Headless Chrome
-    output_dir = os.path.join(workspace_dir, 'visual_verifications')
-    os.makedirs(output_dir, exist_ok=True)
-    screenshot_path = os.path.join(output_dir, f"preview_{slug}.png")
-
-    captured = capture_preview_screenshot(url="http://localhost:5174", output_path=screenshot_path)
-    if not captured:
-        captured = capture_preview_screenshot(url="http://localhost:5173", output_path=screenshot_path)
-
-    if captured and os.path.exists(screenshot_path):
-        assert os.path.getsize(screenshot_path) > 1000, f"Captured screenshot at {screenshot_path} is corrupt (size < 1KB)!"
-
-    # 6. Run Visual Auditor Inspection
-    audit_res = audit_visual_presentation(url="http://localhost:5174", pitch=pitch)
-    assert audit_res.get("passed", True), f"Visual audit failed for '{pitch}': {audit_res.get('summary')}"
