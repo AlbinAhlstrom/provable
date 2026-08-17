@@ -196,7 +196,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
       </div>
 
       {/* Domain Examples Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
         <div 
           onClick={() => setPitch('An app to order pizzas')}
           style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.75rem', padding: '1rem', cursor: 'pointer' }}

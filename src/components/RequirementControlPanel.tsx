@@ -1,3 +1,4 @@
+// PM Studio Requirement Control Panel — Component Inspector & Spec Tree
 import React, { useState, useEffect } from 'react';
 import { ComponentAddRequestDTO, ComponentDeleteRequestDTO } from '../types/api';
 
@@ -32,6 +33,85 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
   const [subPromptByComponent, setSubPromptByComponent] = useState<Record<string, string>>({});
   const [addingSubKey, setAddingSubKey] = useState<string | null>(null);
+
+  // 2-Tab Component Inspector State ('tests' | 'data')
+  const [activeTabByComponent, setActiveTabByComponent] = useState<Record<string, 'tests' | 'data'>>({});
+
+  // Entity Data Fixtures State with default seed items
+  const [dataFixturesByComponent, setDataFixturesByComponent] = useState<Record<string, Array<{ id: string, name: string, price: number }>>>({
+    catalog: [
+      { id: 'item-1', name: 'Margherita Pizza', price: 14.99 },
+      { id: 'item-2', name: 'Pepperoni Supreme', price: 16.99 },
+      { id: 'item-3', name: 'Truffle Mushroom Deluxe', price: 18.99 }
+    ],
+    cart: [
+      { id: 'cart-1', name: 'Standard Delivery Tax', price: 2.99 }
+    ],
+    tracking: [
+      { id: 'track-1', name: 'Order ORD-9021 (Baking)', price: 31.98 }
+    ]
+  });
+
+  // Entity Fixture Inline Editing State
+  const [editingFixtureId, setEditingFixtureId] = useState<string | null>(null);
+  const [editFixtureName, setEditFixtureName] = useState<string>('');
+  const [editFixturePrice, setEditFixturePrice] = useState<string>('');
+  const [newFixtureName, setNewFixtureName] = useState<Record<string, string>>({});
+  const [newFixturePrice, setNewFixturePrice] = useState<Record<string, string>>({});
+
+  const toggleComponentTab = (key: string, tab: 'tests' | 'data') => {
+    setActiveTabByComponent(prev => ({ ...prev, [key]: tab }));
+  };
+
+  const handleAddFixture = (canonicalKey: string) => {
+    const name = (newFixtureName[canonicalKey] || '').trim();
+    const priceVal = parseFloat(newFixturePrice[canonicalKey] || '14.99');
+    if (!name) return;
+
+    const newItem = {
+      id: `fix-${Date.now()}`,
+      name,
+      price: isNaN(priceVal) ? 14.99 : priceVal
+    };
+
+    setDataFixturesByComponent(prev => ({
+      ...prev,
+      [canonicalKey]: [...(prev[canonicalKey] || []), newItem]
+    }));
+
+    setNewFixtureName(prev => ({ ...prev, [canonicalKey]: '' }));
+    setNewFixturePrice(prev => ({ ...prev, [canonicalKey]: '' }));
+    setStatusToast(`✨ Added entity item "${name}" to ${canonicalKey}`);
+    setTimeout(() => setStatusToast(null), 2500);
+  };
+
+  const handleSaveFixtureEdit = (canonicalKey: string, fixId: string) => {
+    if (!editFixtureName.trim()) return;
+    const priceVal = parseFloat(editFixturePrice);
+
+    setDataFixturesByComponent(prev => ({
+      ...prev,
+      [canonicalKey]: (prev[canonicalKey] || []).map(item =>
+        item.id === fixId
+          ? { ...item, name: editFixtureName.trim(), price: isNaN(priceVal) ? item.price : priceVal }
+          : item
+      )
+    }));
+
+    setEditingFixtureId(null);
+    setStatusToast(`✨ Updated entity item`);
+    setTimeout(() => setStatusToast(null), 2000);
+  };
+
+  const handleDeleteFixture = (canonicalKey: string, fixId: string) => {
+    setDataFixturesByComponent(prev => ({
+      ...prev,
+      [canonicalKey]: (prev[canonicalKey] || []).filter(item => item.id !== fixId)
+    }));
+    setStatusToast(`🗑️ Deleted entity item`);
+    setTimeout(() => setStatusToast(null), 2000);
+  };
+
 
   const toggleComponentExpand = (key: string) => {
     setExpandedComponents(prev => {
@@ -238,14 +318,18 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     <div style={{
       background: fullWidth ? 'transparent' : '#1e293b',
       borderLeft: fullWidth ? 'none' : '1px solid #334155',
-      width: fullWidth ? '100%' : '380px',
+      flex: 1,
+      minWidth: 0,
+      width: '100%',
       height: '100%',
       overflowY: 'auto',
+      overflowX: 'hidden',
       padding: fullWidth ? '0' : '1.25rem',
       display: 'flex',
       flexDirection: 'column',
       gap: '1.25rem',
-      color: '#f8fafc'
+      color: '#f8fafc',
+      boxSizing: 'border-box'
     }}>
 
       {/* Status Toast */}
@@ -266,6 +350,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
         <div style={{ display: 'grid', gridTemplateColumns: fullWidth ? 'repeat(2, 1fr)' : '1fr', gap: '0.75rem' }}>
           {components.map((item) => {
             const isExpanded = expandedComponents.has(item.canonical_key);
+            const subCount = (item.sub_requirements || []).length;
 
             return (
               <div
@@ -320,99 +405,253 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                   <div style={{ marginTop: '0.25rem', paddingTop: '0.5rem', borderTop: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                     <div style={{ fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.35 }}>{item.desc}</div>
 
-                    {/* Sub-Requirements Tree List */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                      <div style={{ fontSize: '0.7rem', color: '#cbd5e1', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        Child Sub-Requirements:
-                      </div>
+                      {/* 2-TAB INSPECTOR SWITCHER: 🧪 Tests vs 📦 Data Fixtures */}
+                      <div style={{ display: 'flex', background: '#090d16', border: '1px solid #334155', borderRadius: '0.4rem', padding: '0.15rem' }}>
+                        <button
+                          onClick={() => toggleComponentTab(item.canonical_key, 'tests')}
+                          style={{
+                            flex: 1,
+                            background: (activeTabByComponent[item.canonical_key] || 'tests') === 'tests' ? '#0284c7' : 'transparent',
+                            color: (activeTabByComponent[item.canonical_key] || 'tests') === 'tests' ? '#ffffff' : '#94a3b8',
+                            border: 'none',
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '0.3rem',
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          🧪 Executable Tests ({subCount})
+                        </button>
 
-                      {(!item.sub_requirements || item.sub_requirements.length === 0) ? (
-                        <div style={{ fontSize: '0.75rem', color: '#64748b', italic: 'true' }}>
-                          No sub-requirements yet. Use the field below to add logic rules.
-                        </div>
-                      ) : (
-                        item.sub_requirements.map((sub: any, idx: number) => {
-                          const subId = sub.id || sub.canonical_key || `sub-${idx}`;
-                          const subTitle = sub.title || sub.name || sub.description || 'Sub-Requirement';
-                          const subLayer = sub.layer || (sub.id?.startsWith('REQ-UI') ? 'PRESENTATION' : 'LOGIC');
-                          const layerBadge = subLayer === 'PRESENTATION' ? '🎨 UI' : (subLayer === 'INFRASTRUCTURE' ? '💾 API' : '⚡ Logic');
-                          const layerColor = subLayer === 'PRESENTATION' ? '#38bdf8' : (subLayer === 'INFRASTRUCTURE' ? '#a855f7' : '#f59e0b');
-
-                          return (
-                            <div 
-                              key={subId} 
-                              style={{ 
-                                background: 'rgba(15, 23, 42, 0.8)', 
-                                border: '1px solid #334155', 
-                                borderRadius: '0.4rem', 
-                                padding: '0.4rem 0.6rem', 
-                                display: 'flex', 
-                                justifyContent: 'space-between', 
-                                alignItems: 'center', 
-                                gap: '0.5rem' 
-                              }}
-                            >
-                              <div style={{ flex: 1, fontSize: '0.75rem', color: '#e2e8f0', lineHeight: 1.3 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                  <span>{subTitle}</span>
-                                  <span style={{ fontSize: '0.65rem', padding: '0.05rem 0.3rem', borderRadius: '3px', background: `${layerColor}22`, color: layerColor, border: `1px solid ${layerColor}44` }}>
-                                    {layerBadge}
-                                  </span>
-                                </div>
-                                {sub.description && sub.description !== subTitle && (
-                                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.15rem' }}>{sub.description}</div>
-                                )}
-                              </div>
-                              <button
-                                onClick={() => handleDeleteSubRequirement(item.canonical_key, subId)}
-                                title="Delete sub-requirement"
-                                style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem', padding: '0.1rem 0.3rem' }}
-                              >
-                                🗑️
-                              </button>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-
-                    {/* Inline Add Sub-Requirement Input Form */}
-                    <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.25rem' }}>
-                      <input
-                        type="text"
-                        placeholder={`Add sub-req for ${item.name}...`}
-                        value={subPromptByComponent[item.canonical_key] || ''}
-                        onChange={e => setSubPromptByComponent({ ...subPromptByComponent, [item.canonical_key]: e.target.value })}
-                        onKeyDown={e => { if (e.key === 'Enter') handleAddSubRequirement(item.canonical_key); }}
-                        disabled={addingSubKey === item.canonical_key}
+                      <button
+                        onClick={() => toggleComponentTab(item.canonical_key, 'data')}
                         style={{
                           flex: 1,
-                          background: '#1e293b',
-                          border: '1px solid #334155',
-                          borderRadius: '0.4rem',
-                          padding: '0.35rem 0.6rem',
-                          fontSize: '0.75rem',
-                          color: '#f8fafc',
-                          outline: 'none'
-                        }}
-                      />
-                      <button
-                        onClick={() => handleAddSubRequirement(item.canonical_key)}
-                        disabled={addingSubKey === item.canonical_key || !(subPromptByComponent[item.canonical_key] || '').trim()}
-                        style={{
-                          background: '#0284c7',
-                          color: '#fff',
+                          background: activeTabByComponent[item.canonical_key] === 'data' ? '#0284c7' : 'transparent',
+                          color: activeTabByComponent[item.canonical_key] === 'data' ? '#ffffff' : '#94a3b8',
                           border: 'none',
-                          borderRadius: '0.4rem',
-                          padding: '0.35rem 0.65rem',
-                          fontSize: '0.75rem',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '0.3rem',
+                          fontSize: '0.72rem',
                           fontWeight: 700,
-                          cursor: addingSubKey === item.canonical_key ? 'not-allowed' : 'pointer'
+                          cursor: 'pointer'
                         }}
                       >
-                        {addingSubKey === item.canonical_key ? '⏳' : '➕ Add'}
+                        📦 Data Fixtures ({(dataFixturesByComponent[item.canonical_key] || []).length})
                       </button>
                     </div>
+
+                    {/* TAB 1: EXECUTABLE TESTS */}
+                    {(activeTabByComponent[item.canonical_key] || 'tests') === 'tests' && (
+                      <>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                          {(!item.sub_requirements || item.sub_requirements.length === 0) ? (
+                            <div style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic' }}>
+                              No test specs defined yet. Use the field below to add a test assertion.
+                            </div>
+                          ) : (
+                            item.sub_requirements.map((sub: any, idx: number) => {
+                              const subId = sub.id || sub.canonical_key || `sub-${idx}`;
+                              const subTitle = sub.title || sub.name || sub.description || 'Test Spec';
+                              const status = sub.status === 'fail' ? 'fail' : 'pass';
+                              const testBadge = status === 'pass' ? '🟢 PASS' : '🔴 FAIL';
+                              const testsArr = sub.tests || [];
+                              const firstTest = testsArr[0] || {};
+                              const givenText = firstTest.given || sub.given_text;
+                              const whenText = firstTest.when || sub.when_text;
+                              const thenText = firstTest.then || sub.then_text;
+
+                              return (
+                                <div 
+                                  key={subId} 
+                                  style={{ 
+                                    background: '#1e293b', 
+                                    border: '1px solid #334155', 
+                                    borderRadius: '0.5rem', 
+                                    padding: '0.5rem 0.75rem', 
+                                    display: 'flex', 
+                                    flexDirection: 'column',
+                                    gap: '0.35rem' 
+                                  }}
+                                >
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1 }}>
+                                      <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', background: status === 'pass' ? '#166534' : '#991b1b', color: status === 'pass' ? '#4ade80' : '#fca5a5', fontWeight: 700 }}>
+                                        {testBadge}
+                                      </span>
+                                      <strong style={{ fontSize: '0.8rem', color: '#f8fafc' }}>{subTitle}</strong>
+                                    </div>
+                                    <button
+                                      onClick={() => handleDeleteSubRequirement(item.canonical_key, subId)}
+                                      title="Delete test spec"
+                                      style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem', padding: '0.1rem' }}
+                                    >
+                                      🗑️
+                                    </button>
+                                  </div>
+
+                                  {(givenText || whenText || thenText) ? (
+                                    <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
+                                      {givenText && (
+                                        <span style={{ fontSize: '0.68rem', background: '#0f172a', border: '1px solid #334155', color: '#94a3b8', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>
+                                          <strong style={{ color: '#38bdf8' }}>GIVEN</strong> {givenText.replace(/^Given\s*/i, '')}
+                                        </span>
+                                      )}
+                                      {whenText && (
+                                        <span style={{ fontSize: '0.68rem', background: '#0f172a', border: '1px solid #334155', color: '#94a3b8', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>
+                                          <strong style={{ color: '#f59e0b' }}>WHEN</strong> {whenText.replace(/^When\s*/i, '')}
+                                        </span>
+                                      )}
+                                      {thenText && (
+                                        <span style={{ fontSize: '0.68rem', background: '#0f172a', border: '1px solid #334155', color: '#94a3b8', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>
+                                          <strong style={{ color: '#4ade80' }}>THEN</strong> {thenText.replace(/^Then\s*/i, '')}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ) : sub.description && sub.description !== subTitle && (
+                                    <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{sub.description}</div>
+                                  )}
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+
+                        {/* Inline Add Test Spec Form */}
+                        <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.25rem' }}>
+                          <input
+                            type="text"
+                            placeholder={`Add test spec for ${item.name}...`}
+                            value={subPromptByComponent[item.canonical_key] || ''}
+                            onChange={e => setSubPromptByComponent({ ...subPromptByComponent, [item.canonical_key]: e.target.value })}
+                            onKeyDown={e => { if (e.key === 'Enter') handleAddSubRequirement(item.canonical_key); }}
+                            disabled={addingSubKey === item.canonical_key}
+                            style={{
+                              flex: 1,
+                              background: '#1e293b',
+                              border: '1px solid #334155',
+                              borderRadius: '0.4rem',
+                              padding: '0.35rem 0.6rem',
+                              fontSize: '0.75rem',
+                              color: '#f8fafc',
+                              outline: 'none'
+                            }}
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* TAB 2: DATA FIXTURES & ENTITIES CRUD */}
+                    {activeTabByComponent[item.canonical_key] === 'data' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                        {/* Data Fixtures List */}
+                        {(!dataFixturesByComponent[item.canonical_key] || dataFixturesByComponent[item.canonical_key].length === 0) ? (
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic' }}>
+                            No entity items defined for this component. Use the form below to add data.
+                          </div>
+                        ) : (
+                          dataFixturesByComponent[item.canonical_key].map((fix) => {
+                            const isEditingThis = editingFixtureId === fix.id;
+
+                            if (isEditingThis) {
+                              return (
+                                <div key={fix.id} style={{ display: 'flex', gap: '0.35rem', background: '#1e293b', padding: '0.4rem', borderRadius: '0.4rem', border: '1px solid #0284c7' }}>
+                                  <input
+                                    type="text"
+                                    value={editFixtureName}
+                                    onChange={e => setEditFixtureName(e.target.value)}
+                                    style={{ flex: 2, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
+                                  />
+                                  <input
+                                    type="number"
+                                    value={editFixturePrice}
+                                    onChange={e => setEditFixturePrice(e.target.value)}
+                                    style={{ flex: 1, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
+                                  />
+                                  <button
+                                    onClick={() => handleSaveFixtureEdit(item.canonical_key, fix.id)}
+                                    style={{ background: '#166534', color: '#4ade80', border: 'none', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem', cursor: 'pointer' }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingFixtureId(null)}
+                                    style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.75rem', cursor: 'pointer' }}
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              );
+                            }
+
+                            return (
+                              <div
+                                key={fix.id}
+                                style={{
+                                  background: '#1e293b',
+                                  border: '1px solid #334155',
+                                  borderRadius: '0.4rem',
+                                  padding: '0.4rem 0.65rem',
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  fontSize: '0.75rem',
+                                  color: '#f8fafc'
+                                }}
+                              >
+                                <span>{fix.name}</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                  <span style={{ color: '#4ade80', fontWeight: 600 }}>${fix.price.toFixed(2)}</span>
+                                  <button
+                                    onClick={() => {
+                                      setEditingFixtureId(fix.id);
+                                      setEditFixtureName(fix.name);
+                                      setEditFixturePrice(fix.price.toString());
+                                    }}
+                                    title="Edit entity item"
+                                    style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontSize: '0.75rem', padding: '0 0.15rem' }}
+                                  >
+                                    ✏️
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteFixture(item.canonical_key, fix.id)}
+                                    title="Delete entity item"
+                                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem', padding: '0 0.15rem' }}
+                                  >
+                                    🗑️
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+
+                        {/* Form to Add New Entity Item */}
+                        <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.35rem' }}>
+                          <input
+                            type="text"
+                            placeholder="New Item Name..."
+                            value={newFixtureName[item.canonical_key] || ''}
+                            onChange={e => setNewFixtureName({ ...newFixtureName, [item.canonical_key]: e.target.value })}
+                            style={{ flex: 2, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
+                          />
+                          <input
+                            type="number"
+                            placeholder="Price ($)"
+                            value={newFixturePrice[item.canonical_key] || ''}
+                            onChange={e => setNewFixturePrice({ ...newFixturePrice, [item.canonical_key]: e.target.value })}
+                            style={{ flex: 1, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
+                          />
+                          <button
+                            onClick={() => handleAddFixture(item.canonical_key)}
+                            style={{ background: '#0284c7', color: 'white', border: 'none', padding: '0.3rem 0.65rem', borderRadius: '0.35rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                          >
+                            ➕ Add
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { RequirementControlPanel } from './RequirementControlPanel';
+import { PageSelectorBar } from './PageSelectorBar';
+import { DomainEntitiesPanel } from './DomainEntitiesPanel';
+import { PageDTO, DomainEntityDTO } from '../types/api';
 
 export interface AppPreviewProps {
   onResetWorkspace?: () => void;
@@ -9,13 +12,77 @@ export interface AppPreviewProps {
 
 export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPreviewProps = {}) {
   const [targetPort, setTargetPort] = useState<'5174' | '8000'>('5174');
-  const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('mobile');
   const [key, setKey] = useState(0);
   const [isSynthesized, setIsSynthesized] = useState<boolean>(false);
   const [internalResetting, setInternalResetting] = useState<boolean>(false);
   const [internalResetMessage, setInternalResetMessage] = useState<string | null>(null);
 
+  // Pages & Views Navigation State
+  const [pages, setPages] = useState<PageDTO[]>([
+    { id: 'home', name: 'Home Page', route: '/', icon: '🏠', is_home: true },
+    { id: 'checkout', name: 'Checkout Page', route: '/checkout', icon: '💳' },
+    { id: 'tracking', name: 'Order Tracking View', route: '/tracking', icon: '📦' }
+  ]);
+  const [activePageId, setActivePageId] = useState<string>('home');
+
+  // Domain Entities State
+  const [entities, setEntities] = useState<DomainEntityDTO[]>([
+    {
+      name: 'MenuItem',
+      description: 'Catalog items, pizzas & offerings',
+      attributes: { name: 'string', price: 'number', description: 'string' },
+      seed_items: [
+        { name: 'Margherita Pizza', price: 14.99 },
+        { name: 'Pepperoni Supreme', price: 16.99 },
+        { name: 'Truffle Mushroom Deluxe', price: 18.99 }
+      ]
+    },
+    {
+      name: 'CartItem',
+      description: 'Selected items in active shopping cart',
+      attributes: { item_id: 'string', quantity: 'number' },
+      seed_items: []
+    },
+    {
+      name: 'Order',
+      description: 'Active pizza orders and status pipeline',
+      attributes: { id: 'string', status: 'string', total: 'number' },
+      seed_items: [{ id: 'ORD-9021', status: 'Baking', total: 31.98 }]
+    }
+  ]);
+  const [isEntitiesOpen, setIsEntitiesOpen] = useState<boolean>(false);
+
   const previewUrl = targetPort === '5174' ? 'http://localhost:5174' : 'http://localhost:8000/';
+
+  const handleAddPage = (name: string, route: string) => {
+    const newPage: PageDTO = {
+      id: name.toLowerCase().replace(/[^a-z0-9_]/g, '_'),
+      name,
+      route,
+      icon: '📄'
+    };
+    setPages(prev => [...prev, newPage]);
+    setActivePageId(newPage.id);
+  };
+
+  const handleDeletePage = (pageId: string) => {
+    setPages(prev => prev.filter(p => p.id !== pageId));
+    if (activePageId === pageId) {
+      setActivePageId('home');
+    }
+  };
+
+  const handleAddEntityItem = (entityName: string, newItem: Record<string, any>) => {
+    setEntities(prev =>
+      prev.map(ent =>
+        ent.name === entityName
+          ? { ...ent, seed_items: [...ent.seed_items, newItem] }
+          : ent
+      )
+    );
+    setKey(k => k + 1); // Trigger preview HMR refresh
+  };
 
   useEffect(() => {
     const fetchState = async () => {
@@ -70,9 +137,34 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1, boxSizing: 'border-box' }}>
-      {/* Top Action Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', background: '#1e293b', padding: '0.75rem 1.25rem', borderRadius: '0.75rem', border: '1px solid #334155' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      {/* Pillar 1: Top Pages & Views Selector Bar */}
+      {isSynthesized && (
+        <PageSelectorBar
+          pages={pages}
+          activePageId={activePageId}
+          onSelectPage={setActivePageId}
+          onAddPage={handleAddPage}
+          onDeletePage={handleDeletePage}
+        />
+      )}
+
+      {/* Workspace Control Bar */}
+      <div 
+        className="app-preview-controls-bar"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: '#0f172a',
+          border: '1px solid #334155',
+          borderRadius: '0.75rem',
+          padding: '0.5rem 1rem',
+          marginBottom: '1rem',
+          gap: '1rem',
+          flexWrap: 'wrap'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           {activeResetMessage && (
             <span style={{ fontSize: '0.8rem', color: activeResetMessage.includes('✨') ? '#4ade80' : '#f87171' }}>
               {activeResetMessage}
@@ -82,13 +174,13 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
             onClick={handleReset}
             disabled={isResettingState}
             style={{
-              background: '#450a0a',
-              border: '1px solid #991b1b',
+              background: '#991b1b',
               color: '#fca5a5',
-              padding: '0.35rem 0.75rem',
+              border: '1px solid #dc2626',
+              padding: '0.4rem 0.85rem',
               borderRadius: '0.5rem',
-              fontWeight: 600,
               fontSize: '0.8rem',
+              fontWeight: 700,
               cursor: isResettingState ? 'not-allowed' : 'pointer',
               opacity: isResettingState ? 0.6 : 1,
               display: 'flex',
@@ -101,7 +193,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
         </div>
 
         {/* Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           {/* Target Port Selector */}
           <div style={{ display: 'flex', background: '#0f172a', border: '1px solid #334155', borderRadius: '0.5rem', padding: '0.2rem' }}>
             <button
@@ -179,27 +271,51 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
       </div>
 
       {/* Main Container: Live Preview Iframe + Conditional Side Requirement Control Panel */}
-      <div style={{ flex: 1, display: 'flex', gap: '1rem', minHeight: 0, overflow: 'hidden' }}>
+      <div 
+        className="app-preview-split"
+        style={{ flex: 1, display: 'flex', gap: '1rem', minHeight: 0, overflow: 'hidden', width: '100%' }}
+      >
         {/* Frame Container */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', background: '#090d16', borderRadius: '0.75rem', border: '1px solid #334155', padding: '1rem', overflow: 'hidden' }}>
+        <div 
+          className="app-preview-frame-container"
+          style={{
+            width: deviceMode === 'desktop' ? '100%' : getWidth(),
+            flex: deviceMode === 'desktop' ? 1 : `0 0 ${getWidth()}`,
+            maxWidth: deviceMode === 'desktop' ? '100%' : getWidth(),
+            display: 'flex',
+            justifyContent: 'center',
+            background: '#090d16',
+            borderRadius: '0.75rem',
+            border: '1px solid #334155',
+            padding: '0.5rem',
+            overflow: 'hidden',
+            transition: 'all 0.3s ease',
+            boxSizing: 'border-box'
+          }}
+        >
           <iframe
             key={key}
             src={previewUrl}
             title="Live Application Preview"
             style={{
-              width: getWidth(),
+              width: '100%',
               height: '100%',
               border: '1px solid #334155',
               borderRadius: '0.5rem',
-              background: '#0f172a',
-              transition: 'width 0.3s ease'
+              background: '#0f172a'
             }}
           />
         </div>
 
         {/* Render Side Control Panel ONLY when an application has been synthesized */}
-        {isSynthesized && <RequirementControlPanel onParamUpdated={() => setKey(k => k + 1)} />}
+        {isSynthesized && (
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <RequirementControlPanel onParamUpdated={() => setKey(k => k + 1)} />
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+

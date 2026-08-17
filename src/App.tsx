@@ -113,8 +113,8 @@ export function App() {
         </div>
       </header>
 
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <main className="main-content" style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: currentView === 'Preview' ? '1rem 1.5rem' : undefined }}>
+      <div style={{ display: 'flex', flex: 1, flexDirection: 'column', width: '100%', minHeight: 0 }}>
+        <main className="main-content" style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', minHeight: 0, padding: currentView === 'Preview' ? '1rem 1.5rem' : undefined }}>
           {loading ? <p style={{ padding: '2rem' }}>Loading data...</p> : (
             <>
               {currentView === 'Domain' && (
@@ -137,7 +137,6 @@ export function App() {
               {currentView === 'Tests' && (
                 <CoverageHub 
                   coverageData={coverageData}
-                  agentStatus={agentStatus}
                   requirements={requirements}
                   setCurrentView={setCurrentView}
                   setSelectedReqId={setSelectedReqId}

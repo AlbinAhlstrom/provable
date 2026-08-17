@@ -153,3 +153,33 @@ export interface SubRequirementDeleteRequestDTO {
   parent_canonical_key: string;
   sub_id: string;
 }
+
+export interface PageDTO {
+  id: string;
+  name: string;
+  route: string;
+  icon?: string;
+  is_home?: boolean;
+}
+
+export interface PageAddRequestDTO {
+  name: string;
+  route: string;
+  icon?: string;
+}
+
+export interface TestSpecAddDTO {
+  component_id: string;
+  test_name: string;
+  given_text?: string;
+  when_text?: string;
+  then_text?: string;
+}
+
+export interface DomainEntityDTO {
+  name: string;
+  description: string;
+  attributes: Record<string, string>;
+  seed_items: Record<string, any>[];
+}
+
