@@ -93,8 +93,19 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **Menu Item Addition Rendering E2E Test**: Added `test_add_new_menu_item_fixture_renders_in_live_preview` to [`test_e2e_pizza_prompt_sanity.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/e2e/test_e2e_pizza_prompt_sanity.py), verifying that adding new menu items in backend SQLite renders live pizza cards in the browser preview.
         - **Verified 100% Test Pass**: 106/106 unit tests passed and 6/6 heavy E2E Selenium tests passed cleanly.
 
+    15. **Default 4-Step TDD Direct Execution & Order Snapshot Contract Enforcement**:
+        - **Subagent Removal & Direct TDD Rule**: Updated `.agents/AGENTS.md` and `vault/HANDOVER.md` to mandate the strict 4-step RED-GREEN-WIRE-VERIFY TDD workflow directly in the primary agent turn without calling subagents.
+        - **Domain State & Order Snapshot Contracts**: Updated `backend/prompts/ui_generation.md` with explicit LLM system prompt invariants for catalog-driven cart management and decoupled immutable order tracking snapshots.
+        - **Unit Test Suite Verification**: Added [`backend/tests/unit/test_order_snapshot_integrity.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/unit/test_order_snapshot_integrity.py) to assert prompt contracts and fallback template decoupled order snapshots.
+        - **Verified 100% PASS**: 108/108 unit tests passed in 29.65s with zero `import db.store` leaks across routers and service layer.
+
+    16. **Pre-Commit Full Test Suite Invariant Enforcement**:
+        - **Mandatory Pre-Commit Test Run Invariant**: Updated `.agents/AGENTS.md` and `vault/HANDOVER.md` to strictly require running the full test suite (`python -m pytest backend/tests/`) before every `git commit` or `git commit --amend` to guarantee zero regressions.
+
 ---
 
-*Updated by Antigravity AI on 2026-08-17 (Fixed SQLite custom_fixtures_json persistence flaw in store.py and repository.py, updated port 8000 API endpoints in frontend_planning_engine.py, added test_add_new_menu_item_fixture_renders_in_live_preview, and verified 100% PASS across 106 unit tests and 6 E2E tests).*
+*Updated by Antigravity AI on 2026-08-17 (Added Pre-Commit Full Test Suite Invariant to AGENTS.md and vault/HANDOVER.md to mandate full test suite runs before every git commit).*
+
+
 
 
