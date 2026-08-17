@@ -29,6 +29,18 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   const [addingPromptText, setAddingPromptText] = useState<string>("");
   const [deletingKey, setDeletingKey] = useState<string | null>(null);
   const [statusToast, setStatusToast] = useState<string | null>(null);
+  const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
+  const [subPromptByComponent, setSubPromptByComponent] = useState<Record<string, string>>({});
+  const [addingSubKey, setAddingSubKey] = useState<string | null>(null);
+
+  const toggleComponentExpand = (key: string) => {
+    setExpandedComponents(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
 
   const hydrateData = async () => {
     try {
@@ -43,6 +55,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
           .map((r: any) => {
             const canonicalKey = extractCanonicalKey(r);
             const compType = r.component_type || (['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth', 'calendar'].includes(canonicalKey) ? 'premade' : 'custom');
+            const subReqs = reqs.filter((child: any) => child.parentId === r.id || child.parent_id === r.id);
             return {
               id: canonicalKey,
               canonical_key: canonicalKey,
@@ -51,7 +64,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
               icon: getComponentIcon(canonicalKey, r.title || ''),
               desc: r.description || 'Active application component',
               component_type: compType,
-              sub_requirements: r.sub_requirements
+              sub_requirements: subReqs.length > 0 ? subReqs : (r.sub_requirements || [])
             };
           });
 
@@ -65,6 +78,11 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
           }
         }
         setComponents(uniqueItems);
+
+        // Auto-expand all component nodes by default
+        if (expandedComponents.size === 0 && uniqueItems.length > 0) {
+          setExpandedComponents(new Set(uniqueItems.map(i => i.canonical_key)));
+        }
       }
 
       // 2. Fetch dynamic suggestions
@@ -120,6 +138,67 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     }
   };
 
+  const handleAddSubRequirement = async (canonicalKey: string) => {
+    const text = (subPromptByComponent[canonicalKey] || '').trim();
+    if (!text) return;
+
+    setAddingSubKey(canonicalKey);
+    setStatusToast(`➕ Adding sub-requirement to ${canonicalKey}...`);
+
+    try {
+      const res = await fetch('/api/components/sub-requirements/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parent_canonical_key: canonicalKey,
+          prompt: text
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatusToast(`✨ Added sub-requirement to ${canonicalKey}`);
+        setSubPromptByComponent(prev => ({ ...prev, [canonicalKey]: '' }));
+        await hydrateData();
+        if (onParamUpdated) onParamUpdated();
+      } else {
+        setStatusToast(`⚠️ Notice: ${data.error || 'Could not add sub-requirement'}`);
+      }
+    } catch (err) {
+      console.error("Error adding sub-requirement:", err);
+      setStatusToast(`❌ Network error adding sub-requirement.`);
+    } finally {
+      setAddingSubKey(null);
+      setTimeout(() => setStatusToast(null), 3500);
+    }
+  };
+
+  const handleDeleteSubRequirement = async (canonicalKey: string, subId: string) => {
+    setStatusToast(`🗑️ Deleting sub-requirement...`);
+    try {
+      const res = await fetch('/api/components/sub-requirements/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parent_canonical_key: canonicalKey,
+          sub_id: subId
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatusToast(`✨ Deleted sub-requirement`);
+        await hydrateData();
+        if (onParamUpdated) onParamUpdated();
+      } else {
+        setStatusToast(`⚠️ Notice: ${data.error || 'Could not delete sub-requirement'}`);
+      }
+    } catch (err) {
+      console.error("Error deleting sub-requirement:", err);
+      setStatusToast(`❌ Network error deleting sub-requirement.`);
+    } finally {
+      setTimeout(() => setStatusToast(null), 3000);
+    }
+  };
+
   const handleDeleteComponent = async (canonicalKey: string, componentName: string) => {
     setDeletingKey(canonicalKey);
     setStatusToast(`🗑️ Deleting ${componentName}...`);
@@ -172,82 +251,181 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
         </div>
       )}
 
-      {/* ACTIVE COMPONENTS SECTION */}
+      {/* ACTIVE COMPONENTS COLLAPSIBLE TREE SECTION */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
-            Active Components ({components.length})
+            Active Components Tree ({components.length})
           </h4>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Dynamic Canvas</span>
+          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Collapsible Tree</span>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: fullWidth ? 'repeat(2, 1fr)' : '1fr', gap: '0.75rem' }}>
-          {components.map((item) => (
-            <div
-              key={item.canonical_key}
-              style={{
-                background: '#0f172a',
-                border: '1px solid #334155',
-                borderRadius: '0.75rem',
-                padding: '0.85rem 1rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '0.75rem',
-                opacity: deletingKey === item.canonical_key ? 0.5 : 1
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
-                  <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
-                  <strong style={{ fontSize: '0.9rem', color: '#f8fafc' }}>{item.name}</strong>
-                  {item.component_type === 'custom' && (
-                    <span style={{ background: '#3b82f622', color: '#60a5fa', border: '1px solid #3b82f644', fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '9999px', fontWeight: 600 }}>
-                      Custom
-                    </span>
-                  )}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.3 }}>{item.desc}</div>
+          {components.map((item) => {
+            const isExpanded = expandedComponents.has(item.canonical_key);
+            const subCount = item.sub_requirements?.length || 0;
 
-                {/* Dynamic Sub-Requirements List */}
-                {item.sub_requirements && item.sub_requirements.length > 0 && (
-                  <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #334155' }}>
-                    <div style={{ fontSize: '0.7rem', color: '#cbd5e1', fontWeight: 700, marginBottom: '0.3rem', textTransform: 'uppercase' }}>
-                      Child Sub-Requirements:
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                      {item.sub_requirements.map((sub: any, idx: number) => (
-                        <div key={idx} style={{ background: '#0284c722', border: '1px solid #0284c744', borderRadius: '0.35rem', padding: '0.25rem 0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#38bdf8' }}>
-                          <span>{sub.title || sub.name}</span>
-                          <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>Nested</span>
+            return (
+              <div
+                key={item.canonical_key}
+                style={{
+                  background: '#0f172a',
+                  border: '1px solid #334155',
+                  borderRadius: '0.75rem',
+                  padding: '0.85rem 1rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.65rem',
+                  opacity: deletingKey === item.canonical_key ? 0.5 : 1
+                }}
+              >
+                {/* Node Header Bar */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                  <div 
+                    onClick={() => toggleComponentExpand(item.canonical_key)} 
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                  >
+                    <span style={{ fontSize: '0.8rem', color: '#94a3b8', width: '16px' }}>
+                      {isExpanded ? '▼' : '▶'}
+                    </span>
+                    <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
+                    <strong style={{ fontSize: '0.9rem', color: '#f8fafc' }}>{item.name}</strong>
+                    {item.component_type === 'custom' && (
+                      <span style={{ background: '#3b82f622', color: '#60a5fa', border: '1px solid #3b82f644', fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '9999px', fontWeight: 600 }}>
+                        Custom
+                      </span>
+                    )}
+                    {subCount > 0 && (
+                      <span style={{ background: '#0284c722', color: '#38bdf8', border: '1px solid #0284c744', fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '9999px', fontWeight: 600 }}>
+                        {subCount} Sub-Reqs
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Component Delete Button */}
+                  <button
+                    onClick={() => handleDeleteComponent(item.canonical_key, item.name)}
+                    disabled={deletingKey === item.canonical_key}
+                    title="Permanently remove component"
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#f87171',
+                      borderRadius: '0.5rem',
+                      padding: '0.3rem 0.5rem',
+                      cursor: 'pointer',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {deletingKey === item.canonical_key ? '⏳' : '🗑️'}
+                  </button>
+                </div>
+
+                {/* Collapsible Node Body */}
+                {isExpanded && (
+                  <div style={{ marginTop: '0.25rem', paddingTop: '0.5rem', borderTop: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.35 }}>{item.desc}</div>
+
+                    {/* Sub-Requirements Tree List */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                      <div style={{ fontSize: '0.7rem', color: '#cbd5e1', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        Child Sub-Requirements:
+                      </div>
+
+                      {(!item.sub_requirements || item.sub_requirements.length === 0) ? (
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', italic: 'true' }}>
+                          No sub-requirements yet. Use the field below to add logic rules.
                         </div>
-                      ))}
+                      ) : (
+                        item.sub_requirements.map((sub: any, idx: number) => {
+                          const subId = sub.id || sub.canonical_key || `sub-${idx}`;
+                          const subTitle = sub.title || sub.name || sub.description || 'Sub-Requirement';
+                          const subLayer = sub.layer || (sub.id?.startsWith('REQ-UI') ? 'PRESENTATION' : 'LOGIC');
+                          const layerBadge = subLayer === 'PRESENTATION' ? '🎨 UI' : (subLayer === 'INFRASTRUCTURE' ? '💾 API' : '⚡ Logic');
+                          const layerColor = subLayer === 'PRESENTATION' ? '#38bdf8' : (subLayer === 'INFRASTRUCTURE' ? '#a855f7' : '#f59e0b');
+
+                          return (
+                            <div 
+                              key={subId} 
+                              style={{ 
+                                background: 'rgba(15, 23, 42, 0.8)', 
+                                border: '1px solid #334155', 
+                                borderRadius: '0.4rem', 
+                                padding: '0.4rem 0.6rem', 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center', 
+                                gap: '0.5rem' 
+                              }}
+                            >
+                              <div style={{ flex: 1, fontSize: '0.75rem', color: '#e2e8f0', lineHeight: 1.3 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                  <span>{subTitle}</span>
+                                  <span style={{ fontSize: '0.65rem', padding: '0.05rem 0.3rem', borderRadius: '3px', background: `${layerColor}22`, color: layerColor, border: `1px solid ${layerColor}44` }}>
+                                    {layerBadge}
+                                  </span>
+                                </div>
+                                {sub.description && sub.description !== subTitle && (
+                                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.15rem' }}>{sub.description}</div>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => handleDeleteSubRequirement(item.canonical_key, subId)}
+                                title="Delete sub-requirement"
+                                style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem', padding: '0.1rem 0.3rem' }}
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Inline Add Sub-Requirement Input Form */}
+                    <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.25rem' }}>
+                      <input
+                        type="text"
+                        placeholder={`Add sub-req for ${item.name}...`}
+                        value={subPromptByComponent[item.canonical_key] || ''}
+                        onChange={e => setSubPromptByComponent({ ...subPromptByComponent, [item.canonical_key]: e.target.value })}
+                        onKeyDown={e => { if (e.key === 'Enter') handleAddSubRequirement(item.canonical_key); }}
+                        disabled={addingSubKey === item.canonical_key}
+                        style={{
+                          flex: 1,
+                          background: '#1e293b',
+                          border: '1px solid #334155',
+                          borderRadius: '0.4rem',
+                          padding: '0.35rem 0.6rem',
+                          fontSize: '0.75rem',
+                          color: '#f8fafc',
+                          outline: 'none'
+                        }}
+                      />
+                      <button
+                        onClick={() => handleAddSubRequirement(item.canonical_key)}
+                        disabled={addingSubKey === item.canonical_key || !(subPromptByComponent[item.canonical_key] || '').trim()}
+                        style={{
+                          background: '#0284c7',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '0.4rem',
+                          padding: '0.35rem 0.65rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          cursor: addingSubKey === item.canonical_key ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        {addingSubKey === item.canonical_key ? '⏳' : '➕ Add'}
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
-
-              {/* Permanent Delete Button */}
-              <button
-                onClick={() => handleDeleteComponent(item.canonical_key, item.name)}
-                disabled={deletingKey === item.canonical_key}
-                title="Permanently remove component"
-                style={{
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  color: '#f87171',
-                  borderRadius: '0.5rem',
-                  padding: '0.4rem 0.6rem',
-                  cursor: 'pointer',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {deletingKey === item.canonical_key ? '⏳' : '🗑️'}
-              </button>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Progressive Feedback Loader Card when adding a component */}
           {addingComponent && (

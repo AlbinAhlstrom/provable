@@ -39,9 +39,15 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
    - **Interactive Cart & Checkout Modal Wiring**: Mandated that any Cart component included in synthesis MUST provide state management (`isCartOpen`, `cartItems`), Cart Button toggle handlers, and a complete `CheckoutDrawer` / `CheckoutModal` rendering item lists, item deletion, subtotal calculations, and simulated payment triggers (`[ ⚡ Sandbox Mode ]`).
    - **Verified Build Status**: `100% PASS` (0 TypeScript compilation errors via `npx tsc --noEmit`, 41/41 unit pytest suite passed in 13.58s).
 
+4. **Active Components Collapsible Tree & Sub-Requirement CRUD**:
+   - **Collapsible Component Tree View**: Upgraded `RequirementControlPanel.tsx` with a collapsible node hierarchy (`▶ / ▼` toggles) displaying active components, icon badges, component descriptions, and nested child sub-requirements.
+   - **Inline Sub-Requirement CRUD**: Added inline creation input forms (`➕ Add Sub-Req`) calling `POST /api/components/sub-requirements/add` and trash bin buttons (`🗑️`) calling `POST /api/components/sub-requirements/delete` to allow dynamically adding/deleting sub-requirements directly from the PM Studio sidebar.
+   - **Verified Build Status**: `100% PASS` (0 TypeScript compilation errors via `npx tsc --noEmit`, 41/41 unit pytest suite passed in 13.58s).
+
 ---
 
-*Updated by Antigravity on 2026-08-17 (Completed Event-Driven BDD Requirements & Function-First UI Synthesis).*
+*Updated by Antigravity on 2026-08-17 (Completed Active Components Collapsible Tree & Sub-Requirement CRUD).*
+
 
 
 
