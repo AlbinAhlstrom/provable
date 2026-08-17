@@ -20,11 +20,11 @@ export interface RequirementControlPanelProps {
 
 const getTestPlaceholder = (key: string) => {
   const k = key.toLowerCase();
-  if (k.includes('cart')) return 'e.g. When item added, update subtotal & badge count...';
-  if (k.includes('catalog') || k.includes('menu')) return 'e.g. Given item selected, add to shopping cart...';
-  if (k.includes('track') || k.includes('status')) return 'e.g. Given active order, display live pickup ETA...';
-  if (k.includes('check')) return 'e.g. When payment submitted, clear cart & show receipt...';
-  return 'e.g. Given user action, when event occurs, then update state...';
+  if (k.includes('cart')) return 'e.g. WHEN item added, THEN update total, UNLESS out of stock...';
+  if (k.includes('catalog') || k.includes('menu')) return 'e.g. WHEN item clicked, THEN add to cart, UNLESS disabled...';
+  if (k.includes('track') || k.includes('status')) return 'e.g. WHEN order placed, THEN show ETA, UNLESS cancelled...';
+  if (k.includes('check')) return 'e.g. WHEN payment submitted, THEN clear cart, UNLESS invalid card...';
+  return 'e.g. WHEN action triggered, THEN update state, UNLESS guard fails...';
 };
 
 const handleInsertBddPrefix = (value: string) => {
@@ -567,6 +567,16 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                               style={{ background: '#0f172a', border: '1px solid #334155', color: '#4ade80', fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 700 }}
                             >
                               + THEN
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const cur = subPromptByComponent[item.canonical_key] || '';
+                                setSubPromptByComponent({ ...subPromptByComponent, [item.canonical_key]: cur ? `${cur} Unless ` : 'Unless ' });
+                              }}
+                              style={{ background: '#0f172a', border: '1px solid #334155', color: '#f43f5e', fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 700 }}
+                            >
+                              + UNLESS
                             </button>
                           </div>
 
