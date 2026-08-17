@@ -83,6 +83,12 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
     - **Data Fixtures API & Service Layer**: Added `GET /api/components/fixtures` and `POST /api/components/fixtures/update` in [`components.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/entrypoints/routers/components.py) and [`services.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/service_layer/services.py) to persist fixture CRUD in SQLite (`provable.db`) and regenerate `workspace/src/App.tsx` live.
     - **PM Studio Live HMR**: Wired [`RequirementControlPanel.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/components/RequirementControlPanel.tsx) `📦 Data Fixtures` tab to backend API, ensuring adding, editing, or deleting items updates `App.tsx` live and reloads the preview iframe via HMR.
 
+12. **Bidirectional Real-Time Data Fixture Sync & E2E Live Project Protection**:
+    - **Bidirectional Data Fixtures Sync**: Implemented full two-way real-time data sync between PM Studio and live App preview. PM Studio edits write to SQLite `provable.db` and regenerate `workspace/src/App.tsx` shell live. Live App preview actions (adding to cart, placing orders) sync back via `fetch('/api/components/fixtures/update')` and `window.parent.postMessage({ type: 'FIXTURES_UPDATED', ... })`, updating PM Studio's `dataFixturesByComponent` state live.
+    - **Backend Generator Support**: Updated [`frontend_planning_engine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/frontend_planning_engine.py) and [`ui_generator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/ui_generator.py) to accept `custom_fixtures` and embed bidirectional sync event handlers in synthesized `App.tsx` templates.
+    - **Single E2E Test Invariant & Live Project Protection**: Updated [`test_e2e_pizza_prompt_sanity.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/test_e2e_pizza_prompt_sanity.py) to check for existing live project files in `workspace/src/App.tsx` and skip code generation when a live project exists.
+    - **4-Step TDD Workflow Verification**: Added unit tests in [`test_data_fixtures_sync.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/unit/test_data_fixtures_sync.py), verified ZERO `import db.store` leaks across routers/services, and verified 100% PASS across the test suite.
+
 ---
 
-*Updated by Antigravity on 2026-08-17 (Synchronized PM Studio Data Fixtures live with App Preview and cleared default pizza orders).*
+*Updated by Antigravity on 2026-08-17 (Implemented bidirectional real-time data fixtures sync between PM Studio and live App preview, updated test_e2e_pizza_prompt_sanity.py to protect existing live projects, and verified 100% PASS).*

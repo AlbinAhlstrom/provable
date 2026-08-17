@@ -9,7 +9,7 @@ import os
 import re
 import json
 import sys
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 from pydantic import ValidationError
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -450,7 +450,7 @@ Respond ONLY with a JSON object:
         )
 
 
-def assemble_app_tsx_from_blueprint(blueprint: UnifiedFrontendBlueprint) -> str:
+def assemble_app_tsx_from_blueprint(blueprint: UnifiedFrontendBlueprint, custom_fixtures: Optional[Dict[str, Any]] = None) -> str:
     """
     Assembles complete, high-aesthetic React App.tsx TSX code from the blueprint.
     """
@@ -527,14 +527,13 @@ Respond STRICTLY with valid React TypeScript code inside a single ```tsx code bl
         print(f"[notice] App assembly error: {e}")
 
     # Safety Fallback App if LLM unavailable
-    fallback_code = _generate_fallback_assembled_app(blueprint)
+    fallback_code = _generate_fallback_assembled_app(blueprint, custom_fixtures=custom_fixtures)
     return sanitize_domain_vocabulary_leakage(fallback_code, pitch)
 
 
-def _generate_fallback_assembled_app(bp: UnifiedFrontendBlueprint) -> str:
+def _generate_fallback_assembled_app(bp: UnifiedFrontendBlueprint, custom_fixtures: Optional[Dict[str, Any]] = None) -> str:
     """Deterministic fallback React App.tsx matching the category layout template."""
     title = bp.aesthetics.domain_display_title
-    seed_json = json.dumps(bp.aesthetics.mock_seed_data)
     cat_id = bp.category_layout.category_id
     raw_vars = bp.aesthetics.get_css_variables_style()
     css_vars_style = f"""* {{ box-sizing: border-box; }}
@@ -543,6 +542,40 @@ img, svg {{ max-width: 100%; height: auto; }}
 :root {{
 {raw_vars}
 }}"""
+
+    hero_headline = bp.aesthetics.hero_headline
+    guarantee_badge = bp.aesthetics.guarantee_badge
+    item_singular = bp.aesthetics.item_singular
+    item_plural = bp.aesthetics.item_plural
+    action_button = bp.aesthetics.action_button_text
+    domain_emoji = bp.aesthetics.domain_emoji
+
+    catalog_fixtures = (custom_fixtures and custom_fixtures.get("catalog")) or bp.aesthetics.mock_seed_data
+    cart_fixtures = (custom_fixtures and custom_fixtures.get("cart")) or []
+    tracking_fixtures = (custom_fixtures and custom_fixtures.get("tracking")) or []
+
+    formatted_seed = []
+    for idx, item in enumerate(catalog_fixtures):
+        item_title = item.get("name") or item.get("title") or f"Item #{idx+1}"
+        price_val = item.get("price")
+        if price_val is not None and isinstance(price_val, (int, float)):
+            price_str = f"${price_val:.2f}"
+        else:
+            price_str = str(item.get("price_or_rate") or "$14.99")
+        subtitle = item.get("desc") or item.get("subtitle") or "Fresh gourmet offering"
+        formatted_seed.append({
+            "id": str(item.get("id", idx+1)),
+            "title": item_title,
+            "subtitle": subtitle,
+            "price_or_rate": price_str,
+            "badge_status": item.get("badge_status", "Popular"),
+            "rating": item.get("rating", 4.9),
+            "initials": "".join([w[0].upper() for w in item_title.split()[:2]]) or "PI"
+        })
+
+    seed_json = json.dumps(formatted_seed)
+    cart_json = json.dumps(cart_fixtures)
+    orders_json = json.dumps(tracking_fixtures)
 
     hero_headline = bp.aesthetics.hero_headline
     guarantee_badge = bp.aesthetics.guarantee_badge
@@ -805,33 +838,60 @@ export default function App() {
                    .replace('__ACTION_BUTTON__', action_button)\
                    .replace('__DOMAIN_EMOJI__', domain_emoji)
 
-    # Generic E-Commerce or Storefront Fallback with Interactive Checkout Modal
+    # Generic E-Commerce or Storefront Fallback with Interactive Checkout Modal & Bidirectional Sync
     tmpl = '''import React, { useState } from 'react';
 
 export default function App() {
   const [items] = useState<any[]>(__SEED_JSON__);
-  const [cart, setCart] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [cart, setCart] = useState<any[]>(__CART_JSON__);
+  const [orders, setOrders] = useState<any[]>(__ORDERS_JSON__);
   const [activeTab, setActiveTab] = useState<'catalog' | 'tracking'>('catalog');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
+  const syncFixtureToBackendAndHost = (canonicalKey: string, fixtures: any[]) => {
+    try {
+      fetch('/api/components/fixtures/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ canonical_key: canonicalKey, fixtures: fixtures })
+      }).catch(() => {});
+    } catch (e) {}
+
+    try {
+      if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: 'FIXTURES_UPDATED',
+          canonical_key: canonicalKey,
+          fixtures: fixtures
+        }, '*');
+      }
+    } catch (e) {}
+  };
+
   const handleAddToCart = (item: any) => {
-    setCart(prev => [...prev, item]);
-    setToast("🛒 Added " + item.title + " to cart!");
+    const updatedCart = [...cart, item];
+    setCart(updatedCart);
+    syncFixtureToBackendAndHost('cart', updatedCart);
+    setToast("🛒 Added " + (item.title || item.name) + " to cart!");
     setTimeout(() => setToast(null), 3000);
   };
 
   const handleRemoveFromCart = (index: number) => {
-    setCart(prev => prev.filter((_, i) => i !== index));
+    const updatedCart = cart.filter((_, i) => i !== index);
+    setCart(updatedCart);
+    syncFixtureToBackendAndHost('cart', updatedCart);
   };
 
   const handleSimulatePayment = () => {
     const orderNum = "ORD-" + Math.floor(1000 + Math.random() * 9000);
-    const newOrder = { id: orderNum, ref: orderNum, status: "Order Received & Prep Started", eta: "15-25 Mins", item: cart[0]?.title || "Custom Order" };
-    setOrders(prev => [newOrder, ...prev]);
-    setToast("🎉 Order " + orderNum + " Placed! [ ⚡ Sandbox Mode — Simulated Transaction ]");
+    const newOrder = { id: orderNum, ref: orderNum, status: "Order Received & Prep Started", eta: "15-25 Mins", item: cart[0]?.title || cart[0]?.name || "Custom Order" };
+    const updatedOrders = [newOrder, ...orders];
+    setOrders(updatedOrders);
     setCart([]);
+    syncFixtureToBackendAndHost('tracking', updatedOrders);
+    syncFixtureToBackendAndHost('cart', []);
+    setToast("🎉 Order " + orderNum + " Placed! [ ⚡ Sandbox Mode — Simulated Transaction ]");
     setIsCartOpen(false);
     setActiveTab('tracking');
     setTimeout(() => setToast(null), 4000);
@@ -958,7 +1018,7 @@ export default function App() {
   );
 }
 '''
-    return tmpl.replace('__TITLE__', title).replace('__SEED_JSON__', seed_json).replace('__CSS_VARS__', css_vars_style)
+    return tmpl.replace('__TITLE__', title).replace('__SEED_JSON__', seed_json).replace('__CART_JSON__', cart_json).replace('__ORDERS_JSON__', orders_json).replace('__CSS_VARS__', css_vars_style)
 
 
 def analyze_pitch_components_and_suggestions(pitch: str) -> Dict[str, Any]:

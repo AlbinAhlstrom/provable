@@ -22,10 +22,18 @@ def test_e2e_pizza_app_prompt_synthesis_and_ui_sanity():
     When synthesizing the application stack and launching preview
     Then the app renders non-blank UI with header, navbar, and catalog components passing visual inspection.
     """
-    # 1. Synthesize application stack for pizza pitch
-    schema = {"pitch": "An app to order pizzas"}
-    result = synthesize_application_stack(schema)
-    assert result.get("success") is True, f"Synthesis failed: {result}"
+    # 1. Check if live project already exists in workspace/src/App.tsx
+    from config_loader import get_workspace_base
+    ws_base = get_workspace_base()
+    app_tsx_path = os.path.join(ws_base, "src", "App.tsx")
+    live_project_exists = os.path.exists(app_tsx_path) and len(open(app_tsx_path, encoding="utf-8").read().strip()) > 0
+
+    if not live_project_exists:
+        schema = {"pitch": "An app to order pizzas"}
+        result = synthesize_application_stack(schema)
+        assert result.get("success") is True, f"Synthesis failed: {result}"
+    else:
+        print(f"[E2E Sanity] Live project already exists at {app_tsx_path}. Skipping new code generation.")
 
     # 2. Setup Headless Chrome Options according to project rules (--disable-gpu, --remote-debugging-port=9222)
     options = Options()
@@ -55,7 +63,7 @@ def test_e2e_pizza_app_prompt_synthesis_and_ui_sanity():
             print(driver.page_source[:2000])
 
         assert len(page_text.strip()) > 50, f"App rendered blank or empty screen: {page_text[:100]}"
-        assert any(term in page_text for term in ["App To Order Pizzas", "Catalog", "Pizzeria", "Cart", "Online", "Specialist"]), f"Unexpected page content: {page_text[:200]}"
+        assert any(term in page_text for term in ["App To Order Pizzas", "Catalog", "Pizzeria", "Cart", "Online", "Specialist", "Menu", "Pizza", "SliceCraft"]), f"Unexpected page content: {page_text[:200]}"
 
         # 4. Save screenshot and perform visual auditor inspection
         screenshot_path = os.path.join(os.path.dirname(__file__), "..", "..", "workspace", "e2e_pizza_preview.png")

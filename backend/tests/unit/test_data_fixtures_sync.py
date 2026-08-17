@@ -79,3 +79,89 @@ def test_update_component_data_fixtures_crud_sync():
     res_after = services.get_component_data_fixtures(uow=uow)
     names_after = [i["name"] for i in res_after["fixtures"]["catalog"]]
     assert "Hawaiian Supreme" in names_after
+
+
+def test_bidirectional_data_fixtures_sync_pm_studio_to_app_preview():
+    """
+    Direction A: PM Studio -> live App preview
+    Given updated custom fixtures saved from PM Studio
+    When sync_workspace_app_shell generates App.tsx template
+    Then App.tsx initializes menu items from custom_fixtures and contains postMessage sync event handlers.
+    """
+    from onboarding.frontend_planning_engine import _generate_fallback_assembled_app
+    from onboarding.planning_contracts import (
+        UnifiedFrontendBlueprint, CategoryLayoutPlan, ComponentSlotAssignment, AestheticThemeSpec
+    )
+
+    custom_catalog = [
+        {"id": "fix-1", "name": "Truffle Mushroom Supreme", "price": 24.99, "desc": "Gourmet mushroom pizza"},
+        {"id": "fix-2", "name": "Four Cheese Delight", "price": 18.99, "desc": "Mozzarella, gorgonzola, parmesan"}
+    ]
+
+    bp = UnifiedFrontendBlueprint(
+        business_pitch="An app to order pizza online",
+        category_layout=CategoryLayoutPlan(
+            category_id="e_commerce",
+            layout_name="Storefront",
+            category_reasoning="Pizza ordering app",
+            slots=[]
+        ),
+        components=ComponentSlotAssignment(),
+        aesthetics=AestheticThemeSpec(
+            domain_display_title="Pizzeria App",
+            hero_headline="Fresh Pizza Delivered",
+            mock_seed_data=custom_catalog
+        )
+    )
+
+    code = _generate_fallback_assembled_app(bp, custom_fixtures={"catalog": custom_catalog, "cart": [], "tracking": []})
+
+    assert "Truffle Mushroom Supreme" in code
+    assert "24.99" in code
+    # Check for bidirectional window.parent.postMessage in App.tsx handlers
+    assert "postMessage" in code
+    assert "FIXTURES_UPDATED" in code
+
+
+def test_bidirectional_data_fixtures_sync_app_preview_to_pm_studio():
+    """
+    Direction B: live App preview -> PM Studio
+    Given live App preview sends an updated cart/order list via update_component_data_fixtures API
+    When service layer updates custom_fixtures in KickstartState
+    Then get_component_data_fixtures immediately returns the updated cart and tracking fixtures.
+    """
+    ks = KickstartState(
+        business_pitch="An app to order pizza online",
+        blocks=["catalog", "cart", "tracking"],
+        synthesized=True
+    )
+    uow = FakeUnitOfWork(initial_kickstart=ks)
+    ws = FakeWorkspaceAdapter()
+
+    # Simulate live App preview adding an item to cart and syncing to backend
+    live_cart = [{"id": "item-1", "title": "Margherita Speciale", "price_or_rate": "$16.99", "qty": 2}]
+    res_cart = services.update_component_data_fixtures(
+        canonical_key="cart",
+        fixtures=live_cart,
+        uow=uow,
+        workspace=ws
+    )
+    assert res_cart["success"] is True
+
+    # Simulate live App preview placing an order and syncing to tracking
+    live_order = [{"id": "ORD-5555", "ref": "ORD-5555", "status": "Baking", "eta": "15 Mins", "item": "Margherita Speciale"}]
+    res_track = services.update_component_data_fixtures(
+        canonical_key="tracking",
+        fixtures=live_order,
+        uow=uow,
+        workspace=ws
+    )
+    assert res_track["success"] is True
+
+    # Verify PM Studio get_component_data_fixtures returns live cart & tracking
+    all_fixtures = services.get_component_data_fixtures(uow=uow)["fixtures"]
+    assert len(all_fixtures["cart"]) == 1
+    assert all_fixtures["cart"][0]["title"] == "Margherita Speciale"
+    assert len(all_fixtures["tracking"]) == 1
+    assert all_fixtures["tracking"][0]["id"] == "ORD-5555"
+

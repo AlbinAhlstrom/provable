@@ -26,7 +26,8 @@ def generate_llm_ui(pitch: str, schema: Dict[str, Any], selected_blocks: List[st
         print(f"[ui_generator] Reused Registry Blocks: {blueprint.components.reused_registry_blocks}")
         print(f"[ui_generator] Bespoke Components: {[b.component_name for b in blueprint.components.bespoke_components]}")
 
-        tsx_code = assemble_app_tsx_from_blueprint(blueprint)
+        custom_fixtures = schema.get("custom_fixtures") if isinstance(schema, dict) else None
+        tsx_code = assemble_app_tsx_from_blueprint(blueprint, custom_fixtures=custom_fixtures)
         return tsx_code
 
     except Exception as e:

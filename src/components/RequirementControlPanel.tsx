@@ -206,6 +206,17 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
 
   useEffect(() => {
     hydrateData();
+
+    const handleWindowMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'FIXTURES_UPDATED' && event.data.canonical_key && event.data.fixtures) {
+        setDataFixturesByComponent(prev => ({
+          ...prev,
+          [event.data.canonical_key]: event.data.fixtures
+        }));
+      }
+    };
+    window.addEventListener('message', handleWindowMessage);
+    return () => window.removeEventListener('message', handleWindowMessage);
   }, []);
 
   const handleAddComponent = async (promptToAdd?: string) => {
