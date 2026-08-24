@@ -165,9 +165,20 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **Multi-Target PostMessage Sync**: Saving a schema or editing a fixture now broadcasts `FIXTURES_UPDATED` directly to `window.parent` and all `<iframe>` child windows (`iframe.contentWindow?.postMessage`), enabling immediate live preview reflection without requiring manual browser refreshes.
         - **Empirical Verification**: 100% test pass (103/103 tests in 27.89s) and 0 TypeScript compilation errors.
 
+    31. **Enterprise AppGen TDD Engine Architectural Specification (7 Binding Directives)**:
+        - **1. Runtime Schema-Driven UI**: 100% dynamic UI at runtime using `@rjsf/core` (React JSON Schema Form) driven by FastAPI `/openapi.json`. Zero static React scaffolding or LLM frontend generation.
+        - **2. Pytest-First & Parameterized**: Standard `@pytest.mark.parametrize` default; `hypothesis` opt-in strictly when flagged for mathematical/range boundary rules.
+        - **3. LibCST Code Isolation (`cst_isolator.py`)**: Meta `libcst` preserves formatting, comments, and docstrings during Aggregate Root class extraction and splicing.
+        - **4. Test File Write-Locking**: `test_<spec_id>.py` is write-locked during GREEN phase to prevent LLM test tampering.
+        - **5. Pytest Execution Hard Timeout**: 5-second hard timeout (`pytest-timeout`) to kill hanging executions / infinite loops.
+        - **6. Instant Full-Stack Skeleton (`skeleton_builder.py`)**: Generates domain models, Pydantic DTOs, and FastAPI routers immediately so `openapi.json` exists from second zero.
+        - **7. 3-Strike Dead-End Handling**: If GREEN fails 3 times, performs `git reset --hard` to pre-RED state, marks spec `REQUIRES_HUMAN_INTERVENTION` in SQLite, and advances to next spec.
+        - **Documentation**: Updated [`vault/01-Architecture/Enterprise-AppGen-TDD-Engine-Architecture.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/vault/01-Architecture/Enterprise-AppGen-TDD-Engine-Architecture.md) and [`implementation_plan.md`](file:///mnt/c/Users/ahlst/.gemini/antigravity/brain/1d36d3bb-5859-47b6-8595-94dfc7d311a1/implementation_plan.md).
+
 ---
 
-*Updated by Antigravity AI on 2026-08-24 (Dynamic Multi-Attribute Entity Fixture Editor & Multi-Target PostMessage Sync Completed; 100% Full Suite PASS).*
+*Updated by Antigravity AI on 2026-08-24 (Enterprise AppGen TDD Engine Architectural Blueprint Adopted).*
+
 
 
 

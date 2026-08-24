@@ -7,6 +7,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 ## 🗺️ Vault Map
 
 ### 1. 🏗️ System Architecture
+- [[Enterprise-AppGen-TDD-Engine-Architecture]]: Core 3-Pillar Enterprise AppGen engine architecture: Schema-Driven UI (Dumb Projection), Programmatic Red-Gate TDD Validation, and AST-Based Context Isolation.
 - [[System Architecture]]: Overview of the React PM Studio frontend (Explorer, Domain Canvas, Live App Preview, Code Review, Coverage Hub), FastAPI backend engine, SQLite DataStore, and OpenHands orchestrator.
 - [[Full-LLM-Free-Form-Orchestration-Graph]]: Pure Full-LLM software synthesis engine featuring the 4-loop orchestration graph (Domain Storming, Backend DDD/TDD, Free-Form UI Synthesizer, Verification Gates).
 - [[PM-Studio-UX-Architecture-And-Direction]]: Breakdown of PM Studio 3-Pillar UX Architecture (Pages Bar, Executable Test Specs, Domain Entity CRUD) and Mobile-First responsive design system invariants.
