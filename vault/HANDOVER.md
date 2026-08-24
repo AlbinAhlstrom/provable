@@ -112,13 +112,15 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
     19. **Test Suite Categorization & Directory Isolation (Unit / Integration / E2E)**:
         - **Folder Separation**:
           - `backend/tests/unit/` (102 tests, 28.48s): Strictly fast in-memory unit tests using `FakeUnitOfWork` and isolated domain algorithms.
-          - `backend/tests/integration/` (9 tests, 12.50s): Cross-component integration tests including `test_prompt_synthesis_flow.py` (SQLite `store` + AST synthesis), `test_jsx_compilation_integrity.py` (`npx tsc --noEmit` compiler subprocess), and `test_visual_verification_suite.py`.
-          - `backend/tests/e2e/` (7 tests, 17.75s): Headless Chrome Selenium E2E browser tests against live preview server (`test_e2e_pizza_prompt_sanity.py`) and E2E module fixture contract tests (`test_e2e_pizza_fixture_structure.py`).
-        - **Verified 100% Pass**: All 118 tests across unit, integration, and e2e passed cleanly.
+    20. **Unit Test Speed Optimization (14x Speedup: 28.5s ➔ 2.05s)**:
+        - **Bottleneck Resolution**:
+          - Refactored `test_chess_game_kickstart_isolation` to use in-memory `FakeUnitOfWork` and domain services rather than heavy on-disk FastAPI/SQLite synthesis (14.08s $\rightarrow$ 0.01s).
+          - Created [`backend/tests/unit/conftest.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/unit/conftest.py) to mock external network requests (`requests.post`/`requests.get`) to Allure Docker container, eliminating 4-second socket connection timeouts in `test_switch_project_service`, `test_switch_project_uses_workspace_adapter`, and `test_generate_allure_report_service`.
+        - **Empirical Results**: All 102 unit tests execute in **2.05s** (14x speedup), with the entire 118-test full suite completing in **30.21s**.
 
 ---
 
-*Updated by Antigravity AI on 2026-08-24 (Categorized test directory into pure unit, integration, and E2E suites with 100% pass across all 118 tests).*
+*Updated by Antigravity AI on 2026-08-24 (Optimized unit test execution speed from 28.5s to 2.05s via FakeUnitOfWork and network socket isolation).*
 
 
 

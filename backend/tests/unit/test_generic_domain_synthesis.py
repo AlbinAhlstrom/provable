@@ -247,21 +247,23 @@ def test_chess_game_prompt_does_not_trigger_flappy_bird():
     assert "flappy" not in compiled.lower(), "flappy_bird code leaked into compiled TSX output for 'A chess game'!"
 
 
-def test_chess_game_kickstart_isolation(tmp_path):
-    """Verify kickstarting 'A chess game' generates ZERO e-commerce or pizza requirements in SQLite store."""
-    from main import kickstart_synthesize, KickstartSynthesisRequest
-    from db.store import set_active_db, init_db, get_all_requirements
+def test_chess_game_kickstart_isolation():
+    """Verify kickstarting 'A chess game' generates ZERO e-commerce or pizza requirements."""
+    from service_layer import services
+    from service_layer.unit_of_work import FakeUnitOfWork
 
-    db_file = str(tmp_path / "provable_kickstart_test.db")
-    set_active_db(db_file)
-    init_db()
+    uow = FakeUnitOfWork()
+    res = services.synthesize_kickstart_stack(
+        business_pitch="A chess game",
+        selected_blocks=[],
+        uow=uow
+    )
+    assert res["success"] is True
 
-    kickstart_synthesize(KickstartSynthesisRequest(business_pitch="A chess game", selected_blocks=[]))
-    reqs = get_all_requirements()
-
-    req_ids = [r["id"] for r in reqs]
+    reqs = uow.requirements.list()
+    req_ids = [r.id for r in reqs]
     assert not any(k in req_ids for k in ["REQ-CATALOG-001", "REQ-CART-001", "REQ-TRACK-001", "REQ-KDS-001", "REQ-DELIVERY-001"]), \
-        f"E-commerce requirement IDs leaked into chess game kickstart DB: {req_ids}"
+        f"E-commerce requirement IDs leaked into chess game kickstart requirements: {req_ids}"
 
 
 def test_chess_game_manifest_has_custom_chess_component():
