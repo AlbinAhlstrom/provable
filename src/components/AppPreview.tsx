@@ -137,17 +137,6 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1, boxSizing: 'border-box' }}>
-      {/* Pillar 1: Top Pages & Views Selector Bar */}
-      {isSynthesized && (
-        <PageSelectorBar
-          pages={pages}
-          activePageId={activePageId}
-          onSelectPage={setActivePageId}
-          onAddPage={handleAddPage}
-          onDeletePage={handleDeletePage}
-        />
-      )}
-
       {/* Workspace Control Bar */}
       <div 
         className="app-preview-controls-bar"
@@ -269,6 +258,17 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
           </button>
         </div>
       </div>
+
+      {/* Pillar 1: Top Pages & Views Selector Bar */}
+      {isSynthesized && (
+        <PageSelectorBar
+          pages={pages}
+          activePageId={activePageId}
+          onSelectPage={setActivePageId}
+          onAddPage={handleAddPage}
+          onDeletePage={handleDeletePage}
+        />
+      )}
 
       {/* Main Container: Live Preview Iframe + Conditional Side Requirement Control Panel */}
       <div 

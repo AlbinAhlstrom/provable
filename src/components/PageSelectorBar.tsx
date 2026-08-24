@@ -47,7 +47,7 @@ export const PageSelectorBar: React.FC<PageSelectorBarProps> = ({
       {/* Active Pages Tabs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
         <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginRight: '0.25rem' }}>
-          📄 Pages / Views:
+          📄 Pages:
         </span>
         {pages.map((p) => {
           const isActive = p.id === activePageId;
