@@ -8,7 +8,7 @@ export interface KickstartStudioProps {
 
 export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesized }) => {
   const [pitch, setPitch] = useState<string>(
-    'An app to order pizzas'
+    'An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators.'
   );
 
   const [building, setBuilding] = useState<boolean>(false);
@@ -71,7 +71,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
       const synthData = await synthRes.json();
       if (synthData.success) {
         setSynthesized(true);
-        setResetMessage("✨ Application built successfully!");
+        setResetMessage("✨ Architecture synthesized successfully!");
         if (onAppSynthesized) onAppSynthesized();
       } else {
         setResetMessage("⚠️ Synthesis notice: " + (synthData.error || 'Check backend logs'));
@@ -130,8 +130,8 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <span style={{ fontSize: '2rem' }}>⚡</span>
             <div>
-              <h2 style={{ margin: 0, fontSize: '1.75rem', color: '#f8fafc', fontWeight: 800 }}>Provable Kickstart Studio</h2>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8' }}>Describe your application concept to instantly synthesize a verified DDD stack &amp; live UI.</p>
+              <h2 style={{ margin: 0, fontSize: '1.75rem', color: '#f8fafc', fontWeight: 800 }}>Provable Architecture Synthesizer</h2>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8' }}>Define your industrial domain bounded context to synthesize verified DDD domain aggregates, OpenAPI contracts &amp; live preview.</p>
             </div>
           </div>
         </div>
@@ -146,14 +146,14 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
         {/* Prompt Input Area */}
         <div style={{ marginBottom: '1.5rem' }}>
           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 700, color: '#f59e0b', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Describe What You Want To Build:
+            Define Bounded Context:
           </label>
           <textarea
             rows={4}
             value={pitch}
             onChange={e => setPitch(e.target.value)}
             disabled={building}
-            placeholder="e.g. A specialized equipment rental platform with real-time availability and booking pipeline..."
+            placeholder="e.g., An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
             style={{
               width: '100%',
               background: '#0f172a',
@@ -189,42 +189,10 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
               gap: '0.6rem'
             }}
           >
-            {building ? '⏳ Generating...' : '⚡ Build App Stack'}
+            {building ? '⏳ Synthesizing...' : '⚡ Synthesize Architecture'}
           </button>
         </div>
       </div>
-
-      {/* Domain Examples Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
-        <div 
-          onClick={() => setPitch('An on-demand artisanal storefront with catalog, custom item options, and live order tracking')}
-          style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.75rem', padding: '1rem', cursor: 'pointer' }}
-        >
-
-          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🛍️</div>
-          <strong style={{ display: 'block', color: '#f8fafc', marginBottom: '0.25rem' }}>On-Demand Storefront</strong>
-          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Product catalog, custom modifiers &amp; live tracking.</span>
-        </div>
-
-        <div 
-          onClick={() => setPitch('Build an online furniture store where customers browse sofa and table inventory, add items to cart, select delivery date, and place orders with real-time stock allocation.')}
-          style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.75rem', padding: '1rem', cursor: 'pointer' }}
-        >
-          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🛋️</div>
-          <strong style={{ display: 'block', color: '#f8fafc', marginBottom: '0.25rem' }}>Furniture Store</strong>
-          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Product catalog, cart, stock batch allocation &amp; delivery date.</span>
-        </div>
-
-        <div 
-          onClick={() => setPitch('Create a hospital bed management system where staff view ward capacity, assign patients to beds, track discharge status, and monitor emergency room queue metrics.')}
-          style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.75rem', padding: '1rem', cursor: 'pointer' }}
-        >
-          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🏥</div>
-          <strong style={{ display: 'block', color: '#f8fafc', marginBottom: '0.25rem' }}>Hospital Operations</strong>
-          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Ward bed assignment, patient queue &amp; occupancy metrics.</span>
-        </div>
-      </div>
-
     </div>
   );
 };

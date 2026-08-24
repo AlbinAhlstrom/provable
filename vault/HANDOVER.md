@@ -182,17 +182,19 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **Hardened Red-Gate TDD Machine (`tdd_machine.py`)**: Built state machine with programmatic Pytest JSON report evaluation, tautology rejection (Exit Code 0 in RED), syntax/timeout rejection (Exit Code 2), OS-level test file write-locking in GREEN phase, and 3-strike dead-end rollback handling (`git reset --hard` + `REQUIRES_HUMAN_INTERVENTION`).
         - **Behavior Inbox & Spec-CRUD API (`specs.py` & `BehaviorInboxPanel.tsx`)**: Created backend endpoints (`GET /api/specs/inbox`, `POST /api/specs/inbox/add`, `POST /api/specs/inbox/{id}/status`) and PM Studio frontend panel for structured spec creation without free-text prompt drift.
         - **Dual-Track Benchmark Suite (`test_dual_track_benchmarks.py`)**: Fully verified against both **Track A (B2C Pizzeria Ordering)** and **Track B (Industrial FIFO Warehouse Management)** with 100% PASS.
-    35. **Tri-Service Live Stack Startup, Preview Port 5174 Connectivity & Regression Test Policy**:
-        - **Workspace Scaffold Generator Fix (`workspace_scaffold.py`)**: Added missing `tsconfig.json` generation and updated `"build": "vite build"` scripts so the workspace sandbox compiles and bundles cleanly in <600ms.
-        - **Automated Node Modules Check (`run.py`)**: Enhanced `auto_setup_environment` in `run.py` to automatically verify and install dependencies in BOTH `frontend/node_modules` and `workspace/node_modules`, eliminating missing Vite CLI binary errors on port 5174.
-        - **Tri-Service Startup Verification (`run.py`)**: Upgraded `run.py` to actively poll and confirm ready status for all 3 stack services (`:8000` FastAPI, `:5173` PM Studio, `:5174` Workspace Preview) with clear service tagging.
-        - **Automated Integration Test Suite (`test_app_startup_and_preview_connectivity.py`)**: Created dedicated integration suite testing workspace scaffold integrity, workspace Vite bundle build, and PM Studio frontend Vite bundle build (100% PASS).
-        - **Bug Reproduction & Testing Policy**: Established strict policy and documentation in `.agents/AGENTS.md` and `vault/02-Workflows/Bug-Reproduction-and-Testing-Policy.md` requiring agents to write automated regression tests for any runtime bug or connectivity failure.
-        - **Empirical Verification**: 100% PASS across full test suite (124/124 in `backend/tests/`).
+    36. **PM Studio Frontend DDD Refactoring & 3-View Workspace System**:
+        - **Global Navigation Simplification (`App.tsx`)**: Removed detached "Requirements" and "Tests" top tabs, integrating all BDD specification and verification workflows directly into the active Domain Aggregate Inspector.
+        - **3-View Workspace System (`AppPreview.tsx`)**: Implemented 3 dedicated Workspace views:
+          1. `Preview`: Live RJSF / React sandboxed application preview (`:5174`).
+          2. `API (Swagger)`: Embedded FastAPI OpenAPI Swagger interface (`:8000/docs`).
+          3. `Domain`: Abstract JSON-driven schema visualizer presenting Python Aggregate dataclasses (`Pallet`, `Zone`, `Operator`), attributes, types, invariants, and method signatures without client-side AST parsing.
+        - **Industrial Bounded Context Kickstart (`KickstartStudio.tsx`)**: Removed legacy e-commerce example cards and updated copy to "Define Bounded Context" with WMS industrial prompt placeholder and "⚡ Synthesize Architecture".
+        - **Engine Room Pivot (`RequirementControlPanel.tsx`)**: Renamed section to "🧬 DOMAIN AGGREGATES", replaced UI component accordions with Domain Aggregate roots (`Pallet`, `Zone`, `Operator`), mapped BDD executable spec payloads (`GIVEN / WHEN / THEN / UNLESS`) directly to `target_aggregate` via `/api/specs/inbox/add`, added live TDD state badges (`🟢 FULFILLED`, `⚡ TDD RUNNING`, `🔴 NEEDS REVIEW`, `⏳ PENDING`), and removed the free-text component addition box.
+        - **Empirical Verification**: 100% PASS across TypeScript frontend build (`npm run build` $\rightarrow$ 0 errors) and full Pytest suite (124/124 PASS).
 
 ---
 
-*Updated by Antigravity AI on 2026-08-24 (Tri-Service Live Stack Startup & Preview Port 5174 Verified; 124/124 PASS).*
+*Updated by Antigravity AI on 2026-08-24 (PM Studio DDD Frontend Refactoring Complete; 124/124 PASS).*
 
 
 

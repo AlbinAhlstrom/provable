@@ -197,4 +197,32 @@ export interface DomainEntityDTO {
   seed_items: Record<string, any>[];
 }
 
+export interface DomainAggregateDTO {
+  name: string;
+  description: string;
+  entity_name: string;
+  canonical_key: string;
+  icon?: string;
+  attributes: Array<{
+    name: string;
+    type: string;
+    required?: boolean;
+    description?: string;
+  }>;
+  invariants?: string[];
+  specs?: BusinessSpecItemDTO[];
+}
+
+export interface BusinessSpecItemDTO {
+  spec_id: string;
+  title: string;
+  description: string;
+  given_when_then: string;
+  target_aggregate: string;
+  spec_type?: 'ATTRIBUTE_EXPANSION' | 'DOMAIN_INVARIANT' | 'STATE_TRANSITION' | 'API_CONTRACT' | string;
+  is_mathematical_boundary?: boolean;
+  priority: string;
+  status: 'PENDING' | 'IN_PROGRESS' | 'FULFILLED' | 'REQUIRES_HUMAN_INTERVENTION' | string;
+}
+
 
