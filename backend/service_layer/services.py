@@ -1338,6 +1338,53 @@ def generate_allure_report(uow: AbstractUnitOfWork) -> Dict[str, Any]:
     }
 
 
+def add_inbox_spec(spec: Any, uow: AbstractUnitOfWork) -> Any:
+    """Adds a new specification to the Behavior Inbox in SQLite."""
+    with uow:
+        state = uow.kickstart.get()
+        spec_dict = spec.dict() if hasattr(spec, "dict") else dict(spec)
+        # Ensure status is set
+        if "status" not in spec_dict:
+            spec_dict["status"] = "PENDING"
+        
+        # Replace if exists, else append
+        existing = [s for s in state.inbox_specs if s.get("spec_id") == spec_dict.get("spec_id")]
+        if existing:
+            state.inbox_specs = [s if s.get("spec_id") != spec_dict.get("spec_id") else spec_dict for s in state.inbox_specs]
+        else:
+            state.inbox_specs.append(spec_dict)
+            
+        uow.kickstart.save(state)
+        uow.commit()
+    return spec
+
+
+def get_inbox_specs(uow: AbstractUnitOfWork) -> List[Dict[str, Any]]:
+    """Lists all specifications from the Behavior Inbox."""
+    with uow:
+        state = uow.kickstart.get()
+        return list(state.inbox_specs)
+
+
+def update_spec_status(spec_id: str, status: str, uow: AbstractUnitOfWork) -> Dict[str, Any]:
+    """Updates the execution status of a spec in the Behavior Inbox."""
+    with uow:
+        state = uow.kickstart.get()
+        found = None
+        for s in state.inbox_specs:
+            if s.get("spec_id") == spec_id:
+                s["status"] = status
+                found = s
+                break
+        if not found:
+            found = {"spec_id": spec_id, "status": status}
+            state.inbox_specs.append(found)
+        uow.kickstart.save(state)
+        uow.commit()
+        return dict(found)
+
+
+
 
 
 

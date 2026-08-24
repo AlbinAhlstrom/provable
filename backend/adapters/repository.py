@@ -301,7 +301,8 @@ class SqliteKickstartRepository(AbstractKickstartRepository):
             extracted_requirements=raw.get("extracted_requirements", []),
             synthesized=raw.get("synthesized", False),
             custom_fixtures=raw.get("custom_fixtures", {}),
-            entity_schemas=entity_schemas
+            entity_schemas=entity_schemas,
+            inbox_specs=raw.get("inbox_specs", [])
         )
 
     def save(self, state: KickstartState) -> None:

@@ -418,6 +418,7 @@ class KickstartState:
     synthesized: bool = False
     custom_fixtures: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
     entity_schemas: Dict[str, DomainEntitySchema] = field(default_factory=dict)
+    inbox_specs: List[Dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -426,6 +427,7 @@ class KickstartState:
             "extracted_requirements": self.extracted_requirements,
             "synthesized": self.synthesized,
             "custom_fixtures": self.custom_fixtures,
+            "inbox_specs": self.inbox_specs,
             "entity_schemas": {
                 k: (v.to_dict() if hasattr(v, 'to_dict') else v)
                 for k, v in self.entity_schemas.items()
