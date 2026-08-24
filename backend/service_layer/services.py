@@ -1384,6 +1384,49 @@ def update_spec_status(spec_id: str, status: str, uow: AbstractUnitOfWork) -> Di
         return dict(found)
 
 
+def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Synchronously drives an inbox specification through the TDD state machine:
+    [RED -> GREEN -> Anti-Cheat -> COMMIT].
+    Updates spec status in SQLite to FULFILLED (or REQUIRES_HUMAN_INTERVENTION).
+    """
+    if workspace_dir is None:
+        from config_loader import get_workspace_base
+        workspace_dir = get_workspace_base()
+
+    target_spec_dict = None
+    with uow:
+        state = uow.kickstart.get()
+        for s in state.inbox_specs:
+            if s.get("spec_id") == spec_id:
+                target_spec_dict = dict(s)
+                break
+
+    if not target_spec_dict:
+        return {"success": False, "status": "NOT_FOUND", "error": f"Specification {spec_id} not found in inbox."}
+
+    from onboarding.router_engine import BusinessSpec
+    from service_layer.tdd_machine import execute_spec_tdd_loop
+
+    spec_obj = BusinessSpec(
+        spec_id=target_spec_dict.get("spec_id", spec_id),
+        title=target_spec_dict.get("title", ""),
+        description=target_spec_dict.get("description", ""),
+        given_when_then=target_spec_dict.get("given_when_then", ""),
+        target_aggregate=target_spec_dict.get("target_aggregate", "Pallet"),
+        spec_type=target_spec_dict.get("spec_type", "DOMAIN_INVARIANT"),
+        is_mathematical_boundary=target_spec_dict.get("is_mathematical_boundary", False),
+        priority=target_spec_dict.get("priority", "High")
+    )
+
+    tdd_result = execute_spec_tdd_loop(spec_obj, workspace_dir=workspace_dir)
+    final_status = tdd_result.get("status", "FULFILLED" if tdd_result.get("success") else "REQUIRES_HUMAN_INTERVENTION")
+
+    update_spec_status(spec_id, final_status, uow=uow)
+    return tdd_result
+
+
+
 
 
 

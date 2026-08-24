@@ -37,7 +37,7 @@ def get_inbox_specs():
 
 @router.post("/inbox/add", status_code=status.HTTP_201_CREATED)
 def add_inbox_spec(req: SpecCreateRequest):
-    """Adds a new atomic specification to the Behavior Inbox without free-text prompting."""
+    """Adds a new atomic specification to the Behavior Inbox and synchronously executes the TDD machine."""
     uow = SqliteUnitOfWork()
     import random
     s_id = req.spec_id or f"SPEC-{random.randint(100, 999)}"
@@ -53,7 +53,9 @@ def add_inbox_spec(req: SpecCreateRequest):
         "status": "PENDING"
     }
     services.add_inbox_spec(spec_dict, uow=uow)
-    return {"success": True, "spec": spec_dict}
+    tdd_result = services.execute_inbox_spec_tdd(s_id, uow=uow)
+    spec_dict["status"] = tdd_result.get("status", "FULFILLED" if tdd_result.get("success") else "REQUIRES_HUMAN_INTERVENTION")
+    return {"success": tdd_result.get("success", False), "spec": spec_dict, "tdd_result": tdd_result}
 
 
 @router.post("/inbox/{spec_id}/status")
