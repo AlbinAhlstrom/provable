@@ -59,7 +59,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
     setResetting(true);
     setResetMessage(null);
     try {
-      const res = await fetch('/api/projects/reset-all', { method: 'POST' });
+      const res = await fetch('/api/onboarding/reset', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
         setSynthesized(false);

@@ -92,6 +92,20 @@ def extract_domain_terms_from_backend() -> Set[str]:
     except Exception:
         pass
 
+    # 3. If workspace is freshly reset, dynamically decompose standard domain pitch
+    if not domain_terms:
+        try:
+            from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
+            decomp = decompose_pitch_into_structure_and_inbox("An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators.")
+            for ent in decomp.structure.entities:
+                if ent.name.lower() not in GENERIC_IGNORE_WORDS:
+                    domain_terms.add(ent.name.lower())
+                for attr in ent.attributes:
+                    if attr.name.lower() not in GENERIC_IGNORE_WORDS and len(attr.name) > 2:
+                        domain_terms.add(attr.name.lower())
+        except Exception:
+            pass
+
     return domain_terms
 
 

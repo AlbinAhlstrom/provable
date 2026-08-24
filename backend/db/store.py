@@ -65,7 +65,7 @@ def get_connection(timeout: float = 30.0) -> sqlite3.Connection:
 
 
 def wipe_database() -> None:
-    """Wipe all requirements and test cases from the active database."""
+    """Wipe all requirements, test cases, kickstart state, and agent runs from the active database."""
     db_path = get_db_path()
     if not os.path.exists(db_path):
         init_db()
@@ -77,6 +77,11 @@ def wipe_database() -> None:
             conn.execute("DELETE FROM requirements")
             conn.execute("DELETE FROM requirement_parameters")
             conn.execute("DELETE FROM projects")
+            conn.execute("DELETE FROM agent_runs")
+            try:
+                conn.execute("DELETE FROM kickstart_state")
+            except Exception:
+                pass
         conn.close()
         print("[DataStore] Wiped database tables successfully.")
     except Exception as e:

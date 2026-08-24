@@ -48,3 +48,12 @@ def test_get_onboarding_aggregates_endpoint():
     data = res.json()
     assert data.get("success") is True
     assert len(data.get("aggregates", [])) >= 3
+
+
+def test_post_onboarding_reset_endpoint():
+    client = TestClient(app)
+    res = client.post("/api/onboarding/reset")
+    assert res.status_code == 200
+    data = res.json()
+    assert data.get("success") is True
+

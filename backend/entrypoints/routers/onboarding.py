@@ -30,3 +30,11 @@ def get_aggregates_endpoint():
     """Returns the active domain aggregates discovered for the current bounded context."""
     uow = SqliteUnitOfWork()
     return services.get_active_domain_aggregates(uow=uow)
+
+
+@router.post("/reset")
+def reset_onboarding_workspace_endpoint():
+    """Physically nukes all workspace files and purges database tables."""
+    uow = SqliteUnitOfWork()
+    return services.reset_all_projects(uow=uow)
+

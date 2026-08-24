@@ -112,9 +112,12 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
     setInternalResetting(true);
     setInternalResetMessage(null);
     try {
-      const res = await fetch('/api/projects/reset-all', { method: 'POST' });
+      const res = await fetch('/api/onboarding/reset', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
+        setDomainClasses([]);
+        setIsSynthesized(false);
+        setKey(prev => prev + 1);
         setInternalResetMessage("✨ Active workspace wiped successfully.");
         setTimeout(() => setInternalResetMessage(null), 3000);
       } else {
