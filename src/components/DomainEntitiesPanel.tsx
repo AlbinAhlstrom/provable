@@ -137,7 +137,7 @@ export const DomainEntitiesPanel: React.FC<DomainEntitiesPanelProps> = ({
 
           {/* Seed Data Items Table */}
           <div style={{ fontSize: '0.7rem', color: '#38bdf8', fontWeight: 700, textTransform: 'uppercase' }}>
-            Entity Instances / Data Fixtures:
+            Entity Instances / Domain Data:
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>

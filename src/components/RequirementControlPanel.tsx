@@ -53,10 +53,15 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   // 2-Tab Component Inspector State ('tests' | 'data')
   const [activeTabByComponent, setActiveTabByComponent] = useState<Record<string, 'tests' | 'data'>>({});
 
-  // Entity Data Fixtures State
-  const [dataFixturesByComponent, setDataFixturesByComponent] = useState<Record<string, Array<{ id: string, name: string, price: number }>>>({});
+  // Entity Data State
+  const [dataFixturesByComponent, setDataFixturesByComponent] = useState<Record<string, Array<{ id: string, name: string, price: number, quantity?: number, status?: string, catalog_id?: string, item?: string }>>>({});
 
-  // Entity Fixture Inline Editing State
+  // Role-Aware Entity Form State
+  const [selectedCatalogItem, setSelectedCatalogItem] = useState<Record<string, string>>({});
+  const [selectedQuantity, setSelectedQuantity] = useState<Record<string, number>>({});
+  const [selectedOrderStatus, setSelectedOrderStatus] = useState<Record<string, string>>({});
+
+  // Entity Inline Editing State
   const [editingFixtureId, setEditingFixtureId] = useState<string | null>(null);
   const [editFixtureName, setEditFixtureName] = useState<string>('');
   const [editFixturePrice, setEditFixturePrice] = useState<string>('');
@@ -67,7 +72,29 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     setActiveTabByComponent(prev => ({ ...prev, [key]: tab }));
   };
 
-  const persistFixtureUpdate = async (canonicalKey: string, updatedList: Array<{ id: string, name: string, price: number }>) => {
+  // Helper to discover master catalog items across domains
+  const getAvailableCatalogItems = () => {
+    if (dataFixturesByComponent['catalog'] && dataFixturesByComponent['catalog'].length > 0) {
+      return dataFixturesByComponent['catalog'];
+    }
+    if (dataFixturesByComponent['menu'] && dataFixturesByComponent['menu'].length > 0) {
+      return dataFixturesByComponent['menu'];
+    }
+    if (dataFixturesByComponent['services'] && dataFixturesByComponent['services'].length > 0) {
+      return dataFixturesByComponent['services'];
+    }
+    if (dataFixturesByComponent['products'] && dataFixturesByComponent['products'].length > 0) {
+      return dataFixturesByComponent['products'];
+    }
+    for (const [key, items] of Object.entries(dataFixturesByComponent)) {
+      if (!['cart', 'tracking', 'orders', 'kds', 'status'].includes(key.toLowerCase()) && Array.isArray(items) && items.length > 0) {
+        return items;
+      }
+    }
+    return [];
+  };
+
+  const persistFixtureUpdate = async (canonicalKey: string, updatedList: Array<{ id: string, name: string, price: number, quantity?: number, status?: string, catalog_id?: string, item?: string }>) => {
     try {
       setDataFixturesByComponent(prev => ({ ...prev, [canonicalKey]: updatedList }));
       const res = await fetch('/api/components/fixtures/update', {
@@ -80,7 +107,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
         onParamUpdated();
       }
     } catch (err) {
-      console.error("Error updating fixtures:", err);
+      console.error("Error updating domain entities:", err);
     }
   };
 
@@ -100,7 +127,51 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
 
     setNewFixtureName(prev => ({ ...prev, [canonicalKey]: '' }));
     setNewFixturePrice(prev => ({ ...prev, [canonicalKey]: '' }));
-    setStatusToast(`✨ Added entity item "${name}" to ${canonicalKey}`);
+    setStatusToast(`✨ Added entity "${name}"`);
+    setTimeout(() => setStatusToast(null), 2500);
+  };
+
+  const handleAddCartEntity = (canonicalKey: string) => {
+    const catalogItems = getAvailableCatalogItems();
+    const selectedId = selectedCatalogItem[canonicalKey] || (catalogItems[0] ? catalogItems[0].id : '');
+    const catalogItem = catalogItems.find(c => c.id === selectedId) || catalogItems[0];
+    if (!catalogItem) return;
+
+    const qty = selectedQuantity[canonicalKey] || 1;
+    const newItem = {
+      id: `fix-cart-${Date.now()}`,
+      name: catalogItem.name,
+      price: catalogItem.price,
+      quantity: qty,
+      catalog_id: catalogItem.id
+    };
+
+    const updatedList = [...(dataFixturesByComponent[canonicalKey] || []), newItem];
+    persistFixtureUpdate(canonicalKey, updatedList);
+    setStatusToast(`🛒 Added ${catalogItem.name} (x${qty}) to cart`);
+    setTimeout(() => setStatusToast(null), 2500);
+  };
+
+  const handleAddTrackingEntity = (canonicalKey: string) => {
+    const catalogItems = getAvailableCatalogItems();
+    const selectedId = selectedCatalogItem[canonicalKey] || (catalogItems[0] ? catalogItems[0].id : '');
+    const catalogItem = catalogItems.find(c => c.id === selectedId) || catalogItems[0];
+    const statusVal = selectedOrderStatus[canonicalKey] || 'Received';
+    const orderNum = Math.floor(1000 + Math.random() * 9000);
+    const itemName = catalogItem ? catalogItem.name : 'Domain Item';
+    const itemPrice = catalogItem ? catalogItem.price : 14.99;
+
+    const newOrder = {
+      id: `ORD-${orderNum}`,
+      name: `Order #${orderNum} (${itemName})`,
+      price: itemPrice,
+      status: statusVal,
+      item: itemName
+    };
+
+    const updatedList = [...(dataFixturesByComponent[canonicalKey] || []), newOrder];
+    persistFixtureUpdate(canonicalKey, updatedList);
+    setStatusToast(`📦 Created order ORD-${orderNum} [${statusVal}]`);
     setTimeout(() => setStatusToast(null), 2500);
   };
 
@@ -117,7 +188,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     persistFixtureUpdate(canonicalKey, updatedList);
 
     setEditingFixtureId(null);
-    setStatusToast(`✨ Updated entity item`);
+    setStatusToast(`✨ Updated entity`);
     setTimeout(() => setStatusToast(null), 2000);
   };
 
@@ -125,7 +196,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     const updatedList = (dataFixturesByComponent[canonicalKey] || []).filter(item => item.id !== fixId);
     persistFixtureUpdate(canonicalKey, updatedList);
 
-    setStatusToast(`🗑️ Deleted entity item`);
+    setStatusToast(`🗑️ Deleted entity`);
     setTimeout(() => setStatusToast(null), 2000);
   };
 
@@ -473,7 +544,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                           cursor: 'pointer'
                         }}
                       >
-                        📦 Data Fixtures ({(dataFixturesByComponent[item.canonical_key] || []).length})
+                        🧬 Entities ({(dataFixturesByComponent[item.canonical_key] || []).length})
                       </button>
                     </div>
 
@@ -640,116 +711,278 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                       </>
                     )}
 
-                    {/* TAB 2: DATA FIXTURES & ENTITIES CRUD */}
-                    {activeTabByComponent[item.canonical_key] === 'data' && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                        {/* Data Fixtures List */}
-                        {(!dataFixturesByComponent[item.canonical_key] || dataFixturesByComponent[item.canonical_key].length === 0) ? (
-                          <div style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic' }}>
-                            No entity items defined for this component. Use the form below to add data.
-                          </div>
-                        ) : (
-                          dataFixturesByComponent[item.canonical_key].map((fix) => {
-                            const isEditingThis = editingFixtureId === fix.id;
+                    {/* TAB 2: DOMAIN ENTITIES CRUD */}
+                    {activeTabByComponent[item.canonical_key] === 'data' && (() => {
+                      const isCart = ['cart', 'basket'].includes(item.canonical_key.toLowerCase());
+                      const isTracking = ['tracking', 'orders', 'kds', 'status'].includes(item.canonical_key.toLowerCase());
+                      const catalogItems = getAvailableCatalogItems();
+                      const currentFixtures = dataFixturesByComponent[item.canonical_key] || [];
 
-                            if (isEditingThis) {
+                      return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                          {/* Domain Entities List */}
+                          {currentFixtures.length === 0 ? (
+                            <div style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', padding: '0.2rem 0' }}>
+                              {isCart
+                                ? 'Cart is empty. Select an item from the catalog below to add to cart.'
+                                : isTracking
+                                ? 'No active orders. Create a test order from the catalog below.'
+                                : 'No entity items defined for this component. Use the form below to add data.'}
+                            </div>
+                          ) : (
+                            currentFixtures.map((fix) => {
+                              const isEditingThis = editingFixtureId === fix.id;
+
+                              if (isEditingThis) {
+                                return (
+                                  <div key={fix.id} style={{ display: 'flex', gap: '0.35rem', background: '#1e293b', padding: '0.4rem', borderRadius: '0.4rem', border: '1px solid #0284c7' }}>
+                                    <input
+                                      type="text"
+                                      value={editFixtureName}
+                                      onChange={e => setEditFixtureName(e.target.value)}
+                                      style={{ flex: 2, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
+                                    />
+                                    <input
+                                      type="number"
+                                      value={editFixturePrice}
+                                      onChange={e => setEditFixturePrice(e.target.value)}
+                                      style={{ flex: 1, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
+                                    />
+                                    <button
+                                      onClick={() => handleSaveFixtureEdit(item.canonical_key, fix.id)}
+                                      style={{ background: '#166534', color: '#4ade80', border: 'none', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem', cursor: 'pointer' }}
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingFixtureId(null)}
+                                      style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.75rem', cursor: 'pointer' }}
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                );
+                              }
+
+                              if (isCart) {
+                                return (
+                                  <div
+                                    key={fix.id}
+                                    style={{
+                                      background: '#1e293b',
+                                      border: '1px solid #334155',
+                                      borderRadius: '0.4rem',
+                                      padding: '0.4rem 0.65rem',
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                      fontSize: '0.75rem',
+                                      color: '#f8fafc'
+                                    }}
+                                  >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                      <span>{fix.name}</span>
+                                      {fix.quantity && fix.quantity > 1 && (
+                                        <span style={{ fontSize: '0.65rem', background: '#0284c7', color: '#fff', padding: '0.1rem 0.35rem', borderRadius: '4px', fontWeight: 700 }}>
+                                          x{fix.quantity}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                      <span style={{ color: '#4ade80', fontWeight: 600 }}>
+                                        ${((fix.price || 0) * (fix.quantity || 1)).toFixed(2)}
+                                      </span>
+                                      <button
+                                        onClick={() => handleDeleteFixture(item.canonical_key, fix.id)}
+                                        title="Remove from cart"
+                                        style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem', padding: '0 0.15rem' }}
+                                      >
+                                        🗑️
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              if (isTracking) {
+                                const statusColor = fix.status === 'Delivered' ? '#4ade80' : fix.status === 'Preparing' ? '#f59e0b' : '#38bdf8';
+                                return (
+                                  <div
+                                    key={fix.id}
+                                    style={{
+                                      background: '#1e293b',
+                                      border: '1px solid #334155',
+                                      borderRadius: '0.4rem',
+                                      padding: '0.4rem 0.65rem',
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                      fontSize: '0.75rem',
+                                      color: '#f8fafc'
+                                    }}
+                                  >
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                                      <span style={{ fontWeight: 600 }}>{fix.name || fix.item || `Order #${fix.id}`}</span>
+                                      {fix.status && (
+                                        <span style={{ fontSize: '0.65rem', color: statusColor, fontWeight: 700 }}>
+                                          ● {fix.status}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                      <span style={{ color: '#4ade80', fontWeight: 600 }}>${(fix.price || 0).toFixed(2)}</span>
+                                      <button
+                                        onClick={() => handleDeleteFixture(item.canonical_key, fix.id)}
+                                        title="Delete order"
+                                        style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem', padding: '0 0.15rem' }}
+                                      >
+                                        🗑️
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
                               return (
-                                <div key={fix.id} style={{ display: 'flex', gap: '0.35rem', background: '#1e293b', padding: '0.4rem', borderRadius: '0.4rem', border: '1px solid #0284c7' }}>
-                                  <input
-                                    type="text"
-                                    value={editFixtureName}
-                                    onChange={e => setEditFixtureName(e.target.value)}
-                                    style={{ flex: 2, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
-                                  />
-                                  <input
-                                    type="number"
-                                    value={editFixturePrice}
-                                    onChange={e => setEditFixturePrice(e.target.value)}
-                                    style={{ flex: 1, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
-                                  />
-                                  <button
-                                    onClick={() => handleSaveFixtureEdit(item.canonical_key, fix.id)}
-                                    style={{ background: '#166534', color: '#4ade80', border: 'none', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem', cursor: 'pointer' }}
-                                  >
-                                    Save
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingFixtureId(null)}
-                                    style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.75rem', cursor: 'pointer' }}
-                                  >
-                                    ✕
-                                  </button>
+                                <div
+                                  key={fix.id}
+                                  style={{
+                                    background: '#1e293b',
+                                    border: '1px solid #334155',
+                                    borderRadius: '0.4rem',
+                                    padding: '0.4rem 0.65rem',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    fontSize: '0.75rem',
+                                    color: '#f8fafc'
+                                  }}
+                                >
+                                  <span>{fix.name}</span>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <span style={{ color: '#4ade80', fontWeight: 600 }}>${fix.price.toFixed(2)}</span>
+                                    <button
+                                      onClick={() => {
+                                        setEditingFixtureId(fix.id);
+                                        setEditFixtureName(fix.name);
+                                        setEditFixturePrice(fix.price.toString());
+                                      }}
+                                      title="Edit entity item"
+                                      style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontSize: '0.75rem', padding: '0 0.15rem' }}
+                                    >
+                                      ✏️
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteFixture(item.canonical_key, fix.id)}
+                                      title="Delete entity item"
+                                      style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem', padding: '0 0.15rem' }}
+                                    >
+                                      🗑️
+                                    </button>
+                                  </div>
                                 </div>
                               );
-                            }
+                            })
+                          )}
 
-                            return (
-                              <div
-                                key={fix.id}
-                                style={{
-                                  background: '#1e293b',
-                                  border: '1px solid #334155',
-                                  borderRadius: '0.4rem',
-                                  padding: '0.4rem 0.65rem',
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
-                                  fontSize: '0.75rem',
-                                  color: '#f8fafc'
-                                }}
-                              >
-                                <span>{fix.name}</span>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                  <span style={{ color: '#4ade80', fontWeight: 600 }}>${fix.price.toFixed(2)}</span>
-                                  <button
-                                    onClick={() => {
-                                      setEditingFixtureId(fix.id);
-                                      setEditFixtureName(fix.name);
-                                      setEditFixturePrice(fix.price.toString());
-                                    }}
-                                    title="Edit entity item"
-                                    style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontSize: '0.75rem', padding: '0 0.15rem' }}
-                                  >
-                                    ✏️
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteFixture(item.canonical_key, fix.id)}
-                                    title="Delete entity item"
-                                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem', padding: '0 0.15rem' }}
-                                  >
-                                    🗑️
-                                  </button>
-                                </div>
+                          {/* Role-Aware Add Entity Form */}
+                          {isCart ? (
+                            catalogItems.length > 0 ? (
+                              <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.35rem', alignItems: 'center' }}>
+                                <select
+                                  value={selectedCatalogItem[item.canonical_key] || catalogItems[0]?.id || ''}
+                                  onChange={e => setSelectedCatalogItem({ ...selectedCatalogItem, [item.canonical_key]: e.target.value })}
+                                  style={{ flex: 2, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
+                                >
+                                  {catalogItems.map(c => (
+                                    <option key={c.id} value={c.id}>
+                                      {c.name} (${c.price.toFixed(2)})
+                                    </option>
+                                  ))}
+                                </select>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={selectedQuantity[item.canonical_key] || 1}
+                                  onChange={e => setSelectedQuantity({ ...selectedQuantity, [item.canonical_key]: Math.max(1, parseInt(e.target.value) || 1) })}
+                                  style={{ width: '45px', background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.35rem', borderRadius: '0.35rem', fontSize: '0.75rem', textAlign: 'center' }}
+                                  title="Quantity"
+                                />
+                                <button
+                                  onClick={() => handleAddCartEntity(item.canonical_key)}
+                                  style={{ background: '#0284c7', color: 'white', border: 'none', padding: '0.3rem 0.65rem', borderRadius: '0.35rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                                >
+                                  🛒 Add
+                                </button>
                               </div>
-                            );
-                          })
-                        )}
-
-                        {/* Form to Add New Entity Item */}
-                        <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.35rem' }}>
-                          <input
-                            type="text"
-                            placeholder="New Item Name..."
-                            value={newFixtureName[item.canonical_key] || ''}
-                            onChange={e => setNewFixtureName({ ...newFixtureName, [item.canonical_key]: e.target.value })}
-                            style={{ flex: 2, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
-                          />
-                          <input
-                            type="number"
-                            placeholder="Price ($)"
-                            value={newFixturePrice[item.canonical_key] || ''}
-                            onChange={e => setNewFixturePrice({ ...newFixturePrice, [item.canonical_key]: e.target.value })}
-                            style={{ flex: 1, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
-                          />
-                          <button
-                            onClick={() => handleAddFixture(item.canonical_key)}
-                            style={{ background: '#0284c7', color: 'white', border: 'none', padding: '0.3rem 0.65rem', borderRadius: '0.35rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
-                          >
-                            ➕ Add
-                          </button>
+                            ) : (
+                              <div style={{ fontSize: '0.7rem', color: '#f59e0b', fontStyle: 'italic', marginTop: '0.2rem' }}>
+                                ⚠️ Add items to the Catalog component first to populate the cart dropdown.
+                              </div>
+                            )
+                          ) : isTracking ? (
+                            catalogItems.length > 0 ? (
+                              <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.35rem', alignItems: 'center' }}>
+                                <select
+                                  value={selectedCatalogItem[item.canonical_key] || catalogItems[0]?.id || ''}
+                                  onChange={e => setSelectedCatalogItem({ ...selectedCatalogItem, [item.canonical_key]: e.target.value })}
+                                  style={{ flex: 2, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
+                                >
+                                  {catalogItems.map(c => (
+                                    <option key={c.id} value={c.id}>
+                                      {c.name} (${c.price.toFixed(2)})
+                                    </option>
+                                  ))}
+                                </select>
+                                <select
+                                  value={selectedOrderStatus[item.canonical_key] || 'Received'}
+                                  onChange={e => setSelectedOrderStatus({ ...selectedOrderStatus, [item.canonical_key]: e.target.value })}
+                                  style={{ flex: 1, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.35rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
+                                >
+                                  <option value="Received">Received</option>
+                                  <option value="Preparing">Preparing</option>
+                                  <option value="Out for Delivery">Out for Delivery</option>
+                                  <option value="Delivered">Delivered</option>
+                                </select>
+                                <button
+                                  onClick={() => handleAddTrackingEntity(item.canonical_key)}
+                                  style={{ background: '#0284c7', color: 'white', border: 'none', padding: '0.3rem 0.65rem', borderRadius: '0.35rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                                >
+                                  📦 Order
+                                </button>
+                              </div>
+                            ) : (
+                              <div style={{ fontSize: '0.7rem', color: '#f59e0b', fontStyle: 'italic', marginTop: '0.2rem' }}>
+                                ⚠️ Add items to the Catalog component first to create test orders.
+                              </div>
+                            )
+                          ) : (
+                            <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.35rem' }}>
+                              <input
+                                type="text"
+                                placeholder="New Item Name..."
+                                value={newFixtureName[item.canonical_key] || ''}
+                                onChange={e => setNewFixtureName({ ...newFixtureName, [item.canonical_key]: e.target.value })}
+                                style={{ flex: 2, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
+                              />
+                              <input
+                                type="number"
+                                placeholder="Price ($)"
+                                value={newFixturePrice[item.canonical_key] || ''}
+                                onChange={e => setNewFixturePrice({ ...newFixturePrice, [item.canonical_key]: e.target.value })}
+                                style={{ flex: 1, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
+                              />
+                              <button
+                                onClick={() => handleAddFixture(item.canonical_key)}
+                                style={{ background: '#0284c7', color: 'white', border: 'none', padding: '0.3rem 0.65rem', borderRadius: '0.35rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                              >
+                                ➕ Add
+                              </button>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
                   </div>
                 )}
               </div>
