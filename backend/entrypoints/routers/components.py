@@ -8,7 +8,7 @@ from entrypoints.schemas import (
     SubRequirementAddRequest, SubRequirementDeleteRequest,
     ComponentFixturesUpdateRequest, EntitySchemaUpdateRequest
 )
-from domain.model import CANONICAL_FEATURE_MAP, resolve_canonical_feature
+from domain.model import resolve_canonical_feature
 from service_layer import services
 from service_layer.unit_of_work import SqliteUnitOfWork
 

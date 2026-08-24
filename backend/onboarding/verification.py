@@ -16,9 +16,9 @@ def audit_domain_vocabulary(pitch: str, code_files: Dict[str, str]) -> dict:
     ('_purchased_quantity', 'OrderLine', etc.).
     """
     pitch_lower = pitch.lower() if pitch else ""
-    is_retail_pitch = any(k in pitch_lower for k in ["retail", "furniture", "warehouse", "stock batch", "supplier batch"])
+    is_batch_allocation_pitch = "batch" in pitch_lower and "allocation" in pitch_lower
 
-    if not is_retail_pitch:
+    if not is_batch_allocation_pitch:
         forbidden = ["_purchased_quantity", "OrderLine", "test_allocating_reduces_available_quantity"]
         violations = []
         for filepath, content in code_files.items():

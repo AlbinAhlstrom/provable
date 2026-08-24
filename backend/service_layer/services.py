@@ -2,7 +2,7 @@ import os
 import re
 import random
 from typing import List, Optional, Dict, Any
-from domain.model import Requirement, Project, Component, TestSpec, AgentRun, KickstartState, MOCK_DOMAIN_SCHEMA, resolve_canonical_feature, CANONICAL_FEATURE_MAP
+from domain.model import Requirement, Project, Component, TestSpec, AgentRun, KickstartState, MOCK_DOMAIN_SCHEMA, resolve_canonical_feature
 import domain.events as events
 from service_layer.unit_of_work import AbstractUnitOfWork
 import service_layer.exceptions as exceptions
@@ -476,7 +476,7 @@ def get_active_domain_params(uow: Optional[AbstractUnitOfWork] = None) -> dict:
             enabled_features.append(info['canonical_key'])
 
     if not enabled_features and pitch_clean:
-        from onboarding.block_catalog import analyze_pitch_for_kickstart
+        from onboarding.domain_ontology import analyze_pitch_for_kickstart
         kickstart_analysis = analyze_pitch_for_kickstart(pitch_clean)
         enabled_features = [b['id'] for b in kickstart_analysis.get('blocks', []) if b.get('id')]
 
@@ -554,8 +554,9 @@ def get_component_data_fixtures(uow: Optional[AbstractUnitOfWork] = None) -> Dic
             "name": item_name,
             "price": price_val
         }
-        if "ingredients" in item:
-            cat_item["ingredients"] = item["ingredients"]
+        for k, v in item.items():
+            if k not in ["id", "name", "price", "title"]:
+                cat_item[k] = v
         default_catalog.append(cat_item)
 
     fixtures = {
@@ -640,11 +641,24 @@ def get_component_entity_schemas(uow: Optional[AbstractUnitOfWork] = None) -> Di
 
     catalog_attrs = []
     for attr in ontology.master_entity.attributes:
+        aname = attr.name.lower()
+        if attr.type == "tags" or aname in ["ingredients", "toppings", "specs", "features", "tags", "allergens"]:
+            dmode = "tag_chips"
+        elif aname in ["badge", "badge_status", "rating", "label", "status_badge", "promo"]:
+            dmode = "badge"
+        elif aname in ["subtitle", "desc", "description", "details", "summary"]:
+            dmode = "subtitle"
+        elif aname in ["id", "internal_id", "sku", "_id", "created_at"]:
+            dmode = "hidden"
+        else:
+            dmode = getattr(attr, 'display_mode', 'visible') or "visible"
+
         catalog_attrs.append({
             "name": attr.name,
             "type": attr.type,
             "required": attr.required,
-            "default_value": attr.default_value
+            "default_value": attr.default_value,
+            "display_mode": dmode
         })
 
     default_schemas = {
@@ -657,18 +671,18 @@ def get_component_entity_schemas(uow: Optional[AbstractUnitOfWork] = None) -> Di
             "entity_name": "CartItem",
             "canonical_key": "cart",
             "attributes": [
-                {"name": "name", "type": "string", "required": True},
-                {"name": "price", "type": "currency", "required": True},
-                {"name": "quantity", "type": "number", "required": True, "default_value": 1}
+                {"name": "name", "type": "string", "required": True, "display_mode": "visible"},
+                {"name": "price", "type": "currency", "required": True, "display_mode": "visible"},
+                {"name": "quantity", "type": "number", "required": True, "default_value": 1, "display_mode": "visible"}
             ]
         },
         "tracking": {
             "entity_name": "Order",
             "canonical_key": "tracking",
             "attributes": [
-                {"name": "item", "type": "string", "required": True},
-                {"name": "status", "type": "string", "required": True},
-                {"name": "price", "type": "currency", "required": True}
+                {"name": "item", "type": "string", "required": True, "display_mode": "visible"},
+                {"name": "status", "type": "string", "required": True, "display_mode": "badge"},
+                {"name": "price", "type": "currency", "required": True, "display_mode": "visible"}
             ]
         }
     }
@@ -714,7 +728,8 @@ def update_component_entity_schema(
                 name=a.get("name", ""),
                 type=a.get("type", "string"),
                 required=bool(a.get("required", False)),
-                default_value=a.get("default_value")
+                default_value=a.get("default_value"),
+                display_mode=a.get("display_mode", "visible")
             ))
 
     schema_obj = DomainEntitySchema(
@@ -802,8 +817,8 @@ def get_kickstart_state(uow: AbstractUnitOfWork) -> Dict[str, Any]:
 
 
 def analyze_kickstart_pitch(business_pitch: str, uow: AbstractUnitOfWork) -> Dict[str, Any]:
-    """Analyze pitch to recommend pre-baked feature blocks and extract domain requirements."""
-    from onboarding.block_catalog import analyze_pitch_for_kickstart
+    """Analyze pitch to discover domain capabilities and extract domain requirements."""
+    from onboarding.domain_ontology import analyze_pitch_for_kickstart
     analysis = analyze_pitch_for_kickstart(business_pitch)
     new_state = KickstartState(
         business_pitch=business_pitch,
@@ -917,12 +932,14 @@ def synthesize_kickstart_stack(
             except Exception as e:
                 print(f"Block requirement creation notice ({blk}): {e}")
 
-        # Save synthesized state
+        # Save synthesized state (purging any stale custom fixtures / schemas from previous domain pitch)
         ks_state = KickstartState(
             business_pitch=pitch_text,
             blocks=normalized_blocks,
             extracted_requirements=reqs_list,
-            synthesized=True
+            synthesized=True,
+            custom_fixtures={},
+            entity_schemas={}
         )
         uow_context.kickstart.save(ks_state)
         uow_context.commit()

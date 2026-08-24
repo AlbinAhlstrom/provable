@@ -43,7 +43,7 @@ def build_site_manifest_from_schema(schema: Dict[str, Any], ws_base: Optional[st
     brand = schema.get("brand_title") or synthesize_domain_intent_and_branding(pitch)["brand_title"]
     features = schema.get("enabled_features", ["catalog", "cart", "tracking"])
     
-    is_game = any(k in pitch.lower() for k in ["game", "arcade", "puzzle", "simulator", "interactive"])
+    is_game = "game" in pitch.lower() or "arcade" in pitch.lower()
     domain_category = "interactive_game" if is_game else ("service_booking" if ont.domain_category == "calendar_service" else "e_commerce")
 
     intent = DomainIntentSpec(

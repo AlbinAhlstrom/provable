@@ -14,10 +14,8 @@ from pydantic import ValidationError
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from agent_orchestrator import call_gemini
-from onboarding.category_layouts import get_category_layout, CATEGORY_PAGE_LAYOUTS
-from onboarding.component_registry import COMPONENT_REGISTRY, is_valid_component, get_component_block
 from onboarding.planning_contracts import (
-    CategoryLayoutPlan, ComponentSlotAssignment, BespokeComponentSpec,
+    CategoryLayoutPlan, LayoutSlotSpec, ComponentSlotAssignment, BespokeComponentSpec,
     AestheticThemeSpec, UnifiedFrontendBlueprint, DESIGN_ARCHETYPE_TOKENS
 )
 from onboarding.code_verifier import verify_tsx_syntax, self_heal_tsx_code
@@ -30,11 +28,8 @@ def run_frontend_planning_pipeline(pitch: str) -> UnifiedFrontendBlueprint:
     # ── STAGE 1: Agent 0 (Category & Intent Classifier) ─────────────────────
     category_plan = _run_category_planning_agent(pitch)
 
-    # ── STAGE 2: Agent 1 (Component Selection & Gap Analysis) ───────────────
+    # ── STAGE 2: Agent 1 (Bespoke Component Deconstruction) ─────────────────
     slot_assignment = _run_component_planning_agent(pitch, category_plan)
-
-    # ── REGISTRY GROUNDING GATE ──────────────────────────────────────────────
-    slot_assignment = _ground_component_assignments(slot_assignment, category_plan)
 
     # ── STAGE 3: Agent 2 (Aesthetic & Seed Data Planner) ────────────────────
     aesthetic_spec = _run_aesthetic_planning_agent(pitch, category_plan)
@@ -49,82 +44,46 @@ def run_frontend_planning_pipeline(pitch: str) -> UnifiedFrontendBlueprint:
 
 
 def _run_category_planning_agent(pitch: str) -> CategoryLayoutPlan:
-    """Agent 0: Classifies pitch into a Category Page Layout Template with Pydantic contract validation."""
-    prompt = f"""
-You are a Principal Product Architect. Classify the following business pitch into ONE of these Category Layout Templates:
-- "service_booking": Appointment, slot, session, service, and calendar booking applications.
-- "e_commerce": Product storefront, menu grid, retail, buying items with cart & checkout.
-- "operations_dashboard": Kitchen KDS, merchant admin, inventory management, operational status queue.
-- "saas_analytics": B2B dashboard, metrics, data analytics workbench.
-- "custom_novel": Unique concepts that do NOT fit any standard category above.
+    """Agent 0: Extracts dynamic page layout intent from domain ontology."""
+    from onboarding.domain_ontology import storm_domain_ontology
+    ont = storm_domain_ontology(pitch)
+    noun = ont.master_entity.entity_name
 
-Business Pitch: "{pitch}"
-
-Respond ONLY with a JSON object in this format (no markdown):
-{{
-  "category_id": "<service_booking|e_commerce|operations_dashboard|saas_analytics|custom_novel>",
-  "layout_name": "<human-readable title>",
-  "category_reasoning": "<1-2 sentence rationale>"
-}}
-"""
-    try:
-        raw = call_gemini(prompt, stage="category_planning")
-        cleaned = re.sub(r'^```[a-zA-Z]*\n?', '', raw.strip())
-        cleaned = re.sub(r'\n?```$', '', cleaned.strip()).strip()
-        data = json.loads(cleaned)
-        
-        layout_def = get_category_layout(data.get("category_id", "custom_novel"))
-        return CategoryLayoutPlan(
-            category_id=layout_def["id"],
-            layout_name=layout_def["name"],
-            category_reasoning=data.get("category_reasoning", "Matched category layout"),
-            slots=layout_def["slots"]
-        )
-    except Exception as e:
-        print(f"[notice] Category Planning Agent fallback: {e}")
-        # Rule-based fallback if LLM offline
-        p_lower = pitch.lower()
-        if any(k in p_lower for k in ["book", "appointment", "calendar", "schedule", "slot", "session", "reserve"]):
-            cid = "service_booking"
-        elif any(k in p_lower for k in ["admin", "dashboard", "metric", "queue", "analytics", "monitor"]):
-            cid = "operations_dashboard"
-        elif any(k in p_lower for k in ["shop", "buy", "cart", "store", "product", "item", "order"]):
-            cid = "e_commerce"
-        else:
-            cid = "custom_novel"
-
-        layout_def = get_category_layout(cid)
-        return CategoryLayoutPlan(
-            category_id=layout_def["id"],
-            layout_name=layout_def["name"],
-            category_reasoning="Rule-based heuristic fallback",
-            slots=layout_def["slots"]
-        )
+    slots = [
+        LayoutSlotSpec(name="header", purpose=f"Navigation, branding, and {noun.lower()} actions"),
+        LayoutSlotSpec(name="main_content", purpose=f"Interactive {noun.lower()} workspace and controls"),
+        LayoutSlotSpec(name="modal_drawer", purpose=f"Contextual {noun.lower()} action drawer")
+    ]
+    return CategoryLayoutPlan(
+        category_id=ont.domain_category,
+        layout_name=f"{noun} Application Workspace",
+        category_reasoning=f"Derived dynamically from domain ontology ({noun})",
+        slots=slots
+    )
 
 
 def _run_component_planning_agent(pitch: str, category_plan: CategoryLayoutPlan) -> ComponentSlotAssignment:
-    """Agent 1: Maps layout slots to registry components or identifies custom bespoke components."""
-    available_registry_ids = list(COMPONENT_REGISTRY.keys())
+    """Agent 1: Decomposes pitch into bespoke domain-native React components from domain entities and workflows."""
+    from onboarding.domain_ontology import storm_domain_ontology
+    ont = storm_domain_ontology(pitch)
+    noun = ont.master_entity.entity_name
     
     prompt = f"""
-You are a Lead Component Architect. Given the category layout "{category_plan.category_id}" for pitch: "{pitch}".
+You are a Principal Frontend Architect designing a 100% bespoke React application for:
+- Business Pitch: "{pitch}"
+- Master Entity: {noun}
+- Category: {category_plan.category_id} ({category_plan.layout_name})
+- Key Invariants: {json.dumps(ont.invariants)}
 
-Available Premade Component Registry IDs:
-{json.dumps(available_registry_ids)}
-
-Determine:
-1. Which premade registry IDs to reuse for standard features.
-2. What novel/custom components to build from scratch for unique pitch requirements.
-
-Respond ONLY with a JSON object:
+Decompose this domain into 2 to 4 bespoke React components tailored specifically to this business.
+Respond ONLY with a JSON object in this format:
 {{
-  "reused_registry_blocks": ["<registry_id>"],
   "bespoke_components": [
     {{
       "component_name": "<PascalCaseName>",
-      "slot": "<main_content|modal_drawer|hero>",
-      "description": "<purpose>",
-      "key_interactions": ["<interaction 1>"]
+      "slot": "<header|main_content|modal_drawer|sidebar>",
+      "description": "<purpose and data displayed>",
+      "key_interactions": ["<interaction 1>", "<interaction 2>"]
     }}
   ]
 }}
@@ -137,63 +96,62 @@ Respond ONLY with a JSON object:
         
         bespoke = [BespokeComponentSpec(**b) for b in data.get("bespoke_components", [])]
         return ComponentSlotAssignment(
-            reused_registry_blocks=data.get("reused_registry_blocks", []),
+            reused_registry_blocks=[],
             bespoke_components=bespoke
         )
     except Exception as e:
         print(f"[notice] Component Planning Agent fallback: {e}")
-        # Default component choices based on category
+        # Default bespoke components based on domain category
         if category_plan.category_id == "service_booking":
-            reused = ["service_header", "weekly_calendar_grid"]
-            bespoke = [BespokeComponentSpec(
-                component_name="ProviderListCard",
-                slot="main_content",
-                description="Display caregiver profiles with rating, rate, and selection action",
-                key_interactions=["Select provider to view available slots"]
-            )]
-        elif category_plan.category_id == "e_commerce":
-            reused = ["ecom_header", "cart_drawer"]
-            bespoke = [BespokeComponentSpec(
-                component_name="ProductCatalogGrid",
-                slot="main_content",
-                description="Interactive product grid view",
-                key_interactions=["Add item to cart"]
-            )]
+            bespoke = [
+                BespokeComponentSpec(
+                    component_name=f"{noun}BookingHeader",
+                    slot="header",
+                    description=f"Top navigation with {noun.lower()} booking status and profile",
+                    key_interactions=["View active reservations"]
+                ),
+                BespokeComponentSpec(
+                    component_name=f"{noun}AvailabilityMatrix",
+                    slot="main_content",
+                    description=f"Interactive date and time slot selector for {noun.lower()} sessions",
+                    key_interactions=["Select appointment slot", "Confirm booking"]
+                )
+            ]
+        elif category_plan.category_id == "operations_dashboard":
+            bespoke = [
+                BespokeComponentSpec(
+                    component_name=f"{noun}MetricsHUD",
+                    slot="header",
+                    description=f"Real-time operational KPIs for {noun.lower()} queue",
+                    key_interactions=["Filter status by active/pending"]
+                ),
+                BespokeComponentSpec(
+                    component_name=f"{noun}WorkflowQueue",
+                    slot="main_content",
+                    description=f"Live stage progression and status dispatch queue for {noun.lower()} items",
+                    key_interactions=["Advance workflow status", "Inspect item details"]
+                )
+            ]
         else:
-            reused = ["kpi_stat_bar"]
-            bespoke = [BespokeComponentSpec(
-                component_name="MainWorkstation",
-                slot="main_content",
-                description="Domain workspace view",
-                key_interactions=["Interact with primary action"]
-            )]
+            bespoke = [
+                BespokeComponentSpec(
+                    component_name=f"{noun}StorefrontHeader",
+                    slot="header",
+                    description=f"Navigation header with {noun.lower()} search and action drawer counter",
+                    key_interactions=["Search offerings", "Open action drawer"]
+                ),
+                BespokeComponentSpec(
+                    component_name=f"{noun}CatalogGrid",
+                    slot="main_content",
+                    description=f"Interactive offering grid with customizable attributes and actions",
+                    key_interactions=["Add item", "Filter category"]
+                )
+            ]
 
         return ComponentSlotAssignment(
-            reused_registry_blocks=reused,
+            reused_registry_blocks=[],
             bespoke_components=bespoke
         )
-
-
-def _ground_component_assignments(slot_assignment: ComponentSlotAssignment, category_plan: CategoryLayoutPlan) -> ComponentSlotAssignment:
-    """Registry Grounding Gate: Remaps hallucinated block IDs to valid registry components."""
-    valid_reused = []
-    for block_id in slot_assignment.reused_registry_blocks:
-        if is_valid_component(block_id):
-            valid_reused.append(block_id)
-        else:
-            print(f"[notice] Registry Grounding Gate: Remapped hallucinated block ID '{block_id}'")
-            if category_plan.category_id == "service_booking":
-                valid_reused.append("service_header")
-                valid_reused.append("weekly_calendar_grid")
-            elif category_plan.category_id == "e_commerce":
-                valid_reused.append("ecom_header")
-
-    # Deduplicate while preserving order
-    dedup_reused = list(dict.fromkeys(valid_reused))
-    return ComponentSlotAssignment(
-        reused_registry_blocks=dedup_reused,
-        bespoke_components=slot_assignment.bespoke_components
-    )
 
 
 def verify_theme_compliance(tsx_code: str, archetype: str) -> str:
@@ -252,18 +210,10 @@ def sanitize_domain_vocabulary_leakage(code: str, pitch: str) -> str:
 
 def _run_aesthetic_planning_agent(pitch: str, category_plan: CategoryLayoutPlan) -> AestheticThemeSpec:
     """Agent 2: Generates domain color palette, brand title, and realistic mock seed data."""
-    p_lower = pitch.lower()
+    from onboarding.domain_ontology import storm_domain_ontology
+    ont = storm_domain_ontology(pitch)
+    arch_id = ont.visual_theme.archetype if ont.visual_theme.archetype in DESIGN_ARCHETYPE_TOKENS else "modern_fresh_light"
     cat_id = category_plan.category_id
-
-    # Determine archetype based on category
-    if cat_id == "operations_dashboard" or any(k in p_lower for k in ["cli", "terminal", "log viewer", "devops", "debugger"]):
-        arch_id = "dark_developer_terminal"
-    elif cat_id == "service_booking":
-        arch_id = "warm_lifestyle_light"
-    elif cat_id == "e_commerce":
-        arch_id = "modern_fresh_light"
-    else:
-        arch_id = "clean_b2b_light"
 
     tokens = DESIGN_ARCHETYPE_TOKENS[arch_id]
     profile = _extract_domain_entity_profile(pitch)
@@ -341,40 +291,28 @@ def assemble_app_tsx_from_blueprint(blueprint: UnifiedFrontendBlueprint, custom_
     aesthetics = blueprint.aesthetics
     arch_id = aesthetics.archetype
     
-    # 1. Collect registry components TSX
-    registry_snippets = []
-    for block_id in blueprint.components.reused_registry_blocks:
-        blk = get_component_block(block_id)
-        if blk:
-            registry_snippets.append(blk["tsx_code"])
-
-    registry_code_combined = "\n".join(registry_snippets)
-
-    # 2. Prompt LLM to synthesize bespoke custom components & main App layout wrapper
+    # Prompt LLM to synthesize 100% bespoke domain-native React 18 TSX application from scratch
     css_vars = aesthetics.get_css_variables_style()
     prompt = f"""
-You are a Master React TSX Developer. Synthesize a complete, production-grade `App.tsx` component for this application plan:
+You are a Master React TSX Developer. Synthesize a complete, production-grade, 100% bespoke `App.tsx` component tailored specifically to this business pitch:
 
 - **Business Pitch**: "{pitch}"
-- **Category Page Layout**: "{cat_id}" ({blueprint.category_layout.layout_name})
+- **Category Layout Intent**: "{cat_id}" ({blueprint.category_layout.layout_name})
 - **Brand Title**: "{aesthetics.domain_display_title}"
 - **Aesthetic Archetype**: "{arch_id}"
 - **CSS Variable Tokens**:
 {css_vars}
 
-- **Mock Seed Data**: {json.dumps(aesthetics.mock_seed_data, indent=2)}
+- **Mock Domain Seed Data**: {json.dumps(aesthetics.mock_seed_data, indent=2)}
 
-- **Pre-baked Components Included in Scope**:
-{registry_code_combined}
-
-- **Bespoke Components to Build**:
+- **Bespoke Domain Components & Interactions**:
 {json.dumps([b.dict() for b in blueprint.components.bespoke_components], indent=2)}
 
 ### Implementation Guidelines:
 1. Export a default React component `export default function App()`.
 2. Include a CSS root variable style block at top of App render with global resets (`* {{ box-sizing: border-box; }} body {{ margin: 0; overflow-x: hidden; }} img, svg {{ max-width: 100%; }}`).
 3. Use CSS variables `var(--bg-main)`, `var(--bg-card)`, `var(--text-primary)`, `var(--color-primary)`, `var(--color-mint)`, `var(--border-color)`, `var(--font-heading)` instead of hardcoded hex strings.
-4. For service booking apps: render warm cream background, serif headers, provider cards with rates, and an interactive weekly calendar matrix with mint green availability pills.
+4. Design domain-native interactive controls that naturally fit the business mechanics (e.g. interactive canvas, radar visualizer, custom builder, booking matrix, or operational queue).
 5. **CRITICAL MOBILE-FIRST RESPONSIVENESS INVARIANT**:
    - The application MUST be fully mobile-first responsive and render flawlessly on mobile screens (`375px` viewport) as well as desktop screens (`1280px`).
    - Headers and navigation bars MUST use `flexWrap: 'wrap'` and flexible gaps (`gap: '0.75rem'`) so header titles and navigation links wrap cleanly on 375px screens without horizontal scrolling.
@@ -554,14 +492,18 @@ img, svg {{ max-width: 100%; height: auto; }}
         else:
             price_str = str(item.get("price_or_rate") or "$14.99")
         subtitle = item.get("desc") or item.get("subtitle") or "Fresh gourmet offering"
+        specs_val = item.get("specs") or item.get("ingredients") or item.get("tags") or []
+        badge_val = item.get("badge") or item.get("badge_status") or "Popular"
+        rating_val = item.get("rating", 4.9)
         formatted_seed.append({
             "id": str(item.get("id", idx+1)),
             "title": item_title,
             "subtitle": subtitle,
             "price_or_rate": price_str,
-            "ingredients": item.get("ingredients", []),
-            "badge_status": item.get("badge_status", "Popular"),
-            "rating": item.get("rating", 4.9),
+            "ingredients": specs_val if isinstance(specs_val, list) else [str(specs_val)],
+            "specs": specs_val if isinstance(specs_val, list) else [str(specs_val)],
+            "badge_status": badge_val,
+            "rating": rating_val,
             "initials": "".join([w[0].upper() for w in item_title.split()[:2]]) or "PI"
         })
 
@@ -849,13 +791,15 @@ export default function App() {
           const formatted = fixtures.map((f: any, idx: number) => {
             const name = f.name || f.title || `Item #${idx+1}`;
             const price = f.price !== undefined ? (typeof f.price === 'number' ? `$${f.price.toFixed(2)}` : String(f.price)) : (f.price_or_rate || '$14.99');
+            const specs = Array.isArray(f.specs) ? f.specs : (Array.isArray(f.ingredients) ? f.ingredients : (Array.isArray(f.tags) ? f.tags : []));
             return {
               id: String(f.id || idx+1),
               title: name,
               subtitle: f.desc || f.subtitle || 'Fresh artisan offering',
               price_or_rate: price.startsWith('$') ? price : `$${price}`,
-              ingredients: Array.isArray(f.ingredients) ? f.ingredients : [],
-              badge_status: f.badge_status || 'Popular',
+              ingredients: specs,
+              specs: specs,
+              badge_status: f.badge || f.badge_status || 'Popular',
               rating: f.rating || 4.9,
               initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || 'PI'
             };
@@ -884,13 +828,15 @@ export default function App() {
             const formatted = data.fixtures.catalog.map((f: any, idx: number) => {
               const name = f.name || f.title || `Item #${idx+1}`;
               const price = f.price !== undefined ? (typeof f.price === 'number' ? `$${f.price.toFixed(2)}` : String(f.price)) : (f.price_or_rate || '$14.99');
+              const specs = Array.isArray(f.specs) ? f.specs : (Array.isArray(f.ingredients) ? f.ingredients : (Array.isArray(f.tags) ? f.tags : []));
               return {
                 id: String(f.id || idx+1),
                 title: name,
                 subtitle: f.desc || f.subtitle || 'Fresh artisan offering',
                 price_or_rate: price.startsWith('$') ? price : `$${price}`,
-                ingredients: Array.isArray(f.ingredients) ? f.ingredients : [],
-                badge_status: f.badge_status || 'Popular',
+                ingredients: specs,
+                specs: specs,
+                badge_status: f.badge || f.badge_status || 'Popular',
                 rating: f.rating || 4.9,
                 initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || 'PI'
               };
@@ -999,22 +945,40 @@ export default function App() {
         {activeTab === 'catalog' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
             {items.map((item: any) => (
-              <div key={item.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '1.25rem', padding: '1.25rem', boxShadow: 'var(--shadow-card)' }}>
-                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>{item.title}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{item.subtitle}</p>
-                {item.ingredients && Array.isArray(item.ingredients) && item.ingredients.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', margin: '0.5rem 0' }}>
-                    {item.ingredients.map((ing: string, i: number) => (
-                      <span key={i} style={{ fontSize: '0.7rem', background: 'var(--bg-secondary)', color: 'var(--text-muted)', padding: '0.2rem 0.5rem', borderRadius: '9999px', border: '1px solid var(--border-color)', fontWeight: 600 }}>
-                        {ing}
+              <div key={item.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '1.25rem', padding: '1.25rem', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>{item.title}</h3>
+                    {item.badge_status && (
+                      <span style={{ fontSize: '0.68rem', background: 'var(--color-primary)', color: '#fff', padding: '0.15rem 0.55rem', borderRadius: '9999px', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                        {item.badge_status}
                       </span>
-                    ))}
+                    )}
                   </div>
-                )}
-                <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', margin: '1rem 0' }}>{item.price_or_rate}</div>
-                <button onClick={() => handleAddToCart(item)} style={{ width: '100%', background: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
-                  Add to Cart
-                </button>
+                  {item.subtitle && (
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '0 0 0.5rem 0', lineHeight: 1.4 }}>{item.subtitle}</p>
+                  )}
+                  {((item.ingredients && item.ingredients.length > 0) || (item.specs && item.specs.length > 0)) && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', margin: '0.5rem 0' }}>
+                      {(item.specs || item.ingredients || []).map((tag: string, i: number) => (
+                        <span key={i} style={{ fontSize: '0.68rem', background: 'var(--bg-secondary)', color: 'var(--text-muted)', padding: '0.15rem 0.45rem', borderRadius: '9999px', border: '1px solid var(--border-color)', fontWeight: 600 }}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {item.rating && (
+                    <div style={{ fontSize: '0.78rem', color: '#f59e0b', fontWeight: 700, margin: '0.25rem 0' }}>
+                      ★ {item.rating}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', margin: '0.75rem 0' }}>{item.price_or_rate}</div>
+                  <button onClick={() => handleAddToCart(item)} style={{ width: '100%', background: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
+                    Add to Cart
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -1151,37 +1115,26 @@ def build_pitch_specific_domain_schema(pitch: str) -> Dict[str, Any]:
     return _extract_domain_entity_profile(pitch)
 
 
-
-
 def _heuristic_pitch_analysis_fallback(pitch: str) -> Dict[str, Any]:
-    p_lower = pitch.lower()
-    components = []
-    
-    if any(k in p_lower for k in ['menu', 'product', 'catalog', 'item', 'listing', 'store', 'shop', 'service']):
-        components.append({'canonical_key': 'catalog', 'title': 'Catalog Grid', 'component_type': 'premade', 'description': 'Product & offering catalog grid'})
-    if any(k in p_lower for k in ['cart', 'order', 'checkout', 'buy', 'purchase', 'rent']):
-        components.append({'canonical_key': 'cart', 'title': 'Shopping Cart', 'component_type': 'premade', 'description': 'Shopping cart & checkout drawer'})
-    if any(k in p_lower for k in ['track', 'status', 'delivery', 'dispatch', 'pipeline']):
-        components.append({'canonical_key': 'tracking', 'title': 'Order Tracking', 'component_type': 'premade', 'description': 'Real-time status tracking pipeline'})
-    if any(k in p_lower for k in ['admin', 'merchant', 'dashboard', 'queue', 'metrics']):
-        components.append({'canonical_key': 'dashboard', 'title': 'Operations Dashboard', 'component_type': 'premade', 'description': 'Operations queue & management display'})
-    if any(k in p_lower for k in ['review', 'rating', 'star', 'feedback', 'testimonial']):
-        components.append({'canonical_key': 'reviews', 'title': 'Reviews', 'component_type': 'premade', 'description': 'Customer reviews & rating system'})
+    from onboarding.domain_ontology import storm_domain_ontology
+    ontology = storm_domain_ontology(pitch)
+    noun = ontology.master_entity.entity_name
 
-    if not components:
-        components = [
-            {'canonical_key': 'catalog', 'title': 'Catalog Grid', 'component_type': 'premade', 'description': 'Product & offering catalog grid'},
-            {'canonical_key': 'cart', 'title': 'Shopping Cart', 'component_type': 'premade', 'description': 'Shopping cart'},
-            {'canonical_key': 'tracking', 'title': 'Order Tracking', 'component_type': 'premade', 'description': 'Order tracking'}
-        ]
+    components = [
+        {
+            'canonical_key': cap.key,
+            'title': cap.name,
+            'component_type': 'premade' if cap.key in ['catalog', 'cart', 'tracking', 'calendar'] else 'custom',
+            'description': cap.description
+        }
+        for cap in ontology.capabilities
+    ]
 
     suggestions = [
-        "Payment system",
-        "Loyalty points & rewards",
-        "Live chat support",
-        "Table reservation calendar",
-        "Custom item builder",
-        "Promo code voucher"
+        f"Add {noun} Reviews & Ratings",
+        "Add Payment Gateway",
+        "Add Customer Profile Authentication",
+        "Add Real-Time Notifications"
     ]
 
     return {

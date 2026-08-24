@@ -417,10 +417,10 @@ export default function App() {
         builder_hooks_code = ""
         builder_container_code = ""
 
-    has_catalog = any(k in ['catalog', 'catalog_grid', 'menu'] for k in active_keys)
+    has_catalog = 'catalog' in active_keys
     if has_catalog:
         catalog_container_code = '''
-        {(isTabEnabled('menu') || isTabEnabled('catalog') || isTabEnabled('catalog_grid')) && (activeTab === 'menu' || activeTab === 'catalog' || activeTab === 'catalog_grid') && (
+        {isTabEnabled('catalog') && activeTab === 'catalog' && (
           <div>
             <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.5rem', color: '#1c1917', fontFamily: 'Georgia, serif', fontWeight: 700 }}>Available Items & Offerings</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
@@ -444,10 +444,10 @@ export default function App() {
     else:
         catalog_container_code = ""
 
-    has_cart = any(k in ['cart', 'shopping_cart'] for k in active_keys)
+    has_cart = 'cart' in active_keys
     if has_cart:
         cart_container_code = '''
-        {(isTabEnabled('cart') || isTabEnabled('shopping_cart')) && (activeTab === 'cart' || activeTab === 'shopping_cart') && (
+        {isTabEnabled('cart') && activeTab === 'cart' && (
           <div style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '0.75rem', padding: '2rem', maxWidth: '650px', margin: '0 auto' }}>
             <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.5rem', color: '#1c1917' }}>🛒 Shopping Cart</h3>
             {cart.length === 0 ? (
@@ -475,10 +475,10 @@ export default function App() {
     else:
         cart_container_code = ""
 
-    has_tracking = any(k in ['tracking', 'order_tracking'] for k in active_keys)
+    has_tracking = 'tracking' in active_keys
     if has_tracking:
         tracking_container_code = '''
-        {(isTabEnabled('tracking') || isTabEnabled('order_tracking')) && (activeTab === 'tracking' || activeTab === 'order_tracking') && (
+        {isTabEnabled('tracking') && activeTab === 'tracking' && (
           <div>
             <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.5rem', color: '#1c1917' }}>📦 Live Order Status</h3>
             {orders.length === 0 ? (

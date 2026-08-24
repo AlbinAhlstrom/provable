@@ -78,11 +78,98 @@ def load_prompt(template_name: str, format_kwargs: Optional[dict] = None) -> str
 
 def call_gemini(prompt: str, stage: str = "general") -> str:
     """OpenAI Python SDK wrapper for LLM calls (configured via env/yaml)."""
-    api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY") or "mock-key"
+    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY") or "mock-key"
     base_url = os.environ.get("OPENAI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
     
     if api_key == "mock-key":
-        return "Mock LLM Response"
+        if stage == "domain_ontology":
+            m = re.search(r'"([^"\n]+)"', prompt)
+            pitch = m.group(1) if m else "Generic Application"
+            clean = re.sub(r'[^a-zA-Z0-9\s]', ' ', pitch).strip()
+            tokens = [w.capitalize() for w in clean.split() if len(w) > 2 and w.lower() not in {"an", "a", "the", "app", "application", "platform", "system", "tool", "portal", "site", "online", "for", "with", "order", "book", "buy", "sell", "track", "manage", "find", "schedule", "rent"}]
+            raw_noun = tokens[0] if tokens else "Item"
+            noun = raw_noun[:-1] if raw_noun.endswith("s") and len(raw_noun) > 3 and not raw_noun.endswith("ss") else raw_noun
+            plural = f"{noun}s" if not noun.endswith("s") else noun
+
+            return json.dumps({
+                "brand_name": f"{noun}Craft",
+                "hero_headline": f"Premium {plural} Platform",
+                "guarantee_badge": f"100% Certified {plural}",
+                "domain_category": "custom_domain",
+                "visual_theme": {
+                    "archetype": "modern_fresh_light",
+                    "primary_color": "#0284c7",
+                    "secondary_color": "#10b981",
+                    "bg_gradient": "#f8fafc",
+                    "card_bg": "#ffffff",
+                    "border_color": "#e2e8f0",
+                    "domain_emoji": "✨"
+                },
+                "master_entity": {
+                    "entity_name": noun,
+                    "entity_plural": plural,
+                    "action_verb": f"Select {noun}",
+                    "attributes": [
+                        {"name": "name", "type": "string", "required": True, "display_mode": "visible"},
+                        {"name": "price", "type": "currency", "required": True, "display_mode": "visible"},
+                        {"name": "specs", "type": "tags", "required": False, "default_value": [], "display_mode": "tag_chips"},
+                        {"name": "rating", "type": "number", "required": False, "default_value": 5.0, "display_mode": "badge"},
+                        {"name": "badge", "type": "string", "required": False, "default_value": "Popular", "display_mode": "badge"}
+                    ],
+                    "seed_items": [
+                        {"id": "1", "name": f"Signature {noun}", "price": 19.99, "specs": ["Quality"], "rating": 5.0, "badge": "Best"},
+                        {"id": "2", "name": f"Deluxe {noun}", "price": 29.99, "specs": ["Deluxe"], "rating": 4.9, "badge": "Popular"}
+                    ]
+                },
+                "capabilities": [
+                    {"key": "catalog", "name": f"{noun} Catalog", "icon": "📋", "description": f"Browse {noun.lower()} items", "target_entities": [noun], "primary_actions": [f"Select {noun}"]},
+                    {"key": "cart", "name": "Order Drawer & Checkout", "icon": "🛒", "description": "Review and order", "target_entities": [noun], "primary_actions": ["Place Order"]},
+                    {"key": "tracking", "name": "Status Pipeline", "icon": "📦", "description": "Status progression", "target_entities": [noun], "primary_actions": ["Track Status"]}
+                ],
+                "commands": [{"name": f"Place{noun}Order", "description": "Order command", "fields": [{"name": "id", "type": "str"}]}],
+                "events": [{"name": f"{noun}OrderPlaced", "description": "Order event", "fields": [{"name": "id", "type": "str"}]}],
+                "invariants": [f"Valid non-negative pricing for {noun.lower()} transactions"]
+            })
+        elif stage == "category_planning":
+            return json.dumps({
+                "category_id": "custom_domain",
+                "layout_name": "Application Workspace",
+                "category_reasoning": "Standard layout"
+            })
+        elif stage == "component_planning":
+            return json.dumps({
+                "reused_registry_blocks": [],
+                "bespoke_components": [
+                    {"component_name": "HeaderView", "slot": "header", "description": "Header", "key_interactions": []},
+                    {"component_name": "MainContentView", "slot": "main_content", "description": "Content", "key_interactions": []}
+                ]
+            })
+        elif stage == "aesthetic_planning":
+            return json.dumps({
+                "domain_display_title": "AppCraft",
+                "theme_archetype": "modern_fresh_light",
+                "primary_color": "#0284c7",
+                "seed_catalog": [
+                    {"id": "1", "title": "Item 1", "price_or_rate": "$19.99"}
+                ]
+            })
+        elif stage == "pitch_component_analysis":
+            return json.dumps({
+                "components": [
+                    {"canonical_key": "catalog", "title": "Catalog & Menu", "component_type": "premade", "description": "Browse domain offerings"},
+                    {"canonical_key": "cart", "title": "Cart & Checkout", "component_type": "premade", "description": "Review and order"},
+                    {"canonical_key": "tracking", "title": "Status Pipeline", "component_type": "premade", "description": "Order progression"}
+                ],
+                "suggestions": [
+                    "Add customer reviews and star ratings",
+                    "Add member loyalty reward points",
+                    "Add live support chat widget"
+                ]
+            })
+        elif stage == "ui_generation":
+            return "import React from 'react'; export default function App() { return <div>App Shell</div>; }"
+
+        return "{}"
 
     client = OpenAI(api_key=api_key, base_url=base_url)
     try:

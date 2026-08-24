@@ -68,7 +68,7 @@ def test_analyze_kickstart_pitch_service(monkeypatch):
     Then pitch is analyzed, state is updated in UoW, and UoW commits.
     """
     monkeypatch.setattr(
-        "onboarding.block_catalog.analyze_pitch_for_kickstart",
+        "onboarding.domain_ontology.analyze_pitch_for_kickstart",
         lambda pitch: {
             "blocks": [{"id": "catalog", "title": "Product Catalog"}],
             "extracted_requirements": [{"id": "REQ-PITCH-1", "title": "Pizza Catalog", "type": "Requirement"}]

@@ -8,6 +8,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 
 ### 1. 🏗️ System Architecture
 - [[System Architecture]]: Overview of the React PM Studio frontend (Explorer, Domain Canvas, Live App Preview, Code Review, Coverage Hub), FastAPI backend engine, SQLite DataStore, and OpenHands orchestrator.
+- [[Full-LLM-Free-Form-Orchestration-Graph]]: Pure Full-LLM software synthesis engine featuring the 4-loop orchestration graph (Domain Storming, Backend DDD/TDD, Free-Form UI Synthesizer, Verification Gates).
 - [[PM-Studio-UX-Architecture-And-Direction]]: Breakdown of PM Studio 3-Pillar UX Architecture (Pages Bar, Executable Test Specs, Domain Entity CRUD) and Mobile-First responsive design system invariants.
 - [[Universal-Dynamic-Domain-AST-Generator]]: Universal dynamic domain generator synthesizing contract-first 6-part DDD backend modules and React 18 frontend stacks for ANY domain pitch without template leakage.
 - [[Database Schema]]: Comprehensive documentation of SQLite tables (`requirements`, `test_cases`, `agent_runs`), schema triggers, JSON columns, and DataStore sync mechanisms.

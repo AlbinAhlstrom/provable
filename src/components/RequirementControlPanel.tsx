@@ -19,12 +19,7 @@ export interface RequirementControlPanelProps {
 }
 
 const getTestPlaceholder = (key: string) => {
-  const k = key.toLowerCase();
-  if (k.includes('cart')) return 'e.g. WHEN item added, THEN update total, UNLESS out of stock...';
-  if (k.includes('catalog') || k.includes('menu')) return 'e.g. WHEN item clicked, THEN add to cart, UNLESS disabled...';
-  if (k.includes('track') || k.includes('status')) return 'e.g. WHEN order placed, THEN show ETA, UNLESS cancelled...';
-  if (k.includes('check')) return 'e.g. WHEN payment submitted, THEN clear cart, UNLESS invalid card...';
-  return 'e.g. WHEN action triggered, THEN update state, UNLESS guard fails...';
+  return 'e.g. GIVEN active view, WHEN action triggered, THEN assert expected state transition, UNLESS invariant fails...';
 };
 
 const handleInsertBddPrefix = (value: string) => {
@@ -63,20 +58,17 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   const [schemaAttributes, setSchemaAttributes] = useState<EntityAttributeDTO[]>([]);
   const [newAttrName, setNewAttrName] = useState<string>('');
   const [newAttrType, setNewAttrType] = useState<'string' | 'currency' | 'number' | 'tags' | 'boolean'>('tags');
+  const [newAttrDisplayMode, setNewAttrDisplayMode] = useState<'visible' | 'tag_chips' | 'badge' | 'subtitle' | 'hidden'>('tag_chips');
 
   // Role-Aware Entity Form State
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<Record<string, string>>({});
   const [selectedQuantity, setSelectedQuantity] = useState<Record<string, number>>({});
   const [selectedOrderStatus, setSelectedOrderStatus] = useState<Record<string, string>>({});
 
-  // Entity Inline Editing State
+  // Dynamic Entity Inline Editing State
   const [editingFixtureId, setEditingFixtureId] = useState<string | null>(null);
-  const [editFixtureName, setEditFixtureName] = useState<string>('');
-  const [editFixturePrice, setEditFixturePrice] = useState<string>('');
-  const [editFixtureIngredients, setEditFixtureIngredients] = useState<string>('');
-  const [newFixtureName, setNewFixtureName] = useState<Record<string, string>>({});
-  const [newFixturePrice, setNewFixturePrice] = useState<Record<string, string>>({});
-  const [newFixtureIngredients, setNewFixtureIngredients] = useState<Record<string, string>>({});
+  const [editFixtureData, setEditFixtureData] = useState<Record<string, any>>({});
+  const [newFixtureDataByComponent, setNewFixtureDataByComponent] = useState<Record<string, Record<string, any>>>({});
 
   const toggleComponentTab = (key: string, tab: 'tests' | 'data') => {
     setActiveTabByComponent(prev => ({ ...prev, [key]: tab }));
@@ -87,11 +79,12 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     setEditingSchemaKey(canonicalKey);
     setSchemaEntityName(existing?.entity_name || (canonicalKey === 'cart' ? 'CartItem' : canonicalKey === 'tracking' ? 'Order' : 'Item'));
     setSchemaAttributes(existing?.attributes || [
-      { name: 'name', type: 'string', required: true },
-      { name: 'price', type: 'currency', required: true }
+      { name: 'name', type: 'string', required: true, display_mode: 'visible' },
+      { name: 'price', type: 'currency', required: true, display_mode: 'visible' }
     ]);
     setNewAttrName('');
     setNewAttrType('tags');
+    setNewAttrDisplayMode('tag_chips');
   };
 
   const handleAddAttributeToSchema = () => {
@@ -104,18 +97,22 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     }
     setSchemaAttributes(prev => [
       ...prev,
-      { name: cleanName, type: newAttrType, required: false }
+      { name: cleanName, type: newAttrType, required: false, display_mode: newAttrDisplayMode }
     ]);
     setNewAttrName('');
+    setNewAttrDisplayMode('visible');
   };
 
   const handleRemoveAttributeFromSchema = (attrName: string) => {
-    if (attrName === 'name' || attrName === 'price') {
-      setStatusToast(`⚠️ Cannot remove required base attribute "${attrName}"`);
-      setTimeout(() => setStatusToast(null), 2500);
-      return;
-    }
     setSchemaAttributes(prev => prev.filter(a => a.name !== attrName));
+  };
+
+  const handleUpdateAttributeDisplayMode = (attrName: string, mode: 'visible' | 'tag_chips' | 'badge' | 'subtitle' | 'hidden') => {
+    setSchemaAttributes(prev => prev.map(a => a.name === attrName ? { ...a, display_mode: mode } : a));
+  };
+
+  const handleUpdateAttributeType = (attrName: string, type: 'string' | 'currency' | 'number' | 'tags' | 'boolean') => {
+    setSchemaAttributes(prev => prev.map(a => a.name === attrName ? { ...a, type } : a));
   };
 
   const handleSaveSchema = async () => {
@@ -143,13 +140,20 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
         }));
         setStatusToast(`✨ Updated schema for ${payload.entity_name}`);
         setEditingSchemaKey(null);
-        if (onParamUpdated) onParamUpdated();
-        // Re-hydrate fixtures to catch normalized defaults
+        
+        // Re-hydrate fixtures to catch normalized defaults and broadcast to iframe
         const fixRes = await fetch('/api/components/fixtures');
         const fixData = await fixRes.json();
         if (fixData && fixData.success && fixData.fixtures) {
           setDataFixturesByComponent(fixData.fixtures);
+          const updatedFixtures = fixData.fixtures[editingSchemaKey] || [];
+          window.postMessage({ type: 'FIXTURES_UPDATED', canonical_key: editingSchemaKey, fixtures: updatedFixtures }, '*');
+          const iframes = document.querySelectorAll('iframe');
+          iframes.forEach(iframe => {
+            iframe.contentWindow?.postMessage({ type: 'FIXTURES_UPDATED', canonical_key: editingSchemaKey, fixtures: updatedFixtures }, '*');
+          });
         }
+        if (onParamUpdated) onParamUpdated();
       } else {
         setStatusToast(`❌ Failed to update schema: ${data.error || 'Unknown error'}`);
       }
@@ -182,9 +186,17 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     return [];
   };
 
-  const persistFixtureUpdate = async (canonicalKey: string, updatedList: Array<{ id: string, name: string, price: number, quantity?: number, status?: string, catalog_id?: string, item?: string, ingredients?: string[] }>) => {
+  const persistFixtureUpdate = async (canonicalKey: string, updatedList: any[]) => {
     try {
       setDataFixturesByComponent(prev => ({ ...prev, [canonicalKey]: updatedList }));
+      
+      // Broadcast live to window and all iframe previews
+      window.postMessage({ type: 'FIXTURES_UPDATED', canonical_key: canonicalKey, fixtures: updatedList }, '*');
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        iframe.contentWindow?.postMessage({ type: 'FIXTURES_UPDATED', canonical_key: canonicalKey, fixtures: updatedList }, '*');
+      });
+
       const res = await fetch('/api/components/fixtures/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -199,28 +211,84 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     }
   };
 
-  const handleAddFixture = (canonicalKey: string) => {
-    const name = (newFixtureName[canonicalKey] || '').trim();
-    const priceVal = parseFloat(newFixturePrice[canonicalKey] || '14.99');
-    const ingText = (newFixtureIngredients[canonicalKey] || '').trim();
-    if (!name) return;
+  const handleStartEditFixture = (fix: Record<string, any>) => {
+    setEditingFixtureId(fix.id);
+    setEditFixtureData({ ...fix });
+  };
 
-    const newItem: any = {
-      id: `fix-${Date.now()}`,
-      name,
-      price: isNaN(priceVal) ? 14.99 : priceVal
+  const handleSaveFixtureEdit = (canonicalKey: string, fixId: string) => {
+    const schema = entitySchemasByComponent[canonicalKey];
+    const attrs = schema?.attributes || [
+      { name: 'name', type: 'string', display_mode: 'visible', required: true },
+      { name: 'price', type: 'currency', display_mode: 'visible', required: true }
+    ];
+
+    const updatedList = (dataFixturesByComponent[canonicalKey] || []).map(item => {
+      if (item.id === fixId) {
+        const merged: Record<string, any> = { ...item, ...editFixtureData };
+        attrs.forEach(attr => {
+          if (editFixtureData[attr.name] !== undefined) {
+            const val = editFixtureData[attr.name];
+            if (attr.type === 'currency' || attr.type === 'number') {
+              merged[attr.name] = val !== '' && !isNaN(parseFloat(val)) ? parseFloat(val) : (attr.default_value ?? 0);
+            } else if (attr.type === 'tags' || attr.display_mode === 'tag_chips') {
+              merged[attr.name] = typeof val === 'string' ? val.split(',').map((s: string) => s.trim()).filter(Boolean) : (Array.isArray(val) ? val : []);
+            } else if (attr.type === 'boolean') {
+              merged[attr.name] = Boolean(val);
+            } else {
+              merged[attr.name] = val !== undefined ? String(val).trim() : (attr.default_value ?? '');
+            }
+          }
+        });
+        return merged;
+      }
+      return item;
+    });
+
+    persistFixtureUpdate(canonicalKey, updatedList);
+    setEditingFixtureId(null);
+    setEditFixtureData({});
+    setStatusToast(`✨ Updated entity attributes`);
+    setTimeout(() => setStatusToast(null), 2000);
+  };
+
+  const handleAddFixture = (canonicalKey: string) => {
+    const schema = entitySchemasByComponent[canonicalKey];
+    const attrs = schema?.attributes || [
+      { name: 'name', type: 'string', display_mode: 'visible', required: true },
+      { name: 'price', type: 'currency', display_mode: 'visible', required: true }
+    ];
+
+    const formVals = newFixtureDataByComponent[canonicalKey] || {};
+    const newItem: Record<string, any> = {
+      id: `fix-${Date.now()}`
     };
-    if (ingText) {
-      newItem.ingredients = ingText.split(',').map(s => s.trim()).filter(Boolean);
+
+    attrs.forEach(attr => {
+      const val = formVals[attr.name];
+      if (attr.type === 'currency' || attr.type === 'number') {
+        newItem[attr.name] = (val !== undefined && val !== '' && !isNaN(parseFloat(val))) ? parseFloat(val) : (attr.default_value ?? 14.99);
+      } else if (attr.type === 'tags' || attr.display_mode === 'tag_chips') {
+        newItem[attr.name] = typeof val === 'string' ? val.split(',').map((s: string) => s.trim()).filter(Boolean) : (Array.isArray(val) ? val : []);
+      } else if (attr.type === 'boolean') {
+        newItem[attr.name] = Boolean(val);
+      } else {
+        newItem[attr.name] = val !== undefined && String(val).trim() ? String(val).trim() : (attr.default_value ?? (attr.name === 'name' ? 'New Item' : ''));
+      }
+    });
+
+    if (!newItem.name && !newItem.title && !newItem.item) {
+      newItem.name = `Item #${(dataFixturesByComponent[canonicalKey] || []).length + 1}`;
+    }
+    if (newItem.price === undefined) {
+      newItem.price = 14.99;
     }
 
     const updatedList = [...(dataFixturesByComponent[canonicalKey] || []), newItem];
     persistFixtureUpdate(canonicalKey, updatedList);
 
-    setNewFixtureName(prev => ({ ...prev, [canonicalKey]: '' }));
-    setNewFixturePrice(prev => ({ ...prev, [canonicalKey]: '' }));
-    setNewFixtureIngredients(prev => ({ ...prev, [canonicalKey]: '' }));
-    setStatusToast(`✨ Added entity "${name}"`);
+    setNewFixtureDataByComponent(prev => ({ ...prev, [canonicalKey]: {} }));
+    setStatusToast(`✨ Added entity "${newItem.name || newItem.title || newItem.item}"`);
     setTimeout(() => setStatusToast(null), 2500);
   };
 
@@ -268,33 +336,6 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     setTimeout(() => setStatusToast(null), 2500);
   };
 
-  const handleSaveFixtureEdit = (canonicalKey: string, fixId: string) => {
-    if (!editFixtureName.trim()) return;
-    const priceVal = parseFloat(editFixturePrice);
-    const ingList = editFixtureIngredients.split(',').map(s => s.trim()).filter(Boolean);
-
-    const updatedList = (dataFixturesByComponent[canonicalKey] || []).map(item => {
-      if (item.id === fixId) {
-        const updated: any = {
-          ...item,
-          name: editFixtureName.trim(),
-          price: isNaN(priceVal) ? item.price : priceVal
-        };
-        if (ingList.length > 0 || item.ingredients) {
-          updated.ingredients = ingList;
-        }
-        return updated;
-      }
-      return item;
-    });
-
-    persistFixtureUpdate(canonicalKey, updatedList);
-
-    setEditingFixtureId(null);
-    setStatusToast(`✨ Updated entity`);
-    setTimeout(() => setStatusToast(null), 2000);
-  };
-
   const handleDeleteFixture = (canonicalKey: string, fixId: string) => {
     const updatedList = (dataFixturesByComponent[canonicalKey] || []).filter(item => item.id !== fixId);
     persistFixtureUpdate(canonicalKey, updatedList);
@@ -323,10 +364,10 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
       if (Array.isArray(reqs)) {
         // Filter out non-UI items (like DB persistence rules or domain invariants), build active presentation list
         const activeItems: ComponentItem[] = reqs
-          .filter((r: any) => r.id && r.status !== 'Disabled' && !r.parentId && !r.parent_id && (r.layer === 'PRESENTATION' || r.id.startsWith('REQ-UI') || r.id.startsWith('REQ-COMP') || ['catalog', 'cart', 'tracking', 'menu', 'customizer'].includes(extractCanonicalKey(r))))
+          .filter((r: any) => r.id && r.status !== 'Disabled' && !r.parentId && !r.parent_id && (r.layer === 'PRESENTATION' || r.id.startsWith('REQ-UI') || r.id.startsWith('REQ-COMP')))
           .map((r: any) => {
             const canonicalKey = extractCanonicalKey(r);
-            const compType = r.component_type || (['catalog', 'cart', 'tracking', 'kds', 'reviews', 'auth', 'calendar'].includes(canonicalKey) ? 'premade' : 'custom');
+            const compType = r.component_type || 'domain_capability';
             const subReqs = reqs.filter((child: any) => {
               const pId = child.parentId || child.parent_id;
               if (!pId) return false;
@@ -892,44 +933,76 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
 
                               if (isEditingThis) {
                                 return (
-                                  <div key={fix.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', background: '#1e293b', padding: '0.4rem', borderRadius: '0.4rem', border: '1px solid #0284c7' }}>
-                                    <div style={{ display: 'flex', gap: '0.35rem' }}>
-                                      <input
-                                        type="text"
-                                        value={editFixtureName}
-                                        onChange={e => setEditFixtureName(e.target.value)}
-                                        style={{ flex: 2, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
-                                        placeholder="Item Name"
-                                      />
-                                      <input
-                                        type="number"
-                                        value={editFixturePrice}
-                                        onChange={e => setEditFixturePrice(e.target.value)}
-                                        style={{ flex: 1, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
-                                        placeholder="Price"
-                                      />
-                                      <button
-                                        onClick={() => handleSaveFixtureEdit(item.canonical_key, fix.id)}
-                                        style={{ background: '#166534', color: '#4ade80', border: 'none', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem', cursor: 'pointer' }}
-                                      >
-                                        Save
-                                      </button>
-                                      <button
-                                        onClick={() => setEditingFixtureId(null)}
-                                        style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.75rem', cursor: 'pointer' }}
-                                      >
-                                        ✕
-                                      </button>
+                                  <div key={fix.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', background: '#1e293b', padding: '0.65rem', borderRadius: '0.5rem', border: '1px solid #0284c7' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', paddingBottom: '0.35rem' }}>
+                                      <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#38bdf8' }}>✏️ Edit {entityClassName}</span>
+                                      <div style={{ display: 'flex', gap: '0.35rem' }}>
+                                        <button
+                                          onClick={() => handleSaveFixtureEdit(item.canonical_key, fix.id)}
+                                          style={{ background: '#166534', color: '#4ade80', border: 'none', padding: '0.2rem 0.55rem', borderRadius: '0.3rem', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}
+                                        >
+                                          💾 Save
+                                        </button>
+                                        <button
+                                          onClick={() => { setEditingFixtureId(null); setEditFixtureData({}); }}
+                                          style={{ background: '#334155', color: '#94a3b8', border: 'none', padding: '0.2rem 0.45rem', borderRadius: '0.3rem', fontSize: '0.72rem', cursor: 'pointer' }}
+                                        >
+                                          ✕
+                                        </button>
+                                      </div>
                                     </div>
-                                    {hasIngredientsAttr && (
-                                      <input
-                                        type="text"
-                                        value={editFixtureIngredients}
-                                        onChange={e => setEditFixtureIngredients(e.target.value)}
-                                        style={{ background: '#0f172a', border: '1px solid #334155', color: '#cbd5e1', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.7rem' }}
-                                        placeholder="Ingredients (comma-separated, e.g. Tomato, Mozzarella)"
-                                      />
-                                    )}
+
+                                    {/* Grid of All Editable Schema Attributes */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.4rem' }}>
+                                      {(schema?.attributes || [{ name: 'name', type: 'string' }, { name: 'price', type: 'currency' }]).map(attr => {
+                                        const val = editFixtureData[attr.name];
+                                        const isTag = attr.type === 'tags' || attr.display_mode === 'tag_chips';
+                                        const isNum = attr.type === 'number' || attr.type === 'currency';
+                                        const isBool = attr.type === 'boolean';
+
+                                        return (
+                                          <div key={attr.name} style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                                            <label style={{ fontSize: '0.62rem', fontWeight: 700, color: '#94a3b8', textTransform: 'capitalize' }}>
+                                              {attr.name} {isTag ? '(tags)' : isNum ? '($/num)' : ''}
+                                            </label>
+                                            {isBool ? (
+                                              <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.72rem', color: '#f8fafc', cursor: 'pointer', padding: '0.2rem 0' }}>
+                                                <input
+                                                  type="checkbox"
+                                                  checked={Boolean(val)}
+                                                  onChange={e => setEditFixtureData(prev => ({ ...prev, [attr.name]: e.target.checked }))}
+                                                />
+                                                {attr.name}
+                                              </label>
+                                            ) : (
+                                              <input
+                                                type={isNum ? 'number' : 'text'}
+                                                value={isTag ? (Array.isArray(val) ? val.join(', ') : (val || '')) : (val !== undefined ? val : '')}
+                                                onChange={e => {
+                                                  const raw = e.target.value;
+                                                  if (isTag) {
+                                                    setEditFixtureData(prev => ({ ...prev, [attr.name]: raw.split(',').map((s: string) => s.trim()).filter(Boolean) }));
+                                                  } else if (isNum) {
+                                                    setEditFixtureData(prev => ({ ...prev, [attr.name]: raw === '' ? '' : parseFloat(raw) }));
+                                                  } else {
+                                                    setEditFixtureData(prev => ({ ...prev, [attr.name]: raw }));
+                                                  }
+                                                }}
+                                                placeholder={isTag ? 'Comma-separated tags' : attr.name}
+                                                style={{
+                                                  background: '#0f172a',
+                                                  border: '1px solid #334155',
+                                                  color: '#fff',
+                                                  padding: '0.25rem 0.45rem',
+                                                  borderRadius: '0.3rem',
+                                                  fontSize: '0.72rem'
+                                                }}
+                                              />
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
                                   </div>
                                 );
                               }
@@ -1028,28 +1101,57 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                                     color: '#f8fafc'
                                   }}
                                 >
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                                    <span style={{ fontWeight: 600 }}>{fix.name}</span>
-                                    {fix.ingredients && Array.isArray(fix.ingredients) && fix.ingredients.length > 0 && (
-                                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                                        {fix.ingredients.map((ing: string, i: number) => (
-                                          <span key={i} style={{ fontSize: '0.62rem', background: '#0f172a', color: '#94a3b8', padding: '0.05rem 0.35rem', borderRadius: '4px', border: '1px solid #334155' }}>
-                                            {ing}
-                                          </span>
-                                        ))}
-                                      </div>
-                                    )}
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                      <span style={{ fontWeight: 700, color: '#f8fafc' }}>{fix.name || fix.title || fix.item || `Item #${fix.id}`}</span>
+                                      
+                                      {/* Render badges */}
+                                      {schema?.attributes?.filter(a => a.display_mode === 'badge' && fix[a.name] !== undefined && fix[a.name] !== '').map(a => (
+                                        <span key={a.name} style={{ fontSize: '0.62rem', background: '#0284c7', color: '#e0f2fe', padding: '0.05rem 0.35rem', borderRadius: '4px', fontWeight: 700 }}>
+                                          {String(fix[a.name])}
+                                        </span>
+                                      ))}
+                                    </div>
+
+                                    {/* Render subtitles */}
+                                    {schema?.attributes?.filter(a => a.display_mode === 'subtitle' && fix[a.name]).map(a => (
+                                      <span key={a.name} style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                                        {String(fix[a.name])}
+                                      </span>
+                                    ))}
+
+                                    {/* Render tag chips */}
+                                    {schema?.attributes?.filter(a => (a.display_mode === 'tag_chips' || a.type === 'tags') && fix[a.name]).map(a => {
+                                      const tags = Array.isArray(fix[a.name]) ? fix[a.name] : String(fix[a.name]).split(',').map((s: string) => s.trim()).filter(Boolean);
+                                      if (tags.length === 0) return null;
+                                      return (
+                                        <div key={a.name} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                                          {tags.map((tag: string, i: number) => (
+                                            <span key={i} style={{ fontSize: '0.62rem', background: '#0f172a', color: '#38bdf8', padding: '0.05rem 0.35rem', borderRadius: '4px', border: '1px solid #334155' }}>
+                                              {tag}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      );
+                                    })}
+
+                                    {/* Render other custom visible attributes */}
+                                    {schema?.attributes?.filter(a => a.display_mode === 'visible' && !['name', 'title', 'item', 'price'].includes(a.name) && fix[a.name] !== undefined && fix[a.name] !== '').map(a => (
+                                      <span key={a.name} style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>
+                                        <strong style={{ color: '#94a3b8' }}>{a.name}:</strong> {String(fix[a.name])}
+                                      </span>
+                                    ))}
                                   </div>
+
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <span style={{ color: '#4ade80', fontWeight: 600 }}>${fix.price.toFixed(2)}</span>
+                                    {fix.price !== undefined && (
+                                      <span style={{ color: '#4ade80', fontWeight: 700 }}>
+                                        ${typeof fix.price === 'number' ? fix.price.toFixed(2) : String(fix.price).replace('$', '')}
+                                      </span>
+                                    )}
                                     <button
-                                      onClick={() => {
-                                        setEditingFixtureId(fix.id);
-                                        setEditFixtureName(fix.name);
-                                        setEditFixturePrice(fix.price.toString());
-                                        setEditFixtureIngredients(Array.isArray(fix.ingredients) ? fix.ingredients.join(', ') : '');
-                                      }}
-                                      title="Edit entity item"
+                                      onClick={() => handleStartEditFixture(fix)}
+                                      title="Edit entity attributes"
                                       style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontSize: '0.75rem', padding: '0 0.15rem' }}
                                     >
                                       ✏️
@@ -1139,38 +1241,74 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                               </div>
                             )
                           ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginTop: '0.35rem' }}>
-                              <div style={{ display: 'flex', gap: '0.35rem' }}>
-                                <input
-                                  type="text"
-                                  placeholder={`New ${entityClassName} Name...`}
-                                  value={newFixtureName[item.canonical_key] || ''}
-                                  onChange={e => setNewFixtureName({ ...newFixtureName, [item.canonical_key]: e.target.value })}
-                                  style={{ flex: 2, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
-                                />
-                                <input
-                                  type="number"
-                                  placeholder="Price ($)"
-                                  value={newFixturePrice[item.canonical_key] || ''}
-                                  onChange={e => setNewFixturePrice({ ...newFixturePrice, [item.canonical_key]: e.target.value })}
-                                  style={{ flex: 1, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
-                                />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginTop: '0.45rem', background: '#0b1329', border: '1px solid #1e3a8a', borderRadius: '0.5rem', padding: '0.65rem' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#38bdf8' }}>
+                                  ➕ Add New {entityClassName}:
+                                </span>
                                 <button
                                   onClick={() => handleAddFixture(item.canonical_key)}
-                                  style={{ background: '#0284c7', color: 'white', border: 'none', padding: '0.3rem 0.65rem', borderRadius: '0.35rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                                  style={{ background: '#0284c7', color: 'white', border: 'none', padding: '0.25rem 0.65rem', borderRadius: '0.35rem', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}
                                 >
-                                  ➕ Add
+                                  ➕ Add Entity
                                 </button>
                               </div>
-                              {hasIngredientsAttr && (
-                                <input
-                                  type="text"
-                                  placeholder="Ingredients (comma separated: Mozzarella, Basil, Olive Oil...)"
-                                  value={newFixtureIngredients[item.canonical_key] || ''}
-                                  onChange={e => setNewFixtureIngredients({ ...newFixtureIngredients, [item.canonical_key]: e.target.value })}
-                                  style={{ background: '#1e293b', border: '1px solid #334155', color: '#cbd5e1', padding: '0.25rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.7rem' }}
-                                />
-                              )}
+
+                              {/* Dynamic inputs for each attribute defined in the schema */}
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.35rem' }}>
+                                {(schema?.attributes || [{ name: 'name', type: 'string' }, { name: 'price', type: 'currency' }]).map(attr => {
+                                  const formVals = newFixtureDataByComponent[item.canonical_key] || {};
+                                  const val = formVals[attr.name];
+                                  const isTag = attr.type === 'tags' || attr.display_mode === 'tag_chips';
+                                  const isNum = attr.type === 'number' || attr.type === 'currency';
+                                  const isBool = attr.type === 'boolean';
+
+                                  return (
+                                    <div key={attr.name} style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                                      <label style={{ fontSize: '0.62rem', fontWeight: 700, color: '#94a3b8', textTransform: 'capitalize' }}>
+                                        {attr.name} {isTag ? '(tags)' : isNum ? '($/num)' : ''}
+                                      </label>
+                                      {isBool ? (
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.72rem', color: '#f8fafc', cursor: 'pointer', padding: '0.2rem 0' }}>
+                                          <input
+                                            type="checkbox"
+                                            checked={Boolean(val)}
+                                            onChange={e => setNewFixtureDataByComponent(prev => ({
+                                              ...prev,
+                                              [item.canonical_key]: { ...(prev[item.canonical_key] || {}), [attr.name]: e.target.checked }
+                                            }))}
+                                          />
+                                          {attr.name}
+                                        </label>
+                                      ) : (
+                                        <input
+                                          type={isNum ? 'number' : 'text'}
+                                          value={isTag ? (Array.isArray(val) ? val.join(', ') : (val || '')) : (val !== undefined ? val : '')}
+                                          onChange={e => {
+                                            const raw = e.target.value;
+                                            setNewFixtureDataByComponent(prev => ({
+                                              ...prev,
+                                              [item.canonical_key]: {
+                                                ...(prev[item.canonical_key] || {}),
+                                                [attr.name]: isTag ? raw.split(',').map((s: string) => s.trim()).filter(Boolean) : (isNum ? (raw === '' ? '' : parseFloat(raw)) : raw)
+                                              }
+                                            }));
+                                          }}
+                                          placeholder={isTag ? 'e.g. Tomato, Basil' : `Enter ${attr.name}`}
+                                          style={{
+                                            background: '#1e293b',
+                                            border: '1px solid #334155',
+                                            color: '#fff',
+                                            padding: '0.25rem 0.45rem',
+                                            borderRadius: '0.3rem',
+                                            fontSize: '0.72rem'
+                                          }}
+                                        />
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -1370,9 +1508,8 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.45rem' }}>
                   SCHEMA ATTRIBUTES ({schemaAttributes.length}):
                 </label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', maxHeight: '180px', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', maxHeight: '220px', overflowY: 'auto' }}>
                   {schemaAttributes.map((attr) => {
-                    const isBase = attr.name === 'name' || attr.name === 'price';
                     return (
                       <div
                         key={attr.name}
@@ -1380,40 +1517,65 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                           background: '#1e293b',
                           border: '1px solid #334155',
                           borderRadius: '0.4rem',
-                          padding: '0.4rem 0.65rem',
+                          padding: '0.45rem 0.65rem',
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
+                          gap: '0.5rem',
                           fontSize: '0.8rem'
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ fontWeight: 700, color: '#f8fafc' }}>{attr.name}</span>
-                          <span style={{
-                            fontSize: '0.65rem',
-                            background: '#0369a1',
-                            color: '#e0f2fe',
-                            padding: '0.1rem 0.4rem',
-                            borderRadius: '4px',
-                            fontWeight: 600
-                          }}>
-                            {attr.type}
-                          </span>
-                          {attr.required && (
-                            <span style={{ fontSize: '0.65rem', color: '#4ade80', fontWeight: 600 }}>Required</span>
-                          )}
-                        </div>
-                        {isBase ? (
-                          <span style={{ fontSize: '0.75rem', color: '#64748b' }} title="Base Attribute">🔒</span>
-                        ) : (
-                          <button
-                            onClick={() => handleRemoveAttributeFromSchema(attr.name)}
-                            style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem' }}
-                            title="Remove attribute"
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1, minWidth: 0 }}>
+                          <span style={{ fontWeight: 700, color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{attr.name}</span>
+                          
+                          <select
+                            value={attr.type}
+                            onChange={e => handleUpdateAttributeType(attr.name, e.target.value as any)}
+                            style={{
+                              background: '#0f172a',
+                              border: '1px solid #334155',
+                              color: '#93c5fd',
+                              padding: '0.15rem 0.35rem',
+                              borderRadius: '4px',
+                              fontSize: '0.68rem',
+                              fontWeight: 600
+                            }}
                           >
-                            🗑️
-                          </button>
-                        )}
+                            <option value="string">string</option>
+                            <option value="currency">currency ($)</option>
+                            <option value="number">number</option>
+                            <option value="tags">tags</option>
+                            <option value="boolean">boolean</option>
+                          </select>
+
+                          <select
+                            value={attr.display_mode || 'visible'}
+                            onChange={e => handleUpdateAttributeDisplayMode(attr.name, e.target.value as any)}
+                            style={{
+                              background: '#0f172a',
+                              border: '1px solid #334155',
+                              color: '#34d399',
+                              padding: '0.15rem 0.35rem',
+                              borderRadius: '4px',
+                              fontSize: '0.68rem',
+                              fontWeight: 600
+                            }}
+                          >
+                            <option value="tag_chips">Pills (tag_chips)</option>
+                            <option value="badge">Badge (badge)</option>
+                            <option value="subtitle">Subtitle (subtitle)</option>
+                            <option value="visible">Visible (visible)</option>
+                            <option value="hidden">Hidden (hidden)</option>
+                          </select>
+                        </div>
+
+                        <button
+                          onClick={() => handleRemoveAttributeFromSchema(attr.name)}
+                          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem', padding: '0.1rem' }}
+                          title="Remove attribute"
+                        >
+                          🗑️
+                        </button>
                       </div>
                     );
                   })}
@@ -1425,14 +1587,15 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                 <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#38bdf8' }}>
                   ➕ Add New Attribute:
                 </span>
-                <div style={{ display: 'flex', gap: '0.35rem' }}>
+                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
                   <input
                     type="text"
-                    placeholder="Field name (e.g. calories, is_spicy)"
+                    placeholder="Field name (e.g. ingredients, badge, sku)"
                     value={newAttrName}
                     onChange={e => setNewAttrName(e.target.value)}
                     style={{
                       flex: 2,
+                      minWidth: '130px',
                       background: '#1e293b',
                       border: '1px solid #334155',
                       color: '#fff',
@@ -1446,6 +1609,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                     onChange={e => setNewAttrType(e.target.value as any)}
                     style={{
                       flex: 1,
+                      minWidth: '90px',
                       background: '#1e293b',
                       border: '1px solid #334155',
                       color: '#fff',
@@ -1459,6 +1623,26 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                     <option value="number">Number (number)</option>
                     <option value="currency">Currency ($)</option>
                     <option value="boolean">Boolean (toggle)</option>
+                  </select>
+                  <select
+                    value={newAttrDisplayMode}
+                    onChange={e => setNewAttrDisplayMode(e.target.value as any)}
+                    style={{
+                      flex: 1,
+                      minWidth: '100px',
+                      background: '#1e293b',
+                      border: '1px solid #334155',
+                      color: '#34d399',
+                      padding: '0.35rem 0.4rem',
+                      borderRadius: '0.35rem',
+                      fontSize: '0.75rem'
+                    }}
+                  >
+                    <option value="tag_chips">Pills (tag_chips)</option>
+                    <option value="badge">Badge (badge)</option>
+                    <option value="subtitle">Subtitle (subtitle)</option>
+                    <option value="visible">Visible (visible)</option>
+                    <option value="hidden">Hidden (hidden)</option>
                   </select>
                   <button
                     onClick={handleAddAttributeToSchema}
@@ -1530,45 +1714,25 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
 // Helper: Extract canonical key from requirement object or title
 function extractCanonicalKey(r: any): string {
   const clean = (r.id || r.title || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
-  if (clean.includes('catalog') || clean.includes('menu')) return 'catalog';
-  if (clean.includes('cart') || clean.includes('checkout')) return 'cart';
-  if (clean.includes('track') || clean.includes('pipeline')) return 'tracking';
-  if (clean.includes('dashboard') || clean.includes('admin') || clean.includes('kds')) return 'kds';
-  if (clean.includes('review') || clean.includes('rating')) return 'reviews';
-  if (clean.includes('auth') || clean.includes('user') || clean.includes('profile')) return 'auth';
-  if (clean.includes('calendar') || clean.includes('booking') || clean.includes('schedule')) return 'calendar';
-  
-  // Custom requirement key extraction
-  return clean.replace(/^req_cmp_/, '').replace(/^req_/, '').replace(/_001$/, '');
+  return clean.replace(/^req_ui_/, '').replace(/^req_cmp_/, '').replace(/^req_/, '').replace(/_001$/, '').replace(/^_+|_+$/g, '') || 'main';
 }
 
 // Helper: Pick icon for component
 function getComponentIcon(canonicalKey: string, title: string): string {
   const k = canonicalKey.toLowerCase();
-  if (k.includes('calendar') || k.includes('booking')) return '📅';
-  if (k.includes('catalog') || k.includes('menu')) return '📋';
-  if (k.includes('cart') || k.includes('checkout')) return '🛒';
-  if (k.includes('track') || k.includes('pipeline')) return '📦';
-  if (k.includes('dashboard') || k.includes('admin') || k.includes('kds')) return '🏪';
+  if (k.includes('calendar') || k.includes('booking') || k.includes('schedule')) return '📅';
+  if (k.includes('catalog') || k.includes('menu') || k.includes('directory')) return '📋';
+  if (k.includes('cart') || k.includes('checkout') || k.includes('order')) return '🛒';
+  if (k.includes('track') || k.includes('pipeline') || k.includes('queue')) return '📦';
+  if (k.includes('dashboard') || k.includes('admin') || k.includes('kpi') || k.includes('analytics')) return '📊';
   if (k.includes('review') || k.includes('rating')) return '⭐';
   if (k.includes('auth') || k.includes('user') || k.includes('profile')) return '👤';
-  if (k.includes('game') || k.includes('bird')) return '🎮';
-  if (k.includes('pay') || k.includes('payment')) return '💳';
+  if (k.includes('workbench') || k.includes('simulator') || k.includes('tool') || k.includes('widget')) return '⚡';
   return '🧩';
 }
 
 // Helper: Format component name
 function formatComponentName(rawName: string): string {
-  const map: Record<string, string> = {
-    'catalog': 'Product & Menu Catalog',
-    'cart': 'Shopping Cart & Checkout',
-    'tracking': 'Live Status Pipeline',
-    'kds': 'Merchant Operations Dashboard',
-    'reviews': 'Reviews & Ratings',
-    'auth': 'Customer Auth & Profiles',
-    'calendar': 'Appointment Calendar'
-  };
-  if (map[rawName]) return map[rawName];
-  const clean = rawName.replace(/^Dynamic Component:\s*/i, '').replace(/^Capability Block\s*/i, '').replace(/\s*Active$/i, '');
+  const clean = rawName.replace(/^Dynamic Component:\s*/i, '').replace(/^Component:\s*/i, '').replace(/^Capability Block\s*/i, '').replace(/\s*Active$/i, '');
   return clean.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }

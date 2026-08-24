@@ -114,7 +114,7 @@ export function App() {
       </header>
 
       <div style={{ display: 'flex', flex: 1, flexDirection: 'column', width: '100%', minHeight: 0 }}>
-        <main className="main-content" style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', minHeight: 0, padding: currentView === 'Preview' ? '1rem 1.5rem' : undefined }}>
+        <main className="main-content" style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', minHeight: 0 }}>
           {loading ? <p style={{ padding: '2rem' }}>Loading data...</p> : (
             <>
               {currentView === 'Domain' && (

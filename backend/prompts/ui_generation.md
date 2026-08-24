@@ -27,6 +27,13 @@ Connect form submissions and list views to backend API endpoints. Use RESTful co
 - Maintain optimistic local state updates for instantaneous UI response.
 - Do NOT assume endpoints are `/batches` unless the pitch is about batch inventory.
 
+### 4. Domain-Native Spatial & Interactive Controls (Zero "Square Hole" Trap)
+- DO NOT default to a generic spreadsheet table or standard 3-column e-commerce grid if the user's business domain demands specialized interactive tools.
+- For quantum, math, or physics domains: Render interactive wire diagrams, gate matrix canvases, probability distribution amplitude bars, and phase visualizers.
+- For audio, acoustics, or telemetry domains: Render frequency waterfall spectrograms, beamformer controls, Doppler curves, or radar grids.
+- For robotics, UAVs, or fleet logistics: Render geofence radar maps, waypoint schedulers, coordinate blips, and telemetry HUDs.
+- For bespoke builders & configurators: Render interactive step-by-step customizers, real-time formula estimators, and visual preview containers.
+
 ### 5. Mobile-First Responsiveness Invariant
 - Every generated UI MUST be mobile-first responsive and render cleanly on 375px mobile viewports as well as 1280px desktop viewports.
 - Define global CSS reset rules in `:root` style: `* { box-sizing: border-box; } body { margin: 0; overflow-x: hidden; } img, svg { max-width: 100%; }`.

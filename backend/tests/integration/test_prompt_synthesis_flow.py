@@ -9,7 +9,7 @@ import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from onboarding.block_catalog import analyze_pitch_for_kickstart
+from onboarding.domain_ontology import analyze_pitch_for_kickstart
 from onboarding.dynamic_domain_generator import build_site_manifest_from_schema
 from onboarding.site_ast_compiler import compile_site_manifest_to_app_tsx
 from db import store
@@ -21,7 +21,7 @@ def test_pizza_prompt_integration_flow():
 
     kickstart_res = analyze_pitch_for_kickstart(pitch)
     recommended_blocks = [b['id'] for b in kickstart_res.get('blocks', []) if b.get('is_recommended') or b.get('selected')]
-    assert 'catalog_grid' in recommended_blocks, "Catalog grid MUST be recommended for pizza ordering!"
+    assert 'catalog' in recommended_blocks or 'catalog_grid' in recommended_blocks, "Catalog MUST be recommended for pizza ordering!"
 
     manifest = build_site_manifest_from_schema({'pitch': pitch, 'enabled_features': recommended_blocks})
     compiled_tsx = compile_site_manifest_to_app_tsx(manifest)

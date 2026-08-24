@@ -15,6 +15,7 @@ class EntityAttributeSpec:
     type: str  # 'string' | 'currency' | 'number' | 'tags' | 'boolean'
     required: bool = True
     default_value: Any = None
+    display_mode: str = "visible"  # 'tag_chips' | 'badge' | 'subtitle' | 'visible' | 'hidden'
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -68,6 +69,19 @@ class VisualThemeSpec:
         return asdict(self)
 
 @dataclass
+class DomainCapabilitySpec:
+    key: str
+    name: str
+    icon: str
+    description: str
+    target_entities: List[str] = field(default_factory=list)
+    primary_actions: List[str] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
 class DomainOntologySpec:
     pitch: str
     brand_name: str
@@ -79,6 +93,8 @@ class DomainOntologySpec:
     secondary_entities: List[MasterEntitySpec] = field(default_factory=list)
     commands: List[DomainCommandSpec] = field(default_factory=list)
     events: List[DomainEventSpec] = field(default_factory=list)
+    capabilities: List[DomainCapabilitySpec] = field(default_factory=list)
+    invariants: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -91,235 +107,202 @@ class DomainOntologySpec:
             "master_entity": self.master_entity.to_dict(),
             "secondary_entities": [e.to_dict() for e in self.secondary_entities],
             "commands": [c.to_dict() for c in self.commands],
-            "events": [e.to_dict() for e in self.events]
+            "events": [e.to_dict() for e in self.events],
+            "capabilities": [cap.to_dict() for cap in self.capabilities],
+            "invariants": self.invariants
         }
-
-
-def _extract_primary_noun(pitch: str) -> str:
-    """Extract primary domain subject noun from arbitrary natural language pitch."""
-    stop_words = {
-        "an", "a", "the", "app", "application", "platform", "system", "tool", "portal",
-        "to", "for", "with", "in", "on", "and", "or", "of", "by", "that", "this",
-        "order", "book", "buy", "sell", "track", "manage", "find", "schedule", "rent",
-        "around", "your", "our", "online", "custom", "storefront", "service", "services"
-    }
-    cleaned = re.sub(r'[^a-zA-Z0-9\s]', ' ', pitch.lower())
-    tokens = [w for w in cleaned.split() if len(w) > 2 and w not in stop_words]
-
-    if not tokens:
-        return "Item"
-
-    # Common domain mappings if plural or verb form
-    noun = tokens[0]
-    if noun.endswith("s") and len(noun) > 3 and not noun.endswith("ss"):
-        noun = noun[:-1]
-    return noun.capitalize()
-
-
-def _infer_domain_category(pitch_lower: str) -> str:
-    """Infer interaction pattern from pitch semantics without domain-specific hardcoding."""
-    if any(k in pitch_lower for k in ["book", "appointment", "schedule", "session", "calendar", "consult", "lesson", "visit"]):
-        return "calendar_service"
-    if any(k in pitch_lower for k in ["track", "pipeline", "status", "stage", "kds", "dispatch", "logistics", "workflow"]):
-        return "pipeline_tracker"
-    if any(k in pitch_lower for k in ["metric", "analytics", "admin", "dashboard", "kpi", "monitor", "finance"]):
-        return "dashboard_metrics"
-    return "catalog_cart"
-
-
-def _infer_action_verb(category: str, noun: str) -> str:
-    """Infer primary interactive action button text."""
-    if category == "calendar_service":
-        return f"📅 Book {noun}"
-    if category == "pipeline_tracker":
-        return f"📦 Track {noun}"
-    if category == "dashboard_metrics":
-        return f"📊 Inspect {noun}"
-    return f"🛒 Add {noun}"
-
-
-def _infer_domain_emoji(noun: str, category: str) -> str:
-    """Infer category emoji without hardcoded domain keyword lists."""
-    if category == "calendar_service":
-        return "📅"
-    if category == "pipeline_tracker":
-        return "📦"
-    if category == "dashboard_metrics":
-        return "📊"
-    return "🛍️"
 
 
 def storm_domain_ontology(pitch: str) -> DomainOntologySpec:
     """
-    Universal Domain Ontology Stormer.
-    Generates rich, fully typed DomainOntologySpec for ANY pitch.
+    Universal Domain Ontology Stormer & Dynamic Conceptualization Engine.
+    Leverages LLM semantic reasoning to deconstruct ANY business pitch into
+    pure Domain-Driven Design (DDD) specifications with ZERO rule-based heuristics.
     """
     pitch_clean = pitch.strip()
-    p_lower = pitch_clean.lower()
-    noun = _extract_primary_noun(pitch_clean)
-    plural = f"{noun}s" if not noun.endswith("s") else noun
-    category = _infer_domain_category(p_lower)
-    emoji = _infer_domain_emoji(noun, category)
-    action_verb = _infer_action_verb(category, noun)
+    if not pitch_clean:
+        pitch_clean = "Generic Application"
 
-    # Dynamic Theme Archetype based on interaction category
-    if category == "dashboard_metrics":
-        archetype = "dark_developer_terminal"
-        primary_color = "#0284c7"
-        secondary_color = "#38bdf8"
-        bg_gradient = "linear-gradient(180deg, #020617 0%, #0f172a 100%)"
-        card_bg = "#0f172a"
-        border_color = "#1e293b"
-    elif category == "calendar_service":
-        archetype = "warm_lifestyle_light"
-        primary_color = "#0284c7"
-        secondary_color = "#f97316"
-        bg_gradient = "#f8fafc"
-        card_bg = "#ffffff"
-        border_color = "#e2e8f0"
-    else:
-        archetype = "modern_fresh_light"
-        primary_color = "#0284c7"
-        secondary_color = "#10b981"
-        bg_gradient = "#f8fafc"
-        card_bg = "#ffffff"
-        border_color = "#e2e8f0"
+    prompt = f"""
+You are a Principal Domain-Driven Design (DDD) Software Architect and Product Ontologist.
+Analyze the following natural language business pitch:
+"{pitch_clean}"
 
-    theme = VisualThemeSpec(
-        archetype=archetype,
-        primary_color=primary_color,
-        secondary_color=secondary_color,
-        bg_gradient=bg_gradient,
-        card_bg=card_bg,
-        border_color=border_color,
-        domain_emoji=emoji
-    )
+Deconstruct this business concept from first principles into a rich, formal domain specification.
 
-    # Brand Title & Headlines
-    brand_name = f"{noun}Craft" if not any(w in pitch_clean for w in ["app", "platform"]) else f"{noun}Hub"
-    hero_headline = f"Premium {plural} Delivered On-Demand" if category == "catalog_cart" else f"Expert {plural} Booked Around Your Schedule"
-    guarantee_badge = f"100% Certified & Verified {plural}"
+Requirements:
+1. "brand_name": A creative, premium brand name tailored to this domain (e.g. "SliceCraft", "SonarPulse", "TutorHive", "AeroTrack").
+2. "hero_headline": An engaging, domain-native hero headline.
+3. "guarantee_badge": A domain-relevant trust or verification badge.
+4. "domain_category": A descriptive domain category identifier.
+5. "visual_theme":
+   - "archetype": Visual aesthetic (e.g. "modern_fresh_light", "dark_developer_terminal", "warm_lifestyle_light", "high_contrast_fintech")
+   - "primary_color": Hex color code (e.g. "#0284c7", "#ea580c", "#10b981", "#6366f1")
+   - "secondary_color": Hex color code
+   - "bg_gradient": CSS background gradient string
+   - "card_bg": Card background hex code (e.g. "#ffffff" or "#0f172a")
+   - "border_color": Border hex code
+   - "domain_emoji": 1 relevant unicode emoji
+6. "master_entity":
+   - "entity_name": Singular PascalCase name of primary domain entity (e.g. "Pizza", "Caregiver", "TelemetrySignal", "Qubit")
+   - "entity_plural": Plural name
+   - "action_verb": Primary CTA button label (e.g. "Add to Order", "Book Session", "Analyze Signal")
+   - "attributes": List of domain attributes with fields:
+       - "name": Attribute key (e.g. "name", "price", "toppings", "rating", "badge", "frequency")
+       - "type": One of "string", "currency", "number", "tags", "boolean"
+       - "required": Boolean
+       - "default_value": Default value
+       - "display_mode": One of "tag_chips" (pills), "badge" (ribbon/badge), "subtitle" (secondary text), "visible" (standard field), "hidden" (internal ID/state only)
+   - "seed_items": 2 to 3 realistic sample records for this domain.
+7. "capabilities": 2 to 4 interactive visual views / capabilities bespoke to this domain:
+   - "key": Short lowercase slug (e.g. "menu", "workbench", "scheduler", "pipeline", "cart")
+   - "name": Human-readable title
+   - "icon": 1 unicode emoji
+   - "description": Purpose and functionality
+   - "target_entities": Array of entity names
+   - "primary_actions": Array of action labels
+8. "commands": 2 domain commands (e.g. "PlaceOrder", "BookSession", "ExecuteStep") with parameter fields.
+9. "events": 2 domain state transition events (e.g. "OrderPlaced", "SessionBooked") with parameter fields.
+10. "invariants": 2 formal business validation rules for this domain.
 
-    # Master Entity Attributes
-    if category == "calendar_service":
-        attributes = [
-            EntityAttributeSpec(name="name", type="string", required=True),
-            EntityAttributeSpec(name="price", type="currency", required=True),
-            EntityAttributeSpec(name="specialties", type="tags", required=False, default_value=[]),
-            EntityAttributeSpec(name="rating", type="number", required=False, default_value=4.9),
-            EntityAttributeSpec(name="badge", type="string", required=False, default_value="Verified")
-        ]
-        seed_items = [
-            {
-                "id": "1",
-                "name": f"Elite {noun} Session",
-                "price": 45.00,
-                "specialties": ["Certified", "Top Rated", "Express Service"],
-                "rating": 5.0,
-                "badge": "Top Rated"
-            },
-            {
-                "id": "2",
-                "name": f"Standard {noun} Package",
-                "price": 30.00,
-                "specialties": ["Verified Provider", "Flexible Hours"],
-                "rating": 4.8,
-                "badge": "Verified"
-            }
-        ]
-    else:
-        # Default E-Commerce / Catalog
-        tag_name = "specs"
-        attributes = [
-            EntityAttributeSpec(name="name", type="string", required=True),
-            EntityAttributeSpec(name="price", type="currency", required=True),
-            EntityAttributeSpec(name=tag_name, type="tags", required=False, default_value=[]),
-            EntityAttributeSpec(name="rating", type="number", required=False, default_value=4.9),
-            EntityAttributeSpec(name="badge", type="string", required=False, default_value="Popular")
-        ]
-        
-        seed_items = [
-            {
-                "id": "1",
-                "name": f"Signature {noun} Speciale",
-                "price": 16.99,
-                tag_name: ["Artisan Quality", "House Recipe", "Freshly Made"],
-                "rating": 4.9,
-                "badge": "Best Seller"
-            },
-            {
-                "id": "2",
-                "name": f"Premium {noun} Feast",
-                "price": 19.99,
-                tag_name: ["Special Selection", "Curated Choice", "Top Pick"],
-                "rating": 5.0,
-                "badge": "Popular"
-            },
-            {
-                "id": "3",
-                "name": f"Gourmet {noun} Deluxe",
-                "price": 21.99,
-                tag_name: ["Handcrafted", "Organic Quality", "Signature Blend"],
-                "rating": 4.8,
-                "badge": "Featured Choice"
-            }
-        ]
+Respond ONLY with a valid JSON object matching this schema (no markdown, no explanations).
+"""
+    try:
+        from agent_orchestrator import call_gemini
+        raw_resp = call_gemini(prompt, stage="domain_ontology")
+        cleaned = re.sub(r'^```[a-zA-Z]*\n?', '', raw_resp.strip())
+        cleaned = re.sub(r'\n?```$', '', cleaned.strip()).strip()
+        data = json.loads(cleaned)
 
-    master_entity = MasterEntitySpec(
-        entity_name=noun,
-        entity_plural=plural,
-        action_verb=action_verb,
-        attributes=attributes,
-        seed_items=seed_items
-    )
-
-    # Commands & Events
-    commands = [
-        DomainCommandSpec(
-            name=f"Place{noun}Order",
-            description=f"Submit a new {noun} order / transaction",
-            fields=[
-                {"name": "order_number", "type": "str"},
-                {"name": "customer_name", "type": "str"},
-                {"name": "item_name", "type": "str"},
-                {"name": "price", "type": "float"}
-            ]
-        ),
-        DomainCommandSpec(
-            name=f"Cancel{noun}Order",
-            description=f"Cancel an active {noun} order",
-            fields=[{"name": "order_number", "type": "str"}]
+        # Parse visual theme
+        vt_data = data.get("visual_theme", {})
+        visual_theme = VisualThemeSpec(
+            archetype=vt_data.get("archetype", "modern_fresh_light"),
+            primary_color=vt_data.get("primary_color", "#0284c7"),
+            secondary_color=vt_data.get("secondary_color", "#10b981"),
+            bg_gradient=vt_data.get("bg_gradient", "#f8fafc"),
+            card_bg=vt_data.get("card_bg", "#ffffff"),
+            border_color=vt_data.get("border_color", "#e2e8f0"),
+            domain_emoji=vt_data.get("domain_emoji", "✨")
         )
-    ]
 
-    events = [
-        DomainEventSpec(
-            name=f"{noun}OrderPlaced",
-            description=f"Emitted when a new {noun} order is confirmed",
-            fields=[
-                {"name": "order_number", "type": "str"},
-                {"name": "customer_name", "type": "str"},
-                {"name": "total_price", "type": "float"}
-            ]
-        ),
-        DomainEventSpec(
-            name=f"{noun}OrderDispatched",
-            description=f"Emitted when a {noun} order is dispatched for fulfillment",
-            fields=[
-                {"name": "order_number", "type": "str"}
-            ]
+        # Parse master entity
+        me_data = data.get("master_entity", {})
+        attr_specs = []
+        for a in me_data.get("attributes", []):
+            attr_specs.append(EntityAttributeSpec(
+                name=a.get("name", "attribute"),
+                type=a.get("type", "string"),
+                required=a.get("required", True),
+                default_value=a.get("default_value", None),
+                display_mode=a.get("display_mode", "visible")
+            ))
+
+        master_entity = MasterEntitySpec(
+            entity_name=me_data.get("entity_name", "Item"),
+            entity_plural=me_data.get("entity_plural", "Items"),
+            action_verb=me_data.get("action_verb", "Select"),
+            attributes=attr_specs,
+            seed_items=me_data.get("seed_items", [])
         )
-    ]
 
-    return DomainOntologySpec(
-        pitch=pitch_clean,
-        brand_name=brand_name,
-        hero_headline=hero_headline,
-        guarantee_badge=guarantee_badge,
-        domain_category=category,
-        visual_theme=theme,
-        master_entity=master_entity,
-        secondary_entities=[],
-        commands=commands,
-        events=events
-    )
+        # Parse capabilities
+        capabilities = []
+        for cap in data.get("capabilities", []):
+            capabilities.append(DomainCapabilitySpec(
+                key=cap.get("key", "main"),
+                name=cap.get("name", "Main View"),
+                icon=cap.get("icon", "✨"),
+                description=cap.get("description", "Domain View"),
+                target_entities=cap.get("target_entities", [master_entity.entity_name]),
+                primary_actions=cap.get("primary_actions", [])
+            ))
+
+        if not capabilities:
+            capabilities = [
+                DomainCapabilitySpec(
+                    key="catalog",
+                    name=f"{master_entity.entity_name} Catalog",
+                    icon="📋",
+                    description=f"Browse {master_entity.entity_name.lower()} offerings",
+                    target_entities=[master_entity.entity_name],
+                    primary_actions=[master_entity.action_verb]
+                )
+            ]
+
+        # Parse commands & events
+        commands = [
+            DomainCommandSpec(name=c.get("name", "Action"), description=c.get("description", ""), fields=c.get("fields", []))
+            for c in data.get("commands", [])
+        ]
+        events = [
+            DomainEventSpec(name=e.get("name", "EventOccurred"), description=e.get("description", ""), fields=e.get("fields", []))
+            for e in data.get("events", [])
+        ]
+        invariants = data.get("invariants", [
+            f"A {master_entity.entity_name.lower()} transaction must enforce non-negative values and sequential lifecycle states"
+        ])
+
+        return DomainOntologySpec(
+            pitch=pitch_clean,
+            brand_name=data.get("brand_name", f"{master_entity.entity_name}Hub"),
+            hero_headline=data.get("hero_headline", f"Premium {master_entity.entity_plural} Platform"),
+            guarantee_badge=data.get("guarantee_badge", f"Verified {master_entity.entity_plural}"),
+            domain_category=data.get("domain_category", "custom_domain"),
+            visual_theme=visual_theme,
+            master_entity=master_entity,
+            secondary_entities=[],
+            commands=commands,
+            events=events,
+            capabilities=capabilities,
+            invariants=invariants
+        )
+    except Exception as e:
+        raise RuntimeError(f"Domain Ontology Storming failed to process pitch '{pitch_clean}': {e}") from e
+
+
+def analyze_pitch_for_kickstart(pitch: str) -> Dict[str, Any]:
+    """
+    Analyzes a natural language business pitch by delegating to storm_domain_ontology
+    to extract domain capabilities, master entities, and formal business invariants.
+    """
+    ontology = storm_domain_ontology(pitch)
+
+    analyzed_capabilities = []
+    for cap in ontology.capabilities:
+        analyzed_capabilities.append({
+            "id": cap.key,
+            "name": cap.name,
+            "icon": cap.icon,
+            "category": "Domain Capability",
+            "description": cap.description,
+            "is_recommended": True,
+            "selected": True,
+            "relevance_score": 10
+        })
+
+    extracted_requirements = []
+    for idx, rule in enumerate(ontology.invariants, start=1):
+        extracted_requirements.append({
+            "id": f"REQ-BUS-{idx:03d}",
+            "title": f"Business Rule: {rule[:45]}...",
+            "description": rule,
+            "type": "Domain Invariant",
+            "priority": "High"
+        })
+
+    if not extracted_requirements:
+        extracted_requirements.append({
+            "id": "REQ-BUS-001",
+            "title": f"Business Rule: Valid {ontology.master_entity.entity_name} State Transitions",
+            "description": f"The system shall validate {ontology.master_entity.entity_name.lower()} inputs and enforce domain state transitions across processing stages.",
+            "type": "Domain Invariant",
+            "priority": "High"
+        })
+
+    return {
+        "pitch": pitch,
+        "blocks": analyzed_capabilities,
+        "capabilities": [cap.to_dict() for cap in ontology.capabilities],
+        "extracted_requirements": extracted_requirements
+    }

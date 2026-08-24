@@ -34,7 +34,7 @@ from entrypoints.routers.components import (
     add_dynamic_component, delete_dynamic_component,
     add_sub_requirement_api, delete_sub_requirement_api,
     get_component_suggestions, get_active_domain_params,
-    resolve_canonical_feature, sync_workspace_app_shell, CANONICAL_FEATURE_MAP
+    resolve_canonical_feature, sync_workspace_app_shell
 )
 
 from config_loader import get_workspace_base

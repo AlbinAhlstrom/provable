@@ -181,6 +181,7 @@ export interface EntityAttributeDTO {
   type: 'string' | 'currency' | 'number' | 'tags' | 'boolean';
   required?: boolean;
   default_value?: any;
+  display_mode?: 'visible' | 'tag_chips' | 'badge' | 'subtitle' | 'hidden';
 }
 
 export interface DomainEntitySchemaDTO {
