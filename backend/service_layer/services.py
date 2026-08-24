@@ -2,7 +2,10 @@ import os
 import re
 import random
 from typing import List, Optional, Dict, Any
-from domain.model import Requirement, Project, Component, TestSpec, AgentRun, KickstartState, MOCK_DOMAIN_SCHEMA, resolve_canonical_feature
+from domain.model import (
+    Requirement, Project, Component, TestSpec, AgentRun, KickstartState,
+    MOCK_DOMAIN_SCHEMA, resolve_canonical_feature, DomainEntitySchema, EntityAttribute
+)
 import domain.events as events
 from service_layer.unit_of_work import AbstractUnitOfWork
 import service_layer.exceptions as exceptions
@@ -1424,6 +1427,145 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
 
     update_spec_status(spec_id, final_status, uow=uow)
     return tdd_result
+
+
+def kickstart_domain_and_scaffold(
+    pitch: str,
+    uow: AbstractUnitOfWork,
+    workspace_dir: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Synchronous Kickstart Engine:
+    1. Decomposes initial pitch into DomainStructureSchema and inbox specs via router_engine.
+    2. Scaffolds initial pure Python domain dataclasses, DTOs, and routers via skeleton_builder.
+    3. Generates/syncs live preview App.tsx for the domain.
+    4. Persists domain state to SQLite kickstart_state.
+    5. Returns structured domain aggregates list for dynamic frontend hydration.
+    """
+    if workspace_dir is None:
+        from config_loader import get_workspace_base
+        workspace_dir = get_workspace_base()
+
+    pitch_text = pitch.strip() or "An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
+    from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
+    from onboarding.skeleton_builder import build_and_write_skeleton
+
+    decomp = decompose_pitch_into_structure_and_inbox(pitch_text)
+    structure = decomp.structure
+    inbox_specs = decomp.inbox.specs if hasattr(decomp, "inbox") and hasattr(decomp.inbox, "specs") else []
+
+    # Build and write skeleton files
+    created_files = build_and_write_skeleton(structure, target_dir=workspace_dir)
+
+    # Format domain aggregates
+    icons = {"pallet": "📦", "zone": "📍", "operator": "👷", "warehouse": "🏢", "forklift": "🚜"}
+    aggregates = []
+    entity_schemas_map = {}
+
+    for ent in structure.entities:
+        k = ent.name.lower()
+        icon = icons.get(k, "🧱")
+        attrs = [{"name": a.name, "type": a.type, "required": a.required} for a in ent.attributes]
+        aggregates.append({
+            "key": k,
+            "name": ent.name,
+            "canonical_key": k,
+            "icon": icon,
+            "description": f"{ent.name} Aggregate Root",
+            "is_aggregate_root": ent.is_aggregate_root,
+            "attributes": attrs,
+            "fields": attrs,
+            "invariants": []
+        })
+        entity_schemas_map[k] = DomainEntitySchema(
+            entity_name=ent.name,
+            canonical_key=k,
+            attributes=[
+                EntityAttribute(name=a.name, type=a.type, required=a.required, default_value=a.default_value)
+                for a in ent.attributes
+            ]
+        )
+
+    # Sync workspace App.tsx
+    try:
+        sync_workspace_app_shell()
+    except Exception as e:
+        print(f"App shell sync notice: {e}")
+
+    # Persist kickstart state in database
+    spec_dicts = [s.dict() if hasattr(s, "dict") else dict(s) for s in inbox_specs]
+    with uow:
+        state = uow.kickstart.get()
+        state.business_pitch = pitch_text
+        state.synthesized = True
+        state.entity_schemas = entity_schemas_map
+        state.inbox_specs = spec_dicts
+        uow.kickstart.save(state)
+        uow.commit()
+
+    return {
+        "success": True,
+        "domain_name": structure.domain_name,
+        "aggregates": aggregates,
+        "inbox_specs": spec_dicts,
+        "created_files": created_files
+    }
+
+
+def get_active_domain_aggregates(uow: AbstractUnitOfWork) -> Dict[str, Any]:
+    """Retrieves discovered domain aggregates from active kickstart state."""
+    with uow:
+        state = uow.kickstart.get()
+        icons = {"pallet": "📦", "zone": "📍", "operator": "👷", "warehouse": "🏢", "forklift": "🚜"}
+        aggregates = []
+        for k, ent in state.entity_schemas.items():
+            ent_name = ent.entity_name if hasattr(ent, 'entity_name') else k.capitalize()
+            icon = icons.get(k.lower(), "🧱")
+            attrs = [
+                {"name": a.name if hasattr(a, 'name') else a.get('name', ''),
+                 "type": a.type if hasattr(a, 'type') else a.get('type', 'string'),
+                 "required": a.required if hasattr(a, 'required') else a.get('required', True)}
+                for a in (ent.attributes if hasattr(ent, 'attributes') else [])
+            ]
+            aggregates.append({
+                "key": k.lower(),
+                "name": ent_name,
+                "canonical_key": k.lower(),
+                "icon": icon,
+                "description": f"{ent_name} Aggregate Root",
+                "is_aggregate_root": True,
+                "attributes": attrs,
+                "fields": attrs,
+                "invariants": []
+            })
+
+        # If no schemas in state, return default dynamic domain based on business_pitch
+        if not aggregates:
+            from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
+            decomp = decompose_pitch_into_structure_and_inbox(state.business_pitch)
+            for ent in decomp.structure.entities:
+                k = ent.name.lower()
+                icon = icons.get(k, "📦" if "pallet" in k else ("📍" if "zone" in k else ("👷" if "operator" in k else "🧱")))
+                attrs = [{"name": a.name, "type": a.type, "required": a.required} for a in ent.attributes]
+                aggregates.append({
+                    "key": k,
+                    "name": ent.name,
+                    "canonical_key": k,
+                    "icon": icon,
+                    "description": f"{ent.name} Aggregate Root",
+                    "is_aggregate_root": ent.is_aggregate_root,
+                    "attributes": attrs,
+                    "fields": attrs,
+                    "invariants": []
+                })
+
+        return {
+            "success": True,
+            "business_pitch": state.business_pitch,
+            "aggregates": aggregates,
+            "inbox_specs": list(state.inbox_specs)
+        }
+
 
 
 

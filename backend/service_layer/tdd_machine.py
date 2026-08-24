@@ -5,6 +5,7 @@ LibCST micro-context splicing, and automated dead-end git rollback handling.
 """
 
 import os
+import sys
 import stat
 import subprocess
 import json
@@ -174,8 +175,12 @@ def run_isolated_pytest(
         except Exception:
             pass
 
+    env = os.environ.copy()
+    current_pythonpath = env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = f"{cwd}{os.pathsep}{current_pythonpath}"
+
     cmd = [
-        "python", "-m", "pytest",
+        sys.executable, "-m", "pytest",
         test_path,
         f"--timeout={timeout_seconds}",
         f"--json-report-file={report_file}",
@@ -186,6 +191,7 @@ def run_isolated_pytest(
         proc = subprocess.run(
             cmd,
             cwd=cwd,
+            env=env,
             capture_output=True,
             text=True,
             timeout=timeout_seconds + 3
@@ -263,7 +269,7 @@ class {target_class}:
     # Generate specific BDD assertions matching spec
     if "invariant" in spec.spec_type.lower() or "capacity" in spec.title.lower() or "weight" in spec.title.lower():
         test_code = f'''import pytest
-from src.domain.{used_module} import {target_class}, DomainError
+from src.domain.{used_module} import {target_class}
 
 def test_{spec_clean_id}_invariant():
     """

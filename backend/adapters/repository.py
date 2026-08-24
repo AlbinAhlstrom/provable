@@ -6,7 +6,7 @@ Includes AbstractRequirementRepository interface, SqliteRequirementRepository, a
 import abc
 import os
 from typing import List, Optional, Set, Dict
-from domain.model import Requirement, Project, KickstartState
+from domain.model import Requirement, Project, KickstartState, DomainEntitySchema, EntityAttribute
 import db.store as store
 
 class AbstractRequirementRepository(abc.ABC):

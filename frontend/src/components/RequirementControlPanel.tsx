@@ -15,52 +15,10 @@ export interface RequirementControlPanelProps {
   onParamUpdated?: () => void;
 }
 
-const DEFAULT_AGGREGATES: DomainAggregateItem[] = [
-  {
-    id: 'pallet',
-    name: 'Pallet',
-    canonical_key: 'pallet',
-    icon: '📦',
-    desc: 'Inventory unit tracking SKUs, weight capacity, and warehouse lifecycle state.',
-    attributes: [
-      { name: 'id', type: 'string', required: true },
-      { name: 'sku', type: 'string', required: true },
-      { name: 'weight', type: 'number', required: true },
-      { name: 'status', type: 'string', required: true },
-      { name: 'zone_id', type: 'string', required: false }
-    ]
-  },
-  {
-    id: 'zone',
-    name: 'Zone',
-    canonical_key: 'zone',
-    icon: '📍',
-    desc: 'Storage zone with strict capacity boundaries and forklift operator authorization.',
-    attributes: [
-      { name: 'id', type: 'string', required: true },
-      { name: 'name', type: 'string', required: true },
-      { name: 'max_capacity', type: 'number', required: true },
-      { name: 'current_pallets', type: 'tags', required: true }
-    ]
-  },
-  {
-    id: 'operator',
-    name: 'Operator',
-    canonical_key: 'operator',
-    icon: '👷',
-    desc: 'Forklift driver certified for designated storage zones and pallet relocations.',
-    attributes: [
-      { name: 'id', type: 'string', required: true },
-      { name: 'name', type: 'string', required: true },
-      { name: 'certified_zone', type: 'string', required: true }
-    ]
-  }
-];
-
 export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = ({ fullWidth = false, onParamUpdated }) => {
-  const [aggregates] = useState<DomainAggregateItem[]>(DEFAULT_AGGREGATES);
+  const [aggregates, setAggregates] = useState<DomainAggregateItem[]>([]);
   const [specs, setSpecs] = useState<BusinessSpecItemDTO[]>([]);
-  const [expandedAggregates, setExpandedAggregates] = useState<Set<string>>(new Set(['pallet', 'zone', 'operator']));
+  const [expandedAggregates, setExpandedAggregates] = useState<Set<string>>(new Set());
   const [activeTabByAggregate, setActiveTabByAggregate] = useState<Record<string, 'specs' | 'data'>>({});
   const [statusToast, setStatusToast] = useState<string | null>(null);
 
@@ -76,20 +34,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   const [submittingSpec, setSubmittingSpec] = useState<boolean>(false);
 
   // Entity Data Fixtures State
-  const [dataFixturesByAggregate, setDataFixturesByAggregate] = useState<Record<string, Array<Record<string, any>>>>({
-    pallet: [
-      { id: 'PAL-001', sku: 'SKU-STEEL-100', weight: 450.0, status: 'STORED', zone_id: 'ZONE-A1' },
-      { id: 'PAL-002', sku: 'SKU-ALUM-200', weight: 320.0, status: 'STORED', zone_id: 'ZONE-A1' }
-    ],
-    zone: [
-      { id: 'ZONE-A1', name: 'Heavy Metals Bay', max_capacity: 10, current_pallets: ['PAL-001', 'PAL-002'] },
-      { id: 'ZONE-B2', name: 'Fragile Electronics Bay', max_capacity: 5, current_pallets: [] }
-    ],
-    operator: [
-      { id: 'OP-101', name: 'Alex Lindqvist', certified_zone: 'ZONE-A1' },
-      { id: 'OP-102', name: 'Sara Chen', certified_zone: 'ZONE-B2' }
-    ]
-  });
+  const [dataFixturesByAggregate, setDataFixturesByAggregate] = useState<Record<string, Array<Record<string, any>>>>({});
 
   const toggleAggregateExpand = (key: string) => {
     setExpandedAggregates(prev => {
@@ -106,6 +51,28 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
 
   const hydrateData = async () => {
     try {
+      // 0. Fetch active domain aggregates dynamically from backend
+      const aggRes = await fetch('/api/onboarding/aggregates');
+      if (aggRes.ok) {
+        const aggData = await aggRes.json();
+        if (aggData && Array.isArray(aggData.aggregates) && aggData.aggregates.length > 0) {
+          const loadedAggs = aggData.aggregates.map((a: any) => ({
+            id: a.key || a.canonical_key || a.name.toLowerCase(),
+            name: a.name,
+            canonical_key: a.key || a.canonical_key || a.name.toLowerCase(),
+            icon: a.icon || '📦',
+            desc: a.description || `${a.name} Aggregate Root`,
+            attributes: (a.fields || a.attributes || []).map((f: any) => ({
+              name: f.name,
+              type: f.type || 'string',
+              required: f.required !== false
+            }))
+          }));
+          setAggregates(loadedAggs);
+          setExpandedAggregates(prev => prev.size === 0 ? new Set(loadedAggs.map((a: any) => a.id)) : prev);
+        }
+      }
+
       // 1. Fetch active specs from Behavior Inbox
       const specRes = await fetch('/api/specs/inbox');
       if (specRes.ok) {

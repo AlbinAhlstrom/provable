@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { AppPreview } from './AppPreview';
-import { KickstartAnalyzeRequestDTO, KickstartSynthesisRequestDTO } from '../types/api';
 
 export interface KickstartStudioProps {
   onAppSynthesized?: () => void;
@@ -37,44 +36,18 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
     setBuilding(true);
     setResetMessage(null);
     try {
-      // Step 1: Analyze pitch & get recommended blocks
-      const analyzePayload: KickstartAnalyzeRequestDTO = {
-        business_pitch: pitch
-      };
-
-      const analyzeRes = await fetch('/api/kickstart/analyze', {
+      const res = await fetch('/api/onboarding/kickstart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(analyzePayload)
+        body: JSON.stringify({ pitch: pitch.trim() })
       });
-      const analyzeData = await analyzeRes.json();
-      
-      const blocks = analyzeData?.data?.blocks || [];
-      const selectedBlockIds = blocks.filter((b: any) => b.is_recommended || b.selected).map((b: any) => b.id);
-      const reqs = analyzeData?.data?.extracted_requirements || [];
-
-      // Step 2: Immediately synthesize full app stack
-      const synthPayload: KickstartSynthesisRequestDTO = {
-        business_pitch: pitch,
-        pitch: pitch,
-        selected_blocks: selectedBlockIds,
-        selected_block_ids: selectedBlockIds,
-        requirements: reqs,
-        extracted_requirements: reqs
-      };
-
-      const synthRes = await fetch('/api/kickstart/synthesize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(synthPayload)
-      });
-      const synthData = await synthRes.json();
-      if (synthData.success) {
+      const data = await res.json();
+      if (res.ok && data.success) {
         setSynthesized(true);
-        setResetMessage("✨ Architecture synthesized successfully!");
+        setResetMessage("✨ Domain architecture synthesized successfully!");
         if (onAppSynthesized) onAppSynthesized();
       } else {
-        setResetMessage("⚠️ Synthesis notice: " + (synthData.error || 'Check backend logs'));
+        setResetMessage("⚠️ Synthesis notice: " + (data.error || 'Check backend logs'));
       }
     } catch (err) {
       console.error("Instant build failed:", err);
@@ -189,7 +162,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
               gap: '0.6rem'
             }}
           >
-            {building ? '⏳ Synthesizing...' : '⚡ Synthesize Architecture'}
+            {building ? '⏳ Synthesizing Domain Architecture...' : '⚡ Synthesize Architecture'}
           </button>
         </div>
       </div>

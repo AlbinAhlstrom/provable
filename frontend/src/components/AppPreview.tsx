@@ -88,6 +88,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
   const [isSynthesized, setIsSynthesized] = useState<boolean>(false);
   const [internalResetting, setInternalResetting] = useState<boolean>(false);
   const [internalResetMessage, setInternalResetMessage] = useState<string | null>(null);
+  const [domainClasses, setDomainClasses] = useState<DomainClassModel[]>(DEFAULT_WMS_DOMAIN_SCHEMA);
 
   // Pages & Views Navigation State (Single Dynamic Dashboard View)
   const [pages, setPages] = useState<PageDTO[]>([
@@ -118,6 +119,32 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
   };
 
   useEffect(() => {
+    const fetchDomainAggs = async () => {
+      try {
+        const res = await fetch('/api/onboarding/aggregates');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && Array.isArray(data.aggregates) && data.aggregates.length > 0) {
+            const loaded: DomainClassModel[] = data.aggregates.map((a: any) => ({
+              name: a.name,
+              docstring: a.description || `Pure aggregate root representing ${a.name} in the domain context.`,
+              fields: (a.fields || a.attributes || []).map((f: any) => ({
+                name: f.name,
+                type: f.type || 'str',
+                required: f.required !== false,
+                description: `${f.name} attribute`
+              })),
+              invariants: a.invariants && a.invariants.length > 0 ? a.invariants : [`Strict invariant validation enforced for ${a.name}`],
+              methods: [`validate_invariants() -> bool`]
+            }));
+            setDomainClasses(loaded);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load domain classes:", err);
+      }
+    };
+    fetchDomainAggs();
     const fetchState = async () => {
       try {
         const res = await fetch('/api/kickstart/state');
@@ -357,7 +384,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-                {DEFAULT_WMS_DOMAIN_SCHEMA.map(cls => (
+                {domainClasses.map(cls => (
                   <div key={cls.name} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.75rem', padding: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                       <code style={{ fontSize: '1rem', color: '#a78bfa', fontWeight: 700 }}>@dataclass class {cls.name}</code>

@@ -192,15 +192,17 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **Engine Room Pivot (`RequirementControlPanel.tsx`)**: Renamed section to "🧬 DOMAIN AGGREGATES", replaced UI component accordions with Domain Aggregate roots (`Pallet`, `Zone`, `Operator`), mapped BDD executable spec payloads (`GIVEN / WHEN / THEN / UNLESS`) directly to `target_aggregate` via `/api/specs/inbox/add`, added live TDD state badges (`🟢 FULFILLED`, `⚡ TDD RUNNING`, `🔴 NEEDS REVIEW`, `⏳ PENDING`), and removed the free-text component addition box.
         - **Empirical Verification**: 100% PASS across TypeScript frontend build (`npm run build` $\rightarrow$ 0 errors) and full Pytest suite (124/124 PASS).
 
-    38. **Synchronous Behavior Inbox TDD Engine & 5-Line Hash Lock Anti-Cheat (`tdd_machine.py` & `specs.py`)**:
-        - **5-Line Cryptographic Hash Lock**: Replaced OS `chmod` locks with `hashlib.sha256()` anti-cheat verification (`compute_test_file_hash` / `verify_test_file_integrity`) that calculates SHA-256 before GREEN phase and throws `TestTamperingError` if test assertions are altered during code synthesis.
-        - **Synchronous KISS TDD Flow**: Updated `POST /api/specs/inbox/add` to synchronously trigger `execute_inbox_spec_tdd(spec_id)` in the same request, driving [RED $\rightarrow$ GREEN $\rightarrow$ Anti-Cheat $\rightarrow$ COMMIT] end-to-end and persisting `FULFILLED` in SQLite without asynchronous queue overhead.
-        - **LibCST Class Splicing in Loop**: Integrated `extract_class_cst` and `splice_class_cst` directly into the synchronous TDD machine to extract and update only the target Aggregate Root dataclass.
-        - **Empirical Integration Verification**: Verified with `backend/tests/integration/test_inbox_tdd_execution.py` (2/2 PASS) and full test suite (119/119 unit/integration + 6/6 E2E PASS).
+    39. **Synchronous Kickstart Architecture Synthesizer & Dynamic Aggregate Hydration (`onboarding.py` & `KickstartStudio.tsx`)**:
+        - **Synchronous Kickstart Endpoint (`/api/onboarding/kickstart`)**: Added pure DDD endpoint delegating to `services.kickstart_domain_and_scaffold(pitch, uow)` which decomposes pitch via `router_engine`, scaffolds pure Python dataclasses via `skeleton_builder`, syncs the workspace live preview, and persists discovered domain entities to SQLite.
+        - **Dynamic Aggregate Discovery API (`/api/onboarding/aggregates`)**: Returns active domain aggregate roots (`Pallet`, `Zone`, `Operator`), attributes, and invariants directly from SQLite without hardcoded client assumptions.
+        - **Dynamic Engine Room Hydration (`RequirementControlPanel.tsx` & `AppPreview.tsx`)**: Purged hardcoded default aggregate items from React state; `RequirementControlPanel` and the Domain schema inspector now dynamically map backend-provided aggregates and attribute fields.
+        - **One-Click Synthesis Action**: Wired `KickstartStudio.tsx` "⚡ Synthesize Architecture" button with a real-time progress indicator ("⏳ Synthesizing Domain Architecture...") that seamlessly transitions the app to the Workspace view upon 200 OK.
+        - **Empirical Verification**: 100% PASS across TypeScript frontend build (`npm run build` in 624ms) and full Pytest suite (122/122 unit/integration + 6/6 E2E PASS).
 
 ---
 
-*Updated by Antigravity AI on 2026-08-24 (Synchronous TDD Engine & Hash Lock Anti-Cheat Complete; 125/125 PASS).*
+*Updated by Antigravity AI on 2026-08-24 (Synchronous Kickstart Synthesis & Dynamic Aggregate Hydration Complete; 128/128 PASS).*
+
 
 
 
