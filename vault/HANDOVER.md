@@ -102,13 +102,18 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
     16. **Pre-Commit Full Test Suite Invariant Enforcement**:
         - **Mandatory Pre-Commit Test Run Invariant**: Updated `.agents/AGENTS.md` and `vault/HANDOVER.md` to strictly require running the full test suite (`python -m pytest backend/tests/`) before every `git commit` or `git commit --amend` to guarantee zero regressions.
 
-    17. **Workspace Controls & Pages/Views Row Layout Reorder**:
-        - **Layout Positioning**: Reordered [`src/components/AppPreview.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/components/AppPreview.tsx) to place the Workspace Control Bar (`app-preview-controls-bar`) at the top, and the Pages/Views selector row ([`PageSelectorBar.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/components/PageSelectorBar.tsx)) directly below it.
-        - **Verified 100% Test Pass**: 118/118 backend pytest suite passed cleanly in 59.90s and `npx tsc --noEmit` verified 0 TypeScript compilation errors.
+    18. **Standard Benchmark QA Prompt & Universal Domain Entity Architecture**:
+        - **Standard Benchmark Prompt**: Codified `"An app to order pizzas"` as the official standard QA benchmark prompt for all testing, synthetic app generation, and quality assurance.
+        - **Terminology Pivot (Fixtures ➔ Domain Entities)**: Deprecated legacy "Data Fixtures" terminology across PM Studio in favor of "Domain Entities" / "Entities".
+        - **Universal Entity Graph & Linking Invariant**:
+          - Primary/Master Catalog components (`catalog`, `menu`, `services`) own root domain entities (`name`, `price`/`rate`, `description`).
+          - Dependent Transactional components (`cart`, `tracking`, `orders`, `bookings`) reference master catalog entities via dropdown selection menus (`[ Select Catalog Entity ▼ ] [ Qty ]` and `[ Select Catalog Entity ▼ ] [ Status: Received ▼ ]`) rather than unconstrained arbitrary string inputs.
+          - Universal across all domains (pizzeria, tutor booking, bakery, e-commerce) via automatic master entity role discovery.
 
 ---
 
-*Updated by Antigravity AI on 2026-08-24 (Reordered Pages/Views row below workspace controls bar in AppPreview.tsx).*
+*Updated by Antigravity AI on 2026-08-24 (Standard Benchmark Prompt 'An app to order pizzas' codified, and Universal Domain Entity linking architecture formulated).*
+
 
 
 

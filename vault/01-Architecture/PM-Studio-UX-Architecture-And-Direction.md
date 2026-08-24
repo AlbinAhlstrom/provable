@@ -26,14 +26,20 @@ PM Studio moves away from cluttered dashboard overlays and text-heavy sub-requir
   - Explicit `➕ Add Test` action button.
   - Trash bin `🗑️` button to delete test specs.
 
-### Pillar 3: Domain Data Fixture & Entity CRUD (`RequirementControlPanel.tsx` ➔ `Tab 2: 📦 Data Fixtures`)
+### Pillar 3: Domain Entities CRUD & Universal Entity Graph (`RequirementControlPanel.tsx` ➔ `Tab 2: 🧬 Entities`)
 - **Location**: Tab 2 inside each expanded component card.
 - **Function**: Directly binds Domain Entities (e.g. `MenuItem`, `CartItem`, `Order`) to the component cards they belong to, avoiding separate messy floating overlays.
+- **Terminology**: Migrated from legacy "Data Fixtures" to **Domain Entities**.
+- **Universal Entity Graph & Linking Invariant**:
+  - **Master Catalog Components** (`catalog`, `menu`, `services`, `tutors`): Define root items (`Name` + `Price/Rate` + `Description`).
+  - **Selection/Basket Components** (`cart`, `basket`): Do NOT use arbitrary freeform string inputs. Instead, they provide a **Dropdown Selector of Master Catalog Entities** + Quantity input (`[ Dropdown: Select Catalog Item ▼ ] [ Qty: 1 ] [ ➕ Add to Cart ]`).
+  - **Transaction/Tracking Components** (`tracking`, `orders`, `bookings`): Provide a **Dropdown Selector of Master Catalog Entities** + Status enum (`[ Dropdown: Select Item ▼ ] [ Status: Received ▼ ] [ ➕ Create Test Order ]`).
 - **Full Inline CRUD**:
-  - **Create**: Add new entity items (`Name` + `Price`) via `➕ Add`.
-  - **Read**: Display seed items bound to the component with price formatting (`$16.99`).
-  - **Update**: Click `✏️ Edit` to modify entity name and price inline, then click `Save`.
+  - **Create**: Add new entity items via role-aware forms (text fields for catalog roots, dropdown selectors for dependent carts/orders).
+  - **Read**: Display seed items bound to the component with price/status formatting.
+  - **Update**: Click `✏️ Edit` to modify entity name/price/status inline.
   - **Delete**: Click `🗑️` to remove entity items from the active dataset.
+
 
 ---
 
@@ -61,9 +67,10 @@ All PM Studio features and backend UI generators MUST adhere to the following mo
 
 ---
 
-## 🧪 3. Test Pyramid Invariant
+## 🧪 3. Test Pyramid Invariant & Benchmark Prompt
 
-- **Only 1 Heavy E2E Test**: `backend/tests/test_e2e_pizza_prompt_sanity.py` is the SINGLE heavy browser E2E test.
+- **Official QA Benchmark Prompt**: `"An app to order pizzas"` is the established baseline reference prompt for quality assurance, automated synthesis verification, and visual regression testing across all sessions.
+- **Only 1 Heavy E2E Test**: `backend/tests/test_e2e_pizza_prompt_sanity.py` is the SINGLE heavy browser E2E test executing this benchmark prompt end-to-end.
 - **Fast Unit Tests**: All AST compilation, schema validation, and JSX integrity tests reside in `backend/tests/unit/` (including `test_jsx_compilation_integrity.py`), running in `< 1.5s`.
 
 ---
