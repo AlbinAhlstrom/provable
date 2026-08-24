@@ -89,13 +89,11 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
   const [internalResetting, setInternalResetting] = useState<boolean>(false);
   const [internalResetMessage, setInternalResetMessage] = useState<string | null>(null);
 
-  // Pages & Views Navigation State
+  // Pages & Views Navigation State (Single Dynamic Dashboard View)
   const [pages, setPages] = useState<PageDTO[]>([
-    { id: 'home', name: 'Home Page', route: '/', icon: '🏠', is_home: true },
-    { id: 'checkout', name: 'Checkout Page', route: '/checkout', icon: '💳' },
-    { id: 'tracking', name: 'Order Tracking View', route: '/tracking', icon: '📦' }
+    { id: 'dashboard', name: 'Dashboard View', route: '/', icon: '📊', is_home: true }
   ]);
-  const [activePageId, setActivePageId] = useState<string>('home');
+  const [activePageId, setActivePageId] = useState<string>('dashboard');
 
   const previewUrl = activeTab === 'preview' 
     ? 'http://localhost:5174' 
@@ -115,7 +113,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
   const handleDeletePage = (pageId: string) => {
     setPages(prev => prev.filter(p => p.id !== pageId));
     if (activePageId === pageId) {
-      setActivePageId('home');
+      setActivePageId('dashboard');
     }
   };
 
