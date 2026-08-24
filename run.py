@@ -150,6 +150,7 @@ def main():
 
     # 1. Determine executables & verify host tools
     backend_dir = os.path.join(ROOT, "backend")
+    frontend_dir = os.path.join(ROOT, "frontend")
     venv_py = os.path.join(
         backend_dir,
         "venv",
@@ -220,7 +221,7 @@ def main():
     print("=" * 50 + "\n", flush=True)
 
     start_process(backend_cmd, cwd=backend_dir, prefix="[backend]")
-    wait_for_port(8000, timeout=15)
+    wait_for_port(8000, timeout=30)
     start_process(npm_cmd + ["run", "dev"], cwd=frontend_dir, prefix="[app]    ")
 
     ws_dir = os.path.join(ROOT, "workspace")

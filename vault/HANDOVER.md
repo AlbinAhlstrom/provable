@@ -182,17 +182,18 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **Hardened Red-Gate TDD Machine (`tdd_machine.py`)**: Built state machine with programmatic Pytest JSON report evaluation, tautology rejection (Exit Code 0 in RED), syntax/timeout rejection (Exit Code 2), OS-level test file write-locking in GREEN phase, and 3-strike dead-end rollback handling (`git reset --hard` + `REQUIRES_HUMAN_INTERVENTION`).
         - **Behavior Inbox & Spec-CRUD API (`specs.py` & `BehaviorInboxPanel.tsx`)**: Created backend endpoints (`GET /api/specs/inbox`, `POST /api/specs/inbox/add`, `POST /api/specs/inbox/{id}/status`) and PM Studio frontend panel for structured spec creation without free-text prompt drift.
         - **Dual-Track Benchmark Suite (`test_dual_track_benchmarks.py`)**: Fully verified against both **Track A (B2C Pizzeria Ordering)** and **Track B (Industrial FIFO Warehouse Management)** with 100% PASS.
-        33. **Monorepo Root Cleanup & 4-Pillar Domain Directory Isolation**:
-        - **Frontend Isolation (`frontend/`)**: Moved PM Studio React 18 / Vite UI, all UI components (`frontend/src/`), public assets, `package.json`, `vite.config.ts`, and TypeScript configurations into dedicated `frontend/` directory.
-        - **Engine Isolation (`backend/`)**: AppGen FastAPI engine, DDD/TDD State Machine, and generators remain strictly encapsulated with 100% tests in `backend/tests/`.
-        - **Sandboxes Isolation (`sandboxes/`)**: Created `sandboxes/` directory (gitignored) and migrated `Lovable pizza app/`, `tmp_ast_test/`, and scratch testing files.
-        - **Obsidian References (`vault/06-Cosmic-Python-Journey/references/`)**: Relocated Cosmic Python reference dumps `architecture_patterns_with_python*.md` to the Obsidian vault.
-        - **Legacy Root Test Purge**: Deleted broken pre-DDD legacy `tests/` directory and updated `pytest.ini` (`testpaths = backend/tests`) and launcher [`run.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/run.py) (`cwd="frontend"`).
-        - **Empirical Verification**: 100% PASS across full test suite (119/119 in `backend/tests/`), 0 TypeScript compilation errors in `frontend/` (`npx tsc --noEmit`), and 0 `import db.store` leaks.
+    34. **WMS Baseline Standard & TDD Machine Mutation Test Matrix (Attribute Expansion, Invariant, State Transition)**:
+        - **WMS Standard Test Baseline**: Transitioned primary AppGen benchmark domain from Pizza app to B2B/Industrial Warehouse Management System (`"An industrial warehouse management system to track Pallets, storage Zones, and forklift Operators."`), generating pure initial domain models (`Pallet`, `Zone`, `Operator`).
+        - **Inbox Spec Typings (`SpecMutationType`)**: Added typed specification categorizations (`ATTRIBUTE_EXPANSION`, `DOMAIN_INVARIANT`, `STATE_TRANSITION`, `API_CONTRACT`) across `router_engine.py`, `specs.py` FastAPI router, and service layer.
+        - **TDD Mutation Matrix Suite (`test_tdd_machine_mutations.py`)**: Built integration test matrix covering:
+          1. **Attribute Expansion**: Verified `TypeError` handling upon adding required attributes (`weight: float` to `Pallet`) as valid `APPROVED_RED`.
+          2. **Domain Invariant**: Verified capacity validation and custom domain exceptions (`CapacityExceededError` on `Zone`).
+          3. **State Transition**: Verified deterministic lifecycle transitions (`QUARANTINED` status on expired `Pallet`) with explicit `current_date` arguments (zero non-deterministic clock leaks).
+        - **Empirical Verification**: 100% PASS across full test suite (121/121 in `backend/tests/`) and 0 `import db.store` leaks.
 
 ---
 
-*Updated by Antigravity AI on 2026-08-24 (Monorepo Root Cleanup & 4-Pillar Domain Directory Isolation Complete; 119/119 PASS).*
+*Updated by Antigravity AI on 2026-08-24 (WMS Baseline & TDD Machine Mutation Matrix Verified; 121/121 PASS).*
 
 
 

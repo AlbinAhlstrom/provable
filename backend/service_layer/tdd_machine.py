@@ -1,4 +1,4 @@
-﻿"""
+"""
 TDD State Machine — Hardened Red-Gate & 3-Strike Rollback Orchestrator.
 Enforces programmatic test evaluation, OS test-file locking, pytest timeouts,
 LibCST micro-context splicing, and automated dead-end git rollback handling.
@@ -56,7 +56,7 @@ def evaluate_red_gate_result(
         return {
             "status": "APPROVED_RED",
             "approved": True,
-            "reason": "Test failed with AssertionError or domain exception as expected in RED phase."
+            "reason": "Test failed with AssertionError, TypeError (attribute expansion), or domain exception as expected in RED phase."
         }
 
     return {

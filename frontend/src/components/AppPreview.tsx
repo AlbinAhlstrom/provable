@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RequirementControlPanel } from './RequirementControlPanel';
 import { PageSelectorBar } from './PageSelectorBar';
-import { DomainEntitiesPanel } from './DomainEntitiesPanel';
-import { PageDTO, DomainEntityDTO } from '../types/api';
+import { PageDTO } from '../types/api';
 
 export interface AppPreviewProps {
   onResetWorkspace?: () => void;
@@ -26,33 +25,6 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
   ]);
   const [activePageId, setActivePageId] = useState<string>('home');
 
-  // Domain Entities State
-  const [entities, setEntities] = useState<DomainEntityDTO[]>([
-    {
-      name: 'CatalogItem',
-      description: 'Active catalog offerings and items',
-      attributes: { name: 'string', price: 'number', description: 'string' },
-      seed_items: [
-        { name: 'Signature Item', price: 14.99 },
-        { name: 'Premium Offering', price: 18.99 },
-        { name: 'Standard Package', price: 12.99 }
-      ]
-    },
-    {
-      name: 'CartItem',
-      description: 'Selected items in active shopping cart',
-      attributes: { item_id: 'string', quantity: 'number' },
-      seed_items: []
-    },
-    {
-      name: 'Order',
-      description: 'Active customer orders and status pipeline',
-      attributes: { id: 'string', status: 'string', total: 'number' },
-      seed_items: []
-    }
-  ]);
-  const [isEntitiesOpen, setIsEntitiesOpen] = useState<boolean>(false);
-
   const previewUrl = targetPort === '5174' ? 'http://localhost:5174' : 'http://localhost:8000/';
 
   const handleAddPage = (name: string, route: string) => {
@@ -71,17 +43,6 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
     if (activePageId === pageId) {
       setActivePageId('home');
     }
-  };
-
-  const handleAddEntityItem = (entityName: string, newItem: Record<string, any>) => {
-    setEntities(prev =>
-      prev.map(ent =>
-        ent.name === entityName
-          ? { ...ent, seed_items: [...ent.seed_items, newItem] }
-          : ent
-      )
-    );
-    setKey(k => k + 1); // Trigger preview HMR refresh
   };
 
   useEffect(() => {

@@ -170,12 +170,79 @@ def call_gemini(prompt: str, stage: str = "general") -> str:
             m = re.search(r'BUSINESS PITCH:\s*[\'"]([^\'"]+)[\'"]', prompt, re.IGNORECASE) or re.search(r'"([^"\n]+)"', prompt)
             pitch = m.group(1) if m else "Generic Application"
             clean = re.sub(r'[^a-zA-Z0-9\s]', ' ', pitch).strip()
+            is_wms = any(kw in pitch.lower() for kw in ["pallet", "zone", "operator", "warehouse", "fifo"])
+            is_math = any(kw in pitch.lower() for kw in ["fifo", "shelf-life", "expire", "multiplier", "limit", "kg", "threshold", "minimum", "discount", "capacity", "30 days", "500kg", "$15"])
+
+            if is_wms:
+                return json.dumps({
+                    "structure": {
+                        "domain_name": "WarehouseDomain",
+                        "entities": [
+                            {
+                                "name": "Pallet",
+                                "is_aggregate_root": True,
+                                "attributes": [
+                                    {"name": "id", "type": "str", "required": True, "default_value": None},
+                                    {"name": "name", "type": "str", "required": True, "default_value": "Standard Pallet"}
+                                ],
+                                "relationships": []
+                            },
+                            {
+                                "name": "Zone",
+                                "is_aggregate_root": True,
+                                "attributes": [
+                                    {"name": "id", "type": "str", "required": True, "default_value": None},
+                                    {"name": "name", "type": "str", "required": True, "default_value": "Default Zone"}
+                                ],
+                                "relationships": []
+                            },
+                            {
+                                "name": "Operator",
+                                "is_aggregate_root": True,
+                                "attributes": [
+                                    {"name": "id", "type": "str", "required": True, "default_value": None},
+                                    {"name": "name", "type": "str", "required": True, "default_value": "Main Operator"}
+                                ],
+                                "relationships": []
+                            }
+                        ],
+                        "value_objects": [],
+                        "enums": []
+                    },
+                    "inbox": {
+                        "domain_name": "WarehouseDomain",
+                        "specs": [
+                            {
+                                "spec_id": "SPEC-WMS-001",
+                                "title": "Enforce Pallet Creation",
+                                "description": "Pallets must be initialized with valid identifiers.",
+                                "given_when_then": "Given valid pallet parameters When instantiating Pallet Then pallet is created successfully",
+                                "target_aggregate": "Pallet",
+                                "spec_type": "ATTRIBUTE_EXPANSION",
+                                "is_mathematical_boundary": False,
+                                "priority": "High",
+                                "status": "PENDING"
+                            },
+                            {
+                                "spec_id": "SPEC-WMS-002",
+                                "title": "Enforce Storage Zone Capacity Boundary" if is_math else "Enforce Storage Zone Allocation",
+                                "description": "Validates capacity and allocation rules for warehouse storage zones.",
+                                "given_when_then": "Given a storage Zone When allocating Pallets Then total weight complies with capacity limits",
+                                "target_aggregate": "Zone",
+                                "spec_type": "DOMAIN_INVARIANT",
+                                "is_mathematical_boundary": is_math,
+                                "priority": "High",
+                                "status": "PENDING"
+                            }
+                        ]
+                    }
+                })
+
             tokens = [w.capitalize() for w in clean.split() if len(w) > 2 and w.lower() not in {"an", "a", "the", "app", "application", "platform", "system", "tool", "portal", "site", "online", "for", "with", "order", "book", "buy", "sell", "track", "manage", "find", "schedule", "rent", "where", "customers"}]
             raw_noun = tokens[0] if tokens else "Item"
             if raw_noun.lower() in ("pizzeria", "pizzas"):
                 raw_noun = "Pizza"
             noun = raw_noun[:-1] if raw_noun.endswith("s") and len(raw_noun) > 3 and not raw_noun.endswith("ss") else raw_noun
-            is_math = any(kw in pitch.lower() for kw in ["fifo", "shelf-life", "expire", "multiplier", "limit", "kg", "threshold", "minimum", "discount", "capacity", "30 days", "500kg", "$15"])
             
             return json.dumps({
                 "structure": {
@@ -214,6 +281,7 @@ def call_gemini(prompt: str, stage: str = "general") -> str:
                             "description": f"Validates {noun.lower()} attributes upon initialization.",
                             "given_when_then": f"Given a new {noun} When instantiating with valid attributes Then object is created successfully",
                             "target_aggregate": f"{noun}Order" if "order" in pitch.lower() or "pizza" in pitch.lower() else noun,
+                            "spec_type": "ATTRIBUTE_EXPANSION",
                             "is_mathematical_boundary": False,
                             "priority": "High",
                             "status": "PENDING"
@@ -224,6 +292,7 @@ def call_gemini(prompt: str, stage: str = "general") -> str:
                             "description": f"Calculates rates or applies boundary thresholds for {noun.lower()}.",
                             "given_when_then": f"Given an active {noun} When applying size multipliers or boundary limits Then total amount conforms to rules",
                             "target_aggregate": f"{noun}Order" if "order" in pitch.lower() or "pizza" in pitch.lower() else noun,
+                            "spec_type": "DOMAIN_INVARIANT",
                             "is_mathematical_boundary": is_math,
                             "priority": "High",
                             "status": "PENDING"

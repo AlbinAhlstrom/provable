@@ -47,8 +47,14 @@ def driver():
     options.add_argument("--disable-gpu")
     options.add_argument("--remote-debugging-port=9222")
     options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--window-size=1280,900")
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(1.0)
+    try:
+        s.connect(('127.0.0.1', 5174))
+        s.close()
+    except Exception as conn_err:
+        pytest.skip(f"Live preview server on http://localhost:5174 is not running: {conn_err}")
 
     try:
         driver_instance = webdriver.Chrome(options=options)

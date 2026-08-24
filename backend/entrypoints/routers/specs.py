@@ -1,4 +1,4 @@
-﻿"""
+"""
 Spec-CRUD & TDD Inbox API Router.
 Enables structured specification management without natural language prompt drift.
 Delegates 100% of business logic to DDD Service Layer & Unit of Work.
@@ -18,7 +18,8 @@ class SpecCreateRequest(BaseModel):
     title: str
     description: str
     given_when_then: str
-    target_aggregate: str = "Order"
+    target_aggregate: str = "Pallet"
+    spec_type: str = "DOMAIN_INVARIANT"
     is_mathematical_boundary: bool = False
     priority: str = "High"
 
@@ -46,6 +47,7 @@ def add_inbox_spec(req: SpecCreateRequest):
         "description": req.description,
         "given_when_then": req.given_when_then,
         "target_aggregate": req.target_aggregate,
+        "spec_type": req.spec_type,
         "is_mathematical_boundary": req.is_mathematical_boundary,
         "priority": req.priority,
         "status": "PENDING"

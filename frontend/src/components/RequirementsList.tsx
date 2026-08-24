@@ -84,6 +84,7 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
   const [selectedLayerFilter, setSelectedLayerFilter] = useState<string>('ALL');
 
   const selectedNode = requirements.find(r => r.id === selectedReqId);
+  const childNodes = selectedNode ? requirements.filter(r => r.parentId === selectedNode.id || r.parent_id === selectedNode.id) : [];
 
   // Initialize edit form when selectedNode changes
   useEffect(() => {
@@ -160,15 +161,30 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
     await fetchReqs();
   };
 
-  const handleDeleteReq = async () => {
-    if (!selectedReqId) return;
+  const handleDeleteReq = async (targetId?: string) => {
+    const idToDelete = targetId || selectedReqId;
+    if (!idToDelete) return;
     await fetch('/api/delete-requirement', { 
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: selectedReqId }) 
+      body: JSON.stringify({ id: idToDelete }) 
     });
-    setSelectedReqId(null);
+    if (selectedReqId === idToDelete) setSelectedReqId(null);
     await fetchReqs();
+  };
+
+  const handleDeleteWithConfirmation = (id: string) => {
+    if (pendingDeleteId === id) {
+      if (pendingDeleteTimer.current) clearTimeout(pendingDeleteTimer.current);
+      setPendingDeleteId(null);
+      handleDeleteReq(id);
+    } else {
+      setPendingDeleteId(id);
+      if (pendingDeleteTimer.current) clearTimeout(pendingDeleteTimer.current);
+      pendingDeleteTimer.current = setTimeout(() => {
+        setPendingDeleteId(null);
+      }, 3000);
+    }
   };
 
   const handleAddChild = async (e: React.FormEvent) => {
@@ -381,7 +397,7 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
                         <button
                           className="btn btn-outline"
                           style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)', transition: 'background 0.15s', ...(pendingDeleteId === selectedNode.id ? { background: 'var(--accent-danger)', color: '#fff' } : {}) }}
-                          onClick={() => handleDeleteReq(selectedNode.id)}
+                          onClick={() => handleDeleteWithConfirmation(selectedNode.id)}
                         >
                           {pendingDeleteId === selectedNode.id ? '⚠️ Confirm Delete' : '🗑️ Delete'}
                         </button>
@@ -513,7 +529,7 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
                         <button
                           className="btn btn-outline"
                           style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', borderColor: 'var(--accent-danger)', color: 'var(--accent-danger)', transition: 'background 0.15s', ...(pendingDeleteId === selectedNode.id ? { background: 'var(--accent-danger)', color: '#fff' } : {}) }}
-                          onClick={() => handleDeleteReq(selectedNode.id)}
+                          onClick={() => handleDeleteWithConfirmation(selectedNode.id)}
                         >
                           {pendingDeleteId === selectedNode.id ? '⚠️ Confirm Delete' : '🗑️ Delete'}
                         </button>
@@ -522,9 +538,6 @@ const RequirementsList: React.FC<RequirementsListProps> = ({
                     <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '0.5rem' }}>
                        <span className="text-muted" style={{ fontSize: '0.85rem' }}>ID: {selectedNode.id}</span>
                        <span className="text-muted" style={{ fontSize: '0.85rem' }}>Status: {selectedNode.status}</span>
-                       {selectedNode.jira_key && (
-                         <span style={{ fontSize: '0.85rem', color: 'var(--accent-primary)' }}>🎫 Jira: {selectedNode.jira_key}</span>
-                       )}
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.3rem', color: 'var(--text-secondary)' }}>Description</label>

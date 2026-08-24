@@ -18,15 +18,8 @@ export interface RequirementControlPanelProps {
   onParamUpdated?: () => void;
 }
 
-const getTestPlaceholder = (key: string) => {
+const getTestPlaceholder = (_key?: string) => {
   return 'e.g. GIVEN active view, WHEN action triggered, THEN assert expected state transition, UNLESS invariant fails...';
-};
-
-const handleInsertBddPrefix = (value: string) => {
-  const prefixes = ['Given', 'When', 'Then'];
-  const words = value.trim().split(' ');
-  if (words.length > 0 && prefixes.includes(words[0])) return value;
-  return `Given ${value}`;
 };
 
 export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = ({ fullWidth = false, onParamUpdated }) => {
@@ -871,7 +864,6 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                       const schema = entitySchemasByComponent[item.canonical_key];
                       const entityClassName = schema?.entity_name || (isCart ? 'CartItem' : isTracking ? 'Order' : 'CatalogItem');
                       const attrSummary = schema?.attributes?.map(a => `${a.name} (${a.type})`).join(' • ') || 'name (str) • price ($)';
-                      const hasIngredientsAttr = schema?.attributes?.some(a => a.name === 'ingredients' || a.type === 'tags');
 
                       return (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
@@ -1103,26 +1095,27 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                                 >
                                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, minWidth: 0 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                                      <span style={{ fontWeight: 700, color: '#f8fafc' }}>{fix.name || fix.title || fix.item || `Item #${fix.id}`}</span>
+                                      <span style={{ fontWeight: 700, color: '#f8fafc' }}>{fix.name || (fix as Record<string, any>).title || fix.item || `Item #${fix.id}`}</span>
                                       
                                       {/* Render badges */}
-                                      {schema?.attributes?.filter(a => a.display_mode === 'badge' && fix[a.name] !== undefined && fix[a.name] !== '').map(a => (
+                                      {schema?.attributes?.filter(a => a.display_mode === 'badge' && (fix as Record<string, any>)[a.name] !== undefined && (fix as Record<string, any>)[a.name] !== '').map(a => (
                                         <span key={a.name} style={{ fontSize: '0.62rem', background: '#0284c7', color: '#e0f2fe', padding: '0.05rem 0.35rem', borderRadius: '4px', fontWeight: 700 }}>
-                                          {String(fix[a.name])}
+                                          {String((fix as Record<string, any>)[a.name])}
                                         </span>
                                       ))}
                                     </div>
 
                                     {/* Render subtitles */}
-                                    {schema?.attributes?.filter(a => a.display_mode === 'subtitle' && fix[a.name]).map(a => (
+                                    {schema?.attributes?.filter(a => a.display_mode === 'subtitle' && (fix as Record<string, any>)[a.name]).map(a => (
                                       <span key={a.name} style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
-                                        {String(fix[a.name])}
+                                        {String((fix as Record<string, any>)[a.name])}
                                       </span>
                                     ))}
 
                                     {/* Render tag chips */}
-                                    {schema?.attributes?.filter(a => (a.display_mode === 'tag_chips' || a.type === 'tags') && fix[a.name]).map(a => {
-                                      const tags = Array.isArray(fix[a.name]) ? fix[a.name] : String(fix[a.name]).split(',').map((s: string) => s.trim()).filter(Boolean);
+                                    {schema?.attributes?.filter(a => (a.display_mode === 'tag_chips' || a.type === 'tags') && (fix as Record<string, any>)[a.name]).map(a => {
+                                      const rawVal = (fix as Record<string, any>)[a.name];
+                                      const tags = Array.isArray(rawVal) ? rawVal : String(rawVal).split(',').map((s: string) => s.trim()).filter(Boolean);
                                       if (tags.length === 0) return null;
                                       return (
                                         <div key={a.name} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -1136,9 +1129,9 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                                     })}
 
                                     {/* Render other custom visible attributes */}
-                                    {schema?.attributes?.filter(a => a.display_mode === 'visible' && !['name', 'title', 'item', 'price'].includes(a.name) && fix[a.name] !== undefined && fix[a.name] !== '').map(a => (
+                                    {schema?.attributes?.filter(a => a.display_mode === 'visible' && !['name', 'title', 'item', 'price'].includes(a.name) && (fix as Record<string, any>)[a.name] !== undefined && (fix as Record<string, any>)[a.name] !== '').map(a => (
                                       <span key={a.name} style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>
-                                        <strong style={{ color: '#94a3b8' }}>{a.name}:</strong> {String(fix[a.name])}
+                                        <strong style={{ color: '#94a3b8' }}>{a.name}:</strong> {String((fix as Record<string, any>)[a.name])}
                                       </span>
                                     ))}
                                   </div>
@@ -1718,7 +1711,7 @@ function extractCanonicalKey(r: any): string {
 }
 
 // Helper: Pick icon for component
-function getComponentIcon(canonicalKey: string, title: string): string {
+function getComponentIcon(canonicalKey: string, _title?: string): string {
   const k = canonicalKey.toLowerCase();
   if (k.includes('calendar') || k.includes('booking') || k.includes('schedule')) return '📅';
   if (k.includes('catalog') || k.includes('menu') || k.includes('directory')) return '📋';

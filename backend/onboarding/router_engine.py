@@ -10,6 +10,16 @@ from pydantic import BaseModel, Field
 import agent_orchestrator
 
 
+from enum import Enum
+
+
+class SpecMutationType(str, Enum):
+    ATTRIBUTE_EXPANSION = "ATTRIBUTE_EXPANSION"
+    DOMAIN_INVARIANT = "DOMAIN_INVARIANT"
+    STATE_TRANSITION = "STATE_TRANSITION"
+    API_CONTRACT = "API_CONTRACT"
+
+
 class AttributeSpec(BaseModel):
     name: str
     type: str = "str"
@@ -37,6 +47,7 @@ class BusinessSpec(BaseModel):
     description: str
     given_when_then: str
     target_aggregate: str
+    spec_type: str = SpecMutationType.DOMAIN_INVARIANT.value
     is_mathematical_boundary: bool = False
     priority: str = "High"
     status: str = "PENDING"

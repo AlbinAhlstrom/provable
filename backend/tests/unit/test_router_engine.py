@@ -40,3 +40,26 @@ def test_router_engine_flags_mathematical_boundary_rules():
     # Assert mathematical / range boundary flag is recognized
     math_specs = [s for s in result.inbox.specs if s.is_mathematical_boundary]
     assert len(math_specs) >= 1
+
+
+def test_router_engine_decomposes_wms_baseline_pitch():
+    """
+    Standard Benchmark — Industrial WMS Domain Baseline:
+    Decomposes into pure domain entities (Pallet, Zone, Operator) without pre-guessed complex rules.
+    """
+    pitch = "An industrial warehouse management system to track Pallets, storage Zones, and forklift Operators."
+    result = decompose_pitch_into_structure_and_inbox(pitch)
+
+    assert isinstance(result.structure, DomainStructureSchema)
+    assert isinstance(result.inbox, DomainBehaviorInboxSchema)
+
+    entity_names = [e.name for e in result.structure.entities]
+    assert "Pallet" in entity_names
+    assert "Zone" in entity_names
+    assert "Operator" in entity_names
+
+    # Check specs and typed mutation fields
+    assert len(result.inbox.specs) >= 2
+    for s in result.inbox.specs:
+        assert isinstance(s, BusinessSpec)
+        assert s.spec_type in ["ATTRIBUTE_EXPANSION", "DOMAIN_INVARIANT", "STATE_TRANSITION", "API_CONTRACT"]

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { RequirementControlPanel } from './RequirementControlPanel';
 import { AppPreview } from './AppPreview';
 import { KickstartAnalyzeRequestDTO, KickstartSynthesisRequestDTO } from '../types/api';
 
