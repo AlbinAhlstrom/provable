@@ -103,6 +103,19 @@ def auto_setup_environment(py_exe, npm_cmd):
         print("[setup] Running npm install in frontend/...", flush=True)
         subprocess.run(npm_cmd + ["install"], cwd=frontend_dir, check=False)
 
+    print("[setup] Verifying and installing Node dependencies for Workspace Preview...", flush=True)
+    ws_dir = os.path.join(ROOT, "workspace")
+    ws_pkg = os.path.join(ws_dir, "package.json")
+    if not os.path.exists(ws_pkg) or not os.path.exists(os.path.join(ws_dir, "src", "App.tsx")):
+        sys.path.insert(0, os.path.join(ROOT, "backend"))
+        from onboarding.templates.workspace_scaffold import create_default_workspace_scaffold
+        create_default_workspace_scaffold(ws_dir)
+
+    ws_node_modules = os.path.join(ws_dir, "node_modules")
+    if not os.path.exists(ws_node_modules) or not os.path.exists(os.path.join(ws_node_modules, "vite")):
+        print("[setup] Running npm install in workspace/...", flush=True)
+        subprocess.run(npm_cmd + ["install"], cwd=ws_dir, check=False)
+
 def kill_port_occupants(ports=[8000, 5173, 5174]):
     """Terminate any stale processes occupying required application ports on startup."""
     current_pid = os.getpid()
@@ -130,15 +143,16 @@ def is_port_in_use(port: int) -> bool:
         return False
 
 
-def wait_for_port(port=8000, timeout=15):
-    print(f"[backend] Waiting for backend API to be ready on port {port}...", flush=True)
+def wait_for_port(port=8000, service_name="Backend API", timeout=15):
+    tag = service_name.lower().replace(" ", "_")
+    print(f"[{tag}] Waiting for {service_name} to be ready on port {port}...", flush=True)
     start = time.time()
     while time.time() - start < timeout:
         if is_port_in_use(port):
-            print(f"[backend] Backend API ready on port {port}!", flush=True)
+            print(f"[{tag}] {service_name} ready on port {port}!", flush=True)
             return True
         time.sleep(0.5)
-    print(f"[backend] Warning: Backend API port {port} wait timed out.", flush=True)
+    print(f"[{tag}] Warning: {service_name} port {port} wait timed out.", flush=True)
     return False
 
 
@@ -220,21 +234,22 @@ def main():
     print("  Workspace Preview   -> http://localhost:5174", flush=True)
     print("=" * 50 + "\n", flush=True)
 
+    # Start Backend API (FastAPI)
     start_process(backend_cmd, cwd=backend_dir, prefix="[backend]")
-    wait_for_port(8000, timeout=30)
-    start_process(npm_cmd + ["run", "dev"], cwd=frontend_dir, prefix="[app]    ")
+    wait_for_port(8000, "FastAPI Backend API", timeout=30)
 
+    # Start PM Studio Frontend (Vite)
+    start_process(npm_cmd + ["run", "dev"], cwd=frontend_dir, prefix="[app]    ")
+    wait_for_port(5173, "Main Frontend App", timeout=15)
+
+    # Start Workspace Live Preview (Vite)
     ws_dir = os.path.join(ROOT, "workspace")
-    if os.path.exists(os.path.join(ws_dir, "package.json")):
-        # Ensure node_modules exists in workspace if needed
-        if not os.path.exists(os.path.join(ws_dir, "node_modules")):
-            print("[preview] Running npm install in workspace...", flush=True)
-            subprocess.run(npm_cmd + ["install"], cwd=ws_dir, check=False)
-        if not is_port_in_use(5174):
-            print("[preview] Starting Workspace Preview Vite dev server on port 5174...", flush=True)
-            start_process(npm_cmd + ["run", "dev"], cwd=ws_dir, prefix="[preview]")
-        else:
-            print("[preview] Workspace Preview active on port 5174 (managed by backend server manager).", flush=True)
+    if not is_port_in_use(5174):
+        print("[preview] Starting Workspace Preview Vite dev server on port 5174...", flush=True)
+        start_process(npm_cmd + ["run", "dev"], cwd=ws_dir, prefix="[preview]")
+        wait_for_port(5174, "Workspace Preview", timeout=15)
+    else:
+        print("[preview] Workspace Preview active on port 5174.", flush=True)
 
 
     print("\n[provable] All services running continuously with auto-recovery enabled. Press Ctrl+C to stop.\n", flush=True)

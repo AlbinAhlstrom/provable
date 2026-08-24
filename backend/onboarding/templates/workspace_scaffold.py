@@ -19,7 +19,7 @@ def create_default_workspace_scaffold(ws_base: str):
   "type": "module",
   "scripts": {
     "dev": "vite --port 5174 --host",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview --port 5174"
   },
   "dependencies": {
@@ -33,6 +33,25 @@ def create_default_workspace_scaffold(ws_base: str):
     "typescript": "^5.2.0",
     "vite": "^5.0.0"
   }
+}''')
+
+    tsconfig_json = os.path.join(ws_base, 'tsconfig.json')
+    with open(tsconfig_json, 'w', encoding='utf-8') as f:
+        f.write('''{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": false
+  },
+  "include": ["src"]
 }''')
 
     vite_config = os.path.join(ws_base, 'vite.config.ts')

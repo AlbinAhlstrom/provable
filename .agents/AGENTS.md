@@ -110,14 +110,13 @@ When modifying the application codebase or writing developer agent iterations:
 - **Completion Commitment**: Every developer task or milestone MUST end with a clean git commit capturing the completed work.
 - **Commit Amending Rule**: If an immediate follow-up fix or adjustment is made for work that was just committed, ALWAYS append/amend the changes to the same commit (`git commit --amend --no-edit` or `git commit --amend -m "..."`) so the commit log remains clean without fragmented fix commits.
 
-## PM Studio UX Architecture & Mobile-First Responsive Invariants
-
-- **3-Pillar Component Hierarchy**: Organize all PM Studio navigation around 3 Pillars:
-  1. Top Pages/Views selector bar (`PageSelectorBar.tsx`) for route management (`/`, `/checkout`, `/tracking`).
-  2. Executable Test Spec cards with `🟢 PASS` / `🔴 FAIL` badges and formatted `GIVEN / WHEN / THEN` assertion steps (`RequirementControlPanel.tsx` Tab 1).
-  3. Inline Domain Entity CRUD (`RequirementControlPanel.tsx` Tab 2) bound directly to component cards.
-- **Mobile-First Responsiveness**: Default preview mode MUST be `'mobile'` (`375px`), collapsing preview flex frames tightly without side black bars, stacking vertically on screens `< 960px`, and enforcing `overflowX: 'hidden'` with zero horizontal scrollbars.
-- **Bidirectional Data Fixtures Sync**: Data fixture CRUD in PM Studio updates backend `provable.db` SQLite store and regenerates `workspace/src/App.tsx` shell live. Conversely, live App preview user actions (cart additions, order placements) post state updates to `/api/components/fixtures/update` and `window.parent.postMessage` to update PM Studio's control panel in real time.
+## Bug Reproduction & Tri-Service Stack Invariant
+- **Automated Regression Test Invariant**: Whenever any runtime bug, startup issue, compilation error, or preview connectivity failure is encountered, agents MUST write or update an automated integration test (e.g. `backend/tests/integration/test_app_startup_and_preview_connectivity.py`) ensuring full test coverage and preventing regressions.
+- **Tri-Service Live Stack Invariant**: All three core application stack services MUST remain fully scaffolded, configured, and compilable:
+  1. `FastAPI Backend API` (`:8000`): Pure DDD service layer and REST endpoints.
+  2. `PM Studio Frontend` (`:5173`): React 18 / Vite interface in `frontend/`.
+  3. `Workspace Live Preview` (`:5174`): React 18 / Vite sandbox application in `workspace/` with complete `package.json`, `tsconfig.json`, and `vite.config.ts`.
+- **Automated Dependency & Scaffold Guarantee**: `run.py` and workspace scaffold generators MUST verify that `workspace/node_modules/vite` and required TypeScript configs are present on disk before launching dev servers to prevent connection refused errors.
 - **Single Heavy E2E & Directory Isolation Invariant**: All E2E and Selenium browser/visual auditing tests MUST strictly reside under `backend/tests/e2e/` (e.g., `backend/tests/e2e/test_e2e_pizza_prompt_sanity.py`), while `backend/tests/unit/` strictly contains fast (<0.5s) unit tests using `FakeUnitOfWork`. E2E suite uses a Pytest module-level fixture (`scope="module", autouse=True`) for fresh application stack synthesis once per test module run (reusing live project shell if `workspace/src/App.tsx` exists), with individual test functions asserting catalog rendering, cart drawer interactions, simulated payments, visual audit scores, and postMessage state sync.
 
 

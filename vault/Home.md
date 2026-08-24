@@ -27,6 +27,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[DDD_TDD_Developer_Workflow]]: Pure DDD layer boundaries, subagent execution contract, 4-step execution loop, and anti-leakage verification gate.
 - [[Future Enhancements Roadmap]]: Detailed blueprints for the Live Agent Execution Graph Visualizer and Self-Healing TDD Feedback Loop.
 
+- [[Bug-Reproduction-and-Testing-Policy]]: Strict policy and automated regression test workflow for bug reproduction, tri-service stack startup (:8000, :5173, :5174), and zero-regression guarantees.
 - [[Helper Scripts]]: Single cross-platform application launcher (`run.py`), PowerShell/Bash wrappers, and developer debugging utility scripts (`reset_ticket.py`, `update_json.py`, `tail_logs.sh`).
 
 

@@ -182,18 +182,17 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **Hardened Red-Gate TDD Machine (`tdd_machine.py`)**: Built state machine with programmatic Pytest JSON report evaluation, tautology rejection (Exit Code 0 in RED), syntax/timeout rejection (Exit Code 2), OS-level test file write-locking in GREEN phase, and 3-strike dead-end rollback handling (`git reset --hard` + `REQUIRES_HUMAN_INTERVENTION`).
         - **Behavior Inbox & Spec-CRUD API (`specs.py` & `BehaviorInboxPanel.tsx`)**: Created backend endpoints (`GET /api/specs/inbox`, `POST /api/specs/inbox/add`, `POST /api/specs/inbox/{id}/status`) and PM Studio frontend panel for structured spec creation without free-text prompt drift.
         - **Dual-Track Benchmark Suite (`test_dual_track_benchmarks.py`)**: Fully verified against both **Track A (B2C Pizzeria Ordering)** and **Track B (Industrial FIFO Warehouse Management)** with 100% PASS.
-    34. **WMS Baseline Standard & TDD Machine Mutation Test Matrix (Attribute Expansion, Invariant, State Transition)**:
-        - **WMS Standard Test Baseline**: Transitioned primary AppGen benchmark domain from Pizza app to B2B/Industrial Warehouse Management System (`"An industrial warehouse management system to track Pallets, storage Zones, and forklift Operators."`), generating pure initial domain models (`Pallet`, `Zone`, `Operator`).
-        - **Inbox Spec Typings (`SpecMutationType`)**: Added typed specification categorizations (`ATTRIBUTE_EXPANSION`, `DOMAIN_INVARIANT`, `STATE_TRANSITION`, `API_CONTRACT`) across `router_engine.py`, `specs.py` FastAPI router, and service layer.
-        - **TDD Mutation Matrix Suite (`test_tdd_machine_mutations.py`)**: Built integration test matrix covering:
-          1. **Attribute Expansion**: Verified `TypeError` handling upon adding required attributes (`weight: float` to `Pallet`) as valid `APPROVED_RED`.
-          2. **Domain Invariant**: Verified capacity validation and custom domain exceptions (`CapacityExceededError` on `Zone`).
-          3. **State Transition**: Verified deterministic lifecycle transitions (`QUARANTINED` status on expired `Pallet`) with explicit `current_date` arguments (zero non-deterministic clock leaks).
-        - **Empirical Verification**: 100% PASS across full test suite (121/121 in `backend/tests/`) and 0 `import db.store` leaks.
+    35. **Tri-Service Live Stack Startup, Preview Port 5174 Connectivity & Regression Test Policy**:
+        - **Workspace Scaffold Generator Fix (`workspace_scaffold.py`)**: Added missing `tsconfig.json` generation and updated `"build": "vite build"` scripts so the workspace sandbox compiles and bundles cleanly in <600ms.
+        - **Automated Node Modules Check (`run.py`)**: Enhanced `auto_setup_environment` in `run.py` to automatically verify and install dependencies in BOTH `frontend/node_modules` and `workspace/node_modules`, eliminating missing Vite CLI binary errors on port 5174.
+        - **Tri-Service Startup Verification (`run.py`)**: Upgraded `run.py` to actively poll and confirm ready status for all 3 stack services (`:8000` FastAPI, `:5173` PM Studio, `:5174` Workspace Preview) with clear service tagging.
+        - **Automated Integration Test Suite (`test_app_startup_and_preview_connectivity.py`)**: Created dedicated integration suite testing workspace scaffold integrity, workspace Vite bundle build, and PM Studio frontend Vite bundle build (100% PASS).
+        - **Bug Reproduction & Testing Policy**: Established strict policy and documentation in `.agents/AGENTS.md` and `vault/02-Workflows/Bug-Reproduction-and-Testing-Policy.md` requiring agents to write automated regression tests for any runtime bug or connectivity failure.
+        - **Empirical Verification**: 100% PASS across full test suite (124/124 in `backend/tests/`).
 
 ---
 
-*Updated by Antigravity AI on 2026-08-24 (WMS Baseline & TDD Machine Mutation Matrix Verified; 121/121 PASS).*
+*Updated by Antigravity AI on 2026-08-24 (Tri-Service Live Stack Startup & Preview Port 5174 Verified; 124/124 PASS).*
 
 
 
