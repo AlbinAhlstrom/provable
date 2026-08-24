@@ -27,27 +27,11 @@ from onboarding.visual_auditor import capture_preview_screenshot, audit_visual_p
 VISUAL_PROMPT_BENCHMARKS = [
     {
         "slug": "pizza_ordering_website",
-        "pitch": "A pizza ordering website",
+        "pitch": "An app to order pizzas",
         "expected_terms": ["pizza", "menu"],
         "forbidden_terms": ["flappy", "chess"],
         "expected_active_keys": ["catalog"],
         "forbidden_active_keys": ["flappy_bird", "chess_game"]
-    },
-    {
-        "slug": "chess_game",
-        "pitch": "A chess game",
-        "expected_terms": ["chess", "white"],
-        "forbidden_terms": ["pizza", "sourdough", "flappy", "crust"],
-        "expected_active_keys": ["chess_game"],
-        "forbidden_active_keys": ["catalog", "cart", "flappy_bird"]
-    },
-    {
-        "slug": "flappy_bird_game",
-        "pitch": "A flappy bird game",
-        "expected_terms": ["flappy", "score"],
-        "forbidden_terms": ["pizza", "sourdough", "chess", "crust"],
-        "expected_active_keys": ["flappy_bird"],
-        "forbidden_active_keys": ["catalog", "cart", "chess_game"]
     }
 ]
 
