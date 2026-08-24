@@ -119,4 +119,10 @@ When modifying the application codebase or writing developer agent iterations:
 - **Automated Dependency & Scaffold Guarantee**: `run.py` and workspace scaffold generators MUST verify that `workspace/node_modules/vite` and required TypeScript configs are present on disk before launching dev servers to prevent connection refused errors.
 - **Single Heavy E2E & Directory Isolation Invariant**: All E2E and Selenium browser/visual auditing tests MUST strictly reside under `backend/tests/e2e/` (e.g., `backend/tests/e2e/test_e2e_pizza_prompt_sanity.py`), while `backend/tests/unit/` strictly contains fast (<0.5s) unit tests using `FakeUnitOfWork`. E2E suite uses a Pytest module-level fixture (`scope="module", autouse=True`) for fresh application stack synthesis once per test module run (reusing live project shell if `workspace/src/App.tsx` exists), with individual test functions asserting catalog rendering, cart drawer interactions, simulated payments, visual audit scores, and postMessage state sync.
 
+## STRICT INVARIANTS & ANTI-REGRESSION
+- **ZERO-MOCK TOLERANCE**: You are strictly forbidden from hardcoding static UI elements (e.g., product cards, carts, specific domain data) to bypass rendering issues.
+- **FAIL LOUDLY**: If a dynamic schema (OpenAPI/JSON) fails to render in the frontend, you must render an empty state or a red `<ErrorBoundary>` with the technical error. You must never resurrect legacy code or fake the UI to make a test pass visually.
+- **DOMAIN PURITY**: The terms "Pizza", "Cart", and "E-commerce" are deprecated. Never inject them into our industrial/WMS baseline.
+
+
 

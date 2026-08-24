@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export interface BusinessSpecItem {
   spec_id: string;
@@ -136,7 +136,7 @@ export const BehaviorInboxPanel: React.FC = () => {
               <label style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Target Aggregate Root</label>
               <input
                 type="text"
-                placeholder="e.g. PizzaOrder or Pallet"
+                placeholder="e.g. Pallet or Zone"
                 value={newAggregate}
                 onChange={(e) => setNewAggregate(e.target.value)}
                 required
