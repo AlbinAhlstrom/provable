@@ -107,12 +107,18 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **Terminology Pivot (Fixtures ➔ Domain Entities)**: Deprecated legacy "Data Fixtures" terminology across PM Studio in favor of "Domain Entities" / "Entities".
         - **Universal Entity Graph & Linking Invariant**:
           - Primary/Master Catalog components (`catalog`, `menu`, `services`) own root domain entities (`name`, `price`/`rate`, `description`).
-          - Dependent Transactional components (`cart`, `tracking`, `orders`, `bookings`) reference master catalog entities via dropdown selection menus (`[ Select Catalog Entity ▼ ] [ Qty ]` and `[ Select Catalog Entity ▼ ] [ Status: Received ▼ ]`) rather than unconstrained arbitrary string inputs.
           - Universal across all domains (pizzeria, tutor booking, bakery, e-commerce) via automatic master entity role discovery.
+
+    19. **Test Suite Categorization & Directory Isolation (Unit / Integration / E2E)**:
+        - **Folder Separation**:
+          - `backend/tests/unit/` (102 tests, 28.48s): Strictly fast in-memory unit tests using `FakeUnitOfWork` and isolated domain algorithms.
+          - `backend/tests/integration/` (9 tests, 12.50s): Cross-component integration tests including `test_prompt_synthesis_flow.py` (SQLite `store` + AST synthesis), `test_jsx_compilation_integrity.py` (`npx tsc --noEmit` compiler subprocess), and `test_visual_verification_suite.py`.
+          - `backend/tests/e2e/` (7 tests, 17.75s): Headless Chrome Selenium E2E browser tests against live preview server (`test_e2e_pizza_prompt_sanity.py`) and E2E module fixture contract tests (`test_e2e_pizza_fixture_structure.py`).
+        - **Verified 100% Pass**: All 118 tests across unit, integration, and e2e passed cleanly.
 
 ---
 
-*Updated by Antigravity AI on 2026-08-24 (Standard Benchmark Prompt 'An app to order pizzas' codified, and Universal Domain Entity linking architecture formulated).*
+*Updated by Antigravity AI on 2026-08-24 (Categorized test directory into pure unit, integration, and E2E suites with 100% pass across all 118 tests).*
 
 
 

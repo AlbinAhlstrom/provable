@@ -7,7 +7,7 @@ import os
 import sys
 import pytest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from onboarding.block_catalog import analyze_pitch_for_kickstart
 from onboarding.dynamic_domain_generator import build_site_manifest_from_schema
