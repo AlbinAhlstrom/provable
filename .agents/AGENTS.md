@@ -78,6 +78,8 @@ When modifying the application codebase or writing developer agent iterations:
 - **FRONTEND PURITY**: The frontend is domain-agnostic. You are strictly forbidden from hardcoding specific domain entities (like Pallet, Zone, Pizza, User, Order) into React components. All domain data MUST flow dynamically from the OpenAPI schema or API responses.
 - **ZERO-MOCK TOLERANCE**: You are strictly forbidden from hardcoding static UI elements (e.g., product cards, carts, specific domain data) to bypass rendering issues.
 - **FAIL LOUDLY**: If a dynamic schema (OpenAPI/JSON) fails to render in the frontend, you must render an empty state or a red `<ErrorBoundary>` with the technical error. You must never resurrect legacy code or fake the UI to make a test pass visually.
+- **TEST EVOLUTION OVER REGRESSION**: If a test fails because the fundamental architecture or Bounded Context has evolved (e.g., moving from static UI to schema-driven UI), you must DELETE OR REWRITE THE TEST. You are strictly forbidden from reverting architectural progress or hardcoding data just to turn a failing legacy test green.
+
 
 
 

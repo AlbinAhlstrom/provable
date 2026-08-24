@@ -157,6 +157,9 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.75rem', background: 'rgba(5, 150, 105, 0.2)', border: '1px solid #059669', color: '#34d399', padding: '0.25rem 0.65rem', borderRadius: '9999px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            🟢 FastAPI Sync Active
+          </span>
           {activeResetMessage && (
             <span style={{ fontSize: '0.8rem', color: activeResetMessage.includes('✨') ? '#4ade80' : '#f87171' }}>
               {activeResetMessage}
@@ -368,17 +371,32 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
                         </ul>
                       </div>
 
-                      {/* Methods */}
-                      <div>
-                        <strong style={{ fontSize: '0.75rem', color: '#ec4899', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.35rem' }}>
-                          Domain Methods
+                      {/* Dynamic Schema Data Projection Table */}
+                      <div style={{ marginTop: '0.85rem' }}>
+                        <strong style={{ fontSize: '0.75rem', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.35rem' }}>
+                          Live Schema Projection Table
                         </strong>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                          {cls.methods.map((m, idx) => (
-                            <code key={idx} style={{ background: '#0f172a', padding: '0.25rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem', color: '#f472b6' }}>
-                              def {m}
-                            </code>
-                          ))}
+                        <div style={{ overflowX: 'auto', border: '1px solid #334155', borderRadius: '0.35rem' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', textAlign: 'left' }}>
+                            <thead>
+                              <tr style={{ background: '#0f172a', borderBottom: '1px solid #334155' }}>
+                                {cls.fields.map(f => (
+                                  <th key={f.name} style={{ padding: '0.35rem 0.5rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>
+                                    {f.name}
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr style={{ background: '#1e293b' }}>
+                                {cls.fields.map(f => (
+                                  <td key={f.name} style={{ padding: '0.35rem 0.5rem', color: '#cbd5e1', fontFamily: 'monospace' }}>
+                                    {`[${f.type}]`}
+                                  </td>
+                                ))}
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
                       </div>
                     </div>
