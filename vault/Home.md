@@ -32,7 +32,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 
 ### 3. 🧪 Testing & Quality Assurance
 - [[Automated-Verification-And-Self-Healing-Pipeline]]: 3-stage automated verification pipeline featuring Vocabulary Audit Gate (`audit_domain_vocabulary`), Web App Preview Health Gate (`verify_preview_health`), and Pytest Execution Gate.
-- [[Testing Strategy]]: 5-tier test architecture (`tests/unit`, `tests/api`, `tests/integration`, `tests/system`, `tests/e2e`), BDD docstrings (`Given`/`When`/`Then`), `@allure` metadata tags, and test coverage checklists.
+- [[Testing Strategy]]: 3-tier DDD test architecture (`backend/tests/unit`, `backend/tests/integration`, `backend/tests/e2e`), BDD docstrings (`Given`/`When`/`Then`), `@allure` metadata tags, and test coverage checklists.
 
 
 ### 4. ⚖️ Architectural Decisions (ADRs)

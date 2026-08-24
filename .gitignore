@@ -1,6 +1,9 @@
 # Node
 node_modules/
+frontend/node_modules/
+frontend/dist/
 dist/
+.vite/
 
 # Python
 backend/venv/
@@ -29,7 +32,7 @@ workspace/.downloads/
 backend/provable.db
 provable.db
 
-# Scratch dumps
-architecture_patterns_with_python*.md
+# Sandboxes & Experiments
+sandboxes/
 test_out.png
-tmp_ast_test/
+

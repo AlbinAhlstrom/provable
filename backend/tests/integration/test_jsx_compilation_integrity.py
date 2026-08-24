@@ -13,11 +13,12 @@ from onboarding.site_ast_compiler import compile_site_manifest_to_app_tsx
 
 
 def test_frontend_tsx_components_compile_cleanly():
-    """Verifies npx tsc --noEmit succeeds with zero JSX/Babel syntax errors on all src/ components."""
+    """Verifies npx tsc --noEmit succeeds with zero JSX/Babel syntax errors on all frontend/src/ components."""
     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    frontend_dir = os.path.join(root_dir, "frontend")
     
     cmd = ["cmd", "/c", "npx", "tsc", "--noEmit"]
-    res = subprocess.run(cmd, cwd=root_dir, capture_output=True, text=True)
+    res = subprocess.run(cmd, cwd=frontend_dir, capture_output=True, text=True)
     
     assert res.returncode == 0, f"TypeScript / JSX compilation error detected:\n{res.stdout}\n{res.stderr}"
 

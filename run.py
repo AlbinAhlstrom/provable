@@ -96,11 +96,12 @@ def auto_setup_environment(py_exe, npm_cmd):
     # Install/upgrade required python packages automatically
     subprocess.run([py_exe, "-m", "pip", "install", "--upgrade"] + required_pkgs, check=False)
 
-    print("[setup] Verifying and installing Node dependencies...", flush=True)
-    node_modules_path = os.path.join(ROOT, "node_modules")
+    print("[setup] Verifying and installing Node dependencies for PM Studio frontend...", flush=True)
+    frontend_dir = os.path.join(ROOT, "frontend")
+    node_modules_path = os.path.join(frontend_dir, "node_modules")
     if not os.path.exists(node_modules_path) or not os.path.exists(os.path.join(node_modules_path, "vite")):
-        print("[setup] Running npm install...", flush=True)
-        subprocess.run(npm_cmd + ["install"], cwd=ROOT, check=False)
+        print("[setup] Running npm install in frontend/...", flush=True)
+        subprocess.run(npm_cmd + ["install"], cwd=frontend_dir, check=False)
 
 def kill_port_occupants(ports=[8000, 5173, 5174]):
     """Terminate any stale processes occupying required application ports on startup."""
@@ -220,7 +221,7 @@ def main():
 
     start_process(backend_cmd, cwd=backend_dir, prefix="[backend]")
     wait_for_port(8000, timeout=15)
-    start_process(npm_cmd + ["run", "dev"], cwd=ROOT, prefix="[app]    ")
+    start_process(npm_cmd + ["run", "dev"], cwd=frontend_dir, prefix="[app]    ")
 
     ws_dir = os.path.join(ROOT, "workspace")
     if os.path.exists(os.path.join(ws_dir, "package.json")):
