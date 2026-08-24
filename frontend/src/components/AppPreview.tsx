@@ -24,63 +24,6 @@ interface DomainClassModel {
   methods: string[];
 }
 
-const DEFAULT_WMS_DOMAIN_SCHEMA: DomainClassModel[] = [
-  {
-    name: 'Pallet',
-    docstring: 'Pure aggregate root representing an inventory unit in the warehouse.',
-    fields: [
-      { name: 'id', type: 'str', required: true, description: 'Unique pallet tracking identifier' },
-      { name: 'weight', type: 'float', required: true, description: 'Total pallet weight in kg' },
-      { name: 'status', type: 'str', required: true, description: 'PENDING | STORED | QUARANTINED' },
-      { name: 'zone_id', type: 'Optional[str]', required: false, description: 'Assigned storage zone' },
-      { name: 'sku', type: 'str', required: true, description: 'Stock keeping unit identifier' }
-    ],
-    invariants: [
-      'Weight must be strictly greater than 0.0 kg',
-      'Cannot transition to STORED without an assigned zone_id',
-      'Expired pallets transition to QUARANTINED state'
-    ],
-    methods: [
-      'assign_zone(zone: Zone) -> None',
-      'check_expiration(current_date: date) -> None',
-      'quarantine(reason: str) -> None'
-    ]
-  },
-  {
-    name: 'Zone',
-    docstring: 'Storage location with strict capacity and weight constraints.',
-    fields: [
-      { name: 'id', type: 'str', required: true, description: 'Zone code e.g. ZONE-A1' },
-      { name: 'name', type: 'str', required: true, description: 'Human-readable zone label' },
-      { name: 'max_capacity', type: 'int', required: true, description: 'Maximum allowable pallets' },
-      { name: 'current_pallets', type: 'List[str]', required: true, description: 'List of pallet IDs currently stored' }
-    ],
-    invariants: [
-      'len(current_pallets) <= max_capacity (raises CapacityExceededError)'
-    ],
-    methods: [
-      'add_pallet(pallet_id: str) -> None',
-      'remove_pallet(pallet_id: str) -> None',
-      'is_full() -> bool'
-    ]
-  },
-  {
-    name: 'Operator',
-    docstring: 'Forklift operator certified for designated storage zones.',
-    fields: [
-      { name: 'id', type: 'str', required: true, description: 'Operator badge ID' },
-      { name: 'name', type: 'str', required: true, description: 'Full name' },
-      { name: 'certified_zone', type: 'str', required: true, description: 'Zone authorization clearance' }
-    ],
-    invariants: [
-      'Operator must be certified for the target zone before moving pallets'
-    ],
-    methods: [
-      'move_pallet(pallet_id: str, from_zone: str, to_zone: str) -> None'
-    ]
-  }
-];
-
 export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPreviewProps = {}) {
   const [activeTab, setActiveTab] = useState<'preview' | 'api' | 'domain'>('preview');
   const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('mobile');
@@ -88,7 +31,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
   const [isSynthesized, setIsSynthesized] = useState<boolean>(false);
   const [internalResetting, setInternalResetting] = useState<boolean>(false);
   const [internalResetMessage, setInternalResetMessage] = useState<string | null>(null);
-  const [domainClasses, setDomainClasses] = useState<DomainClassModel[]>(DEFAULT_WMS_DOMAIN_SCHEMA);
+  const [domainClasses, setDomainClasses] = useState<DomainClassModel[]>([]);
 
   // Pages & Views Navigation State (Single Dynamic Dashboard View)
   const [pages, setPages] = useState<PageDTO[]>([
@@ -383,58 +326,65 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-                {domainClasses.map(cls => (
-                  <div key={cls.name} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.75rem', padding: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                      <code style={{ fontSize: '1rem', color: '#a78bfa', fontWeight: 700 }}>@dataclass class {cls.name}</code>
-                      <span style={{ fontSize: '0.75rem', background: '#0284c7', color: '#fff', padding: '0.15rem 0.5rem', borderRadius: '9999px', fontWeight: 600 }}>Aggregate Root</span>
-                    </div>
-                    <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0 0 0.75rem 0', fontStyle: 'italic' }}>{cls.docstring}</p>
+              {domainClasses.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
+                  <p style={{ margin: 0, fontSize: '1rem', fontWeight: 600 }}>No Domain Aggregates Available</p>
+                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem' }}>Synthesize a bounded context or wait for backend schema hydration.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+                  {domainClasses.map(cls => (
+                    <div key={cls.name} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.75rem', padding: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <code style={{ fontSize: '1rem', color: '#a78bfa', fontWeight: 700 }}>@dataclass class {cls.name}</code>
+                        <span style={{ fontSize: '0.75rem', background: '#0284c7', color: '#fff', padding: '0.15rem 0.5rem', borderRadius: '9999px', fontWeight: 600 }}>Aggregate Root</span>
+                      </div>
+                      <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0 0 0.75rem 0', fontStyle: 'italic' }}>{cls.docstring}</p>
 
-                    {/* Attributes */}
-                    <div style={{ marginBottom: '0.75rem' }}>
-                      <strong style={{ fontSize: '0.75rem', color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.35rem' }}>
-                        Attributes ({cls.fields.length})
-                      </strong>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                        {cls.fields.map(f => (
-                          <div key={f.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0f172a', padding: '0.3rem 0.6rem', borderRadius: '0.35rem', fontSize: '0.8rem' }}>
-                            <span style={{ color: '#f8fafc', fontWeight: 600 }}>{f.name}</span>
-                            <span style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: '0.75rem' }}>{f.type}</span>
-                          </div>
-                        ))}
+                      {/* Attributes */}
+                      <div style={{ marginBottom: '0.75rem' }}>
+                        <strong style={{ fontSize: '0.75rem', color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.35rem' }}>
+                          Attributes ({cls.fields.length})
+                        </strong>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          {cls.fields.map(f => (
+                            <div key={f.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0f172a', padding: '0.3rem 0.6rem', borderRadius: '0.35rem', fontSize: '0.8rem' }}>
+                              <span style={{ color: '#f8fafc', fontWeight: 600 }}>{f.name}</span>
+                              <span style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: '0.75rem' }}>{f.type}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Invariants */}
+                      <div style={{ marginBottom: '0.75rem' }}>
+                        <strong style={{ fontSize: '0.75rem', color: '#10b981', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.35rem' }}>
+                          Domain Invariants
+                        </strong>
+                        <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.75rem', color: '#cbd5e1' }}>
+                          {cls.invariants.map((inv, idx) => (
+                            <li key={idx} style={{ marginBottom: '0.2rem' }}>{inv}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Methods */}
+                      <div>
+                        <strong style={{ fontSize: '0.75rem', color: '#ec4899', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.35rem' }}>
+                          Domain Methods
+                        </strong>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          {cls.methods.map((m, idx) => (
+                            <code key={idx} style={{ background: '#0f172a', padding: '0.25rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem', color: '#f472b6' }}>
+                              def {m}
+                            </code>
+                          ))}
+                        </div>
                       </div>
                     </div>
-
-                    {/* Invariants */}
-                    <div style={{ marginBottom: '0.75rem' }}>
-                      <strong style={{ fontSize: '0.75rem', color: '#10b981', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.35rem' }}>
-                        Domain Invariants
-                      </strong>
-                      <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.75rem', color: '#cbd5e1' }}>
-                        {cls.invariants.map((inv, idx) => (
-                          <li key={idx} style={{ marginBottom: '0.2rem' }}>{inv}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Methods */}
-                    <div>
-                      <strong style={{ fontSize: '0.75rem', color: '#ec4899', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.35rem' }}>
-                        Domain Methods
-                      </strong>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                        {cls.methods.map((m, idx) => (
-                          <code key={idx} style={{ background: '#0f172a', padding: '0.25rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem', color: '#f472b6' }}>
-                            def {m}
-                          </code>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             <iframe

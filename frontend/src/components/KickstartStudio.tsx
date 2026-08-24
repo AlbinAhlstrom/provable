@@ -6,9 +6,7 @@ export interface KickstartStudioProps {
 }
 
 export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesized }) => {
-  const [pitch, setPitch] = useState<string>(
-    'An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators.'
-  );
+  const [pitch, setPitch] = useState<string>('');
 
   const [building, setBuilding] = useState<boolean>(false);
   const [resetting, setResetting] = useState<boolean>(false);
@@ -104,7 +102,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
             <span style={{ fontSize: '2rem' }}>⚡</span>
             <div>
               <h2 style={{ margin: 0, fontSize: '1.75rem', color: '#f8fafc', fontWeight: 800 }}>Provable Architecture Synthesizer</h2>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8' }}>Define your industrial domain bounded context to synthesize verified DDD domain aggregates, OpenAPI contracts &amp; live preview.</p>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8' }}>Define your domain bounded context to synthesize verified DDD domain aggregates, OpenAPI contracts &amp; live preview.</p>
             </div>
           </div>
         </div>
@@ -126,7 +124,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
             value={pitch}
             onChange={e => setPitch(e.target.value)}
             disabled={building}
-            placeholder="e.g., An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
+            placeholder="e.g., Describe your domain bounded context, aggregate roots, entities, and business invariant rules."
             style={{
               width: '100%',
               background: '#0f172a',

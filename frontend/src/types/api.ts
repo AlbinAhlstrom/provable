@@ -105,7 +105,7 @@ export interface ReportBugPayloadDTO {
   actual: string;
 }
 
-export interface CheckoutPreviewPayloadDTO {
+export interface SwitchBranchPayloadDTO {
   branch: string;
 }
 

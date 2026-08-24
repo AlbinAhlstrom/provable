@@ -125,7 +125,7 @@ export const BehaviorInboxPanel: React.FC = () => {
               <label style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Rule Title</label>
               <input
                 type="text"
-                placeholder="e.g. Enforce 10% Discount for Loyalty Members"
+                placeholder="e.g. Enforce State Invariant Bound"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 required
@@ -136,7 +136,7 @@ export const BehaviorInboxPanel: React.FC = () => {
               <label style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Target Aggregate Root</label>
               <input
                 type="text"
-                placeholder="e.g. Pallet or Zone"
+                placeholder="e.g. Aggregate Root or Domain Entity"
                 value={newAggregate}
                 onChange={(e) => setNewAggregate(e.target.value)}
                 required
@@ -148,7 +148,7 @@ export const BehaviorInboxPanel: React.FC = () => {
             <label style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Given / When / Then Specification</label>
             <input
               type="text"
-              placeholder="Given customer has loyalty points When placing order Then total is reduced by 10%"
+              placeholder="Given entity is in valid state When transition triggered Then state updates cleanly"
               value={newGivenWhenThen}
               onChange={(e) => setNewGivenWhenThen(e.target.value)}
               style={{ width: '100%', background: '#1e293b', border: '1px solid #475569', color: '#fff', padding: '6px 8px', borderRadius: '4px', fontSize: '12px' }}

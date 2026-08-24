@@ -379,7 +379,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
 
                           <input
                             type="text"
-                            placeholder="Spec title (e.g., Enforce Zone Capacity Bound)"
+                            placeholder="Spec title (e.g., Enforce Aggregate Boundary Invariant)"
                             value={newSpecTitle}
                             onChange={e => setNewSpecTitle(e.target.value)}
                             style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.4rem 0.6rem', borderRadius: '0.35rem', fontSize: '0.8rem' }}
@@ -409,7 +409,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
 
                           <input
                             type="text"
-                            placeholder="GIVEN precondition (e.g., Zone with capacity 10 and 10 pallets)"
+                            placeholder="GIVEN precondition (e.g., Entity is in active state)"
                             value={newGiven}
                             onChange={e => setNewGiven(e.target.value)}
                             style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.35rem 0.6rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
@@ -417,7 +417,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
 
                           <input
                             type="text"
-                            placeholder="WHEN action triggered (e.g., operator attempts to add 11th pallet)"
+                            placeholder="WHEN action triggered (e.g., State transition or event occurs)"
                             value={newWhen}
                             onChange={e => setNewWhen(e.target.value)}
                             style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.35rem 0.6rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
@@ -425,7 +425,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
 
                           <input
                             type="text"
-                            placeholder="THEN assertion (e.g., raises CapacityExceededError)"
+                            placeholder="THEN assertion (e.g., Target state or invariant is validated)"
                             value={newThen}
                             onChange={e => setNewThen(e.target.value)}
                             style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.35rem 0.6rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}

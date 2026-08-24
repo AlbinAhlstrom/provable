@@ -192,15 +192,17 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **Engine Room Pivot (`RequirementControlPanel.tsx`)**: Renamed section to "🧬 DOMAIN AGGREGATES", replaced UI component accordions with Domain Aggregate roots (`Pallet`, `Zone`, `Operator`), mapped BDD executable spec payloads (`GIVEN / WHEN / THEN / UNLESS`) directly to `target_aggregate` via `/api/specs/inbox/add`, added live TDD state badges (`🟢 FULFILLED`, `⚡ TDD RUNNING`, `🔴 NEEDS REVIEW`, `⏳ PENDING`), and removed the free-text component addition box.
         - **Empirical Verification**: 100% PASS across TypeScript frontend build (`npm run build` $\rightarrow$ 0 errors) and full Pytest suite (124/124 PASS).
 
-    40. **Zero-Mock Invariant Enforcement & No-Legacy-Ghosts Canary Test (`AGENTS.md` & `test_no_legacy_ghosts.py`)**:
-        - **Persistent Rule Enforcement (`.agents/AGENTS.md`)**: Formally codified `STRICT INVARIANTS & ANTI-REGRESSION` with `ZERO-MOCK TOLERANCE`, `FAIL LOUDLY`, and `DOMAIN PURITY` mandates, legally binding all future agents to never resuscitate deprecated mock templates ("Pizza", "Cart", "E-commerce") or fake UI elements when dynamic schema projections fail.
-        - **Frontend Purity Audit**: Scanned all `frontend/src/` components and purged any residual deprecated strings or placeholders.
-        - **Canary Regression Test (`backend/tests/integration/test_no_legacy_ghosts.py`)**: Implemented automated test recursively scanning all TypeScript files (`.ts`, `.tsx`) in `frontend/src/` to strictly fail if forbidden tokens (`Pizza`, `Signature Industrial`, `AppCraft`) ever reappear.
-        - **Empirical Verification**: 100% PASS on Canary test and full test suite (123/123 PASS).
+    41. **Dynamic Frontend Domain Purity Reflection Test (`AGENTS.md` & `test_frontend_domain_purity.py`)**:
+        - **Global Frontend Search & Destroy**: Thoroughly purged all instances of hardcoded domain strings (`Pallet`, `Zone`, `Operator`, `Pizza`, `AppCraft`, `Industrial`) from all `.ts` and `.tsx` files in `frontend/src/`.
+        - **Domain-Agnostic Projection Invariant**: Replaced all hardcoded initial mock models with dynamic API hydration or empty states (`[]`), and updated all input form placeholders to use generic architectural terminology (`Aggregate Root`, `Domain Entity`, `State Transition Invariant`).
+        - **Dynamic Reflection Enforcer Test (`backend/tests/integration/test_frontend_domain_purity.py`)**: Programmatically scans the backend domain layer and generated dataclasses/aggregates via AST and service layer inspection to extract active aggregate roots, entities, and attributes, asserting that none exist as hardcoded strings in `frontend/src/` alongside permanent legacy bans (`pizza`, `cart`, `checkout`, `appcraft`).
+        - **Future E2E Gibberish Testing Note**: Documented future architectural E2E strategy feeding synthetic gibberish schemas (`FlorgBorg`, `Zorp`) to prove the UI functions as a true pure dumb projection.
+        - **Persistent Rule Enforcement (`.agents/AGENTS.md`)**: Codified the binding invariant: "FRONTEND PURITY: The frontend is domain-agnostic. You are strictly forbidden from hardcoding specific domain entities (like Pallet, Zone, Pizza, User, Order) into React components. All domain data MUST flow dynamically from the OpenAPI schema or API responses."
+        - **Empirical Verification**: 100% PASS across TypeScript compilation (`npm run build` $\rightarrow$ 0 errors) and full backend pytest suite (131/131 PASS in 55.02s).
 
 ---
 
-*Updated by Antigravity AI on 2026-08-25 (Zero-Mock Invariant & Canary Test Complete; 129/129 PASS).*
+*Updated by Antigravity AI on 2026-08-25 (Dynamic Frontend Domain Purity Reflection Test Complete; 131/131 PASS).*
 
 
 

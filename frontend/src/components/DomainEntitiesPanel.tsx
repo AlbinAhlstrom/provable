@@ -15,24 +15,24 @@ export const DomainEntitiesPanel: React.FC<DomainEntitiesPanelProps> = ({
   onToggleOpen,
 }) => {
   const [selectedEntityName, setSelectedEntityName] = useState<string>(
-    entities[0]?.name || 'MenuItem'
+    entities[0]?.name || ''
   );
 
   const activeEntity = entities.find((e) => e.name === selectedEntityName) || entities[0];
   const [newItemName, setNewItemName] = useState<string>('');
-  const [newItemPrice, setNewItemPrice] = useState<string>('');
+  const [newItemValue, setNewItemValue] = useState<string>('');
 
   const handleAddItem = () => {
     if (!newItemName.trim() || !activeEntity) return;
     const newItem = {
       name: newItemName.trim(),
-      price: parseFloat(newItemPrice) || 14.99,
+      value: newItemValue.trim(),
     };
     if (onAddEntityItem) {
       onAddEntityItem(activeEntity.name, newItem);
     }
     setNewItemName('');
-    setNewItemPrice('');
+    setNewItemValue('');
   };
 
   if (!isOpen) {
@@ -157,7 +157,7 @@ export const DomainEntitiesPanel: React.FC<DomainEntitiesPanelProps> = ({
                 }}
               >
                 <span>{item.name || item.title || `Item #${idx + 1}`}</span>
-                <span style={{ color: '#4ade80', fontWeight: 600 }}>${item.price || 14.99}</span>
+                <span style={{ color: '#4ade80', fontWeight: 600 }}>{item.value !== undefined ? String(item.value) : ''}</span>
               </div>
             ))}
           </div>
@@ -166,7 +166,7 @@ export const DomainEntitiesPanel: React.FC<DomainEntitiesPanelProps> = ({
           <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.5rem' }}>
             <input
               type="text"
-              placeholder="Item name (e.g. Truffle Deluxe)"
+              placeholder="Entity name (e.g. Entity A)"
               value={newItemName}
               onChange={(e) => setNewItemName(e.target.value)}
               style={{
@@ -180,10 +180,10 @@ export const DomainEntitiesPanel: React.FC<DomainEntitiesPanelProps> = ({
               }}
             />
             <input
-              type="number"
-              placeholder="Price ($)"
-              value={newItemPrice}
-              onChange={(e) => setNewItemPrice(e.target.value)}
+              type="text"
+              placeholder="Value"
+              value={newItemValue}
+              onChange={(e) => setNewItemValue(e.target.value)}
               style={{
                 flex: 1,
                 background: '#1e293b',

@@ -126,7 +126,7 @@ export const PageSelectorBar: React.FC<PageSelectorBarProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#1e293b', padding: '0.35rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #0284c7' }}>
           <input
             type="text"
-            placeholder="Page Name (e.g. Checkout)"
+            placeholder="Page Name (e.g. Details)"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             style={{
@@ -141,7 +141,7 @@ export const PageSelectorBar: React.FC<PageSelectorBarProps> = ({
           />
           <input
             type="text"
-            placeholder="Route (e.g. /checkout)"
+            placeholder="Route (e.g. /details)"
             value={newRoute}
             onChange={(e) => setNewRoute(e.target.value)}
             style={{

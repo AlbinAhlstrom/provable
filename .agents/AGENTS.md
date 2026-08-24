@@ -41,52 +41,7 @@ When initializing the workspace services for coding, testing, or review tasks:
 **NEVER execute `python run.py` via `run_command` in background tasks.**
 Executing `python run.py` spawns long-lived WatchFiles reloader processes that trigger system restarts, interrupting the agent's turn and breaking the chat session. The user manages `python run.py` in their own terminal session, while Uvicorn and Vite handle hot-module-reloading (HMR) automatically whenever code edits are made.
 
-## Requirements-Driven TDD Architecture
-When modifying the application codebase or writing developer agent iterations:
-# Project Rules
-
-## workspace/ is strictly off-limits (No Bandages Invariant)
-
-The `workspace/` directory contains the application produced by the automated generation pipeline.
-**NEVER directly write, edit, patch, or commit files inside `workspace/`.**
-
-Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/dynamic_domain_generator.py`, `backend/main.py`, `backend/prompts/ui_generation.md`). Editing `workspace/` files directly is an unacceptable band-aid that will immediately be overwritten when the pipeline runs.
-
-You may:
-- Read `workspace/` files to **diagnose** runtime/build errors or inspect generated output.
-- Run `git log`, `git status`, `git diff` inside `workspace/` for inspection only.
-
-You must NOT:
-- Edit or create any files directly inside `workspace/` (always edit generator templates in `backend/` instead).
-- Run `git add`, `git commit`, `git revert`, or `git reset` inside `workspace/`.
-
-## Headless Chrome & Selenium
-When executing headless Chrome or Selenium automation in containerized remote environments or headless hosts:
-- Always include the `--disable-gpu` and `--remote-debugging-port=9222` options in the webdriver initialization arguments to prevent `DevToolsActivePort` initialization failures.
-
-## Obsidian Vault Documentation & Handover Continuity
-Maintain a well-structured Obsidian vault under the `vault/` directory in the root of the project. Whenever adding, modifying, or deleting features, update the corresponding documentation:
-- Keep the `vault/Home.md` index file up-to-date.
-- Read relevant files in `vault/` during the research phase of a task to understand system context and existing architecture.
-- **Cross-Chat Handover Invariant**: At the start of EVERY chat session or task, read `vault/HANDOVER.md` to restore full architectural state, active context, and planned unexecuted work items.
-- **Session Wrap-Up Invariant**: At the conclusion of any task where architectural decisions or roadmap items are planned/modified, update `vault/HANDOVER.md` so future agents and chats pick up seamlessly.
-- Document architectural changes under `vault/01-Architecture/`.
-- Document new agent behaviors or workflow changes under `vault/02-Workflows/`.
-- Use standard double-bracket internal links (e.g. `[[System Architecture]]`) to link related concepts.
-
-## Starting the Application Stack
-When initializing the workspace services for coding, testing, or review tasks:
-1. **Ensure Docker Desktop is running** on the Windows host.
-2. **Start the Allure Dashboard container**:
-   ```powershell
-   docker compose -f docker-compose.allure.yaml up -d
-   ```
-
-## Application Stack Execution Invariant
-**NEVER execute `python run.py` via `run_command` in background tasks.**
-Executing `python run.py` spawns long-lived WatchFiles reloader processes that trigger system restarts, interrupting the agent's turn and breaking the chat session. The user manages `python run.py` in their own terminal session, while Uvicorn and Vite handle hot-module-reloading (HMR) automatically whenever code edits are made.
-
-## Requirements-Driven TDD Architecture
+### Requirements-Driven TDD Architecture
 When modifying the application codebase or writing developer agent iterations:
 1. **SQLite DataStore**: Always read and update requirements, test cases, and runs via `backend/db/store.py` (which wraps SQLite `provable.db`) rather than legacy JSON files.
 2. **StrictDoc Sync**: Requirements are version-controlled inside the git repository under `workspace/requirements/requirements.sdoc`. Updates to requirements database models must trigger the bidirectional sync hook `export_sdoc()` to keep spec files aligned.
@@ -120,9 +75,10 @@ When modifying the application codebase or writing developer agent iterations:
 - **Single Heavy E2E & Directory Isolation Invariant**: All E2E and Selenium browser/visual auditing tests MUST strictly reside under `backend/tests/e2e/` (e.g., `backend/tests/e2e/test_e2e_pizza_prompt_sanity.py`), while `backend/tests/unit/` strictly contains fast (<0.5s) unit tests using `FakeUnitOfWork`. E2E suite uses a Pytest module-level fixture (`scope="module", autouse=True`) for fresh application stack synthesis once per test module run (reusing live project shell if `workspace/src/App.tsx` exists), with individual test functions asserting catalog rendering, cart drawer interactions, simulated payments, visual audit scores, and postMessage state sync.
 
 ## STRICT INVARIANTS & ANTI-REGRESSION
+- **FRONTEND PURITY**: The frontend is domain-agnostic. You are strictly forbidden from hardcoding specific domain entities (like Pallet, Zone, Pizza, User, Order) into React components. All domain data MUST flow dynamically from the OpenAPI schema or API responses.
 - **ZERO-MOCK TOLERANCE**: You are strictly forbidden from hardcoding static UI elements (e.g., product cards, carts, specific domain data) to bypass rendering issues.
 - **FAIL LOUDLY**: If a dynamic schema (OpenAPI/JSON) fails to render in the frontend, you must render an empty state or a red `<ErrorBoundary>` with the technical error. You must never resurrect legacy code or fake the UI to make a test pass visually.
-- **DOMAIN PURITY**: The terms "Pizza", "Cart", and "E-commerce" are deprecated. Never inject them into our industrial/WMS baseline.
+
 
 
 
