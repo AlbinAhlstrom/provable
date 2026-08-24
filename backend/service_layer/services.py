@@ -538,16 +538,20 @@ def get_component_data_fixtures(uow: Optional[AbstractUnitOfWork] = None) -> Dic
     default_catalog = []
     for idx, item in enumerate(raw_seed):
         price_val = 14.99
-        p_str = str(item.get("price_or_rate", ""))
-        p_match = re.search(r'([0-9]+(?:\.[0-9]+)?)', p_str)
-        if p_match:
-            try:
-                price_val = float(p_match.group(1))
-            except ValueError:
-                price_val = 14.99
+        if item.get("price") is not None and isinstance(item.get("price"), (int, float)):
+            price_val = float(item["price"])
+        else:
+            p_str = str(item.get("price_or_rate", ""))
+            p_match = re.search(r'([0-9]+(?:\.[0-9]+)?)', p_str)
+            if p_match:
+                try:
+                    price_val = float(p_match.group(1))
+                except ValueError:
+                    price_val = 14.99
+        item_name = item.get("name") or item.get("title") or f"Item #{idx+1}"
         cat_item = {
             "id": f"item-{item.get('id', idx+1)}",
-            "name": item.get("title", f"Item #{idx+1}"),
+            "name": item_name,
             "price": price_val
         }
         if "ingredients" in item:

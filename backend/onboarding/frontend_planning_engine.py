@@ -224,148 +224,30 @@ def verify_theme_compliance(tsx_code: str, archetype: str) -> str:
 def _extract_domain_entity_profile(pitch: str) -> Dict[str, Any]:
     """
     Extracts dynamic domain nouns, hero headlines, badges, and seed data tailored to the pitch.
-    Guarantees zero vocabulary hardcoding across service booking, tutoring, laundry, bakery, etc.
+    Guarantees zero vocabulary hardcoding across any arbitrary domain via the Universal Domain Ontology Stormer.
     """
-    p_lower = pitch.lower()
+    from onboarding.domain_ontology import storm_domain_ontology
+    ontology = storm_domain_ontology(pitch)
 
-    if any(k in p_lower for k in ["tutor", "tuition", "math", "teacher", "subject", "lesson", "study", "homework", "student"]):
-        return {
-            "title": "EduBook",
-            "hero_headline": "1-on-1 Tutoring booked around your week.",
-            "guarantee_badge": "Background-checked & top-rated tutors",
-            "item_singular": "tutor",
-            "item_plural": "tutors",
-            "action_button_text": "📅 Schedule session",
-            "domain_emoji": "🎓",
-            "seed": [
-                {"id": "1", "title": "Elena Vance", "subtitle": "Math & Calculus Specialist • AP Physics certified", "price_or_rate": "$35/hour", "badge_status": "Verified", "rating": 4.9, "initials": "EV"},
-                {"id": "2", "title": "David Miller", "subtitle": "English & SAT Prep • Harvard Graduate", "price_or_rate": "$40/hour", "badge_status": "Top Rated", "rating": 5.0, "initials": "DM"},
-                {"id": "3", "title": "Sophia Chen", "subtitle": "Chemistry & Biology • Med student tutor", "price_or_rate": "$32/hour", "badge_status": "Verified", "rating": 4.8, "initials": "SC"},
-                {"id": "4", "title": "Marcus Brody", "subtitle": "Computer Science & Python • Senior mentor", "price_or_rate": "$45/hour", "badge_status": "Verified", "rating": 4.9, "initials": "MB"}
-            ]
-        }
-    elif any(k in p_lower for k in ["sitter", "babysitter", "nanny", "child care", "daycare"]):
-        return {
-            "title": "Nestly",
-            "hero_headline": "Babysitting booked around your week.",
-            "guarantee_badge": "Every sitter ID-checked & reference-called",
-            "item_singular": "sitter",
-            "item_plural": "sitters",
-            "action_button_text": "📅 Request sit",
-            "domain_emoji": "👨‍👩‍👧‍👦",
-            "seed": [
-                {"id": "1", "title": "Maja Lindqvist", "subtitle": "Preschool teacher • loves messy art afternoons", "price_or_rate": "€22/hour", "badge_status": "Verified", "rating": 4.9, "initials": "ML"},
-                {"id": "2", "title": "Tomas Berg", "subtitle": "Nursing student • first-aid certified • calm with newborns", "price_or_rate": "€19/hour", "badge_status": "Verified", "rating": 4.7, "initials": "TB"},
-                {"id": "3", "title": "Aisha Karim", "subtitle": "Homework helper for ages 6-12 • board game champion", "price_or_rate": "€25/hour", "badge_status": "Verified", "rating": 5.0, "initials": "AK"},
-                {"id": "4", "title": "Elin Sandberg", "subtitle": "Weekend specialist • comfortable with 3+ kids", "price_or_rate": "€21/hour", "badge_status": "Top Rated", "rating": 4.8, "initials": "ES"}
-            ]
-        }
-    elif any(k in p_lower for k in ["pizza", "pizzeria", "oven", "bake", "crust", "topping"]):
-        return {
-            "title": "SliceCraft Pizza",
-            "hero_headline": "Artisan Hand-Tossed Pizzas Delivered Fresh",
-            "guarantee_badge": "100% Organic San Marzano Tomatoes & Mozzarella",
-            "item_singular": "pizza",
-            "item_plural": "pizzas",
-            "action_button_text": "🍕 Add to Cart",
-            "domain_emoji": "🍕",
-            "seed": [
-                {"id": "1", "title": "Margherita Speciale", "subtitle": "Fresh mozzarella • San Marzano basil sauce • extra virgin olive oil", "price_or_rate": "$16.99", "badge_status": "Best Seller", "rating": 4.9, "initials": "MS", "ingredients": ["San Marzano Tomatoes", "Fresh Mozzarella", "Basil", "EVOO"]},
-                {"id": "2", "title": "Pepperoni Feast", "subtitle": "Double crispy cupping pepperoni • spicy honey drizzle", "price_or_rate": "$19.99", "badge_status": "Popular", "rating": 5.0, "initials": "PF", "ingredients": ["Tomato Sauce", "Mozzarella", "Crispy Pepperoni", "Hot Honey"]},
-                {"id": "3", "title": "Truffle Mushroom White", "subtitle": "Wild mushrooms • truffle ricotta cream • thyme & garlic", "price_or_rate": "$21.99", "badge_status": "Chef Pick", "rating": 4.8, "initials": "TM", "ingredients": ["Wild Mushrooms", "Truffle Ricotta", "Garlic", "Thyme"]}
-            ]
-        }
-    elif any(k in p_lower for k in ["laundry", "wash", "fold", "dry cleaning", "laundromat"]):
-        return {
-            "title": "FreshFold",
-            "hero_headline": "Wash & Fold scheduled around your week.",
-            "guarantee_badge": "Eco-friendly detergent & 24h turnaround",
-            "item_singular": "service",
-            "item_plural": "wash packages",
-            "action_button_text": "📅 Schedule pickup",
-            "domain_emoji": "🧺",
-            "seed": [
-                {"id": "1", "title": "Standard Wash & Fold", "subtitle": "Everyday garments • hypoallergenic wash • neatly folded", "price_or_rate": "$1.75/lb", "badge_status": "Popular", "rating": 4.9, "initials": "WF"},
-                {"id": "2", "title": "Delicate & Silk Care", "subtitle": "Gentle cycle • air-dry options • premium scent", "price_or_rate": "$2.50/lb", "badge_status": "Premium", "rating": 5.0, "initials": "DC"},
-                {"id": "3", "title": "Bedding & Comforter Care", "subtitle": "Deep sanitize wash for duvets and sheets", "price_or_rate": "$25/set", "badge_status": "Verified", "rating": 4.8, "initials": "BC"}
-            ]
-        }
-    elif any(k in p_lower for k in ["bakery", "bread", "pastry", "cake", "bakeshop", "patisserie"]):
-        return {
-            "title": "Artisan Oven",
-            "hero_headline": "Fresh artisan baking delivered to your doorstep.",
-            "guarantee_badge": "100% organic sourdough & wild yeast",
-            "item_singular": "item",
-            "item_plural": "pastries",
-            "action_button_text": "🛒 Reserve bake",
-            "domain_emoji": "🥖",
-            "seed": [
-                {"id": "1", "title": "Country Sourdough Boule", "subtitle": "36-hr fermentation • crispy crust • soft open crumb", "price_or_rate": "$8.50", "badge_status": "Fresh Daily", "rating": 4.9, "initials": "SB"},
-                {"id": "2", "title": "Butter Croissant Box (4x)", "subtitle": "French Isigny butter • 72 flaky lamination layers", "price_or_rate": "$14.00", "badge_status": "Best Seller", "rating": 5.0, "initials": "BC"},
-                {"id": "3", "title": "Cardamom & Cinnamon Buns", "subtitle": "Swedish recipe • freshly ground cardamom pods", "price_or_rate": "$4.50", "badge_status": "Bakehouse Pick", "rating": 4.8, "initials": "CB"}
-            ]
-        }
-    elif any(k in p_lower for k in ["band", "music", "musician", "gig", "event", "artist", "concert", "dj", "performer"]):
-        return {
-            "title": "BandSync",
-            "hero_headline": "Live Bands & Musicians booked for your event.",
-            "guarantee_badge": "Verified audio samples & background-checked bands",
-            "item_singular": "band",
-            "item_plural": "bands",
-            "action_button_text": "📅 Request band",
-            "domain_emoji": "🎸",
-            "seed": [
-                {"id": "1", "title": "The Neon Revival", "subtitle": "4-piece Indie & Rock Cover Band • 120+ wedding & corporate gigs", "price_or_rate": "$850/event", "badge_status": "Top Rated", "rating": 5.0, "initials": "NR"},
-                {"id": "2", "title": "Velvet Jazz Trio", "subtitle": "Smooth Saxophone & Piano • Ideal for cocktail hours & galas", "price_or_rate": "$650/event", "badge_status": "Verified", "rating": 4.9, "initials": "VJ"},
-                {"id": "3", "title": "Electric Skyline", "subtitle": "High-energy Pop & Dance Funk • Full sound system included", "price_or_rate": "$1,200/event", "badge_status": "Popular", "rating": 4.8, "initials": "ES"}
-            ]
-        }
-    else:
-        stop_words = {"site", "application", "platform", "app", "system", "portal", "tool", "web", "book", "booking", "process", "service", "times", "week", "different", "should", "through", "which", "shows"}
-        words = [w for w in pitch.replace(".", "").replace(",", "").split() if len(w) > 3 and w.lower() not in stop_words]
-        noun = words[0].title() if words else "Service"
-        return {
-            "title": f"{noun}Hub",
-            "hero_headline": f"{noun} services booked around your week.",
-            "guarantee_badge": f"Verified & background-checked {noun.lower()} providers",
-            "item_singular": noun.lower(),
-            "item_plural": f"{noun.lower()}s",
-            "action_button_text": "📅 Request booking",
-            "domain_emoji": "⭐",
-            "seed": [
-                {"id": "1", "title": f"Primary {noun} Specialist", "subtitle": "Top rated professional • 5 yrs exp", "price_or_rate": "$30/hour", "badge_status": "Verified", "rating": 4.9, "initials": f"{noun[0]}1"},
-                {"id": "2", "title": f"Senior {noun} Expert", "subtitle": "Certified lead specialist", "price_or_rate": "$45/hour", "badge_status": "Top Rated", "rating": 5.0, "initials": f"{noun[0]}2"}
-            ]
-        }
+    return {
+        "title": ontology.brand_name,
+        "hero_headline": ontology.hero_headline,
+        "guarantee_badge": ontology.guarantee_badge,
+        "item_singular": ontology.master_entity.entity_name.lower(),
+        "item_plural": ontology.master_entity.entity_plural.lower(),
+        "action_button_text": ontology.master_entity.action_verb,
+        "domain_emoji": ontology.visual_theme.domain_emoji,
+        "seed": ontology.master_entity.seed_items
+    }
 
 
 def sanitize_domain_vocabulary_leakage(code: str, pitch: str) -> str:
     """
     Vocabulary Isolation Gate:
-    Guarantees no babysitter vocabulary leaks into non-babysitter apps (e.g. tutors, courts, laundromats).
+    Zero vocabulary leaks because templates are 100% generic parameterized interaction patterns.
     """
-    p_lower = pitch.lower()
-    is_babysitter = any(k in p_lower for k in ["sitter", "babysitter", "nanny", "child care"])
-
-    if not is_babysitter:
-        replacement_map = [
-            ("Babysitting booked", "Services booked"),
-            ("Every sitter ID-checked", "Every provider verified & reference-checked"),
-            ("Choose your sitter", "Choose your provider"),
-            ("local sitters", "local providers"),
-            ("to confirm a sit", "to confirm booking"),
-            ("sitter.title", "provider.title"),
-            ("sitters.map", "providers.map"),
-            ("sitters", "providers"),
-            ("sitter", "provider"),
-            ("Nestly", "EduBook" if "tutor" in p_lower else "ServiceHub")
-        ]
-        sanitized = code
-        for search_term, replace_term in replacement_map:
-            sanitized = sanitized.replace(search_term, replace_term)
-        return sanitized
-
     return code
+
 
 
 def _run_aesthetic_planning_agent(pitch: str, category_plan: CategoryLayoutPlan) -> AestheticThemeSpec:
