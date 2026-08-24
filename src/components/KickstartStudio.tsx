@@ -154,7 +154,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
             value={pitch}
             onChange={e => setPitch(e.target.value)}
             disabled={building}
-            placeholder="e.g. We operate a pizza delivery website with live tracking..."
+            placeholder="e.g. A specialized equipment rental platform with real-time availability and booking pipeline..."
             style={{
               width: '100%',
               background: '#0f172a',
@@ -198,13 +198,13 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
       {/* Domain Examples Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
         <div 
-          onClick={() => setPitch('An app to order pizzas')}
+          onClick={() => setPitch('An on-demand artisanal storefront with catalog, custom item options, and live order tracking')}
           style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.75rem', padding: '1rem', cursor: 'pointer' }}
         >
 
-          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🍕</div>
-          <strong style={{ display: 'block', color: '#f8fafc', marginBottom: '0.25rem' }}>Artisanal Pizzeria</strong>
-          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Menu customizer, dynamic pickup queue &amp; live tracking.</span>
+          <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🛍️</div>
+          <strong style={{ display: 'block', color: '#f8fafc', marginBottom: '0.25rem' }}>On-Demand Storefront</strong>
+          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Product catalog, custom modifiers &amp; live tracking.</span>
         </div>
 
         <div 

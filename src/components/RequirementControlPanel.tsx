@@ -85,7 +85,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   const handleOpenSchemaEditor = (canonicalKey: string) => {
     const existing = entitySchemasByComponent[canonicalKey];
     setEditingSchemaKey(canonicalKey);
-    setSchemaEntityName(existing?.entity_name || (canonicalKey === 'cart' ? 'CartItem' : canonicalKey === 'tracking' ? 'Order' : 'Pizza'));
+    setSchemaEntityName(existing?.entity_name || (canonicalKey === 'cart' ? 'CartItem' : canonicalKey === 'tracking' ? 'Order' : 'Item'));
     setSchemaAttributes(existing?.attributes || [
       { name: 'name', type: 'string', required: true },
       { name: 'price', type: 'currency', required: true }
@@ -828,7 +828,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                       const currentFixtures = dataFixturesByComponent[item.canonical_key] || [];
 
                       const schema = entitySchemasByComponent[item.canonical_key];
-                      const entityClassName = schema?.entity_name || (isCart ? 'CartItem' : isTracking ? 'Order' : 'Pizza');
+                      const entityClassName = schema?.entity_name || (isCart ? 'CartItem' : isTracking ? 'Order' : 'CatalogItem');
                       const attrSummary = schema?.attributes?.map(a => `${a.name} (${a.type})`).join(' • ') || 'name (str) • price ($)';
                       const hasIngredientsAttr = schema?.attributes?.some(a => a.name === 'ingredients' || a.type === 'tags');
 
@@ -1351,7 +1351,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                   type="text"
                   value={schemaEntityName}
                   onChange={e => setSchemaEntityName(e.target.value)}
-                  placeholder="e.g. Pizza, Tutor, MenuItem"
+                  placeholder="e.g. CatalogItem, ServiceOffering, Package"
                   style={{
                     width: '100%',
                     background: '#1e293b',

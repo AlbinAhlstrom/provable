@@ -21,7 +21,7 @@ CLASSIFICATION_BENCHMARK_CASES = [
         "domain": "Pure Custom Game",
         "pitch": "A flappy bird game",
         "expected_custom_concept": True,
-        "expected_premade_blocks": ["flappy_bird"],
+        "expected_premade_blocks": ["interactive_widget"],
         "forbidden_premade_blocks": ["catalog_grid", "shopping_cart", "order_tracking"]
     },
     {

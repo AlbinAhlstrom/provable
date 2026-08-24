@@ -139,31 +139,14 @@ def _infer_action_verb(category: str, noun: str) -> str:
 
 
 def _infer_domain_emoji(noun: str, category: str) -> str:
-    """Infer appropriate emoji icon from noun stem."""
-    n = noun.lower()
-    if any(k in n for k in ["scuba", "dive", "water", "sea", "boat", "yacht"]):
-        return "🤿"
-    if any(k in n for k in ["machine", "equipment", "excavat", "crane", "build", "construct"]):
-        return "🚜"
-    if any(k in n for k in ["pizza", "dish", "food", "meal", "burger", "taco", "sushi"]):
-        return "🍕"
-    if any(k in n for k in ["tutor", "teach", "learn", "course", "study", "class"]):
-        return "🎓"
-    if any(k in n for k in ["laundry", "wash", "clean", "fold"]):
-        return "🧺"
-    if any(k in n for k in ["music", "band", "sound", "concert", "gig", "artist"]):
-        return "🎸"
-    if any(k in n for k in ["car", "auto", "vehicle", "rent", "ride"]):
-        return "🚗"
-    if any(k in n for k in ["sneaker", "shoe", "apparel", "wear", "shirt"]):
-        return "👟"
-    if any(k in n for k in ["pet", "dog", "cat", "vet"]):
-        return "🐾"
+    """Infer category emoji without hardcoded domain keyword lists."""
     if category == "calendar_service":
         return "📅"
     if category == "pipeline_tracker":
         return "📦"
-    return "✨"
+    if category == "dashboard_metrics":
+        return "📊"
+    return "🛍️"
 
 
 def storm_domain_ontology(pitch: str) -> DomainOntologySpec:
@@ -179,8 +162,8 @@ def storm_domain_ontology(pitch: str) -> DomainOntologySpec:
     emoji = _infer_domain_emoji(noun, category)
     action_verb = _infer_action_verb(category, noun)
 
-    # Dynamic Theme Archetype
-    if any(k in p_lower for k in ["terminal", "cli", "devops", "code", "cyber", "log"]):
+    # Dynamic Theme Archetype based on interaction category
+    if category == "dashboard_metrics":
         archetype = "dark_developer_terminal"
         primary_color = "#0284c7"
         secondary_color = "#38bdf8"
@@ -246,9 +229,7 @@ def storm_domain_ontology(pitch: str) -> DomainOntologySpec:
         ]
     else:
         # Default E-Commerce / Catalog
-        is_food = any(k in p_lower for k in ["pizza", "dish", "food", "bakery", "bread", "burger", "taco", "sushi", "cake"])
-        tag_name = "ingredients" if is_food else "features"
-        
+        tag_name = "specs"
         attributes = [
             EntityAttributeSpec(name="name", type="string", required=True),
             EntityAttributeSpec(name="price", type="currency", required=True),
@@ -257,52 +238,32 @@ def storm_domain_ontology(pitch: str) -> DomainOntologySpec:
             EntityAttributeSpec(name="badge", type="string", required=False, default_value="Popular")
         ]
         
-        if is_food:
-            seed_items = [
-                {
-                    "id": "1",
-                    "name": f"Signature {noun} Speciale",
-                    "price": 16.99,
-                    "ingredients": ["San Marzano Tomatoes", "Fresh Mozzarella", "Basil", "EVOO"],
-                    "rating": 4.9,
-                    "badge": "Best Seller"
-                },
-                {
-                    "id": "2",
-                    "name": f"Artisan {noun} Feast",
-                    "price": 19.99,
-                    "ingredients": ["Crispy Pepperoni", "Hot Honey", "Smoked Mozzarella"],
-                    "rating": 5.0,
-                    "badge": "Popular"
-                },
-                {
-                    "id": "3",
-                    "name": f"Gourmet White {noun}",
-                    "price": 21.99,
-                    "ingredients": ["Wild Mushrooms", "Truffle Ricotta", "Garlic", "Thyme"],
-                    "rating": 4.8,
-                    "badge": "Chef Pick"
-                }
-            ]
-        else:
-            seed_items = [
-                {
-                    "id": "1",
-                    "name": f"Premium {noun} Pro",
-                    "price": 129.00,
-                    "features": ["Heavy Duty", "GPS Tracking", "Full Warranty"],
-                    "rating": 4.9,
-                    "badge": "Best Seller"
-                },
-                {
-                    "id": "2",
-                    "name": f"Standard {noun} Edition",
-                    "price": 79.00,
-                    "features": ["Certified Quality", "Fast Delivery"],
-                    "rating": 4.8,
-                    "badge": "Popular"
-                }
-            ]
+        seed_items = [
+            {
+                "id": "1",
+                "name": f"Signature {noun} Speciale",
+                "price": 16.99,
+                tag_name: ["Artisan Quality", "House Recipe", "Freshly Made"],
+                "rating": 4.9,
+                "badge": "Best Seller"
+            },
+            {
+                "id": "2",
+                "name": f"Premium {noun} Feast",
+                "price": 19.99,
+                tag_name: ["Special Selection", "Curated Choice", "Top Pick"],
+                "rating": 5.0,
+                "badge": "Popular"
+            },
+            {
+                "id": "3",
+                "name": f"Gourmet {noun} Deluxe",
+                "price": 21.99,
+                tag_name: ["Handcrafted", "Organic Quality", "Signature Blend"],
+                "rating": 4.8,
+                "badge": "Featured Choice"
+            }
+        ]
 
     master_entity = MasterEntitySpec(
         entity_name=noun,

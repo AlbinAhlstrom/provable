@@ -32,7 +32,7 @@ def test_get_component_entity_schemas_default_pizzeria():
     attr_names = [a["name"] for a in catalog_schema["attributes"]]
     assert "name" in attr_names
     assert "price" in attr_names
-    assert "ingredients" in attr_names
+    assert any(tag in attr_names for tag in ["specs", "ingredients", "specialties"])
 
 
 def test_update_component_entity_schema_adds_attribute():

@@ -634,18 +634,18 @@ def get_component_entity_schemas(uow: Optional[AbstractUnitOfWork] = None) -> Di
 
     pitch = ks.get('business_pitch', 'Application') if (ks and ks.get('business_pitch')) else 'Application'
 
-    from onboarding.frontend_planning_engine import _extract_domain_entity_profile
-    profile = _extract_domain_entity_profile(pitch)
-    item_singular = profile.get("item_singular", "Item").capitalize()
-    raw_seed = profile.get("seed") or []
-    has_ingredients = any("ingredients" in s for s in raw_seed)
+    from onboarding.domain_ontology import storm_domain_ontology
+    ontology = storm_domain_ontology(pitch)
+    item_singular = ontology.master_entity.entity_name
 
-    catalog_attrs = [
-        {"name": "name", "type": "string", "required": True},
-        {"name": "price", "type": "currency", "required": True}
-    ]
-    if has_ingredients:
-        catalog_attrs.append({"name": "ingredients", "type": "tags", "required": False, "default_value": []})
+    catalog_attrs = []
+    for attr in ontology.master_entity.attributes:
+        catalog_attrs.append({
+            "name": attr.name,
+            "type": attr.type,
+            "required": attr.required,
+            "default_value": attr.default_value
+        })
 
     default_schemas = {
         "catalog": {

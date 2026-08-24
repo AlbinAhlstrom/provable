@@ -75,7 +75,7 @@ def start_project_servers(project_path: Optional[str] = None) -> bool:
 
     port = int(dev_cfg.get('port') or 5174)
 
-    # Support multi-process launch (e.g. backend + frontend for v-chess)
+    # Support multi-process launch (e.g. backend + frontend microservices)
     # If start_command is a list, launch each sequentially
     commands = start_cmd if isinstance(start_cmd, list) else [start_cmd]
 

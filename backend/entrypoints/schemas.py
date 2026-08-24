@@ -150,7 +150,11 @@ class OrderLineIn(BaseModel):
 class OrderIn(BaseModel):
     order_number: str
     customer_name: str
-    pizza_name: str
-    size: str
-    quantity: int
+    item_name: str = "Standard Item"
+    pizza_name: Optional[str] = None
+    size: str = "Standard"
+    quantity: int = 1
     price: float
+
+    def get_item_name(self) -> str:
+        return self.pizza_name or self.item_name

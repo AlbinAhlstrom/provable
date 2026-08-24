@@ -52,7 +52,7 @@ def _run_category_planning_agent(pitch: str) -> CategoryLayoutPlan:
     """Agent 0: Classifies pitch into a Category Page Layout Template with Pydantic contract validation."""
     prompt = f"""
 You are a Principal Product Architect. Classify the following business pitch into ONE of these Category Layout Templates:
-- "service_booking": Appointment, slot, caregiver, sitter, tutoring, healthcare booking applications.
+- "service_booking": Appointment, slot, session, service, and calendar booking applications.
 - "e_commerce": Product storefront, menu grid, retail, buying items with cart & checkout.
 - "operations_dashboard": Kitchen KDS, merchant admin, inventory management, operational status queue.
 - "saas_analytics": B2B dashboard, metrics, data analytics workbench.
@@ -84,11 +84,11 @@ Respond ONLY with a JSON object in this format (no markdown):
         print(f"[notice] Category Planning Agent fallback: {e}")
         # Rule-based fallback if LLM offline
         p_lower = pitch.lower()
-        if any(k in p_lower for k in ["book", "sitter", "appointment", "calendar", "slot", "care", "babysitter", "child"]):
+        if any(k in p_lower for k in ["book", "appointment", "calendar", "schedule", "slot", "session", "reserve"]):
             cid = "service_booking"
-        elif any(k in p_lower for k in ["admin", "dashboard", "kitchen", "cook", "queue"]):
+        elif any(k in p_lower for k in ["admin", "dashboard", "metric", "queue", "analytics", "monitor"]):
             cid = "operations_dashboard"
-        elif any(k in p_lower for k in ["shop", "buy", "cart", "store", "product"]):
+        elif any(k in p_lower for k in ["shop", "buy", "cart", "store", "product", "item", "order"]):
             cid = "e_commerce"
         else:
             cid = "custom_novel"
@@ -255,12 +255,12 @@ def _run_aesthetic_planning_agent(pitch: str, category_plan: CategoryLayoutPlan)
     p_lower = pitch.lower()
     cat_id = category_plan.category_id
 
-    # Determine archetype
-    if any(k in p_lower for k in ["cli", "terminal", "log viewer", "devops", "kernel", "debugger"]):
+    # Determine archetype based on category
+    if cat_id == "operations_dashboard" or any(k in p_lower for k in ["cli", "terminal", "log viewer", "devops", "debugger"]):
         arch_id = "dark_developer_terminal"
-    elif cat_id == "service_booking" or any(k in p_lower for k in ["sitter", "babysitter", "care", "book", "appointment", "clinic", "health", "doctor", "tutor", "spa", "salon", "pet"]):
+    elif cat_id == "service_booking":
         arch_id = "warm_lifestyle_light"
-    elif cat_id == "e_commerce" or any(k in p_lower for k in ["shop", "store", "bakery", "bread", "food", "cafe", "apparel", "buy", "cart", "product"]):
+    elif cat_id == "e_commerce":
         arch_id = "modern_fresh_light"
     else:
         arch_id = "clean_b2b_light"
@@ -374,7 +374,7 @@ You are a Master React TSX Developer. Synthesize a complete, production-grade `A
 1. Export a default React component `export default function App()`.
 2. Include a CSS root variable style block at top of App render with global resets (`* {{ box-sizing: border-box; }} body {{ margin: 0; overflow-x: hidden; }} img, svg {{ max-width: 100%; }}`).
 3. Use CSS variables `var(--bg-main)`, `var(--bg-card)`, `var(--text-primary)`, `var(--color-primary)`, `var(--color-mint)`, `var(--border-color)`, `var(--font-heading)` instead of hardcoded hex strings.
-4. For service booking / babysitter apps: render warm cream background, serif headers, sitter cards with rates, and an interactive weekly calendar matrix with mint green availability pills.
+4. For service booking apps: render warm cream background, serif headers, provider cards with rates, and an interactive weekly calendar matrix with mint green availability pills.
 5. **CRITICAL MOBILE-FIRST RESPONSIVENESS INVARIANT**:
    - The application MUST be fully mobile-first responsive and render flawlessly on mobile screens (`375px` viewport) as well as desktop screens (`1280px`).
    - Headers and navigation bars MUST use `flexWrap: 'wrap'` and flexible gaps (`gap: '0.75rem'`) so header titles and navigation links wrap cleanly on 375px screens without horizontal scrolling.
@@ -1104,23 +1104,23 @@ You are a Lead Product Architect. Analyze the following business pitch:
 Deconstruct the application into:
 1. Active Components: Identify all UI components required for this application idea.
    - For standard capabilities, map to canonical keys: "catalog" (menu/product grid), "cart" (shopping cart/checkout), "tracking" (order tracking pipeline), "kds" (admin/kitchen dashboard), "reviews" (ratings & feedback), "auth" (user login/profiles), "calendar" (booking/appointments).
-   - For custom concepts mentioned in pitch (e.g. "flappy bird game", "topping builder", "crypto wallet"), specify a clean canonical_key (e.g. "flappy_bird_game"), descriptive title, and component_type "custom".
-2. Suggested Prompts: Generate 3 to 6 dynamic, domain-aware feature suggestions that the user might want to add next (e.g. "Add payment system", "Add live chat", "Add leaderboard").
+   - For custom concepts mentioned in pitch (e.g. "interactive calculator", "custom builder", "crypto wallet"), specify a clean canonical_key (e.g. "rate_calculator"), descriptive title, and component_type "custom".
+2. Suggested Prompts: Generate 3 to 6 dynamic, domain-aware feature suggestions that the user might want to add next (e.g. "Add payment system", "Add live chat", "Add analytics").
 
 Return ONLY valid JSON in this exact format (no markdown, no preamble):
 {{
   "components": [
     {{
       "canonical_key": "catalog",
-      "title": "Menu Catalog",
+      "title": "Item Catalog",
       "component_type": "premade",
       "description": "Product grid with category filters"
     }},
     {{
-      "canonical_key": "flappy_bird_game",
-      "title": "Flappy Bird Mini-Game",
+      "canonical_key": "rate_calculator",
+      "title": "Interactive Rate Calculator",
       "component_type": "custom",
-      "description": "Interactive mini-game in application header"
+      "description": "Dynamic calculator tool embedded in application"
     }}
   ],
   "suggestions": [
@@ -1157,20 +1157,20 @@ def _heuristic_pitch_analysis_fallback(pitch: str) -> Dict[str, Any]:
     p_lower = pitch.lower()
     components = []
     
-    if any(k in p_lower for k in ['menu', 'product', 'catalog', 'item', 'pizza', 'store', 'shop']):
-        components.append({'canonical_key': 'catalog', 'title': 'Menu Catalog', 'component_type': 'premade', 'description': 'Product catalog & menu grid'})
-    if any(k in p_lower for k in ['cart', 'order', 'checkout', 'buy', 'purchase', 'pizza', 'store']):
+    if any(k in p_lower for k in ['menu', 'product', 'catalog', 'item', 'listing', 'store', 'shop', 'service']):
+        components.append({'canonical_key': 'catalog', 'title': 'Catalog Grid', 'component_type': 'premade', 'description': 'Product & offering catalog grid'})
+    if any(k in p_lower for k in ['cart', 'order', 'checkout', 'buy', 'purchase', 'rent']):
         components.append({'canonical_key': 'cart', 'title': 'Shopping Cart', 'component_type': 'premade', 'description': 'Shopping cart & checkout drawer'})
-    if any(k in p_lower for k in ['track', 'status', 'delivery', 'dispatch', 'pipeline', 'pizza']):
+    if any(k in p_lower for k in ['track', 'status', 'delivery', 'dispatch', 'pipeline']):
         components.append({'canonical_key': 'tracking', 'title': 'Order Tracking', 'component_type': 'premade', 'description': 'Real-time status tracking pipeline'})
-    if any(k in p_lower for k in ['kitchen', 'kds', 'admin', 'merchant', 'dashboard', 'cook']):
-        components.append({'canonical_key': 'kds', 'title': 'Kitchen KDS', 'component_type': 'premade', 'description': 'Merchant kitchen display system'})
-    if any(k in p_lower for k in ['review', 'rating', 'star', 'feedback']):
+    if any(k in p_lower for k in ['admin', 'merchant', 'dashboard', 'queue', 'metrics']):
+        components.append({'canonical_key': 'dashboard', 'title': 'Operations Dashboard', 'component_type': 'premade', 'description': 'Operations queue & management display'})
+    if any(k in p_lower for k in ['review', 'rating', 'star', 'feedback', 'testimonial']):
         components.append({'canonical_key': 'reviews', 'title': 'Reviews', 'component_type': 'premade', 'description': 'Customer reviews & rating system'})
 
     if not components:
         components = [
-            {'canonical_key': 'catalog', 'title': 'Menu Catalog', 'component_type': 'premade', 'description': 'Product catalog'},
+            {'canonical_key': 'catalog', 'title': 'Catalog Grid', 'component_type': 'premade', 'description': 'Product & offering catalog grid'},
             {'canonical_key': 'cart', 'title': 'Shopping Cart', 'component_type': 'premade', 'description': 'Shopping cart'},
             {'canonical_key': 'tracking', 'title': 'Order Tracking', 'component_type': 'premade', 'description': 'Order tracking'}
         ]

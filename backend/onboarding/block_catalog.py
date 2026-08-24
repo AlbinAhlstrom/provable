@@ -17,7 +17,7 @@ FEATURE_BLOCK_CATALOG = [
         "icon": "📋",
         "category": "Customer Experience",
         "description": "Interactive grid view with category filters, product search, pricing, and detail modals.",
-        "keywords": ["product", "menu", "item", "catalog", "pizza", "pizzeria", "bakery", "bread", "food", "furniture", "book_item", "listing", "store", "shop"],
+        "keywords": ["product", "menu", "item", "catalog", "goods", "listing", "store", "shop", "inventory", "merchandise", "wares", "items", "order"],
         "default_selected": False
     },
     {
@@ -53,7 +53,7 @@ FEATURE_BLOCK_CATALOG = [
         "icon": "📅",
         "category": "Services",
         "description": "Interactive date/time slot picker, staff selection, and reservation confirmation.",
-        "keywords": ["book", "appointment", "reserve", "slot", "schedule", "calendar", "time", "date", "hospital", "clinic"],
+        "keywords": ["book", "appointment", "reserve", "slot", "schedule", "calendar", "time", "date", "session", "service", "booking", "consultation"],
         "default_selected": False
     },
     {
@@ -61,8 +61,8 @@ FEATURE_BLOCK_CATALOG = [
         "name": "Merchant & Operational Dashboard",
         "icon": "🏪",
         "category": "Management",
-        "description": "Kitchen display system / admin metrics, status update toggles, and inventory counts.",
-        "keywords": ["admin", "dashboard", "kitchen", "cook", "manage", "merchant", "staff", "inventory", "batch", "kds"],
+        "description": "Operations queue / admin metrics, status update toggles, and inventory counts.",
+        "keywords": ["admin", "dashboard", "operations", "queue", "manage", "merchant", "staff", "inventory", "batch", "metrics"],
         "default_selected": False
     },
     {
@@ -71,16 +71,16 @@ FEATURE_BLOCK_CATALOG = [
         "icon": "⭐",
         "category": "Engagement",
         "description": "Customer feedback collection, star rating components, and review list display.",
-        "keywords": ["review", "rating", "star", "feedback", "comment", "score"],
+        "keywords": ["review", "rating", "star", "feedback", "comment", "score", "testimonial"],
         "default_selected": False
     },
     {
-        "id": "flappy_bird",
-        "name": "Flappy Bird Arcade Mini-Game",
-        "icon": "🎮",
-        "category": "Gaming & Entertainment",
-        "description": "Interactive Canvas 2D game with score tracking, gravity physics, and high scores.",
-        "keywords": ["flappy", "flappy_bird", "flappybird"],
+        "id": "interactive_widget",
+        "name": "Interactive Custom Tool / Widget",
+        "icon": "⚡",
+        "category": "Custom Tools",
+        "description": "Interactive mini-game, widget, custom configurator, or domain-specific utility.",
+        "keywords": ["widget", "tool", "configurator", "calculator", "custom", "game", "interactive", "arcade", "simulator"],
         "default_selected": False
     }
 ]
@@ -111,11 +111,11 @@ def analyze_pitch_for_kickstart(pitch: str) -> Dict[str, Any]:
     pitch_text_clean = " ".join(pitch_words) + " " + pitch_lower
     
     # Check pitch domain intent keywords
-    is_game_or_tool_pitch = any(k in pitch_text_clean for k in ["game", "flappy", "arcade", "puzzle", "calculator", "tool", "widget"])
-    is_service_booking_pitch = any(k in pitch_text_clean for k in ["sitter", "babysitter", "nanny", "tutor", "appointment", "book", "calendar", "schedule", "slot", "care", "clinic"])
-    is_dashboard_pitch = any(k in pitch_text_clean for k in ["admin", "dashboard", "kitchen", "cook", "kds", "metrics", "analytics"])
+    is_game_or_tool_pitch = any(k in pitch_text_clean for k in ["game", "arcade", "puzzle", "calculator", "tool", "widget"])
+    is_service_booking_pitch = any(k in pitch_text_clean for k in ["appointment", "book", "calendar", "schedule", "slot", "session", "reserve"])
+    is_dashboard_pitch = any(k in pitch_text_clean for k in ["admin", "dashboard", "metrics", "analytics", "queue", "monitor"])
     
-    is_explicit_ecom_pitch = any(k in pitch_text_clean for k in ["shop", "buy", "cart", "store", "pizza", "pizzeria", "product", "bakery", "retail", "checkout", "menu"])
+    is_explicit_ecom_pitch = any(k in pitch_text_clean for k in ["shop", "buy", "cart", "store", "product", "item", "retail", "checkout", "menu"])
 
     # 1. Match catalog blocks dynamically based on pitch relevance
     analyzed_blocks = []

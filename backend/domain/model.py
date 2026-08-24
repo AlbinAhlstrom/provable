@@ -404,23 +404,19 @@ class AgentRun:
 
 
 MOCK_DOMAIN_SCHEMA = {
-    "pitch": "Order and deliver delicious pizzas online",
+    "pitch": "Universal domain storefront and ordering platform",
     "entities": [
-        {"name": "PizzaOrder", "identity": "order_number", "fields": ["order_number", "customer_name", "status", "total_order_price"]},
-        {"name": "OrderItem", "identity": "id", "fields": ["pizza_name", "size", "quantity", "price"]},
-        {"name": "OvenStation", "identity": "name", "fields": ["name", "capacity", "current_load"]}
+        {"name": "Order", "identity": "order_number", "fields": ["order_number", "customer_name", "status", "total_order_price"]},
+        {"name": "OrderItem", "identity": "id", "fields": ["item_name", "quantity", "unit_price"]}
     ],
     "services": [
-        {"name": "place_order", "parameters": ["order_number", "customer_name", "pizza_name", "size", "quantity", "price"]},
-        {"name": "start_baking", "parameters": ["order_number", "oven_id"]},
-        {"name": "mark_ready", "parameters": ["order_number"]},
-        {"name": "dispatch_order", "parameters": ["order_number", "driver_name"]}
+        {"name": "place_order", "parameters": ["order_number", "customer_name", "item_name", "quantity", "price"]},
+        {"name": "update_status", "parameters": ["order_number", "status"]}
     ],
-    "exceptions": ["KitchenError", "OvenCapacityExceeded", "InvalidOrderState"],
+    "exceptions": ["DomainError", "OrderNotFound", "InvalidOrderState"],
     "invariants": [
         "Order total price must equal sum of item prices",
-        "Oven station load must not exceed max capacity",
-        "Only baking orders can be marked ready"
+        "Cancelled orders cannot transition to completed"
     ]
 }
 
@@ -457,7 +453,7 @@ class DomainEntitySchema:
 
 @dataclass
 class KickstartState:
-    business_pitch: str = "An app to order pizzas"
+    business_pitch: str = "Universal on-demand application"
     blocks: List[str] = field(default_factory=list)
     extracted_requirements: List[Dict[str, Any]] = field(default_factory=list)
     synthesized: bool = False

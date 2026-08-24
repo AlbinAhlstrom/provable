@@ -91,7 +91,7 @@ def test_feature_catalog_enabled():
     Then corresponding UI components and API handlers are enabled
     """
     item = OrderItem("Signature Item", "Standard", 1, 15.0)
-    assert item.item_name == "Signature Item" or getattr(item, 'pizza_name', 'Signature Item') == "Signature Item"
+    assert item.item_name == "Signature Item"
 
 def test_feature_cart_enabled():
     """

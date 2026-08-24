@@ -137,13 +137,13 @@ export default function App() {
     if (cart.length === 0) return;
     const orderRef = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
     const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-    setOrders(prev => [{ id: orderRef, ref: orderRef, items: [...cart], total, status: 'Baking', estimatedPickupTime: '15-20 mins', etaMinutes: 18 }, ...prev]);
+    setOrders(prev => [{ id: orderRef, ref: orderRef, items: [...cart], total, status: 'Confirmed', estimatedPickupTime: '15-20 mins', etaMinutes: 18 }, ...prev]);
     setCart([]);
     setActiveTab('tracking');
     setStatus(`Order ${orderRef} placed successfully!`);
   };
 
-  __FLAPPY_HOOKS_JSX__
+  __CUSTOM_HOOKS_JSX__
 
   const activeRouteObj = navRoutes.find((r: any) => r.key === activeTab);
   const activeComponentRef = activeRouteObj ? activeRouteObj.component_ref : activeTab;
@@ -157,7 +157,9 @@ export default function App() {
     if (key.includes('payment')) return '💳';
     if (key.includes('loyalty')) return '🎁';
     if (key.includes('reservation') || key.includes('calendar')) return '📅';
-    if (key.includes('builder')) return '🍕';
+    if (key.includes('builder')) return '⚙️';
+    return '✨';
+  };
     if (key.includes('driver') || key.includes('map')) return '🚚';
     return '⚡';
   };
@@ -279,8 +281,7 @@ export default function App() {
         __TRACKING_CONTAINER_JSX__
 
         {/* Dynamic Component View Containers */}
-        __FLAPPY_CONTAINER_JSX__
-        __CHESS_CONTAINER_JSX__
+        __CUSTOM_CONTAINER_JSX__
 
         {/* Generic Dynamic Component Renderer for Novel AST Component Nodes */}
         {componentsMeta.map((comp: any) => {
@@ -331,207 +332,35 @@ export default function App() {
     show_hero = manifest.get("show_hero_banner", True) if isinstance(manifest, dict) else manifest.layout.show_hero_banner
     show_hero_str = "true" if show_hero else "false"
 
-    has_flappy = any(k in active_keys for k in ['flappy_bird', 'flappy_bird_game'])
-    if has_flappy:
-        flappy_hooks_code = '''
-  // Flappy Bird 2D Canvas Game Engine State & Refs
-  const [flappyScore, setFlappyScore] = useState(0);
-  const [flappyHighScore, setFlappyHighScore] = useState(12);
-  const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
-  const gameStateRef = React.useRef({
-    birdY: 180,
-    velocity: 0,
-    pipes: [] as Array<{ x: number; top: number; bottom: number; passed: boolean }>,
-    frame: 0,
-    score: 0,
-    state: 'START'
-  });
+    custom_hooks_code = ""
+    custom_container_code = ""
 
-  const jumpFlappy = () => {
-    const gs = gameStateRef.current;
-    if (gs.state === 'START' || gs.state === 'GAMEOVER') {
-      gs.birdY = 180;
-      gs.velocity = -6.5;
-      gs.pipes = [];
-      gs.frame = 0;
-      gs.score = 0;
-      gs.state = 'PLAYING';
-      setFlappyScore(0);
-    } else if (gs.state === 'PLAYING') {
-      gs.velocity = -6.5;
-    }
-  };
+    # Identify custom components
+    custom_handled = []
+    for k in active_keys:
+        if k not in ['catalog', 'catalog_grid', 'menu', 'cart', 'shopping_cart', 'tracking', 'order_tracking', 'custom_item_builder', 'reviews']:
+            custom_handled.append(k)
 
-  React.useEffect(() => {
-    let animId: number;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && activeTab === 'flappy_bird') {
-        e.preventDefault();
-        jumpFlappy();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-
-    const loop = () => {
-      const gs = gameStateRef.current;
-      ctx.clearRect(0, 0, 380, 360);
-
-      ctx.fillStyle = '#70c5ce';
-      ctx.fillRect(0, 0, 380, 360);
-
-      if (gs.state === 'PLAYING') {
-        gs.frame++;
-        gs.velocity += 0.38;
-        gs.birdY += gs.velocity;
-
-        if (gs.frame % 80 === 0) {
-          const top = Math.floor(Math.random() * 130) + 40;
-          const gap = 120;
-          gs.pipes.push({ x: 380, top, bottom: 360 - top - gap, passed: false });
-        }
-
-        for (let i = 0; i < gs.pipes.length; i++) {
-          const p = gs.pipes[i];
-          p.x -= 2.2;
-
-          if (!p.passed && p.x < 80) {
-            p.passed = true;
-            gs.score++;
-            setFlappyScore(gs.score);
-            setFlappyHighScore(prev => Math.max(prev, gs.score));
-          }
-
-          if (p.x < 100 && p.x + 48 > 70) {
-            if (gs.birdY - 10 < p.top || gs.birdY + 10 > 360 - p.bottom) {
-              gs.state = 'GAMEOVER';
-            }
-          }
-        }
-
-        gs.pipes = gs.pipes.filter(p => p.x > -50);
-
-        if (gs.birdY >= 320 || gs.birdY <= 10) {
-          gs.state = 'GAMEOVER';
-        }
-      }
-
-      ctx.fillStyle = '#73bf2e';
-      ctx.strokeStyle = '#538221';
-      ctx.lineWidth = 3;
-      gs.pipes.forEach(p => {
-        ctx.fillRect(p.x, 0, 48, p.top);
-        ctx.strokeRect(p.x, 0, 48, p.top);
-        ctx.fillRect(p.x, 360 - p.bottom, 48, p.bottom);
-        ctx.strokeRect(p.x, 360 - p.bottom, 48, p.bottom);
-      });
-
-      ctx.fillStyle = '#ded895';
-      ctx.fillRect(0, 330, 380, 30);
-      ctx.fillStyle = '#73bf2e';
-      ctx.fillRect(0, 330, 380, 8);
-
-      ctx.font = '24px sans-serif';
-      ctx.fillText('🐥', 70, Math.min(325, Math.max(25, gs.birdY)));
-
-      if (gs.state === 'START') {
-        ctx.fillStyle = 'rgba(0,0,0,0.55)';
-        ctx.fillRect(30, 100, 320, 140);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 18px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('FLAPPY BIRD ARCADE', 190, 140);
-        ctx.font = '13px system-ui, sans-serif';
-        ctx.fillText('Press SPACE or Click to Start', 190, 180);
-      } else if (gs.state === 'GAMEOVER') {
-        ctx.fillStyle = 'rgba(0,0,0,0.65)';
-        ctx.fillRect(30, 90, 320, 150);
-        ctx.fillStyle = '#ef4444';
-        ctx.font = 'bold 22px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('GAME OVER!', 190, 135);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '15px system-ui, sans-serif';
-        ctx.fillText(`Score: ${gs.score}`, 190, 170);
-        ctx.fillText('Press SPACE / Click to Restart', 190, 205);
-      }
-
-      animId = requestAnimationFrame(loop);
-    };
-
-    animId = requestAnimationFrame(loop);
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [activeTab]);
-'''
-    else:
-        flappy_hooks_code = ""
-
-    if has_flappy:
-        flappy_container_code = '''
-        {(activeComponentRef === 'flappy_bird' || activeComponentRef === 'flappy_bird_game') && (
-          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '1rem', padding: '1.75rem', textAlign: 'center', maxWidth: '480px', margin: '0 auto', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.3)', color: '#f8fafc' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', background: '#1e293b', padding: '0.6rem 1.25rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 600 }}>
-              <span style={{ color: '#38bdf8' }}>🎮 2D Canvas Engine</span>
-              <span>Score: <strong style={{ color: '#facc15', fontSize: '1.1rem' }}>{flappyScore}</strong> | High: <strong style={{ color: '#4ade80', fontSize: '1.1rem' }}>{flappyHighScore}</strong></span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem' }}>
-              <canvas ref={canvasRef} width={400} height={380} onClick={jumpFlappy} style={{ borderRadius: '0.75rem', boxShadow: '0 8px 16px -2px rgba(0,0,0,0.4)', cursor: 'pointer', touchAction: 'manipulation', border: '2px solid #334155' }} />
-            </div>
-            <button onClick={jumpFlappy} style={{ background: 'linear-gradient(135deg, __PRIMARY_COLOR__ 0%, #0284c7 100%)', color: '#fff', border: 'none', padding: '0.85rem 1.75rem', borderRadius: '9999px', fontWeight: 700, cursor: 'pointer', fontSize: '1rem', width: '100%', boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)' }}>
-              Tap / Press Space to Jump 🐥
+    if custom_handled:
+        custom_container_code = f'''
+        {{activeTab && {json.dumps(custom_handled)}.includes(activeTab) && (
+          <div style={{{{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '0.75rem', padding: '2rem', textAlign: 'center', maxWidth: '600px', margin: '0 auto', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}}}>
+            <div style={{{{ fontSize: '2.5rem', marginBottom: '0.75rem' }}}}>⚡</div>
+            <h3 style={{{{ margin: '0 0 0.5rem 0', fontSize: '1.4rem', color: '#1c1917', fontFamily: 'Georgia, serif', fontWeight: 700 }}}}>
+              {{activeTab.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}}
+            </h3>
+            <p style={{{{ color: '#78716c', fontSize: '0.9rem', marginBottom: '1.5rem' }}}}>
+              Interactive domain view and configuration controls.
+            </p>
+            <button
+              onClick={{() => setStatus(`${{activeTab}} action triggered!`)}}
+              style={{{{ background: '__PRIMARY_COLOR__', color: '#fff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '9999px', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}}}
+            >
+              Execute Action
             </button>
           </div>
-        )}
+        )}}
 '''
-    else:
-        flappy_container_code = ""
-
-    has_chess = any('chess' in k for k in active_keys)
-    if has_chess:
-        chess_container_code = '''
-        {(activeComponentRef === 'chess_game' || activeTab === 'chess_game') && (
-          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '1rem', padding: '1.75rem', textAlign: 'center', maxWidth: '520px', margin: '0 auto', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.3)', color: '#f8fafc' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', background: '#1e293b', padding: '0.6rem 1.25rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 600 }}>
-              <span style={{ color: '#38bdf8' }}>♟️ Interactive Chess Engine</span>
-              <span style={{ color: '#4ade80' }}>Turn: White ♔</span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '2px', background: '#334155', padding: '6px', borderRadius: '0.5rem', marginBottom: '1.25rem', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4)' }}>
-              {['♜','♞','♝','♛','♚','♝','♞','♜',
-                '♟','♟','♟','♟','♟','♟','♟','♟',
-                '','','','','','','','',
-                '','','','','','','','',
-                '','','','','','','','',
-                '','','','','','','','',
-                '♙','♙','♙','♙','♙','♙','♙','♙',
-                '♖','♘','♗','♕','♔','♗','♘','♖'].map((piece, i) => {
-                const isDark = (Math.floor(i / 8) + (i % 8)) % 2 === 1;
-                return (
-                  <div key={i} style={{ aspectRatio: '1', background: isDark ? '#b58863' : '#f0d9b5', color: '#1c1917', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', cursor: 'pointer', userSelect: 'none' }}>
-                    {piece}
-                  </div>
-                );
-              })}
-            </div>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button onClick={() => setStatus('Chess move recorded!')} style={{ flex: 1, background: 'linear-gradient(135deg, __PRIMARY_COLOR__ 0%, #0284c7 100%)', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '0.5rem', fontWeight: 700, cursor: 'pointer' }}>
-                New Match ♟️
-              </button>
-              <button onClick={() => setStatus('Undo move')} style={{ background: '#334155', color: '#cbd5e1', border: 'none', padding: '0.75rem 1.25rem', borderRadius: '0.5rem', fontWeight: 600, cursor: 'pointer' }}>
-                Undo
-              </button>
-            </div>
-          </div>
-        )}
-'''
-    else:
-        chess_container_code = ""
 
     has_builder = 'custom_item_builder' in active_keys
     if has_builder:
@@ -673,11 +502,6 @@ export default function App() {
     else:
         tracking_container_code = ""
 
-    custom_handled = []
-    if has_flappy:
-        custom_handled.extend(['flappy_bird', 'flappy_bird_game'])
-    if has_chess:
-        custom_handled.extend(['chess', 'chess_game'])
     custom_handled_json = json.dumps(custom_handled)
 
     compiled = template.replace("__BRAND_TITLE__", brand_title) \
@@ -687,9 +511,11 @@ export default function App() {
                        .replace("__BG_COLOR__", bg_color) \
                        .replace("__FONT_FAMILY__", font_family) \
                        .replace("__SHOW_HERO_BANNER__", show_hero_str) \
-                       .replace("__FLAPPY_HOOKS_JSX__", flappy_hooks_code) \
-                       .replace("__FLAPPY_CONTAINER_JSX__", flappy_container_code) \
-                       .replace("__CHESS_CONTAINER_JSX__", chess_container_code) \
+                       .replace("__CUSTOM_HOOKS_JSX__", custom_hooks_code) \
+                       .replace("__CUSTOM_CONTAINER_JSX__", custom_container_code) \
+                       .replace("__FLAPPY_HOOKS_JSX__", "") \
+                       .replace("__FLAPPY_CONTAINER_JSX__", "") \
+                       .replace("__CHESS_CONTAINER_JSX__", "") \
                        .replace("__BUILDER_HOOKS_JSX__", builder_hooks_code) \
                        .replace("__BUILDER_CONTAINER_JSX__", builder_container_code) \
                        .replace("__CATALOG_CONTAINER_JSX__", catalog_container_code) \

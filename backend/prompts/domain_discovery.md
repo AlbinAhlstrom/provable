@@ -5,7 +5,7 @@ BUSINESS PITCH:
 "{business_pitch}"
 
 CRITICAL DOMAIN VOCABULARY ISOLATION INSTRUCTION:
-- You MUST extract entities, value objects, domain services, and invariants using terms EXCLUSIVELY native to the user's business domain (e.g. for Pizzeria: PizzaOrder, OvenStation, OrderItem; for Clinic: Appointment, Doctor, Patient; for Laundromat: WasherMachine, LaundryOrder).
+- You MUST extract entities, value objects, domain services, and invariants using terms EXCLUSIVELY native to the specific business pitch provided.
 - You MUST NOT use generic or unrelated terms like "SKU", "Batch", "OrderLine", "allocate", or "_purchased_quantity" unless the business pitch explicitly describes retail inventory allocation.
 
 Respond STRICTLY with a valid JSON object matching this exact structure (no markdown explanations):

@@ -29,13 +29,13 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
   // Domain Entities State
   const [entities, setEntities] = useState<DomainEntityDTO[]>([
     {
-      name: 'MenuItem',
-      description: 'Catalog items, pizzas & offerings',
+      name: 'CatalogItem',
+      description: 'Active catalog offerings and items',
       attributes: { name: 'string', price: 'number', description: 'string' },
       seed_items: [
-        { name: 'Margherita Pizza', price: 14.99 },
-        { name: 'Pepperoni Supreme', price: 16.99 },
-        { name: 'Truffle Mushroom Deluxe', price: 18.99 }
+        { name: 'Signature Item', price: 14.99 },
+        { name: 'Premium Offering', price: 18.99 },
+        { name: 'Standard Package', price: 12.99 }
       ]
     },
     {
@@ -46,7 +46,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
     },
     {
       name: 'Order',
-      description: 'Active pizza orders and status pipeline',
+      description: 'Active customer orders and status pipeline',
       attributes: { id: 'string', status: 'string', total: 'number' },
       seed_items: []
     }

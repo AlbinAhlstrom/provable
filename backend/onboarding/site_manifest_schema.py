@@ -20,7 +20,7 @@ class DomainIntentSpec(BaseModel):
 
 class SubRequirementAST(BaseModel):
     """Sub-requirement nested under a parent component."""
-    id: str = Field(..., description="Unique sub-requirement ID e.g. REQ-SUB-PIZZA_BUILDER-001")
+    id: str = Field(..., description="Unique sub-requirement ID e.g. REQ-SUB-CUSTOM_BUILDER-001")
     canonical_key: str = Field(..., description="Sub-feature key e.g. custom_item_builder")
     name: str = Field(..., description="Sub-requirement title")
     description: str = Field(default="", description="Summary description")
@@ -30,7 +30,7 @@ class SubRequirementAST(BaseModel):
 class ComponentNodeAST(BaseModel):
     """Stage 2: Component Topology Node."""
     id: str = Field(..., description="Unique component identifier e.g. catalog, cart, REQ-CMP-PAYMENT_SYSTEM-001")
-    canonical_key: str = Field(..., description="Normalized key e.g. catalog, payment_system, flappy_bird_game")
+    canonical_key: str = Field(..., description="Normalized key e.g. catalog, payment_system, analytics_dashboard")
     name: str = Field(..., description="Human-readable title")
     component_type: str = Field(default="custom", description="'premade' or 'custom'")
     icon: str = Field(default="⚡", description="Emoji icon")
