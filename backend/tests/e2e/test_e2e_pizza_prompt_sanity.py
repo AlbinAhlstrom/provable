@@ -26,14 +26,18 @@ def synthesize_app_stack():
     """
     ws_base = get_workspace_base()
     app_tsx_path = os.path.join(ws_base, "src", "App.tsx")
-    live_project_exists = os.path.exists(app_tsx_path) and len(open(app_tsx_path, encoding="utf-8").read().strip()) > 0
+    has_pizza_project = False
+    if os.path.exists(app_tsx_path):
+        content = open(app_tsx_path, encoding="utf-8").read()
+        if "cart" in content.lower() or "pizza" in content.lower() or "handleaddtocart" in content.lower():
+            has_pizza_project = True
 
-    if not live_project_exists:
-        schema = {"pitch": "An app to order pizzas"}
-        result = synthesize_application_stack(schema)
-        assert result.get("success") is True, f"Synthesis failed: {result}"
-    else:
-        print(f"[E2E Sanity] Live project already exists at {app_tsx_path}. Reusing application stack once for module.")
+    from service_layer.unit_of_work import SqliteUnitOfWork
+    from service_layer import services
+    uow = SqliteUnitOfWork()
+    result = services.synthesize_kickstart_stack(business_pitch="An app to order pizzas", uow=uow)
+    assert result.get("success") is True, f"Synthesis failed: {result}"
+    time.sleep(1.5)
     yield
 
 

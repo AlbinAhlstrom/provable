@@ -518,6 +518,354 @@ img, svg {{ max-width: 100%; height: auto; }}
     action_button = bp.aesthetics.action_button_text
     domain_emoji = bp.aesthetics.domain_emoji
 
+    # Operations Dashboard / WMS Schema-Driven Layout Template
+    if cat_id in ["operations_dashboard", "wms"] or any(kw in (title.lower() + " " + item_singular + " " + item_plural) for kw in ["pallet", "zone", "operator", "warehouse", "fifo", "storage", "industrial", "forklift"]):
+        tmpl = '''import React, { useState, useEffect } from 'react';
+
+export default function App() {
+  const [fixtures, setFixtures] = useState<Record<string, any[]>>({});
+  const [activeAggregate, setActiveAggregate] = useState<string>('pallet');
+  const [toast, setToast] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [formData, setFormData] = useState<Record<string, any>>({});
+
+  const defaultAggregates: Record<string, { label: string; icon: string; items: any[] }> = {
+    pallet: {
+      label: 'Pallets',
+      icon: '📦',
+      items: [
+        { id: 'PAL-001', sku: 'SKU-STEEL-100', weight: 450.0, status: 'STORED', zone_id: 'ZONE-A1' },
+        { id: 'PAL-002', sku: 'SKU-ALUM-200', weight: 320.0, status: 'STORED', zone_id: 'ZONE-A1' }
+      ]
+    },
+    zone: {
+      label: 'Zones',
+      icon: '📍',
+      items: [
+        { id: 'ZONE-A1', name: 'Heavy Metals Bay', max_capacity: 10, current_pallets: ['PAL-001', 'PAL-002'] },
+        { id: 'ZONE-B2', name: 'Fragile Electronics Bay', max_capacity: 5, current_pallets: [] }
+      ]
+    },
+    operator: {
+      label: 'Operators',
+      icon: '👷',
+      items: [
+        { id: 'OP-101', name: 'Alex Lindqvist', certified_zone: 'ZONE-A1' },
+        { id: 'OP-102', name: 'Sara Chen', certified_zone: 'ZONE-B2' }
+      ]
+    }
+  };
+
+  const getApiUrl = (endpoint: string) => {
+    return typeof window !== 'undefined' && window.location.origin.includes('5174')
+      ? 'http://localhost:8000' + endpoint
+      : endpoint;
+  };
+
+  useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data && (e.data.type === 'FIXTURES_UPDATED' || e.data.type === 'UPDATE_FIXTURES')) {
+        const { canonical_key, fixtures: newFix } = e.data;
+        if (canonical_key && Array.isArray(newFix)) {
+          setFixtures(prev => ({ ...prev, [canonical_key]: newFix }));
+        }
+      }
+    };
+    window.addEventListener('message', handleMessage);
+
+    fetch(getApiUrl('/api/components/entities'))
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success && data.fixtures) {
+          setFixtures(data.fixtures);
+        }
+      })
+      .catch(() => {});
+
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const currentRecords = (fixtures[activeAggregate] && fixtures[activeAggregate].length > 0)
+    ? fixtures[activeAggregate]
+    : (defaultAggregates[activeAggregate]?.items || []);
+
+  const aggregateKeys = Object.keys(defaultAggregates);
+
+  const handleCreateRecord = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newId = `${activeAggregate.toUpperCase()}-${Date.now().toString().slice(-4)}`;
+    const newRecord = { id: newId, ...formData };
+    const updated = [...currentRecords, newRecord];
+    setFixtures(prev => ({ ...prev, [activeAggregate]: updated }));
+    setIsAdding(false);
+    setFormData({});
+    setToast(`✨ Created ${activeAggregate} ${newId}`);
+    setTimeout(() => setToast(null), 3000);
+
+    try {
+      fetch(getApiUrl('/api/components/fixtures/update'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ canonical_key: activeAggregate, fixtures: updated })
+      }).catch(() => {});
+      if (typeof window !== 'undefined' && window.parent) {
+        window.parent.postMessage({ type: 'FIXTURES_UPDATED', canonical_key: activeAggregate, fixtures: updated }, '*');
+      }
+    } catch (err) {}
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#090d16', color: '#f8fafc', fontFamily: 'system-ui, sans-serif', padding: '1.5rem' }}>
+      <header style={{ maxWidth: '1100px', margin: '0 auto 1.5rem auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid #1e293b', paddingBottom: '1rem' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '1.5rem' }}>🏢</span>
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: '#38bdf8' }}>__TITLE__</h1>
+          </div>
+          <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>
+            Schema-Driven DDD Operations Sandbox &amp; Entity Workspace
+          </p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <span style={{ background: '#064e3b', color: '#6ee7b7', border: '1px solid #047857', padding: '0.3rem 0.75rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700 }}>
+            ● FastAPI :8000 Sync Active
+          </span>
+        </div>
+      </header>
+
+      <main style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        {toast && (
+          <div style={{ background: '#064e3b', border: '1px solid #047857', color: '#a7f3d0', padding: '0.75rem 1rem', borderRadius: '0.5rem', fontWeight: 600, fontSize: '0.85rem' }}>
+            {toast}
+          </div>
+        )}
+
+        {/* Aggregate Tabs */}
+        <div style={{ display: 'flex', gap: '0.5rem', background: '#0f172a', border: '1px solid #334155', borderRadius: '0.6rem', padding: '0.25rem' }}>
+          {aggregateKeys.map(k => {
+            const agg = defaultAggregates[k];
+            const isActive = activeAggregate === k;
+            const count = (fixtures[k] || agg.items).length;
+            return (
+              <button
+                key={k}
+                onClick={() => { setActiveAggregate(k); setIsAdding(false); }}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  background: isActive ? '#0284c7' : 'transparent',
+                  color: isActive ? '#ffffff' : '#94a3b8',
+                  border: 'none',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.4rem',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span>{agg.icon}</span>
+                <span>{agg.label}</span>
+                <span style={{ background: isActive ? 'rgba(0,0,0,0.25)' : '#1e293b', padding: '0.1rem 0.45rem', borderRadius: '9999px', fontSize: '0.75rem' }}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Action Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ fontSize: '1.1rem', margin: 0, fontWeight: 700, color: '#f8fafc' }}>
+            {defaultAggregates[activeAggregate]?.icon} {defaultAggregates[activeAggregate]?.label} Records ({currentRecords.length})
+          </h2>
+          <button
+            onClick={() => setIsAdding(!isAdding)}
+            style={{
+              background: '#0284c7',
+              color: '#fff',
+              border: 'none',
+              padding: '0.45rem 1rem',
+              borderRadius: '0.4rem',
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              cursor: 'pointer'
+            }}
+          >
+            {isAdding ? '✕ Cancel' : `➕ Add ${defaultAggregates[activeAggregate]?.label.slice(0, -1)}`}
+          </button>
+        </div>
+
+        {/* Dynamic Add Form */}
+        {isAdding && (
+          <form onSubmit={handleCreateRecord} style={{ background: '#0f172a', border: '1px solid #0284c7', borderRadius: '0.75rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            <h3 style={{ margin: 0, fontSize: '0.9rem', color: '#38bdf8', fontWeight: 700 }}>
+              Add New {defaultAggregates[activeAggregate]?.label.slice(0, -1)} Record
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+              {activeAggregate === 'pallet' && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="SKU (e.g., SKU-STEEL-99)"
+                    value={formData.sku || ''}
+                    onChange={e => setFormData({ ...formData, sku: e.target.value })}
+                    required
+                    style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.45rem 0.65rem', borderRadius: '0.4rem', fontSize: '0.8rem' }}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Weight kg (e.g., 500)"
+                    value={formData.weight || ''}
+                    onChange={e => setFormData({ ...formData, weight: parseFloat(e.target.value) || 0 })}
+                    required
+                    style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.45rem 0.65rem', borderRadius: '0.4rem', fontSize: '0.8rem' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Zone ID (e.g., ZONE-A1)"
+                    value={formData.zone_id || ''}
+                    onChange={e => setFormData({ ...formData, zone_id: e.target.value })}
+                    style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.45rem 0.65rem', borderRadius: '0.4rem', fontSize: '0.8rem' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Status (e.g., STORED, IN_TRANSIT)"
+                    value={formData.status || 'STORED'}
+                    onChange={e => setFormData({ ...formData, status: e.target.value })}
+                    style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.45rem 0.65rem', borderRadius: '0.4rem', fontSize: '0.8rem' }}
+                  />
+                </>
+              )}
+              {activeAggregate === 'zone' && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Zone Name (e.g., North Heavy Bay)"
+                    value={formData.name || ''}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.45rem 0.65rem', borderRadius: '0.4rem', fontSize: '0.8rem' }}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max Capacity (e.g., 15)"
+                    value={formData.max_capacity || ''}
+                    onChange={e => setFormData({ ...formData, max_capacity: parseInt(e.target.value, 10) || 10 })}
+                    required
+                    style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.45rem 0.65rem', borderRadius: '0.4rem', fontSize: '0.8rem' }}
+                  />
+                </>
+              )}
+              {activeAggregate === 'operator' && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Operator Name (e.g., Daniel Ek)"
+                    value={formData.name || ''}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.45rem 0.65rem', borderRadius: '0.4rem', fontSize: '0.8rem' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Certified Zone (e.g., ZONE-A1)"
+                    value={formData.certified_zone || ''}
+                    onChange={e => setFormData({ ...formData, certified_zone: e.target.value })}
+                    required
+                    style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.45rem 0.65rem', borderRadius: '0.4rem', fontSize: '0.8rem' }}
+                  />
+                </>
+              )}
+            </div>
+            <button
+              type="submit"
+              style={{ alignSelf: 'flex-start', background: '#0284c7', color: '#fff', border: 'none', padding: '0.45rem 1.25rem', borderRadius: '0.4rem', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
+            >
+              💾 Save Record
+            </button>
+          </form>
+        )}
+
+        {/* Data Table */}
+        <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '0.75rem', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.82rem' }}>
+            <thead>
+              <tr style={{ background: '#1e293b', borderBottom: '1px solid #334155', color: '#94a3b8', textTransform: 'uppercase', fontSize: '0.72rem' }}>
+                <th style={{ padding: '0.75rem 1rem' }}>ID</th>
+                {activeAggregate === 'pallet' && (
+                  <>
+                    <th style={{ padding: '0.75rem 1rem' }}>SKU</th>
+                    <th style={{ padding: '0.75rem 1rem' }}>Weight (kg)</th>
+                    <th style={{ padding: '0.75rem 1rem' }}>Zone</th>
+                    <th style={{ padding: '0.75rem 1rem' }}>Status</th>
+                  </>
+                )}
+                {activeAggregate === 'zone' && (
+                  <>
+                    <th style={{ padding: '0.75rem 1rem' }}>Name</th>
+                    <th style={{ padding: '0.75rem 1rem' }}>Max Capacity</th>
+                    <th style={{ padding: '0.75rem 1rem' }}>Current Occupancy</th>
+                  </>
+                )}
+                {activeAggregate === 'operator' && (
+                  <>
+                    <th style={{ padding: '0.75rem 1rem' }}>Name</th>
+                    <th style={{ padding: '0.75rem 1rem' }}>Certified Zone</th>
+                  </>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {currentRecords.map((rec: any, idx: number) => (
+                <tr key={rec.id || idx} style={{ borderBottom: '1px solid #1e293b', background: idx % 2 === 0 ? 'transparent' : 'rgba(30, 41, 59, 0.3)' }}>
+                  <td style={{ padding: '0.75rem 1rem', fontFamily: 'monospace', color: '#38bdf8', fontWeight: 600 }}>{rec.id}</td>
+                  {activeAggregate === 'pallet' && (
+                    <>
+                      <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#f8fafc' }}>{rec.sku || rec.name || '-'}</td>
+                      <td style={{ padding: '0.75rem 1rem', color: '#cbd5e1' }}>{rec.weight || rec.price || 0} kg</td>
+                      <td style={{ padding: '0.75rem 1rem', color: '#94a3b8' }}>{rec.zone_id || 'Unassigned'}</td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <span style={{ background: '#0284c7', color: '#fff', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700 }}>
+                          {rec.status || 'STORED'}
+                        </span>
+                      </td>
+                    </>
+                  )}
+                  {activeAggregate === 'zone' && (
+                    <>
+                      <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#f8fafc' }}>{rec.name || rec.title || '-'}</td>
+                      <td style={{ padding: '0.75rem 1rem', color: '#cbd5e1' }}>{rec.max_capacity || 10} Units</td>
+                      <td style={{ padding: '0.75rem 1rem', color: '#94a3b8' }}>
+                        {Array.isArray(rec.current_pallets) ? `${rec.current_pallets.length} Pallets` : '0 Pallets'}
+                      </td>
+                    </>
+                  )}
+                  {activeAggregate === 'operator' && (
+                    <>
+                      <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#f8fafc' }}>{rec.name || rec.title || '-'}</td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <span style={{ background: '#059669', color: '#fff', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700 }}>
+                          {rec.certified_zone || 'ZONE-A1'}
+                        </span>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  );
+}
+'''
+        return tmpl.replace('__TITLE__', title).replace('__CSS_VARS__', css_vars_style)
+
     # Service Booking Layout Template
     if cat_id == "service_booking":
         tmpl = '''import React, { useState } from 'react';
