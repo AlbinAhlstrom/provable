@@ -121,9 +121,17 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **Single Code Gen Execution**: Synthesized a fresh reference pizza ordering stack in `workspace/` for `"An app to order pizzas"`, verifying 100% Native Domain Terminology, Vite bundle health, and Visual Inspection score (95/100).
         - **Empirical Test Results**: Clean 93/93 test pass (100% PASS) across unit, integration, and e2e suites with minimal LLM token consumption.
 
+    22. **Structured Entity Class CRUD & DDD Schema Evolution in PM Studio**:
+        - **Pure Domain & SQLite Schema Persistence**: Added `DomainEntitySchema` and `EntityAttribute` dataclasses in `backend/domain/model.py`, mapped via `SqliteKickstartRepository`, and persisted under `entity_schemas_json` in `store.py`.
+        - **Service Layer & API Isolation**: Added `get_component_entity_schemas` and `update_component_entity_schema` in `services.py` and exposed `GET /api/components/entities` and `POST /api/components/entities/schema/update` in `components.py` with zero `import db.store` leaks.
+        - **PM Studio Entity Class Header & Schema Modal**: Upgraded `RequirementControlPanel.tsx` Tab 2 (`🧬 Entities`) to render `📦 Pizza (Entity Class)` section header with attribute summary and `[ ⚙️ Edit Schema ]` button opening a modal to add/remove typed attributes (`string`, `currency`, `number`, `tags`, `boolean`).
+        - **Deterministic UI Synthesis & Ingredients Tag Pills**: Embedded `ingredients` tag badges into synthesized `App.tsx` catalog cards, updated pizzeria default domain profile with rich ingredient lists, and enabled dynamic ingredient editing across instance rows.
+        - **Verified 100% Test Pass**: Clean 98/98 tests passed in 29.91s and zero TypeScript errors (`npx tsc --noEmit` code 0).
+
 ---
 
-*Updated by Antigravity AI on 2026-08-24 (Streamlined test suite strictly to single pizza prompt benchmark 'An app to order pizzas' and purged incompatible multi-domain test suites).*
+*Updated by Antigravity AI on 2026-08-24 (Implemented Structured Entity Class CRUD, DDD Schema Evolution modal, and ingredient tag pills in PM Studio).*
+
 
 
 

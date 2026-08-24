@@ -6,7 +6,7 @@ from fastapi import APIRouter
 from entrypoints.schemas import (
     ComponentAddRequest, ComponentDeleteRequest,
     SubRequirementAddRequest, SubRequirementDeleteRequest,
-    ComponentFixturesUpdateRequest
+    ComponentFixturesUpdateRequest, EntitySchemaUpdateRequest
 )
 from domain.model import CANONICAL_FEATURE_MAP, resolve_canonical_feature
 from service_layer import services
@@ -111,3 +111,35 @@ def update_component_data_fixtures_api(req: ComponentFixturesUpdateRequest):
         )
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+@router.get("/api/components/entities")
+def get_component_entities_api():
+    """Returns entity schemas and fixtures for active components."""
+    try:
+        uow = SqliteUnitOfWork()
+        schemas_res = services.get_component_entity_schemas(uow=uow)
+        fixtures_res = services.get_component_data_fixtures(uow=uow)
+        return {
+            "success": True,
+            "schemas": schemas_res.get("schemas", {}),
+            "fixtures": fixtures_res.get("fixtures", {})
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@router.post("/api/components/entities/schema/update")
+def update_component_entity_schema_api(req: EntitySchemaUpdateRequest):
+    """Updates the entity schema definition for a component and syncs workspace App.tsx live."""
+    try:
+        uow = SqliteUnitOfWork()
+        return services.update_component_entity_schema(
+            canonical_key=req.canonical_key,
+            entity_name=req.entity_name,
+            attributes=[a.dict() for a in req.attributes],
+            uow=uow
+        )
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+

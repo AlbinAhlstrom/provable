@@ -1,6 +1,6 @@
-// PM Studio Requirement Control Panel — Component Inspector & Spec Tree
 import React, { useState, useEffect } from 'react';
-import { ComponentAddRequestDTO, ComponentDeleteRequestDTO } from '../types/api';
+import { ComponentAddRequestDTO, ComponentDeleteRequestDTO, DomainEntitySchemaDTO, EntityAttributeDTO } from '../types/api';
+
 
 export interface ComponentItem {
   id: string;
@@ -54,7 +54,15 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   const [activeTabByComponent, setActiveTabByComponent] = useState<Record<string, 'tests' | 'data'>>({});
 
   // Entity Data State
-  const [dataFixturesByComponent, setDataFixturesByComponent] = useState<Record<string, Array<{ id: string, name: string, price: number, quantity?: number, status?: string, catalog_id?: string, item?: string }>>>({});
+  const [dataFixturesByComponent, setDataFixturesByComponent] = useState<Record<string, Array<{ id: string, name: string, price: number, quantity?: number, status?: string, catalog_id?: string, item?: string, ingredients?: string[] }>>>({});
+  const [entitySchemasByComponent, setEntitySchemasByComponent] = useState<Record<string, DomainEntitySchemaDTO>>({});
+
+  // Schema Editor Modal State
+  const [editingSchemaKey, setEditingSchemaKey] = useState<string | null>(null);
+  const [schemaEntityName, setSchemaEntityName] = useState<string>('');
+  const [schemaAttributes, setSchemaAttributes] = useState<EntityAttributeDTO[]>([]);
+  const [newAttrName, setNewAttrName] = useState<string>('');
+  const [newAttrType, setNewAttrType] = useState<'string' | 'currency' | 'number' | 'tags' | 'boolean'>('tags');
 
   // Role-Aware Entity Form State
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<Record<string, string>>({});
@@ -65,11 +73,91 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   const [editingFixtureId, setEditingFixtureId] = useState<string | null>(null);
   const [editFixtureName, setEditFixtureName] = useState<string>('');
   const [editFixturePrice, setEditFixturePrice] = useState<string>('');
+  const [editFixtureIngredients, setEditFixtureIngredients] = useState<string>('');
   const [newFixtureName, setNewFixtureName] = useState<Record<string, string>>({});
   const [newFixturePrice, setNewFixturePrice] = useState<Record<string, string>>({});
+  const [newFixtureIngredients, setNewFixtureIngredients] = useState<Record<string, string>>({});
 
   const toggleComponentTab = (key: string, tab: 'tests' | 'data') => {
     setActiveTabByComponent(prev => ({ ...prev, [key]: tab }));
+  };
+
+  const handleOpenSchemaEditor = (canonicalKey: string) => {
+    const existing = entitySchemasByComponent[canonicalKey];
+    setEditingSchemaKey(canonicalKey);
+    setSchemaEntityName(existing?.entity_name || (canonicalKey === 'cart' ? 'CartItem' : canonicalKey === 'tracking' ? 'Order' : 'Pizza'));
+    setSchemaAttributes(existing?.attributes || [
+      { name: 'name', type: 'string', required: true },
+      { name: 'price', type: 'currency', required: true }
+    ]);
+    setNewAttrName('');
+    setNewAttrType('tags');
+  };
+
+  const handleAddAttributeToSchema = () => {
+    const cleanName = newAttrName.trim().toLowerCase().replace(/\s+/g, '_');
+    if (!cleanName) return;
+    if (schemaAttributes.some(a => a.name === cleanName)) {
+      setStatusToast(`⚠️ Attribute "${cleanName}" already exists`);
+      setTimeout(() => setStatusToast(null), 2500);
+      return;
+    }
+    setSchemaAttributes(prev => [
+      ...prev,
+      { name: cleanName, type: newAttrType, required: false }
+    ]);
+    setNewAttrName('');
+  };
+
+  const handleRemoveAttributeFromSchema = (attrName: string) => {
+    if (attrName === 'name' || attrName === 'price') {
+      setStatusToast(`⚠️ Cannot remove required base attribute "${attrName}"`);
+      setTimeout(() => setStatusToast(null), 2500);
+      return;
+    }
+    setSchemaAttributes(prev => prev.filter(a => a.name !== attrName));
+  };
+
+  const handleSaveSchema = async () => {
+    if (!editingSchemaKey) return;
+    try {
+      const payload = {
+        canonical_key: editingSchemaKey,
+        entity_name: schemaEntityName.trim() || 'Item',
+        attributes: schemaAttributes
+      };
+      const res = await fetch('/api/components/entities/schema/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEntitySchemasByComponent(prev => ({
+          ...prev,
+          [editingSchemaKey]: {
+            canonical_key: editingSchemaKey,
+            entity_name: payload.entity_name,
+            attributes: schemaAttributes
+          }
+        }));
+        setStatusToast(`✨ Updated schema for ${payload.entity_name}`);
+        setEditingSchemaKey(null);
+        if (onParamUpdated) onParamUpdated();
+        // Re-hydrate fixtures to catch normalized defaults
+        const fixRes = await fetch('/api/components/fixtures');
+        const fixData = await fixRes.json();
+        if (fixData && fixData.success && fixData.fixtures) {
+          setDataFixturesByComponent(fixData.fixtures);
+        }
+      } else {
+        setStatusToast(`❌ Failed to update schema: ${data.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error("Error updating entity schema:", err);
+      setStatusToast(`❌ Network error updating schema`);
+    }
+    setTimeout(() => setStatusToast(null), 3000);
   };
 
   // Helper to discover master catalog items across domains
@@ -94,7 +182,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     return [];
   };
 
-  const persistFixtureUpdate = async (canonicalKey: string, updatedList: Array<{ id: string, name: string, price: number, quantity?: number, status?: string, catalog_id?: string, item?: string }>) => {
+  const persistFixtureUpdate = async (canonicalKey: string, updatedList: Array<{ id: string, name: string, price: number, quantity?: number, status?: string, catalog_id?: string, item?: string, ingredients?: string[] }>) => {
     try {
       setDataFixturesByComponent(prev => ({ ...prev, [canonicalKey]: updatedList }));
       const res = await fetch('/api/components/fixtures/update', {
@@ -114,19 +202,24 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   const handleAddFixture = (canonicalKey: string) => {
     const name = (newFixtureName[canonicalKey] || '').trim();
     const priceVal = parseFloat(newFixturePrice[canonicalKey] || '14.99');
+    const ingText = (newFixtureIngredients[canonicalKey] || '').trim();
     if (!name) return;
 
-    const newItem = {
+    const newItem: any = {
       id: `fix-${Date.now()}`,
       name,
       price: isNaN(priceVal) ? 14.99 : priceVal
     };
+    if (ingText) {
+      newItem.ingredients = ingText.split(',').map(s => s.trim()).filter(Boolean);
+    }
 
     const updatedList = [...(dataFixturesByComponent[canonicalKey] || []), newItem];
     persistFixtureUpdate(canonicalKey, updatedList);
 
     setNewFixtureName(prev => ({ ...prev, [canonicalKey]: '' }));
     setNewFixturePrice(prev => ({ ...prev, [canonicalKey]: '' }));
+    setNewFixtureIngredients(prev => ({ ...prev, [canonicalKey]: '' }));
     setStatusToast(`✨ Added entity "${name}"`);
     setTimeout(() => setStatusToast(null), 2500);
   };
@@ -178,12 +271,22 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   const handleSaveFixtureEdit = (canonicalKey: string, fixId: string) => {
     if (!editFixtureName.trim()) return;
     const priceVal = parseFloat(editFixturePrice);
+    const ingList = editFixtureIngredients.split(',').map(s => s.trim()).filter(Boolean);
 
-    const updatedList = (dataFixturesByComponent[canonicalKey] || []).map(item =>
-      item.id === fixId
-        ? { ...item, name: editFixtureName.trim(), price: isNaN(priceVal) ? item.price : priceVal }
-        : item
-    );
+    const updatedList = (dataFixturesByComponent[canonicalKey] || []).map(item => {
+      if (item.id === fixId) {
+        const updated: any = {
+          ...item,
+          name: editFixtureName.trim(),
+          price: isNaN(priceVal) ? item.price : priceVal
+        };
+        if (ingList.length > 0 || item.ingredients) {
+          updated.ingredients = ingList;
+        }
+        return updated;
+      }
+      return item;
+    });
 
     persistFixtureUpdate(canonicalKey, updatedList);
 
@@ -199,6 +302,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     setStatusToast(`🗑️ Deleted entity`);
     setTimeout(() => setStatusToast(null), 2000);
   };
+
 
 
   const toggleComponentExpand = (key: string) => {
@@ -264,11 +368,16 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
         setSuggestions(sugData.suggestions.slice(0, 3));
       }
 
-      // 3. Fetch active data fixtures from backend API
-      const fixRes = await fetch('/api/components/fixtures');
-      const fixData = await fixRes.json();
-      if (fixData && fixData.success && fixData.fixtures) {
-        setDataFixturesByComponent(fixData.fixtures);
+      // 3. Fetch active domain schemas and data fixtures from backend API
+      const entRes = await fetch('/api/components/entities');
+      const entData = await entRes.json();
+      if (entData && entData.success) {
+        if (entData.schemas) {
+          setEntitySchemasByComponent(entData.schemas);
+        }
+        if (entData.fixtures) {
+          setDataFixturesByComponent(entData.fixtures);
+        }
       }
     } catch (e) {
       console.error("Hydration error in RequirementControlPanel:", e);
@@ -718,8 +827,56 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                       const catalogItems = getAvailableCatalogItems();
                       const currentFixtures = dataFixturesByComponent[item.canonical_key] || [];
 
+                      const schema = entitySchemasByComponent[item.canonical_key];
+                      const entityClassName = schema?.entity_name || (isCart ? 'CartItem' : isTracking ? 'Order' : 'Pizza');
+                      const attrSummary = schema?.attributes?.map(a => `${a.name} (${a.type})`).join(' • ') || 'name (str) • price ($)';
+                      const hasIngredientsAttr = schema?.attributes?.some(a => a.name === 'ingredients' || a.type === 'tags');
+
                       return (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                          {/* Entity Class Header */}
+                          <div style={{
+                            background: '#0b1329',
+                            border: '1px solid #1e3a8a',
+                            borderRadius: '0.45rem',
+                            padding: '0.45rem 0.65rem',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '0.2rem'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                              <span style={{ fontSize: '0.9rem' }}>📦</span>
+                              <div>
+                                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#38bdf8' }}>
+                                  {entityClassName} <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 500 }}>(Entity Class)</span>
+                                </div>
+                                <div style={{ fontSize: '0.62rem', color: '#64748b' }}>
+                                  Attributes: {attrSummary}
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => handleOpenSchemaEditor(item.canonical_key)}
+                              style={{
+                                background: '#1e293b',
+                                border: '1px solid #334155',
+                                color: '#93c5fd',
+                                borderRadius: '0.35rem',
+                                padding: '0.2rem 0.45rem',
+                                fontSize: '0.68rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem'
+                              }}
+                              title="Edit Entity Class Schema & Attributes"
+                            >
+                              ⚙️ Edit Schema
+                            </button>
+                          </div>
+
                           {/* Domain Entities List */}
                           {currentFixtures.length === 0 ? (
                             <div style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', padding: '0.2rem 0' }}>
@@ -735,31 +892,44 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
 
                               if (isEditingThis) {
                                 return (
-                                  <div key={fix.id} style={{ display: 'flex', gap: '0.35rem', background: '#1e293b', padding: '0.4rem', borderRadius: '0.4rem', border: '1px solid #0284c7' }}>
-                                    <input
-                                      type="text"
-                                      value={editFixtureName}
-                                      onChange={e => setEditFixtureName(e.target.value)}
-                                      style={{ flex: 2, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
-                                    />
-                                    <input
-                                      type="number"
-                                      value={editFixturePrice}
-                                      onChange={e => setEditFixturePrice(e.target.value)}
-                                      style={{ flex: 1, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
-                                    />
-                                    <button
-                                      onClick={() => handleSaveFixtureEdit(item.canonical_key, fix.id)}
-                                      style={{ background: '#166534', color: '#4ade80', border: 'none', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem', cursor: 'pointer' }}
-                                    >
-                                      Save
-                                    </button>
-                                    <button
-                                      onClick={() => setEditingFixtureId(null)}
-                                      style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.75rem', cursor: 'pointer' }}
-                                    >
-                                      ✕
-                                    </button>
+                                  <div key={fix.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', background: '#1e293b', padding: '0.4rem', borderRadius: '0.4rem', border: '1px solid #0284c7' }}>
+                                    <div style={{ display: 'flex', gap: '0.35rem' }}>
+                                      <input
+                                        type="text"
+                                        value={editFixtureName}
+                                        onChange={e => setEditFixtureName(e.target.value)}
+                                        style={{ flex: 2, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
+                                        placeholder="Item Name"
+                                      />
+                                      <input
+                                        type="number"
+                                        value={editFixturePrice}
+                                        onChange={e => setEditFixturePrice(e.target.value)}
+                                        style={{ flex: 1, background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}
+                                        placeholder="Price"
+                                      />
+                                      <button
+                                        onClick={() => handleSaveFixtureEdit(item.canonical_key, fix.id)}
+                                        style={{ background: '#166534', color: '#4ade80', border: 'none', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem', cursor: 'pointer' }}
+                                      >
+                                        Save
+                                      </button>
+                                      <button
+                                        onClick={() => setEditingFixtureId(null)}
+                                        style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.75rem', cursor: 'pointer' }}
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                    {hasIngredientsAttr && (
+                                      <input
+                                        type="text"
+                                        value={editFixtureIngredients}
+                                        onChange={e => setEditFixtureIngredients(e.target.value)}
+                                        style={{ background: '#0f172a', border: '1px solid #334155', color: '#cbd5e1', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.7rem' }}
+                                        placeholder="Ingredients (comma-separated, e.g. Tomato, Mozzarella)"
+                                      />
+                                    )}
                                   </div>
                                 );
                               }
@@ -858,7 +1028,18 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                                     color: '#f8fafc'
                                   }}
                                 >
-                                  <span>{fix.name}</span>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                                    <span style={{ fontWeight: 600 }}>{fix.name}</span>
+                                    {fix.ingredients && Array.isArray(fix.ingredients) && fix.ingredients.length > 0 && (
+                                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                                        {fix.ingredients.map((ing: string, i: number) => (
+                                          <span key={i} style={{ fontSize: '0.62rem', background: '#0f172a', color: '#94a3b8', padding: '0.05rem 0.35rem', borderRadius: '4px', border: '1px solid #334155' }}>
+                                            {ing}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     <span style={{ color: '#4ade80', fontWeight: 600 }}>${fix.price.toFixed(2)}</span>
                                     <button
@@ -866,6 +1047,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                                         setEditingFixtureId(fix.id);
                                         setEditFixtureName(fix.name);
                                         setEditFixturePrice(fix.price.toString());
+                                        setEditFixtureIngredients(Array.isArray(fix.ingredients) ? fix.ingredients.join(', ') : '');
                                       }}
                                       title="Edit entity item"
                                       style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontSize: '0.75rem', padding: '0 0.15rem' }}
@@ -957,27 +1139,38 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                               </div>
                             )
                           ) : (
-                            <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.35rem' }}>
-                              <input
-                                type="text"
-                                placeholder="New Item Name..."
-                                value={newFixtureName[item.canonical_key] || ''}
-                                onChange={e => setNewFixtureName({ ...newFixtureName, [item.canonical_key]: e.target.value })}
-                                style={{ flex: 2, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
-                              />
-                              <input
-                                type="number"
-                                placeholder="Price ($)"
-                                value={newFixturePrice[item.canonical_key] || ''}
-                                onChange={e => setNewFixturePrice({ ...newFixturePrice, [item.canonical_key]: e.target.value })}
-                                style={{ flex: 1, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
-                              />
-                              <button
-                                onClick={() => handleAddFixture(item.canonical_key)}
-                                style={{ background: '#0284c7', color: 'white', border: 'none', padding: '0.3rem 0.65rem', borderRadius: '0.35rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
-                              >
-                                ➕ Add
-                              </button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginTop: '0.35rem' }}>
+                              <div style={{ display: 'flex', gap: '0.35rem' }}>
+                                <input
+                                  type="text"
+                                  placeholder={`New ${entityClassName} Name...`}
+                                  value={newFixtureName[item.canonical_key] || ''}
+                                  onChange={e => setNewFixtureName({ ...newFixtureName, [item.canonical_key]: e.target.value })}
+                                  style={{ flex: 2, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Price ($)"
+                                  value={newFixturePrice[item.canonical_key] || ''}
+                                  onChange={e => setNewFixturePrice({ ...newFixturePrice, [item.canonical_key]: e.target.value })}
+                                  style={{ flex: 1, background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.75rem' }}
+                                />
+                                <button
+                                  onClick={() => handleAddFixture(item.canonical_key)}
+                                  style={{ background: '#0284c7', color: 'white', border: 'none', padding: '0.3rem 0.65rem', borderRadius: '0.35rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                                >
+                                  ➕ Add
+                                </button>
+                              </div>
+                              {hasIngredientsAttr && (
+                                <input
+                                  type="text"
+                                  placeholder="Ingredients (comma separated: Mozzarella, Basil, Olive Oil...)"
+                                  value={newFixtureIngredients[item.canonical_key] || ''}
+                                  onChange={e => setNewFixtureIngredients({ ...newFixtureIngredients, [item.canonical_key]: e.target.value })}
+                                  style={{ background: '#1e293b', border: '1px solid #334155', color: '#cbd5e1', padding: '0.25rem 0.5rem', borderRadius: '0.35rem', fontSize: '0.7rem' }}
+                                />
+                              )}
                             </div>
                           )}
                         </div>
@@ -1100,6 +1293,235 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
           </div>
         )}
       </div>
+
+      {/* SCHEMA EDITOR MODAL */}
+      {editingSchemaKey && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.75)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: '#0f172a',
+            border: '1px solid #0284c7',
+            borderRadius: '1rem',
+            width: '100%',
+            maxWidth: '460px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              background: '#1e293b',
+              padding: '0.85rem 1.25rem',
+              borderBottom: '1px solid #334155',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '1.1rem' }}>⚙️</span>
+                <strong style={{ color: '#f8fafc', fontSize: '0.95rem' }}>
+                  Edit Entity Schema ({editingSchemaKey})
+                </strong>
+              </div>
+              <button
+                onClick={() => setEditingSchemaKey(null)}
+                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1.1rem' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {/* Entity Name Field */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.35rem' }}>
+                  ENTITY CLASS NAME:
+                </label>
+                <input
+                  type="text"
+                  value={schemaEntityName}
+                  onChange={e => setSchemaEntityName(e.target.value)}
+                  placeholder="e.g. Pizza, Tutor, MenuItem"
+                  style={{
+                    width: '100%',
+                    background: '#1e293b',
+                    border: '1px solid #334155',
+                    color: '#fff',
+                    padding: '0.45rem 0.65rem',
+                    borderRadius: '0.4rem',
+                    fontSize: '0.85rem',
+                    fontWeight: 700
+                  }}
+                />
+              </div>
+
+              {/* Attributes List */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.45rem' }}>
+                  SCHEMA ATTRIBUTES ({schemaAttributes.length}):
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', maxHeight: '180px', overflowY: 'auto' }}>
+                  {schemaAttributes.map((attr) => {
+                    const isBase = attr.name === 'name' || attr.name === 'price';
+                    return (
+                      <div
+                        key={attr.name}
+                        style={{
+                          background: '#1e293b',
+                          border: '1px solid #334155',
+                          borderRadius: '0.4rem',
+                          padding: '0.4rem 0.65rem',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          fontSize: '0.8rem'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontWeight: 700, color: '#f8fafc' }}>{attr.name}</span>
+                          <span style={{
+                            fontSize: '0.65rem',
+                            background: '#0369a1',
+                            color: '#e0f2fe',
+                            padding: '0.1rem 0.4rem',
+                            borderRadius: '4px',
+                            fontWeight: 600
+                          }}>
+                            {attr.type}
+                          </span>
+                          {attr.required && (
+                            <span style={{ fontSize: '0.65rem', color: '#4ade80', fontWeight: 600 }}>Required</span>
+                          )}
+                        </div>
+                        {isBase ? (
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }} title="Base Attribute">🔒</span>
+                        ) : (
+                          <button
+                            onClick={() => handleRemoveAttributeFromSchema(attr.name)}
+                            style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem' }}
+                            title="Remove attribute"
+                          >
+                            🗑️
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Add New Attribute Row */}
+              <div style={{ background: '#0b1329', border: '1px solid #1e3a8a', borderRadius: '0.5rem', padding: '0.65rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#38bdf8' }}>
+                  ➕ Add New Attribute:
+                </span>
+                <div style={{ display: 'flex', gap: '0.35rem' }}>
+                  <input
+                    type="text"
+                    placeholder="Field name (e.g. calories, is_spicy)"
+                    value={newAttrName}
+                    onChange={e => setNewAttrName(e.target.value)}
+                    style={{
+                      flex: 2,
+                      background: '#1e293b',
+                      border: '1px solid #334155',
+                      color: '#fff',
+                      padding: '0.35rem 0.5rem',
+                      borderRadius: '0.35rem',
+                      fontSize: '0.75rem'
+                    }}
+                  />
+                  <select
+                    value={newAttrType}
+                    onChange={e => setNewAttrType(e.target.value as any)}
+                    style={{
+                      flex: 1,
+                      background: '#1e293b',
+                      border: '1px solid #334155',
+                      color: '#fff',
+                      padding: '0.35rem 0.4rem',
+                      borderRadius: '0.35rem',
+                      fontSize: '0.75rem'
+                    }}
+                  >
+                    <option value="tags">Tag List (tags)</option>
+                    <option value="string">Text (string)</option>
+                    <option value="number">Number (number)</option>
+                    <option value="currency">Currency ($)</option>
+                    <option value="boolean">Boolean (toggle)</option>
+                  </select>
+                  <button
+                    onClick={handleAddAttributeToSchema}
+                    style={{
+                      background: '#0284c7',
+                      color: 'white',
+                      border: 'none',
+                      padding: '0.35rem 0.65rem',
+                      borderRadius: '0.35rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{
+              background: '#1e293b',
+              padding: '0.75rem 1.25rem',
+              borderTop: '1px solid #334155',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '0.5rem'
+            }}>
+              <button
+                onClick={() => setEditingSchemaKey(null)}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #475569',
+                  color: '#cbd5e1',
+                  padding: '0.45rem 0.85rem',
+                  borderRadius: '0.4rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveSchema}
+                style={{
+                  background: '#0284c7',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '0.45rem 1rem',
+                  borderRadius: '0.4rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                💾 Save &amp; Sync Model
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

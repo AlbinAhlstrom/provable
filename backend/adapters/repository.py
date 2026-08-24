@@ -274,12 +274,34 @@ class SqliteKickstartRepository(AbstractKickstartRepository):
     """Real database repository wrapping store.py kickstart state SQLite access."""
     def get(self) -> KickstartState:
         raw = store.get_kickstart_state()
+        raw_schemas = raw.get("entity_schemas", {})
+        entity_schemas = {}
+        for k, v in raw_schemas.items():
+            if isinstance(v, dict):
+                attrs = [
+                    EntityAttribute(
+                        name=a.get("name", ""),
+                        type=a.get("type", "string"),
+                        required=bool(a.get("required", False)),
+                        default_value=a.get("default_value")
+                    ) if isinstance(a, dict) else a
+                    for a in v.get("attributes", [])
+                ]
+                entity_schemas[k] = DomainEntitySchema(
+                    entity_name=v.get("entity_name", "Item"),
+                    canonical_key=v.get("canonical_key", k),
+                    attributes=attrs
+                )
+            elif isinstance(v, DomainEntitySchema):
+                entity_schemas[k] = v
+
         return KickstartState(
             business_pitch=raw.get("business_pitch", "An app to order pizzas"),
             blocks=raw.get("blocks", []),
             extracted_requirements=raw.get("extracted_requirements", []),
             synthesized=raw.get("synthesized", False),
-            custom_fixtures=raw.get("custom_fixtures", {})
+            custom_fixtures=raw.get("custom_fixtures", {}),
+            entity_schemas=entity_schemas
         )
 
     def save(self, state: KickstartState) -> None:

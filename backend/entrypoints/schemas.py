@@ -122,6 +122,18 @@ class ComponentFixturesUpdateRequest(BaseModel):
     canonical_key: str
     fixtures: List[Dict[str, Any]]
 
+class EntityAttributeSchema(BaseModel):
+    name: str
+    type: str = "string"
+    required: bool = False
+    default_value: Optional[Any] = None
+
+class EntitySchemaUpdateRequest(BaseModel):
+    canonical_key: str
+    entity_name: str
+    attributes: List[EntityAttributeSchema]
+
+
 # ── Generator Scaffolding Test Models (Benchmark Domain) ─────────────────────
 
 class BatchIn(BaseModel):

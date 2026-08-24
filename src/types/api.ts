@@ -176,10 +176,24 @@ export interface TestSpecAddDTO {
   then_text?: string;
 }
 
+export interface EntityAttributeDTO {
+  name: string;
+  type: 'string' | 'currency' | 'number' | 'tags' | 'boolean';
+  required?: boolean;
+  default_value?: any;
+}
+
+export interface DomainEntitySchemaDTO {
+  entity_name: string;
+  canonical_key: string;
+  attributes: EntityAttributeDTO[];
+}
+
 export interface DomainEntityDTO {
   name: string;
   description: string;
   attributes: Record<string, string>;
   seed_items: Record<string, any>[];
 }
+
 

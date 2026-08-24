@@ -545,11 +545,14 @@ def get_component_data_fixtures(uow: Optional[AbstractUnitOfWork] = None) -> Dic
                 price_val = float(p_match.group(1))
             except ValueError:
                 price_val = 14.99
-        default_catalog.append({
+        cat_item = {
             "id": f"item-{item.get('id', idx+1)}",
             "name": item.get("title", f"Item #{idx+1}"),
             "price": price_val
-        })
+        }
+        if "ingredients" in item:
+            cat_item["ingredients"] = item["ingredients"]
+        default_catalog.append(cat_item)
 
     fixtures = {
         "catalog": custom_fixtures.get("catalog", default_catalog),
@@ -603,6 +606,160 @@ def update_component_data_fixtures(
     sync_workspace_app_shell(uow=uow_context, workspace=workspace)
 
     return {"success": True, "canonical_key": canonical_key, "fixtures": fixtures}
+
+
+def get_component_entity_schemas(uow: Optional[AbstractUnitOfWork] = None) -> Dict[str, Any]:
+    """
+    Returns entity schema definitions for components, derived from pitch domain profile
+    or overridden by custom entity schemas in KickstartState.
+    """
+    if uow is None:
+        from service_layer.unit_of_work import SqliteUnitOfWork
+        uow_context = SqliteUnitOfWork()
+    else:
+        uow_context = uow
+
+    with uow_context:
+        try:
+            ks_obj = uow_context.kickstart.get()
+            ks = ks_obj.to_dict() if ks_obj else {}
+            entity_schemas_raw = ks_obj.entity_schemas if (ks_obj and hasattr(ks_obj, 'entity_schemas') and ks_obj.entity_schemas) else {}
+        except Exception:
+            ks = {}
+            entity_schemas_raw = {}
+
+    pitch = ks.get('business_pitch', 'Application') if (ks and ks.get('business_pitch')) else 'Application'
+
+    from onboarding.frontend_planning_engine import _extract_domain_entity_profile
+    profile = _extract_domain_entity_profile(pitch)
+    item_singular = profile.get("item_singular", "Item").capitalize()
+    raw_seed = profile.get("seed") or []
+    has_ingredients = any("ingredients" in s for s in raw_seed)
+
+    catalog_attrs = [
+        {"name": "name", "type": "string", "required": True},
+        {"name": "price", "type": "currency", "required": True}
+    ]
+    if has_ingredients:
+        catalog_attrs.append({"name": "ingredients", "type": "tags", "required": False, "default_value": []})
+
+    default_schemas = {
+        "catalog": {
+            "entity_name": item_singular,
+            "canonical_key": "catalog",
+            "attributes": catalog_attrs
+        },
+        "cart": {
+            "entity_name": "CartItem",
+            "canonical_key": "cart",
+            "attributes": [
+                {"name": "name", "type": "string", "required": True},
+                {"name": "price", "type": "currency", "required": True},
+                {"name": "quantity", "type": "number", "required": True, "default_value": 1}
+            ]
+        },
+        "tracking": {
+            "entity_name": "Order",
+            "canonical_key": "tracking",
+            "attributes": [
+                {"name": "item", "type": "string", "required": True},
+                {"name": "status", "type": "string", "required": True},
+                {"name": "price", "type": "currency", "required": True}
+            ]
+        }
+    }
+
+    schemas = {}
+    for k, v in default_schemas.items():
+        schemas[k] = v
+
+    for k, v in entity_schemas_raw.items():
+        if hasattr(v, 'to_dict'):
+            schemas[k] = v.to_dict()
+        elif isinstance(v, dict):
+            schemas[k] = v
+
+    return {"success": True, "schemas": schemas}
+
+
+def update_component_entity_schema(
+    canonical_key: str,
+    entity_name: str,
+    attributes: List[Dict[str, Any]],
+    uow: Optional[AbstractUnitOfWork] = None,
+    workspace: Optional[Any] = None
+) -> Dict[str, Any]:
+    """
+    Updates the entity schema definition for a component, normalizes existing fixtures,
+    and re-syncs workspace App.tsx shell live.
+    """
+    if uow is None:
+        from service_layer.unit_of_work import SqliteUnitOfWork
+        uow_context = SqliteUnitOfWork()
+    else:
+        uow_context = uow
+
+    from domain.model import EntityAttribute, DomainEntitySchema
+
+    entity_attrs = []
+    for a in attributes:
+        if isinstance(a, EntityAttribute):
+            entity_attrs.append(a)
+        else:
+            entity_attrs.append(EntityAttribute(
+                name=a.get("name", ""),
+                type=a.get("type", "string"),
+                required=bool(a.get("required", False)),
+                default_value=a.get("default_value")
+            ))
+
+    schema_obj = DomainEntitySchema(
+        entity_name=entity_name,
+        canonical_key=canonical_key,
+        attributes=entity_attrs
+    )
+
+    with uow_context:
+        try:
+            ks_state = uow_context.kickstart.get()
+        except Exception:
+            ks_state = None
+
+        if not ks_state:
+            from domain.model import KickstartState
+            ks_state = KickstartState(business_pitch="Application")
+
+        if not hasattr(ks_state, 'entity_schemas') or ks_state.entity_schemas is None:
+            ks_state.entity_schemas = {}
+
+        ks_state.entity_schemas[canonical_key] = schema_obj
+
+        # Normalize existing fixtures to have defaults for new attributes
+        if hasattr(ks_state, 'custom_fixtures') and ks_state.custom_fixtures and canonical_key in ks_state.custom_fixtures:
+            updated_fixtures = []
+            for fix in ks_state.custom_fixtures[canonical_key]:
+                item_copy = dict(fix)
+                for attr in entity_attrs:
+                    if attr.name not in item_copy:
+                        if attr.default_value is not None:
+                            item_copy[attr.name] = attr.default_value
+                        elif attr.type == "tags":
+                            item_copy[attr.name] = []
+                        elif attr.type in ["number", "currency"]:
+                            item_copy[attr.name] = 0
+                        elif attr.type == "boolean":
+                            item_copy[attr.name] = False
+                        else:
+                            item_copy[attr.name] = ""
+                updated_fixtures.append(item_copy)
+            ks_state.custom_fixtures[canonical_key] = updated_fixtures
+
+        uow_context.kickstart.save(ks_state)
+        uow_context.commit()
+
+    sync_workspace_app_shell(uow=uow_context, workspace=workspace)
+
+    return {"success": True, "canonical_key": canonical_key, "schema": schema_obj.to_dict()}
 
 
 def discover_domain_model(pitch: str, uow: Optional[AbstractUnitOfWork] = None) -> Dict[str, Any]:

@@ -41,4 +41,9 @@ Connect form submissions and list views to backend API endpoints. Use RESTful co
 - **Data Fixtures Sync**: Sync state updates back to the backend host using:
   `fetch(getApiUrl('/api/components/fixtures/update'), { method: 'POST', body: JSON.stringify({ canonical_key, fixtures }) })` and `window.parent.postMessage({ type: 'FIXTURES_UPDATED', canonical_key, fixtures }, '*')`.
 
+### 7. Domain Entity Attributes & Tag Chips
+- When domain items include structured attributes such as `ingredients` (e.g. `["San Marzano Tomatoes", "Fresh Mozzarella"]`), `allergens`, or `tags`, render them as clean, rounded pill/chip badges inside the item card:
+  `{item.ingredients && item.ingredients.map(ing => <span key={ing} style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', borderRadius: '9999px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>{ing}</span>)}`
+
 Respond STRICTLY with valid React TypeScript code inside a single ```tsx code block. Do NOT include any Markdown conversational intro or outro text.
+

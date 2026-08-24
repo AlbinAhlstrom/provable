@@ -270,9 +270,9 @@ def _extract_domain_entity_profile(pitch: str) -> Dict[str, Any]:
             "action_button_text": "🍕 Add to Cart",
             "domain_emoji": "🍕",
             "seed": [
-                {"id": "1", "title": "Margherita Speciale", "subtitle": "Fresh mozzarella • San Marzano basil sauce • extra virgin olive oil", "price_or_rate": "$16.99", "badge_status": "Best Seller", "rating": 4.9, "initials": "MS"},
-                {"id": "2", "title": "Pepperoni Feast", "subtitle": "Double crispy cupping pepperoni • spicy honey drizzle", "price_or_rate": "$19.99", "badge_status": "Popular", "rating": 5.0, "initials": "PF"},
-                {"id": "3", "title": "Truffle Mushroom White", "subtitle": "Wild mushrooms • truffle ricotta cream • thyme & garlic", "price_or_rate": "$21.99", "badge_status": "Chef Pick", "rating": 4.8, "initials": "TM"}
+                {"id": "1", "title": "Margherita Speciale", "subtitle": "Fresh mozzarella • San Marzano basil sauce • extra virgin olive oil", "price_or_rate": "$16.99", "badge_status": "Best Seller", "rating": 4.9, "initials": "MS", "ingredients": ["San Marzano Tomatoes", "Fresh Mozzarella", "Basil", "EVOO"]},
+                {"id": "2", "title": "Pepperoni Feast", "subtitle": "Double crispy cupping pepperoni • spicy honey drizzle", "price_or_rate": "$19.99", "badge_status": "Popular", "rating": 5.0, "initials": "PF", "ingredients": ["Tomato Sauce", "Mozzarella", "Crispy Pepperoni", "Hot Honey"]},
+                {"id": "3", "title": "Truffle Mushroom White", "subtitle": "Wild mushrooms • truffle ricotta cream • thyme & garlic", "price_or_rate": "$21.99", "badge_status": "Chef Pick", "rating": 4.8, "initials": "TM", "ingredients": ["Wild Mushrooms", "Truffle Ricotta", "Garlic", "Thyme"]}
             ]
         }
     elif any(k in p_lower for k in ["laundry", "wash", "fold", "dry cleaning", "laundromat"]):
@@ -677,6 +677,7 @@ img, svg {{ max-width: 100%; height: auto; }}
             "title": item_title,
             "subtitle": subtitle,
             "price_or_rate": price_str,
+            "ingredients": item.get("ingredients", []),
             "badge_status": item.get("badge_status", "Popular"),
             "rating": item.get("rating", 4.9),
             "initials": "".join([w[0].upper() for w in item_title.split()[:2]]) or "PI"
@@ -971,6 +972,7 @@ export default function App() {
               title: name,
               subtitle: f.desc || f.subtitle || 'Fresh artisan offering',
               price_or_rate: price.startsWith('$') ? price : `$${price}`,
+              ingredients: Array.isArray(f.ingredients) ? f.ingredients : [],
               badge_status: f.badge_status || 'Popular',
               rating: f.rating || 4.9,
               initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || 'PI'
@@ -1005,6 +1007,7 @@ export default function App() {
                 title: name,
                 subtitle: f.desc || f.subtitle || 'Fresh artisan offering',
                 price_or_rate: price.startsWith('$') ? price : `$${price}`,
+                ingredients: Array.isArray(f.ingredients) ? f.ingredients : [],
                 badge_status: f.badge_status || 'Popular',
                 rating: f.rating || 4.9,
                 initials: name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || 'PI'
@@ -1117,6 +1120,15 @@ export default function App() {
               <div key={item.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '1.25rem', padding: '1.25rem', boxShadow: 'var(--shadow-card)' }}>
                 <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>{item.title}</h3>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{item.subtitle}</p>
+                {item.ingredients && Array.isArray(item.ingredients) && item.ingredients.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', margin: '0.5rem 0' }}>
+                    {item.ingredients.map((ing: string, i: number) => (
+                      <span key={i} style={{ fontSize: '0.7rem', background: 'var(--bg-secondary)', color: 'var(--text-muted)', padding: '0.2rem 0.5rem', borderRadius: '9999px', border: '1px solid var(--border-color)', fontWeight: 600 }}>
+                        {ing}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', margin: '1rem 0' }}>{item.price_or_rate}</div>
                 <button onClick={() => handleAddToCart(item)} style={{ width: '100%', background: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
                   Add to Cart

@@ -426,12 +426,43 @@ MOCK_DOMAIN_SCHEMA = {
 
 
 @dataclass
+class EntityAttribute:
+    name: str
+    type: str = "string"  # "string", "currency", "number", "tags", "boolean"
+    required: bool = False
+    default_value: Any = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "type": self.type,
+            "required": self.required,
+            "default_value": self.default_value
+        }
+
+
+@dataclass
+class DomainEntitySchema:
+    entity_name: str
+    canonical_key: str
+    attributes: List[EntityAttribute] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "entity_name": self.entity_name,
+            "canonical_key": self.canonical_key,
+            "attributes": [a.to_dict() if hasattr(a, 'to_dict') else a for a in self.attributes]
+        }
+
+
+@dataclass
 class KickstartState:
     business_pitch: str = "An app to order pizzas"
     blocks: List[str] = field(default_factory=list)
     extracted_requirements: List[Dict[str, Any]] = field(default_factory=list)
     synthesized: bool = False
     custom_fixtures: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
+    entity_schemas: Dict[str, DomainEntitySchema] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -439,8 +470,13 @@ class KickstartState:
             "blocks": self.blocks,
             "extracted_requirements": self.extracted_requirements,
             "synthesized": self.synthesized,
-            "custom_fixtures": self.custom_fixtures
+            "custom_fixtures": self.custom_fixtures,
+            "entity_schemas": {
+                k: (v.to_dict() if hasattr(v, 'to_dict') else v)
+                for k, v in self.entity_schemas.items()
+            }
         }
+
 
 
 
