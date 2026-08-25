@@ -1,4 +1,4 @@
-﻿# Enterprise AppGen TDD & DDD Engine Architecture
+# Enterprise AppGen TDD & DDD Engine Architecture
 
 ## 1. Executive Summary & Core Invariant
 Enterprise AppGen eliminates AI hallucination, context drift, and technical debt by replacing unstructured free-text iterative prompting with a deterministic **TDD (Test-Driven Development) & DDD (Domain-Driven Design)** state machine.
@@ -20,9 +20,10 @@ Enterprise AppGen eliminates AI hallucination, context drift, and technical debt
 - **Meta LibCST**: Built-in `ast` is discarded in favor of `libcst`.
 - **Preserved Formatting**: Extracts and splices Aggregate Root classes while strictly preserving whitespace, comments, indentation, and docstrings.
 
-### 4. Test File Write-Locking in GREEN Phase
-- **Anti-Tampering Invariant**: During `GREEN_GEN`, `test_<spec_id>.py` is marked read-only at the OS/filesystem level.
-- The LLM is strictly prohibited from modifying test files to achieve a pass; fixes must occur inside domain logic.
+### 4. The 5-Line Hash Lock Anti-Cheat (`tdd_machine.py`)
+- **Anti-Tampering Invariant**: During the `GREEN_GEN` phase, a SHA-256 cryptographic hash of `test_<spec_id>.py` is snapshotted (`compute_test_file_hash`).
+- After code generation / splicing, the hash is re-verified (`verify_test_file_integrity`). If the hash changed, a `TestTamperingError` is raised immediately.
+- Eliminates brittle OS-level filesystem locks (`chmod`) across platforms.
 
 ### 5. Pytest Execution Hard Timeout
 - **Hanging Protection**: Pytest executions enforce a hard 5-second timeout (`pytest-timeout`).
@@ -40,7 +41,17 @@ Enterprise AppGen eliminates AI hallucination, context drift, and technical debt
 
 ---
 
-## 3. Pillar Breakdown & Workflow Diagram
+## 3. Discrepancy & Evolution Tags
+
+> [!NOTE]
+> [DISCREPANCY: Doc approach better - The original doc specifies an LLM-driven micro-context repair prompt via LibCST slicing during GREEN_GEN, whereas the current code in tdd_machine.py relies on hardcoded string-matching heuristic stubs (e.g. inject validate_invariants or weight: float). The LLM-driven LibCST repair is architecturally superior and generalizable.]
+
+> [!NOTE]
+> [DISCREPANCY: Doc approach better - Runtime Schema-Driven UI via OpenAPI/@rjsf/core completely eliminates frontend LLM hallucinations and maintenance overhead, whereas the codebase still maintains legacy TSX generators (dynamic_domain_generator.py, ui_generator.py) and prompt templates.]
+
+---
+
+## 4. Pillar Breakdown & Workflow Diagram
 
 ```mermaid
 flowchart TD
@@ -63,10 +74,10 @@ flowchart TD
         PopSpec --> RedGen["RED_GEN: Generate test_<spec_id>.py"]
         RedGen --> RedRun{"RED_GATE: pytest (Exit 1 & AssertionError, 5s timeout)"}
         RedRun -- Pass/SyntaxErr --> RejectRed["Reject & Retry Test"]
-        RedRun -- Approved RED --> LockTest["Write-Lock test_<spec_id>.py"]
+        RedRun -- Approved RED --> HashLock["5-Line Hash Lock: Snapshot SHA-256"]
         
-        LockTest --> GreenGen["GREEN_GEN: LibCST Micro-Context Slice -> Generate Domain Logic"]
-        GreenGen --> GreenRun{"GREEN_GATE: pytest (Exit 0, 5s timeout)"}
+        HashLock --> GreenGen["GREEN_GEN: LibCST Micro-Context Slice -> Generate Domain Logic"]
+        GreenGen --> GreenRun{"GREEN_GATE: pytest (Exit 0, 5s timeout, Hash Verified)"}
         GreenRun -- Pass --> CommitSpec["Git Commit: 'feat(spec): REQ-xxx'"]
         GreenRun -- Fail (Tries < 3) --> RetryGreen["Retry Domain Logic"]
         GreenRun -- Fail (Tries == 3) --> DeadEnd["Git Rollback -> Mark REQUIRES_HUMAN_INTERVENTION"]
@@ -76,14 +87,15 @@ flowchart TD
 
     subgraph UIProjection ["4. Runtime Schema-Driven UI"]
         Routers --> OpenAPI["FastAPI /openapi.json"]
-        OpenAPI --> RJSF["@rjsf/core Dynamic Runtime Form & Table Renderer"]
+        OpenAPI --> RJSF["Dynamic Schema UI & Table Renderer"]
         RJSF --> AppView["Live Responsive Web Interface"]
     end
 ```
 
 ---
 
-## 4. Cross-References
+## 5. Cross-References
 - [[System Architecture]]
 - [[Shift-Left TDD Workflow]]
 - [[Automated-Verification-And-Self-Healing-Pipeline]]
+

@@ -72,13 +72,15 @@ When modifying the application codebase or writing developer agent iterations:
   2. `PM Studio Frontend` (`:5173`): React 18 / Vite interface in `frontend/`.
   3. `Workspace Live Preview` (`:5174`): React 18 / Vite sandbox application in `workspace/` with complete `package.json`, `tsconfig.json`, and `vite.config.ts`.
 - **Automated Dependency & Scaffold Guarantee**: `run.py` and workspace scaffold generators MUST verify that `workspace/node_modules/vite` and required TypeScript configs are present on disk before launching dev servers to prevent connection refused errors.
-- **Single Heavy E2E & Directory Isolation Invariant**: All E2E and Selenium browser/visual auditing tests MUST strictly reside under `backend/tests/e2e/` (e.g., `backend/tests/e2e/test_e2e_pizza_prompt_sanity.py`), while `backend/tests/unit/` strictly contains fast (<0.5s) unit tests using `FakeUnitOfWork`. E2E suite uses a Pytest module-level fixture (`scope="module", autouse=True`) for fresh application stack synthesis once per test module run (reusing live project shell if `workspace/src/App.tsx` exists), with individual test functions asserting catalog rendering, cart drawer interactions, simulated payments, visual audit scores, and postMessage state sync.
+- **E2E Dynamic Projection & Directory Isolation Invariant**: All E2E tests strictly reside under `backend/tests/e2e/` (e.g., `backend/tests/e2e/test_ui_dynamic_projection.py` testing The Gibberish Strategy), while `backend/tests/unit/` strictly contains fast (<0.5s) unit tests using `FakeUnitOfWork`.
 
 ## STRICT INVARIANTS & ANTI-REGRESSION
 - **FRONTEND PURITY**: The frontend is domain-agnostic. You are strictly forbidden from hardcoding specific domain entities (like Pallet, Zone, Pizza, User, Order) into React components. All domain data MUST flow dynamically from the OpenAPI schema or API responses.
-- **ZERO-MOCK TOLERANCE**: You are strictly forbidden from hardcoding static UI elements (e.g., product cards, carts, specific domain data) to bypass rendering issues.
+- **ZERO-MOCK TOLERANCE**: You are strictly forbidden from hardcoding static UI elements (e.g., product cards, carts, specific domain data) to bypass rendering issues. Real LLM calls route to OpenAI/Gemini SDK.
 - **FAIL LOUDLY**: If a dynamic schema (OpenAPI/JSON) fails to render in the frontend, you must render an empty state or a red `<ErrorBoundary>` with the technical error. You must never resurrect legacy code or fake the UI to make a test pass visually.
 - **TEST EVOLUTION OVER REGRESSION**: If a test fails because the fundamental architecture or Bounded Context has evolved (e.g., moving from static UI to schema-driven UI), you must DELETE OR REWRITE THE TEST. You are strictly forbidden from reverting architectural progress or hardcoding data just to turn a failing legacy test green.
+- **5-LINE HASH LOCK**: Test integrity during TDD GREEN phase is enforced via SHA-256 cryptographic hashing (`compute_test_file_hash` / `verify_test_file_integrity`).
+
 
 
 

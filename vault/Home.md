@@ -1,45 +1,44 @@
 # Provable Project Wiki
 
-Welcome to the Provable Project Obsidian Vault! This is the centralized knowledge base for Provable, an agentic software engineering simulation platform where PMs orchestrate dynamic Domain-Driven Design (DDD) domain synthesis and autonomous developer agents using a strict, Requirements-Driven TDD workflow.
+Welcome to the Provable Project Obsidian Vault! This is the centralized knowledge base for Provable, an enterprise-grade, deterministic Domain-Driven Design (DDD) and Test-Driven Development (TDD) AppGen Engine.
 
 ---
 
 ## 🗺️ Vault Map
 
 ### 1. 🏗️ System Architecture
-- [[Enterprise-AppGen-TDD-Engine-Architecture]]: Core 3-Pillar Enterprise AppGen engine architecture: Schema-Driven UI (Dumb Projection), Programmatic Red-Gate TDD Validation, and AST-Based Context Isolation.
-- [[System Architecture]]: Overview of the React PM Studio frontend (Explorer, Domain Canvas, Live App Preview, Code Review, Coverage Hub), FastAPI backend engine, SQLite DataStore, and OpenHands orchestrator.
-- [[Full-LLM-Free-Form-Orchestration-Graph]]: Pure Full-LLM software synthesis engine featuring the 4-loop orchestration graph (Domain Storming, Backend DDD/TDD, Free-Form UI Synthesizer, Verification Gates).
-- [[PM-Studio-UX-Architecture-And-Direction]]: Breakdown of PM Studio 3-Pillar UX Architecture (Pages Bar, Executable Test Specs, Domain Entity CRUD) and Mobile-First responsive design system invariants.
-- [[Universal-Dynamic-Domain-AST-Generator]]: Universal dynamic domain generator synthesizing contract-first 6-part DDD backend modules and React 18 frontend stacks for ANY domain pitch without template leakage.
-- [[Database Schema]]: Comprehensive documentation of SQLite tables (`requirements`, `test_cases`, `agent_runs`), schema triggers, JSON columns, and DataStore sync mechanisms.
-- [[Frontend Components]]: Breakdown of React components (`App`, `DomainModeling`, `AppPreview`, `RequirementsList`, `CodeReview`, `CoverageHub`, `AgentTray`, `DiffViewer`), state hooks, and CSS design system.
-- [[Backend REST API]]: Detailed REST API endpoint specifications, request/response models, background tasks, and CORS configuration.
-- [[Integrations]]: Sync clients for Jira (`jira_client.py`), StrictDoc (`strictdoc_client.py`), and containerized Allure reporting (`allure_client.py`).
-- [[LLM Abstraction and Prompts]]: Model configuration (`config/models.yaml`), OpenAI SDK wrapping, and externalized prompt template markdown files (`domain_discovery.md`).
+- [[Enterprise-AppGen-TDD-Engine-Architecture]]: Core Enterprise AppGen engine architecture: Schema-Driven UI (Dumb Projection), Programmatic Red-Gate TDD Validation, LibCST Code Isolation, and SHA-256 5-Line Hash Lock.
+- [[System Architecture]]: Overview of PM Studio frontend (`KickstartStudio`, `BehaviorInboxPanel`, `RequirementControlPanel`, `AppPreview`), FastAPI backend engine, SQLite DataStore, and TDD state machine.
+- [[Full-LLM-Free-Form-Orchestration-Graph]]: Full-LLM synthesis pipeline featuring Domain Storming, Backend DDD/TDD, Skeleton Builder, and Verification Gates.
+- [[PM-Studio-UX-Architecture-And-Direction]]: Breakdown of PM Studio 3-Pillar UX Architecture (Pages Bar, Executable Test Specs / Behavior Inbox, Domain Entities Inspector) and Mobile-First responsive design system invariants.
+- [[Universal-Dynamic-Domain-AST-Generator]]: Dynamic domain generator scaffolding pure DDD domain aggregates (`Pallet`, `Zone`, `Operator`), Pydantic DTOs, Unit of Work, and FastAPI routers.
+- [[Database Schema]]: Comprehensive documentation of SQLite tables (`requirements`, `test_cases`, `agent_runs`, `kickstart_state`, `projects`), schema triggers, JSON columns, and DataStore sync mechanisms.
+- [[Frontend Components]]: Breakdown of React components (`App`, `KickstartStudio`, `AppPreview`, `BehaviorInboxPanel`, `RequirementControlPanel`, `DomainEntitiesPanel`, `CoverageHub`), state hooks, and CSS design system.
+- [[Backend REST API]]: Detailed REST API endpoint specifications (`/api/specs/inbox`, `/api/onboarding/kickstart`, `/api/onboarding/reset`, `/api/requirements`, `/api/coverage`), request/response models, and CORS configuration.
+- [[Integrations]]: Sync clients for StrictDoc (`strictdoc_client.py`) and containerized Allure reporting (`allure_client.py`).
+- [[LLM Abstraction and Prompts]]: Model configuration (`config/models.yaml`), OpenAI Python SDK client routing (`gemini-2.5-flash`), and externalized prompt template markdown files (`router_decomposition.md`, `domain_discovery.md`).
 - [[05-DDD-TDD-Architecture-Guidelines|DDD & TDD Architecture Guidelines]]: Architectural layer rules (Domain Model, Repository, Service Layer, Unit of Work, Events) adapted from *Architecture Patterns with Python*.
 
 
 ### 2. 🔄 Agent Workflows & Operations
-- [[Onboarding and Discovery Workflow]]: Business pitch discovery, dynamic schema derivation, contract-first domain synthesis, and clean workspace scaffold invariants.
-- [[Shift-Left TDD Workflow]]: Unified pre-review testing execution, requirement-driven failing test spec generation, and Allure coverage mapping.
-- [[Agent Execution Loop]]: LangGraph state machine breakdown (`prepare_branch`, `code_generation`, `test_runner`, `visual_qa`, `finalize`), retry loops, Vision gate, and git rollback mechanics.
-- [[DDD_TDD_Developer_Workflow]]: Pure DDD layer boundaries, subagent execution contract, 4-step execution loop, and anti-leakage verification gate.
-- [[Future Enhancements Roadmap]]: Detailed blueprints for the Live Agent Execution Graph Visualizer and Self-Healing TDD Feedback Loop.
-
+- [[Onboarding and Discovery Workflow]]: Bounded context discovery, router engine decomposition (`router_engine.py`), skeleton scaffolding (`skeleton_builder.py`), and clean workspace scaffold invariants.
+- [[Shift-Left TDD Workflow]]: Unified pre-implementation testing execution, requirement-driven failing test spec generation, and Allure coverage mapping.
+- [[Agent Execution Loop]]: TDD execution loop (`tdd_machine.py`) enforcing RED phase, LibCST class extraction, SHA-256 test integrity check, and 3-strike dead-end rollback handling.
+- [[DDD_TDD_Developer_Workflow]]: Pure DDD layer boundaries, 4-step execution loop (RED-GREEN-WIRE-VERIFY), and anti-leakage verification gate.
+- [[Future Enhancements Roadmap]]: Detailed blueprints for Schema-Driven Dynamic Forms, LLM LibCST repair loops, and Multi-Domain Stress Testing.
 - [[Bug-Reproduction-and-Testing-Policy]]: Strict policy and automated regression test workflow for bug reproduction, tri-service stack startup (:8000, :5173, :5174), and zero-regression guarantees.
-- [[Helper Scripts]]: Single cross-platform application launcher (`run.py`), PowerShell/Bash wrappers, and developer debugging utility scripts (`reset_ticket.py`, `update_json.py`, `tail_logs.sh`).
+- [[Helper Scripts]]: Single cross-platform application launcher (`run.py`) and PowerShell/Bash wrappers.
 
 
 ### 3. 🧪 Testing & Quality Assurance
-- [[Automated-Verification-And-Self-Healing-Pipeline]]: 3-stage automated verification pipeline featuring Vocabulary Audit Gate (`audit_domain_vocabulary`), Web App Preview Health Gate (`verify_preview_health`), and Pytest Execution Gate.
-- [[Testing Strategy]]: 3-tier DDD test architecture (`backend/tests/unit`, `backend/tests/integration`, `backend/tests/e2e`), BDD docstrings (`Given`/`When`/`Then`), `@allure` metadata tags, and test coverage checklists.
+- [[Automated-Verification-And-Self-Healing-Pipeline]]: Automated verification pipeline featuring The Gibberish Strategy (`test_ui_dynamic_projection.py`), Frontend Domain Purity Gate (`test_frontend_domain_purity.py`), and Pytest Execution Gate.
+- [[Testing Strategy]]: 3-tier DDD test architecture (`backend/tests/unit`, `backend/tests/integration`, `backend/tests/e2e`), BDD docstrings (`Given`/`When`/`Then`), `@allure` metadata tags, and 5-line hash lock verification.
 
 
 ### 4. ⚖️ Architectural Decisions (ADRs)
 - [[ADR-001 Host vs Containerized Execution]]: Decision record on executing Vite dev servers and Pytest on the host machine vs sandboxed Docker container.
 - [[ADR-002 SQLite and StrictDoc Bidirectional Sync]]: Decision record on bridging specifications with a performant relational SQLite database.
-- [[ADR-003 LLM Abstraction Layer and Prompt Externalization]]: Decision record on prompt externalization and model-agnostic routing.
+- [[ADR-003 LLM Abstraction Layer and Prompt Externalization]]: Decision record on prompt externalization and model-agnostic routing via OpenAI SDK.
 - [[ADR-004 Allure Reporting Server Docker Integration]]: Decision record on utilizing a containerized Allure service for automated visual test reports.
 
 
@@ -53,4 +52,5 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[Chapter-13-Dependency-Injection-and-Bootstrap|Chapter 13: DI & Bootstrap Container]]: Dependency Injection container (`bootstrap.py`), `inspect.signature` injection, and decoupled message bus.
 
 ---
-*Updated by Antigravity on 2026-08-05.*
+*Updated by Antigravity on 2026-08-25.*
+

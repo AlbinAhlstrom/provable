@@ -75,3 +75,18 @@ flowchart TD
 - **Vocabulary Isolation Gate**: Audits generated code to ensure zero leftover retail/batch terms pollute custom domain applications.
 - **Fixture Synchronization Gate**: Injects bidirectional postMessage listener and state setter (`inject_data_fixtures_sync_to_tsx`) so PM Studio data fixtures synchronize in real time.
 - **Vite Health Gate**: Verifies `npx vite build` and HTTP 200 OK.
+
+---
+
+## 🏛️ Discrepancies & Evolution Tags
+
+> [!NOTE]
+> [DISCREPANCY: Doc approach better - The vision of pure full-stack schema projection replaces Loop 3 (Free-Form React code generation) with 100% dynamic schema rendering directly from OpenAPI contracts. This completely eliminates frontend LLM hallucinations and brittle TypeScript compilation errors.]
+
+---
+
+## 🔗 Related Documentation
+- [[Enterprise-AppGen-TDD-Engine-Architecture]]
+- [[System Architecture]]
+- [[Automated-Verification-And-Self-Healing-Pipeline]]
+

@@ -1,6 +1,6 @@
 # Integrations Engine & Data Formats
 
-Provable supports external tool syncing through integrations located in `backend/integrations/`. These clients bridge Provable's local SQLite database with StrictDoc, Jira, and Allure.
+Provable supports external tool syncing through integrations located in `backend/integrations/`. These clients bridge Provable's local SQLite database with StrictDoc and containerized Allure reporting.
 
 ---
 
@@ -33,33 +33,25 @@ STATUS: Backlog
 
 ---
 
-## 2. Jira Client (`jira_client.py`)
+## 2. Allure Client (`allure_client.py`)
 
-Maps SQLite requirements and bugs to Atlassian Jira tickets.
-
-### Configuration (`backend/config/integrations.yaml`)
-```yaml
-jira:
-  enabled: true
-  server: "https://your-domain.atlassian.net"
-  email_env: "JIRA_EMAIL"
-  api_token_env: "JIRA_API_TOKEN"
-  project_key: "PROV"
-
-status_mapping:
-  Backlog: "To Do"
-  In Progress: "In Progress"
-  Review: "In Review"
-  Done: "Done"
-```
-
----
-
-## 3. Allure Client (`allure_client.py`)
-
-Allure Docker Service API client.
+Allure Docker Service API client for containerized visual test reporting.
 - **Base URL**: `http://localhost:5050`
 - **Endpoints**:
   - `POST /projects`: Registers project ID `provable`.
   - `POST /send-results?project_id=provable`: Uploads pytest JSON results from `workspace/allure-results/`.
   - `GET /generate-report?project_id=provable`: Triggers HTML report rendering.
+
+---
+
+## 🏛️ Discrepancies & Evolution Tags
+
+> [!NOTE]
+> [DISCREPANCY: Doc approach better - The original integrations design included bi-directional syncing with enterprise issue trackers (Jira/Linear). While Jira was intentionally purged to simplify the deterministic local AppGen engine, an outbound webhook or event publisher for CI/CD integration remains valuable for production deployments.]
+
+---
+
+## 🔗 Related Documentation
+- [[System Architecture]]
+- [[Database Schema]]
+- [[Shift-Left TDD Workflow]]

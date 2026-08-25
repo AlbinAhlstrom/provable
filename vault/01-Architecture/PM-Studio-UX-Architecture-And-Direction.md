@@ -67,11 +67,18 @@ All PM Studio features and backend UI generators MUST adhere to the following mo
 
 ---
 
-## 🧪 3. Test Pyramid Invariant & Benchmark Prompt
+## 🧪 3. Test Pyramid Invariant & The Gibberish Strategy
 
-- **Official QA Benchmark Prompt**: `"An app to order pizzas"` is the established baseline reference prompt for quality assurance, automated synthesis verification, and visual regression testing across all sessions.
-- **Only 1 Heavy E2E Test**: `backend/tests/test_e2e_pizza_prompt_sanity.py` is the SINGLE heavy browser E2E test executing this benchmark prompt end-to-end.
-- **Fast Unit Tests**: All AST compilation, schema validation, and JSX integrity tests reside in `backend/tests/unit/` (including `test_jsx_compilation_integrity.py`), running in `< 1.5s`.
+- **Industrial WMS Domain Benchmark**: The official QA benchmark is an industrial domain context (e.g. Warehouse Management System tracking `Pallet`, `Zone`, and `Operator`).
+- **The Gibberish Strategy (`backend/tests/e2e/test_ui_dynamic_projection.py`)**: UI dynamic purity is mathematically verified by feeding synthetic nonsense schemas (`TestFlorg` / `Zorp`) and asserting that the presentation layer projects them dynamically without fallback to hardcoded words.
+- **Fast Unit Tests**: All skeleton generation, router derivation, and LibCST splicing tests reside in `backend/tests/unit/`, running in `< 1.0s`.
+
+---
+
+## 🏛️ Discrepancies & Evolution Tags
+
+> [!NOTE]
+> [DISCREPANCY: Doc approach better - The original document outlined a 3-pillar UX connecting domain entities through universal entity graphs (Master -> Selection -> Tracking). While the frontend has been updated to render domain aggregate trees, full dynamic form auto-generation from OpenAPI schema definitions directly in PM Studio remains a key roadmap item.]
 
 ---
 
@@ -80,4 +87,4 @@ All PM Studio features and backend UI generators MUST adhere to the following mo
 To ensure these decisions persist across future agent chat sessions:
 1. **`vault/HANDOVER.md`**: Updated at the end of every turn to pass live architectural state to the next session.
 2. **`.agents/AGENTS.md`**: Codifies mandatory rules and layout invariants into the agent's system prompt.
-3. **`/learn` Slash Command**: Used to save user preferences as workspace rules.
+

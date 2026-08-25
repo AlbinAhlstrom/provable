@@ -1,48 +1,59 @@
-# Universal Dynamic Domain AST Generator
+# Universal Dynamic Domain AST Generator & Skeleton Engine
 
-The **Universal Dynamic Domain AST Generator** ([`backend/onboarding/dynamic_domain_generator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/dynamic_domain_generator.py)) is Provable's core engine for transforming arbitrary natural language business pitches into 100% contract-first, clean Domain-Driven Design (DDD) backend modules and React 18 frontend applications.
+The **Universal Dynamic Domain Generator** comprises the **Router Engine** ([`backend/onboarding/router_engine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/router_engine.py)), **Skeleton Builder** ([`backend/onboarding/skeleton_builder.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/skeleton_builder.py)), and **LibCST Isolator** ([`backend/onboarding/cst_isolator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/cst_isolator.py)). It transforms arbitrary natural language business pitches into 100% contract-first, clean Domain-Driven Design (DDD) backend modules and OpenAPI schemas.
 
 ```mermaid
 graph TD
-    Pitch["User Business Pitch (Any Domain)"] --> Prompt["1. LLM Domain Storming (Strict Vocabulary Isolation)"]
-    Prompt --> Schema["2. Discovered DomainSchema JSON (Native Terms)"]
-    Schema --> ASTBuilder["3. Dynamic Schema AST Code Builder"]
+    Pitch["User Business Pitch (e.g. Industrial WMS)"] --> Router["1. Router Engine (router_engine.py)"]
+    Router --> Struct["DomainStructureSchema: Entities & Value Objects"]
+    Router --> Inbox["DomainBehaviorInboxSchema: Atomic BDD Specs"]
     
-    subgraph AST_BUILDER ["Schema-Driven AST Code Builder"]
-        ASTBuilder --> VO["Value Objects -> Dataclasses (Native Fields)"]
-        ASTBuilder --> AGG["Aggregate Roots -> Python Classes (Native Methods & Version Locks)"]
-        ASTBuilder --> EVT["Events & Commands -> Native Dataclasses"]
-        ASTBuilder --> ORM["SQLAlchemy Mappers -> Native Tables"]
-        ASTBuilder --> UI["React UI -> Native Domain Forms & KDS Views"]
+    subgraph SKELETON_BUILDER ["Instant Full-Stack Skeleton Builder"]
+        Struct --> VO["Value Objects -> Dataclasses"]
+        Struct --> AGG["Aggregate Roots -> Python Classes"]
+        Struct --> REPO["Abstract & Fake Repositories"]
+        Struct --> UOW["Unit of Work (Sqlite/Fake)"]
+        Struct --> DTO["Pydantic DTO Schemas"]
+        Struct --> ROUTERS["FastAPI Presentation Routers"]
+        ROUTERS --> OPENAPI["FastAPI /openapi.json from Second 0"]
     end
 
-    AST_BUILDER --> Audit["4. Automated Vocabulary Audit Gate"]
-    Audit -- "Forbidden Term Detected" --> Reject["Reject & Re-synthesize"]
-    Audit -- "Clean Domain Vocabulary" --> HealthGate["5. Web App Preview Health Gate"]
-    HealthGate --> Stack["6. Verified DDD Stack & Live Preview"]
+    subgraph TDD_LIBCST ["LibCST Surgical Splicing & Red-Gate TDD"]
+        Inbox --> TDD["Red-Gate TDD State Machine (tdd_machine.py)"]
+        TDD --> CST["LibCST Class Extraction & Splicing (cst_isolator.py)"]
+        TDD --> HashLock["5-Line SHA-256 Anti-Cheat Hash Lock"]
+    end
+
+    SKELETON_BUILDER --> Verified["2. Instant Verified OpenAPI Stack"]
+    TDD_LIBCST --> Verified
 ```
 
 ---
 
 ## 🏛️ Key Architectural Features
 
-### 3. Zero Hardcoded Component & Pre-Selected Block Invariant
-- **Zero Default Pre-Selected Feature Blocks**: All feature blocks in [`block_catalog.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/block_catalog.py) default to `default_selected: False`. Feature topology is 100% pitch-driven.
-- **Contract-Driven Modular AST Compilation**: Zero hardcoded mini-games, custom builders, or delivery SLA badges in template strings. Specialized component containers (e.g. `__FLAPPY_HOOKS_JSX__`, `__BUILDER_CONTAINER_JSX__`) are conditionally compiled **ONLY when explicitly present in the site AST active keys**. Non-matching prompts (e.g., `"A chess game"`) compile clean, isolated custom component nodes without template leakage.
+### 1. Pure DDD Layer Isolation
+- **Domain Layer (`workspace/src/domain/`)**: Pure dataclasses with 0 framework or ORM dependencies.
+- **Adapters Layer (`workspace/src/adapters/`)**: Abstract repository definitions and in-memory test doubles (`FakeRepository`).
+- **Service Layer (`workspace/src/service_layer/`)**: `AbstractUnitOfWork` and `FakeUnitOfWork` for transaction management.
+- **Entrypoints (`workspace/src/entrypoints/`)**: FastAPI routers and Pydantic schemas.
+
+### 2. Surgical LibCST Class Splicing (`cst_isolator.py`)
+- Replaces legacy whole-file AST string regeneration with surgical class extraction (`extract_class_cst`) and splicing (`splice_class_cst`) using Meta `libcst`.
+- Preserves 100% of formatting, comments, and Google-style docstrings.
 
 ---
 
-## 🛡️ Integration with Closed-Loop Verification
+## 🛡️ Discrepancies & Evolution Tags
 
-Every codebase produced by the generator must pass two automated verification gates in [`backend/main.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/main.py):
-1. **[[Automated-Verification-And-Self-Healing-Pipeline|Vocabulary Audit Gate]]**: Verifies 0 forbidden retail terms (`sku`, `batch`, `_purchased_quantity`) in non-retail pitches.
-2. **[[Automated-Verification-And-Self-Healing-Pipeline|Web App Preview Health Gate]]**: Executes `npx vite build` (0 JSX errors) and GET HTTP 200 OK reachability on port 5174.
+> [!NOTE]
+> [DISCREPANCY: Doc approach better - The original generator vision aimed for pure AST/CST synthesis of backend logic without static fallback strings. While skeleton_builder.py and cst_isolator.py achieve this cleanly for DDD backends, legacy modules (dynamic_domain_generator.py and site_ast_compiler.py) still contain obsolete string templates and Flappy/Pizza artifacts that should be fully pruned.]
 
 ---
 
 ## 🔗 Related Documentation
+- [[Enterprise-AppGen-TDD-Engine-Architecture]]
 - [[05-DDD-TDD-Architecture-Guidelines]]
 - [[Automated-Verification-And-Self-Healing-Pipeline]]
 - [[Onboarding and Discovery Workflow]]
-- [[Chapter-07-Aggregates-and-Optimistic-Concurrency]]
-- [[Chapter-13-Dependency-Injection-and-Bootstrap]]
+

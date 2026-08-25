@@ -1,6 +1,6 @@
 # Helper & Utility Scripts
 
-This document details the single cross-platform application launcher and utility scripts in `scripts/`.
+This document details the single cross-platform application launcher and developer inspection scripts.
 
 ---
 
@@ -12,29 +12,35 @@ This document details the single cross-platform application launcher and utility
 1. **OS & Environment Detection**: Detects whether running on Windows host, WSL (Windows Subsystem for Linux), or native Linux.
 2. **Dependency Resolution**: Checks Python virtualenv packages (`requirements.txt`) and Node modules (`package.json`), auto-installing missing packages.
 3. **Containerized Allure Service**: Verifies Docker Desktop status and launches the Allure container (`docker-compose.allure.yaml` on port `5050`).
-4. **FastAPI Backend Server**: Spawns the FastAPI application (`backend/main.py`) on `http://localhost:8000`.
+4. **FastAPI Backend Server**: Spawns the FastAPI application (`backend/app.py`) on `http://localhost:8000`.
 5. **Vite PM Studio Frontend**: Spawns the Vite dev server on `http://localhost:5173`.
+
+### Wrappers
+- **`run.ps1`**: PowerShell wrapper for Windows host execution of `python run.py`.
+- **`run.sh`**: Bash wrapper for Linux / WSL execution of `python3 run.py`.
 
 ---
 
-## 🛠️ Utility Scripts (`scripts/`)
+## 🛠️ Developer Diagnostic Scripts (`backend/scripts/`)
 
-### 1. `scripts/reset_ticket.py`
-- **Purpose**: Resets a requirement ticket's status back to `Backlog` in SQLite DataStore.
-- **Usage**: `python scripts/reset_ticket.py REQ-1002`
+### 1. `backend/scripts/deep_heuristic_scan.py`
+- **Purpose**: Scans python codebase for lingering hardcoded domain keywords and heuristic switchboards.
+- **Usage**: `python backend/scripts/deep_heuristic_scan.py`
 
-### 2. `scripts/update_json.py`
-- **Purpose**: Fetches the `git diff` between `main` and a target ticket branch (`ticket/REQ-XXX`) inside `workspace/`, updates the requirement status to `Review`, and attaches the proposed code diff to SQLite DataStore.
-- **Usage**: `python scripts/update_json.py REQ-1002`
+### 2. `backend/scripts/inspect_ast_pipeline.py`
+- **Purpose**: Inspects AST compilation stages and LibCST code splicing transformations.
+- **Usage**: `python backend/scripts/inspect_ast_pipeline.py`
 
-### 3. `scripts/tail_logs.sh`
-- **Purpose**: Streams real-time agent execution logs from `backend/logs/<TICKET_ID>.log` for developer debugging.
-- **Usage**: `bash scripts/tail_logs.sh REQ-1002`
+---
 
-### 4. `scripts/run.ps1`
-- **Purpose**: PowerShell wrapper for Windows host execution of `python run.py`.
-- **Usage**: `.\scripts\run.ps1`
+## 🏛️ Discrepancies & Evolution Tags
 
-### 5. `scripts/run.sh`
-- **Purpose**: Bash wrapper for Linux / WSL execution of `python3 run.py`.
-- **Usage**: `./scripts/run.sh`
+> [!NOTE]
+> [DISCREPANCY: Doc approach better - The original helper scripts included live log tailing utilities (tail_logs.sh). While streaming logs are available via backend stdout and pytest JSON reports, a dedicated CLI log tailing script for TDD execution state is helpful for developer ergonomics.]
+
+---
+
+## 🔗 Related Documentation
+- [[System Architecture]]
+- [[Bug-Reproduction-and-Testing-Policy]]
+

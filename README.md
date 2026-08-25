@@ -2,9 +2,9 @@
 
 # 🛡️ Provable
 
-**Requirements-Driven Agentic Engineering Simulation Platform**
+**Deterministic Domain-Driven Design (DDD) & Test-Driven Development (TDD) AppGen Engine**
 
-*Autonomous Developer Agents orchestrating Test-Driven Development, Visual QA, and BDD Specification Verification.*
+*Enterprise-grade, specification-driven application generator transforming industrial business requirements into verified DDD Python backends and schema-projected interfaces.*
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![Node.js 18+](https://img.shields.io/badge/node-18+-green.svg)](https://nodejs.org/)
@@ -25,19 +25,21 @@
 
 ## 📖 Overview
 
-**Provable** is an agentic software development simulation platform. It bridges Product Management and Autonomous Software Engineering by orchestrating LLM developer agents within a strict, **Requirements-Driven Test-Driven Development (TDD)** environment.
+**Provable** is a deterministic, enterprise-grade software generation platform. It eliminates LLM hallucinations, context drift, and brittle synthetic code by enforcing a strict **Test-Driven Development (RED-GREEN-COMMIT)** state machine and **Domain-Driven Design (DDD)** bounded context architecture.
 
-With Provable, PMs define project specifications, requirements, and test triggers through a React PM Studio interface. Autonomous developer agents (powered by LangGraph, OpenAI/Gemini, and pytest) generate solution code, run unit/integration tests, capture visual screenshots via Selenium, evaluate UI layout regressions with Vision models, and publish coverage metrics to a containerized Allure Dashboard.
+Industrial business domains (e.g. Warehouse Management Systems, Logistics, Supply Chain) are decomposed into formal Aggregate Roots (`Pallet`, `Zone`, `Operator`) and atomic BDD behavior specifications (`GIVEN / WHEN / THEN`). Solutions are surgically spliced via **LibCST**, verified against programmatic Red-Gate and Green-Gate pytest suites, locked via **SHA-256 5-line anti-cheat hash locks**, and projected onto domain-agnostic user interfaces.
 
 ---
 
 ## ✨ Key Features
 
-- ⚡ **Requirements-Driven TDD Workflow**: Bidirectional synchronization between StrictDoc specification files (`.sdoc`) and a high-performance SQLite DataStore.
-- 🤖 **Autonomous Agent Orchestration**: LangGraph-powered execution loops for code generation, test execution, visual regression check, and git branch finalization/rollback.
-- 👁️ **Dual-Resolution Visual QA**: Automated headless Selenium screenshot capture (desktop `1280x800` & mobile `375x812`) evaluated by Gemini Vision.
+- ⚡ **Deterministic RED-GREEN-COMMIT TDD Loop**: Programmatic pytest execution gate evaluating exit codes, tautologies (rejecting exit code 0 during RED), crash reports, and 5-second hard timeouts.
+- 🔒 **SHA-256 5-Line Hash Lock Anti-Cheat**: Cryptographic hashing of test specifications before and after implementation phases to mathematically prevent AI test tampering without OS-level locks.
+- 🧬 **Pure DDD Aggregate Core**: Business logic strictly anchored in isolated dataclass aggregate roots with zero database or framework dependencies.
+- 📐 **Surgical LibCST Code Splicing**: Meta `libcst` context extraction and class splicing preserving 100% of formatting, indentation, and docstrings.
+- 🌐 **Schema-Driven Dumb UI Projection**: Dynamic frontend projection driven by backend schema contracts, eliminating hardcoded domain assumptions (verified via The Gibberish Strategy).
 - 📊 **Containerized Allure Dashboard**: Live test execution matrices and coverage analytics rendered via an embedded Allure Docker service.
-- 🚀 **Single-Command Launch**: Zero-friction setup script that automatically detects OS environment (Windows / Linux / WSL), resolves dependencies, and manages containerized services.
+- 🚀 **Single-Command Launch**: Zero-friction cross-platform runner (`run.py`) managing dependencies, Docker services, and dev servers.
 
 ---
 
@@ -45,40 +47,36 @@ With Provable, PMs define project specifications, requirements, and test trigger
 
 ```mermaid
 graph TD
-    subgraph Frontend [PM Studio Frontend :5173]
-        App[App.tsx] --> Kanban[KanbanBoard.tsx]
-        App --> ReqList[RequirementsList.tsx]
-        App --> Review[CodeReview.tsx]
-        App --> Coverage[CoverageHub.tsx]
-        App --> Tray[AgentTray.tsx]
+    subgraph Intake [1. Natural Language Bounded Context]
+        Pitch[Industrial Domain Pitch] --> Router[router_engine.py]
+        Router --> Struct[DomainStructureSchema: Aggregate Roots]
+        Router --> Inbox[DomainBehaviorInboxSchema: BDD Specs]
     end
 
-    subgraph Backend [FastAPI Engine :8000]
-        API[main.py] --> Store[db/store.py DataStore]
-        API --> Orchestrator[agent_orchestrator.py]
-        API --> Prompts[prompts/ Markdown Templates]
-        Orchestrator --> LLM[OpenAI / Gemini API]
-        Orchestrator --> Git[Git CLI Operations]
-        Orchestrator --> Pytest[Pytest Sandbox]
-        Orchestrator --> Selenium[Selenium Webdriver]
+    subgraph Skeleton [2. Instant Full-Stack Skeleton]
+        Struct --> SkeletonBuilder[skeleton_builder.py]
+        SkeletonBuilder --> Domain[src/domain/: Pure Dataclasses]
+        SkeletonBuilder --> Adapters[src/adapters/: Repositories & Fakes]
+        SkeletonBuilder --> UoW[src/service_layer/: Unit of Work]
+        SkeletonBuilder --> Routers[src/entrypoints/routers/: FastAPI Routers]
+        Routers --> OpenAPI[/openapi.json Contract from Second 0/]
     end
 
-    subgraph DB [Storage Layer]
-        Store <--> SQLite[(provable.db)]
-        Store <-->|strictdoc_client| SDoc[workspace/requirements/requirements.sdoc]
+    subgraph TDD [3. Hardened Red-Gate TDD State Machine]
+        Inbox --> PopSpec[Next BDD Spec]
+        PopSpec --> RedGen[RED_GEN: Generate Unit Test]
+        RedGen --> RedGate{RED GATE: pytest Exit 1 + AssertionError}
+        RedGate -- Approved RED --> HashLock[SHA-256 Test File Hash Snapshot]
+        HashLock --> GreenGen[GREEN_GEN: LibCST Surgical Class Splicing]
+        GreenGen --> GreenGate{GREEN GATE: pytest Exit 0 + Hash Intact}
+        GreenGate -- PASS --> Commit[Git Commit: feat/spec]
+        GreenGate -- FAIL (Tries == 3) --> DeadEnd[Git Rollback: REQUIRES_HUMAN_INTERVENTION]
     end
 
-    subgraph Sandbox [Target Codebase]
-        Git --> Workspace[workspace/ Codebase]
-        Pytest --> WorkspaceTests[workspace/tests/]
+    subgraph Presentation [4. Domain-Agnostic UI Projection]
+        OpenAPI --> UI[React PM Studio :5173 / Live Preview :5174]
+        Routers --> Swagger[FastAPI Swagger UI :8000/docs]
     end
-
-    subgraph Docker [Allure Reporting :5050]
-        Orchestrator --> Allure[Allure Docker Service]
-        Coverage --> Allure
-    end
-
-    App <-->|REST API / JSON| API
 ```
 
 ---
@@ -93,8 +91,6 @@ Before running Provable, ensure the host machine has the following tools install
 2. **Node.js 18+** & **npm** (Added to system `PATH`)
 3. **Docker Desktop** (Running, for containerized Allure reporting)
 
----
-
 ### ⚡ Launching the Application (Single Command)
 
 Provable features a unified, cross-platform runner script (`run.py`) that auto-detects your environment, installs/upgrades all Python and Node dependencies, starts the Docker container, and launches all background development servers.
@@ -104,26 +100,12 @@ Run the launcher for your environment:
 #### Windows (PowerShell / Command Prompt)
 ```powershell
 python run.py
-# or
-.\run.ps1
 ```
 
 #### Linux / WSL / macOS
 ```bash
 python3 run.py
-# or
-./run.sh
 ```
-
----
-
-### 🛠️ What the Launcher Automates
-When `run.py` is executed, it automatically performs the following tasks:
-1. **Host Prerequisites Check**: Verifies that Python, Node/npm, and Docker are present in `PATH`.
-2. **Python Dependencies**: Installs and upgrades all required packages (`fastapi`, `uvicorn`, `langgraph`, `openai`, `pydantic`, `sqlalchemy`, `aiosqlite`, `selenium`, `pytest`, etc.).
-3. **Node Dependencies**: Detects missing `node_modules/` and runs `npm install` automatically.
-4. **Allure Docker Service**: Launches the containerized Allure Dashboard on port `5050` using `docker-compose.allure.yaml`.
-5. **Service Management**: Launches the FastAPI backend API on port `8000` and the Vite frontend on port `5173`.
 
 ---
 
@@ -133,9 +115,9 @@ Once launched, the following services will be available:
 
 | Service | Endpoint | Description |
 | :--- | :--- | :--- |
-| **PM Studio Frontend** | [`http://localhost:5173`](http://localhost:5173) | Main React/TypeScript interface for requirements & agent review |
-| **FastAPI Backend API** | [`http://localhost:8000`](http://localhost:8000) | REST API engine, SSE log streaming & orchestration |
-| **Interactive API Docs** | [`http://localhost:8000/docs`](http://localhost:8000/docs) | OpenAPI Swagger documentation |
+| **PM Studio Frontend** | [`http://localhost:5173`](http://localhost:5173) | Domain Bounded Context & Behavior Inbox Studio |
+| **FastAPI Backend API** | [`http://localhost:8000`](http://localhost:8000) | REST API engine, DDD services & orchestration |
+| **Interactive API Docs** | [`http://localhost:8000/docs`](http://localhost:8000/docs) | Generated OpenAPI Swagger documentation |
 | **Allure Test Dashboard** | [`http://localhost:5050`](http://localhost:5050) | Containerized test results & BDD matrix dashboard |
 | **Workspace Live Preview** | [`http://localhost:5174`](http://localhost:5174) | Sandbox live preview server for the target app |
 
@@ -145,25 +127,26 @@ Once launched, the following services will be available:
 
 ```
 provable/
-├── backend/                  # FastAPI backend engine
-│   ├── config/               # Model routing & integration settings (models.yaml)
+├── backend/                  # FastAPI backend engine & DDD orchestrator
+│   ├── adapters/             # Repository Pattern & Workspace adapters
+│   ├── config/               # Model routing (models.yaml) & configuration
 │   ├── db/                   # SQLite DataStore wrapper & schema migrations (store.py)
-│   ├── integrations/         # Sync clients (strictdoc_client.py, allure_client.py)
+│   ├── domain/               # Core domain entities & business exceptions
+│   ├── entrypoints/          # REST API routers (specs, kickstart, onboarding, requirements)
+│   ├── onboarding/           # Domain router engine, skeleton builder, LibCST isolator
 │   ├── prompts/              # System prompt templates for LLM agents
-│   ├── agent_orchestrator.py # LangGraph agent execution loop
-│   └── main.py               # REST API endpoints & server startup
-├── src/                      # PM Studio React + Vite frontend
-│   ├── components/           # UI components (KanbanBoard, RequirementsList, DiffViewer, etc.)
-│   ├── hooks/                # Data fetching and database mutation hooks
-│   └── App.tsx               # Main application routing and shell
-├── vault/                    # Project Obsidian documentation vault
-│   ├── 01-Architecture/      # System architecture & database schemas
-│   ├── 02-Workflows/         # LangGraph execution loop & TDD workflows
+│   ├── service_layer/        # Unit of Work, message bus, and TDD state machine
+│   └── tests/                # Unit, integration, and E2E test suites (124+ tests)
+├── frontend/                 # PM Studio React 18 + Vite frontend
+│   ├── src/                  # React TypeScript source
+│   │   ├── components/       # KickstartStudio, BehaviorInboxPanel, RequirementControlPanel, AppPreview
+│   │   └── App.tsx           # Main application shell
+├── vault/                    # Comprehensive Obsidian knowledge base & architectural records
+│   ├── 01-Architecture/      # System architecture, DDD patterns, schema-driven UI
+│   ├── 02-Workflows/         # TDD workflows, verification pipelines, roadmap
 │   ├── 04-Decisions/         # Architectural Decision Records (ADRs)
-│   └── Home.md               # Wiki sitemap & index
-├── workspace/                # Target repository modified exclusively by developer agents
-│   ├── requirements/         # StrictDoc specification files (.sdoc)
-│   └── tests/                # Automated pytest BDD test suites
+│   ├── HANDOVER.md           # Cross-chat continuity & active system state
+│   └── Home.md               # Vault sitemap & wiki index
 ├── docker-compose.allure.yaml# Docker Compose manifest for Allure reporting service
 ├── run.py                    # Unified single cross-platform launcher script
 ├── run.ps1                   # Windows PowerShell launcher wrapper

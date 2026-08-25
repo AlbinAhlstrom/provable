@@ -1,15 +1,15 @@
 # Automated Verification & Self-Healing Pipeline
 
-The **Automated Verification & Self-Healing Pipeline** enforces strict quality invariants on code synthesized by Provable. Every domain synthesis request executes a multi-gate verification pipeline before marking a workspace build as successful.
+The **Automated Verification Pipeline** enforces strict domain purity, schema contract projection, and TDD invariants across Provable.
 
 ```mermaid
 graph LR
-    Synthesis["Code Generation"] --> Gate1["Gate 1: Vocabulary Audit Gate"]
-    Gate1 -- PASS --> Gate2["Gate 2: Web App Preview Health Gate"]
-    Gate2 -- PASS --> Gate3["Gate 3: Pytest Pyramid Execution Gate"]
-    Gate3 -- PASS --> Success["Workspace Ready & Live App Online"]
+    Synthesis["Code Generation / Skeleton Build"] --> Gate1["Gate 1: Frontend Domain Purity Gate"]
+    Gate1 -- PASS --> Gate2["Gate 2: The Gibberish Strategy (E2E)"]
+    Gate2 -- PASS --> Gate3["Gate 3: Pytest Red-Green Execution Gate"]
+    Gate3 -- PASS --> Success["Verified DDD Stack & Active Projection"]
 
-    Gate1 -- FAIL --> ReSynthesize["Trigger Self-Healing Re-synthesis"]
+    Gate1 -- FAIL --> ReSynthesize["Reject & Alert"]
     Gate2 -- FAIL --> ReSynthesize
     Gate3 -- FAIL --> ReSynthesize
 ```
@@ -18,38 +18,28 @@ graph LR
 
 ## 🛡️ Verification Gates Breakdown
 
-### 1. Vocabulary Audit Gate (`audit_domain_vocabulary`)
-- **Location**: [`backend/main.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/main.py)
-- **Objective**: Prevent template leakage and ensure non-retail domain pitches use 100% native domain vocabulary.
-- **Rules**:
-  - Scans all synthesized backend and frontend files (`model.py`, `commands.py`, `events.py`, `orm.py`, `App.tsx`).
-  - For non-retail pitches, verifies **0 occurrences** of forbidden leftover terms (`_purchased_quantity`, `OrderLine`, `test_allocating_reduces_available_quantity`).
-  - If a violation occurs, the build is rejected and re-synthesized using the schema AST.
+### 1. Frontend Domain Purity Gate (`test_frontend_domain_purity.py`)
+- **Objective**: Ensure the frontend remains 100% domain-agnostic and free of hardcoded domain words (`pizza`, `cart`, `checkout`, `pallet`, `zone`).
+- **Mechanism**: Dynamically extracts active backend aggregate roots and attributes via static AST parsing and scans `frontend/src/` to guarantee zero domain term leakage.
 
-### 2. Web App Preview Health Gate (`verify_preview_health`)
-- **Location**: [`backend/main.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/main.py)
-- **Objective**: Guarantee that the frontend React 18 application builds cleanly and renders live in the PM Studio **Live App** tab.
-- **Checks**:
-  1. **Vite Production Bundle Build**: Executes `npx vite build` in `workspace/` to verify zero JSX, TypeScript, or asset import compilation errors.
-  2. **Dev Server Reachability**: Sends an HTTP GET request to `http://localhost:5174/` to ensure the Vite dev server is online and serving valid HTML (`<div id="root">`).
+### 2. The Gibberish Strategy E2E Gate (`test_ui_dynamic_projection.py`)
+- **Objective**: Mathematically prove that the UI is a pure dumb projection of backend schemas.
+- **Mechanism**: Feeds the presentation layer a synthetic nonsense schema (`TestFlorg` / `Zorp`) and asserts that the UI dynamically renders `TestFlorg` and `Zorp` without fallback to static mock components.
 
-### 3. Pytest Pyramid Execution Gate (`run_pytest`)
-- **Location**: [`backend/agent_orchestrator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/agent_orchestrator.py)
-- **Objective**: Execute Low-Gear (Domain unit tests) and High-Gear (Service layer integration tests) Pytest suites.
-- **Allure Reporting**: Automatically publishes test execution results to the containerized Allure reporting service on port `5050`.
+### 3. Pytest Execution Gate & 5-Line Hash Lock (`tdd_machine.py`)
+- **Objective**: Programmatically enforce RED (Exit Code 1 + `AssertionError`), GREEN (Exit Code 0), and anti-tampering SHA-256 test file integrity.
 
 ---
 
-## 🏰 Clean Workspace Scaffold Invariant
+## 🏛️ Discrepancies & Evolution Tags
 
-To ensure that resetting projects or initializing workspace services never leaves Vite port `5174` offline or displaying blank 404 pages, `create_default_workspace_scaffold(ws_base)` is automatically invoked on startup and resets:
-- Writes a valid default React 18 + Vite template (`package.json`, `vite.config.ts`, `index.html`, `src/App.tsx`).
-- Guarantees Vite dev server port 5174 is ALWAYS active.
+> [!NOTE]
+> [DISCREPANCY: Doc approach better - The original pipeline specified an automated self-healing re-synthesis loop triggered whenever verification gates fail. While tdd_machine.py provides 3-strike repair loops for backend domain classes, an automated end-to-end self-healing orchestrator for the entire stack remains a vital enterprise feature.]
 
 ---
 
 ## 🔗 Related Documentation
-- [[Universal-Dynamic-Domain-AST-Generator]]
-- [[Shift-Left TDD Workflow]]
+- [[Enterprise-AppGen-TDD-Engine-Architecture]]
 - [[Testing Strategy]]
-- [[Frontend Components]]
+- [[Bug-Reproduction-and-Testing-Policy]]
+

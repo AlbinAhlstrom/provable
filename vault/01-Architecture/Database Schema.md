@@ -1,6 +1,6 @@
 # Database Schema & DataStore API
 
-Provable manages its application state using an SQLite database located at `backend/provable.db`. All database interactions are encapsulated by `backend/db/store.py` (`DataStore` class) and initialized using SQL definitions in `backend/db/schema.sql`.
+Provable manages its application state using an SQLite database located dynamically per-project under `workspace/requirements/provable.db`. All database interactions are encapsulated by `backend/db/store.py` and initialized using SQL definitions in `backend/db/schema.sql`.
 
 ```mermaid
 erDiagram
@@ -11,11 +11,12 @@ erDiagram
         text title
         text description
         text type "Folder|Requirement|Task|Bug"
+        text layer "PRESENTATION|LOGIC|INFRASTRUCTURE"
         text priority "High|Med|Low"
         text status "Backlog|In Progress|Review|Conflict|Done"
         text parent_id FK
-        text jira_key
-        text sdoc_uid
+        text component_type
+        text component_meta
         text dependencies "JSON array"
         text assigned_agents "JSON array"
         text proposed_code
@@ -39,7 +40,6 @@ erDiagram
     agent_runs {
         text id PK
         text ticket_id
-        text jira_key
         text requirement_id
         text status "running|success|failed|cancelled"
         timestamp started_at
@@ -53,26 +53,27 @@ erDiagram
 
 ## Verbatim Database DDL (`backend/db/schema.sql`)
 
-To deterministically recreate `provable.db`, execute the following DDL script:
-
 ```sql
 -- Provable data schema
 CREATE TABLE IF NOT EXISTS requirements (
-    id              TEXT PRIMARY KEY,
-    title           TEXT NOT NULL,
-    description     TEXT DEFAULT '',
-    type            TEXT CHECK(type IN ('Folder','Requirement','Task','Bug')),
-    priority        TEXT DEFAULT 'Med',
-    status          TEXT DEFAULT 'Backlog',
-    parent_id       TEXT REFERENCES requirements(id),
-    jira_key        TEXT,
-    sdoc_uid        TEXT,
-    dependencies    TEXT DEFAULT '[]',   -- JSON array of requirement IDs
+    id          TEXT PRIMARY KEY,
+    title       TEXT NOT NULL,
+    description TEXT DEFAULT '',
+    type        TEXT CHECK(type IN ('Folder','Requirement','Task','Bug')),
+    layer       TEXT CHECK(layer IN ('PRESENTATION','LOGIC','INFRASTRUCTURE')) DEFAULT 'LOGIC',
+    priority    TEXT DEFAULT 'Med',
+    status      TEXT DEFAULT 'Backlog',
+    parent_id   TEXT REFERENCES requirements(id),
+    component_type TEXT DEFAULT 'custom',
+    component_meta TEXT DEFAULT '{}',
+    jira_key    TEXT,
+    sdoc_uid    TEXT,
+    dependencies TEXT DEFAULT '[]',   -- JSON array of requirement IDs
     assigned_agents TEXT DEFAULT '[]',-- JSON array of agent roles
-    proposed_code   TEXT,
-    feedback        TEXT DEFAULT '',
-    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    proposed_code TEXT,
+    feedback    TEXT DEFAULT '',
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS test_cases (
@@ -114,34 +115,24 @@ CREATE TRIGGER IF NOT EXISTS requirements_updated_at
 
 ## DataStore API Specification (`backend/db/store.py`)
 
-The `DataStore` Python class manages all SQLite operations and triggers bidirectional sync.
+The `store.py` module manages SQLite operations and triggers bidirectional sync:
 
-### Class Method Signatures
+- **`get_all_requirements()` / `get_requirement(req_id)` / `create_requirement(data)` / `update_requirement(req_id, updates)` / `delete_requirement(req_id)`**
+- **`get_test_cases_for_requirement(req_id)` / `create_test_case(data)` / `update_test_case_result(test_id, result, failure_msg)`**
+- **`save_kickstart_state(pitch, domain_model, synthesized, entity_schemas, custom_fixtures)` / `get_kickstart_state()`**
+- **`save_active_project(name, path, settings)` / `list_projects()` / `wipe_database()`**
 
-```python
-class DataStore:
-    def __init__(self, db_path: str = "backend/provable.db"): ...
-    def init_db(self) -> None: ...
-    
-    # Requirement Operations
-    def get_all_requirements(self) -> list[dict]: ...
-    def get_requirement(self, req_id: str) -> dict | None: ...
-    def add_requirement(self, req_data: dict) -> dict: ...
-    def update_requirement(self, req_id: str, updates: dict) -> dict | None: ...
-    def delete_requirement(self, req_id: str) -> bool: ...
-    
-    # Test Case Operations
-    def get_test_cases_for_requirement(self, req_id: str) -> list[dict]: ...
-    def add_test_case(self, test_data: dict) -> dict: ...
-    def update_test_case_result(self, test_id: str, result: str, failure_msg: str = "") -> None: ...
-    
-    # Agent Run Operations
-    def create_agent_run(self, ticket_id: str, req_id: str) -> str: ...
-    def update_agent_run_stage(self, run_id: str, stage_name: str, status: str, details: dict = None) -> None: ...
-    def finalize_agent_run(self, run_id: str, final_status: str, attempts: int) -> None: ...
-    
-    # Review & Merge Operations
-    def get_review_queue(self) -> list[dict]: ...
-    def approve_and_merge(self, req_id: str) -> bool: ...
-    def reject_submission(self, req_id: str, feedback_msg: str) -> bool: ...
-```
+---
+
+## 🏛️ Discrepancies & Evolution Tags
+
+> [!NOTE]
+> [DISCREPANCY: Doc approach better - The original database schema intended for a purely relational domain representation. The current store.py stores serialized JSON blobs in text columns (`component_meta`, `custom_fixtures_json`, `entity_schemas_json`) to accommodate rapid prototype evolution. A normalized SQL schema for domain entities and attributes provides superior relational integrity.]
+
+---
+
+## 🔗 Related Documentation
+- [[System Architecture]]
+- [[Backend REST API]]
+- [[Enterprise-AppGen-TDD-Engine-Architecture]]
+
