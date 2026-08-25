@@ -412,8 +412,9 @@ class DomainEntitySchema:
 
 @dataclass
 class KickstartState:
-    business_pitch: str = "Universal on-demand application"
+    business_pitch: str = "An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
     blocks: List[str] = field(default_factory=list)
+
     extracted_requirements: List[Dict[str, Any]] = field(default_factory=list)
     synthesized: bool = False
     custom_fixtures: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)

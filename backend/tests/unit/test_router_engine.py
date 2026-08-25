@@ -63,3 +63,16 @@ def test_router_engine_decomposes_wms_baseline_pitch():
     for s in result.inbox.specs:
         assert isinstance(s, BusinessSpec)
         assert s.spec_type in ["ATTRIBUTE_EXPANSION", "DOMAIN_INVARIANT", "STATE_TRANSITION", "API_CONTRACT"]
+
+
+def test_router_engine_raises_on_llm_synthesis_failure(monkeypatch):
+    """
+    Fail Loudly Invariant:
+    Refuses to silently fallback to generic 'Item' when LLM call fails or returns empty.
+    """
+    import agent_orchestrator
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda *args, **kwargs: "")
+
+    with pytest.raises(RuntimeError, match="LLM synthesis failed. Refusing to fallback to generic 'Item'."):
+        decompose_pitch_into_structure_and_inbox("Some arbitrary pitch")
+

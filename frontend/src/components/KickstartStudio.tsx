@@ -8,6 +8,8 @@ export interface KickstartStudioProps {
 export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesized }) => {
   const [pitch, setPitch] = useState<string>('');
 
+
+
   const [building, setBuilding] = useState<boolean>(false);
   const [resetting, setResetting] = useState<boolean>(false);
   const [resetMessage, setResetMessage] = useState<string | null>(null);

@@ -98,23 +98,5 @@ def decompose_pitch_into_structure_and_inbox(pitch: str) -> RouterDecompositionR
         
         return RouterDecompositionResult(structure=structure, inbox=inbox)
     except Exception as e:
-        # Fallback to minimal safe domain structure
-        default_entity = EntitySpec(
-            name="Item",
-            is_aggregate_root=True,
-            attributes=[AttributeSpec(name="id", type="str"), AttributeSpec(name="name", type="str")]
-        )
-        default_spec = BusinessSpec(
-            spec_id="SPEC-001",
-            title="Enforce Item Creation",
-            description="Item should be initialized with valid parameters.",
-            given_when_then="Given item params When instantiating Then item is created",
-            target_aggregate="Item",
-            is_mathematical_boundary=False,
-            priority="High",
-            status="PENDING"
-        )
-        return RouterDecompositionResult(
-            structure=DomainStructureSchema(domain_name="DefaultDomain", entities=[default_entity]),
-            inbox=DomainBehaviorInboxSchema(domain_name="DefaultDomain", specs=[default_spec])
-        )
+        raise RuntimeError("LLM synthesis failed. Refusing to fallback to generic 'Item'.") from e
+

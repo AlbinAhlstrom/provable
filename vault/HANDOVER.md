@@ -202,11 +202,19 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **Wire Real LLM for GREEN Phase (A1)**: Replaced heuristic stubs in `backend/service_layer/tdd_machine.py` with `synthesize_green_class_implementation` powered by `gemini-2.5-flash` via `agent_orchestrator.py`. Supplies LibCST micro-context and failing pytest AssertionError to synthesize corrected `@dataclass` definitions with Google-style docstrings, zero inline comments, and SHA-256 hash lock anti-cheat validation.
         - **Pure Schema-Driven UI Dynamic Projection (A2)**: Created `frontend/src/components/SchemaDrivenAppPreview.tsx` powered by `@rjsf/core` and `@rjsf/validator-ajv8`, eliminating the secondary Vite dev server iframe (`:5174`) in favor of dynamic schema forms and live entity data tables directly driven by backend OpenAPI / aggregate schemas.
         - **Database Architecture Realignment (A3)**: Reversed database normalization discrepancy in `vault/01-Architecture/Database Schema.md` to formally document dynamic JSON blob storage in SQLite for rapid Bounded Context evolution with ACID guarantees.
-        - **Empirical Verification**: 100% PASS across frontend TypeScript build (`npm run build` $\rightarrow$ 0 errors) and full backend Pytest suite.
+    46. **UX Layout Overhaul, Backend Fail-Loud Invariant, and Visual QA Mandate**:
+        - **Legacy UI Artifact Purge**: Deleted `PageSelectorBar.tsx` (`[PAGES: Dashboard View / Add Page]`) and removed dead/non-functional `🔄` refresh buttons. Preserved a single, prominent `🗑️ Reset Workspace` action calling `/api/onboarding/reset`.
+        - **"The Engine Room" Full-Width Contextualization**: Eliminated cramped split-pane layout in `AppPreview.tsx`. When `Preview` is active, `SchemaDrivenAppPreview` renders full-width. When `API (Swagger)` is active, the Swagger iframe renders full-width. When `Domain` is active, `RequirementControlPanel` ("The Engine Room") renders exclusively full screen.
+        - **Dark-Mode Swagger Inversion**: Injected `filter: invert(85%) hue-rotate(180deg)` CSS filter onto the Swagger iframe to preserve dark-mode visual continuity.
+        - **Eradication of Silent "Item" Fallback**: Deleted fallback in `backend/onboarding/router_engine.py` and replaced with `raise RuntimeError("LLM synthesis failed. Refusing to fallback to generic 'Item'.")`. Verified via new unit test in `test_router_engine.py`.
+        - **Workspace Domain API (Port 8001)**: Updated `run.py` and `workspace_scaffold.py` to serve the generated application's FastAPI app on port 8001, correctly isolating domain OpenAPI docs (`http://localhost:8001/docs`) from Provable's internal platform engine (`:8000`).
+        - **Visual QA Mandate Added to AGENTS.md**: Formally codified the `VISUAL QA MANDATE` invariant requiring automated Selenium headless screenshots and visual inspection before concluding tasks modifying `frontend/src/`.
+        - **Empirical Verification**: 100% PASS across TypeScript frontend build (`npm run build` $\rightarrow$ 0 errors) and full backend Pytest suite (98/98 tests PASS in 14.47s).
 
 ---
 
-*Updated by Antigravity AI on 2026-08-25 (Category A Discrepancies 100% Resolved; Tasks 1–4 Complete).*
+*Updated by Antigravity AI on 2026-08-26 (Tasks 1–6 Complete; Visual QA & Engine Room Overhaul Verified).*
+
 
 
 

@@ -80,3 +80,5 @@ When modifying the application codebase or writing developer agent iterations:
 - **FAIL LOUDLY**: If a dynamic schema (OpenAPI/JSON) fails to render in the frontend, you must render an empty state or a red `<ErrorBoundary>` with the technical error. You must never resurrect legacy code or fake the UI to make a test pass visually.
 - **TEST EVOLUTION OVER REGRESSION**: If a test fails because the fundamental architecture or Bounded Context has evolved (e.g., moving from static UI to schema-driven UI), you must DELETE OR REWRITE THE TEST. You are strictly forbidden from reverting architectural progress or hardcoding data just to turn a failing legacy test green.
 - **5-LINE HASH LOCK**: Test integrity during TDD GREEN phase is enforced via SHA-256 cryptographic hashing (`compute_test_file_hash` / `verify_test_file_integrity`).
+- **VISUAL QA MANDATE**: Tests are not enough. Whenever you modify the React frontend (frontend/src/), you MUST use the take_ui_screenshot skill to capture the UI and visually inspect it before concluding your task. You are responsible for ensuring layout sanity, dark-mode consistency, and the removal of obsolete visual artifacts.
+

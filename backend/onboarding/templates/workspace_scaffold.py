@@ -127,3 +127,33 @@ export default function App() {
     </div>
   );
 }''')
+
+    app_py = os.path.join(src_dir, 'app.py')
+    if not os.path.exists(app_py):
+        with open(app_py, 'w', encoding='utf-8') as f:
+            f.write('''"""
+FastAPI Main Application Entrypoint — Instant OpenAPI Generator.
+"""
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(
+    title="Generated Enterprise Domain API",
+    description="Deterministic Domain-Driven API automatically projected from domain models.",
+    version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "service": "domain-api"}
+''')
+

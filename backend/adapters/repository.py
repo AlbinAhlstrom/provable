@@ -296,8 +296,9 @@ class SqliteKickstartRepository(AbstractKickstartRepository):
                 entity_schemas[k] = v
 
         return KickstartState(
-            business_pitch=raw.get("business_pitch", "Universal on-demand application"),
+            business_pitch=raw.get("business_pitch", "An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."),
             blocks=raw.get("blocks", []),
+
             extracted_requirements=raw.get("extracted_requirements", []),
             synthesized=raw.get("synthesized", False),
             custom_fixtures=raw.get("custom_fixtures", {}),

@@ -81,7 +81,7 @@ def call_gemini(prompt: str, stage: str = "general") -> str:
     model_name = os.environ.get("LLM_MODEL", "gemini-2.5-flash")
 
     if not api_key:
-        print(f"⚠️ No LLM API key configured in environment (LLM_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY).")
+        print(f"[Warning] No LLM API key configured in environment (LLM_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY).")
         return ""
 
     client = OpenAI(api_key=api_key, base_url=base_url)
@@ -93,8 +93,9 @@ def call_gemini(prompt: str, stage: str = "general") -> str:
         )
         return response.choices[0].message.content or ""
     except Exception as e:
-        print(f"⚠️ LLM Call Exception ({stage}): {e}")
+        print(f"[Warning] LLM Call Exception ({stage}): {e}")
         return ""
+
 
 
 def parse_test_docstrings(code: str) -> Dict[str, str]:

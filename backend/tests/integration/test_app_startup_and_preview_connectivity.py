@@ -1,4 +1,4 @@
-﻿"""
+"""
 Automated Integration Test Suite: App Startup & Live Preview Connectivity.
 Guarantees that:
 1. Default workspace scaffold generates complete React 18 + TypeScript + Vite project configuration (including tsconfig.json and vite.config.ts port 5174).
@@ -29,6 +29,8 @@ def test_workspace_scaffold_configuration_and_tsconfig_integrity(tmp_path):
     assert os.path.exists(os.path.join(ws_dir, "index.html"))
     assert os.path.exists(os.path.join(ws_dir, "src", "main.tsx"))
     assert os.path.exists(os.path.join(ws_dir, "src", "App.tsx"))
+    assert os.path.exists(os.path.join(ws_dir, "src", "app.py"))
+
 
     # Assert package.json configuration
     with open(os.path.join(ws_dir, "package.json"), "r", encoding="utf-8") as f:

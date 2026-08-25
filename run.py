@@ -116,7 +116,7 @@ def auto_setup_environment(py_exe, npm_cmd):
         print("[setup] Running npm install in workspace/...", flush=True)
         subprocess.run(npm_cmd + ["install"], cwd=ws_dir, check=False)
 
-def kill_port_occupants(ports=[8000, 5173, 5174]):
+def kill_port_occupants(ports=[8000, 8001, 5173, 5174]):
     """Terminate any stale processes occupying required application ports on startup."""
     current_pid = os.getpid()
     for port in ports:
@@ -160,7 +160,7 @@ def main():
     print(f"=== Provable Application Launcher (OS: {sys.platform}) ===", flush=True)
 
     # Clean stale port occupants
-    kill_port_occupants([8000, 5173, 5174])
+    kill_port_occupants([8000, 8001, 5173, 5174])
 
     # 1. Determine executables & verify host tools
     backend_dir = os.path.join(ROOT, "backend")
@@ -229,27 +229,50 @@ def main():
 
     print("\n" + "=" * 50, flush=True)
     print("Provable Services Live Links:", flush=True)
-    print("  FastAPI Backend API -> http://localhost:8000", flush=True)
-    print("  Main Frontend App   -> http://localhost:5173", flush=True)
-    print("  Workspace Preview   -> http://localhost:5174", flush=True)
+    print("  FastAPI Backend API   -> http://localhost:8000", flush=True)
+    print("  Workspace Domain API  -> http://localhost:8001 (Swagger: /docs)", flush=True)
+    print("  Main Frontend App     -> http://localhost:5173", flush=True)
+    print("  Workspace Preview     -> http://localhost:5174", flush=True)
     print("=" * 50 + "\n", flush=True)
 
     # Start Backend API (FastAPI)
     start_process(backend_cmd, cwd=backend_dir, prefix="[backend]")
     wait_for_port(8000, "FastAPI Backend API", timeout=30)
 
+    # Start Workspace Backend API (FastAPI on port 8001)
+    ws_dir = os.path.join(ROOT, "workspace")
+    ws_app_py = os.path.join(ws_dir, "src", "app.py")
+    if not os.path.exists(ws_app_py):
+        sys.path.insert(0, backend_dir)
+        from onboarding.templates.workspace_scaffold import create_default_workspace_scaffold
+        create_default_workspace_scaffold(ws_dir)
+
+    if not is_port_in_use(8001):
+        print("[ws-api] Starting Workspace Domain API uvicorn server on port 8001...", flush=True)
+        ws_backend_cmd = [
+            py_exe, "-m", "uvicorn", "src.app:app",
+            "--reload",
+            "--reload-dir", ws_dir,
+            "--host", "0.0.0.0",
+            "--port", "8001"
+        ]
+        start_process(ws_backend_cmd, cwd=ws_dir, prefix="[ws-api] ")
+        wait_for_port(8001, "Workspace Domain API", timeout=15)
+    else:
+        print("[ws-api] Workspace Domain API active on port 8001.", flush=True)
+
     # Start PM Studio Frontend (Vite)
     start_process(npm_cmd + ["run", "dev"], cwd=frontend_dir, prefix="[app]    ")
     wait_for_port(5173, "Main Frontend App", timeout=15)
 
     # Start Workspace Live Preview (Vite)
-    ws_dir = os.path.join(ROOT, "workspace")
     if not is_port_in_use(5174):
         print("[preview] Starting Workspace Preview Vite dev server on port 5174...", flush=True)
         start_process(npm_cmd + ["run", "dev"], cwd=ws_dir, prefix="[preview]")
         wait_for_port(5174, "Workspace Preview", timeout=15)
     else:
         print("[preview] Workspace Preview active on port 5174.", flush=True)
+
 
 
     print("\n[provable] All services running continuously with auto-recovery enabled. Press Ctrl+C to stop.\n", flush=True)
