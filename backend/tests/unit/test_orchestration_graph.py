@@ -19,9 +19,10 @@ def test_orchestration_graph_execution_with_fake_uow():
     assert result.ontology.master_entity.entity_name.lower() in ["pizza", "item", "product", "dish"]
     
     # Assert backend artifacts generated
-    assert any(k.endswith("model.py") for k in result.backend_files)
-    assert any(k.endswith("commands.py") for k in result.backend_files)
-    assert any(k.endswith("events.py") for k in result.backend_files)
+    assert any("domain" in k for k in result.backend_files)
+    assert any("repository.py" in k for k in result.backend_files)
+    assert any("routers" in k for k in result.backend_files)
+
     
     # Assert frontend code generated
     assert result.frontend_code != ""

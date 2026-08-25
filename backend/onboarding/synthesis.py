@@ -63,85 +63,25 @@ def synthesize_application_stack(domain_schema: Dict[str, Any], uow: Optional[Ab
 
     # ── STEP 2: Generate BDD Pytest Suites Linked Directly to Requirements ────────
     from onboarding.domain_ontology import storm_domain_ontology
-    from onboarding.dynamic_domain_generator import generate_universal_domain_files
+    from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
+    from onboarding.skeleton_builder import generate_fullstack_skeleton_files, build_and_write_skeleton
 
     pitch_str = str(schema.get('pitch', 'Application')) if isinstance(schema, dict) else str(schema)
-    ontology = storm_domain_ontology(pitch_str)
-    noun = ontology.master_entity.entity_name
-    plural = ontology.master_entity.entity_plural
-
-    test_files_content = {
-        os.path.join(unit_tests_dir, 'test_domain.py'): f'''import pytest
-from src.domain.model import {noun}Order, OrderItem, {noun}Status
-
-def test_storefront_brand_title_configured():
-    """
-    req: REQ-BRAND-001
-    Given the storefront application is loaded
-    When rendering the navigation header
-    Then the brand title displays correctly
-    """
-    assert True
-
-def test_feature_catalog_enabled():
-    """
-    req: REQ-CATALOG-001
-    Given system feature toggle configuration
-    When feature catalog is active
-    Then corresponding UI components and API handlers are enabled
-    """
-    item = OrderItem("Signature Item", "Standard", 1, 15.0)
-    assert item.item_name == "Signature Item"
-
-def test_feature_cart_enabled():
-    """
-    req: REQ-CART-001
-    Given system feature toggle configuration
-    When feature cart is active
-    Then corresponding UI components and API handlers are enabled
-    """
-    item1 = OrderItem("Signature Item", "Standard", 2, 14.50)
-    order = {noun}Order("ORD-001", "Alice", [item1])
-    assert order.total_order_price == 29.00
-''',
-        os.path.join(unit_tests_dir, 'test_services.py'): f'''import pytest
-from src.domain.model import OrderItem
-from src.service_layer import services
-from src.service_layer.unit_of_work import FakeUnitOfWork
-
-def test_place_order_service():
-    """
-    req: REQ-CATALOG-001
-    Given the service layer
-    When placing an order
-    Then transaction is completed
-    """
-    uow = FakeUnitOfWork()
-    order = services.place_order("ORD-100", "Charlie", "Standard", "Standard", 1, 15.00, uow)
-    assert order is not None
-    assert uow.committed
-'''
-    }
+    decomp = decompose_pitch_into_structure_and_inbox(pitch_str)
 
     # ── STEP 3: Synthesize Complete Universal DDD Application Stack ─────────────────
-    universal_files = generate_universal_domain_files(schema, ws_base)
+    universal_files = generate_fullstack_skeleton_files(decomp.structure, ws_base)
     code_files_content = {}
 
     files_created = []
 
-    # Write test files
-    for path, code in test_files_content.items():
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, 'w', encoding='utf-8') as f:
-            f.write(code)
-        files_created.append(path)
-
-    # Write code files & universal domain AST files
+    # Write code files & universal domain skeleton files
     for path, code in {**code_files_content, **universal_files}.items():
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'w', encoding='utf-8') as f:
             f.write(code)
         files_created.append(path)
+
 
     # ── STEP 4: Parse & Sync Test Cases to Database linked to Requirements ───────
     try:

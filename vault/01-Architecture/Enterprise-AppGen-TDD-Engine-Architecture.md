@@ -41,13 +41,14 @@ Enterprise AppGen eliminates AI hallucination, context drift, and technical debt
 
 ---
 
-## 3. Discrepancy & Evolution Tags
+## 3. Active Architecture Implementation
 
 > [!NOTE]
-> [DISCREPANCY: Doc approach better - The original doc specifies an LLM-driven micro-context repair prompt via LibCST slicing during GREEN_GEN, whereas the current code in tdd_machine.py relies on hardcoded string-matching heuristic stubs (e.g. inject validate_invariants or weight: float). The LLM-driven LibCST repair is architecturally superior and generalizable.]
+> **LLM-Driven LibCST Splicing (GREEN Phase)**: The GREEN phase uses `synthesize_green_class_implementation` powered by `gemini-2.5-flash` to synthesize domain class modifications directly against the LibCST micro-context and failing pytest `AssertionError` with strict SHA-256 hash lock verification.
 
 > [!NOTE]
-> [DISCREPANCY: Doc approach better - Runtime Schema-Driven UI via OpenAPI/@rjsf/core completely eliminates frontend LLM hallucinations and maintenance overhead, whereas the codebase still maintains legacy TSX generators (dynamic_domain_generator.py, ui_generator.py) and prompt templates.]
+> **Runtime Schema-Driven UI Dynamic Projection**: Runtime Schema-Driven UI via FastAPI `/openapi.json` and `@rjsf/core` in `SchemaDrivenAppPreview.tsx` completely eliminates frontend LLM hallucinations and secondary Vite dev server dependencies, projecting reactive forms and live entity data directly from backend contracts.
+
 
 ---
 

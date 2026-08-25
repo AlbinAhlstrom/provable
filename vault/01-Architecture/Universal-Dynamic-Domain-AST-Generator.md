@@ -44,10 +44,11 @@ graph TD
 
 ---
 
-## 🛡️ Discrepancies & Evolution Tags
+## 🛡️ Active Generator Architecture
 
 > [!NOTE]
-> [DISCREPANCY: Doc approach better - The original generator vision aimed for pure AST/CST synthesis of backend logic without static fallback strings. While skeleton_builder.py and cst_isolator.py achieve this cleanly for DDD backends, legacy modules (dynamic_domain_generator.py and site_ast_compiler.py) still contain obsolete string templates and Flappy/Pizza artifacts that should be fully pruned.]
+> **Pure LibCST & Skeleton Generator Pipeline**: Legacy monolithic string-template generators (`dynamic_domain_generator.py` and `site_ast_compiler.py`) have been entirely purged. All domain synthesis routes through `skeleton_builder.py` and Meta `cst_isolator.py`.
+
 
 ---
 

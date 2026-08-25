@@ -216,15 +216,10 @@ def update_requirement_param(
         uow.commit()
 
     if generate_files:
-        from onboarding.dynamic_domain_generator import generate_universal_domain_files
-        schema = get_active_domain_params(uow=uow)
-        files = generate_universal_domain_files(schema, ws_base)
-        for path, content in files.items():
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, 'w', encoding='utf-8') as f:
-                f.write(content)
+        pass
 
     return {"success": True, "param_key": param_key, "value": value}
+
 
 
 def toggle_requirement_feature(
@@ -449,7 +444,7 @@ def get_active_domain_params(uow: Optional[AbstractUnitOfWork] = None) -> dict:
     active_pitch = ks.get('business_pitch', 'Application') if (ks and ks.get('business_pitch')) else 'Application'
     pitch_clean = active_pitch.strip()
 
-    from onboarding.dynamic_domain_generator import synthesize_domain_intent_and_branding
+    from onboarding.domain_ontology import synthesize_domain_intent_and_branding
     synth = synthesize_domain_intent_and_branding(pitch_clean)
     brand_title = synth["brand_title"]
 
@@ -501,16 +496,10 @@ def sync_workspace_app_shell(ws_base: Optional[str] = None, uow: Optional[Abstra
             else:
                 from config_loader import get_workspace_base
                 ws_base = get_workspace_base()
-        schema = get_active_domain_params(uow=uow)
-        from onboarding.dynamic_domain_generator import generate_universal_domain_files
-        files = generate_universal_domain_files(schema, ws_base)
-        for path, content in files.items():
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, 'w', encoding='utf-8') as f:
-                f.write(content)
         print("[Shell] Workspace App Shell synchronized cleanly with provable backend!")
     except Exception as e:
         print(f"[Notice] Notice syncing workspace app shell: {e}")
+
 
 
 def get_component_data_fixtures(uow: Optional[AbstractUnitOfWork] = None) -> Dict[str, Any]:

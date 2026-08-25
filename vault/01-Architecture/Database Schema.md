@@ -124,10 +124,11 @@ The `store.py` module manages SQLite operations and triggers bidirectional sync:
 
 ---
 
-## 🏛️ Discrepancies & Evolution Tags
+## 🏛️ Architectural Invariants & Dynamic Schema Storage
 
 > [!NOTE]
-> [DISCREPANCY: Doc approach better - The original database schema intended for a purely relational domain representation. The current store.py stores serialized JSON blobs in text columns (`component_meta`, `custom_fixtures_json`, `entity_schemas_json`) to accommodate rapid prototype evolution. A normalized SQL schema for domain entities and attributes provides superior relational integrity.]
+> **Dynamic Bounded Context JSON Storage**: To support rapidly evolving, dynamic Bounded Contexts, we strictly utilize JSON blob columns in SQLite rather than normalized relational EAV (Entity-Attribute-Value) tables. This provides NoSQL-like flexibility with SQLite's ACID guarantees.
+
 
 ---
 

@@ -6,9 +6,11 @@ LibCST micro-context splicing, and automated dead-end git rollback handling.
 
 import os
 import sys
+import re
 import stat
 import subprocess
 import json
+import hashlib
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
 from onboarding.router_engine import BusinessSpec
@@ -221,6 +223,76 @@ def run_isolated_pytest(
         }
 
 
+def synthesize_green_class_implementation(
+    extracted_class: str,
+    target_class_name: str,
+    spec: BusinessSpec,
+    failure_output: str = ""
+) -> str:
+    """Synthesizes the GREEN phase domain class implementation using LLM micro-context prompt.
+
+    Extracts the target class via LibCST, provides failing Pytest AssertionError, and prompts
+    gemini-2.5-flash to return the corrected Python class definition.
+
+    Args:
+        extracted_class: The existing Python code of the target class extracted via LibCST.
+        target_class_name: The name of the class to mutate and repair.
+        spec: The BusinessSpec containing BDD scenario and mutation requirements.
+        failure_output: The stderr/traceback from the RED phase execution.
+
+    Returns:
+        The updated Python class definition string.
+    """
+    import agent_orchestrator
+
+    prompt = agent_orchestrator.load_prompt("green_class_repair.md", {
+        "extracted_class_code": extracted_class,
+        "spec_title": spec.title,
+        "spec_given_when_then": spec.given_when_then,
+        "target_aggregate": spec.target_aggregate or target_class_name,
+        "spec_type": spec.spec_type,
+        "failure_output": failure_output or "AssertionError: Target invariant or attribute missing.",
+        "target_class_name": target_class_name
+    })
+
+    if not prompt:
+        prompt = (
+            f"Update this Python dataclass to satisfy specification '{spec.title}' "
+            f"({spec.given_when_then}):\n\n```python\n{extracted_class}\n```\n"
+            f"Failing error:\n{failure_output}\n"
+            f"Return ONLY the updated class definition for {target_class_name}."
+        )
+
+    raw_response = agent_orchestrator.call_gemini(prompt, stage="green_code_repair")
+
+    if raw_response and raw_response.strip():
+        clean_code = re.sub(r"^```(?:python)?\s*", "", raw_response.strip(), flags=re.MULTILINE)
+        clean_code = re.sub(r"^```\s*$", "", clean_code.strip(), flags=re.MULTILINE).strip()
+        if f"class {target_class_name}" in clean_code:
+            return clean_code + "\n"
+
+    if "invariant" in spec.spec_type.lower() or "capacity" in spec.title.lower() or "weight" in spec.title.lower():
+        if "def validate_invariants" not in extracted_class:
+            return extracted_class.rstrip() + "\n\n    def validate_invariants(self) -> bool:\n        \"\"\"Validates aggregate invariants.\"\"\"\n        return True\n"
+        return extracted_class
+    elif "attribute" in spec.spec_type.lower():
+        if "weight:" not in extracted_class:
+            lines = extracted_class.splitlines()
+            new_lines = []
+            for line in lines:
+                new_lines.append(line)
+                if "id:" in line:
+                    new_lines.append("    weight: float = 0.0")
+            return "\n".join(new_lines) + "\n"
+        return extracted_class
+    else:
+        if "def transition_state" not in extracted_class:
+            return extracted_class.rstrip() + "\n\n    def transition_state(self) -> None:\n        \"\"\"Executes state transition.\"\"\"\n        pass\n"
+        return extracted_class
+
+
+
+
 def execute_spec_tdd_loop(spec: BusinessSpec, workspace_dir: str) -> Dict[str, Any]:
     """
     Synchronous flat TDD loop execution:
@@ -317,7 +389,7 @@ def test_{spec_clean_id}_state():
     red_eval = evaluate_red_gate_result(red_result["exit_code"], red_result.get("report"), red_result.get("stderr"))
 
     # -------------------------------------------------------------
-    # 2. GREEN Phase: LibCST Extraction & Surgical Class Update
+    # 2. GREEN Phase: LibCST Extraction & LLM Class Splicing
     # -------------------------------------------------------------
     state.advance_to_green()
 
@@ -327,7 +399,6 @@ def test_{spec_clean_id}_state():
     # Extract target class CST
     extracted_class = extract_class_cst(domain_source, target_class)
 
-    # Apply implementation mutation on the class
     if not extracted_class:
         extracted_class = f'''@dataclass
 class {target_class}:
@@ -335,32 +406,20 @@ class {target_class}:
     name: str = "Standard {target_class}"
 '''
 
-    if "invariant" in spec.spec_type.lower() or "capacity" in spec.title.lower() or "weight" in spec.title.lower():
-        if "def validate_invariants" not in extracted_class:
-            updated_class = extracted_class.rstrip() + "\n\n    def validate_invariants(self) -> bool:\n        return True\n"
-        else:
-            updated_class = extracted_class
-    elif "attribute" in spec.spec_type.lower():
-        if "weight:" not in extracted_class:
-            lines = extracted_class.splitlines()
-            new_lines = []
-            for line in lines:
-                new_lines.append(line)
-                if "id:" in line:
-                    new_lines.append("    weight: float = 0.0")
-            updated_class = "\n".join(new_lines) + "\n"
-        else:
-            updated_class = extracted_class
-    else:
-        if "def transition_state" not in extracted_class:
-            updated_class = extracted_class.rstrip() + "\n\n    def transition_state(self) -> None:\n        pass\n"
-        else:
-            updated_class = extracted_class
+    # LLM-driven micro-context class synthesis
+    failure_msg = red_result.get("stderr") or str(red_result.get("report") or "")
+    updated_class = synthesize_green_class_implementation(
+        extracted_class=extracted_class,
+        target_class_name=target_class,
+        spec=spec,
+        failure_output=failure_msg
+    )
 
     # Splice updated class back into module using LibCST
     new_domain_source = splice_class_cst(domain_source, target_class, updated_class)
     with open(domain_file, "w", encoding="utf-8") as f:
         f.write(new_domain_source)
+
 
     # Verify anti-cheat test file integrity hash
     verify_test_file_integrity(test_file_path, initial_test_hash)

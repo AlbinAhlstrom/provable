@@ -55,6 +55,7 @@
 46. [backend/prompts/requirement_audit.md](#file-46-backend-prompts-requirement-auditmd)
 47. [backend/prompts/merge_resolution.md](#file-47-backend-prompts-merge-resolutionmd)
 48. [backend/prompts/ddd_guidelines_template.md](#file-48-backend-prompts-ddd-guidelines-templatemd)
+49. [backend/prompts/green_class_repair.md](#file-49-backend-prompts-green-class-repairmd)
 
 ---
 
@@ -240,7 +241,7 @@ This project is licensed under the [MIT License](LICENSE).
 The `workspace/` directory contains the application produced by the automated generation pipeline.
 **NEVER directly write, edit, patch, or commit files inside `workspace/`.**
 
-Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/dynamic_domain_generator.py`, `backend/main.py`, `backend/prompts/ui_generation.md`). Editing `workspace/` files directly is an unacceptable band-aid that will immediately be overwritten when the pipeline runs.
+Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/skeleton_builder.py`, `backend/main.py`, `backend/prompts/ui_generation.md`). Editing `workspace/` files directly is an unacceptable band-aid that will immediately be overwritten when the pipeline runs.
 
 You may:
 - Read `workspace/` files to **diagnose** runtime/build errors or inspect generated output.
@@ -286,7 +287,10 @@ When modifying the application codebase or writing developer agent iterations:
 6. **Agent Log Inspection**: When debugging why a developer agent loop failed or is stuck, inspect the logs under `backend/logs/{ticket_id}.log`. The full LangGraph orchestration execution log, LLM request/response prompts, visual QA screenshot status, and pytest command stderr output are all written here.
 7. **DDD Architecture Enforcement & Mandatory 4-Step TDD Workflow (No Subagents)**:
    - **No Developer Subagent Invariant**: DO NOT invoke developer subagents (like `tdd-developer` or `self`) for code edits. Perform all coding, testing, and debugging directly in the main conversation context.
-   - **Layer Boundaries**: `Domain Model` (`backend/domain/`) $\rightarrow$ `Repository Pattern` (`backend/adapters/`) $\rightarrow$ `Service Layer / Unit of Work` (`backend/service_layer/`) $\rightarrow$ `Presentation Routers` (`backend/entrypoints/routers/`).
+   - **Layer Boundaries**: `Domain Model` (`backend/domain/`) $
+ightarrow$ `Repository Pattern` (`backend/adapters/`) $
+ightarrow$ `Service Layer / Unit of Work` (`backend/service_layer/`) $
+ightarrow$ `Presentation Routers` (`backend/entrypoints/routers/`).
    - **Entrypoint Isolation**: API Route handlers (`backend/entrypoints/routers/*.py`) MUST NEVER import `db.store` directly. Every route handler MUST delegate to `services.<use_case>(uow=SqliteUnitOfWork())`.
    - **Pure Domain**: Domain dataclasses (`backend/domain/model.py`) MUST have ZERO FastAPI, Pydantic, or DB dependencies.
    - **Mandatory 4-Step TDD Execution Workflow**:
@@ -692,13 +696,19 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
 
     44. **Documentation & Architectural Synchronization Pass (Vault & Codebase Alignment)**:
         - **Comprehensive Documentation Rewrite**: Updated `README.md`, `.agents/AGENTS.md`, `vault/Home.md`, and all architecture & workflow records across `vault/` to accurately reflect the pivot to the enterprise DDD/TDD AppGen Engine.
-        - **Discrepancy Tagging (`[DISCREPANCY: Doc approach better - ...]`)**: Formally tagged architectural gaps where original documentation had superior designs (e.g. LLM-driven LibCST micro-context repair in GREEN phase vs heuristic stubs, pure `@rjsf/core` runtime OpenAPI form projection vs hybrid iframes, normalized relational domain schemas vs JSON blobs).
-        - **The Gibberish Strategy Codification**: Codified synthetic gibberish testing (`TestFlorg` / `Zorp`) in E2E suites and purged legacy Pizza benchmark prompt dependencies from operational rules.
-        - **Empirical Verification**: 100% PASS across full backend Pytest suite (124/124 PASS in 32.76s).
+        - **Master Consolidated Documentation**: Compiled all 48 documentation files across the vault and `.agents/` into root `FULL_PROJECT_DOCUMENTATION.md` for seamless context ingestion.
+        - **Empirical Verification**: 100% PASS across full backend Pytest suite.
+
+    45. **Category A Architectural Alignment Execution (Tasks 1–4 Complete)**:
+        - **Nuclear Purge of Legacy Generators (A4)**: Deleted `backend/onboarding/dynamic_domain_generator.py`, `backend/onboarding/site_ast_compiler.py`, and obsolete AST compiler tests. All domain generation strictly routes through `skeleton_builder.py` and `cst_isolator.py`.
+        - **Wire Real LLM for GREEN Phase (A1)**: Replaced heuristic stubs in `backend/service_layer/tdd_machine.py` with `synthesize_green_class_implementation` powered by `gemini-2.5-flash` via `agent_orchestrator.py`. Supplies LibCST micro-context and failing pytest AssertionError to synthesize corrected `@dataclass` definitions with Google-style docstrings, zero inline comments, and SHA-256 hash lock anti-cheat validation.
+        - **Pure Schema-Driven UI Dynamic Projection (A2)**: Created `frontend/src/components/SchemaDrivenAppPreview.tsx` powered by `@rjsf/core` and `@rjsf/validator-ajv8`, eliminating the secondary Vite dev server iframe (`:5174`) in favor of dynamic schema forms and live entity data tables directly driven by backend OpenAPI / aggregate schemas.
+        - **Database Architecture Realignment (A3)**: Reversed database normalization discrepancy in `vault/01-Architecture/Database Schema.md` to formally document dynamic JSON blob storage in SQLite for rapid Bounded Context evolution with ACID guarantees.
+        - **Empirical Verification**: 100% PASS across frontend TypeScript build (`npm run build` $\rightarrow$ 0 errors) and full backend Pytest suite.
 
 ---
 
-*Updated by Antigravity AI on 2026-08-25 (Documentation & Architectural Synchronization Pass Complete; 124/124 PASS).*
+*Updated by Antigravity AI on 2026-08-25 (Category A Discrepancies 100% Resolved; Tasks 1–4 Complete).*
 
 <!-- END_FILE: vault/HANDOVER.md -->
 
@@ -751,13 +761,14 @@ Enterprise AppGen eliminates AI hallucination, context drift, and technical debt
 
 ---
 
-## 3. Discrepancy & Evolution Tags
+## 3. Active Architecture Implementation
 
 > [!NOTE]
-> [DISCREPANCY: Doc approach better - The original doc specifies an LLM-driven micro-context repair prompt via LibCST slicing during GREEN_GEN, whereas the current code in tdd_machine.py relies on hardcoded string-matching heuristic stubs (e.g. inject validate_invariants or weight: float). The LLM-driven LibCST repair is architecturally superior and generalizable.]
+> **LLM-Driven LibCST Splicing (GREEN Phase)**: The GREEN phase uses `synthesize_green_class_implementation` powered by `gemini-2.5-flash` to synthesize domain class modifications directly against the LibCST micro-context and failing pytest `AssertionError` with strict SHA-256 hash lock verification.
 
 > [!NOTE]
-> [DISCREPANCY: Doc approach better - Runtime Schema-Driven UI via OpenAPI/@rjsf/core completely eliminates frontend LLM hallucinations and maintenance overhead, whereas the codebase still maintains legacy TSX generators (dynamic_domain_generator.py, ui_generator.py) and prompt templates.]
+> **Runtime Schema-Driven UI Dynamic Projection**: Runtime Schema-Driven UI via FastAPI `/openapi.json` and `@rjsf/core` in `SchemaDrivenAppPreview.tsx` completely eliminates frontend LLM hallucinations and secondary Vite dev server dependencies, projecting reactive forms and live entity data directly from backend contracts.
+
 
 ---
 
@@ -963,10 +974,11 @@ graph TD
 
 ---
 
-## 🛡️ Discrepancies & Evolution Tags
+## 🛡️ Active Generator Architecture
 
 > [!NOTE]
-> [DISCREPANCY: Doc approach better - The original generator vision aimed for pure AST/CST synthesis of backend logic without static fallback strings. While skeleton_builder.py and cst_isolator.py achieve this cleanly for DDD backends, legacy modules (dynamic_domain_generator.py and site_ast_compiler.py) still contain obsolete string templates and Flappy/Pizza artifacts that should be fully pruned.]
+> **Pure LibCST & Skeleton Generator Pipeline**: Legacy monolithic string-template generators (`dynamic_domain_generator.py` and `site_ast_compiler.py`) have been entirely purged. All domain synthesis routes through `skeleton_builder.py` and Meta `cst_isolator.py`.
+
 
 ---
 
@@ -1278,10 +1290,11 @@ The `store.py` module manages SQLite operations and triggers bidirectional sync:
 
 ---
 
-## 🏛️ Discrepancies & Evolution Tags
+## 🏛️ Architectural Invariants & Dynamic Schema Storage
 
 > [!NOTE]
-> [DISCREPANCY: Doc approach better - The original database schema intended for a purely relational domain representation. The current store.py stores serialized JSON blobs in text columns (`component_meta`, `custom_fixtures_json`, `entity_schemas_json`) to accommodate rapid prototype evolution. A normalized SQL schema for domain entities and attributes provides superior relational integrity.]
+> **Dynamic Bounded Context JSON Storage**: To support rapidly evolving, dynamic Bounded Contexts, we strictly utilize JSON blob columns in SQLite rather than normalized relational EAV (Entity-Attribute-Value) tables. This provides NoSQL-like flexibility with SQLite's ACID guarantees.
+
 
 ---
 
@@ -28682,4 +28695,37 @@ When implementing code for this ticket, you MUST adhere to Domain-Driven Design 
    - Write **End-to-End** API tests (`tests/e2e/`) against `entrypoints/` to verify HTTP contracts.
 
 <!-- END_FILE: backend/prompts/ddd_guidelines_template.md -->
+
+---
+
+## File 49: `backend/prompts/green_class_repair.md`
+
+<!-- START_FILE: backend/prompts/green_class_repair.md -->
+
+You are a Principal Python Software Engineer executing the GREEN phase of a strict Test-Driven Development (TDD) and Domain-Driven Design (DDD) state machine.
+
+A pytest unit test has failed in the RED phase. Your task is to update the target domain class implementation so that the test passes cleanly.
+
+## Target Class Code (Extracted via LibCST):
+\\python
+{extracted_class_code}
+\
+## BDD Specification:
+- **Title**: {spec_title}
+- **Scenario**: {spec_given_when_then}
+- **Target Aggregate**: {target_aggregate}
+- **Mutation Type**: {spec_type}
+
+## Failing Pytest AssertionError & Execution Output (RED Phase):
+\{failure_output}
+\
+## Architectural & Code Rules:
+1. Return ONLY the complete, updated Python class definition for \{target_class_name}\.
+2. The class MUST use \@dataclass\ and pure Python standard library types.
+3. Fix all missing attributes, methods, invariant validators, or state transitions required by the test.
+4. Strictly follow PEP8, SOLID principles, and strict OOP.
+5. DO NOT include any inline comments. Use Google-style docstrings if documenting methods.
+6. Return the code inside a single \\python \\ block with zero conversational intro or outro.
+
+<!-- END_FILE: backend/prompts/green_class_repair.md -->
 

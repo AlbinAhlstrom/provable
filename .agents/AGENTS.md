@@ -5,7 +5,7 @@
 The `workspace/` directory contains the application produced by the automated generation pipeline.
 **NEVER directly write, edit, patch, or commit files inside `workspace/`.**
 
-Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/dynamic_domain_generator.py`, `backend/main.py`, `backend/prompts/ui_generation.md`). Editing `workspace/` files directly is an unacceptable band-aid that will immediately be overwritten when the pipeline runs.
+Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/skeleton_builder.py`, `backend/main.py`, `backend/prompts/ui_generation.md`). Editing `workspace/` files directly is an unacceptable band-aid that will immediately be overwritten when the pipeline runs.
 
 You may:
 - Read `workspace/` files to **diagnose** runtime/build errors or inspect generated output.
@@ -51,7 +51,7 @@ When modifying the application codebase or writing developer agent iterations:
 6. **Agent Log Inspection**: When debugging why a developer agent loop failed or is stuck, inspect the logs under `backend/logs/{ticket_id}.log`. The full LangGraph orchestration execution log, LLM request/response prompts, visual QA screenshot status, and pytest command stderr output are all written here.
 7. **DDD Architecture Enforcement & Mandatory 4-Step TDD Workflow (No Subagents)**:
    - **No Developer Subagent Invariant**: DO NOT invoke developer subagents (like `tdd-developer` or `self`) for code edits. Perform all coding, testing, and debugging directly in the main conversation context.
-   - **Layer Boundaries**: `Domain Model` (`backend/domain/`) $\rightarrow$ `Repository Pattern` (`backend/adapters/`) $\rightarrow$ `Service Layer / Unit of Work` (`backend/service_layer/`) $\rightarrow$ `Presentation Routers` (`backend/entrypoints/routers/`).
+   - **Layer Boundaries**: `Domain Model` (`backend/domain/`) $ightarrow$ `Repository Pattern` (`backend/adapters/`) $ightarrow$ `Service Layer / Unit of Work` (`backend/service_layer/`) $ightarrow$ `Presentation Routers` (`backend/entrypoints/routers/`).
    - **Entrypoint Isolation**: API Route handlers (`backend/entrypoints/routers/*.py`) MUST NEVER import `db.store` directly. Every route handler MUST delegate to `services.<use_case>(uow=SqliteUnitOfWork())`.
    - **Pure Domain**: Domain dataclasses (`backend/domain/model.py`) MUST have ZERO FastAPI, Pydantic, or DB dependencies.
    - **Mandatory 4-Step TDD Execution Workflow**:
@@ -80,9 +80,3 @@ When modifying the application codebase or writing developer agent iterations:
 - **FAIL LOUDLY**: If a dynamic schema (OpenAPI/JSON) fails to render in the frontend, you must render an empty state or a red `<ErrorBoundary>` with the technical error. You must never resurrect legacy code or fake the UI to make a test pass visually.
 - **TEST EVOLUTION OVER REGRESSION**: If a test fails because the fundamental architecture or Bounded Context has evolved (e.g., moving from static UI to schema-driven UI), you must DELETE OR REWRITE THE TEST. You are strictly forbidden from reverting architectural progress or hardcoding data just to turn a failing legacy test green.
 - **5-LINE HASH LOCK**: Test integrity during TDD GREEN phase is enforced via SHA-256 cryptographic hashing (`compute_test_file_hash` / `verify_test_file_integrity`).
-
-
-
-
-
-

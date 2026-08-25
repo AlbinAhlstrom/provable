@@ -306,3 +306,23 @@ def analyze_pitch_for_kickstart(pitch: str) -> Dict[str, Any]:
         "capabilities": [cap.to_dict() for cap in ontology.capabilities],
         "extracted_requirements": extracted_requirements
     }
+
+
+def synthesize_domain_intent_and_branding(pitch: str) -> Dict[str, Any]:
+    """Synthesize clean brand title and domain category without keyword cascades."""
+    ont = storm_domain_ontology(pitch)
+    noun = ont.master_entity.entity_name
+    category = "e_commerce" if ont.domain_category == "catalog_cart" else ("service_booking" if ont.domain_category == "calendar_service" else "operations_dashboard")
+    brand = f"{noun}Craft"
+    brand = re.sub(r'^(?:An|A)\s+', '', brand, flags=re.IGNORECASE).strip()
+    brand = re.sub(r'\s+App$', '', brand, flags=re.IGNORECASE).strip()
+    if not brand:
+        brand = f"{noun} Management"
+    return {
+        "brand_title": brand,
+        "domain_category": category,
+        "primary_noun": noun,
+        "headline": ont.hero_headline,
+        "theme": ont.visual_theme.archetype
+    }
+

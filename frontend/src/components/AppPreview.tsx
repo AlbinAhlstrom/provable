@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RequirementControlPanel } from './RequirementControlPanel';
 import { PageSelectorBar } from './PageSelectorBar';
+import { SchemaDrivenAppPreview } from './SchemaDrivenAppPreview';
 import { PageDTO } from '../types/api';
 
 export interface AppPreviewProps {
@@ -407,11 +408,16 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
                 </div>
               )}
             </div>
+          ) : activeTab === 'preview' ? (
+            <SchemaDrivenAppPreview
+              domainClasses={domainClasses}
+              isSynthesized={isSynthesized}
+            />
           ) : (
             <iframe
               key={key}
-              src={previewUrl}
-              title={activeTab === 'preview' ? "Live Application Preview" : "FastAPI Swagger Documentation"}
+              src="http://localhost:8000/docs"
+              title="FastAPI Swagger Documentation"
               style={{
                 width: '100%',
                 height: '100%',
@@ -422,6 +428,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
             />
           )}
         </div>
+
 
         {/* Side Domain Aggregates Control Panel */}
         {isSynthesized && (

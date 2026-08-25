@@ -112,17 +112,15 @@ def test_step4_modular_component_generation():
         store.set_active_db(test_db)
         store.init_db()
 
-        from main import get_active_domain_params, get_workspace_base
-        from onboarding.dynamic_domain_generator import generate_universal_domain_files
+        from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
+        from onboarding.skeleton_builder import generate_fullstack_skeleton_files
         
-        ws = get_workspace_base()
-        schema = get_active_domain_params()
-        files = generate_universal_domain_files(schema, ws)
+        decomp = decompose_pitch_into_structure_and_inbox("An industrial warehouse management system tracking Pallets and Zones.")
+        files = generate_fullstack_skeleton_files(decomp.structure, tmpdir)
         
-        assert any("App.tsx" in k for k in files.keys())
-        
-        app_path = os.path.join(ws, 'src', 'App.tsx')
-        assert "App" in files[app_path]
+        assert any("domain" in k for k in files.keys())
+        assert any("routers" in k for k in files.keys())
+
 
 
 

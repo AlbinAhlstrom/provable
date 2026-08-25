@@ -14,7 +14,8 @@ from config_loader import get_workspace_base
 from service_layer.unit_of_work import AbstractUnitOfWork, SqliteUnitOfWork
 from domain.model import Requirement
 from onboarding.domain_ontology import storm_domain_ontology, DomainOntologySpec
-from onboarding.dynamic_domain_generator import generate_universal_domain_files
+from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
+from onboarding.skeleton_builder import generate_fullstack_skeleton_files
 from onboarding.frontend_planning_engine import (
     run_frontend_planning_pipeline, assemble_app_tsx_from_blueprint
 )
@@ -72,9 +73,11 @@ def run_domain_loop(
                 print(f"Requirement persistence notice ({rspec.get('id')}): {e}")
         uow.commit()
 
-    # 2. Generate Backend DDD Files
-    backend_files = generate_universal_domain_files(schema_dict, ws_base)
+    # 2. Generate Backend DDD Skeleton Files via skeleton_builder
+    decomp = decompose_pitch_into_structure_and_inbox(pitch)
+    backend_files = generate_fullstack_skeleton_files(decomp.structure, ws_base)
     return backend_files
+
 
 
 def run_ui_loop(

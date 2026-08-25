@@ -1,4 +1,4 @@
-﻿import pytest
+import pytest
 import os
 import stat
 from onboarding.router_engine import BusinessSpec
@@ -89,3 +89,46 @@ def test_tdd_state_machine_transitions():
     
     assert state.is_dead_end() is True
     assert state.status == "REQUIRES_HUMAN_INTERVENTION"
+
+
+def test_synthesize_green_class_implementation_with_llm(monkeypatch):
+    from service_layer.tdd_machine import synthesize_green_class_implementation
+    import agent_orchestrator
+
+    mock_llm_response = '''```python
+@dataclass
+class Pallet:
+    id: str
+    weight: float = 0.0
+    
+    def validate_invariants(self) -> bool:
+        """Validates that pallet weight does not exceed capacity."""
+        return self.weight <= 1000.0
+```'''
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda prompt, stage: mock_llm_response)
+
+    spec = BusinessSpec(
+        spec_id="SPEC-002",
+        title="Enforce Pallet Weight Limit",
+        description="Pallet weight cannot exceed 1000kg.",
+        given_when_then="Given a pallet When weight is 1000 Then validation succeeds",
+        target_aggregate="Pallet",
+        spec_type="DOMAIN_INVARIANT"
+    )
+
+    initial_class = """@dataclass
+class Pallet:
+    id: str
+"""
+
+    result = synthesize_green_class_implementation(
+        extracted_class=initial_class,
+        target_class_name="Pallet",
+        spec=spec,
+        failure_output="AssertionError: Pallet has no attribute validate_invariants"
+    )
+
+    assert "def validate_invariants" in result
+    assert "class Pallet" in result
+    assert "```" not in result
+
