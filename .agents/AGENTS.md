@@ -1,6 +1,10 @@
 # Project Rules
 
+## MANDATORY PRE-FLIGHT CHECK
+**Before concluding ANY task or communicating back to the user that you are done, you MUST execute `python scripts/agent_preflight_check.py`.** If it fails, you must fix the errors silently before responding. You are strictly forbidden from presenting broken code.
+
 ## workspace/ is strictly off-limits (No Bandages Invariant)
+
 
 The `workspace/` directory contains the application produced by the automated generation pipeline.
 **NEVER directly write, edit, patch, or commit files inside `workspace/`.**

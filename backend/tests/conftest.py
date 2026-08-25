@@ -106,7 +106,14 @@ def mock_llm_for_unit_tests(monkeypatch):
                 })
             elif stage == "ui_generation":
                 return "import React from 'react'; export default function App() { return <div>App Shell</div>; }"
+            elif stage == "pitch_component_analysis":
+                return json.dumps({
+                    "domain_name": "DynamicDomain",
+                    "components": [{"key": "catalog", "name": "Catalog View", "target_entities": ["Item"]}],
+                    "suggestions": ["Smart Allocation Engine", "Telemetry Live Stream", "Realtime Security Monitor"]
+                })
             elif stage == "router_decomposition":
+
                 m = re.search(r'BUSINESS PITCH:\s*[\'"]([^\'"]+)[\'"]', prompt, re.IGNORECASE) or re.search(r'"([^"\n]+)"', prompt)
                 pitch = m.group(1) if m else "Generic Application"
                 clean = re.sub(r'[^a-zA-Z0-9\s]', ' ', pitch).strip()
@@ -243,6 +250,23 @@ def mock_llm_for_unit_tests(monkeypatch):
 
             return "{}"
 
+        import sys
         monkeypatch.setattr(agent_orchestrator, "call_gemini", fake_call_gemini)
+        for mod_name in [
+            "onboarding.frontend_planning_engine",
+            "onboarding.requirement_generator",
+            "onboarding.code_verifier",
+            "onboarding.test_importer",
+            "onboarding.domain_ontology",
+            "onboarding.router_engine",
+            "service_layer.tdd_machine"
+        ]:
+            try:
+                mod = sys.modules.get(mod_name) or __import__(mod_name, fromlist=["call_gemini"])
+                if hasattr(mod, "call_gemini"):
+                    monkeypatch.setattr(mod, "call_gemini", fake_call_gemini)
+            except Exception:
+                pass
     except ImportError:
         pass
+

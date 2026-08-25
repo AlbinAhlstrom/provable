@@ -22,7 +22,15 @@ def kickstart_endpoint(req: KickstartRequest):
     """Synchronously decomposes pitch, builds DDD skeleton, and returns domain aggregates."""
     uow = SqliteUnitOfWork()
     pitch = req.pitch or req.business_pitch or "An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
-    return services.kickstart_domain_and_scaffold(pitch=pitch, uow=uow)
+    try:
+        return services.kickstart_domain_and_scaffold(pitch=pitch, uow=uow)
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "detail": str(e)
+        }
+
 
 
 @router.get("/aggregates")

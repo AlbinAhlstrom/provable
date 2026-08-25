@@ -3,11 +3,13 @@ Router Engine — Structured DDD Intake & Domain Decomposition.
 Separates initial natural language pitch into Domain Structure and Behavior Inbox specs.
 """
 
+import os
 import json
 import re
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 import agent_orchestrator
+
 
 
 from enum import Enum
@@ -73,7 +75,12 @@ def decompose_pitch_into_structure_and_inbox(pitch: str) -> RouterDecompositionR
         prompt = f'Decompose into structure and behavior inbox: "{clean_pitch}"'
     
     raw_response = agent_orchestrator.call_gemini(prompt, stage="router_decomposition")
-    
+    if not raw_response:
+        api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
+        if not api_key:
+            raise RuntimeError("LLM synthesis failed: No API key found. Please set LLM_API_KEY, GEMINI_API_KEY, or OPENAI_API_KEY in your environment or root .env file.")
+        raise RuntimeError("LLM synthesis failed. Refusing to fallback to generic 'Item'.")
+
     # Parse structured response
     try:
         # Strip markdown fences if present
@@ -99,4 +106,5 @@ def decompose_pitch_into_structure_and_inbox(pitch: str) -> RouterDecompositionR
         return RouterDecompositionResult(structure=structure, inbox=inbox)
     except Exception as e:
         raise RuntimeError("LLM synthesis failed. Refusing to fallback to generic 'Item'.") from e
+
 

@@ -805,7 +805,11 @@ def get_kickstart_state(uow: AbstractUnitOfWork) -> Dict[str, Any]:
     """Return active kickstart session state (pitch, blocks, requirements, synthesized status)."""
     with uow:
         state = uow.kickstart.get()
-        return state.to_dict()
+        d = state.to_dict()
+        api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
+        d["llm_configured"] = bool(api_key)
+        return d
+
 
 
 def analyze_kickstart_pitch(business_pitch: str, uow: AbstractUnitOfWork) -> Dict[str, Any]:
@@ -1528,25 +1532,30 @@ def get_active_domain_aggregates(uow: AbstractUnitOfWork) -> Dict[str, Any]:
                 "invariants": []
             })
 
-        # If no schemas in state, return default dynamic domain based on business_pitch
+        # If no schemas in state, attempt dynamic domain decomposition based on business_pitch
         if not aggregates:
-            from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
-            decomp = decompose_pitch_into_structure_and_inbox(state.business_pitch)
-            for ent in decomp.structure.entities:
-                k = ent.name.lower()
-                icon = icons.get(k, "📦" if "pallet" in k else ("📍" if "zone" in k else ("👷" if "operator" in k else "🧱")))
-                attrs = [{"name": a.name, "type": a.type, "required": a.required} for a in ent.attributes]
-                aggregates.append({
-                    "key": k,
-                    "name": ent.name,
-                    "canonical_key": k,
-                    "icon": icon,
-                    "description": f"{ent.name} Aggregate Root",
-                    "is_aggregate_root": ent.is_aggregate_root,
-                    "attributes": attrs,
-                    "fields": attrs,
-                    "invariants": []
-                })
+            try:
+                from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
+                decomp = decompose_pitch_into_structure_and_inbox(state.business_pitch)
+                for ent in decomp.structure.entities:
+                    k = ent.name.lower()
+                    icon = icons.get(k, "📦" if "pallet" in k else ("📍" if "zone" in k else ("👷" if "operator" in k else "🧱")))
+                    attrs = [{"name": a.name, "type": a.type, "required": a.required} for a in ent.attributes]
+                    aggregates.append({
+                        "key": k,
+                        "name": ent.name,
+                        "canonical_key": k,
+                        "icon": icon,
+                        "description": f"{ent.name} Aggregate Root",
+                        "is_aggregate_root": ent.is_aggregate_root,
+                        "attributes": attrs,
+                        "fields": attrs,
+                        "invariants": []
+                    })
+            except Exception as e:
+                print(f"Notice: Dynamic decomposition for un-synthesized pitch deferred: {e}")
+                aggregates = []
+
 
         return {
             "success": True,

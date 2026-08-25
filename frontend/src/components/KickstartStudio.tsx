@@ -14,6 +14,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
   const [resetting, setResetting] = useState<boolean>(false);
   const [resetMessage, setResetMessage] = useState<string | null>(null);
   const [synthesized, setSynthesized] = useState<boolean>(false);
+  const [llmConfigured, setLlmConfigured] = useState<boolean>(true);
 
   useEffect(() => {
     const checkState = async () => {
@@ -23,6 +24,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
         if (state) {
           if (state.business_pitch) setPitch(state.business_pitch);
           if (typeof state.synthesized === 'boolean') setSynthesized(state.synthesized);
+          if (typeof state.llm_configured === 'boolean') setLlmConfigured(state.llm_configured);
         }
       } catch (err) {
         console.error("Failed to fetch kickstart state:", err);
@@ -30,6 +32,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
     };
     checkState();
   }, []);
+
 
   const handleInstantBuild = async () => {
     if (!pitch.trim()) return;
@@ -41,21 +44,29 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pitch: pitch.trim() })
       });
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = { error: `Server returned HTTP ${res.status}` };
+      }
+
       if (res.ok && data.success) {
         setSynthesized(true);
         setResetMessage("✨ Domain architecture synthesized successfully!");
         if (onAppSynthesized) onAppSynthesized();
       } else {
-        setResetMessage("⚠️ Synthesis notice: " + (data.error || 'Check backend logs'));
+        const msg = data.error || data.detail || data.message || `Synthesis failed (HTTP ${res.status})`;
+        setResetMessage(`⚠️ Synthesis error: ${msg}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Instant build failed:", err);
-      setResetMessage("❌ Backend server offline (port 8000). Please ensure 'python run.py' is running in your terminal.");
+      setResetMessage(`❌ Network error: ${err?.message || 'Could not connect to backend server on port 8000.'}`);
     } finally {
       setBuilding(false);
     }
   };
+
 
   const handleResetAllProjects = async () => {
     setResetting(true);
@@ -115,6 +126,17 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
             {resetMessage}
           </div>
         )}
+
+        {/* API Key Missing Notice */}
+        {!llmConfigured && (
+          <div style={{ background: 'rgba(234, 179, 8, 0.1)', border: '1px solid #ca8a04', borderRadius: '0.5rem', padding: '0.75rem 1rem', color: '#fef08a', fontSize: '0.85rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <span style={{ fontSize: '1.1rem' }}>🔑</span>
+            <div>
+              <strong>LLM API Key Not Configured:</strong> Set <code>GEMINI_API_KEY</code>, <code>OPENAI_API_KEY</code>, or <code>LLM_API_KEY</code> in your root <code>.env</code> file to enable live AI domain synthesis.
+            </div>
+          </div>
+        )}
+
 
         {/* Prompt Input Area */}
         <div style={{ marginBottom: '1.5rem' }}>

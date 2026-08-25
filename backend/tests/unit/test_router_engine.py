@@ -73,6 +73,7 @@ def test_router_engine_raises_on_llm_synthesis_failure(monkeypatch):
     import agent_orchestrator
     monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda *args, **kwargs: "")
 
-    with pytest.raises(RuntimeError, match="LLM synthesis failed. Refusing to fallback to generic 'Item'."):
+    with pytest.raises(RuntimeError, match="LLM synthesis failed"):
         decompose_pitch_into_structure_and_inbox("Some arbitrary pitch")
+
 
