@@ -10,7 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.3.1",
+    "@mui/material": "^9.3.1",
     "@rjsf/core": "^6.8.0",
+    "@rjsf/mui": "^6.8.0",
     "@rjsf/validator-ajv8": "^6.8.0",
     "mermaid": "^11.16.1",
     "prismjs": "^1.30.0",

@@ -56,10 +56,15 @@ def log_stream(stream, prefix):
         if line:
             print(f"{prefix} {line.rstrip()}", flush=True)
 
-def start_process(cmd, cwd, prefix):
+def start_process(cmd, cwd, prefix, env=None):
     print(f"{prefix} Starting: {' '.join(cmd)} (in {cwd})", flush=True)
+    process_env = os.environ.copy()
+    if env:
+        process_env.update(env)
+    process_env["PYTHONPATH"] = cwd + os.pathsep + process_env.get("PYTHONPATH", "")
     kwargs = {
         "cwd": cwd,
+        "env": process_env,
         "stdin": subprocess.DEVNULL,
         "stdout": subprocess.PIPE,
         "stderr": subprocess.STDOUT,

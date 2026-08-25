@@ -209,14 +209,20 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **Eradication of Silent "Item" Fallback**: Deleted fallback in `backend/onboarding/router_engine.py` and replaced with `raise RuntimeError("LLM synthesis failed. Refusing to fallback to generic 'Item'.")`. Verified via new unit test in `test_router_engine.py`.
         - **Workspace Domain API (Port 8001)**: Updated `run.py` and `workspace_scaffold.py` to serve the generated application's FastAPI app on port 8001, correctly isolating domain OpenAPI docs (`http://localhost:8001/docs`) from Provable's internal platform engine (`:8000`).
         - **Visual QA Mandate Added to AGENTS.md**: Formally codified the `VISUAL QA MANDATE` invariant requiring automated Selenium headless screenshots and visual inspection before concluding tasks modifying `frontend/src/`.
-    48. **Live Gemini Integration, Hermetic Pytest Speedup & 4-Phase Pre-Flight Verification**:
-        - **Live Gemini API Configuration**: Configured `.env` with active Gemini API key. Verified live LLM domain decomposition generating 3 aggregates (`Pallet`, `Zone`, `Operator`) and 7 executable BDD business specifications from the industrial WMS baseline prompt.
-        - **Hermetic Pytest Isolation Optimization**: Enhanced `conftest.py` with universal module monkeypatching across all planning engines, eliminating blocking external network calls during unit test runs and reducing test suite execution from 6+ minutes down to 14.18s.
-        - **Phase 4 Cold-Boot & Default Prompt Pre-Flight Automation**: Integrated live API cold-boot simulation into `agent_preflight_check.py` testing `/docs`, `/api/kickstart/state`, `/api/onboarding/aggregates`, default prompt kickstart intake, and workspace reset with zero unhandled exceptions.
+    49. **Visual Presentation Overhaul, Micro-Context Rule Architecture & Visual CI Automation**:
+        - **Themed `@rjsf/mui` & Material UI Dark Palette**: Upgraded `frontend/src/components/SchemaDrivenAppPreview.tsx` with `@rjsf/mui`, `@mui/material`, `@emotion/react`, `@emotion/styled`, and `<ThemeProvider>` dark palette (`#0f172a`, `#1e293b`, `#0284c7`, `#f8fafc`, `#94a3b8`), completely replacing raw HTML inputs with modern, high-contrast dark-mode form controls.
+        - **Swagger Iframe Resurrection & Light Mode Presentation**: Removed `filter: invert(...)` from Swagger documentation iframe in `frontend/src/components/AppPreview.tsx`, ensuring crisp, standard Swagger UI documentation targeting the Workspace Domain API (`http://localhost:8001/docs`).
+        - **Micro-Context Rule Architecture (`.agents/rules/`)**: Split monolithic documentation into 3 modular rule files:
+          - `.agents/rules/01-architecture-and-meta.md`: Strict isolation between Provable Engine (`:8000`/`:5173`) and Workspace App (`:8001`/`:5174`), "No Bandages" rule.
+          - `.agents/rules/02-frontend-and-ui.md`: Dumb schema-driven projection, ban on hardcoded domain terms, Visual CI review requirement.
+          - `.agents/rules/03-tdd-engine.md`: 4-step TDD loop without subagents, pure domain models, 5-line hash lock anti-cheat.
+          - `.agents/AGENTS.md`: Compact index dispatcher instructing agents to read only relevant task rule files.
+        - **5-Phase Pre-Flight System with Visual CI**: Updated `scripts/agent_preflight_check.py` to include Phase 5 visual render capture saving `logs/latest_ui_render.png` via Selenium headless Chrome.
+        - **Empirical Verification**: 100% PASS across 5-phase pre-flight check, full 98-test pytest suite, and Vite TypeScript compilation.
 
 ---
 
-*Updated by Antigravity AI on 2026-08-26 (Live Gemini Integration & 4-Phase Pre-Flight System 100% Operational).*
+*Updated by Antigravity AI on 2026-08-26 (Themed RJSF, Swagger Port 8001 & Micro-Context Rule System 100% Operational).*
 
 
 

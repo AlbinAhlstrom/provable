@@ -249,8 +249,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
                 height: '100%',
                 border: 'none',
                 borderRadius: '0.5rem',
-                background: '#0f172a',
-                filter: 'invert(85%) hue-rotate(180deg)'
+                background: '#ffffff'
               }}
             />
           </div>

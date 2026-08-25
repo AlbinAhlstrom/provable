@@ -1,7 +1,85 @@
 import { useState, useEffect } from 'react';
-import Form from '@rjsf/core';
+import Form from '@rjsf/mui';
 import validator from '@rjsf/validator-ajv8';
 import { RJSFSchema } from '@rjsf/utils';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    background: {
+      default: '#0f172a',
+      paper: '#1e293b',
+    },
+    primary: {
+      main: '#0284c7',
+      contrastText: '#ffffff',
+    },
+    text: {
+      primary: '#f8fafc',
+      secondary: '#94a3b8',
+    },
+    divider: '#334155',
+  },
+  typography: {
+    fontFamily: 'inherit',
+    fontSize: 13,
+  },
+  components: {
+    MuiTextField: {
+      defaultProps: {
+        size: 'small',
+        variant: 'outlined',
+        fullWidth: true,
+      },
+    },
+    MuiFormControl: {
+      defaultProps: {
+        margin: 'dense',
+        fullWidth: true,
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#0f172a',
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#334155',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#64748b',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#0284c7',
+          },
+          '& input': {
+            color: '#f8fafc',
+          }
+        }
+      }
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: '#94a3b8',
+          '&.Mui-focused': {
+            color: '#38bdf8',
+          }
+        }
+      }
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'transparent',
+          backgroundImage: 'none',
+          boxShadow: 'none',
+        }
+      }
+    }
+  }
+});
 
 export interface DomainClassField {
   name: string;
@@ -190,7 +268,7 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
           borderRadius: '9999px',
           fontWeight: 700
         }}>
-          ⚡ Schema-Driven (@rjsf/core)
+          ⚡ Schema-Driven (@rjsf/mui)
         </span>
       </div>
 
@@ -232,32 +310,36 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
           </div>
 
           <div className="rjsf-dark-container" style={{ fontSize: '0.85rem' }}>
-            <Form
-              schema={currentSchema}
-              validator={validator}
-              formData={formData}
-              onChange={e => setFormData(e.formData)}
-              onSubmit={handleSubmit}
-            >
-              <div style={{ marginTop: '1rem' }}>
-                <button
-                  type="submit"
-                  style={{
-                    background: '#0284c7',
-                    color: '#ffffff',
-                    border: 'none',
-                    padding: '0.5rem 1.25rem',
-                    borderRadius: '0.4rem',
-                    fontSize: '0.85rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    width: '100%'
-                  }}
-                >
-                  🚀 Submit &amp; Project Entity
-                </button>
-              </div>
-            </Form>
+            <ThemeProvider theme={darkTheme}>
+              <CssBaseline />
+              <Form
+                schema={currentSchema}
+                validator={validator}
+                formData={formData}
+                onChange={e => setFormData(e.formData)}
+                onSubmit={handleSubmit}
+              >
+                <div style={{ marginTop: '1rem' }}>
+                  <button
+                    type="submit"
+                    style={{
+                      background: '#0284c7',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '0.6rem 1.25rem',
+                      borderRadius: '0.4rem',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      width: '100%',
+                      transition: 'background 0.2s ease'
+                    }}
+                  >
+                    🚀 Submit &amp; Project Entity
+                  </button>
+                </div>
+              </Form>
+            </ThemeProvider>
           </div>
         </div>
 

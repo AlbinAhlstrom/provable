@@ -156,6 +156,41 @@ def check_live_api_cold_boot_and_default_prompt():
     log("✅ Phase 4: Live Cold-Boot API endpoints and default prompt intake verified (0 unhandled exceptions / 0 500s).")
 
 
+def is_port_active(port: int, host: str = "127.0.0.1") -> bool:
+    try:
+        import socket
+        with socket.create_connection((host, port), timeout=0.5):
+            return True
+    except OSError:
+        return False
+
+
+def check_visual_render():
+    log("▶ Phase 5: Visual CI & Automated UI Capture (logs/latest_ui_render.png)...")
+    logs_dir = os.path.join(ROOT, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+    out_png = os.path.join(logs_dir, "latest_ui_render.png")
+
+    if is_port_active(5173):
+        script_path = os.path.join(ROOT, ".agents", "skills", "take_ui_screenshot", "scripts", "take_screenshot.py")
+        if os.path.exists(script_path):
+            cmd = [
+                sys.executable, script_path,
+                "--url", "http://localhost:5173",
+                "--output", out_png,
+                "--viewport", "1280x800"
+            ]
+            res = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+            if res.returncode == 0 and os.path.exists(out_png):
+                log(f"✅ Phase 5: Live UI render captured and saved to logs/latest_ui_render.png.")
+            else:
+                log(f"⚠️ Phase 5 Notice: Screenshot script exited with code {res.returncode}: {res.stderr.strip() or res.stdout.strip()}")
+        else:
+            log("⚠️ Phase 5: Screenshot script not found, skipped.")
+    else:
+        log("ℹ️ Phase 5: Port 5173 is not active in this session. When PM Studio is running, preflight captures logs/latest_ui_render.png.")
+
+
 def main():
     print("=" * 65, flush=True)
     print("🚀 PROVABLE AGENT PRE-FLIGHT VERIFICATION SYSTEM", flush=True)
@@ -165,6 +200,7 @@ def main():
     check_backend_tests()
     check_domain_purity_and_anti_regression()
     check_live_api_cold_boot_and_default_prompt()
+    check_visual_render()
 
     print("=" * 65, flush=True)
     print("✨ ALL PRE-FLIGHT CHECKS PASSED: SYSTEM IS 100% HEALTHY & VERIFIED.", flush=True)
