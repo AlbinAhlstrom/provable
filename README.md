@@ -1,10 +1,10 @@
-<div align="center">
+<div align="center">
 
 # 🛡️ Provable
 
-**Deterministic Domain-Driven Design (DDD) & Test-Driven Development (TDD) AppGen Engine**
+**Spec-Driven Code Generation Prototype with TDD Verification Loops & DDD Architecture**
 
-*Enterprise-grade, specification-driven application generator transforming industrial business requirements into verified DDD Python backends and schema-projected interfaces.*
+*An experimental developer tool exploring test-driven feedback loops, AST code splicing, and bounded context architectures for LLM-assisted backend generation.*
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![Node.js 18+](https://img.shields.io/badge/node-18+-green.svg)](https://nodejs.org/)
@@ -16,7 +16,7 @@
 [Architecture](#-system-architecture) •
 [Quick Start](#-quick-start) •
 [Services & Ports](#-services--live-endpoints) •
-[Key Features](#-key-features) •
+[Key Highlights](#-key-highlights--architectural-concepts) •
 [Project Structure](#-project-structure)
 
 </div>
@@ -25,21 +25,29 @@
 
 ## 📖 Overview
 
-**Provable** is a deterministic, enterprise-grade software generation platform. It eliminates LLM hallucinations, context drift, and brittle synthetic code by enforcing a strict **Test-Driven Development (RED-GREEN-COMMIT)** state machine and **Domain-Driven Design (DDD)** bounded context architecture.
+**Provable** is an experimental code generation engine designed to explore how strict **Test-Driven Development (TDD)** feedback loops and **Domain-Driven Design (DDD)** patterns can constrain and validate LLM-generated code.
 
-Industrial business domains (e.g. Warehouse Management Systems, Logistics, Supply Chain) are decomposed into formal Aggregate Roots (`Pallet`, `Zone`, `Operator`) and atomic BDD behavior specifications (`GIVEN / WHEN / THEN`). Solutions are surgically spliced via **LibCST**, verified against programmatic Red-Gate and Green-Gate pytest suites, locked via **SHA-256 5-line anti-cheat hash locks**, and projected onto domain-agnostic user interfaces.
+Generating complete applications in single-shot prompts often results in context drift, subtle regressions, and unverified assumptions. Provable investigates an alternative, structured workflow:
+
+1. **Domain Decomposition**: Breaks down natural language problem statements into structured aggregate roots and atomic BDD behavior specifications (`GIVEN / WHEN / THEN`).
+2. **Red Gate (Test Generation)**: Generates targeted unit tests first, verifying via `pytest` that tests fail for the expected reason (preventing tautological passes).
+3. **Integrity Lock (Hash Check)**: Snapshots test files with SHA-256 hashing to verify subsequent code-generation passes implement functionality rather than weakening or modifying test assertions.
+4. **Green Gate & AST Splicing**: Uses Concrete Syntax Tree manipulation ([`libcst`](https://github.com/Instagram/LibCST)) to surgically inject generated methods into domain classes, verifying that the test suite turns green.
+5. **Schema Projection**: Automatically surfaces data models via OpenAPI contracts and dynamic, schema-driven frontend components.
+
+> **Project Status**: Provable is an exploratory prototype and architectural proof-of-concept. It serves as a testbed for studying automated verification harnesses, AST transforms, and bounded contexts as guardrails for AI coding assistants.
 
 ---
 
-## ✨ Key Features
+## ✨ Key Highlights & Architectural Concepts
 
-- ⚡ **Deterministic RED-GREEN-COMMIT TDD Loop**: Programmatic pytest execution gate evaluating exit codes, tautologies (rejecting exit code 0 during RED), crash reports, and 5-second hard timeouts.
-- 🔒 **SHA-256 5-Line Hash Lock Anti-Cheat**: Cryptographic hashing of test specifications before and after implementation phases to mathematically prevent AI test tampering without OS-level locks.
-- 🧬 **Pure DDD Aggregate Core**: Business logic strictly anchored in isolated dataclass aggregate roots with zero database or framework dependencies.
-- 📐 **Surgical LibCST Code Splicing**: Meta `libcst` context extraction and class splicing preserving 100% of formatting, indentation, and docstrings.
-- 🌐 **Schema-Driven Dumb UI Projection**: Dynamic frontend projection driven by backend schema contracts, eliminating hardcoded domain assumptions (verified via The Gibberish Strategy).
-- 📊 **Containerized Allure Dashboard**: Live test execution matrices and coverage analytics rendered via an embedded Allure Docker service.
-- 🚀 **Single-Command Launch**: Zero-friction cross-platform runner (`run.py`) managing dependencies, Docker services, and dev servers.
+- ⚡ **Automated TDD State Machine**: Programmatic `pytest` execution loop evaluating exit codes, enforcing authentic failures during RED phases, and applying execution timeouts.
+- 🔒 **Test Integrity Verification (Hash Locks)**: Cryptographic hashing of test specifications before implementation passes to detect and prevent test tampering.
+- 🧬 **Clean DDD Aggregate Boundaries**: Business logic isolated in pure dataclass aggregate roots, keeping core domain rules decoupled from web frameworks and databases.
+- 📐 **AST-Based Code Splicing ([`libcst`](https://github.com/Instagram/LibCST))**: Concrete syntax tree parsing and class splicing to inject newly generated methods while preserving formatting, comments, and existing code structure.
+- 🌐 **Schema-Driven UI Projection**: Dynamic frontend forms and views rendered directly from backend schemas, avoiding rigid domain hardcoding in the UI layer.
+- 📊 **Integrated Allure Test Reporting**: Dockerized Allure service for visual test execution history and BDD behavior tracking.
+- 🚀 **Unified Runner Script**: Cross-platform launcher (`run.py`) to manage local Python/Node dependencies and multi-service development environments.
 
 ---
 
@@ -48,32 +56,32 @@ Industrial business domains (e.g. Warehouse Management Systems, Logistics, Suppl
 ```mermaid
 graph TD
     subgraph Intake [1. Natural Language Bounded Context]
-        Pitch[Industrial Domain Pitch] --> Router[router_engine.py]
+        Pitch[Domain Pitch / Requirements] --> Router[router_engine.py]
         Router --> Struct[DomainStructureSchema: Aggregate Roots]
         Router --> Inbox[DomainBehaviorInboxSchema: BDD Specs]
     end
 
-    subgraph Skeleton [2. Instant Full-Stack Skeleton]
+    subgraph Skeleton [2. Application Skeleton]
         Struct --> SkeletonBuilder[skeleton_builder.py]
         SkeletonBuilder --> Domain[src/domain/: Pure Dataclasses]
         SkeletonBuilder --> Adapters[src/adapters/: Repositories & Fakes]
         SkeletonBuilder --> UoW[src/service_layer/: Unit of Work]
         SkeletonBuilder --> Routers[src/entrypoints/routers/: FastAPI Routers]
-        Routers --> OpenAPI[/openapi.json Contract from Second 0/]
+        Routers --> OpenAPI[/OpenAPI Contract/]
     end
 
-    subgraph TDD [3. Hardened Red-Gate TDD State Machine]
+    subgraph TDD [3. Automated TDD State Machine]
         Inbox --> PopSpec[Next BDD Spec]
         PopSpec --> RedGen[RED_GEN: Generate Unit Test]
         RedGen --> RedGate{RED GATE: pytest Exit 1 + AssertionError}
         RedGate -- Approved RED --> HashLock[SHA-256 Test File Hash Snapshot]
-        HashLock --> GreenGen[GREEN_GEN: LibCST Surgical Class Splicing]
+        HashLock --> GreenGen[GREEN_GEN: LibCST Class Splicing]
         GreenGen --> GreenGate{GREEN GATE: pytest Exit 0 + Hash Intact}
         GreenGate -- PASS --> Commit[Git Commit: feat/spec]
-        GreenGate -- FAIL (Tries == 3) --> DeadEnd[Git Rollback: REQUIRES_HUMAN_INTERVENTION]
+        GreenGate -- FAIL (Max Retries) --> DeadEnd[Rollback / Flag for Review]
     end
 
-    subgraph Presentation [4. Domain-Agnostic UI Projection]
+    subgraph Presentation [4. Dynamic UI Projection]
         OpenAPI --> UI[React PM Studio :5173 / Live Preview :5174]
         Routers --> Swagger[FastAPI Swagger UI :8000/docs]
     end
