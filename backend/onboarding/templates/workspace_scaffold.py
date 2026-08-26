@@ -104,7 +104,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
     index_css = os.path.join(src_dir, 'index.css')
     with open(index_css, 'w', encoding='utf-8') as f:
-        f.write('''body { margin: 0; background: #0f172a; color: #f8fafc; font-family: sans-serif; }''')
+        f.write('''@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+body { margin: 0; background: #0f172a; color: #f8fafc; font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }''')
 
     app_tsx = os.path.join(src_dir, 'App.tsx')
     with open(app_tsx, 'w', encoding='utf-8') as f:

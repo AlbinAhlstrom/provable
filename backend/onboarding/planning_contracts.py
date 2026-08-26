@@ -65,8 +65,8 @@ DESIGN_ARCHETYPE_TOKENS: Dict[str, Dict[str, str]] = {
         "color_mint_text": "#059669",
         "color_coral": "#E07A5F",
         "border_color": "#EBE4D8",
-        "font_heading": "'Playfair Display', Georgia, serif",
-        "font_body": "'Plus Jakarta Sans', system-ui, sans-serif",
+        "font_heading": "'Outfit', 'Plus Jakarta Sans', sans-serif",
+        "font_body": "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
         "shadow_card": "0 10px 30px rgba(44, 42, 41, 0.04)"
     },
     "modern_fresh_light": {
@@ -82,7 +82,7 @@ DESIGN_ARCHETYPE_TOKENS: Dict[str, Dict[str, str]] = {
         "color_coral": "#F97316",
         "border_color": "#E5E7EB",
         "font_heading": "'Outfit', 'Plus Jakarta Sans', sans-serif",
-        "font_body": "system-ui, -apple-system, sans-serif",
+        "font_body": "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
         "shadow_card": "0 4px 20px rgba(0, 0, 0, 0.05)"
     },
     "clean_b2b_light": {
@@ -97,8 +97,8 @@ DESIGN_ARCHETYPE_TOKENS: Dict[str, Dict[str, str]] = {
         "color_mint_text": "#1E40AF",
         "color_coral": "#EA580C",
         "border_color": "#E2E8F0",
-        "font_heading": "'Inter', system-ui, sans-serif",
-        "font_body": "'Inter', system-ui, sans-serif",
+        "font_heading": "'Outfit', 'Inter', system-ui, sans-serif",
+        "font_body": "'Outfit', 'Inter', system-ui, sans-serif",
         "shadow_card": "0 2px 8px rgba(0, 0, 0, 0.04)"
     },
     "dark_developer_terminal": {
@@ -113,8 +113,8 @@ DESIGN_ARCHETYPE_TOKENS: Dict[str, Dict[str, str]] = {
         "color_mint_text": "#10B981",
         "color_coral": "#F87171",
         "border_color": "#334155",
-        "font_heading": "system-ui, sans-serif",
-        "font_body": "system-ui, sans-serif",
+        "font_heading": "'Outfit', system-ui, sans-serif",
+        "font_body": "'Outfit', system-ui, sans-serif",
         "shadow_card": "none"
     }
 }

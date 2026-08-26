@@ -217,12 +217,15 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
           - `.agents/rules/02-frontend-and-ui.md`: Dumb schema-driven projection, ban on hardcoded domain terms, Visual CI review requirement.
           - `.agents/rules/03-tdd-engine.md`: 4-step TDD loop without subagents, pure domain models, 5-line hash lock anti-cheat.
           - `.agents/AGENTS.md`: Compact index dispatcher instructing agents to read only relevant task rule files.
-        - **5-Phase Pre-Flight System with Visual CI**: Updated `scripts/agent_preflight_check.py` to include Phase 5 visual render capture saving `logs/latest_ui_render.png` via Selenium headless Chrome.
-        - **Empirical Verification**: 100% PASS across 5-phase pre-flight check, full 98-test pytest suite, and Vite TypeScript compilation.
+    50. **Global Typography Restoration & Header Artifact Cleanup**:
+        - **Outfit Font Restoration Across App & Generators**: Eradicated serif font leaks caused by MUI's global `CssBaseline` reset. Explicitly configured `@rjsf/mui` ThemeProvider typography to `'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif` and removed the intrusive `<CssBaseline />` component.
+        - **Generator & Scaffold Alignment**: Updated `backend/onboarding/planning_contracts.py` archetype tokens, `site_manifest_schema.py`, `workspace_scaffold.py`, and `ui_generation.md` to consistently use the clean Outfit sans-serif font family.
+        - **Header Nav Cleanup**: Removed redundant "DDD Bounded Context" badge from `frontend/src/App.tsx` header navbar.
+        - **Empirical Verification**: 100% PASS across 6-phase pre-flight check, full 99-test pytest suite, and Vite TypeScript build.
 
 ---
 
-*Updated by Antigravity AI on 2026-08-26 (Themed RJSF, Swagger Port 8001 & Micro-Context Rule System 100% Operational).*
+*Updated by Antigravity AI on 2026-08-26 (Global Outfit Typography & Clean Header Nav 100% Operational).*
 
 
 

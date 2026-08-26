@@ -10,7 +10,7 @@ You are an expert Principal Frontend Engineer and UI/UX Designer creating a live
 ### 1. Visual Theme & Identity
 Design an attractive, modern, and polished interface **tailored specifically** to the business pitch domain.
 
-- **Customer-facing services & Care** (booking, appointments, wellness, sessions): **Default to Light Warm Palettes** (Cream `#FAF7F2`, Coral accents `#C85A44`, Mint pills `#E2F6ED`, Serif typography `'Playfair Display', Georgia, serif`). Include trust badges, provider cards, stat counters, interactive weekly availability matrix, and booking CTAs.
+- **Customer-facing services & Care** (booking, appointments, wellness, sessions): **Default to Light Warm Palettes** (Cream `#FAF7F2`, Coral accents `#C85A44`, Mint pills `#E2F6ED`, Sans-serif typography `'Outfit', sans-serif`). Include trust badges, provider cards, stat counters, interactive weekly availability matrix, and booking CTAs.
 - **Retail, Storefronts & Hospitality**: Fresh Light Palettes (Crisp Off-White `#FAFAFA`, Warm/Vibrant accents), product grids, cart drawers, order status pipelines.
 - **B2B / Operational tools**: Clean Light Slate dashboards (`#F8FAFC`), metric stat cards, Kanban status pipelines.
 - **Developer Tools ONLY**: Dark Slate (`#0F172A`) is strictly reserved for developer CLI, kernel logs, or terminal tools.

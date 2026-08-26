@@ -9,6 +9,7 @@ $$\text{Domain Model (Pure)} \longrightarrow \text{Repository Pattern} \longrigh
 1. **Pure Domain Model (`backend/domain/model.py` / `workspace/src/domain/`)**:
    - Domain dataclasses MUST have **ZERO** FastAPI, Pydantic, SQLAlchemy, or DB dependencies.
    - Domain models encapsulate pure business logic, invariants, and state transitions.
+   - **Python Dataclass Field Ordering Rule**: All fields without default values MUST precede all fields with default values. Never place a non-default argument after a default argument in `@dataclass` domain definitions.
 2. **Repository Layer (`backend/adapters/`)**:
    - Manages persistence abstraction (`AbstractRepository` and `SqliteRepository` / `FakeRepository`).
 3. **Service Layer & Unit of Work (`backend/service_layer/`)**:

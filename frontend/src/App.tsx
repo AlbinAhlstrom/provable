@@ -86,9 +86,6 @@ export function App() {
         <div className="nav-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setCurrentView('Domain')}>
           <span>🚀</span>
           <strong>Provable Studio</strong>
-          <span style={{ fontSize: '0.75rem', background: '#0284c7', color: '#fff', padding: '0.15rem 0.5rem', borderRadius: '9999px', fontWeight: 600, marginLeft: '0.25rem' }}>
-            DDD Bounded Context
-          </span>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <ProjectSelector onProjectSwitch={handleProjectSwitch} />

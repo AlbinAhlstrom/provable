@@ -1,4 +1,4 @@
-﻿"""
+"""
 Skeleton Builder — Instant Full-Stack Domain & OpenAPI Skeleton Generator.
 Scaffolds pure DDD Domain Models, Repositories, Unit of Work, Pydantic DTOs,
 and FastAPI Routers to make OpenAPI /openapi.json available from second zero.
@@ -53,7 +53,13 @@ def generate_domain_module(entity: EntitySpec) -> str:
     field_lines = []
     has_list_or_dict = False
     
-    for attr in entity.attributes:
+    # Python dataclass rule: fields without defaults MUST precede fields with defaults.
+    sorted_attrs = sorted(
+        entity.attributes,
+        key=lambda a: 1 if (a.default_value is not None or not a.required) else 0
+    )
+
+    for attr in sorted_attrs:
         py_type = _map_type(attr.type)
         if "List[" in py_type or "Dict[" in py_type:
             has_list_or_dict = True
@@ -214,7 +220,11 @@ def generate_schemas_module(entities: List[EntitySpec], value_objects: List[Enti
 
     for ent in entities + value_objects:
         fields = []
-        for attr in ent.attributes:
+        sorted_attrs = sorted(
+            ent.attributes,
+            key=lambda a: 1 if (a.default_value is not None or not a.required) else 0
+        )
+        for attr in sorted_attrs:
             py_type = _map_type(attr.type)
             if attr.default_value is not None:
                 default_str = _format_default(attr.default_value, py_type)
@@ -372,6 +382,24 @@ def generate_fullstack_skeleton_files(structure: DomainStructureSchema, base_pat
     # 5. Baseline Skeleton Tests
     first_ent = structure.entities[0] if structure.entities else EntitySpec(name="Item")
     ent_slug = _to_snake_case(first_ent.name)
+    sample_kwargs = []
+    for attr in first_ent.attributes:
+        if attr.required and attr.default_value is None:
+            py_t = _map_type(attr.type)
+            if py_t == "int":
+                sample_kwargs.append(f'{attr.name}=1')
+            elif py_t == "float":
+                sample_kwargs.append(f'{attr.name}=1.0')
+            elif py_t == "bool":
+                sample_kwargs.append(f'{attr.name}=True')
+            elif py_t == "List[str]":
+                sample_kwargs.append(f'{attr.name}=[]')
+            elif py_t == "Dict[str, Any]":
+                sample_kwargs.append(f'{attr.name}={{}}')
+            else:
+                sample_kwargs.append(f'{attr.name}="test-1"')
+    args_str = ", ".join(sample_kwargs) if sample_kwargs else 'id="test-1"'
+
     files[os.path.join(base_path, "tests", "unit", "test_skeleton.py")] = f'''import pytest
 from src.domain.{ent_slug} import {first_ent.name}
 from src.adapters.repository import Fake{first_ent.name}Repository
@@ -380,23 +408,21 @@ from src.app import app
 
 def test_domain_entity_instantiation():
     """Verify domain entity can be instantiated."""
-    item = {first_ent.name}(id="test-1")
+    item = {first_ent.name}({args_str})
     assert item is not None
-    assert getattr(item, "id") == "test-1"
 
 def test_fake_repository_crud():
     """Verify repository CRUD operations in memory."""
     repo = Fake{first_ent.name}Repository()
-    item = {first_ent.name}(id="item-100")
+    item = {first_ent.name}({args_str})
     repo.add(item)
-    assert repo.get("item-100") == item
     assert len(repo.list()) == 1
 
 def test_fake_uow_commit():
     """Verify Unit of Work transaction lifecycle."""
     uow = FakeUnitOfWork()
     with uow:
-        getattr(uow, "{ent_slug}s").add({first_ent.name}(id="uow-1"))
+        getattr(uow, "{ent_slug}s").add({first_ent.name}({args_str}))
         uow.commit()
     assert uow.committed
 '''

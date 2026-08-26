@@ -3,7 +3,6 @@ import Form from '@rjsf/mui';
 import validator from '@rjsf/validator-ajv8';
 import { RJSFSchema } from '@rjsf/utils';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 
 const darkTheme = createTheme({
   palette: {
@@ -23,7 +22,7 @@ const darkTheme = createTheme({
     divider: '#334155',
   },
   typography: {
-    fontFamily: 'inherit',
+    fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     fontSize: 13,
   },
   components: {
@@ -311,7 +310,6 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
 
           <div className="rjsf-dark-container" style={{ fontSize: '0.85rem' }}>
             <ThemeProvider theme={darkTheme}>
-              <CssBaseline />
               <Form
                 schema={currentSchema}
                 validator={validator}

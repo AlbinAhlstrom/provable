@@ -70,7 +70,7 @@ class ThemeTokensAST(BaseModel):
     bg_color: str = Field(default="#f8fafc")
     card_bg: str = Field(default="#ffffff")
     text_color: str = Field(default="#0f172a")
-    font_family: str = Field(default="system-ui, sans-serif")
+    font_family: str = Field(default="'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif")
 
 
 class SiteNavigationAST(BaseModel):

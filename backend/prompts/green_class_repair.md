@@ -21,7 +21,8 @@ A pytest unit test has failed in the RED phase. Your task is to update the targe
 ## Architectural & Code Rules:
 1. Return ONLY the complete, updated Python class definition for `{target_class_name}`.
 2. The class MUST use `@dataclass` and pure Python standard library types.
-3. Fix all missing attributes, methods, invariant validators, or state transitions required by the test.
-4. Strictly follow PEP8, SOLID principles, and strict OOP.
-5. DO NOT include any inline comments. Use Google-style docstrings if documenting methods.
-6. Return the code inside a single ```python ``` block with zero conversational intro or outro.
+3. PYTHON DATACLASS RULE: All fields without default values MUST precede all fields with default values. Never place a non-default argument after a default argument.
+4. Fix all missing attributes, methods, invariant validators, or state transitions required by the test.
+5. Strictly follow PEP8, SOLID principles, and strict OOP.
+6. DO NOT include any inline comments. Use Google-style docstrings if documenting methods.
+7. Return the code inside a single ```python ``` block with zero conversational intro or outro.
