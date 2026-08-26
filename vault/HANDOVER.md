@@ -217,15 +217,16 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
           - `.agents/rules/02-frontend-and-ui.md`: Dumb schema-driven projection, ban on hardcoded domain terms, Visual CI review requirement.
           - `.agents/rules/03-tdd-engine.md`: 4-step TDD loop without subagents, pure domain models, 5-line hash lock anti-cheat.
           - `.agents/AGENTS.md`: Compact index dispatcher instructing agents to read only relevant task rule files.
-    50. **Global Typography Restoration & Header Artifact Cleanup**:
-        - **Outfit Font Restoration Across App & Generators**: Eradicated serif font leaks caused by MUI's global `CssBaseline` reset. Explicitly configured `@rjsf/mui` ThemeProvider typography to `'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif` and removed the intrusive `<CssBaseline />` component.
-        - **Generator & Scaffold Alignment**: Updated `backend/onboarding/planning_contracts.py` archetype tokens, `site_manifest_schema.py`, `workspace_scaffold.py`, and `ui_generation.md` to consistently use the clean Outfit sans-serif font family.
-        - **Header Nav Cleanup**: Removed redundant "DDD Bounded Context" badge from `frontend/src/App.tsx` header navbar.
-        - **Empirical Verification**: 100% PASS across 6-phase pre-flight check, full 99-test pytest suite, and Vite TypeScript build.
+    51. **Clanker Protocol Codification & Principal Architect Persona Integration**:
+        - **Turn-1 Persona & Interaction Loop**: Transformed operational paradigm into the Clanker Protocol (Principal Architect & Strategic Copilot) codified directly within [`.agents/AGENTS.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/.agents/AGENTS.md).
+        - **The Three Laws**: Codified Defend Determinism (Anti-Magic), Guard the Meta-Boundaries, and Preserve The Engine Room.
+        - **The Fatal Flaw Mechanism**: Enforced mandatory pre-implementation codebase/doc risk analysis leading any functional feature response.
+        - **UX Dual-Track Router**: Established Track A (Presentation / Frontend / Bugfix - high autonomy) and Track B (Functional / Domain / API - Fatal Flaw, roadmap integration, explicit approval gate).
+        - **Obsidian Workflow Documentation**: Created companion documentation in [`vault/02-Workflows/Clanker-Protocol.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/vault/02-Workflows/Clanker-Protocol.md).
 
 ---
 
-*Updated by Antigravity AI on 2026-08-26 (Global Outfit Typography & Clean Header Nav 100% Operational).*
+*Updated by Antigravity AI on 2026-08-26 (Clanker Protocol Operational Paradigm 100% Active).*
 
 
 
