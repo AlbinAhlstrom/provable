@@ -91,7 +91,20 @@ Automate bidirectional synchronization between SQLite `provable.db` database rec
 
 ---
 
+## 6. 🛡️ Automated Context Canary Verification Hook (`hooks.json`)
+
+### Overview
+Automate context integrity detection via an Antigravity lifecycle hook (`.agents/hooks.json` and `scripts/canary_check.py`).
+
+### Technical Blueprint
+- **Trigger**: Lifecycle `Stop` event (`terminationReason: "model_stop"`).
+- **Verification**: Parses the latest `PLANNER_RESPONSE` step from `transcript.jsonl` (provided via `stdin`).
+- **Gate**: If `[🛡️ Clanker Active]` is missing from the assistant's final response text, returns `{"decision": "continue", "reason": "Canary missing: append [🛡️ Clanker Active]"}` to enforce protocol compliance or notify of context degradation.
+
+---
+
 ## 🔗 Related Documentation
 - [[System Architecture]]
 - [[Universal-Dynamic-Domain-AST-Generator]]
 - [[Automated-Verification-And-Self-Healing-Pipeline]]
+- [[Clanker-Protocol]]

@@ -219,14 +219,15 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
           - `.agents/AGENTS.md`: Compact index dispatcher instructing agents to read only relevant task rule files.
     51. **Clanker Protocol Codification & Principal Architect Persona Integration**:
         - **Turn-1 Persona & Interaction Loop**: Transformed operational paradigm into the Clanker Protocol (Principal Architect & Strategic Copilot) codified directly within [`.agents/AGENTS.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/.agents/AGENTS.md).
-        - **The Three Laws**: Codified Defend Determinism (Anti-Magic), Guard the Meta-Boundaries, and Preserve The Engine Room.
-        - **The Fatal Flaw Mechanism**: Enforced mandatory pre-implementation codebase/doc risk analysis leading any functional feature response.
-        - **UX Dual-Track Router**: Established Track A (Presentation / Frontend / Bugfix - high autonomy) and Track B (Functional / Domain / API - Fatal Flaw, roadmap integration, explicit approval gate).
-        - **Obsidian Workflow Documentation**: Created companion documentation in [`vault/02-Workflows/Clanker-Protocol.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/vault/02-Workflows/Clanker-Protocol.md).
+        - **The Three Laws & Vision**: Codified North Star Project Vision, Defend Determinism (Anti-Magic), Guard the Meta-Boundaries, and Preserve The Engine Room.
+        - **The Fatal Flaw Mechanism & Two-Hats State Machine**: Enforced mandatory pre-implementation codebase/doc risk analysis leading any functional feature response, with explicit Mode 1 (Architect) and Mode 2 (Execution with silent rule injection).
+        - **UX Dual-Track Router**: Established Track A (Presentation / Frontend / Bugfix - high autonomy) and Track B (Functional / Domain / API - Fatal Flaw, frictionless roadmap integration, approval gate).
+        - **Automated Canary Guard Hook**: Implemented [`.agents/hooks.json`](file:///c:/Users/ahlst/Documents/GitHub/provable/.agents/hooks.json) and [`scripts/canary_guard.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/scripts/canary_guard.py) on the `Stop` lifecycle event to enforce the `[🛡️ Clanker Active]` dead man's switch with a robust 1-retry loop breaker.
+        - **Obsidian Workflow Documentation**: Created companion documentation in [`vault/02-Workflows/Clanker-Protocol.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/vault/02-Workflows/Clanker-Protocol.md) and [`vault/02-Workflows/Future Enhancements Roadmap.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/vault/02-Workflows/Future%20Enhancements%20Roadmap.md).
 
 ---
 
-*Updated by Antigravity AI on 2026-08-26 (Clanker Protocol Operational Paradigm 100% Active).*
+*Updated by Antigravity AI on 2026-08-26 (Clanker Protocol & Canary Guard 100% Operational).*
 
 
 
