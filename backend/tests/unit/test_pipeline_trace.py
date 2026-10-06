@@ -57,7 +57,7 @@ def test_tracing_records_inputs_outputs_and_nesting(monkeypatch, tmp_path):
     assert by_step["unit.outer"]["depth"] == 0
     assert by_step["unit.inner"]["depth"] == 1 and by_step["unit.inner"]["caller_chain"] == ["unit.outer"]
     assert by_step["unit.inner"]["output"] == {"doubled": 6}
-    assert by_step["llm.demo"]["input"] == {"stage": "demo", "prompt": "prompt text"}
+    assert by_step["llm.demo"]["input"] == {"stage": "demo", "prompt": "prompt text", "options": {}}
     assert by_step["llm.demo"]["kind"] == "llm" and by_step["llm.demo"]["output"] == "echo:prompt text"
     assert entries[0]["seq"] < entries[1]["seq"]
 

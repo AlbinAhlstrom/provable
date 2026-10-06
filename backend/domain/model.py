@@ -401,12 +401,14 @@ class DomainEntitySchema:
     entity_name: str
     canonical_key: str
     attributes: List[EntityAttribute] = field(default_factory=list)
+    is_aggregate_root: bool = True
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "entity_name": self.entity_name,
             "canonical_key": self.canonical_key,
-            "attributes": [a.to_dict() if hasattr(a, 'to_dict') else a for a in self.attributes]
+            "attributes": [a.to_dict() if hasattr(a, 'to_dict') else a for a in self.attributes],
+            "is_aggregate_root": self.is_aggregate_root
         }
 
 

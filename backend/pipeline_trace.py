@@ -113,5 +113,5 @@ def traced_llm(fn: Callable) -> Callable:
         if not trace_dir():
             return fn(prompt, stage=stage, *args, **kwargs)
         return _run(f"llm.{stage}", "llm", lambda: fn(prompt, stage=stage, *args, **kwargs), (), {},
-                    {"stage": stage, "prompt": prompt})
+                    {"stage": stage, "prompt": prompt, "options": kwargs})
     return wrapper

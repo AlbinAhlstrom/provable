@@ -85,15 +85,27 @@ def load_prompt(template_name: str, format_kwargs: Optional[dict] = None) -> str
     return content
 
 
+# Reason the most recent call_gemini returned "" (provider error / missing key), so callers can
+# report it instead of guessing. None after a successful call.
+LAST_LLM_ERROR: Optional[str] = None
+
+
 @traced_llm
-def call_gemini(prompt: str, stage: str = "general") -> str:
-    """OpenAI Python SDK wrapper for LLM calls (configured via environment variables)."""
+def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False) -> str:
+    """OpenAI Python SDK wrapper for LLM calls (configured via environment variables).
+
+    json_mode asks the provider for a syntactically valid JSON object (use for stages whose output
+    is parsed as JSON). Failures return "" and set LAST_LLM_ERROR with the reason.
+    """
+    global LAST_LLM_ERROR
+    LAST_LLM_ERROR = None
     api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
     base_url = os.environ.get("OPENAI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
     model_name = os.environ.get("LLM_MODEL", "gemini-2.5-flash")
 
     if not api_key:
-        print(f"[Warning] No LLM API key configured in environment (LLM_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY).")
+        LAST_LLM_ERROR = "No LLM API key configured (set GEMINI_API_KEY, LLM_API_KEY or OPENAI_API_KEY)."
+        print(f"[Warning] {LAST_LLM_ERROR}")
         return ""
 
     client = OpenAI(api_key=api_key, base_url=base_url)
@@ -101,11 +113,13 @@ def call_gemini(prompt: str, stage: str = "general") -> str:
         response = client.chat.completions.create(
             model=model_name,
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.2
+            temperature=0.2,
+            **({"response_format": {"type": "json_object"}} if json_mode else {})
         )
         return response.choices[0].message.content or ""
     except Exception as e:
-        print(f"[Warning] LLM Call Exception ({stage}): {e}")
+        LAST_LLM_ERROR = f"{type(e).__name__}: {e}"
+        print(f"[Warning] LLM Call Exception ({stage}): {LAST_LLM_ERROR}")
         return ""
 
 

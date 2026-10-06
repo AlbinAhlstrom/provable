@@ -221,7 +221,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
       {/* Main View Container: Full Width & Full Height per Active Tab */}
       <div 
         className="app-preview-container"
-        style={{ flex: 1, display: 'flex', minHeight: 0, overflow: 'hidden', width: '100%', borderRadius: '0.75rem', border: '1px solid #334155', background: '#090d16', boxSizing: 'border-box' }}
+        style={{ flex: 1, display: 'flex', minHeight: 'calc(100vh - 220px)', overflow: 'hidden', width: '100%', borderRadius: '0.75rem', border: '1px solid #334155', background: '#090d16', boxSizing: 'border-box' }}
       >
         {activeTab === 'domain' && (
           <div style={{ flex: 1, width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
@@ -239,7 +239,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
         )}
 
         {activeTab === 'api' && (
-          <div style={{ flex: 1, width: '100%', height: '100%', display: 'flex', minHeight: 0, overflow: 'hidden' }}>
+          <div style={{ flex: 1, width: '100%', display: 'flex', minHeight: 0, overflow: 'hidden' }}>
             <iframe
               key={key}
               src="http://localhost:8001/docs"

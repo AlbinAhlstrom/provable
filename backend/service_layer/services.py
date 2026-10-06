@@ -1408,6 +1408,21 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
     return tdd_result
 
 
+def _aggregate_view(key: str, name: str, is_root: bool, attrs: list) -> Dict[str, Any]:
+    """Domain-agnostic projection of an entity for the Studio (no per-domain icons or labels)."""
+    return {
+        "key": key,
+        "name": name,
+        "canonical_key": key,
+        "icon": "🏛️" if is_root else "🧩",
+        "description": f"{name} Aggregate Root" if is_root else f"{name} Entity (part of an aggregate)",
+        "is_aggregate_root": is_root,
+        "attributes": attrs,
+        "fields": attrs,
+        "invariants": []
+    }
+
+
 @traced("svc.kickstart_and_scaffold")
 def kickstart_domain_and_scaffold(
     pitch: str,
@@ -1438,32 +1453,21 @@ def kickstart_domain_and_scaffold(
     created_files = build_and_write_skeleton(structure, target_dir=workspace_dir)
 
     # Format domain aggregates
-    icons = {"pallet": "📦", "zone": "📍", "operator": "👷", "warehouse": "🏢", "forklift": "🚜"}
     aggregates = []
     entity_schemas_map = {}
 
     for ent in structure.entities:
         k = ent.name.lower()
-        icon = icons.get(k, "🧱")
         attrs = [{"name": a.name, "type": a.type, "required": a.required} for a in ent.attributes]
-        aggregates.append({
-            "key": k,
-            "name": ent.name,
-            "canonical_key": k,
-            "icon": icon,
-            "description": f"{ent.name} Aggregate Root",
-            "is_aggregate_root": ent.is_aggregate_root,
-            "attributes": attrs,
-            "fields": attrs,
-            "invariants": []
-        })
+        aggregates.append(_aggregate_view(k, ent.name, ent.is_aggregate_root, attrs))
         entity_schemas_map[k] = DomainEntitySchema(
             entity_name=ent.name,
             canonical_key=k,
             attributes=[
                 EntityAttribute(name=a.name, type=a.type, required=a.required, default_value=a.default_value)
                 for a in ent.attributes
-            ]
+            ],
+            is_aggregate_root=ent.is_aggregate_root
         )
 
     # Sync workspace App.tsx
@@ -1496,28 +1500,16 @@ def get_active_domain_aggregates(uow: AbstractUnitOfWork) -> Dict[str, Any]:
     """Retrieves discovered domain aggregates from active kickstart state."""
     with uow:
         state = uow.kickstart.get()
-        icons = {"pallet": "📦", "zone": "📍", "operator": "👷", "warehouse": "🏢", "forklift": "🚜"}
         aggregates = []
         for k, ent in state.entity_schemas.items():
             ent_name = ent.entity_name if hasattr(ent, 'entity_name') else k.capitalize()
-            icon = icons.get(k.lower(), "🧱")
             attrs = [
                 {"name": a.name if hasattr(a, 'name') else a.get('name', ''),
                  "type": a.type if hasattr(a, 'type') else a.get('type', 'string'),
                  "required": a.required if hasattr(a, 'required') else a.get('required', True)}
                 for a in (ent.attributes if hasattr(ent, 'attributes') else [])
             ]
-            aggregates.append({
-                "key": k.lower(),
-                "name": ent_name,
-                "canonical_key": k.lower(),
-                "icon": icon,
-                "description": f"{ent_name} Aggregate Root",
-                "is_aggregate_root": True,
-                "attributes": attrs,
-                "fields": attrs,
-                "invariants": []
-            })
+            aggregates.append(_aggregate_view(k.lower(), ent_name, bool(getattr(ent, "is_aggregate_root", True)), attrs))
 
         # If no schemas in state, attempt dynamic domain decomposition based on business_pitch
         if not aggregates:
@@ -1526,19 +1518,8 @@ def get_active_domain_aggregates(uow: AbstractUnitOfWork) -> Dict[str, Any]:
                 decomp = decompose_pitch_into_structure_and_inbox(state.business_pitch)
                 for ent in decomp.structure.entities:
                     k = ent.name.lower()
-                    icon = icons.get(k, "📦" if "pallet" in k else ("📍" if "zone" in k else ("👷" if "operator" in k else "🧱")))
                     attrs = [{"name": a.name, "type": a.type, "required": a.required} for a in ent.attributes]
-                    aggregates.append({
-                        "key": k,
-                        "name": ent.name,
-                        "canonical_key": k,
-                        "icon": icon,
-                        "description": f"{ent.name} Aggregate Root",
-                        "is_aggregate_root": ent.is_aggregate_root,
-                        "attributes": attrs,
-                        "fields": attrs,
-                        "invariants": []
-                    })
+                    aggregates.append(_aggregate_view(k, ent.name, ent.is_aggregate_root, attrs))
             except Exception as e:
                 print(f"Notice: Dynamic decomposition for un-synthesized pitch deferred: {e}")
                 aggregates = []

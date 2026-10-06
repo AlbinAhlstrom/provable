@@ -290,7 +290,8 @@ class SqliteKickstartRepository(AbstractKickstartRepository):
                 entity_schemas[k] = DomainEntitySchema(
                     entity_name=v.get("entity_name", "Item"),
                     canonical_key=v.get("canonical_key", k),
-                    attributes=attrs
+                    attributes=attrs,
+                    is_aggregate_root=bool(v.get("is_aggregate_root", True))
                 )
             elif isinstance(v, DomainEntitySchema):
                 entity_schemas[k] = v

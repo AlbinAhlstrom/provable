@@ -11,6 +11,24 @@ from typing import Dict, List, Any, Optional
 from onboarding.router_engine import DomainStructureSchema, EntitySpec, AttributeSpec
 
 
+_IRREGULAR_PLURALS = {"child": "children", "person": "people", "man": "men", "woman": "women",
+                      "foot": "feet", "tooth": "teeth", "mouse": "mice", "goose": "geese"}
+
+
+def _pluralize(slug: str) -> str:
+    """Pluralize the last word of a snake_case slug ("client_family" -> "client_families")."""
+    head, sep, last = slug.rpartition("_")
+    if last in _IRREGULAR_PLURALS:
+        plural = _IRREGULAR_PLURALS[last]
+    elif last.endswith(("s", "x", "z", "ch", "sh")):
+        plural = last + "es"
+    elif last.endswith("y") and len(last) > 1 and last[-2] not in "aeiou":
+        plural = last[:-1] + "ies"
+    else:
+        plural = last + "s"
+    return f"{head}{sep}{plural}"
+
+
 def _to_snake_case(name: str) -> str:
     s1 = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
     return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
@@ -168,8 +186,8 @@ def generate_uow_module(entities: List[EntitySpec]) -> str:
 
     for ent in entities:
         slug = _to_snake_case(ent.name)
-        uow_fields.append(f"    {slug}s: repository.Abstract{ent.name}Repository")
-        fake_inits.append(f"        self.{slug}s = repository.Fake{ent.name}Repository()")
+        uow_fields.append(f"    {_pluralize(slug)}: repository.Abstract{ent.name}Repository")
+        fake_inits.append(f"        self.{_pluralize(slug)} = repository.Fake{ent.name}Repository()")
 
     fields_code = "\n".join(uow_fields)
     inits_code = "\n".join(fake_inits)
@@ -263,7 +281,7 @@ from typing import Optional, List, Dict, Any
 def generate_router_module(entity: EntitySpec) -> str:
     """Generates a FastAPI CRUD router for an aggregate root."""
     slug = _to_snake_case(entity.name)
-    plural_slug = f"{slug}s"
+    plural_slug = _pluralize(slug)
 
     return f'''"""
 FastAPI Router for {entity.name} (Auto-projected from domain model).
@@ -283,21 +301,21 @@ _uow = FakeUnitOfWork()
 @router.get("", response_model=List[{entity.name}ResponseSchema])
 def list_{plural_slug}():
     with _uow:
-        items = getattr(_uow, "{slug}s").list()
+        items = getattr(_uow, "{plural_slug}").list()
         return [i.to_dict() for i in items]
 
 @router.post("", response_model={entity.name}ResponseSchema, status_code=status.HTTP_201_CREATED)
 def create_{slug}(payload: {entity.name}CreateSchema):
     item = {entity.name}(**payload.dict())
     with _uow:
-        getattr(_uow, "{slug}s").add(item)
+        getattr(_uow, "{plural_slug}").add(item)
         _uow.commit()
     return item.to_dict()
 
 @router.get("/{{item_id}}", response_model={entity.name}ResponseSchema)
 def get_{slug}(item_id: str):
     with _uow:
-        item = getattr(_uow, "{slug}s").get(item_id)
+        item = getattr(_uow, "{plural_slug}").get(item_id)
         if not item:
             raise HTTPException(status_code=404, detail="{entity.name} not found")
         return item.to_dict()
@@ -424,7 +442,7 @@ def test_fake_uow_commit():
     """Verify Unit of Work transaction lifecycle."""
     uow = FakeUnitOfWork()
     with uow:
-        getattr(uow, "{ent_slug}s").add({first_ent.name}({args_str}))
+        getattr(uow, "{_pluralize(ent_slug)}").add({first_ent.name}({args_str}))
         uow.commit()
     assert uow.committed
 '''

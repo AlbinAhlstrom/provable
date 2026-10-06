@@ -74,12 +74,10 @@ def decompose_pitch_into_structure_and_inbox(pitch: str) -> RouterDecompositionR
     clean_pitch = pitch.strip()
     prompt = agent_orchestrator.load_prompt("router_decomposition.md", {"business_pitch": clean_pitch})
     
-    raw_response = agent_orchestrator.call_gemini(prompt, stage="router_decomposition")
+    raw_response = agent_orchestrator.call_gemini(prompt, stage="router_decomposition", json_mode=True)
     if not raw_response:
-        api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
-        if not api_key:
-            raise RuntimeError("LLM synthesis failed: No API key found. Please set LLM_API_KEY, GEMINI_API_KEY, or OPENAI_API_KEY in your environment or root .env file.")
-        raise RuntimeError("LLM synthesis failed. Refusing to fallback to generic 'Item'.")
+        reason = agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response"
+        raise RuntimeError(f"LLM synthesis failed: {reason} (refusing to fall back to a generic 'Item').")
 
     # Parse structured response
     try:

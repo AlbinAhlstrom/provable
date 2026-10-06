@@ -50,7 +50,7 @@ def mock_llm_for_unit_tests(monkeypatch):
     try:
         import agent_orchestrator
 
-        def fake_call_gemini(prompt: str, stage: str = "general") -> str:
+        def fake_call_gemini(prompt: str, stage: str = "general", **_options) -> str:
             if stage == "domain_ontology":
                 m = re.search(r'"([^"\n]+)"', prompt)
                 pitch = m.group(1) if m else "Generic Application"
