@@ -505,7 +505,8 @@ def sync_workspace_app_shell(ws_base: Optional[str] = None, uow: Optional[Abstra
 def get_component_data_fixtures(uow: Optional[AbstractUnitOfWork] = None) -> Dict[str, Any]:
     """
     Returns active data fixtures grouped by canonical component key.
-    Initializes catalog items from domain pitch schema, and cart/tracking as empty [] by default.
+    `catalog` (the primary entity collection) defaults to the domain's seed items; any other
+    collection appears only once the live app or PM Studio has saved it.
     """
     if uow is None:
         from service_layer.unit_of_work import SqliteUnitOfWork
@@ -529,33 +530,13 @@ def get_component_data_fixtures(uow: Optional[AbstractUnitOfWork] = None) -> Dic
 
     default_catalog = []
     for idx, item in enumerate(raw_seed):
-        price_val = 14.99
-        if item.get("price") is not None and isinstance(item.get("price"), (int, float)):
-            price_val = float(item["price"])
-        else:
-            p_str = str(item.get("price_or_rate", ""))
-            p_match = re.search(r'([0-9]+(?:\.[0-9]+)?)', p_str)
-            if p_match:
-                try:
-                    price_val = float(p_match.group(1))
-                except ValueError:
-                    price_val = 14.99
-        item_name = item.get("name") or item.get("title") or f"Item #{idx+1}"
-        cat_item = {
-            "id": f"item-{item.get('id', idx+1)}",
-            "name": item_name,
-            "price": price_val
-        }
-        for k, v in item.items():
-            if k not in ["id", "name", "price", "title"]:
-                cat_item[k] = v
+        cat_item = {k: v for k, v in item.items() if k not in ("id", "title", "name")}
+        cat_item["id"] = f"item-{item.get('id', idx + 1)}"
+        cat_item["name"] = item.get("name") or item.get("title") or f"#{idx + 1}"
         default_catalog.append(cat_item)
 
-    fixtures = {
-        "catalog": custom_fixtures.get("catalog", default_catalog),
-        "cart": custom_fixtures.get("cart", []),
-        "tracking": custom_fixtures.get("tracking", [])
-    }
+    # `catalog` is the primary entity collection; any other collections come from custom fixtures.
+    fixtures = {"catalog": custom_fixtures.get("catalog", default_catalog)}
 
     for k, v in custom_fixtures.items():
         if k not in fixtures:

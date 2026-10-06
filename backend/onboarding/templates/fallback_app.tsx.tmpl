@@ -1,0 +1,207 @@
+import React, { useState } from 'react';
+
+// Domain-neutral fallback App. Everything shown here comes from the planning blueprint
+// (title, vocabulary, seed items, bespoke components) or from live fixtures; nothing is
+// specific to any one business domain. Placeholders (__NAME__) are filled by
+// frontend_planning_engine._generate_fallback_assembled_app.
+
+const TITLE: string = __TITLE_JSON__;
+const HERO: string = __HERO_JSON__;
+const BADGE: string = __BADGE_JSON__;
+const SINGULAR: string = __SINGULAR_JSON__;
+const PLURAL: string = __PLURAL_JSON__;
+const ACTION: string = __ACTION_JSON__;
+const EMOJI: string = __EMOJI_JSON__;
+const COMPONENTS: { component_name: string; slot: string; description: string; key_interactions: string[] }[] = __COMPONENTS_JSON__;
+
+const getApiUrl = (endpoint: string) =>
+  typeof window !== 'undefined' && window.location.origin.includes('5174')
+    ? 'http://localhost:8000' + endpoint
+    : endpoint;
+
+const humanize = (key: string) => key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+const normalize = (f: any, idx: number) => {
+  const { name, title, ...rest } = f || {};
+  return { ...rest, id: String((f && f.id) ?? idx + 1), title: title || name || `${SINGULAR} #${idx + 1}` };
+};
+
+export default function App() {
+  const [items, setItems] = useState<any[]>(__SEED_JSON__);
+  const [isAdding, setIsAdding] = useState(false);
+  const [draft, setDraft] = useState<Record<string, string>>({});
+  const [toast, setToast] = useState<string | null>(null);
+
+  const fieldKeys = Array.from(
+    new Set(items.flatMap((it) => Object.keys(it)).filter((k) => k !== 'id' && k !== 'title'))
+  ).filter((k) => items.every((it) => !Array.isArray(it[k]) && typeof it[k] !== 'object'));
+
+  React.useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data && (e.data.type === 'FIXTURES_UPDATED' || e.data.type === 'UPDATE_FIXTURES')) {
+        const { canonical_key, fixtures } = e.data;
+        if (canonical_key === 'catalog' && Array.isArray(fixtures)) {
+          setItems(fixtures.map(normalize));
+        }
+      }
+    };
+    window.addEventListener('message', handleMessage);
+
+    fetch(getApiUrl('/api/components/fixtures'))
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.success && data.fixtures && Array.isArray(data.fixtures.catalog) && data.fixtures.catalog.length > 0) {
+          setItems(data.fixtures.catalog.map(normalize));
+        }
+      })
+      .catch(() => {});
+
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const syncFixtureToBackendAndHost = (canonicalKey: string, fixtures: any[]) => {
+    try {
+      fetch(getApiUrl('/api/components/fixtures/update'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ canonical_key: canonicalKey, fixtures: fixtures })
+      }).catch(() => {});
+    } catch (e) {}
+
+    try {
+      if (typeof window !== 'undefined' && window.parent) {
+        window.parent.postMessage({ type: 'FIXTURES_UPDATED', canonical_key: canonicalKey, fixtures: fixtures }, '*');
+      }
+    } catch (e) {}
+  };
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
+  };
+
+  const handleAdd = () => {
+    const title = (draft.title || '').trim();
+    if (!title) {
+      showToast(`Enter a name for the ${SINGULAR}.`);
+      return;
+    }
+    const created: Record<string, any> = { id: String(Date.now()), title };
+    fieldKeys.forEach((k) => {
+      if ((draft[k] || '').trim() !== '') created[k] = draft[k].trim();
+    });
+    const updated = [...items, created];
+    setItems(updated);
+    syncFixtureToBackendAndHost('catalog', updated);
+    setDraft({});
+    setIsAdding(false);
+    showToast(`Added ${title}.`);
+  };
+
+  const handleRemove = (id: string) => {
+    const updated = items.filter((it) => it.id !== id);
+    setItems(updated);
+    syncFixtureToBackendAndHost('catalog', updated);
+  };
+
+  return (
+    <div className="app-root">
+      <style>{`__CSS_VARS__
+        .app-root { min-height: 100vh; background: var(--bg-main); color: var(--text-primary); font-family: var(--font-body); padding: 1rem 0.75rem; }
+        .app-inner { max-width: 1100px; margin: 0 auto; }
+        .app-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 1.25rem; }
+        .app-title { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; margin: 0; }
+        .badge { background: var(--color-mint); color: var(--color-mint-text); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+        .hero { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 1.25rem; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-card); }
+        .hero h2 { font-family: var(--font-heading); margin: 0 0 0.5rem; font-size: 1.25rem; }
+        .btn { background: var(--color-primary); color: #fff; border: none; border-radius: 0.75rem; padding: 0.6rem 1rem; font-weight: 700; cursor: pointer; }
+        .btn:hover { background: var(--color-primary-hover); }
+        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 1rem; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 1rem; padding: 1rem; box-shadow: var(--shadow-card); min-width: 0; }
+        .card h3 { margin: 0 0 0.5rem; font-family: var(--font-heading); font-size: 1.05rem; overflow-wrap: anywhere; }
+        .row { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.85rem; padding: 0.15rem 0; }
+        .row span:first-child { color: var(--text-muted); }
+        .row span:last-child { overflow-wrap: anywhere; text-align: right; }
+        .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
+        .chip { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 9999px; background: var(--bg-secondary); border: 1px solid var(--border-color); }
+        .form { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+        .form input { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.75rem; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); }
+        .section-title { text-transform: capitalize; font-family: var(--font-heading); font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
+        .empty { background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 1rem; padding: 1.5rem; text-align: center; color: var(--text-muted); }
+        .toast { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); background: var(--text-primary); color: var(--bg-card); padding: 0.6rem 1rem; border-radius: 0.75rem; max-width: calc(100% - 2rem); }
+      `}</style>
+      <div className="app-inner">
+        <header className="app-header">
+          <h1 className="app-title">{EMOJI} {TITLE}</h1>
+          <span className="badge">{BADGE}</span>
+        </header>
+
+        <section className="hero">
+          <h2>{HERO}</h2>
+          <button className="btn" onClick={() => setIsAdding(!isAdding)}>{isAdding ? 'Cancel' : `${ACTION}`}</button>
+        </section>
+
+        {isAdding && (
+          <div className="form">
+            <input placeholder={`${humanize('title')} (${SINGULAR})`} value={draft.title || ''} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
+            {fieldKeys.map((k) => (
+              <input key={k} placeholder={humanize(k)} value={draft[k] || ''} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />
+            ))}
+            <button className="btn" onClick={handleAdd}>{`Save ${SINGULAR}`}</button>
+          </div>
+        )}
+
+        <h2 className="section-title">{PLURAL}</h2>
+        {items.length === 0 ? (
+          <div className="empty">No {PLURAL} yet. Use the button above to add one.</div>
+        ) : (
+          <div className="grid">
+            {items.map((item) => (
+              <article className="card" key={item.id}>
+                <h3>{item.title}</h3>
+                {Object.entries(item)
+                  .filter(([k, v]) => k !== 'id' && k !== 'title' && !Array.isArray(v) && typeof v !== 'object')
+                  .map(([k, v]) => (
+                    <div className="row" key={k}><span>{humanize(k)}</span><span>{String(v)}</span></div>
+                  ))}
+                {Object.entries(item)
+                  .filter(([, v]) => Array.isArray(v) && v.length > 0)
+                  .map(([k, v]) => (
+                    <div className="chips" key={k}>
+                      {(v as any[]).map((entry, i) => (
+                        <span className="chip" key={`${k}-${i}`}>{String(entry)}</span>
+                      ))}
+                    </div>
+                  ))}
+                <div style={{ marginTop: '0.75rem' }}>
+                  <button className="btn btn-ghost" onClick={() => handleRemove(item.id)}>Remove</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {COMPONENTS.length > 0 && (
+          <>
+            <h2 className="section-title">Planned components</h2>
+            <div className="grid">
+              {COMPONENTS.map((c) => (
+                <article className="card" key={c.component_name}>
+                  <h3>{c.component_name}</h3>
+                  <p style={{ margin: '0 0 0.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{c.description}</p>
+                  <div className="chips">
+                    {c.key_interactions.map((k, i) => (
+                      <span className="chip" key={`${c.component_name}-${i}`}>{k}</span>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}

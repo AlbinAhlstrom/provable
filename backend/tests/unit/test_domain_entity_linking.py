@@ -12,8 +12,8 @@ from service_layer.unit_of_work import FakeUnitOfWork
 from service_layer import services
 
 
-def test_get_component_entities_returns_default_catalog_and_empty_cart_tracking():
-    """Verify that get_component_data_fixtures derives domain catalog and initializes empty cart/tracking."""
+def test_get_component_entities_returns_default_catalog_only():
+    """Verify that get_component_data_fixtures derives the domain catalog and invents no other collections."""
     initial_state = KickstartState(
         business_pitch="An app to order pizzas",
         custom_fixtures={}
@@ -25,10 +25,7 @@ def test_get_component_entities_returns_default_catalog_and_empty_cart_tracking(
     fixtures = res["fixtures"]
     assert "catalog" in fixtures
     assert len(fixtures["catalog"]) > 0
-    assert "cart" in fixtures
-    assert fixtures["cart"] == []
-    assert "tracking" in fixtures
-    assert fixtures["tracking"] == []
+    assert set(fixtures) == {"catalog"}
 
 
 def test_update_cart_entity_preserves_catalog_reference_and_quantity():

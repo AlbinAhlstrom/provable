@@ -1,5 +1,5 @@
 """
-Unit tests for Data Fixtures sync and empty cart/tracking initial state in Service Layer.
+Unit tests for Data Fixtures sync in the Service Layer (domain-neutral: `catalog` is the primary collection; other collections appear only once saved).
 """
 
 import os
@@ -18,7 +18,7 @@ def test_get_component_data_fixtures_default_pizza_app():
     """
     Given a pizzeria kickstart state in FakeUnitOfWork
     When get_component_data_fixtures is called
-    Then catalog fixtures contain pizza seed items, while cart and tracking fixtures start empty.
+    Then catalog fixtures contain the seed items and no other collections are invented.
     """
     ks = KickstartState(
         business_pitch="An app to order pizza online with cart and tracking",
@@ -38,9 +38,8 @@ def test_get_component_data_fixtures_default_pizza_app():
     catalog_names = [item["name"] for item in fixtures["catalog"]]
     assert any("Pizza" in name or "Margherita" in name or "Pepperoni" in name for name in catalog_names)
 
-    # Cart and tracking fixtures MUST start empty by default (no pre-existing order!)
-    assert fixtures.get("cart") == []
-    assert fixtures.get("tracking") == []
+    # No commerce collections are invented: only `catalog` exists until something saves another one.
+    assert set(fixtures) == {"catalog"}
 
 
 def test_update_component_data_fixtures_crud_sync():
