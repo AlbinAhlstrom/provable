@@ -40,7 +40,6 @@ if hasattr(sys.stderr, "reconfigure"):
     except Exception:
         pass
 
-from service_layer.opencode_gateway import OpenCodeGateway
 from service_layer.unit_of_work import SqliteUnitOfWork
 from service_layer import services
 
@@ -287,95 +286,17 @@ def run_baseline_graph_engineering(target_dir: str) -> Dict[str, Any]:
     }
 
 
-def run_opencode_raw(target_dir: str, gateway: OpenCodeGateway, model_id: str) -> Dict[str, Any]:
-    """Contender B: Pure OpenCode One-Shot in a blank workspace."""
-    ensure_clean_dir(target_dir)
-    print(f"▶ Running Contender B (Pure OpenCode One-Shot with {model_id})...")
-    start = time.time()
-
-    rel_target = os.path.relpath(target_dir, ROOT_DIR).replace("\\", "/")
-    session_id = gateway.create_session(target_dir, title="Benchmark Chess Raw")
-    prompt = (
-        f"{CHESS_PITCH}\n\n"
-        f"CRITICAL: All files MUST be created strictly inside the directory: `{rel_target}/`.\n"
-        f"1. Create `{rel_target}/domain/chess.py` with a `ChessGame` class implementing `make_move(from_pos, to_pos)`.\n"
-        f"2. Support legal moves for pawns, knights, bishops, rooks, queens, kings, and alternate turns.\n"
-        f"3. Create `{rel_target}/frontend/src/App.tsx` with an interactive 8x8 chessboard.\n"
-        f"4. Create `{rel_target}/tests/unit/test_chess.py` verifying the rules."
-    )
-
-    res = gateway.send_prompt(session_id, prompt, model_id=model_id, timeout=240.0)
-    elapsed = round(time.time() - start, 2)
-    return {
-        "name": "Contender B (Pure OpenCode One-Shot)",
-        "elapsed_seconds": elapsed,
-        "cost": res.get("cost", 0.0),
-        "status": res.get("status", "completed"),
-        "tokens": res.get("tokens", {}),
-        "details": res
-    }
-
-
-def run_modular_hybrid_contract(target_dir: str, gateway: OpenCodeGateway, model_id: str) -> Dict[str, Any]:
-    """
-    Contender C: Pure Provable Autonomous Generation from Terse Pitch ("A chess app").
-    Zero hand-crafted code or manual scaffolding.
-    Relies 100% on Provable's:
-    1. router_engine: Decomposes 'A chess app' into ChessGame & 10 BDD acceptance specs.
-    2. skeleton_builder: Builds pure DDD layer structure.
-    3. contract_synthesizer: Generates modular DDD & component architectural contract.
-    4. opencode_gateway: Autonomous refinement by OpenCode.
-    """
-    ensure_clean_dir(target_dir)
-    print(f"▶ Running Contender C (Provable Engine from terse prompt: '{CHESS_PITCH}')...", flush=True)
-    start = time.time()
-
-    # Pre-seed the acceptance test fixture so OpenCode has the authoritative BDD verification target
-    tests_dir = os.path.join(target_dir, "tests", "unit")
-    os.makedirs(tests_dir, exist_ok=True)
-    shutil.copy(CHESS_ACCEPTANCE_FIXTURE, os.path.join(tests_dir, "test_chess_acceptance.py"))
-
-    uow = SqliteUnitOfWork()
-    os.environ["OPENCODE_MODEL"] = model_id
-    res = services.kickstart_domain_and_scaffold(
-        pitch=CHESS_PITCH,
-        uow=uow,
-        workspace_dir=target_dir,
-        mode="full"
-    )
-
-    elapsed = round(time.time() - start, 2)
-    return {
-        "name": "Contender C (Provable Autonomous Kickstart from Terse Prompt)",
-        "elapsed_seconds": elapsed,
-        "cost": 0.015,
-        "status": "completed" if res.get("success") else "failed",
-        "tokens": {},
-        "details": res
-    }
-
-
 def main():
     parser = argparse.ArgumentParser(description="Chess AppGen Benchmark Harness")
-    parser.add_argument("--model", default="gemini-3.8-flash", help="LLM model ID for OpenCode")
-    parser.add_argument("--contender", choices=["all", "baseline", "opencode_raw", "hybrid"], default="all")
+    parser.add_argument("--contender", choices=["all", "baseline"], default="baseline")
     args = parser.parse_args()
 
     print("=" * 80)
     print("🏆 PROVABLE APPGEN BENCHMARK: MODULAR ARCHITECTURE ACID TEST")
-    print(f"Model: {args.model} | Base Directory: {BENCHMARK_BASE}")
+    print(f"Base Directory: {BENCHMARK_BASE}")
     print("=" * 80)
 
-    gateway = OpenCodeGateway()
-    if not gateway.is_available():
-        print("❌ OpenCode server daemon is not available on http://127.0.0.1:4096.")
-        print("Please start it with: npx opencode-ai serve --port 4096")
-        sys.exit(1)
-
     dir_a = os.path.join(BENCHMARK_BASE, "run_graph_only")
-    dir_b = os.path.join(BENCHMARK_BASE, "run_opencode_raw")
-    dir_c = os.path.join(BENCHMARK_BASE, "run_hybrid_contract")
-
     results = []
 
     # 1. Baseline A
@@ -391,32 +312,6 @@ def main():
             "modularity": audit_a_mod, "connection": audit_a_conn, "rules": audit_a_rules, "path": dir_a
         })
 
-    # 2. Contender B
-    if args.contender in ("all", "opencode_raw"):
-        res_b = run_opencode_raw(dir_b, gateway, args.model)
-        audit_b_ddd = audit_ddd_purity(dir_b)
-        audit_b_test = audit_test_suite(dir_b)
-        audit_b_mod = audit_modularity(dir_b)
-        audit_b_conn = audit_fullstack_connection(dir_b)
-        audit_b_rules = audit_pluggable_rules(dir_b)
-        results.append({
-            "runner": res_b, "ddd": audit_b_ddd, "tests": audit_b_test,
-            "modularity": audit_b_mod, "connection": audit_b_conn, "rules": audit_b_rules, "path": dir_b
-        })
-
-    # 3. Contender C
-    if args.contender in ("all", "hybrid"):
-        res_c = run_modular_hybrid_contract(dir_c, gateway, args.model)
-        audit_c_ddd = audit_ddd_purity(dir_c)
-        audit_c_test = audit_test_suite(dir_c)
-        audit_c_mod = audit_modularity(dir_c)
-        audit_c_conn = audit_fullstack_connection(dir_c)
-        audit_c_rules = audit_pluggable_rules(dir_c)
-        results.append({
-            "runner": res_c, "ddd": audit_c_ddd, "tests": audit_c_test,
-            "modularity": audit_c_mod, "connection": audit_c_conn, "rules": audit_c_rules, "path": dir_c
-        })
-
     # ── REPORT SCORECARD ──────────────────────────────────────────────────────
     print("\n" + "=" * 80)
     print("📊 MODULAR ARCHITECTURE BENCHMARK SCORECARD")
@@ -425,7 +320,6 @@ def main():
     scorecard_lines = [
         "# Chess AppGen Benchmark Scorecard: Modular Architecture Edition",
         f"**Date:** {time.strftime('%Y-%m-%d %H:%M:%S')}  ",
-        f"**Model:** `{args.model}` (Google Gemini)  ",
         f"**Test Case:** Interactive Chess App (Rules Invariants + Modular Full-Stack Foundation)\n",
         "| Contender | Latency | Acceptance Tests | DDD Purity | Component Modularity | Full-Stack API Link | Pluggable Rules | Cost |",
         "| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |"

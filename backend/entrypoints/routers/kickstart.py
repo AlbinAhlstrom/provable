@@ -40,8 +40,7 @@ def kickstart_analyze(req: KickstartAnalyzeRequest):
     uow = SqliteUnitOfWork()
     return services.analyze_kickstart_pitch(
         business_pitch=req.business_pitch,
-        uow=uow,
-        mode=req.mode or "fast"
+        uow=uow
     )
 
 

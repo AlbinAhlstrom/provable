@@ -933,10 +933,10 @@ def get_kickstart_state(uow: AbstractUnitOfWork) -> Dict[str, Any]:
 
 
 
-def analyze_kickstart_pitch(business_pitch: str, uow: AbstractUnitOfWork, mode: str = "fast") -> Dict[str, Any]:
-    """Analyze pitch to discover domain capabilities, extract domain requirements, and generate clarification questions."""
+def analyze_kickstart_pitch(business_pitch: str, uow: AbstractUnitOfWork) -> Dict[str, Any]:
+    """Analyze pitch to discover domain capabilities and extract domain requirements."""
     from onboarding.domain_ontology import analyze_pitch_for_kickstart
-    analysis = analyze_pitch_for_kickstart(business_pitch, mode=mode)
+    analysis = analyze_pitch_for_kickstart(business_pitch)
     new_state = KickstartState(
         business_pitch=business_pitch,
         blocks=analysis.get("blocks", []),
@@ -950,8 +950,6 @@ def analyze_kickstart_pitch(business_pitch: str, uow: AbstractUnitOfWork, mode: 
         "success": True,
         "data": analysis,
         "pitch": business_pitch,
-        "mode": mode,
-        "clarification_questions": analysis.get("clarification_questions", []),
         "blocks": analysis.get("blocks", []),
         "extracted_requirements": analysis.get("extracted_requirements", [])
     }
@@ -1994,8 +1992,7 @@ def kickstart_domain_and_scaffold(
     pitch: str,
     uow: AbstractUnitOfWork,
     workspace_dir: Optional[str] = None,
-    mode: str = "fast",
-    answers: Optional[Dict[str, str]] = None
+    mode: str = "fast"
 ) -> Dict[str, Any]:
     """
     Synchronous Kickstart Engine:
@@ -2010,10 +2007,6 @@ def kickstart_domain_and_scaffold(
         workspace_dir = get_workspace_base()
 
     pitch_text = pitch.strip() or "An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
-    if answers:
-        answer_lines = [f"- {k}: {v}" for k, v in answers.items() if v]
-        if answer_lines:
-            pitch_text += "\n\nArchitectural & Business Choices:\n" + "\n".join(answer_lines)
 
     start_kickstart = time.time()
     timings: Dict[str, float] = {}
@@ -2100,18 +2093,7 @@ def kickstart_domain_and_scaffold(
         state.entity_schemas = entity_schemas_map
         state.inbox_specs = spec_dicts
 
-        if mode == "guided" and state.rule_cards:
-            # Preserve existing user-locked tickets from Wayfinder and merge new ones
-            merged_cards = list(state.rule_cards)
-            existing_ids = {c.get("id") for c in merged_cards}
-            for card in living_cards:
-                if card.get("id") not in existing_ids:
-                    merged_cards.append(card)
-                    existing_ids.add(card.get("id"))
-            state.rule_cards = merged_cards
-        else:
-            # Fresh kickstart: set the comprehensive living deck
-            state.rule_cards = living_cards
+        state.rule_cards = living_cards
 
         uow.kickstart.save(state)
         uow.commit()

@@ -16,7 +16,6 @@ class KickstartRequest(BaseModel):
     pitch: Optional[str] = None
     business_pitch: Optional[str] = None
     mode: Optional[str] = "fast"
-    answers: Optional[Dict[str, str]] = None
 
 
 @router.post("/kickstart")
@@ -28,8 +27,7 @@ def kickstart_endpoint(req: KickstartRequest):
         return services.kickstart_domain_and_scaffold(
             pitch=pitch,
             uow=uow,
-            mode=req.mode or "fast",
-            answers=req.answers
+            mode=req.mode or "fast"
         )
     except Exception as e:
         return {
