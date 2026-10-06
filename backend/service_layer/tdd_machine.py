@@ -459,7 +459,8 @@ def execute_spec_tdd_loop(spec: BusinessSpec, workspace_dir: str) -> Dict[str, A
     state.advance_to_red()
 
     target_class = spec.target_aggregate or "Pallet"
-    target_mod_name = target_class.lower()
+    from onboarding.skeleton_builder import to_snake_case
+    target_mod_name = to_snake_case(target_class)  # same module name the skeleton/routers/repositories import
     
     domain_dir = os.path.join(workspace_dir, "src", "domain")
     tests_dir = os.path.join(workspace_dir, "tests", "unit")

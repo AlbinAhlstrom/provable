@@ -29,9 +29,14 @@ def _pluralize(slug: str) -> str:
     return f"{head}{sep}{plural}"
 
 
-def _to_snake_case(name: str) -> str:
+def to_snake_case(name: str) -> str:
+    """Module/file name for an aggregate (ClientInquiry -> client_inquiry). Shared with the TDD loop so both
+    write the SAME module that the generated routers and repositories import."""
     s1 = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
     return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
+
+
+_to_snake_case = to_snake_case
 
 
 def _map_type(attr_type: str) -> str:
