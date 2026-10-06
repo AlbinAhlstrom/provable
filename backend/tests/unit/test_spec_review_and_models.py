@@ -101,7 +101,7 @@ def test_execute_inbox_spec_stores_the_tdd_summary_on_the_spec(monkeypatch):
     fake_result = {"success": False, "status": "REQUIRES_HUMAN_INTERVENTION", "phase": "DEAD_END", "spec_id": "SPEC-V1",
                    "error": "Regression: x", "test_source": TEST_SRC, "red_attempts": [{"attempt": 1, "approved": True, "reason": "ok"}],
                    "attempts": [{"attempt": 1, "approved": False, "reason": "boom"}], "rolled_back": True, "pending_test": "/w/tests/pending/t.py"}
-    monkeypatch.setattr("service_layer.tdd_machine.execute_spec_tdd_loop", lambda spec, workspace_dir: fake_result)
+    monkeypatch.setattr("service_layer.tdd_machine.execute_spec_tdd_loop", lambda spec, workspace_dir, **_ignored: fake_result)
     services.execute_inbox_spec_tdd("SPEC-V1", uow=uow, workspace_dir="/nonexistent")
     stored = next(s for s in services.get_inbox_specs(uow=uow) if s["spec_id"] == "SPEC-V1")
     assert stored["status"] == "REQUIRES_HUMAN_INTERVENTION"

@@ -813,6 +813,13 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                         {a.approved ? '✔' : '✖'} {a.stage} attempt {a.attempt}{a.reason ? `: ${a.reason}` : ''}
                       </span>
                     ))}
+                    {tddBySpec[selectedCard.id].models && (
+                      <span style={{ fontSize: '0.72rem', color: tddBySpec[selectedCard.id].models!.independent ? '#94a3b8' : '#fcd34d' }}>
+                        {tddBySpec[selectedCard.id].models!.independent
+                          ? `Test written by ${tddBySpec[selectedCard.id].models!.test}, code by ${tddBySpec[selectedCard.id].models!.code}`
+                          : `Test and code were written by the same model (${tddBySpec[selectedCard.id].models!.test}); a misreading of the spec would pass its own test. Set LLM_MODEL_RED_TEST_GENERATION for an independent check.`}
+                      </span>
+                    )}
                     {tddBySpec[selectedCard.id].error && (
                       <span style={{ fontSize: '0.72rem', color: '#fca5a5' }}>
                         ⚠ {tddBySpec[selectedCard.id].error}{tddBySpec[selectedCard.id].rolled_back ? ' (domain code rolled back)' : ''}

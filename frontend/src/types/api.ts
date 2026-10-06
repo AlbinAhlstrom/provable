@@ -253,6 +253,7 @@ export interface SpecTddSummaryDTO {
   red_attempts: TddAttemptDTO[];
   attempts: TddAttemptDTO[];
   rolled_back: boolean;
+  models?: { test: string; code: string; independent: boolean };
 }
 
 export interface RuleCardDTO {

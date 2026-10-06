@@ -405,12 +405,13 @@ class {cls_name}:
                     {"name": "update_status", "aggregate": "Item", "params": ["status"], "description": "Changes the status"}
                 ]}})
             elif stage == "presentation_projection_synthesis":
+                m_master = re.search(r"Master Aggregate\*\*:\s*`([A-Za-z0-9_]+)`", prompt)
+                master = m_master.group(1) if m_master else "Item"
                 return json.dumps({
-                    "client_ts": "export async function fetchItems() { return []; }",
                     "view_tsx": "import React from 'react';\nexport const View: React.FC = () => <div>Interactive Canvas</div>;",
                     "controls_tsx": "import React from 'react';\nexport const Controls: React.FC = () => <div>Controls</div>;",
                     "history_tsx": "import React from 'react';\nexport const History: React.FC = () => <div>History</div>;",
-                    "app_tsx": "import React from 'react';\nexport const App: React.FC = () => <div>App Shell</div>;"
+                    "app_tsx": f"import React from 'react';\nimport {{ {master}View }} from './views/{master}View';\nexport const App: React.FC = () => <div>App Shell</div>;"
                 })
             elif stage == "prompt_expansion":
                 return "Expanded interactive full-stack specification: Canvas grid with tactile interactions, domain state transitions, reset controls, and event log."

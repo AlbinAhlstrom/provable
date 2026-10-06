@@ -36,6 +36,12 @@ def get_inbox_specs():
     return services.get_inbox_specs(uow=uow)
 
 
+@router.get("/action-contract")
+def get_action_contract():
+    """Lists the interface-facing actions that have no matching domain method (they would answer 404)."""
+    return services.get_action_contract(uow=SqliteUnitOfWork())
+
+
 @router.post("/inbox/add", status_code=status.HTTP_201_CREATED)
 def add_inbox_spec(req: SpecCreateRequest):
     """Adds a new atomic specification to the Behavior Inbox and synchronously executes the TDD machine."""

@@ -1733,7 +1733,9 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
         priority=target_spec_dict.get("priority", "High")
     )
 
-    tdd_result = execute_spec_tdd_loop(spec_obj, workspace_dir=workspace_dir)
+    with uow:
+        manifest = dict(uow.kickstart.get().action_manifest or {})
+    tdd_result = execute_spec_tdd_loop(spec_obj, workspace_dir=workspace_dir, action_manifest=manifest)
     final_status = tdd_result.get("status", "FULFILLED" if tdd_result.get("success") else "REQUIRES_HUMAN_INTERVENTION")
 
     pending = tdd_result.get("pending_test")
@@ -1745,9 +1747,30 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
         "red_attempts": tdd_result.get("red_attempts", []),
         "attempts": tdd_result.get("attempts", []),
         "rolled_back": bool(tdd_result.get("rolled_back")),
+        "models": verification_models(),
     }
     update_spec_status(spec_id, final_status, uow=uow, tdd=summary)
     return tdd_result
+
+
+def verification_models() -> Dict[str, Any]:
+    """Which models wrote the test and the code. When they are the same model, a spec it misreads is misread twice,
+    and the test cannot catch it; the summary says so instead of implying independent verification."""
+    import agent_orchestrator
+    test_model = agent_orchestrator.model_for_stage("red_test_generation")
+    code_model = agent_orchestrator.model_for_stage("green_code_repair")
+    return {"test": test_model, "code": code_model, "independent": test_model != code_model}
+
+
+def get_action_contract(uow: AbstractUnitOfWork, workspace_dir: Optional[str] = None) -> Dict[str, Any]:
+    """Which actions the interface was told about have no method on their aggregate (yet)."""
+    from onboarding.action_protocol import check_action_contract
+    if workspace_dir is None:
+        from config_loader import get_workspace_base
+        workspace_dir = get_workspace_base()
+    with uow:
+        manifest = dict(uow.kickstart.get().action_manifest or {})
+    return check_action_contract(workspace_dir, manifest)
 
 
 def _aggregate_view(key: str, name: str, is_root: bool, attrs: list) -> Dict[str, Any]:
@@ -2177,10 +2200,22 @@ def kickstart_domain_and_scaffold(
     timings["5b_presentation_projection"] = 0.0
     qa_verdict: Optional[Dict[str, Any]] = None
 
+    spec_conflicts: List[Dict[str, Any]] = []
+    stage_failures: List[Dict[str, str]] = []  # stages that did not deliver; the app is degraded, never silently
     if not is_offline_test and mode not in ("offline_test", "mock", "no_agent"):
         try:
             from onboarding.domain_engine_synthesizer import synthesize_action_protocol
             from onboarding.presentation_projection_synthesizer import synthesize_and_write_presentation_projection
+            from onboarding.spec_review import review_spec_consistency
+
+            # Specs that contradict each other are reported now, not discovered as a late regression dead end
+            review = review_spec_consistency(inbox_specs, intent=product_intent)
+            if review["success"]:
+                spec_conflicts = review["conflicts"]
+                for conflict in spec_conflicts:
+                    print(f"[Kickstart] ⚠️ Specs {conflict['specs']} contradict each other: {conflict['reason']}", flush=True)
+            else:
+                stage_failures.append({"stage": "spec_review", "error": review["error"]})
 
             # Node 2: Action protocol (the domain class and the action endpoint come from the skeleton + TDD loop)
             t5a_start = time.time()
@@ -2193,6 +2228,14 @@ def kickstart_domain_and_scaffold(
             )
             t5a_elapsed = round(time.time() - t5a_start, 2)
             timings["5a_domain_engine"] = t5a_elapsed
+            if not engine_res.get("success"):
+                stage_failures.append({"stage": "action_protocol", "error": str(engine_res.get("error"))})
+            else:
+                with uow:  # kept so the manifest can later be checked against the methods the TDD loop wrote
+                    manifest_state = uow.kickstart.get()
+                    manifest_state.action_manifest = engine_res.get("action_manifest") or {}
+                    uow.kickstart.save(manifest_state)
+                    uow.commit()
             for f in engine_res.get("files", []):
                 if f not in created_files:
                     created_files.append(f)
@@ -2210,6 +2253,8 @@ def kickstart_domain_and_scaffold(
             )
             t5b_elapsed = round(time.time() - t5b_start, 2)
             timings["5b_presentation_projection"] = t5b_elapsed
+            if not pres_res.get("success"):
+                stage_failures.append({"stage": "presentation", "error": str(pres_res.get("error") or "no files were written")})
             for f in pres_res.get("files", []):
                 if f not in created_files:
                     created_files.append(f)
@@ -2228,6 +2273,7 @@ def kickstart_domain_and_scaffold(
                 timings["5c_aesthetic_styling"] = t5c_elapsed
             except Exception as style_err:
                 timings["5c_aesthetic_styling"] = 0.0
+                stage_failures.append({"stage": "styling", "error": str(style_err)})
                 print(f"[Kickstart] Styling pass notice: {style_err}", flush=True)
 
             # Node 4: Multi-Device Responsive QA Audit Gate (Mobile 375px, Tablet 768px, Desktop 1280px)
@@ -2266,6 +2312,7 @@ def kickstart_domain_and_scaffold(
                               "defects": [], "console_errors": [], "error": str(qa_err)}
                 print(f"[Kickstart] [6/6] QA Audit error: {qa_err}", flush=True)
         except Exception as synth_err:
+            stage_failures.append({"stage": "synthesis", "error": str(synth_err)})
             print(f"[Kickstart] ⚠️ Compiler Graph synthesis notice: {synth_err}", flush=True)
     else:
         print(f"[Kickstart] [5/5] Compiler Graph synthesis bypassed (offline or mock mode).", flush=True)
@@ -2286,6 +2333,8 @@ def kickstart_domain_and_scaffold(
     print(f"[Kickstart]   ──────────────────────────────────────────────────────────", flush=True)
     print(f"[Kickstart]   🏁 TOTAL PIPELINE EXECUTION TIME:              {total_time:>6.2f}s", flush=True)
     print(f"[Kickstart] ────────────────────────────────────────────────────────────\n", flush=True)
+    for failure in stage_failures:
+        print(f"[Kickstart] ❌ Stage '{failure['stage']}' did not deliver: {failure['error']}", flush=True)
     print(f"[Kickstart] Kickstart complete in {total_time}s! ({len(created_files)} files created)", flush=True)
     print(f"[Kickstart] ════════════════════════════════════════════════════════\n", flush=True)
 
@@ -2297,6 +2346,9 @@ def kickstart_domain_and_scaffold(
         "intent": product_intent.to_dict(),
         "created_files": created_files,
         "timing_breakdown": timings,
+        "stage_failures": stage_failures,
+        "spec_conflicts": spec_conflicts,
+        "verification_models": verification_models(),
         "qa": qa_verdict
     }
 

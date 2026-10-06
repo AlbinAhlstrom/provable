@@ -16,11 +16,12 @@ Merging the one-shot UI/domain synthesizer with the spec-by-spec TDD loop expose
 - **Specs declare what they constrain.** `BusinessSpec.kind` is `behavior` (RED/GREEN in the TDD loop) or `presentation` (what the user sees), decided by the decomposition step; the old keyword classifier and `delta_compiler` (which edited the first view file it found and reported success when a file was written) are gone. `onboarding/presentation_specs.py` rewrites the target aggregate's own view, proves it with `npm run build`, feeds a build error back once, and otherwise restores the original and reports REQUIRES_HUMAN_INTERVENTION with every attempt. A spec that needs both kinds is split in two by the decomposition prompt.
 - **Tailwind is bundled** in the workspace build (no runtime CDN) and kickstart installs missing npm packages, restarting the preview afterward because Vite reads its config at startup.
 
+- **The master API client is generated, not written by the model** (`skeleton_builder.generate_master_client`): list/get/create/action, errors thrown with the server's message, no `default` record, no fabricated fallback data. The presentation prompt states the real endpoints. A model App that does not wire the master view is a failed stage (no substitute shell), and kickstart reports `stage_failures`.
+- **The action protocol is persisted and checked against the code.** The TDD loop's RED prompt lists the methods the interface was promised for the target class (`format_interface_contract`); `GET /api/specs/action-contract` reports manifest actions that have no method on their aggregate.
+- **Spec conflicts are reported up front** (`onboarding/spec_review.py`, one call, report only) as `spec_conflicts` in the kickstart result. The Studio states whether the test and the code were written by the same model.
+
 ## Known gaps (not fixed yet)
-- Action names in the manifest are chosen before the specs run, so a manifest action can name a method the TDD loop never creates. Nothing checks the manifest against the final class.
-- The generated client calls `GET /api/<aggregates>/default`, which the skeleton router answers with 404 (the removed LLM router used to auto-create a default).
-- Specs from one decomposition can contradict each other; the loop shows later specs the verified tests but does not detect conflicts up front.
-- The same model writes the test and the code unless `LLM_MODEL_<STAGE>` overrides it.
-- Kickstart takes about two minutes, mostly the per-file `aesthetic_styling` calls.
-- One integration test builds the live `workspace/`, so it fails whenever the live preview is broken.
-- A presentation spec is proved only by a successful build; nothing yet checks that the rendered page shows what the spec says (a screenshot-based check would).
+- A presentation spec is proved only by a successful build; nothing checks the rendered page shows what the spec says.
+- The contract check reports; nothing yet repairs a manifest action whose method the loop named differently (live confirmation that the RED prompt now aligns them is pending).
+- Test and code use the same model unless `LLM_MODEL_RED_TEST_GENERATION` is set; this is reported, not enforced.
+- Kickstart takes about 2.5 minutes (presentation ~70s, styling ~40s, now with up to 6 parallel styling calls).

@@ -13,6 +13,11 @@ Its CURRENT public API (fields and methods that already exist):
 {class_api}
 ```
 
+## Interface promised to the application layer
+The application calls these public methods on this class by exactly these names and keyword arguments (they do not exist yet unless the API above shows them):
+{interface_contract}
+If the scenario describes what one of these methods does, your test MUST call that method with those parameter names; do not invent a different name for it. If the scenario is not about any of them, name the method you need as the scenario implies.
+
 ## Existing verified tests for this class
 Your test must be consistent with these (same meaning of states, same method names and signatures, same behavior); never contradict them. If the scenario seems to conflict with one, test the part of the scenario that does not conflict and keep the same vocabulary.
 ```python

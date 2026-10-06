@@ -19,7 +19,7 @@ Build only the views and controls this intent calls for. Never add surfaces it r
 
 ## Backend State Contract (Authoritative Single Source of Truth):
 The backend domain engine is running on `:8001` (accessible via Vite proxy `/api`).
-The state returned by `GET /api/{master_slug}s/{id}` and actions directly serializes the backend domain dataclasses:
+The state returned by `GET /api/{master_slug}s/{id}` and by actions directly serializes the backend domain dataclasses:
 ```python
 {backend_state_model}
 ```
@@ -33,25 +33,27 @@ Controls are built only for the actions listed above the "API-only" line (if any
 Follow this UX Blueprint for initial view defaults, navigation tabs, empty-state guidance, and labeled form inputs:
 {ux_blueprint}
 
-## Backend API Endpoints:
-- `GET /api/{master_slug}s`: Returns `{ "{master_slug}s": [ ... ] }` or list of session snapshots.
-- `GET /api/{master_slug}s/{id}`: Returns the current state snapshot of `{master_name}` with ID `{id}` (default id is `'default'`).
-- `POST /api/{master_slug}s/{id}/action`: Dispatches domain action `{ "action_type": string, "params": { ... } }`. Returns `{ "success": boolean, "state": { ... }, "message": string }`. If invalid, returns HTTP 400 with `{ "detail": string }`.
-- `POST /api/{master_slug}s/{id}/reset`: Resets state to initial default.
+## Backend API Endpoints (exactly these exist; nothing else is served):
+- `GET /api/{master_slug}s`: a JSON array of every stored `{master_name}`. It is empty until something has been created; an empty list is a normal state the UI must handle (show the content and forms that make sense with no records, never invented records).
+- `POST /api/{master_slug}s`: creates one `{master_name}` from a JSON body with its fields; returns it.
+- `GET /api/{master_slug}s/{id}`: one `{master_name}` by its id; HTTP 404 if there is none.
+- `POST /api/{master_slug}s/{id}/action`: runs a domain action `{ "action_type": string, "params": { ... } }`. Returns `{ "success": boolean, "state": { ... }, "message": string }`. A rejected action returns HTTP 400 with `{ "detail": string }`.
+There is no "default" record and no reset endpoint.
+
+## API client (already written; do NOT write it)
+`src/api/{master_slug}Client.ts` exists and exports exactly: `{master_name}State` (the type of one record), `list{master_name}(): Promise<{master_name}State[]>`, `get{master_name}(id: string)`, `create{master_name}(data: Partial<{master_name}State>)` and `sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{ success: boolean; state: {master_name}State; message?: string }>`. Every function throws an `Error` carrying the server's message when the request fails. Import from it; never re-implement fetch calls and never fabricate data when a request fails: show the error.
 
 ---
 
 ## Technical Constraints & Invariants:
 1. **Single Source of Truth**: The React UI is a pure presentation projection of the backend state. It never simulates domain state mutations locally. All actions post to `/api/{master_slug}s/{id}/action` and update UI state from the returned response.
 2. **Zero Contract Drift (Action & Schema Alignment)**:
-   - In `src/api/{master_slug}Client.ts`:
-     - Function `get{master_name}(id: string = 'default')`: Fetch `/api/{master_slug}s/${id}` first. If loading list from `/api/{master_slug}s`, always unpack the first session: `const item = data?.{master_slug}s ? data.{master_slug}s[0] : (data?.sessions ? data.sessions[0] : (Array.isArray(data) ? data[0] : (data?.state || data)));`.
    - Your API client and interactive views MUST dispatch ONLY the canonical `action_type` strings or authorized aliases defined in the Action Protocol above. DO NOT invent arbitrary action names (e.g. if the protocol defines `"reveal"`, dispatch `"reveal"`, not `"primary_reveal"`).
    - Parameter keys in `params` MUST match the expected names in the Action Protocol (e.g. if the action expects `x` and `y`, pass `{ x, y }`).
-   - Your TypeScript interfaces in `src/api/{master_slug}Client.ts` must match the field names in the Backend State Schema above (e.g. if the backend uses `piece_type`, `from_square`, `to_square`, `san`, use those exact names!).
+   - Field names you read from records must be the ones in the Backend State Schema above.
 
 3. **Defensive Runtime Rendering & Collection Resilience**:
-   - Always use defensive property access (e.g. `piece?.piece_type || piece?.type`, `move?.from_square || move?.from_sq`).
+   - Use optional chaining for fields that may be absent.
    - When iterating over collections/entities/records, ALWAYS normalize arrays vs dictionaries/maps:
      `const itemsList = Array.isArray(data.items) ? data.items : Object.values(data.items || {});`
      Never call `.filter()`, `.map()`, or `.forEach()` directly on a state property without normalizing it with `Array.isArray(...) ? ... : Object.values(...)`.
@@ -62,9 +64,9 @@ Follow this UX Blueprint for initial view defaults, navigation tabs, empty-state
      - Views, forms, and primary actions are organized contextually according to the domain's user journeys and the UX blueprint.
      - Controls and history components render when relevant to the active view and user workflow.
    - `App.tsx` MUST:
-     1. Import `{master_name}View` from `./views/{master_name}View`, `{master_name}Controls` from `./components/Controls/{master_name}Controls`, `{master_name}History` from `./components/History/{master_name}History`, and `{master_name}State`, `get{master_name}`, `sendAction` from `./api/{master_slug}Client`.
-     2. Manage active `state` with `useState<{master_name}State | null>(null)` and fetch initial session on mount via `useEffect`.
-     3. Provide an action handler `handleAction(actionType, params)` that calls `sendAction(state.id, actionType, params)` and updates `state` from `res.state`.
+     1. Import `{master_name}View` from `./views/{master_name}View`, `{master_name}Controls` from `./components/Controls/{master_name}Controls`, `{master_name}History` from `./components/History/{master_name}History`, and `{master_name}State`, `list{master_name}`, `sendAction` from `./api/{master_slug}Client`.
+     2. Manage the loaded records with `useState<{master_name}State[]>([])` and load them on mount via `useEffect` and `list{master_name}()`.
+     3. Provide an action handler `handleAction(actionType, params)` that calls `sendAction(record.id, actionType, params)` and replaces that record with `res.state`.
      4. Pass required props cleanly to child components.
      5. Provide a header with a domain-appropriate title derived dynamically from the application identity.
      6. Export App as default export: `export default App;` (and named export `export const App`).
@@ -80,23 +82,18 @@ Follow this UX Blueprint for initial view defaults, navigation tabs, empty-state
    - Include inline CSS style fallbacks on layout containers (e.g. `style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)' }}` or `style={{ display: 'flex' }}`) to guarantee crisp, unbreakable layout rendering in all environments.
 6. **Resilience & Non-Blank Initial State**:
    - Handle loading states, API errors, and domain violation messages gracefully.
-   - When fetching initial state in `App.tsx` or `*Client.ts`, use a non-hanging fetch (e.g. with `AbortSignal.timeout(4000)` or try/catch) so that if the backend is compiling or reloading, the UI displays an informative status banner ("Connecting to domain engine...") rather than hanging on a blank screen.
+   - While records load show a loading indicator; if loading fails show the error message.
    - Never render a completely blank screen when state is null: always provide a loading indicator or fallback message.
 
 
-7. **Viewport Containment & Fluid Grid Scaling (Zero Overflow Invariant)**:
-   - **CRITICAL ZERO HORIZONTAL SCROLLBAR RULE**: Grids, boards, and matrix canvases MUST NEVER use hardcoded pixel minimums for columns (e.g. NEVER `minmax(28px, 36px)` or `repeat(${cols}, 32px)`).
-   - ALWAYS use fluid fractional grid sizing: `style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, width: '100%', maxWidth: '...' }}` with `aspectRatio: '1/1'` on individual cells.
-   - For high-column densities (e.g. 16 to 30 columns), cells MUST shrink fluidly to fit within the container without overflowing. Adjust icon and font sizing conditionally (e.g. `cols > 16 ? 'text-xs' : 'text-sm'`) so cell contents never clip.
-   - **CRITICAL ZERO VERTICAL CHURN RULE**: Interactive boards, games, canvases, and data workspaces must fit comfortably within a standard viewport (`100vh` or iframe height) without jumpy vertical scrollbars.
-   - Combine game controls, timer displays, counters, and action/reset buttons into a unified compact toolbar directly above the canvas, rather than stacking multiple bulky separate cards vertically.
-   - The outer wrapper must use `max-w-full overflow-hidden` or container constraints so that changing dimensions/difficulty NEVER causes jumping scrollbars.
+7. **Viewport Containment (Zero Overflow Invariant)**:
+   - Never use hardcoded pixel minimums for grid columns; use fluid sizing such as `repeat(auto-fit, minmax(0, 1fr))` and `max-w-full` containers so the page never scrolls horizontally.
+   - Wrap long text and wide content (`break-words`, `min-w-0`) instead of letting it overflow.
 
 ---
 
 Respond STRICTLY with a JSON object containing the complete TypeScript/TSX code for each file (no markdown outside the JSON):
 {
-  "client_ts": "<complete TypeScript code for src/api/{master_slug}Client.ts>",
   "view_tsx": "<complete React TSX code for src/views/{master_name}View.tsx>",
   "controls_tsx": "<complete React TSX code for src/components/Controls/{master_name}Controls.tsx>",
   "history_tsx": "<complete React TSX code for src/components/History/{master_name}History.tsx>",

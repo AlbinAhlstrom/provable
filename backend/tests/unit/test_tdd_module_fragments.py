@@ -133,7 +133,7 @@ def _script(monkeypatch, red_status="APPROVED_RED", green_pass=(False, False), f
     frags = iter(fragments)
     runs = {"n": 0}
 
-    def gen(spec, class_source, module_name, class_name, rejection_feedback="", existing_tests=""):
+    def gen(spec, class_source, module_name, class_name, rejection_feedback="", existing_tests="", **_ignored):
         calls["red_gen"] += 1
         return GOOD_TEST
 

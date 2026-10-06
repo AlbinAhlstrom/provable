@@ -94,7 +94,7 @@ def run_aesthetic_styling_pipeline(
     print(f"[Compiler:StylingPass] Applying domain-native styling in parallel to {len(targets)} UI components...", flush=True)
 
     from concurrent.futures import ThreadPoolExecutor, as_completed
-    with ThreadPoolExecutor(max_workers=min(len(targets) or 1, 4)) as executor:
+    with ThreadPoolExecutor(max_workers=min(len(targets) or 1, 6)) as executor:
         future_map = {executor.submit(style_single_component, t, pitch_spec): t for t in targets}
         for fut in as_completed(future_map):
             t = future_map[fut]

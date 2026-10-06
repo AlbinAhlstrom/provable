@@ -431,11 +431,13 @@ class KickstartState:
     inbox_specs: List[Dict[str, Any]] = field(default_factory=list)
     intent: Dict[str, Any] = field(default_factory=dict)
     rule_cards: List[Dict[str, Any]] = field(default_factory=list)
+    action_manifest: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "business_pitch": self.business_pitch,
             "intent": self.intent,
+            "action_manifest": self.action_manifest,
             "blocks": self.blocks,
             "extracted_requirements": self.extracted_requirements,
             "synthesized": self.synthesized,

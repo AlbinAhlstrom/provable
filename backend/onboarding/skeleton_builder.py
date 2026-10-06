@@ -589,28 +589,96 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 '''
 
 
+def _ts_interface_fields(entity: EntitySpec) -> List[str]:
+    """TypeScript interface field lines for an entity's attributes."""
+    lines = []
+    for attr in entity.attributes:
+        py_t = _map_type(attr.type)
+        ts_t = "string"
+        if py_t in ("int", "float"):
+            ts_t = "number"
+        elif py_t == "bool":
+            ts_t = "boolean"
+        elif py_t == "List[str]":
+            ts_t = "string[]"
+        elif py_t == "Dict[str, Any]":
+            ts_t = "Record<string, any>"
+        optional_marker = "?" if (not attr.required or attr.default_value is not None) else ""
+        lines.append(f"  {attr.name}{optional_marker}: {ts_t};")
+    return lines
+
+
+def generate_master_client(master: EntitySpec) -> str:
+    """The master aggregate's API client (`src/api/<slug>Client.ts`), written deterministically from the entity so it can
+    never drift from the router: list/get/create plus the action endpoint. Errors are thrown with the server's message;
+    nothing is fabricated when a request fails."""
+    name, plural = master.name, _pluralize(_to_snake_case(master.name))
+    fields = "\n".join(_ts_interface_fields(master)) or "  id: string;"
+    return f'''/** Generated from the {name} aggregate; calls the domain API (:8001) through the Vite proxy. */
+
+export interface {name}State {{
+{fields}
+  [key: string]: any;
+}}
+
+export interface ActionResponse {{
+  success: boolean;
+  state: {name}State;
+  message?: string;
+}}
+
+const BASE_URL = '/api/{plural}';
+
+async function failure(res: Response, what: string): Promise<Error> {{
+  const body = await res.json().catch(() => ({{}}));
+  return new Error(typeof body.detail === 'string' ? body.detail : `${{what}} failed (${{res.status}})`);
+}}
+
+export async function list{name}(): Promise<{name}State[]> {{
+  const res = await fetch(BASE_URL);
+  if (!res.ok) throw await failure(res, 'Loading');
+  return res.json();
+}}
+
+export async function get{name}(id: string): Promise<{name}State> {{
+  const res = await fetch(`${{BASE_URL}}/${{encodeURIComponent(id)}}`);
+  if (!res.ok) throw await failure(res, 'Loading');
+  return res.json();
+}}
+
+export async function create{name}(data: Partial<{name}State>): Promise<{name}State> {{
+  const res = await fetch(BASE_URL, {{
+    method: 'POST',
+    headers: {{ 'Content-Type': 'application/json' }},
+    body: JSON.stringify(data),
+  }});
+  if (!res.ok) throw await failure(res, 'Saving');
+  return res.json();
+}}
+
+export async function sendAction(
+  id: string,
+  actionType: string,
+  params: Record<string, unknown> = {{}}
+): Promise<ActionResponse> {{
+  const res = await fetch(`${{BASE_URL}}/${{encodeURIComponent(id)}}/action`, {{
+    method: 'POST',
+    headers: {{ 'Content-Type': 'application/json' }},
+    body: JSON.stringify({{ action_type: actionType, params }}),
+  }});
+  if (!res.ok) throw await failure(res, 'The action');
+  return res.json();
+}}
+'''
+
+
 def generate_frontend_api_client(entities: List[EntitySpec]) -> str:
     ts_interfaces = []
     ts_functions = []
 
     for ent in entities:
         slug = _to_snake_case(ent.name)
-        type_fields = []
-        for attr in ent.attributes:
-            py_t = _map_type(attr.type)
-            ts_t = "string"
-            if py_t in ("int", "float"):
-                ts_t = "number"
-            elif py_t == "bool":
-                ts_t = "boolean"
-            elif py_t == "List[str]":
-                ts_t = "string[]"
-            elif py_t == "Dict[str, Any]":
-                ts_t = "Record<string, any>"
-            
-            optional_marker = "?" if (not attr.required or attr.default_value is not None) else ""
-            type_fields.append(f"  {attr.name}{optional_marker}: {ts_t};")
-        
+        type_fields = _ts_interface_fields(ent)
         type_body = "\n".join(type_fields) if type_fields else "  id: string;"
 
         ts_interfaces.append(f'''export interface {ent.name} {{

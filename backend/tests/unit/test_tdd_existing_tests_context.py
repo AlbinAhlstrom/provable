@@ -82,7 +82,7 @@ def test_loop_passes_the_existing_tests_to_both_generators(monkeypatch, tmp_path
     got = {}
     n = {"i": 0}
 
-    def gen(spec, class_source, module_name, class_name, rejection_feedback="", existing_tests=""):
+    def gen(spec, class_source, module_name, class_name, rejection_feedback="", existing_tests="", **_ignored):
         got["red"] = existing_tests
         return "import pytest\n\ndef test_a():\n    assert 1 == 2\n"
 

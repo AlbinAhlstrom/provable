@@ -40,128 +40,6 @@ def _extract_json_payload(raw_response: str) -> Dict[str, Any]:
         raise
 
 
-def _generate_fallback_app_tsx(
-    master_name: str,
-    master_slug: str,
-    domain_title: str,
-    action_manifest: Optional[Dict[str, Any]] = None
-) -> str:
-    """Generates a robust, resilient fallback App.tsx under 100 LOC wiring all components."""
-    actions = []
-    if action_manifest and isinstance(action_manifest, dict) and "actions" in action_manifest:
-        actions = [a.get("name") for a in action_manifest.get("actions", []) if a.get("name")]
-    primary_action = actions[0] if actions else "action"
-
-    return f'''import React, {{ useState, useEffect }} from 'react';
-import {{ get{master_name}, sendAction, {master_name}State }} from './api/{master_slug}Client';
-import {{ {master_name}View }} from './views/{master_name}View';
-import {{ {master_name}Controls }} from './components/Controls/{master_name}Controls';
-import {{ {master_name}History }} from './components/History/{master_name}History';
-import {{ Layers, RefreshCw, AlertCircle }} from 'lucide-react';
-
-export const App: React.FC = () => {{
-  const [state, setState] = useState<{master_name}State | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchSession = async () => {{
-    try {{
-      setLoading(true);
-      setError(null);
-      const data = await get{master_name}('default');
-      setState(data);
-    }} catch (err: any) {{
-      setError(err?.message || 'Failed to connect to domain engine');
-    }} finally {{
-      setLoading(false);
-    }}
-  }};
-
-  useEffect(() => {{
-    fetchSession();
-  }}, []);
-
-  const handleAction = async (actionType: any, params: Record<string, any> = {{}}) => {{
-    if (!state) return;
-    try {{
-      const res = await sendAction(state.id || 'default', actionType, params);
-      if (res.state) setState(res.state);
-    }} catch (err: any) {{
-      setError(err?.message || 'Action dispatch failed');
-    }}
-  }};
-
-  const rows = (state as any)?.row_count || 9;
-  const cols = (state as any)?.column_count || 9;
-  const mines = (state as any)?.total_mines || 10;
-
-  return (
-    <div className="h-screen max-h-screen bg-neutral-900 text-neutral-100 flex flex-col items-center justify-between p-2 sm:p-3 max-w-full overflow-hidden font-sans">
-      <header className="w-full max-w-xl flex items-center justify-between pb-2 mb-1 border-b border-neutral-800 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-indigo-600 rounded-lg text-white shadow-md">
-            <Layers className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-white">{domain_title}</h1>
-            <p className="text-xs text-neutral-400">Provable Domain Engine (:8001)</p>
-          </div>
-        </div>
-        <button
-          onClick={{fetchSession}}
-          className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg transition shrink-0"
-          title="Refresh"
-        >
-          <RefreshCw className="w-4 h-4" />
-        </button>
-      </header>
-
-      {{error && (
-        <div className="w-full max-w-xl mb-2 p-2.5 bg-rose-950/80 border border-rose-800 rounded-lg text-rose-200 text-xs flex items-center gap-2 shrink-0">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
-          <span>{{error}}</span>
-        </div>
-      )}}
-
-      {{loading && !state ? (
-        <div className="flex flex-col items-center justify-center p-12 text-neutral-400">
-          <RefreshCw className="w-6 h-6 animate-spin mb-2" />
-          <p className="text-sm">Connecting to {domain_title} Engine...</p>
-        </div>
-      ) : (
-        <main className="w-full max-w-xl flex-1 flex flex-col items-center justify-between min-h-0 overflow-hidden gap-2 py-1">
-          {{state && (
-            <{master_name}View
-              state={{state}}
-              onReveal={{(r: number, c: number) => handleAction('reveal', {{ row: r, column: c }})}}
-              onToggleMarker={{(r: number, c: number) => handleAction('toggle_marker', {{ row: r, column: c }})}}
-              onChord={{(r: number, c: number) => handleAction('chord', {{ row: r, column: c }})}}
-              onFaceClick={{() => handleAction('restart', {{ row_count: rows, column_count: cols, total_mines: mines }})}}
-              onAction={{handleAction}}
-            />
-          )}}
-          {{state && (
-            <{master_name}Controls
-              rowCount={{rows}}
-              columnCount={{cols}}
-              totalMines={{mines}}
-              onRestartPreset={{(r: number, c: number, m: number) => handleAction('restart', {{ row_count: r, column_count: c, total_mines: m }})}}
-              onReset={{() => handleAction('restart', {{ row_count: rows, column_count: cols, total_mines: mines }})}}
-              onAction={{handleAction}}
-              state={{state}}
-            />
-          )}}
-          {{state && <{master_name}History state={{state}} />}}
-        </main>
-      )}}
-    </div>
-  );
-}};
-
-export default App;
-'''
-
-
 def synthesize_and_write_presentation_projection(
     pitch: str,
     structure: DomainStructureSchema,
@@ -223,7 +101,6 @@ Behavioral Invariants:
 {action_protocol_block}
 Respond STRICTLY with JSON:
 {
-  "client_ts": "<complete code for src/api/{master_slug}Client.ts>",
   "view_tsx": "<complete code for src/views/{master_name}View.tsx>",
   "controls_tsx": "<complete code for src/components/Controls/{master_name}Controls.tsx>",
   "history_tsx": "<complete code for src/components/History/{master_name}History.tsx>",
@@ -297,22 +174,19 @@ Respond STRICTLY with JSON:
     if os.path.exists(os.path.join(workspace_dir, "frontend")):
         target_roots.append(frontend_src)
 
-    client_code = payload.get("client_ts") or payload.get("client_api")
+    # The API client is deterministic (skeleton_builder.generate_master_client); the model only writes the UI
+    from onboarding.skeleton_builder import generate_master_client
+    client_code = generate_master_client(master_entity) if master_entity else None
     view_code = payload.get("view_tsx") or payload.get("canvas_view")
     controls_code = payload.get("controls_tsx")
     history_code = payload.get("history_tsx")
     app_code = payload.get("app_tsx")
 
-    # Validate that app_code exists, exports App, and includes the master view
+    # No substitute shell: an App that does not wire the master view is a failed generation, reported as such
     if not (app_code and f"{master_name}View" in app_code and "export" in app_code):
-        clean_domain_title = re.sub(r'^[#*\s]+', '', domain_name).strip()
-        print(f"[Compiler:Node3] Generating robust fallback App.tsx orchestrator for {master_name}...", flush=True)
-        app_code = _generate_fallback_app_tsx(
-            master_name=master_name,
-            master_slug=master_slug,
-            domain_title=clean_domain_title,
-            action_manifest=action_manifest
-        )
+        reason = "the answer has no App.tsx that exports an App and imports the master view"
+        print(f"[Compiler:Node3] Presentation projection rejected: {reason}", flush=True)
+        return {"success": False, "error": reason, "files": [], "elapsed_seconds": round(time.time() - start_time, 2)}
 
     from onboarding.skeleton_builder import generate_frontend_main_tsx
     resilient_main_tsx = generate_frontend_main_tsx()

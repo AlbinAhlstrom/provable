@@ -13,6 +13,7 @@ import subprocess
 import json
 import hashlib
 from typing import Dict, Any, List, Optional
+from onboarding.action_protocol import format_interface_contract
 from dataclasses import dataclass, field
 from onboarding.router_engine import BusinessSpec
 from onboarding.cst_isolator import (
@@ -388,7 +389,8 @@ def generate_red_test(
     module_name: str,
     class_name: str,
     rejection_feedback: str = "",
-    existing_tests: str = ""
+    existing_tests: str = "",
+    interface_contract: str = "",
 ) -> str:
     """Asks the LLM for a behavioral pytest module that encodes the spec's Given/When/Then.
 
@@ -409,6 +411,7 @@ def generate_red_test(
         "target_class_name": class_name,
         "class_api": summarize_class_api(class_source),
         "existing_tests": existing_tests or "(none yet: this is the first verified test for this class)",
+        "interface_contract": interface_contract or "(none: no interface method has been promised for this class)",
         "feedback_block": feedback_block,
     })
     raw = agent_orchestrator.call_gemini(prompt, stage="red_test_generation")
@@ -477,7 +480,7 @@ def synthesize_green_class_implementation(
 
 
 @traced("tdd.run_loop")
-def execute_spec_tdd_loop(spec: BusinessSpec, workspace_dir: str) -> Dict[str, Any]:
+def execute_spec_tdd_loop(spec: BusinessSpec, workspace_dir: str, action_manifest: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Synchronous flat TDD loop execution:
     RED -> GREEN (with LibCST micro-context extraction) -> Hash Lock Anti-Cheat -> COMMIT.
@@ -538,7 +541,8 @@ class {target_class}:
     test_code = ""
     for red_attempt in (1, 2):
         test_code = generate_red_test(spec, current_class, used_module, target_class,
-                                      rejection_feedback=red_feedback, existing_tests=existing_tests)
+                                      rejection_feedback=red_feedback, existing_tests=existing_tests,
+                                      interface_contract=format_interface_contract(action_manifest, target_class))
         lint_ok, lint_reason = lint_red_test(test_code, require_both_sides=bool(spec.is_mathematical_boundary))
         if not lint_ok:
             red_attempts.append({"attempt": red_attempt, "approved": False, "reason": lint_reason})

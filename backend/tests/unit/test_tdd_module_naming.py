@@ -44,7 +44,7 @@ def test_loop_merges_into_the_skeleton_module_not_a_lowercase_twin(monkeypatch, 
     (domain / "client_inquiry.py").write_text(skeleton)
     seen = {}
 
-    def gen(spec, class_source, module_name, class_name, rejection_feedback="", existing_tests=""):
+    def gen(spec, class_source, module_name, class_name, rejection_feedback="", existing_tests="", **_ignored):
         seen["module"], seen["source"] = module_name, class_source
         return "import pytest\n\ndef test_a():\n    assert 1 == 2\n"
 

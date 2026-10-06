@@ -52,18 +52,24 @@ def test_workspace_scaffold_configuration_and_tsconfig_integrity(tmp_path):
     assert "proxy" in vite_cfg
 
 
-def test_workspace_vite_build_integrity():
+def test_workspace_vite_build_integrity(tmp_path):
     """
-    Validates that the workspace application compiles and bundles cleanly via Vite.
+    Validates that a freshly scaffolded workspace compiles and bundles cleanly via Vite.
+
+    Hermetic: it builds its own scaffold in a temporary directory (reusing the installed packages of the live
+    workspace when present), so it never depends on, or breaks with, whatever the live preview is running.
     """
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-    ws_dir = os.path.join(root, "workspace")
+    installed = os.path.join(root, "workspace", "node_modules")
+    if not os.path.exists(os.path.join(installed, "vite")):
+        pytest.skip("no installed workspace packages to reuse (run the app once)")
 
-    # If node_modules exists, verify build command completes with exit code 0
-    if os.path.exists(os.path.join(ws_dir, "node_modules", "vite")):
-        npm_cmd = "npm.cmd" if os.name == "nt" else "npm"
-        res = subprocess.run([npm_cmd, "run", "build"], cwd=ws_dir, capture_output=True, text=True)
-        assert res.returncode == 0, f"Workspace build failed:\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}"
+    ws_dir = str(tmp_path / "scaffold")
+    create_default_workspace_scaffold(ws_dir)
+    os.symlink(installed, os.path.join(ws_dir, "node_modules"), target_is_directory=True)
+    npm_cmd = "npm.cmd" if os.name == "nt" else "npm"
+    res = subprocess.run([npm_cmd, "run", "build"], cwd=ws_dir, capture_output=True, text=True)
+    assert res.returncode == 0, f"Workspace build failed:\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}"
 
 
 def test_frontend_pm_studio_vite_build_integrity():

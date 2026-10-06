@@ -103,6 +103,11 @@ def load_prompt(template_name: str, format_kwargs: Optional[dict] = None) -> str
 LAST_LLM_ERROR: Optional[str] = None
 
 
+def model_for_stage(stage: str) -> str:
+    """The model a stage runs on: LLM_MODEL_<STAGE>, else LLM_MODEL, else the default."""
+    return os.environ.get(f"LLM_MODEL_{stage.upper()}") or os.environ.get("LLM_MODEL", "gemini-3.8-flash")
+
+
 @traced_llm
 def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, reasoning_effort: Optional[str] = None) -> str:
     """OpenAI Python SDK wrapper for LLM calls (configured via environment variables).
@@ -123,7 +128,7 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
     base_url = os.environ.get("OPENAI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
     # LLM_MODEL_<STAGE> (e.g. LLM_MODEL_RED_TEST_GENERATION) lets one stage use a different model, such as a
     # different model writing the tests than the one writing the code.
-    model_name = os.environ.get(f"LLM_MODEL_{stage.upper()}") or os.environ.get("LLM_MODEL", "gemini-3.8-flash")
+    model_name = model_for_stage(stage)
 
     if not api_key:
         LAST_LLM_ERROR = "No LLM API key configured (set GEMINI_API_KEY, LLM_API_KEY or OPENAI_API_KEY)."

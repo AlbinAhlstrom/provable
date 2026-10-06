@@ -168,7 +168,7 @@ class _Script:
         tests = iter(red_tests)
         exits = iter(red_exit_codes)
 
-        def fake_gen(spec, class_source, module_name, class_name, rejection_feedback="", existing_tests=""):
+        def fake_gen(spec, class_source, module_name, class_name, rejection_feedback="", existing_tests="", **_ignored):
             self.red_prompts.append(rejection_feedback)
             return next(tests)
 
