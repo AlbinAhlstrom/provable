@@ -82,11 +82,11 @@ def test_tdd_state_machine_transitions():
     state.advance_to_green()
     assert state.phase == "GREEN_GATE"
     
-    # Verify 3-strike dead end
+    # Retry policy: first failure still allows exactly one feedback retry; the second is a dead end.
     state.record_green_failure("AssertionError in green")
+    assert state.is_dead_end() is False
     state.record_green_failure("AssertionError in green")
-    state.record_green_failure("AssertionError in green")
-    
+
     assert state.is_dead_end() is True
     assert state.status == "REQUIRES_HUMAN_INTERVENTION"
 

@@ -157,25 +157,45 @@ def test_reasoning_effort_defaults_to_low_and_is_configurable(monkeypatch):
     assert "reasoning_effort" not in comp.kwargs
 
 
-def test_provider_that_rejects_reasoning_effort_is_retried_without_it(monkeypatch):
-    """Verify providers without the parameter still work.
+def test_provider_that_rejects_reasoning_effort_fails_loudly_without_retry(monkeypatch):
+    """Verify an unsupported parameter is reported once, with the fix, and never silently retried.
 
     id: TST-FIX-007
     Given: A provider that errors when reasoning_effort is sent
     When: call_gemini runs
-    Then: It retries once without the parameter and returns the completion
+    Then: Exactly one request is made, "" is returned, and LAST_LLM_ERROR names LLM_REASONING_EFFORT
     """
     monkeypatch.setenv("GEMINI_API_KEY", "k" * 20)
+    monkeypatch.delenv("LLM_REASONING_EFFORT", raising=False)
     calls = []
 
     class Picky:
         def create(self, **kwargs):
             calls.append(dict(kwargs))
-            if "reasoning_effort" in kwargs:
-                raise RuntimeError("Unrecognized request argument supplied: reasoning_effort")
-            msg = type("M", (), {"content": "ok"})()
-            return type("R", (), {"choices": [type("C", (), {"message": msg})()]})()
+            raise RuntimeError("Unrecognized request argument supplied: reasoning_effort")
 
     monkeypatch.setattr(agent_orchestrator, "OpenAI", _fake_openai(Picky()))
-    assert _REAL_CALL_GEMINI("p", stage="s") == "ok"
-    assert len(calls) == 2 and "reasoning_effort" in calls[0] and "reasoning_effort" not in calls[1]
+    assert _REAL_CALL_GEMINI("p", stage="s") == ""
+    assert len(calls) == 1
+    assert "LLM_REASONING_EFFORT" in agent_orchestrator.LAST_LLM_ERROR
+
+
+def test_sdk_automatic_retries_are_disabled(monkeypatch):
+    """Verify the provider client is built with max_retries=0 so failures are never masked.
+
+    id: TST-FIX-008
+    Given: A recording stand-in for the OpenAI client
+    When: call_gemini constructs the client
+    Then: max_retries is 0
+    """
+    monkeypatch.setenv("GEMINI_API_KEY", "k" * 20)
+    seen = {}
+
+    class Recorder(_fake_openai(_FakeCompletions())):
+        def __init__(self, **kwargs):
+            seen.update(kwargs)
+            super().__init__(**kwargs)
+
+    monkeypatch.setattr(agent_orchestrator, "OpenAI", Recorder)
+    _REAL_CALL_GEMINI("p", stage="s")
+    assert seen.get("max_retries") == 0

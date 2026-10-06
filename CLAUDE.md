@@ -30,6 +30,7 @@ Spec-driven code generation engine: TDD verification loops + DDD architecture. T
   Routers never import `db.store`.
 - TDD loop: RED -> GREEN -> WIRE -> VERIFY, done directly in the main context (subagents only for read-only research/review). Don't weaken tests to get green;
   if the architecture evolved, rewrite or delete the obsolete test.
+- Retries mask errors: at most ONE retry, only when a verifying step rejects a generator's output and its verdict is fed back; never retry provider/parse/infra errors (rule 03 §4).
 - Frontend is domain-agnostic: no hardcoded domain terms (Pallet, Pizza, Order...) and no mock UI. Fail loudly.
 - Run the full test suite before every commit and the pre-flight check before declaring work done.
   (`.claude/hooks/guard.py` enforces the test run on `git commit`, and blocks `workspace/` edits and starting the stack.)

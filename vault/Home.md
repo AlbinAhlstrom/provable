@@ -23,7 +23,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 ### 2. 🔄 Agent Workflows & Operations
 - [[Onboarding and Discovery Workflow]]: Bounded context discovery, router engine decomposition (`router_engine.py`), skeleton scaffolding (`skeleton_builder.py`), and clean workspace scaffold invariants.
 - [[Shift-Left TDD Workflow]]: Unified pre-implementation testing execution, requirement-driven failing test spec generation, and Allure coverage mapping.
-- [[Agent Execution Loop]]: TDD execution loop (`tdd_machine.py`) enforcing RED phase, LibCST class extraction, SHA-256 test integrity check, and 3-strike dead-end rollback handling.
+- [[Agent Execution Loop]]: TDD execution loop (`tdd_machine.py`) enforcing RED phase, LibCST class extraction, SHA-256 test integrity check, and the single-feedback-retry dead-end policy.
 - [[DDD_TDD_Developer_Workflow]]: Pure DDD layer boundaries, 4-step execution loop (RED-GREEN-WIRE-VERIFY), and anti-leakage verification gate.
 - [[Future Enhancements Roadmap]]: Detailed blueprints for Schema-Driven Dynamic Forms, LLM LibCST repair loops, and Multi-Domain Stress Testing.
 - [[Bug-Reproduction-and-Testing-Policy]]: Strict policy and automated regression test workflow for bug reproduction, tri-service stack startup (:8000, :5173, :5174), and zero-regression guarantees.

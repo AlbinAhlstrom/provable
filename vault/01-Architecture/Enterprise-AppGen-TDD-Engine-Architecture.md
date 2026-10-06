@@ -33,11 +33,11 @@ Enterprise AppGen eliminates AI hallucination, context drift, and technical debt
 - **Instant OpenAPI Contract**: `skeleton_builder.py` immediately scaffolds domain classes, Pydantic DTOs (`schemas.py`), and basic FastAPI routers (`entrypoints/routers/`).
 - `/openapi.json` is available from iteration 1 to immediately power the runtime UI.
 
-### 7. 3-Strike Dead-End Handling & Rollback
-- **Safety Fallback**: If the GREEN phase fails after 3 consecutive repair attempts:
-  1. Automatic Git rollback (`git reset --hard`) to the state immediately preceding the RED phase.
-  2. The specification in SQLite is flagged with status `REQUIRES_HUMAN_INTERVENTION`.
-  3. The error is logged and the engine automatically pops the next specification (`POP_SPEC`).
+### 7. Retry Policy & Dead-End Handling
+- **One feedback retry, never more** (retries mask errors): if the GREEN gate rejects the first attempt, the generator gets exactly one more attempt, and only because the gate's verdict and the failing test output are fed back to it.
+- **Dead end:** a second rejection ends the loop. The spec is flagged `REQUIRES_HUMAN_INTERVENTION` (phase `DEAD_END`) and the result lists every attempt and its reason.
+- **No retry for anything else:** provider/API errors, test tampering and parse failures propagate immediately; the LLM client has its own automatic retries disabled.
+- **Not implemented:** the original design also rolled back with `git reset --hard` and popped the next spec automatically. The live loop does neither; failed specs simply stay flagged for a human.
 
 ---
 

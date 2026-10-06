@@ -40,7 +40,15 @@ Follow the strict 4-step TDD loop:
 
 ---
 
-## 4. Pre-Commit & Mandatory Pre-Flight Invariants
+## 4. Retry Policy Invariant (retries mask errors)
+- **At most one retry, ever**, and only when a *verifying step rejects what a generating step produced*: the verdict (and the failing evidence) is fed back to the generator for exactly one more attempt. The TDD loop's GREEN phase is the model case (`TddExecutionState.max_attempts = 2`: first attempt + one feedback retry, then `REQUIRES_HUMAN_INTERVENTION`).
+- **Never retry** provider/network/quota errors, parse failures, test tampering, or any error that is not a gate verdict. They must fail loudly with the real reason (`agent_orchestrator.LAST_LLM_ERROR`).
+- **No hidden retries:** do not add retry loops, fallbacks-on-error, or SDK auto-retries (the OpenAI client is built with `max_retries=0`). Every attempt must be visible in the result (`attempts`) and the trace.
+- Changing this policy needs an explicit decision from the user.
+
+---
+
+## 5. Pre-Commit & Mandatory Pre-Flight Invariants
 1. **Pre-Commit Full Test Suite Invariant**:
    **NEVER execute `git commit` or `git commit --amend` without running the full test suite (`python -m pytest backend/tests/`) first.** Every commit MUST be preceded by empirical runtime verification showing 100% PASS across unit, integration, and E2E test suites.
 2. **Mandatory Pre-Flight Check**:

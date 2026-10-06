@@ -1,5 +1,5 @@
 """
-TDD State Machine — Hardened Red-Gate & 3-Strike Rollback Orchestrator.
+TDD State Machine — Hardened Red-Gate & single-feedback-retry Orchestrator.
 Enforces programmatic test evaluation, OS test-file locking, pytest timeouts,
 LibCST micro-context splicing, and automated dead-end git rollback handling.
 """
@@ -141,7 +141,7 @@ class TddExecutionState:
     spec: BusinessSpec
     phase: str = "INIT"  # "INIT" | "RED_GEN" | "RED_GATE" | "GREEN_GEN" | "GREEN_GATE" | "COMMITTED" | "DEAD_END"
     attempt: int = 0
-    max_attempts: int = 3
+    max_attempts: int = 2  # first GREEN attempt + exactly one feedback retry
     status: str = "PENDING"  # "PENDING" | "IN_PROGRESS" | "FULFILLED" | "REQUIRES_HUMAN_INTERVENTION"
     error_log: List[str] = field(default_factory=list)
 
@@ -391,60 +391,71 @@ def test_{spec_clean_id}_state():
     # -------------------------------------------------------------
     state.advance_to_green()
 
-    with open(domain_file, "r", encoding="utf-8") as f:
-        domain_source = f.read()
-
-    # Extract target class CST
-    extracted_class = extract_class_cst(domain_source, target_class)
-
-    if not extracted_class:
-        extracted_class = f'''@dataclass
+    failure_msg = red_result.get("stderr") or str(red_result.get("report") or "")
+    default_class = f'''@dataclass
 class {target_class}:
     id: str
     name: str = "Standard {target_class}"
 '''
+    attempts: List[Dict[str, Any]] = []
 
-    # LLM-driven micro-context class synthesis
-    failure_msg = red_result.get("stderr") or str(red_result.get("report") or "")
-    updated_class = synthesize_green_class_implementation(
-        extracted_class=extracted_class,
-        target_class_name=target_class,
-        spec=spec,
-        failure_output=failure_msg
-    )
+    # Retry policy (see .agents/rules/03-tdd-engine.md): at most ONE retry, and only because the GREEN gate
+    # rejected the first attempt; the gate's verdict and the failing test output are fed back to the generator.
+    # Provider errors, tampering and anything else fail loudly without a retry.
+    while True:
+        with open(domain_file, "r", encoding="utf-8") as f:
+            domain_source = f.read()
+        extracted_class = extract_class_cst(domain_source, target_class) or default_class
 
-    # Splice updated class back into module using LibCST
-    new_domain_source = splice_class_cst(domain_source, target_class, updated_class)
-    with open(domain_file, "w", encoding="utf-8") as f:
-        f.write(new_domain_source)
+        # LLM-driven micro-context class synthesis
+        updated_class = synthesize_green_class_implementation(
+            extracted_class=extracted_class,
+            target_class_name=target_class,
+            spec=spec,
+            failure_output=failure_msg
+        )
 
+        # Splice updated class back into module using LibCST
+        new_domain_source = splice_class_cst(domain_source, target_class, updated_class)
+        with open(domain_file, "w", encoding="utf-8") as f:
+            f.write(new_domain_source)
 
-    # Verify anti-cheat test file integrity hash
-    verify_test_file_integrity(test_file_path, initial_test_hash)
+        # Verify anti-cheat test file integrity hash
+        verify_test_file_integrity(test_file_path, initial_test_hash)
 
-    # Run GREEN phase test execution
-    green_result = run_isolated_pytest(test_file_path, cwd=workspace_dir)
-    green_eval = evaluate_green_gate_result(green_result["exit_code"], green_result.get("report"), green_result.get("stderr"))
+        # Run GREEN phase test execution
+        green_result = run_isolated_pytest(test_file_path, cwd=workspace_dir)
+        green_eval = evaluate_green_gate_result(green_result["exit_code"], green_result.get("report"), green_result.get("stderr"))
+        attempts.append({"attempt": state.attempt, "approved": green_eval["approved"], "reason": green_eval.get("reason")})
 
-    if green_eval["approved"]:
-        state.phase = "COMMITTED"
-        state.status = "FULFILLED"
-        return {
-            "success": True,
-            "status": "FULFILLED",
-            "phase": "COMMITTED",
-            "spec_id": spec.spec_id,
-            "test_file": test_file_path,
-            "red_eval": red_eval,
-            "green_eval": green_eval
-        }
-    else:
+        if green_eval["approved"]:
+            state.phase = "COMMITTED"
+            state.status = "FULFILLED"
+            return {
+                "success": True,
+                "status": "FULFILLED",
+                "phase": "COMMITTED",
+                "spec_id": spec.spec_id,
+                "test_file": test_file_path,
+                "red_eval": red_eval,
+                "green_eval": green_eval,
+                "attempts": attempts
+            }
+
         state.record_green_failure(green_eval.get("reason", "Test failed in green phase"))
-        return {
-            "success": False,
-            "status": state.status,
-            "phase": state.phase,
-            "spec_id": spec.spec_id,
-            "error": green_eval.get("reason")
-        }
+        if state.is_dead_end():
+            return {
+                "success": False,
+                "status": state.status,
+                "phase": state.phase,
+                "spec_id": spec.spec_id,
+                "error": green_eval.get("reason"),
+                "attempts": attempts,
+                "error_log": list(state.error_log)
+            }
+
+        failure_msg = (
+            f"The previous GREEN attempt was rejected: {green_eval.get('reason')}\n"
+            + (green_result.get("stderr") or str(green_result.get("report") or ""))
+        )
 
