@@ -24,7 +24,7 @@ export const BehaviorInboxPanel: React.FC = () => {
   const fetchSpecs = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:8000/api/specs/inbox');
+      const res = await fetch('/api/specs/inbox');
       if (res.ok) {
         const data = await res.json();
         setSpecs(data);
@@ -54,7 +54,7 @@ export const BehaviorInboxPanel: React.FC = () => {
         priority: 'High'
       };
 
-      const res = await fetch('http://localhost:8000/api/specs/inbox/add', {
+      const res = await fetch('/api/specs/inbox/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

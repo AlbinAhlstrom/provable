@@ -38,7 +38,7 @@ export function useRequirements() {
   const fetchRequirements = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:8000/api/requirements');
+      const res = await fetch('/api/requirements');
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
       const normalizedData = Array.isArray(data) ? data.map(normalizeRequirement) : [];
@@ -56,7 +56,7 @@ export function useRequirements() {
   }, [fetchRequirements]);
 
   const createRequirement = async (reqData: Partial<RequirementDTO>) => {
-    const res = await fetch('http://localhost:8000/api/requirements', {
+    const res = await fetch('/api/requirements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(reqData)
@@ -66,7 +66,7 @@ export function useRequirements() {
   };
 
   const updateRequirement = async (id: string, updates: Partial<RequirementDTO>) => {
-    const res = await fetch(`http://localhost:8000/api/requirements/${id}`, {
+    const res = await fetch(`/api/requirements/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates)
@@ -76,7 +76,7 @@ export function useRequirements() {
   };
 
   const deleteRequirement = async (id: string) => {
-    const res = await fetch(`http://localhost:8000/api/requirements/${id}`, {
+    const res = await fetch(`/api/requirements/${id}`, {
       method: 'DELETE'
     });
     if (!res.ok) throw new Error('Failed to delete requirement');
@@ -84,7 +84,7 @@ export function useRequirements() {
   };
 
   const generateTestCase = async (id: string) => {
-    const res = await fetch(`http://localhost:8000/api/requirements/${id}/generate-test`, {
+    const res = await fetch(`/api/requirements/${id}/generate-test`, {
       method: 'POST'
     });
     if (!res.ok) throw new Error('Failed to generate test case');
@@ -92,7 +92,7 @@ export function useRequirements() {
   };
 
   const triggerAgent = async (id: string) => {
-    const res = await fetch(`http://localhost:8000/api/requirements/${id}/run-agent`, {
+    const res = await fetch(`/api/requirements/${id}/run-agent`, {
       method: 'POST'
     });
     if (!res.ok) throw new Error('Failed to trigger agent');
@@ -100,7 +100,7 @@ export function useRequirements() {
   };
 
   const approveMerge = async (id: string) => {
-    const res = await fetch(`http://localhost:8000/api/requirements/${id}/merge`, {
+    const res = await fetch(`/api/requirements/${id}/merge`, {
       method: 'POST'
     });
     if (!res.ok) throw new Error('Failed to approve merge');
@@ -108,7 +108,7 @@ export function useRequirements() {
   };
 
   const rejectSubmission = async (id: string, feedback: string) => {
-    const res = await fetch(`http://localhost:8000/api/requirements/${id}/reject`, {
+    const res = await fetch(`/api/requirements/${id}/reject`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ feedback })

@@ -35,6 +35,7 @@ Spec-driven code generation engine: TDD verification loops + DDD architecture. T
   (`.claude/hooks/guard.py` enforces the test run on `git commit`, and blocks `workspace/` edits and starting the stack.)
 
 ## Environment notes
+- Vercel deployment: `vercel.json` (services `backend` + `frontend`), serverless mode when `VERCEL=1`; see `vault/04-Decisions/ADR-005 Vercel Multi-Service Deployment.md`. Frontend code must use relative `/api/...` URLs, never `http://localhost:8000`.
 - Developed on Windows (PowerShell, Docker Desktop) and works on Linux/WSL; keep paths relative and cross-platform.
   Don't commit absolute machine paths (e.g. in `backend/config/integrations.yaml`, vault links).
 - `backend/` modules import each other as top-level packages (`from domain import ...`); `pytest.ini` sets the path.

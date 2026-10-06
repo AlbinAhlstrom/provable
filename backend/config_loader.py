@@ -24,8 +24,20 @@ def _save_config(cfg: dict) -> None:
         yaml.safe_dump(cfg, f, default_flow_style=False, allow_unicode=True)
 
 
+def is_serverless() -> bool:
+    """True when running as a Vercel function (read-only filesystem, no background processes)."""
+    return bool(os.environ.get("VERCEL"))
+
+
 def get_workspace_base() -> str:
     """Return the active workspace directory path."""
+    # 0. Serverless: the repository checkout is read-only, so use an ephemeral scratch workspace.
+    if is_serverless() and not os.environ.get("PROVABLE_WORKSPACE"):
+        import tempfile
+        scratch = os.path.join(tempfile.gettempdir(), "provable-workspace")
+        os.makedirs(os.path.join(scratch, "requirements"), exist_ok=True)
+        return scratch
+
     # 1. Environment variable override (highest priority — set on project switch)
     env_workspace = os.environ.get("PROVABLE_WORKSPACE")
     if env_workspace and os.path.exists(env_workspace):

@@ -115,6 +115,18 @@ def check_live_api_cold_boot_and_default_prompt():
     if backend_dir not in sys.path:
         sys.path.insert(0, backend_dir)
 
+    # This phase calls /api/onboarding/reset and /kickstart in-process. Point it at a throwaway
+    # workspace + database so it can never wipe the live app's generated files or state.
+    import atexit
+    import tempfile
+    scratch_ws = tempfile.mkdtemp(prefix="provable-preflight-ws-")
+    os.makedirs(os.path.join(scratch_ws, "requirements"), exist_ok=True)
+    os.environ["PROVABLE_WORKSPACE"] = scratch_ws
+    os.environ["DATABASE_URL"] = "sqlite:///" + os.path.join(scratch_ws, "requirements", "provable.db")
+    atexit.register(shutil.rmtree, scratch_ws, ignore_errors=True)
+    from onboarding.templates.workspace_scaffold import create_default_workspace_scaffold
+    create_default_workspace_scaffold(scratch_ws)
+
     try:
         from fastapi.testclient import TestClient
         import app

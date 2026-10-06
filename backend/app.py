@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 dotenv.load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
 
 import db.store as store
-from config_loader import get_workspace_base
+from config_loader import get_workspace_base, is_serverless
 from onboarding.templates.workspace_scaffold import create_default_workspace_scaffold
 
 @asynccontextmanager
@@ -45,8 +45,10 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"📦 Startup: Failed to sync SDoc: {e}")
 
-        # Auto-create Allure project if enabled
+        # Auto-create Allure project if enabled (needs the local Allure container; skipped on serverless)
         try:
+            if is_serverless():
+                raise RuntimeError("serverless deployment: no Allure container")
             from integrations.allure_client import load_allure_config, get_allure_project_id
             allure_cfg = load_allure_config()
             if allure_cfg.get('enabled'):
@@ -58,8 +60,10 @@ async def lifespan(app: FastAPI):
         except Exception as allure_init_err:
             print(f"📊 Allure Integration: Could not auto-create project: {allure_init_err}")
 
-        # Launch dev server for active project if enabled
+        # Launch dev server for active project if enabled (cannot run background servers on serverless)
         try:
+            if is_serverless():
+                raise RuntimeError("serverless deployment: no background dev servers")
             from onboarding.server_manager import start_project_servers
             start_project_servers()
         except Exception as server_err:
