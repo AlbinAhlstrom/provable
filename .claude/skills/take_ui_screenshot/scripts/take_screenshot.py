@@ -37,8 +37,12 @@ def main():
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--remote-debugging-port=9222")
     
-    if os.path.exists("/usr/bin/chromium-browser"):
-        chrome_options.binary_location = "/usr/bin/chromium-browser"
+    # Browser lookup: CHROME_BIN override, then common Linux locations (incl. Playwright's Chromium).
+    for candidate in (os.environ.get("CHROME_BIN"), "/usr/bin/chromium-browser",
+                      "/opt/pw-browsers/chromium"):
+        if candidate and os.path.exists(candidate):
+            chrome_options.binary_location = candidate
+            break
         
     driver = webdriver.Chrome(options=chrome_options)
     try:

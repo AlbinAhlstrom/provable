@@ -1,6 +1,6 @@
 # Universal Dynamic Domain AST Generator & Skeleton Engine
 
-The **Universal Dynamic Domain Generator** comprises the **Router Engine** ([`backend/onboarding/router_engine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/router_engine.py)), **Skeleton Builder** ([`backend/onboarding/skeleton_builder.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/skeleton_builder.py)), and **LibCST Isolator** ([`backend/onboarding/cst_isolator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/cst_isolator.py)). It transforms arbitrary natural language business pitches into 100% contract-first, clean Domain-Driven Design (DDD) backend modules and OpenAPI schemas.
+The **Universal Dynamic Domain Generator** comprises the **Router Engine** ([`backend/onboarding/router_engine.py`](../../backend/onboarding/router_engine.py)), **Skeleton Builder** ([`backend/onboarding/skeleton_builder.py`](../../backend/onboarding/skeleton_builder.py)), and **LibCST Isolator** ([`backend/onboarding/cst_isolator.py`](../../backend/onboarding/cst_isolator.py)). It transforms arbitrary natural language business pitches into 100% contract-first, clean Domain-Driven Design (DDD) backend modules and OpenAPI schemas.
 
 ```mermaid
 graph TD

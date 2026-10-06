@@ -5,7 +5,7 @@ description: Rigorous 6-step TDD, self-critique, acceptance criteria formulation
 
 # Acceptance Protocol Skill
 
-This skill defines the standard 6-step Quality & Acceptance Protocol for Antigravity agents executing complex code modifications, refactorings, or new features.
+This skill defines the standard 6-step Quality & Acceptance Protocol for agents executing complex code modifications, refactorings, or new features.
 
 ---
 

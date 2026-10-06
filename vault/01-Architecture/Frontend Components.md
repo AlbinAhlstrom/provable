@@ -1,6 +1,6 @@
 # Frontend Components
 
-The PM Studio frontend ([`frontend/src/`](file:///c:/Users/ahlst/Documents/GitHub/provable/frontend/src/)) is a modern React 18 application built with TypeScript, Vite, and custom CSS design system tokens.
+The PM Studio frontend ([`frontend/src/`](../../frontend/src)) is a modern React 18 application built with TypeScript, Vite, and custom CSS design system tokens.
 
 ---
 

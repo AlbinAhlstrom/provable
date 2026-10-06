@@ -1,6 +1,6 @@
 # Deterministic TDD Agent Execution Pipeline
 
-Provable utilizes a **Deterministic TDD State Machine** ([`backend/service_layer/tdd_machine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/service_layer/tdd_machine.py)) enforcing programmatic Red-Gate evaluation, Meta LibCST code isolation, and SHA-256 test integrity hash locking.
+Provable utilizes a **Deterministic TDD State Machine** ([`backend/service_layer/tdd_machine.py`](../../backend/service_layer/tdd_machine.py)) enforcing programmatic Red-Gate evaluation, Meta LibCST code isolation, and SHA-256 test integrity hash locking.
 
 ```mermaid
 sequenceDiagram

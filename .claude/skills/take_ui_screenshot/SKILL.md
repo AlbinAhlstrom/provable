@@ -10,7 +10,7 @@ This skill navigates to the application, selects a specific view, and captures a
 
 Run the Python helper script to take a screenshot:
 ```bash
-python3 .agents/skills/take_ui_screenshot/scripts/take_screenshot.py --url http://localhost:5173 --view Tests --output /path/to/screenshot.png
+python3 .claude/skills/take_ui_screenshot/scripts/take_screenshot.py --url http://localhost:5173 --view Tests --output /path/to/screenshot.png
 ```
 
 Parameters:

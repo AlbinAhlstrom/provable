@@ -2,7 +2,7 @@ import os
 import ast
 import re
 
-backend_dir = r"c:\Users\ahlst\Documents\GitHub\provable\backend"
+backend_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 print("=" * 80)
 print("EXHAUSTIVE AST SCAN: KEYWORD LISTS, HEURISTIC STRING BAGS & NAIVE CLASSIFIERS")
