@@ -4,19 +4,20 @@ Spec-driven code generation engine: TDD verification loops + DDD architecture. T
 (`backend/`, `frontend/`) *generates* an app into `workspace/`. Never confuse the two.
 
 ## Before you start
-- Read `vault/HANDOVER.md` for current architectural state and planned work.
+- Skim `vault/Home.md` for the architecture wiki; git history is the change log.
 - Read the rule file(s) for your task before editing (full index: `.agents/AGENTS.md`):
   - Architecture, ports, workspace isolation: @.agents/rules/01-architecture-and-meta.md
   - React / PM Studio UI: @.agents/rules/02-frontend-and-ui.md
   - Backend features, tests, DDD layers: @.agents/rules/03-tdd-engine.md
-- When you change architecture or the roadmap, update `vault/HANDOVER.md` (and `vault/Home.md` if the index changes).
+- Document architectural decisions in `vault/` (architecture page or ADR) and keep `vault/Home.md` current.
 
 ## Commands
 - Install: `pip install -r requirements.txt` and `cd frontend && npm ci` (auto-run in cloud sessions by `.claude/hooks/session_start.sh`)
 - Backend tests (fast, ~15s): `python -m pytest backend/tests/`
 - Frontend build/typecheck: `cd frontend && npm run build`
 - Pre-flight (build + tests + purity lint + live checks): `python scripts/agent_preflight_check.py`.
-  Phases 4-6 need the full stack running on :8000/:8001/:5173; phases 1-3 work standalone.
+  Runs without an LLM key (tests mock the LLM). Phases 1-5 work standalone; Phase 6 (UI screenshot) is only
+  captured if PM Studio is running on :5173, otherwise it is reported as SKIPPED, which means no visual verification.
 - Run the stack: `python run.py` — the **user** runs this in their own terminal; never start it from the agent.
 - Copy `.env.example` to `.env` and set `GEMINI_API_KEY` (or `OPENAI_API_KEY`) for real LLM calls.
 

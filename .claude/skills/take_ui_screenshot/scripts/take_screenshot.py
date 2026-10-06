@@ -58,20 +58,17 @@ def main():
         
         if args.view:
             print(f"🤖 Locating view navigation tab: '{args.view}'")
-            buttons = driver.find_elements(By.CLASS_NAME, "nav-item")
-            target_btn = None
-            for btn in buttons:
-                if btn.text.strip().lower() == args.view.lower():
-                    target_btn = btn
-                    break
-            
+            wanted = args.view.strip().lower()
+            candidates = driver.find_elements(By.CSS_SELECTOR, "button, a, [role='tab']")
+            target_btn = next((c for c in candidates if c.text.strip().lower() == wanted), None)
+
             if target_btn:
-                print(f"🤖 Clicking on navigation tab: '{btn.text}'")
+                print(f"🤖 Clicking on navigation element: '{target_btn.text}'")
                 target_btn.click()
                 time.sleep(2.5) # Wait for page render/API fetch completion
             else:
-                print(f"⚠️ Warning: Navigation tab '{args.view}' not found. Available tabs: {[b.text for b in buttons]}")
-                
+                print(f"⚠️ Warning: '{args.view}' not found. Available: {sorted({c.text.strip() for c in candidates if c.text.strip()})}")
+
         # Create output directory if it doesn't exist
         out_dir = os.path.dirname(os.path.abspath(args.output))
         if out_dir:

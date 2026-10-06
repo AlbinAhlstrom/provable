@@ -61,16 +61,23 @@ def update_agent_status(active=None, ticket_id=None, step=None, attempt=None, ma
 
 
 def load_prompt(template_name: str, format_kwargs: Optional[dict] = None) -> str:
-    """Load and format a prompt template from backend/prompts/."""
+    """Load a prompt template from backend/prompts/ and substitute `{placeholder}` values.
+
+    Raises:
+        FileNotFoundError: If the template does not exist.
+        KeyError: If a supplied placeholder is not present in the template (catches typos).
+    """
     prompts_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'prompts'))
     prompt_path = os.path.join(prompts_dir, template_name)
     if not os.path.exists(prompt_path):
-        return ""
-    with open(prompt_path, 'r', encoding='utf-8') as f:
+        raise FileNotFoundError(f"Prompt template not found: {prompt_path}")
+    with open(prompt_path, 'r', encoding='utf-8-sig') as f:
         content = f.read()
-    if format_kwargs:
-        for k, v in format_kwargs.items():
-            content = content.replace(f"{{{k}}}", str(v))
+    for k, v in (format_kwargs or {}).items():
+        token = f"{{{k}}}"
+        if token not in content:
+            raise KeyError(f"Placeholder {token} not found in prompt template {template_name}")
+        content = content.replace(token, str(v))
     return content
 
 

@@ -16,9 +16,9 @@ The PM Studio frontend (`frontend/src/`) is a 100% domain-agnostic projection en
 ---
 
 ## 3. Visual CI & Visual Analysis Mandate
-**If you modify React code (`frontend/src/`), the preflight check will generate `logs/latest_ui_render.png`. You MUST use your visual analysis skills to review this image to ensure styling is correct, text is readable, and no dead artifacts exist before concluding your task.**
+**If you modify React code (`frontend/src/`), the preflight check generates `logs/latest_ui_render.png` when PM Studio is running on :5173. You MUST review this image (styling correct, text readable, no dead artifacts) before concluding your task. If preflight reports Phase 6 as SKIPPED or FAILED, no screenshot exists: start the frontend, re-run, or tell the user plainly that the UI was not visually verified.**
 
-### Visual QA Checklist:
+### Visual QA Checklist (applies to PM Studio, i.e. `frontend/`; generated apps in `workspace/` pick their own theme per the generator prompts):
 - **Dark Mode Palette Sanity**: Form inputs, labels, placeholders, borders, and background containers must be readable and maintain high-contrast dark-mode elegance.
 - **Themed Component Standards**: No raw, unstyled HTML inputs (e.g. default browser textboxes/checkboxes). All form inputs must render via themed `@rjsf/mui` Material UI controls.
 - **No Dead Visual Artifacts**: Iframes, accordions, and tables must be cleanly bounded with zero broken gray rectangles, unhandled overflows, or horizontal clipping.

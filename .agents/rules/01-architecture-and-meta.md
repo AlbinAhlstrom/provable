@@ -26,7 +26,7 @@ Provable operates on a strict multi-service architectural split. You MUST NOT co
 The `workspace/` directory contains the application produced by the automated generation pipeline.
 **NEVER directly write, edit, patch, or commit files inside `workspace/`.**
 
-Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/skeleton_builder.py`, `backend/onboarding/templates/workspace_scaffold.py`, `backend/prompts/ui_generation.md`).
+Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/skeleton_builder.py`, `backend/onboarding/templates/workspace_scaffold.py`, and the inline LLM prompts / fallback template in `backend/onboarding/frontend_planning_engine.py`, e.g. `assemble_app_tsx_from_blueprint`).
 
 ### Permitted Actions:
 - Read `workspace/` files to **diagnose** runtime/build errors or inspect generated output.
@@ -39,22 +39,21 @@ Any structural, template, or configuration change meant for `workspace/` MUST be
 ---
 
 ## 3. Starting & Managing the Application Stack
-- **Ensure Docker Desktop is running** on the Windows host.
+- **Docker must be running** (Docker Desktop on Windows/macOS) for the optional Allure dashboard.
 - **Start the Allure Dashboard container**:
-  ```powershell
+  ```bash
   docker compose -f docker-compose.allure.yaml up -d
   ```
 - **Application Stack Execution Invariant**:
-  **NEVER execute `python run.py` via `run_command` in background tasks.**
-  Executing `python run.py` spawns long-lived WatchFiles reloader processes that trigger system restarts, interrupting the agent's turn and breaking the chat session. The user manages `python run.py` in their own terminal session, while Uvicorn and Vite handle hot-module-reloading (HMR) automatically.
+  **NEVER start `python run.py` from the agent (foreground or background).**
+  It spawns long-lived WatchFiles reloader processes that restart the system and interrupt the agent's turn. The user manages `python run.py` in their own terminal, while Uvicorn and Vite hot-reload automatically. If you need a running service for verification (e.g. a screenshot), start just that service yourself (e.g. `npx vite --port 5173` in `frontend/`) and stop it afterwards.
 
 ---
 
-## 4. Obsidian Vault Documentation & Handover Continuity
-Maintain a well-structured Obsidian vault under `vault/`:
-- **Cross-Chat Handover Invariant**: At the start of EVERY chat session or task, read `vault/HANDOVER.md` to restore full architectural state, active context, and planned unexecuted work items.
-- **Session Wrap-Up Invariant**: At the conclusion of any task where architectural decisions or roadmap items are planned/modified, update `vault/HANDOVER.md` so future agents and chats pick up seamlessly.
-- Keep `vault/Home.md` index file up-to-date.
-- Document architectural changes under `vault/01-Architecture/`.
+## 4. Obsidian Vault Documentation
+`vault/` is the project wiki (architecture, workflows, ADRs). It is documentation, not a task log: git history is the record of what changed.
+- When you make an architectural decision, document it under `vault/01-Architecture/` or as an ADR in `vault/04-Decisions/`.
 - Document new agent behaviors or workflow changes under `vault/02-Workflows/`.
+- Keep `vault/Home.md` index up-to-date when adding or deleting pages.
 - Use standard double-bracket internal links (e.g. `[[System Architecture]]`) to link related concepts.
+- Do not link to files that no longer exist; describe removed things in plain text.

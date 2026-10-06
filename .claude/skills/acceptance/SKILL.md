@@ -32,7 +32,7 @@ Formulate clear, unambiguous criteria divided into two categories:
 - End-to-end user flows in the live browser preview (`http://localhost:5174`).
 
 ### Step 3: Test-Driven Development (TDD) First
-- Author automated tests **BEFORE** modifying implementation code (`backend/tests/test_<feature>.py`).
+- Author automated tests **BEFORE** modifying implementation code (`backend/tests/unit/test_<target>.py`, or `integration/` / `e2e/` as appropriate).
 - Include edge case assertions and contract invariants.
 - Execute the test suite to verify initial expected failure (Red state).
 
@@ -48,7 +48,7 @@ Formulate clear, unambiguous criteria divided into two categories:
 ### Step 6: Handover & Manual Verification Report
 - Summarize work accomplished and automated test results.
 - Explicitly list the manual verification steps for the user to perform in the live preview.
-- Update documentation sitemap and handover records (`vault/HANDOVER.md`).
+- If you made an architectural decision, document it in `vault/` (architecture page or ADR) and update `vault/Home.md`.
 
 ---
 

@@ -16,7 +16,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[Frontend Components]]: Breakdown of React components (`App`, `KickstartStudio`, `AppPreview`, `BehaviorInboxPanel`, `RequirementControlPanel`, `DomainEntitiesPanel`, `CoverageHub`), state hooks, and CSS design system.
 - [[Backend REST API]]: Detailed REST API endpoint specifications (`/api/specs/inbox`, `/api/onboarding/kickstart`, `/api/onboarding/reset`, `/api/requirements`, `/api/coverage`), request/response models, and CORS configuration.
 - [[Integrations]]: Sync clients for StrictDoc (`strictdoc_client.py`) and containerized Allure reporting (`allure_client.py`).
-- [[LLM Abstraction and Prompts]]: Model configuration (`config/models.yaml`), OpenAI Python SDK client routing (`gemini-2.5-flash`), and externalized prompt template markdown files (`router_decomposition.md`, `domain_discovery.md`).
+- [[LLM Abstraction and Prompts]]: Env-var model configuration, the OpenAI-SDK `call_gemini` wrapper, and where each prompt lives (file-based vs inline).
 - [[05-DDD-TDD-Architecture-Guidelines|DDD & TDD Architecture Guidelines]]: Architectural layer rules (Domain Model, Repository, Service Layer, Unit of Work, Events) adapted from *Architecture Patterns with Python*.
 
 
@@ -52,5 +52,4 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[Chapter-13-Dependency-Injection-and-Bootstrap|Chapter 13: DI & Bootstrap Container]]: Dependency Injection container (`bootstrap.py`), `inspect.signature` injection, and decoupled message bus.
 
 ---
-*Updated by Antigravity on 2026-08-25.*
 

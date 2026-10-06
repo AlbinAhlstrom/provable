@@ -14,7 +14,7 @@ Enhance the bottom collapsible `AgentTray.tsx` component with an interactive, an
 
 ### Technical Blueprint
 - **Data Source**: Poll `/api/agent-status` or connect via Server-Sent Events (SSE).
-- **UI Component**: React Flow or custom SVG node graph in [`src/components/AgentTray.tsx`](../../src/components/AgentTray.tsx).
+- **UI Component**: React Flow or custom SVG node graph in `src/components/AgentTray.tsx`.
 - **Node Log Filtering**: Clicking a node filters the log viewer specifically to that node's execution phase.
 
 ---
@@ -71,7 +71,7 @@ An automated testing framework (`backend/tests/benchmark_domain_stormer.py`) tha
 ## 4. 🎨 Interactive Bounded Context & Subdomain Canvas
 
 ### Overview
-Extend [`src/components/DomainModeling.tsx`](../../src/components/DomainModeling.tsx) with a visual Bounded Context Map visualizer.
+Extend `src/components/DomainModeling.tsx` with a visual Bounded Context Map visualizer.
 
 ### Key Features
 - **Bounded Context Boundaries**: Visualizes strategic DDD context boundaries (e.g. `Ordering Context` $\leftrightarrow$ `Kitchen Dispatch Context` $\leftrightarrow$ `Delivery Context`).

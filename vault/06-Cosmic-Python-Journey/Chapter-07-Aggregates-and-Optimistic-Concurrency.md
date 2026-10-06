@@ -40,7 +40,7 @@ class PizzaOrder:
 ```
 
 ### 2. SQLAlchemy ORM `version_id_col` Mapping
-In [`src/adapters/orm.py`](../../workspace/src/adapters/orm.py), the SQLAlchemy imperative mapper links `version_id_col` directly to the aggregate's database column:
+In `src/adapters/orm.py`, the SQLAlchemy imperative mapper links `version_id_col` directly to the aggregate's database column:
 
 ```python
 pizza_orders = Table(

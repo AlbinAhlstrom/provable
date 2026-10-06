@@ -85,6 +85,5 @@ All PM Studio features and backend UI generators MUST adhere to the following mo
 ## 💾 4. Persistence & Memory Channels
 
 To ensure these decisions persist across future agent chat sessions:
-1. **`vault/HANDOVER.md`**: Updated at the end of every turn to pass live architectural state to the next session.
-2. **`.agents/AGENTS.md`**: Codifies mandatory rules and layout invariants into the agent's system prompt.
+1. **`CLAUDE.md` / `.agents/AGENTS.md`**: Codifies mandatory rules and layout invariants into the agent's system prompt.
 

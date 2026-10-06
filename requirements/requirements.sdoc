@@ -195,7 +195,7 @@ TITLE: 5. Model Abstraction & Prompt Templates
 [REQUIREMENT]
 UID: REQ-MDL-001
 TITLE: OpenAI SDK Model Abstraction Layer
-STATEMENT: All LLM requests shall route through an OpenAI Python SDK wrapper, enabling model-agnostic switching configured via `backend/config/models.yaml`.
+STATEMENT: All LLM requests shall route through an OpenAI Python SDK wrapper, enabling model-agnostic switching configured via environment variables (`LLM_MODEL`, `OPENAI_BASE_URL`, API key).
 REQ_TYPE: Requirement
 PRIORITY: High
 STATUS: Backlog
@@ -203,7 +203,7 @@ STATUS: Backlog
 [REQUIREMENT]
 UID: REQ-MDL-002
 TITLE: Externalized Markdown Prompt System
-STATEMENT: Prompt instructions for code generation, test spec generation, task decomposition, requirement audit, and visual QA shall be externalized in `backend/prompts/` as markdown templates.
+STATEMENT: Prompt instructions (domain decomposition, GREEN-phase class repair, visual QA) shall be externalized in `backend/prompts/` as markdown templates.
 REQ_TYPE: Requirement
 PRIORITY: High
 STATUS: Backlog

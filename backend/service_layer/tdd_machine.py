@@ -255,14 +255,6 @@ def synthesize_green_class_implementation(
         "target_class_name": target_class_name
     })
 
-    if not prompt:
-        prompt = (
-            f"Update this Python dataclass to satisfy specification '{spec.title}' "
-            f"({spec.given_when_then}):\n\n```python\n{extracted_class}\n```\n"
-            f"Failing error:\n{failure_output}\n"
-            f"Return ONLY the updated class definition for {target_class_name}."
-        )
-
     raw_response = agent_orchestrator.call_gemini(prompt, stage="green_code_repair")
 
     if raw_response and raw_response.strip():

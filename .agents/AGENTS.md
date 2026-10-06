@@ -12,7 +12,7 @@
 - **Key concepts**:
   - Strict isolation between Provable Engine (`:8000` / `:5173`) and Workspace App (`:8001` / `:5174`).
   - The "No Bandages" rule (`workspace/` is strictly off-limits; generator updates in `backend/` only).
-  - Multi-service stack lifecycle management and Obsidian Vault continuity invariants.
+  - Multi-service stack lifecycle (never start `run.py` from the agent) and Obsidian vault documentation conventions.
 
 ### 🎨 [`02-frontend-and-ui.md`](rules/02-frontend-and-ui.md)
 - **When to read**: Modifying React components (`frontend/src/`), theming, UI layout, or dynamic schema projection.

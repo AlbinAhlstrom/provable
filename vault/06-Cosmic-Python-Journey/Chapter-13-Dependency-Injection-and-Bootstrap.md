@@ -20,7 +20,7 @@ graph TD
 
 ## 🏛️ Architectural Implementation
 
-In Provable, all synthesized application stacks expose a `bootstrap.py` module ([`src/bootstrap.py`](../../workspace/src/bootstrap.py)) that wires application dependencies:
+In Provable, all synthesized application stacks expose a `bootstrap.py` module (`src/bootstrap.py`) that wires application dependencies:
 
 ```python
 import inspect
