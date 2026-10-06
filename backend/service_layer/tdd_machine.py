@@ -18,6 +18,28 @@ from onboarding.router_engine import BusinessSpec
 from onboarding.cst_isolator import extract_class_cst, splice_class_cst
 
 
+# Failures that mean the TEST is broken (not that the behavior is missing): never a valid RED.
+_BROKEN_TEST_MARKERS = (
+    "syntaxerror", "indentationerror", "importerror", "modulenotfounderror", "nameerror", "timed out",
+    "fixture '", "module 'src.",
+)
+
+
+def _failure_texts(report_json: Optional[Dict[str, Any]]) -> List[str]:
+    """Crash messages of failed tests plus the text of collection errors, from a pytest-json-report."""
+    texts: List[str] = []
+    if not report_json:
+        return texts
+    for t in report_json.get("tests", []):
+        crash = (t.get("call") or {}).get("crash", {}).get("message", "")
+        if crash:
+            texts.append(crash)
+    for c in report_json.get("collectors", []):
+        if c.get("outcome") == "failed" and c.get("longrepr"):
+            texts.append(str(c["longrepr"]))
+    return texts
+
+
 @traced("tdd.red_gate")
 def evaluate_red_gate_result(
     exit_code: int,
@@ -25,10 +47,11 @@ def evaluate_red_gate_result(
     stderr: str = ""
 ) -> Dict[str, Any]:
     """
-    Evaluates Pytest execution in the RED phase.
-    - Exit Code 0: Tautology error (REJECTED).
-    - Exit Code 1 with AssertionError/Exception: Valid RED (APPROVED).
-    - Exit Code 2 / SyntaxError / ImportError: Syntax error (REJECTED).
+    Evaluates Pytest execution in the RED phase. A RED is only valid if the test fails because the
+    BEHAVIOR is missing or wrong, never because the test itself is broken.
+    - Exit Code 0: tautology (REJECTED).
+    - Constructor misuse (TypeError in __init__), ImportError, NameError, SyntaxError, timeouts: broken test (REJECTED).
+    - AssertionError, "DID NOT RAISE", missing attribute/method, method signature mismatch: valid RED (APPROVED).
     """
     if exit_code == 0:
         return {
@@ -37,31 +60,27 @@ def evaluate_red_gate_result(
             "reason": "Test passed before logic was implemented (tautological false pass)."
         }
 
-    # Inspect test crash reports and stderr for syntax or import errors
-    crash_messages = []
-    if report_json and "tests" in report_json:
-        for t in report_json.get("tests", []):
-            crash = t.get("call", {}).get("crash", {}).get("message", "")
-            if crash:
-                crash_messages.append(crash)
-
-    all_error_text = (stderr + " " + " ".join(crash_messages)).lower()
-
-    if exit_code == 2 or any(
-        err in all_error_text
-        for err in ["syntaxerror", "indentationerror", "importerror", "modulenotfounderror", "timed out"]
-    ):
-        return {
-            "status": "REJECTED_SYNTAX_OR_EXEC",
-            "approved": False,
-            "reason": f"Test syntax, import, or timeout error: {stderr[:200]}"
-        }
+    messages = _failure_texts(report_json)
+    for text in messages + ([stderr] if stderr else []):
+        low = text.lower()
+        if "typeerror" in low and "__init__" in low:
+            return {
+                "status": "REJECTED_BROKEN_TEST",
+                "approved": False,
+                "reason": f"Broken test, not a valid RED: the test constructs the class with arguments it does not accept ({text.splitlines()[0][:200]}). Use only the fields listed in the class API."
+            }
+        if any(marker in low for marker in _BROKEN_TEST_MARKERS):
+            return {
+                "status": "REJECTED_SYNTAX_OR_EXEC",
+                "approved": False,
+                "reason": f"Broken test, not a valid RED: {text.splitlines()[0][:200] if text.strip() else text}"
+            }
 
     if exit_code == 1:
         return {
             "status": "APPROVED_RED",
             "approved": True,
-            "reason": "Test failed with AssertionError, TypeError (attribute expansion), or domain exception as expected in RED phase."
+            "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
         }
 
     return {
@@ -227,26 +246,124 @@ def run_isolated_pytest(
         }
 
 
+def summarize_pytest_failure(result: Dict[str, Any], limit: int = 3000) -> str:
+    """Concise, human-readable failure evidence from a run_isolated_pytest result (no raw JSON report)."""
+    texts: List[str] = []
+    report = result.get("report") or {}
+    for t in report.get("tests", []):
+        call = t.get("call") or {}
+        if call.get("outcome") == "failed":
+            texts.append(call.get("longrepr") or call.get("crash", {}).get("message", ""))
+    for c in report.get("collectors", []):
+        if c.get("outcome") == "failed" and c.get("longrepr"):
+            texts.append(str(c["longrepr"]))
+    text = "\n".join(t for t in texts if t) or (result.get("stderr") or result.get("stdout") or "")
+    return text[-limit:]
+
+
+def summarize_class_api(class_source: str, max_methods: int = 60) -> str:
+    """Fields and method signatures of a class (no bodies), so prompts stay small however large the class grows."""
+    import ast
+    try:
+        tree = ast.parse(class_source)
+        cls = next(n for n in ast.walk(tree) if isinstance(n, ast.ClassDef))
+    except (SyntaxError, StopIteration):
+        return class_source[:2000]
+    lines = [f"class {cls.name}:"]
+    methods = 0
+    for node in cls.body:
+        if isinstance(node, ast.AnnAssign):
+            lines.append(f"    {ast.unparse(node)}")
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and not node.name.startswith("_"):
+            if methods < max_methods:
+                ret = f" -> {ast.unparse(node.returns)}" if node.returns else ""
+                lines.append(f"    def {node.name}({ast.unparse(node.args)}){ret}: ...")
+            methods += 1
+    return "\n".join(lines)
+
+
+def lint_red_test(test_code: str) -> "tuple[bool, str]":
+    """Cheap static checks on a generated RED test, run before pytest: it must be valid, behavioral and assert something."""
+    import ast
+    try:
+        tree = ast.parse(test_code)
+    except SyntaxError as e:
+        return False, f"SyntaxError in the generated test: {e}"
+    if not any(isinstance(n, ast.FunctionDef) and n.name.startswith("test_") for n in ast.walk(tree)):
+        return False, "The module defines no test function (a function whose name starts with test_)."
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Call):
+            name = n.func.id if isinstance(n.func, ast.Name) else (n.func.value.id if isinstance(n.func, ast.Attribute) and isinstance(n.func.value, ast.Name) else "")
+            if name in ("hasattr", "getattr", "inspect"):
+                return False, f"The test uses {name}(): existence checks are not behavior tests. Exercise the scenario with concrete inputs and assert its outcome."
+    has_assertion = any(isinstance(n, ast.Assert) for n in ast.walk(tree)) or "pytest.raises" in test_code
+    if not has_assertion:
+        return False, "The test asserts nothing (no assert statement and no pytest.raises)."
+    return True, ""
+
+
+@traced("tdd.red_generate")
+def generate_red_test(
+    spec: BusinessSpec,
+    class_source: str,
+    module_name: str,
+    class_name: str,
+    rejection_feedback: str = ""
+) -> str:
+    """Asks the LLM for a behavioral pytest module that encodes the spec's Given/When/Then.
+
+    The prompt shows the class's real constructor/method API so the test cannot invent arguments, and
+    on the single retry it carries the gate's or linter's rejection reason.
+    """
+    import agent_orchestrator
+
+    feedback_block = (
+        f"\n## Your previous test was REJECTED. Fix exactly this problem:\n{rejection_feedback}\n"
+        if rejection_feedback else ""
+    )
+    prompt = agent_orchestrator.load_prompt("red_test_generation.md", {
+        "spec_title": spec.title,
+        "spec_description": spec.description,
+        "spec_given_when_then": spec.given_when_then,
+        "module_name": module_name,
+        "target_class_name": class_name,
+        "class_api": summarize_class_api(class_source),
+        "feedback_block": feedback_block,
+    })
+    raw = agent_orchestrator.call_gemini(prompt, stage="red_test_generation")
+    if not raw or not raw.strip():
+        reason = agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response"
+        raise RuntimeError(f"RED test generation failed: {reason}")
+    match = re.search(r"```(?:python)?\s*\n(.*?)```", raw, re.DOTALL)
+    return (match.group(1) if match else raw).strip() + "\n"
+
+
 @traced("tdd.green_synthesize")
 def synthesize_green_class_implementation(
     extracted_class: str,
     target_class_name: str,
     spec: BusinessSpec,
-    failure_output: str = ""
+    failure_output: str = "",
+    test_source: str = ""
 ) -> str:
     """Synthesizes the GREEN phase domain class implementation using LLM micro-context prompt.
 
-    Extracts the target class via LibCST, provides failing Pytest AssertionError, and prompts
-    gemini-2.5-flash to return the corrected Python class definition.
+    Extracts the target class via LibCST, provides the frozen RED test and its failure, and prompts the
+    model to return the corrected Python class definition.
 
     Args:
         extracted_class: The existing Python code of the target class extracted via LibCST.
         target_class_name: The name of the class to mutate and repair.
         spec: The BusinessSpec containing BDD scenario and mutation requirements.
-        failure_output: The stderr/traceback from the RED phase execution.
+        failure_output: Concise evidence of why the frozen test currently fails.
+        test_source: The frozen RED test the implementation must satisfy.
 
     Returns:
         The updated Python class definition string.
+
+    Raises:
+        RuntimeError: If the LLM returns nothing usable. There is deliberately NO fallback stub: a fake
+            implementation would let a provider outage produce FULFILLED specs.
     """
     import agent_orchestrator
 
@@ -256,7 +373,8 @@ def synthesize_green_class_implementation(
         "spec_given_when_then": spec.given_when_then,
         "target_aggregate": spec.target_aggregate or target_class_name,
         "spec_type": spec.spec_type,
-        "failure_output": failure_output or "AssertionError: Target invariant or attribute missing.",
+        "test_source": test_source or "(no test source available)",
+        "failure_output": failure_output or "The frozen test does not pass yet.",
         "target_class_name": target_class_name
     })
 
@@ -268,26 +386,8 @@ def synthesize_green_class_implementation(
         if f"class {target_class_name}" in clean_code:
             return clean_code + "\n"
 
-    if "invariant" in spec.spec_type.lower() or "capacity" in spec.title.lower() or "weight" in spec.title.lower():
-        if "def validate_invariants" not in extracted_class:
-            return extracted_class.rstrip() + "\n\n    def validate_invariants(self) -> bool:\n        \"\"\"Validates aggregate invariants.\"\"\"\n        return True\n"
-        return extracted_class
-    elif "attribute" in spec.spec_type.lower():
-        if "weight:" not in extracted_class:
-            lines = extracted_class.splitlines()
-            new_lines = []
-            for line in lines:
-                new_lines.append(line)
-                if "id:" in line:
-                    new_lines.append("    weight: float = 0.0")
-            return "\n".join(new_lines) + "\n"
-        return extracted_class
-    else:
-        if "def transition_state" not in extracted_class:
-            return extracted_class.rstrip() + "\n\n    def transition_state(self) -> None:\n        \"\"\"Executes state transition.\"\"\"\n        pass\n"
-        return extracted_class
-
-
+    reason = agent_orchestrator.LAST_LLM_ERROR or f"the response did not contain a definition of class {target_class_name}"
+    raise RuntimeError(f"GREEN synthesis failed: {reason}")
 
 
 @traced("tdd.run_loop")
@@ -331,67 +431,54 @@ class {target_class}:
     used_module = target_mod_name if domain_file.endswith(f"{target_mod_name}.py") else "model"
 
     # -------------------------------------------------------------
-    # 1. RED Phase: Generate BDD Test File
+    # 1. RED Phase: the LLM writes a behavioral test from the BDD spec; the gate checks it fails for the RIGHT reason
     # -------------------------------------------------------------
     spec_clean_id = spec.spec_id.lower().replace("-", "_")
     test_file_path = os.path.join(tests_dir, f"test_{spec_clean_id}.py")
 
-    # Generate specific BDD assertions matching spec
-    if "invariant" in spec.spec_type.lower() or "capacity" in spec.title.lower() or "weight" in spec.title.lower():
-        test_code = f'''import pytest
-from src.domain.{used_module} import {target_class}
+    with open(domain_file, "r", encoding="utf-8") as f:
+        current_source = f.read()
+    current_class = extract_class_cst(current_source, target_class) or f"@dataclass\nclass {target_class}:\n    id: str\n"
 
-def test_{spec_clean_id}_invariant():
-    """
-    BDD Specification: {spec.title}
-    {spec.given_when_then}
-    """
-    instance = {target_class}(id="TEST-001")
-    # Verify invariant enforcement
-    assert hasattr(instance, "validate_invariants"), "Invariant validator missing"
-    assert instance.validate_invariants() is True
-'''
-    elif "attribute" in spec.spec_type.lower():
-        test_code = f'''import pytest
-from src.domain.{used_module} import {target_class}
+    # Retry policy (rule 03 section 4): at most ONE regeneration, only because the lint or the RED gate rejected
+    # the first test, and the rejection reason is fed back to the test generator.
+    red_feedback = ""
+    red_result: Dict[str, Any] = {}
+    red_eval: Dict[str, Any] = {}
+    red_attempts: List[Dict[str, Any]] = []
+    for red_attempt in (1, 2):
+        test_code = generate_red_test(spec, current_class, used_module, target_class, rejection_feedback=red_feedback)
+        lint_ok, lint_reason = lint_red_test(test_code)
+        if not lint_ok:
+            red_attempts.append({"attempt": red_attempt, "approved": False, "reason": lint_reason})
+            red_feedback = lint_reason
+            continue
 
-def test_{spec_clean_id}_attribute():
-    """
-    BDD Specification: {spec.title}
-    {spec.given_when_then}
-    """
-    instance = {target_class}(id="TEST-001", weight=500.0)
-    assert instance.weight == 500.0
-'''
+        with open(test_file_path, "w", encoding="utf-8") as f:
+            f.write(test_code)
+        # 5-line Hash Lock: snapshot the approved test file's hash before the GREEN phase
+        initial_test_hash = compute_test_file_hash(test_file_path)
+        red_result = run_isolated_pytest(test_file_path, cwd=workspace_dir)
+        red_eval = evaluate_red_gate_result(red_result["exit_code"], red_result.get("report"), red_result.get("stderr"))
+        red_attempts.append({"attempt": red_attempt, "approved": red_eval["approved"], "reason": red_eval.get("reason")})
+        if red_eval["approved"]:
+            break
+        red_feedback = f"{red_eval.get('reason')}\n{summarize_pytest_failure(red_result)}"
     else:
-        test_code = f'''import pytest
-from src.domain.{used_module} import {target_class}
+        state.phase = "DEAD_END"
+        state.status = "REQUIRES_HUMAN_INTERVENTION"
+        return {
+            "success": False,
+            "status": state.status,
+            "phase": "RED_GATE",
+            "spec_id": spec.spec_id,
+            "error": red_attempts[-1]["reason"],
+            "red_attempts": red_attempts
+        }
 
-def test_{spec_clean_id}_state():
-    """
-    BDD Specification: {spec.title}
-    {spec.given_when_then}
-    """
-    instance = {target_class}(id="TEST-001")
-    assert hasattr(instance, "transition_state")
-'''
-
-    with open(test_file_path, "w", encoding="utf-8") as f:
-        f.write(test_code)
-
-    # 5-line Hash Lock: snapshot test file hash before GREEN phase
-    initial_test_hash = compute_test_file_hash(test_file_path)
-
-    # Run RED phase test execution
-    red_result = run_isolated_pytest(test_file_path, cwd=workspace_dir)
-    red_eval = evaluate_red_gate_result(red_result["exit_code"], red_result.get("report"), red_result.get("stderr"))
-
-    # -------------------------------------------------------------
-    # 2. GREEN Phase: LibCST Extraction & LLM Class Splicing
-    # -------------------------------------------------------------
     state.advance_to_green()
 
-    failure_msg = red_result.get("stderr") or str(red_result.get("report") or "")
+    failure_msg = summarize_pytest_failure(red_result)
     default_class = f'''@dataclass
 class {target_class}:
     id: str
@@ -412,7 +499,8 @@ class {target_class}:
             extracted_class=extracted_class,
             target_class_name=target_class,
             spec=spec,
-            failure_output=failure_msg
+            failure_output=failure_msg,
+            test_source=test_code
         )
 
         # Splice updated class back into module using LibCST
@@ -439,6 +527,7 @@ class {target_class}:
                 "test_file": test_file_path,
                 "red_eval": red_eval,
                 "green_eval": green_eval,
+                "red_attempts": red_attempts,
                 "attempts": attempts
             }
 
@@ -456,6 +545,6 @@ class {target_class}:
 
         failure_msg = (
             f"The previous GREEN attempt was rejected: {green_eval.get('reason')}\n"
-            + (green_result.get("stderr") or str(green_result.get("report") or ""))
+            + summarize_pytest_failure(green_result)
         )
 

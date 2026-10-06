@@ -26,12 +26,14 @@ def scripted(monkeypatch):
     def install(green_verdicts, synth_error=None):
         verdicts = iter(green_verdicts)
 
-        def fake_synth(extracted_class, target_class_name, spec, failure_output):
+        def fake_synth(extracted_class, target_class_name, spec, failure_output, test_source=""):
             calls["synth"].append(failure_output)
             if synth_error:
                 raise synth_error
             return CLASS_CODE
 
+        monkeypatch.setattr(tdd_machine, "generate_red_test",
+                            lambda *a, **k: "import pytest\n\ndef test_a():\n    assert 1 == 2\n")
         monkeypatch.setattr(tdd_machine, "synthesize_green_class_implementation", fake_synth)
         monkeypatch.setattr(tdd_machine, "run_isolated_pytest",
                             lambda path, cwd=None: {"exit_code": 1, "stderr": "pytest-output", "report": None})

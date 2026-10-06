@@ -132,6 +132,28 @@ def mock_llm_for_unit_tests(monkeypatch):
                     "components": [{"key": "catalog", "name": "Catalog View", "target_entities": ["Item"]}],
                     "suggestions": ["Smart Allocation Engine", "Telemetry Live Stream", "Realtime Security Monitor"]
                 })
+            elif stage == "red_test_generation":
+                # Hermetic RED test: behavioral shape, fails with AttributeError until GREEN adds the method.
+                m = re.search(r"from src\.domain\.(\w+) import (\w+)", prompt)
+                mod, cls = (m.group(1), m.group(2)) if m else ("model", "Entity")
+                return (
+                    "```python\nimport pytest\n"
+                    f"from src.domain.{mod} import {cls}\n\n"
+                    "def test_mock_behavior():\n"
+                    f"    instance = {cls}(id=\"MOCK-1\")\n"
+                    "    assert instance.validate_invariants() is True\n```"
+                )
+            elif stage == "green_code_repair":
+                m = re.search(r"definition for `(\w+)`", prompt)
+                cls = m.group(1) if m else "Entity"
+                return (
+                    "```python\n@dataclass\n"
+                    f"class {cls}:\n"
+                    "    id: str\n"
+                    f"    name: str = \"Standard {cls}\"\n\n"
+                    "    def validate_invariants(self) -> bool:\n"
+                    "        return True\n```"
+                )
             elif stage == "router_decomposition":
 
                 m = re.search(r'BUSINESS PITCH:\s*[\'"]([^\'"]+)[\'"]', prompt, re.IGNORECASE) or re.search(r'"([^"\n]+)"', prompt)
