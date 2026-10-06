@@ -36,3 +36,6 @@ provable.db
 sandboxes/
 test_out.png
 
+
+# Preflight output (UI screenshot)
+/logs/

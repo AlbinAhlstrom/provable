@@ -1,6 +1,6 @@
 ---
 name: take_ui_screenshot
-description: Takes a screenshot of a specific URL/view of the web application using headless Selenium.
+description: Takes a screenshot of a specific URL/view of the web application using headless Chrome (Selenium, with a Playwright fallback).
 ---
 # Take UI Screenshot
 
@@ -18,3 +18,8 @@ Parameters:
 - `--view`: Visible text of a button/tab to click before capturing (matched case-insensitively against `button`, `a`, and `[role=tab]` elements; omit to capture the landing view).
 - `--output`: File path to save the screenshot (default: `screenshot.png`).
 - `--viewport`: Viewport resolution, e.g., `1280x800` (default) or `375x812`.
+
+## Notes
+- Tries Selenium first; if it cannot start a browser (e.g. a chromedriver/Chrome version mismatch in a cloud sandbox) it falls back to Playwright (`pip install playwright`; set `CHROME_BIN` to a Chromium binary or run `playwright install chromium`).
+- To start only the frontend for a capture, run the Vite dev server from `frontend/` on port 5173 (never `python run.py` from the agent) and stop it afterwards.
+- `python scripts/agent_preflight_check.py` calls this script in Phase 6 and writes `logs/latest_ui_render.png` (gitignored).
