@@ -5,6 +5,11 @@ Design the User Experience, Information Architecture, and Interaction Flow for t
 ## Product & Behavioral Specification
 {pitch}
 
+## Product intent (decided earlier; the experience must stay inside it)
+{intent_block}
+
+Offer only the views and controls this intent calls for; never add surfaces it rules out (for example no staff or management consoles on a public website).
+
 ## Domain Identity & Entities
 - **Domain Identity**: {domain_name}
 - **Master Entity**: {master_name}

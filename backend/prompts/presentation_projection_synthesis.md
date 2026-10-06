@@ -2,6 +2,11 @@ You are Provable's Principal Frontend Architect and UX Engineer.
 
 Build the interactive presentation projection for the following domain:
 
+## Product intent (decided earlier; the UI must stay inside it)
+{intent_block}
+
+Build only the views and controls this intent calls for. Never add surfaces it rules out (for example no staff or management consoles on a public website), even if an action in the protocol below could power one.
+
 ## Domain Specification
 - **Product Pitch & Interactive Canvas Spec**: "{pitch}"
 - **Domain Identity**: `{domain_name}`

@@ -2187,7 +2187,8 @@ def kickstart_domain_and_scaffold(
                 pitch=pitch_text,
                 structure=structure,
                 inbox_specs=inbox_specs,
-                workspace_dir=workspace_dir
+                workspace_dir=workspace_dir,
+                intent=product_intent
             )
             t5a_elapsed = round(time.time() - t5a_start, 2)
             timings["5a_domain_engine"] = t5a_elapsed
@@ -2203,7 +2204,8 @@ def kickstart_domain_and_scaffold(
                 inbox_specs=inbox_specs,
                 workspace_dir=workspace_dir,
                 action_manifest=engine_res.get("action_manifest"),
-                router_code=engine_res.get("router_code")
+                router_code=engine_res.get("router_code"),
+                intent=product_intent
             )
             t5b_elapsed = round(time.time() - t5b_start, 2)
             timings["5b_presentation_projection"] = t5b_elapsed

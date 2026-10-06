@@ -9,6 +9,7 @@ import re
 import json
 import time
 from typing import List, Dict, Any, Optional
+from onboarding.intent import ProductIntent, intent_block
 from onboarding.router_engine import DomainStructureSchema, BusinessSpec
 from agent_orchestrator import call_gemini
 
@@ -167,7 +168,8 @@ def synthesize_and_write_presentation_projection(
     workspace_dir: str,
     action_manifest: Optional[Dict[str, Any]] = None,
     router_code: Optional[str] = None,
-    ux_blueprint: Optional[str] = None
+    ux_blueprint: Optional[str] = None,
+    intent: Optional[ProductIntent] = None
 ) -> Dict[str, Any]:
     """
     Directly synthesizes and writes modular React presentation components and client.
@@ -262,7 +264,8 @@ Respond STRICTLY with JSON:
                 action_manifest=action_manifest,
                 backend_state_model=backend_state_model,
                 master_name=master_name,
-                master_slug=master_slug
+                master_slug=master_slug,
+                intent=intent
             )
         except Exception as ux_err:
             print(f"[Compiler:Node3] UX planning notice: {ux_err}")
@@ -279,7 +282,8 @@ Respond STRICTLY with JSON:
         "{bdd_section}": bdd_section,
         "{backend_state_model}": backend_state_model,
         "{action_protocol_block}": action_protocol_block,
-        "{ux_blueprint}": ux_blueprint or ""
+        "{ux_blueprint}": ux_blueprint or "",
+        "{intent_block}": intent_block(intent)
     }
     for k, v in replacements.items():
         prompt = prompt.replace(k, str(v))

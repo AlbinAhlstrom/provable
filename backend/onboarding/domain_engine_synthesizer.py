@@ -15,6 +15,8 @@ import time
 from typing import Any, Dict, List
 
 import agent_orchestrator
+from typing import Optional
+from onboarding.intent import ProductIntent, intent_block
 from onboarding.router_engine import BusinessSpec, DomainStructureSchema
 from onboarding.skeleton_builder import to_snake_case
 from pipeline_trace import traced
@@ -53,6 +55,7 @@ def synthesize_action_protocol(
     structure: DomainStructureSchema,
     inbox_specs: List[BusinessSpec],
     workspace_dir: str,
+    intent: Optional[ProductIntent] = None,
 ) -> Dict[str, Any]:
     """Asks the LLM for the action manifest. Writes no files. On any failure returns success False with the reason."""
     start_time = time.time()
@@ -71,6 +74,7 @@ def synthesize_action_protocol(
         "master_name": master_name,
         "domain_classes": classes_block,
         "bdd_section": specs_block,
+        "intent_block": intent_block(intent),
     })
     raw = agent_orchestrator.call_gemini(prompt, stage="domain_engine_synthesis", json_mode=True)
     elapsed = lambda: round(time.time() - start_time, 2)  # noqa: E731

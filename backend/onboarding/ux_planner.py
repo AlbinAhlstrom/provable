@@ -8,6 +8,7 @@ import os
 import re
 import time
 from typing import Dict, Any, List, Optional
+from onboarding.intent import ProductIntent, intent_block
 from onboarding.router_engine import DomainStructureSchema, BusinessSpec
 from agent_orchestrator import call_gemini
 
@@ -18,7 +19,8 @@ def plan_ux_blueprint(
     action_manifest: Optional[Dict[str, Any]] = None,
     backend_state_model: str = "",
     master_name: str = "",
-    master_slug: str = ""
+    master_slug: str = "",
+    intent: Optional[ProductIntent] = None
 ) -> str:
     """
     Synthesizes a structured UX Interaction Blueprint detailing cold start defaults,
@@ -57,6 +59,7 @@ def plan_ux_blueprint(
     prompt = prompt.replace("{master_name}", master_name)
     prompt = prompt.replace("{entities_block}", entities_block)
     prompt = prompt.replace("{action_protocol_block}", action_protocol_block)
+    prompt = prompt.replace("{intent_block}", intent_block(intent))
 
     print(f"[Compiler:UXPlanner] Reasoning about Cold Start, user journeys, and action ergonomics...", flush=True)
     try:
@@ -69,13 +72,13 @@ def plan_ux_blueprint(
         print(f"[Compiler:UXPlanner] Notice: {e}. Falling back to default UX flow.")
 
     return """### 1. Default Landing & Cold-Start Behavior
-Default to primary customer intake/booking workflow when no active records exist. Render helpful empty states.
+Show the product's primary view first, with a helpful empty state wherever a collection is empty.
 
 ### 2. Primary Navigation & View Structure
-Navigation follows natural lifecycle: 1. Overview/Showcase, 2. Intake/Booking, 3. Active Management.
+Keep navigation to the views the product intent calls for, ordered by what a first-time visitor needs.
 
 ### 3. Workflow Prerequisites & Form Ergonomics
 Ensure all form inputs have visible descriptive labels. If prerequisites are missing, display explanatory notices.
 
 ### 4. Human Copy & Action Labeling
-Use clear, approachable human terminology matching the personas. Avoid internal developer jargon."""
+Use clear, approachable human terminology matching the audience. Avoid internal developer jargon."""
