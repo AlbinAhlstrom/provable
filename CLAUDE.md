@@ -32,14 +32,21 @@ Reading `workspace/` and comparing it with the ideal output is how we find upstr
 
 - Engine changes are test-first: failing test in `backend/tests/unit/test_<target>.py` (use `FakeUnitOfWork`), implement, wire the router,
   then the full suite. Never weaken assertions to get green. If the architecture moved on, rewrite or delete the obsolete test.
-- Commit only when asked, and run the full suite first.
+- **Commits (standing instruction):** when a task is finished and the tests are confirmed green, commit it without being asked.
+  Stage only the files that task touched (the tree usually holds unrelated uncommitted work, so never `git add -A`) and use a
+  conventional subject (`feat|fix|test|docs|chore(scope): ...`). A later fix on the same subject goes into that commit with
+  `git commit --amend`, but only while it is the latest commit, carries a `Claude-Session` trailer, and is unpushed;
+  otherwise make a new commit. Never push, never amend someone else's commit. Run the full suite first; cloud sessions cannot,
+  so they commit after the user confirms green.
 - The pipeline's own build loop is test-first too: generated code goes RED -> GREEN against hash-locked tests
   (`service_layer/tdd_machine.py`: `compute_test_file_hash`, `verify_test_file_integrity`). Never weaken tests during GREEN.
 - `scripts/agent_preflight_check.py` Phase 4 now runs against a throwaway workspace + DB with the LLM off (it used to POST
   `/api/onboarding/reset` at the real ones). Until the user confirms one clean run, do not run preflight yourself.
 - The engine DB lives at `<workspace>/requirements/provable.db`, so wiping or resetting `workspace/` also resets engine state.
-- Session start: read only the "Current Active System State" block at the top of `vault/HANDOVER.md`, not the whole file.
-  At wrap-up, update it when architectural decisions or roadmap items changed.
+- Current state and open decisions (kept short; the long history is `vault/HANDOVER-archive.md`, read it only when needed).
+  Update it at wrap-up when architectural decisions or roadmap items changed:
+
+@vault/HANDOVER.md
 
 ## Pipeline map (engine files)
 
@@ -49,7 +56,10 @@ Backend `domain_engine_synthesizer.py` -> Frontend `presentation_projection_synt
 Styling `styling_synthesizer.py` -> QA `qa_auditor.py`, `qa_gate.py` (bounded rework, `max_rework_attempts=2`).
 Each department decides only its own concern (the Analyst never decides file layout, the Architect never decides business rules, etc.).
 
-More detail: `vault/Home.md` (index), `vault/01-Architecture/`, `.agents/rules/`, `.agents/roles/`, `.agents/domain_ontology.yaml`.
+More detail: `vault/Home.md` (index), `vault/01-Architecture/`, `.agents/domain_ontology.yaml`.
+Specialised rules load from `.claude/rules/` when matching files are touched. Review with the `architecture-verifier` and
+`code-smell-verifier` subagents, inspect generated output with `workspace-inspector`, and use the skills `acceptance`,
+`fix-pipeline-bug` and `commit-task`. Install this configuration with `python scripts/claude_setup/install.py`.
 
 ## Working agreement
 
