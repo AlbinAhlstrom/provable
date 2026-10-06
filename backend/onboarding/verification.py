@@ -33,6 +33,16 @@ def audit_domain_vocabulary(pitch: str, code_files: Dict[str, str]) -> dict:
     return {"status": "pass"}
 
 
+def run_workspace_build(ws_base: str, timeout: int = 180) -> Dict[str, object]:
+    """Builds the generated frontend (`npm run build`). Returns {"ok": bool, "output": str}; never raises."""
+    npm_cmd = "npm.cmd" if os.name == "nt" else "npm"
+    try:
+        res = subprocess.run([npm_cmd, "run", "build"], cwd=ws_base, capture_output=True, text=True, timeout=timeout)
+    except Exception as e:  # missing npm, timeout: report, do not guess
+        return {"ok": False, "output": f"build could not run: {e}"}
+    return {"ok": res.returncode == 0, "output": ((res.stdout or "") + (res.stderr or "")).strip()}
+
+
 def verify_preview_health(ws_base: str) -> dict:
     """Automated Web Application Build & Preview Verification Gate.
     

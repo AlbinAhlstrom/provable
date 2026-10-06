@@ -220,6 +220,7 @@ export interface BusinessSpecItemDTO {
   given_when_then: string;
   target_aggregate: string;
   spec_type?: 'ATTRIBUTE_EXPANSION' | 'DOMAIN_INVARIANT' | 'STATE_TRANSITION' | 'API_CONTRACT' | string;
+  kind?: 'behavior' | 'presentation';
   is_mathematical_boundary?: boolean;
   priority: string;
   status: 'PENDING' | 'IN_PROGRESS' | 'FULFILLED' | 'REQUIRES_HUMAN_INTERVENTION' | string;

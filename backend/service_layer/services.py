@@ -1700,14 +1700,15 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
     if not target_spec_dict:
         return {"success": False, "status": "NOT_FOUND", "error": f"Specification {spec_id} not found."}
 
-    # Route through Delta Evolution Compiler if specification has presentation / view impact
-    from onboarding.delta_compiler import classify_delta_specification, apply_specification_delta, DeltaClassification
-    classification = classify_delta_specification(target_spec_dict)
-    if classification in (DeltaClassification.VIEW, DeltaClassification.CROSS_CUTTING):
-        delta_res = apply_specification_delta(target_spec_dict, workspace_dir=workspace_dir)
-        final_status = delta_res.get("status", "FULFILLED")
-        update_spec_status(spec_id, final_status, uow=uow)
-        return delta_res
+    # Presentation specs are applied to the aggregate's view and proved by a frontend build, not by the TDD loop
+    from onboarding.presentation_specs import execute_presentation_spec, spec_kind
+    from onboarding.router_engine import SpecKind
+    if spec_kind(target_spec_dict) is SpecKind.PRESENTATION:
+        result = execute_presentation_spec(target_spec_dict, workspace_dir=workspace_dir)
+        update_spec_status(spec_id, result["status"], uow=uow, tdd={
+            "phase": result["phase"], "error": result["error"], "attempts": result["attempts"],
+            "rolled_back": result["rolled_back"], "test_source": None, "test_location": None, "red_attempts": []})
+        return result
 
     from onboarding.router_engine import BusinessSpec
     from service_layer.tdd_machine import execute_spec_tdd_loop

@@ -26,7 +26,7 @@ The original pitch, and optionally the rule deck, the expected behaviour, or a s
 | Wrong entities or attributes | `router_engine.py`, `domain_ontology.py` |
 | Directory or boilerplate problems | `skeleton_builder.py` |
 | Rule deck problems | `service_layer/services.py` |
-| Edits clobbered unrelated code | `delta_compiler.py`, `cst_isolator.py` |
+| Edits clobbered unrelated code | `presentation_specs.py`, `cst_isolator.py` |
 | Domain, service or router code wrong | `domain_engine_synthesizer.py`, `prompts/domain_engine_synthesis.md` |
 | Components, view logic, action mismatch | `presentation_projection_synthesizer.py`, `frontend_planning_engine.py`, `prompts/presentation_projection_synthesis.md` |
 | Colors, typography, tokens | `styling_synthesizer.py`, `prompts/styling_synthesis.md` |

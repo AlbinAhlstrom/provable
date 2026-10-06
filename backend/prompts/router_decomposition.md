@@ -22,6 +22,7 @@ CRITICAL DECOMPOSITION INSTRUCTIONS:
   - Extract each distinct business rule, invariant, pricing formula, or edge case as an atomic spec item.
   - Formulate a precise BDD specification ("Given ... When ... Then ...").
   - Target the specific Aggregate Root that owns the invariant.
+  - Set `kind` to "behavior" when the rule is about what the domain allows, calculates or records, and to "presentation" when it is only about what a user sees (a section, layout or visual state). A rule that needs both is two specs: one of each kind.
   - Set `is_mathematical_boundary` to true if the rule enforces mathematical formulas, capacity limits, ranges, or expiration windows.
 
 Respond STRICTLY with a valid JSON object matching this schema (no markdown, no explanations):
@@ -59,6 +60,7 @@ Respond STRICTLY with a valid JSON object matching this schema (no markdown, no 
         "description": "<Detailed Rule Description>",
         "given_when_then": "Given <preconditions> When <action> Then <expected outcome>",
         "target_aggregate": "<EntityName>",
+        "kind": "behavior",
         "is_mathematical_boundary": false,
         "priority": "High",
         "status": "PENDING"

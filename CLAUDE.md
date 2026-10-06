@@ -47,6 +47,6 @@ For UI changes, review the generated `logs/latest_ui_render.png` before finishin
 
 ## Generator principles (from the pipeline's design)
 - **Root cause only.** If a stage emits bad output, fix the upstream schema, prompt or contract. No post-hoc regex filters or "MUST NOT" prompt patches; if you are tempted, stop and flag it to the user.
-- **Typed contracts** between pipeline stages (dataclasses, not loose dicts); **surgical deltas** through `delta_compiler.py` / `cst_isolator.py`; **zero-question kickstart** (the user is the CEO: the pipeline makes opinionated assumptions and never interviews them).
+- **Typed contracts** between pipeline stages (dataclasses, not loose dicts); **surgical deltas** through `cst_isolator.py` (behaviour specs) and `presentation_specs.py` (presentation specs: one view, proved by a build); **zero-question kickstart** (the user is the CEO: the pipeline makes opinionated assumptions and never interviews them).
 - Pipeline map: COO `prompt_expander.py` -> intent `onboarding/intent.py` -> Analyst `router_engine.py`, `domain_ontology.py` -> Architect `skeleton_builder.py` -> Product Manager `service_layer/services.py` (Living Rule Deck) -> TDD `service_layer/tdd_machine.py` -> Backend `domain_engine_synthesizer.py` -> Frontend `presentation_projection_synthesizer.py`, `frontend_planning_engine.py` -> Styling `styling_synthesizer.py` -> QA `qa_auditor.py`, `qa_gate.py` (bounded rework, `max_rework_attempts=2`).
 - Live-LLM "boss fight" tests only on request (`RUN_BOSS_FIGHTS=1` or `-m boss_fight`); the standard suite is offline.

@@ -3,7 +3,7 @@
 ## 🛑 AIRGAP DIRECTIVE (HARD TOOL CONSTRAINT)
 **NEVER CALL `write_to_file` OR `replace_file_content` ON ANY PATH CONTAINING `/workspace/` OR `\workspace\`.**
 - Target files inside `workspace/` are strictly **READ-ONLY** for agents.
-- All code generation, layout styling, and component fixes MUST occur by modifying backend compiler engines (`backend/onboarding/presentation_projection_synthesizer.py`, `backend/onboarding/delta_compiler.py`, etc.).
+- All code generation, layout styling, and component fixes MUST occur by modifying backend compiler engines (`backend/onboarding/presentation_projection_synthesizer.py`, `backend/onboarding/presentation_specs.py`, etc.).
 - The backend engine alone is authorized to write into `workspace/`. Direct agent edits to `workspace/` constitute an immediate invariant violation.
 
 ## 🌌 Project Vision & The North Star

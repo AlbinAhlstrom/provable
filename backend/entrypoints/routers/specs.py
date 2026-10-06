@@ -20,6 +20,7 @@ class SpecCreateRequest(BaseModel):
     given_when_then: str
     target_aggregate: str = "Pallet"
     spec_type: str = "DOMAIN_INVARIANT"
+    kind: str = "behavior"  # "behavior" (TDD loop) or "presentation" (view rewrite + build)
     is_mathematical_boundary: bool = False
     priority: str = "High"
 
@@ -48,6 +49,7 @@ def add_inbox_spec(req: SpecCreateRequest):
         "given_when_then": req.given_when_then,
         "target_aggregate": req.target_aggregate,
         "spec_type": req.spec_type,
+        "kind": req.kind,
         "is_mathematical_boundary": req.is_mathematical_boundary,
         "priority": req.priority,
         "status": "PENDING"

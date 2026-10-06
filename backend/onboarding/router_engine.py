@@ -26,6 +26,12 @@ class SpecMutationType(str, Enum):
     API_CONTRACT = "API_CONTRACT"
 
 
+class SpecKind(str, Enum):
+    """What a spec constrains: domain behaviour (proved by the TDD loop) or what the user sees (proved by a build)."""
+    BEHAVIOR = "behavior"
+    PRESENTATION = "presentation"
+
+
 class AttributeSpec(BaseModel):
     name: str
     type: str = "str"
@@ -54,6 +60,7 @@ class BusinessSpec(BaseModel):
     given_when_then: str
     target_aggregate: str
     spec_type: str = SpecMutationType.DOMAIN_INVARIANT.value
+    kind: str = SpecKind.BEHAVIOR.value
     category: Optional[str] = "INVARIANT"
     is_mathematical_boundary: bool = False
     priority: str = "High"
