@@ -31,8 +31,9 @@ if tool in ("Edit", "Write"):
 
 if tool == "Bash":
     cmd = inp.get("command", "")
-    if re.search(r"(^|[;&|]\s*)python3?\s+(\./)?run\.py\b", cmd):
-        block("Do not run `python run.py` from the agent; the user manages the stack in their own terminal.")
+    if re.search(r"\bpython3?\s+(\./)?run\.py\b", cmd) and "PROVABLE_ALLOW_RUN=1" not in cmd:
+        block("Do not run `python run.py` from the agent unless the user explicitly asked for it in this session. "
+              "If they did, prefix the command with PROVABLE_ALLOW_RUN=1 (and run it in the background with output to a log file).")
     if re.search(r"\bgit\s+commit\b", cmd):
         res = subprocess.run([sys.executable, "-m", "pytest", "backend/tests/", "-q"],
                              cwd=root, capture_output=True, text=True)

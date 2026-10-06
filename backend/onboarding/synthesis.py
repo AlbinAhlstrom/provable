@@ -3,6 +3,7 @@ Domain Synthesis Engine — Forward TDD Pipeline for Provable Platform.
 Generates ISO 29148 requirements, BDD pytest suites, domain models, adapters, and React App shell.
 """
 
+from pipeline_trace import traced
 import json
 import os
 import re
@@ -14,6 +15,7 @@ from onboarding.requirement_generator import generate_dynamic_requirements
 from onboarding.verification import audit_domain_vocabulary, verify_preview_health
 from onboarding.visual_auditor import audit_visual_presentation
 
+@traced("synthesis.run")
 def synthesize_application_stack(domain_schema: Dict[str, Any], uow: Optional[AbstractUnitOfWork] = None):
     """
     Forward-TDD Pipeline:

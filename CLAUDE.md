@@ -18,7 +18,8 @@ Spec-driven code generation engine: TDD verification loops + DDD architecture. T
 - Pre-flight (build + tests + purity lint + live checks): `python scripts/agent_preflight_check.py`.
   Runs without an LLM key (tests mock the LLM). Phases 1-5 work standalone; Phase 6 (UI screenshot) is only
   captured if PM Studio is running on :5173, otherwise it is reported as SKIPPED, which means no visual verification.
-- Run the stack: `python run.py` — the **user** runs this in their own terminal; never start it from the agent.
+- Run the stack: `python run.py` — normally the **user** runs this in their own terminal. Only start it from the agent when the user explicitly asks, with `PROVABLE_ALLOW_RUN=1` (see rule 01).
+- Trace every pipeline step's input/output: set `PROVABLE_TRACE_DIR=logs/trace` before starting the backend, use the app, then run `python scripts/trace_report.py logs/trace` (`--full N` shows one step). Implemented in `backend/pipeline_trace.py`; API keys are redacted.
 - Copy `.env.example` to `.env` and set `GEMINI_API_KEY` (or `OPENAI_API_KEY`) for real LLM calls.
 
 ## Hard invariants (details in the rule files)

@@ -1,3 +1,4 @@
+from pipeline_trace import traced
 import os
 import re
 import random
@@ -488,6 +489,7 @@ def get_active_domain_params(uow: Optional[AbstractUnitOfWork] = None) -> dict:
     }
 
 
+@traced("svc.sync_app_shell")
 def sync_workspace_app_shell(ws_base: Optional[str] = None, uow: Optional[AbstractUnitOfWork] = None, workspace: Optional[Any] = None):
     try:
         if not ws_base:
@@ -502,6 +504,7 @@ def sync_workspace_app_shell(ws_base: Optional[str] = None, uow: Optional[Abstra
 
 
 
+@traced("svc.get_fixtures")
 def get_component_data_fixtures(uow: Optional[AbstractUnitOfWork] = None) -> Dict[str, Any]:
     """
     Returns active data fixtures grouped by canonical component key.
@@ -793,6 +796,7 @@ def get_kickstart_state(uow: AbstractUnitOfWork) -> Dict[str, Any]:
 
 
 
+@traced("svc.analyze_kickstart")
 def analyze_kickstart_pitch(business_pitch: str, uow: AbstractUnitOfWork) -> Dict[str, Any]:
     """Analyze pitch to discover domain capabilities and extract domain requirements."""
     from onboarding.domain_ontology import analyze_pitch_for_kickstart
@@ -809,6 +813,7 @@ def analyze_kickstart_pitch(business_pitch: str, uow: AbstractUnitOfWork) -> Dic
     return {"success": True, "data": analysis}
 
 
+@traced("svc.synthesize_stack")
 def synthesize_kickstart_stack(
     business_pitch: Optional[str] = None,
     pitch: Optional[str] = None,
@@ -1403,6 +1408,7 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
     return tdd_result
 
 
+@traced("svc.kickstart_and_scaffold")
 def kickstart_domain_and_scaffold(
     pitch: str,
     uow: AbstractUnitOfWork,

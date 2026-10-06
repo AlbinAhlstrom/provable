@@ -4,6 +4,7 @@ Constructs 100% generic, contract-first Domain Ontologies for ANY arbitrary pitc
 with ZERO domain-specific hardcoded switchboards.
 """
 
+from pipeline_trace import traced
 import agent_orchestrator
 import re
 import json
@@ -114,6 +115,7 @@ class DomainOntologySpec:
         }
 
 
+@traced("ontology.storm")
 def storm_domain_ontology(pitch: str) -> DomainOntologySpec:
     """
     Universal Domain Ontology Stormer & Dynamic Conceptualization Engine.
@@ -221,6 +223,7 @@ def storm_domain_ontology(pitch: str) -> DomainOntologySpec:
         raise RuntimeError(f"Domain Ontology Storming failed to process pitch '{pitch_clean}': {e}") from e
 
 
+@traced("kickstart.analyze_pitch")
 def analyze_pitch_for_kickstart(pitch: str) -> Dict[str, Any]:
     """
     Analyzes a natural language business pitch by delegating to storm_domain_ontology
@@ -268,6 +271,7 @@ def analyze_pitch_for_kickstart(pitch: str) -> Dict[str, Any]:
     }
 
 
+@traced("ontology.branding")
 def synthesize_domain_intent_and_branding(pitch: str) -> Dict[str, Any]:
     """Synthesize clean brand title and domain category without keyword cascades."""
     ont = storm_domain_ontology(pitch)

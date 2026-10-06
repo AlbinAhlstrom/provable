@@ -5,6 +5,7 @@ Orchestrates 3 specialized planning subagents with Pydantic contract validation,
 Registry Grounding verification, AST checks, and deterministic React layout assembly.
 """
 
+from pipeline_trace import traced
 import os
 import re
 import json
@@ -22,6 +23,7 @@ from onboarding.planning_contracts import (
 from onboarding.code_verifier import verify_tsx_syntax, self_heal_tsx_code
 
 
+@traced("ui.plan_pipeline")
 def run_frontend_planning_pipeline(pitch: str) -> UnifiedFrontendBlueprint:
     """
     Executes the multi-agent planning pipeline with Pydantic validation & grounding gates.
@@ -44,6 +46,7 @@ def run_frontend_planning_pipeline(pitch: str) -> UnifiedFrontendBlueprint:
     )
 
 
+@traced("ui.plan_category")
 def _run_category_planning_agent(pitch: str) -> CategoryLayoutPlan:
     """Agent 0: Extracts dynamic page layout intent from domain ontology."""
     from onboarding.domain_ontology import storm_domain_ontology
@@ -63,6 +66,7 @@ def _run_category_planning_agent(pitch: str) -> CategoryLayoutPlan:
     )
 
 
+@traced("ui.plan_components")
 def _run_component_planning_agent(pitch: str, category_plan: CategoryLayoutPlan) -> ComponentSlotAssignment:
     """Agent 1: Decomposes pitch into bespoke domain-native React components from domain entities and workflows."""
     from onboarding.domain_ontology import storm_domain_ontology
@@ -167,6 +171,7 @@ def verify_theme_compliance(tsx_code: str, archetype: str) -> str:
     return sanitized
 
 
+@traced("ui.entity_profile")
 def _extract_domain_entity_profile(pitch: str) -> Dict[str, Any]:
     """
     Extracts dynamic domain nouns, hero headlines, badges, and seed data tailored to the pitch.
@@ -196,6 +201,7 @@ def sanitize_domain_vocabulary_leakage(code: str, pitch: str) -> str:
 
 
 
+@traced("ui.plan_aesthetics")
 def _run_aesthetic_planning_agent(pitch: str, category_plan: CategoryLayoutPlan) -> AestheticThemeSpec:
     """Agent 2: Generates domain color palette, brand title, and realistic mock seed data."""
     from onboarding.domain_ontology import storm_domain_ontology
@@ -254,6 +260,7 @@ def _run_aesthetic_planning_agent(pitch: str, category_plan: CategoryLayoutPlan)
         )
 
 
+@traced("ui.assemble_app")
 def assemble_app_tsx_from_blueprint(blueprint: UnifiedFrontendBlueprint, custom_fixtures: Optional[Dict[str, Any]] = None) -> str:
     """
     Assembles complete, high-aesthetic React App.tsx TSX code from the blueprint.
@@ -305,6 +312,7 @@ def assemble_app_tsx_from_blueprint(blueprint: UnifiedFrontendBlueprint, custom_
     return inject_data_fixtures_sync_to_tsx(sanitize_domain_vocabulary_leakage(fallback_code, pitch), custom_fixtures=custom_fixtures)
 
 
+@traced("ui.inject_fixture_sync")
 def inject_data_fixtures_sync_to_tsx(code: str, custom_fixtures: Optional[Dict[str, Any]] = None) -> str:
     """Injects setItems state setter and window.addEventListener('message') fixture sync handler into TSX code."""
     if not code:
@@ -376,6 +384,7 @@ def _normalize_fixture_item(item: Dict[str, Any], idx: int) -> Dict[str, Any]:
     return item
 
 
+@traced("ui.fallback_app")
 def _generate_fallback_assembled_app(bp: UnifiedFrontendBlueprint, custom_fixtures: Optional[Dict[str, Any]] = None) -> str:
     """Deterministic, domain-neutral fallback App.tsx used when LLM assembly is unavailable or invalid.
 
@@ -441,6 +450,7 @@ def analyze_pitch_components_and_suggestions(pitch: str) -> Dict[str, Any]:
         return _heuristic_pitch_analysis_fallback(pitch)
 
 
+@traced("ui.domain_schema")
 def build_pitch_specific_domain_schema(pitch: str) -> Dict[str, Any]:
     """Alias function wrapping _extract_domain_entity_profile for domain schema synthesis."""
     return _extract_domain_entity_profile(pitch)

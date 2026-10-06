@@ -3,6 +3,7 @@ Requirement Generator — Synthesizes formal ISO 29148 requirements from DDD dom
 100% Prompt-Agnostic & Zero-Hardcoding Compliant.
 """
 
+from pipeline_trace import traced
 import json
 import os
 import re
@@ -125,6 +126,7 @@ def _link_logic_reqs_to_ui_components(reqs: List[dict], schema: Optional[dict] =
     return reqs
 
 
+@traced("requirements.generate")
 def generate_dynamic_requirements(schema: dict) -> List[dict]:
     """Dynamically synthesize formal ISO 29148 requirements across 3 layers with BDD scenarios & Event State Machine contracts.
     100% prompt-agnostic for any domain.

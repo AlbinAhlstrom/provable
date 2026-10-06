@@ -47,7 +47,7 @@ The fallback template is deliberately domain-neutral (it renders only blueprint 
   docker compose -f docker-compose.allure.yaml up -d
   ```
 - **Application Stack Execution Invariant**:
-  **NEVER start `python run.py` from the agent (foreground or background).**
+  **Do not start `python run.py` from the agent unless the user explicitly asks for it in that session** (then run it in the background with `PROVABLE_ALLOW_RUN=1 nohup python run.py > <log> 2>&1 &`; the guard hook requires that flag).
   It spawns long-lived WatchFiles reloader processes that restart the system and interrupt the agent's turn. The user manages `python run.py` in their own terminal, while Uvicorn and Vite hot-reload automatically. If you need a running service for verification (e.g. a screenshot), start just that service yourself (e.g. `npx vite --port 5173` in `frontend/`) and stop it afterwards.
 
 ---

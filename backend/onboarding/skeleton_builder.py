@@ -4,6 +4,7 @@ Scaffolds pure DDD Domain Models, Repositories, Unit of Work, Pydantic DTOs,
 and FastAPI Routers to make OpenAPI /openapi.json available from second zero.
 """
 
+from pipeline_trace import traced
 import os
 import re
 from typing import Dict, List, Any, Optional
@@ -346,6 +347,7 @@ def health_check():
 '''
 
 
+@traced("skeleton.generate_files")
 def generate_fullstack_skeleton_files(structure: DomainStructureSchema, base_path: str = "") -> Dict[str, str]:
     """Generates a complete dictionary of workspace file paths and their full-stack source code."""
     files: Dict[str, str] = {}
@@ -430,6 +432,7 @@ def test_fake_uow_commit():
     return files
 
 
+@traced("skeleton.write")
 def build_and_write_skeleton(structure: DomainStructureSchema, target_dir: Optional[str] = None) -> List[str]:
     """Generates all full-stack skeleton files and writes them to the specified target directory."""
     base = target_dir or os.getcwd()

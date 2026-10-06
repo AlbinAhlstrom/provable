@@ -3,6 +3,7 @@ Router Engine — Structured DDD Intake & Domain Decomposition.
 Separates initial natural language pitch into Domain Structure and Behavior Inbox specs.
 """
 
+from pipeline_trace import traced
 import os
 import json
 import re
@@ -65,6 +66,7 @@ class RouterDecompositionResult(BaseModel):
     inbox: DomainBehaviorInboxSchema
 
 
+@traced("router.decompose")
 def decompose_pitch_into_structure_and_inbox(pitch: str) -> RouterDecompositionResult:
     """
     Analyzes business pitch using Router-LLM to strictly decouple Domain Structure from Behavior Inbox.
