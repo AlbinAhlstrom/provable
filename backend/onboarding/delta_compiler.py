@@ -136,8 +136,6 @@ Respond with the complete, updated TSX code inside a ```tsx ``` block.
             new_view_code = raw_resp.strip()
 
     if new_view_code and target_view_file:
-        from onboarding.presentation_projection_synthesizer import verify_and_sanitize_presentation_layout
-        new_view_code = verify_and_sanitize_presentation_layout(new_view_code)
         target_paths = [target_view_file]
         alt_path = target_view_file.replace(os.path.join(workspace_dir, "src"), os.path.join(workspace_dir, "frontend", "src"))
         if os.path.exists(os.path.dirname(alt_path)):

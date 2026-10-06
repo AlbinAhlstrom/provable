@@ -4,18 +4,8 @@ Verifies fallback templates adhere to Viewport Containment and resilient module 
 """
 
 import pytest
-from onboarding.presentation_projection_synthesizer import (
-    verify_and_sanitize_presentation_layout,
-    _generate_fallback_app_tsx
-)
+from onboarding.presentation_projection_synthesizer import _generate_fallback_app_tsx
 from onboarding.skeleton_builder import generate_frontend_main_tsx
-
-
-def test_sanitize_passes_code_cleanly():
-    """Verifies that code passes cleanly through without arbitrary string mutations."""
-    raw_code = "<div className=\"custom-view\">{content}</div>"
-    sanitized = verify_and_sanitize_presentation_layout(raw_code)
-    assert sanitized == raw_code
 
 
 def test_fallback_app_tsx_has_vertical_containment():

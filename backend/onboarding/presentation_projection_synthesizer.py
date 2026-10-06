@@ -160,20 +160,6 @@ export default App;
 '''
 
 
-def _normalize_client_code(code: str, master_slug: str) -> str:
-    """Passes generated client code cleanly to disk."""
-    return code
-
-
-
-def verify_and_sanitize_presentation_layout(code: str) -> str:
-    """Passes code cleanly to disk; semantic and structural validation are handled declaratively by the agent feedback loop."""
-    return code
-
-
-
-
-
 def synthesize_and_write_presentation_projection(
     pitch: str,
     structure: DomainStructureSchema,
@@ -330,23 +316,10 @@ Respond STRICTLY with JSON:
         target_roots.append(frontend_src)
 
     client_code = payload.get("client_ts") or payload.get("client_api")
-    if client_code:
-        client_code = _normalize_client_code(client_code, master_slug)
     view_code = payload.get("view_tsx") or payload.get("canvas_view")
     controls_code = payload.get("controls_tsx")
     history_code = payload.get("history_tsx")
     app_code = payload.get("app_tsx")
-
-    # Sanitize and enforce Viewport Containment & Fluid Grid Scaling (Zero Overflow Invariant)
-    if view_code:
-        view_code = verify_and_sanitize_presentation_layout(view_code)
-    if controls_code:
-        controls_code = verify_and_sanitize_presentation_layout(controls_code)
-    if history_code:
-        history_code = verify_and_sanitize_presentation_layout(history_code)
-    # Pass generated code through cleanly
-    if app_code:
-        app_code = verify_and_sanitize_presentation_layout(app_code)
 
     # Validate that app_code exists, exports App, and includes the master view
     if not (app_code and f"{master_name}View" in app_code and "export" in app_code):
