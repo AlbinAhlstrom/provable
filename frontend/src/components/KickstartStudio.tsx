@@ -7,9 +7,6 @@ export interface KickstartStudioProps {
 
 export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesized }) => {
   const [pitch, setPitch] = useState<string>('');
-
-
-
   const [building, setBuilding] = useState<boolean>(false);
   const [resetting, setResetting] = useState<boolean>(false);
   const [resetMessage, setResetMessage] = useState<string | null>(null);
@@ -33,8 +30,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
     checkState();
   }, []);
 
-
-  const handleInstantBuild = async () => {
+  const triggerSynthesis = async () => {
     if (!pitch.trim()) return;
     setBuilding(true);
     setResetMessage(null);
@@ -42,7 +38,10 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
       const res = await fetch('/api/onboarding/kickstart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pitch: pitch.trim() })
+        body: JSON.stringify({
+          pitch: pitch.trim(),
+          mode: 'fast'
+        })
       });
       let data: any = {};
       try {
@@ -60,13 +59,12 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
         setResetMessage(`⚠️ Synthesis error: ${msg}`);
       }
     } catch (err: any) {
-      console.error("Instant build failed:", err);
+      console.error("Build failed:", err);
       setResetMessage(`❌ Network error: ${err?.message || 'Could not connect to backend server on port 8000.'}`);
     } finally {
       setBuilding(false);
     }
   };
-
 
   const handleResetAllProjects = async () => {
     setResetting(true);
@@ -104,25 +102,35 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
     );
   }
 
-  // ── VIEW 1: INITIAL 1-CLICK PROMPT FORM ────────────────────────────────────────
+  // ── VIEW 1: EXECUTIVE KICKSTART (0-QUESTION INSTANT GENERATION) ────────────────
   return (
     <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '0 1rem' }}>
-      
       {/* Header Banner */}
       <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', border: '1px solid #334155', borderRadius: '1rem', padding: '2.5rem', marginBottom: '2rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <span style={{ fontSize: '2rem' }}>⚡</span>
             <div>
               <h2 style={{ margin: 0, fontSize: '1.75rem', color: '#f8fafc', fontWeight: 800 }}>Provable Architecture Synthesizer</h2>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8' }}>Define your domain bounded context to synthesize verified DDD domain aggregates, OpenAPI contracts &amp; live preview.</p>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8' }}>
+                Beskriv din appidé. Vår pipeline delegerar uppgiften genom hela organisationen och bygger en fullstack-app direkt.
+              </p>
             </div>
           </div>
         </div>
 
         {/* Status Toast */}
         {resetMessage && (
-          <div style={{ background: resetMessage.includes('failed') || resetMessage.includes('error') ? '#450a0a' : '#064e3b', border: `1px solid ${resetMessage.includes('failed') || resetMessage.includes('error') ? '#991b1b' : '#047857'}`, color: resetMessage.includes('failed') || resetMessage.includes('error') ? '#fca5a5' : '#a7f3d0', padding: '0.75rem 1rem', borderRadius: '0.5rem', marginBottom: '1.5rem', fontWeight: 600 }}>
+          <div style={{
+            background: resetMessage.includes('❌') || resetMessage.includes('⚠️') ? '#450a0a' : '#064e3b',
+            border: `1px solid ${resetMessage.includes('❌') || resetMessage.includes('⚠️') ? '#991b1b' : '#047857'}`,
+            color: resetMessage.includes('❌') || resetMessage.includes('⚠️') ? '#fca5a5' : '#a7f3d0',
+            padding: '0.75rem 1rem',
+            borderRadius: '0.5rem',
+            marginBottom: '1rem',
+            fontWeight: 600,
+            fontSize: '0.9rem'
+          }}>
             {resetMessage}
           </div>
         )}
@@ -137,54 +145,57 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
           </div>
         )}
 
-
-        {/* Prompt Input Area */}
+        {/* Pitch Input Box */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 700, color: '#f59e0b', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Define Bounded Context:
+          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Affärsidé &amp; Verksamhetskrav
           </label>
           <textarea
-            rows={4}
             value={pitch}
             onChange={e => setPitch(e.target.value)}
-            disabled={building}
-            placeholder="e.g., Describe your domain bounded context, aggregate roots, entities, and business invariant rules."
+            placeholder="T.ex: Hotellbokningssystem för ett boutiquehotell med rumshantering, städstatus och rumsbokningar..."
+            rows={3}
             style={{
               width: '100%',
               background: '#0f172a',
-              border: '1px solid #475569',
-              color: '#fff',
-              padding: '1rem',
-              borderRadius: '0.75rem',
+              border: '1px solid #334155',
+              borderRadius: '0.5rem',
+              padding: '0.85rem',
+              color: '#ffffff',
               fontSize: '1rem',
               fontFamily: 'inherit',
-              lineHeight: 1.5,
+              resize: 'vertical',
               boxSizing: 'border-box'
             }}
           />
         </div>
 
-        {/* Build Action Button */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        {/* Action Button */}
+        <div>
           <button
-            onClick={handleInstantBuild}
+            onClick={triggerSynthesis}
             disabled={building || !pitch.trim()}
             style={{
+              width: '100%',
               background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
               color: '#ffffff',
-              border: 'none',
-              padding: '0.85rem 2rem',
-              borderRadius: '9999px',
+              border: '1px solid #38bdf8',
+              padding: '1.1rem 1.5rem',
+              borderRadius: '0.75rem',
               fontWeight: 800,
               fontSize: '1.1rem',
-              cursor: building ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 12px rgba(2, 132, 199, 0.4)',
+              cursor: building || !pitch.trim() ? 'not-allowed' : 'pointer',
+              boxShadow: '0 4px 16px rgba(2, 132, 199, 0.4)',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.6rem'
+              justifyContent: 'center',
+              gap: '0.75rem',
+              opacity: !pitch.trim() ? 0.6 : 1,
+              transition: 'transform 0.1s ease'
             }}
           >
-            {building ? '⏳ Synthesizing Domain Architecture...' : '⚡ Synthesize Architecture'}
+            <span style={{ fontSize: '1.3rem' }}>{building ? '⏳' : '🚀'}</span>
+            <span>{building ? 'Syntetiserar fullstack-arkitektur...' : 'Starta Generering (0 frågor)'}</span>
           </button>
         </div>
       </div>

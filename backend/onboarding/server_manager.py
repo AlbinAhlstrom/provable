@@ -91,32 +91,42 @@ def start_project_servers(project_path: Optional[str] = None) -> bool:
             print(f"⚠️ server_manager: Skipping '{cmd}' — package.json not found in {base} or subfolders")
             continue
 
+        log_path = os.path.join(base, "dev_server.log")
         try:
+            log_file = open(log_path, "a", encoding="utf-8")
             proc = subprocess.Popen(
                 cmd,
                 shell=True,
                 cwd=base,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stdout=log_file,
+                stderr=subprocess.STDOUT,
                 start_new_session=True
             )
             _running_procs.append(proc)
-            print(f"  ▶ PID {proc.pid}: {cmd}")
+            print(f"  ▶ PID {proc.pid}: {cmd} (logging to {log_path})", flush=True)
         except Exception as e:
-            print(f"❌ server_manager: Failed to start '{cmd}': {e}")
+            print(f"❌ server_manager: Failed to start '{cmd}': {e}", flush=True)
             return False
 
     if not _running_procs:
-        print(f"ℹ️ server_manager: No processes launched for {os.path.basename(base)}")
+        print(f"ℹ️ server_manager: No processes launched for {os.path.basename(base)}", flush=True)
         return False
 
     # Wait for the primary frontend port to come up
-    print(f"  ⏳ Waiting for port {port}...")
+    print(f"  ⏳ Waiting for port {port}...", flush=True)
     if _wait_for_port(port, timeout=45):
-        print(f"✅ server_manager: Server ready on port {port}")
+        print(f"✅ server_manager: Server ready on port {port}", flush=True)
         return True
     else:
-        print(f"⚠️ server_manager: Timed out waiting for port {port} — server may still be starting")
+        print(f"⚠️ server_manager: Timed out waiting for port {port} — server may still be starting", flush=True)
+        if os.path.exists(log_path):
+            try:
+                with open(log_path, "r", encoding="utf-8", errors="replace") as lf:
+                    lines = lf.readlines()
+                    if lines:
+                        print(f"  📜 Recent output from {log_path}:\n{''.join(lines[-15:])}", flush=True)
+            except Exception:
+                pass
         return False
 
 

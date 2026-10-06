@@ -114,7 +114,8 @@ def evaluate_red_gate_result(
 def evaluate_green_gate_result(
     exit_code: int,
     report_json: Optional[Dict[str, Any]] = None,
-    stderr: str = ""
+    stderr: str = "",
+    stdout: str = ""
 ) -> Dict[str, Any]:
     """Evaluates Pytest execution in the GREEN phase."""
     if exit_code == 0:
@@ -123,11 +124,30 @@ def evaluate_green_gate_result(
             "approved": True,
             "reason": "All tests passed cleanly."
         }
+
+    crash_messages = []
+    if report_json and "tests" in report_json:
+        for t in report_json.get("tests", []):
+            crash = t.get("call", {}).get("crash", {}).get("message", "")
+            if crash:
+                crash_messages.append(crash)
+            longrepr = t.get("call", {}).get("longrepr", "")
+            if longrepr and isinstance(longrepr, str):
+                crash_messages.append(longrepr)
+
+    if report_json and "collectors" in report_json:
+        for c in report_json.get("collectors", []):
+            longrepr = c.get("longrepr", "")
+            if longrepr and isinstance(longrepr, str):
+                crash_messages.append(longrepr)
+
+    detailed_reason = (stderr.strip() + " " + stdout.strip() + " " + " ".join(crash_messages)).strip() or f"Test assertions failed in GREEN phase (Exit code {exit_code})."
     return {
         "status": "FAILED_GREEN",
         "approved": False,
-        "reason": stderr or "Test assertions failed in GREEN phase."
+        "reason": detailed_reason
     }
+
 
 
 import hashlib
@@ -465,12 +485,30 @@ def synthesize_green_class_implementation(
     })
 
     raw_response = agent_orchestrator.call_gemini(prompt, stage="green_code_repair")
-
     if raw_response and raw_response.strip():
-        clean_code = re.sub(r"^```(?:python)?\s*", "", raw_response.strip(), flags=re.MULTILINE)
-        clean_code = re.sub(r"^```\s*$", "", clean_code.strip(), flags=re.MULTILINE).strip()
-        if f"class {target_class_name}" in clean_code:
-            return clean_code + "\n"
+
+
+        # Match python code block if present
+        code_block_match = re.search(r"```(?:python)?\s*(.*?)\s*```", raw_response, re.DOTALL)
+        candidate = code_block_match.group(1).strip() if code_block_match else raw_response.strip()
+
+        # If candidate has conversational text before @dataclass or class, trim it
+        if f"class {target_class_name}" in candidate:
+            class_idx = candidate.find(f"class {target_class_name}")
+            prefix = candidate[:class_idx]
+            dataclass_idx = prefix.rfind("@dataclass")
+            if dataclass_idx != -1:
+                candidate = candidate[dataclass_idx:].strip()
+            else:
+                candidate = candidate[class_idx:].strip()
+
+            try:
+                import ast
+                ast.parse(candidate)
+                return candidate + "\n"
+            except Exception as syn_err:
+                print(f"Synthesized class syntax error notice: {syn_err}")
+
 
     reason = agent_orchestrator.LAST_LLM_ERROR or f"the response did not contain a definition of class {target_class_name}"
     raise RuntimeError(f"GREEN synthesis failed: {reason}")
@@ -494,34 +532,69 @@ def execute_spec_tdd_loop(spec: BusinessSpec, workspace_dir: str) -> Dict[str, A
     os.makedirs(domain_dir, exist_ok=True)
     os.makedirs(tests_dir, exist_ok=True)
 
-    domain_file = os.path.join(domain_dir, f"{target_mod_name}.py")
-    if not os.path.exists(domain_file):
-        model_file = os.path.join(domain_dir, "model.py")
-        if os.path.exists(model_file) and target_class in open(model_file, encoding="utf-8").read():
-            domain_file = model_file
+    # Locate canonical domain file
+    domain_file = None
+    if os.path.exists(domain_dir):
+        # 1. Canonical snake_case module match (e.g. maintenance_work_order.py)
+        candidate_canonical = os.path.join(domain_dir, f"{target_mod_name}.py")
+        if os.path.exists(candidate_canonical):
+            domain_file = candidate_canonical
         else:
-            domain_file = os.path.join(domain_dir, f"{target_mod_name}.py")
-            init_code = f'''from dataclasses import dataclass, field
-from typing import List, Optional
+            # 2. Lowercase direct match fallback
+            candidate_lower = os.path.join(domain_dir, f"{target_class.lower()}.py")
+            if os.path.exists(candidate_lower):
+                domain_file = candidate_lower
+            else:
+                # 3. Search all entity domain files for target_class definition
+                for fname in os.listdir(domain_dir):
+                    if fname.endswith(".py") and not fname.startswith("__") and fname not in ["events.py", "exceptions.py"]:
+                        fpath = os.path.join(domain_dir, fname)
+                        try:
+                            with open(fpath, "r", encoding="utf-8") as f:
+                                content = f.read()
+                                if re.search(rf"\bclass\s+{re.escape(target_class)}\b", content):
+                                    domain_file = fpath
+                                    break
+                        except Exception:
+                            pass
 
-class DomainError(Exception):
-    pass
+    if not domain_file or not os.path.exists(domain_file):
+        domain_file = os.path.join(domain_dir, f"{target_mod_name}.py")
+        init_code = f'''import math
+from dataclasses import dataclass, field
+from datetime import datetime, date, timezone, timedelta
+from typing import List, Optional, Dict, Any, Union, Set, Tuple, Callable
+
+try:
+    from src.domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation
+    from src.domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent
+except ImportError:
+    try:
+        from domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation
+        from domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent
+    except ImportError:
+        pass
 
 @dataclass
 class {target_class}:
     id: str
     name: str = "Standard {target_class}"
+    events: List[Any] = field(default_factory=list)
 '''
-            with open(domain_file, "w", encoding="utf-8") as f:
-                f.write(init_code)
+        with open(domain_file, "w", encoding="utf-8") as f:
+            f.write(init_code)
 
-    used_module = target_mod_name if domain_file.endswith(f"{target_mod_name}.py") else "model"
+    used_module = os.path.splitext(os.path.basename(domain_file))[0]
 
     # -------------------------------------------------------------
     # 1. RED Phase: the LLM writes a behavioral test from the BDD spec; the gate checks it fails for the RIGHT reason
     # -------------------------------------------------------------
     spec_clean_id = spec.spec_id.lower().replace("-", "_")
     test_file_path = os.path.join(tests_dir, f"test_{spec_clean_id}.py")
+    scenario = spec.given_when_then or ""
+    with open(domain_file, "r", encoding="utf-8") as f:
+        initial_domain_source = f.read()
+    extracted_class_for_red = extract_class_cst(initial_domain_source, target_class) or f"@dataclass\nclass {target_class}:\n    id: str\n"
 
     with open(domain_file, "r", encoding="utf-8") as f:
         current_source = f.read()

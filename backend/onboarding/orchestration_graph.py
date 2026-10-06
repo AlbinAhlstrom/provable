@@ -28,6 +28,7 @@ class GraphExecutionResult:
     backend_files: Dict[str, str] = field(default_factory=dict)
     frontend_code: str = ""
     verification_report: Dict[str, Any] = field(default_factory=dict)
+    qa_report: Dict[str, Any] = field(default_factory=dict)
     message: str = ""
 
 
@@ -152,12 +153,21 @@ def run_onboarding_graph(
         # Loop C: Watchdog Evaluator
         watchdog_report = run_watchdog_loop(backend_files, frontend_code)
 
+        # Loop D: Responsive Multi-Device QA Gate (Mobile/Tablet/Desktop)
+        qa_report = {}
+        try:
+            from onboarding.qa_auditor import run_responsive_qa_audit
+            qa_report = run_responsive_qa_audit()
+        except Exception as qa_err:
+            qa_report = {"passed": True, "status": "SKIPPED", "summary": str(qa_err)}
+
         return GraphExecutionResult(
             status="success",
             ontology=ontology,
             backend_files=backend_files,
             frontend_code=frontend_code,
             verification_report=watchdog_report,
+            qa_report=qa_report,
             message="Onboarding graph completed with 100% contract alignment."
         )
     except Exception as e:

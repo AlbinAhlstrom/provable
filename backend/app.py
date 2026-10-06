@@ -5,9 +5,9 @@ Initializes FastAPI, configures CORS, handles Lifespan startup/shutdown, and mou
 
 import sys
 if hasattr(sys.stdout, 'reconfigure'):
-    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(line_buffering=True, encoding='utf-8')
 if hasattr(sys.stderr, 'reconfigure'):
-    sys.stderr.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(line_buffering=True, encoding='utf-8')
 
 import os
 import dotenv
@@ -89,7 +89,6 @@ from entrypoints.routers.kickstart import router as kickstart_router
 from entrypoints.routers.components import router as components_router
 from entrypoints.routers.specs import router as specs_router
 from entrypoints.routers.onboarding import router as onboarding_router
-
 app.include_router(projects_router)
 app.include_router(requirements_router)
 app.include_router(testing_router)

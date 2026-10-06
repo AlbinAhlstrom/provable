@@ -9,7 +9,9 @@ Executes 6 critical verification phases before any task handover:
    - Scans frontend/src/ for hardcoded domain entities (e.g. Pizza, Pallet, Zone, Operator).
    - Scans backend for silent Item fallbacks (e.g. EntitySpec(name="Item")).
    - Scans for dangerous silent exception swallows.
-4. Live Cold-Boot API Simulation: Tests cold-boot Swagger, kickstart state, and domain intake.
+4. Cold-Boot API Simulation: Tests cold-boot Swagger, kickstart state, and domain intake.
+   Hermetic: runs against a throwaway workspace + DB with the LLM disabled, so the reset
+   endpoint can never wipe the real workspace/ or provable.db.
 5. Workspace Domain API Health Check: Verifies live http://localhost:8001/openapi.json endpoint.
 6. Visual CI & Automated UI Capture: Captures live UI screenshot to logs/latest_ui_render.png.
 
@@ -19,8 +21,10 @@ Exits with code 0 if 100% healthy, code 1 if ANY check fails.
 import os
 import sys
 import re
+import contextlib
 import shutil
 import subprocess
+import tempfile
 
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
@@ -109,27 +113,68 @@ def check_domain_purity_and_anti_regression():
     log("✅ Phase 3: Domain Purity, Anti-Regression, and Fail-Loud invariants verified.")
 
 
+def _is_within(path: str, root: str) -> bool:
+    p = os.path.normcase(os.path.realpath(path))
+    r = os.path.normcase(os.path.realpath(root))
+    return p == r or p.startswith(r + os.sep)
+
+
+@contextlib.contextmanager
+def _hermetic_engine_env():
+    """Point the engine at a throwaway workspace, DB and config, with the LLM disabled.
+
+    Mirrors backend/tests/conftest.py::isolate_test_workspace. POST /api/onboarding/reset
+    physically deletes the active workspace and purges the active DB, so cold-boot checks
+    must never run against the real ones. Yields (workspace_dir, db_path).
+    """
+    tmp_root = tempfile.mkdtemp(prefix="provable_preflight_")
+    tmp_ws = os.path.join(tmp_root, "workspace")
+    os.makedirs(tmp_ws)
+    tmp_db = os.path.join(tmp_ws, "requirements", "provable.db")
+    overrides = {
+        "PROVABLE_WORKSPACE": tmp_ws,
+        "DATABASE_URL": "sqlite:///" + tmp_db,
+        "PROVABLE_CONFIG_PATH": os.path.join(tmp_root, "integrations.yaml"),
+        # present-but-empty beats .env: load_dotenv() never overrides an existing variable
+        "LLM_API_KEY": "",
+        "OPENAI_API_KEY": "",
+        "GEMINI_API_KEY": "",
+    }
+    saved = {key: os.environ.get(key) for key in overrides}
+    os.environ.update(overrides)
+    try:
+        yield tmp_ws, tmp_db
+    finally:
+        for key, value in saved.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+        shutil.rmtree(tmp_root, ignore_errors=True)
+
+
 def check_live_api_cold_boot_and_default_prompt():
-    log("▶ Phase 4: Simulating Live Cold-Boot API endpoints and default prompt intake...")
+    log("▶ Phase 4: Simulating Cold-Boot API endpoints and default prompt intake (hermetic: temp workspace + DB, LLM off)...")
     backend_dir = os.path.join(ROOT, "backend")
     if backend_dir not in sys.path:
         sys.path.insert(0, backend_dir)
 
-    # This phase calls /api/onboarding/reset and /kickstart in-process. Point it at a throwaway
-    # workspace + database so it can never wipe the live app's generated files or state.
-    import atexit
-    import tempfile
-    scratch_ws = tempfile.mkdtemp(prefix="provable-preflight-ws-")
-    os.makedirs(os.path.join(scratch_ws, "requirements"), exist_ok=True)
-    os.environ["PROVABLE_WORKSPACE"] = scratch_ws
-    os.environ["DATABASE_URL"] = "sqlite:///" + os.path.join(scratch_ws, "requirements", "provable.db")
-    atexit.register(shutil.rmtree, scratch_ws, ignore_errors=True)
-    from onboarding.templates.workspace_scaffold import create_default_workspace_scaffold
-    create_default_workspace_scaffold(scratch_ws)
-
+    stack = contextlib.ExitStack()
     try:
+        tmp_ws, tmp_db = stack.enter_context(_hermetic_engine_env())
         from fastapi.testclient import TestClient
         import app
+        import config_loader
+        from db import store
+        from onboarding.templates.workspace_scaffold import create_default_workspace_scaffold
+
+        # Hard stop: never POST to a mutating endpoint unless both paths resolve inside the sandbox.
+        for label, resolved in (("workspace", config_loader.get_workspace_base()), ("database", store.get_db_path())):
+            if not _is_within(resolved, tmp_ws):
+                fail(f"Phase 4 refuses to run: active {label} resolves to {resolved}, outside the throwaway sandbox {tmp_ws}. The reset endpoint would wipe real data.")
+        create_default_workspace_scaffold(tmp_ws)
+        store.init_db()
+
         client = TestClient(app.app)
 
         # 1. Test Swagger docs endpoint
@@ -167,6 +212,8 @@ def check_live_api_cold_boot_and_default_prompt():
 
     except Exception as e:
         fail(f"Cold-boot API simulation threw an unhandled exception: {e}")
+    finally:
+        stack.close()
 
     log("✅ Phase 4: Live Cold-Boot API endpoints and default prompt intake verified (0 unhandled exceptions / 0 500s).")
 

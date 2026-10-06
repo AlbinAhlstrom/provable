@@ -38,7 +38,10 @@ def get_kickstart_state():
 def kickstart_analyze(req: KickstartAnalyzeRequest):
     """Analyze pitch to recommend pre-baked feature blocks and extract domain requirements."""
     uow = SqliteUnitOfWork()
-    return services.analyze_kickstart_pitch(business_pitch=req.business_pitch, uow=uow)
+    return services.analyze_kickstart_pitch(
+        business_pitch=req.business_pitch,
+        uow=uow
+    )
 
 
 @router.post("/api/kickstart/synthesize")

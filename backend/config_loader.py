@@ -1,6 +1,18 @@
 import os
+import sys
 import yaml
 from typing import List, Dict, Any, Optional
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(line_buffering=True, encoding="utf-8")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(line_buffering=True, encoding="utf-8")
+    except Exception:
+        pass
 
 def _get_config_path() -> str:
     return os.environ.get(

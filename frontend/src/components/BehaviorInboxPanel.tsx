@@ -161,7 +161,7 @@ export const BehaviorInboxPanel: React.FC = () => {
                 checked={isMathBoundary}
                 onChange={(e) => setIsMathBoundary(e.target.checked)}
               />
-              📐 Mathematical / Capacity Boundary Rule (Triggers Hypothesis)
+              📐 Mathematical Boundary Rule (Triggers Hypothesis)
             </label>
             <button
               type="submit"

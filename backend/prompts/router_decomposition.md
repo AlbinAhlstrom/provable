@@ -13,8 +13,9 @@ PRODUCT INTENT (decided before this step; scope the model by it):
 CRITICAL DECOMPOSITION INSTRUCTIONS:
 - SCOPE: Model only what the product intent asks for. Anything listed under "Do NOT model" must not appear as an entity, and the BDD rules must concern what this product's users and owner experience, not internal operations the intent excludes.
 - STRUCTURE:
+  - Focus strictly on the primary 2 to 4 domain entities needed for the core user value loop.
   - Identify the primary Aggregate Roots (e.g. Order, Pallet, Booking).
-  - Define clear entity attributes with primitive/semantic types ("string", "float", "int", "boolean", "datetime").
+  - Define clear entity attributes with primitive/semantic types ("string", "float", "int", "boolean", "datetime"). Represent user inputs as genuine operational attributes (text values, numbers, dates) rather than artificial boolean flags.
   - Do NOT put business logic or rules inside the structure section.
 
 - BEHAVIOR INBOX:

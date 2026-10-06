@@ -21,8 +21,11 @@ GENERIC_IGNORE_WORDS = {
     "request", "handler", "service", "repository", "uow", "unit_of_work", "view", "page",
     "dto", "object", "any", "all", "true", "false", "default", "table", "index", "code",
     "size", "in_progress", "pending", "done", "review", "backlog", "conflict", "ready",
-    "received", "completed", "cancelled", "step", "attempt", "active", "path"
+    "received", "completed", "cancelled", "step", "attempt", "active", "path",
+    "color", "file", "files", "width", "height", "state", "rules", "rule", "count",
+    "row", "rows", "column", "columns", "board", "idle", "covered"
 }
+
 
 def extract_domain_terms_from_backend() -> Set[str]:
     """

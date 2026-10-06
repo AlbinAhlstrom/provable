@@ -1,3 +1,4 @@
+import pytest
 """Serverless (Vercel) mode: read-only checkout, so the workspace must move to a scratch directory."""
 
 import os
@@ -19,6 +20,7 @@ def test_not_serverless_by_default(monkeypatch):
     assert config_loader.is_serverless() is False
 
 
+@pytest.mark.real_workspace_resolution
 def test_serverless_workspace_is_a_writable_scratch_dir(monkeypatch, tmp_path):
     """Verify the workspace moves to a temp dir on Vercel instead of the read-only checkout.
 

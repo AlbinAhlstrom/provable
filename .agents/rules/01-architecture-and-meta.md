@@ -22,11 +22,12 @@ Provable operates on a strict multi-service architectural split. You MUST NOT co
 
 ---
 
-## 2. `workspace/` is Strictly Off-Limits (No Bandages Invariant)
+## 2. `workspace/` is Strictly Off-Limits (Absolute Airgap Invariant)
 The `workspace/` directory contains the application produced by the automated generation pipeline.
 **NEVER directly write, edit, patch, or commit files inside `workspace/`.**
+**NEVER call `write_to_file` or `replace_file_content` on any file inside `workspace/`.**
 
-Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/skeleton_builder.py`, `backend/onboarding/templates/workspace_scaffold.py`, the LLM prompts in `backend/prompts/` (notably `app_assembly.md`), and the fallback template `backend/onboarding/templates/fallback_app.tsx.tmpl`).
+Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/skeleton_builder.py`, `backend/onboarding/presentation_projection_synthesizer.py`, `backend/onboarding/templates/workspace_scaffold.py`, the LLM prompts in `backend/prompts/` (notably `app_assembly.md`), and the fallback template `backend/onboarding/templates/fallback_app.tsx.tmpl`).
 
 The fallback template is deliberately domain-neutral (it renders only blueprint data and the `catalog` fixture collection). Never add domain-specific templates or keyword-triggered branches (pizza, warehouse, booking...) to the generator; domain behavior must come from the LLM-planned blueprint.
 
@@ -35,6 +36,7 @@ The fallback template is deliberately domain-neutral (it renders only blueprint 
 - Run `git log`, `git status`, `git diff` inside `workspace/` for inspection only.
 
 ### Forbidden Actions:
+- ANY tool call (`write_to_file`, `replace_file_content`) where `TargetFile` touches `workspace/`.
 - Edit or create any files directly inside `workspace/` (always edit generator templates in `backend/` instead).
 - Run `git add`, `git commit`, `git revert`, or `git reset` inside `workspace/`.
 

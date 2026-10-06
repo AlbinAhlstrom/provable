@@ -5,6 +5,7 @@ Pure Domain Model Entities & Value Objects (FastAPI & ORM Ignorant).
 import os
 import re
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import List, Dict, Any, Optional
 from domain.exceptions import InvalidStatusTransition
 import domain.events as events
@@ -129,7 +130,13 @@ class Requirement:
             raise InvalidStatusTransition(
                 f"Cannot transition Requirement '{self.id}' from '{self.status}' to '{new_status}'. Allowed: {allowed}"
             )
+        old_status = self.status
         self.status = new_status
+        self.events.append(events.RequirementStatusChanged(
+            req_id=self.id,
+            old_status=old_status,
+            new_status=new_status
+        ))
 
     def start_progress(self):
         self.transition_to("In_Progress")
@@ -423,6 +430,7 @@ class KickstartState:
     entity_schemas: Dict[str, DomainEntitySchema] = field(default_factory=dict)
     inbox_specs: List[Dict[str, Any]] = field(default_factory=list)
     intent: Dict[str, Any] = field(default_factory=dict)
+    rule_cards: List[Dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -433,6 +441,7 @@ class KickstartState:
             "synthesized": self.synthesized,
             "custom_fixtures": self.custom_fixtures,
             "inbox_specs": self.inbox_specs,
+            "rule_cards": self.rule_cards,
             "entity_schemas": {
                 k: (v.to_dict() if hasattr(v, 'to_dict') else v)
                 for k, v in self.entity_schemas.items()
@@ -440,7 +449,44 @@ class KickstartState:
         }
 
 
+class CardType(str, Enum):
+    LOGIC = "LOGIC"
+    VIEW = "VIEW"
 
 
+@dataclass
+class RuleCard:
+    id: str
+    title: str
+    chapter: str = "General"
+    card_type: str = "LOGIC"
+    category: str = "INVARIANT"
+    target: str = "global"
+    description: str = ""
+    given_clause: str = ""
+    when_clause: str = ""
+    then_clause: str = ""
+    unless_clause: str = ""
+    is_active: bool = True
+    status: str = "PENDING"
+    derived_from_id: Optional[str] = None
+    events: List[Any] = field(default_factory=list)
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "title": self.title,
+            "chapter": self.chapter,
+            "card_type": self.card_type,
+            "category": self.category,
+            "target": self.target,
+            "description": self.description,
+            "given_clause": self.given_clause,
+            "when_clause": self.when_clause,
+            "then_clause": self.then_clause,
+            "unless_clause": self.unless_clause,
+            "is_active": self.is_active,
+            "status": self.status,
+            "derived_from_id": self.derived_from_id,
+        }
 

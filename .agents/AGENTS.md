@@ -1,11 +1,18 @@
-# Agent Micro-Context Rule Index
+# Clanker Protocol: Graph Engineering & Diamond DAG Architecture
 
-> **Notice to AI Agents**:
-> Do not attempt to read or memorize the entire codebase. Based on the scope of your current task, **strictly read the relevant rule file(s) in `.agents/rules/` before modifying any code.**
+## 🛑 AIRGAP DIRECTIVE (HARD TOOL CONSTRAINT)
+**NEVER CALL `write_to_file` OR `replace_file_content` ON ANY PATH CONTAINING `/workspace/` OR `\workspace\`.**
+- Target files inside `workspace/` are strictly **READ-ONLY** for agents.
+- All code generation, layout styling, and component fixes MUST occur by modifying backend compiler engines (`backend/onboarding/presentation_projection_synthesizer.py`, `backend/onboarding/delta_compiler.py`, etc.).
+- The backend engine alone is authorized to write into `workspace/`. Direct agent edits to `workspace/` constitute an immediate invariant violation.
+
+## 🌌 Project Vision & The North Star
+- **The Vision**: Build an uncompromising, VC-ready, enterprise-grade AppGen engine (**Provable**).
+- **The Ultimate Goal**: Enable deterministic generation of complex industrial software by strictly enforcing pure DDD, rigorous TDD, and explicit invariant boundaries.
 
 ---
 
-## Rule Directory Sitemap
+## 1. Core Invariants
 
 ### 🏛️ [`01-architecture-and-meta.md`](rules/01-architecture-and-meta.md)
 - **When to read**: Architectural decisions, multi-service setup, port allocations, workspace isolation.

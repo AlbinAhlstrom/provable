@@ -15,6 +15,7 @@ router = APIRouter(prefix="/api/onboarding", tags=["Onboarding Kickstart"])
 class KickstartRequest(BaseModel):
     pitch: Optional[str] = None
     business_pitch: Optional[str] = None
+    mode: Optional[str] = "fast"
 
 
 @router.post("/kickstart")
@@ -23,7 +24,11 @@ def kickstart_endpoint(req: KickstartRequest):
     uow = SqliteUnitOfWork()
     pitch = req.pitch or req.business_pitch or "An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
     try:
-        return services.kickstart_domain_and_scaffold(pitch=pitch, uow=uow)
+        return services.kickstart_domain_and_scaffold(
+            pitch=pitch,
+            uow=uow,
+            mode=req.mode or "fast"
+        )
     except Exception as e:
         return {
             "success": False,

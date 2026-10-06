@@ -99,7 +99,7 @@ def audit_visual_presentation(url: str = "http://localhost:5174", pitch: str = "
         client = OpenAI(api_key=api_key, base_url=base_url)
 
         response = client.chat.completions.create(
-            model="gemini-2.5-flash",
+            model=os.environ.get("LLM_MODEL", "gemini-3.8-flash"),
             messages=[
                 {
                     "role": "user",

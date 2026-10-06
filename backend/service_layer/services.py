@@ -1,8 +1,22 @@
 from pipeline_trace import traced
 import os
+import sys
+import time
 import re
 import random
 from typing import List, Optional, Dict, Any
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(line_buffering=True, encoding="utf-8")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(line_buffering=True, encoding="utf-8")
+    except Exception:
+        pass
+
 from domain.model import (
     Requirement, Project, Component, TestSpec, AgentRun, KickstartState,
     MOCK_DOMAIN_SCHEMA, resolve_canonical_feature, DomainEntitySchema, EntityAttribute
@@ -412,6 +426,17 @@ def reset_all_projects(
                     except Exception as err:
                         print(f"Notice resetting folder {target}: {err}")
 
+            # Also wipe generated code subdirectories in frontend/src
+            frontend_src = os.path.join(ws_base, "frontend", "src")
+            if os.path.exists(frontend_src):
+                for sub in ["views", "components", "api"]:
+                    target = os.path.join(frontend_src, sub)
+                    if os.path.exists(target):
+                        try:
+                            shutil.rmtree(target)
+                        except Exception as err:
+                            print(f"Notice resetting frontend folder {target}: {err}")
+
             from onboarding.templates.workspace_scaffold import create_default_workspace_scaffold
             create_default_workspace_scaffold(ws_base)
 
@@ -498,7 +523,102 @@ def sync_workspace_app_shell(ws_base: Optional[str] = None, uow: Optional[Abstra
             else:
                 from config_loader import get_workspace_base
                 ws_base = get_workspace_base()
-        print("[Shell] Workspace App Shell synchronized cleanly with provable backend!")
+
+        if not ws_base or not os.path.exists(ws_base):
+            return
+
+        if uow is None:
+            from service_layer.unit_of_work import SqliteUnitOfWork
+            uow_ctx = SqliteUnitOfWork()
+        else:
+            uow_ctx = uow
+
+        pitch = None
+        custom_fixtures = {}
+        rule_cards = []
+        try:
+            with uow_ctx:
+                state = uow_ctx.kickstart.get()
+                if state:
+                    pitch = state.business_pitch
+                    custom_fixtures = getattr(state, "custom_fixtures", {}) or {}
+                    rule_cards = getattr(state, "rule_cards", []) or []
+        except Exception as e:
+            print(f"[Notice] Notice reading kickstart state in sync_workspace_app_shell: {e}")
+
+        if not pitch:
+            return
+
+        tsx_code = None
+        entity_schemas = getattr(state, "entity_schemas", {}) or {}
+        if entity_schemas:
+            from onboarding.skeleton_builder import (
+                generate_frontend_app_component,
+                generate_frontend_entity_view,
+                generate_frontend_api_client,
+                EntitySpec,
+                AttributeSpec
+            )
+            entities_list = []
+            for k, es in entity_schemas.items():
+                attrs = [
+                    AttributeSpec(name=a.name, type=a.type, required=a.required)
+                    for a in getattr(es, "attributes", [])
+                ]
+                entities_list.append(
+                    EntitySpec(name=getattr(es, "entity_name", k.capitalize()), is_aggregate_root=True, attributes=attrs)
+                )
+
+            if entities_list:
+                import re
+                clean_title_pitch = re.sub(r'^[#*\s]+', '', pitch)
+                clean_title_pitch = re.sub(r'^(Product\s+&\s+Behavioral\s+Specification:?\s*|Specification:?\s*)', '', clean_title_pitch, flags=re.IGNORECASE).strip()
+                first_words = [w for w in clean_title_pitch.split() if w.isalnum()][:4]
+                app_title = " ".join(word.capitalize() for word in first_words) if first_words else "Domain Application"
+                tsx_code = generate_frontend_app_component(entities_list, app_title)
+
+                # Ensure views and API client exist in workspace
+                for sub_dir in ["frontend/src", "src"]:
+                    views_dir = os.path.join(ws_base, sub_dir, "views")
+                    api_dir = os.path.join(ws_base, sub_dir, "api")
+                    os.makedirs(views_dir, exist_ok=True)
+                    os.makedirs(api_dir, exist_ok=True)
+
+                    for ent in entities_list:
+                        view_file = os.path.join(views_dir, f"{ent.name}View.tsx")
+                        if not os.path.exists(view_file):
+                            with open(view_file, "w", encoding="utf-8") as vf:
+                                vf.write(generate_frontend_entity_view(ent))
+
+                    client_file = os.path.join(api_dir, "client.ts")
+                    if not os.path.exists(client_file):
+                        with open(client_file, "w", encoding="utf-8") as cf:
+                            cf.write(generate_frontend_api_client(entities_list))
+
+        if not tsx_code:
+            from onboarding.ui_generator import generate_llm_ui
+            tsx_code = generate_llm_ui(pitch, {"custom_fixtures": custom_fixtures, "rule_cards": rule_cards})
+
+        if tsx_code:
+            for sub_path in [os.path.join(ws_base, "src", "App.tsx"), os.path.join(ws_base, "frontend", "src", "App.tsx")]:
+                if os.path.exists(os.path.dirname(sub_path)):
+                    # Guard: If App.tsx already exists, check if it's an interactive projection that must NOT be overwritten
+                    if os.path.exists(sub_path):
+                        try:
+                            with open(sub_path, "r", encoding="utf-8") as existing_f:
+                                existing_content = existing_f.read()
+                            # If it imports an interactive client or sends actions, preserve it!
+                            if ("sendAction" in existing_content or "Client" in existing_content) and "Generated Full-Stack Domain Application" not in existing_content:
+                                print(f"[Shell] Preserving existing interactive projection in {sub_path}!", flush=True)
+                                continue
+                            if state and getattr(state, "synthesized", False) and ("sendAction" in existing_content or "Client" in existing_content):
+                                print(f"[Shell] Preserving synthesized projection in {sub_path}!", flush=True)
+                                continue
+                        except Exception:
+                            pass
+                    with open(sub_path, "w", encoding="utf-8") as f:
+                        f.write(tsx_code)
+                    print(f"[Shell] Workspace App Shell synchronized cleanly to {sub_path}!")
     except Exception as e:
         print(f"[Notice] Notice syncing workspace app shell: {e}")
 
@@ -810,7 +930,13 @@ def analyze_kickstart_pitch(business_pitch: str, uow: AbstractUnitOfWork) -> Dic
     with uow:
         uow.kickstart.save(new_state)
         uow.commit()
-    return {"success": True, "data": analysis}
+    return {
+        "success": True,
+        "data": analysis,
+        "pitch": business_pitch,
+        "blocks": analysis.get("blocks", []),
+        "extracted_requirements": analysis.get("extracted_requirements", [])
+    }
 
 
 @traced("svc.synthesize_stack")
@@ -914,14 +1040,23 @@ def synthesize_kickstart_stack(
             except Exception as e:
                 print(f"Block requirement creation notice ({blk}): {e}")
 
-        # Save synthesized state (purging any stale custom fixtures / schemas from previous domain pitch)
+        # Save synthesized state (purging any stale custom fixtures / schemas from previous domain pitch, preserving rule_cards)
+        existing_rule_cards = []
+        try:
+            existing_ks = uow_context.kickstart.get()
+            if existing_ks and getattr(existing_ks, "rule_cards", None):
+                existing_rule_cards = existing_ks.rule_cards
+        except Exception:
+            pass
+
         ks_state = KickstartState(
             business_pitch=pitch_text,
             blocks=normalized_blocks,
             extracted_requirements=reqs_list,
             synthesized=True,
             custom_fixtures={},
-            entity_schemas={}
+            entity_schemas={},
+            rule_cards=existing_rule_cards
         )
         uow_context.kickstart.save(ks_state)
         uow_context.commit()
@@ -1369,6 +1504,175 @@ def update_spec_status(spec_id: str, status: str, uow: AbstractUnitOfWork, tdd: 
         return dict(found)
 
 
+def add_rule_card(card: Any, uow: AbstractUnitOfWork) -> Dict[str, Any]:
+    """Adds or updates a RuleCard in the Living Deck."""
+    with uow:
+        state = uow.kickstart.get()
+        if hasattr(card, "to_dict"):
+            card_dict = card.to_dict()
+        elif hasattr(card, "dict"):
+            card_dict = card.dict()
+        else:
+            card_dict = dict(card)
+
+        if "status" not in card_dict:
+            card_dict["status"] = "PENDING"
+        if "is_active" not in card_dict:
+            card_dict["is_active"] = True
+        if "target" not in card_dict or not card_dict["target"]:
+            card_dict["target"] = "global"
+
+        if not hasattr(state, "rule_cards") or state.rule_cards is None:
+            state.rule_cards = []
+
+        existing_idx = next((i for i, c in enumerate(state.rule_cards) if c.get("id") == card_dict.get("id")), -1)
+        if existing_idx >= 0:
+            state.rule_cards[existing_idx] = card_dict
+        else:
+            state.rule_cards.append(card_dict)
+
+        uow.kickstart.save(state)
+        uow.commit()
+    return card_dict
+
+
+def get_living_deck(uow: AbstractUnitOfWork) -> List[Dict[str, Any]]:
+    """Returns all RuleCards currently in the Living Deck."""
+    with uow:
+        state = uow.kickstart.get()
+        return list(state.rule_cards or [])
+
+
+def get_categorized_living_deck(uow: AbstractUnitOfWork) -> Dict[str, Any]:
+    """
+    Returns the Living Deck categorized cleanly by:
+    - chapters: { [chapter_name]: [...] }
+    - logic_cards: { global: [...], entities: { [entity_name]: [...] } }
+    - view_cards: { global_theme: [...], components: { [component_name]: [...] } }
+    """
+    with uow:
+        state = uow.kickstart.get()
+        cards = list(state.rule_cards or [])
+
+    logic_global = []
+    logic_entities: Dict[str, List[Dict[str, Any]]] = {}
+    view_theme = []
+    view_components: Dict[str, List[Dict[str, Any]]] = {}
+    chapter_groups: Dict[str, List[Dict[str, Any]]] = {}
+
+    for c in cards:
+        c_type = c.get("card_type", "LOGIC")
+        target = c.get("target", "global")
+        chap = c.get("chapter") or "General"
+        chapter_groups.setdefault(chap, []).append(c)
+
+        if c_type == "LOGIC":
+            if target == "global":
+                logic_global.append(c)
+            else:
+                logic_entities.setdefault(target, []).append(c)
+        else:  # VIEW
+            if target == "global":
+                view_theme.append(c)
+            else:
+                view_components.setdefault(target, []).append(c)
+
+    return {
+        "chapters": chapter_groups,
+        "logic_cards": {
+            "global": logic_global,
+            "entities": logic_entities
+        },
+        "view_cards": {
+            "global_theme": view_theme,
+            "components": view_components
+        },
+        "all_cards": cards
+    }
+
+
+def get_chapter_grouped_deck(uow: AbstractUnitOfWork) -> Dict[str, List[Dict[str, Any]]]:
+    """Returns all active cards grouped by chapter for immediate human scannability."""
+    deck_cat = get_categorized_living_deck(uow=uow)
+    return deck_cat.get("chapters", {})
+
+
+
+def toggle_rule_card(card_id: str, is_active: bool, uow: AbstractUnitOfWork) -> Dict[str, Any]:
+    """Toggles active state of a RuleCard (sets to PAUSED if inactive)."""
+    with uow:
+        state = uow.kickstart.get()
+        if not hasattr(state, "rule_cards") or state.rule_cards is None:
+            state.rule_cards = []
+
+        found = None
+        for c in state.rule_cards:
+            if c.get("id") == card_id:
+                c["is_active"] = is_active
+                if not is_active:
+                    c["status"] = "PAUSED"
+                else:
+                    if c.get("status") == "PAUSED":
+                        c["status"] = "PENDING"
+                found = c
+                break
+
+        if not found:
+            found = {
+                "id": card_id,
+                "is_active": is_active,
+                "status": "PAUSED" if not is_active else "PENDING",
+                "card_type": "LOGIC",
+                "target": "global"
+            }
+            state.rule_cards.append(found)
+
+        uow.kickstart.save(state)
+        uow.commit()
+        return dict(found)
+
+
+def update_rule_card(card_id: str, updates: Dict[str, Any], uow: AbstractUnitOfWork) -> Dict[str, Any]:
+    """Updates fields of a specific RuleCard in the Living Deck."""
+    with uow:
+        state = uow.kickstart.get()
+        if not hasattr(state, "rule_cards") or state.rule_cards is None:
+            state.rule_cards = []
+
+        found = None
+        for c in state.rule_cards:
+            if c.get("id") == card_id:
+                c.update(updates)
+                found = c
+                break
+
+        if not found:
+            updates["id"] = card_id
+            state.rule_cards.append(updates)
+            found = updates
+
+        uow.kickstart.save(state)
+        uow.commit()
+        return dict(found)
+
+
+def delete_rule_card(card_id: str, uow: AbstractUnitOfWork) -> bool:
+    """Deletes a specific RuleCard from the Living Deck."""
+    with uow:
+        state = uow.kickstart.get()
+        if not hasattr(state, "rule_cards") or state.rule_cards is None:
+            return False
+
+        orig_len = len(state.rule_cards)
+        state.rule_cards = [c for c in state.rule_cards if c.get("id") != card_id]
+        if len(state.rule_cards) < orig_len:
+            uow.kickstart.save(state)
+            uow.commit()
+            return True
+        return False
+
+
+
 @traced("svc.execute_spec_tdd")
 def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir: Optional[str] = None) -> Dict[str, Any]:
     """
@@ -1383,23 +1687,46 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
     target_spec_dict = None
     with uow:
         state = uow.kickstart.get()
-        for s in state.inbox_specs:
+        for s in (state.inbox_specs or []):
             if s.get("spec_id") == spec_id:
                 target_spec_dict = dict(s)
                 break
+        if not target_spec_dict:
+            for c in (state.rule_cards or []):
+                if c.get("id") == spec_id:
+                    target_spec_dict = dict(c)
+                    break
 
     if not target_spec_dict:
-        return {"success": False, "status": "NOT_FOUND", "error": f"Specification {spec_id} not found in inbox."}
+        return {"success": False, "status": "NOT_FOUND", "error": f"Specification {spec_id} not found."}
+
+    # Route through Delta Evolution Compiler if specification has presentation / view impact
+    from onboarding.delta_compiler import classify_delta_specification, apply_specification_delta, DeltaClassification
+    classification = classify_delta_specification(target_spec_dict)
+    if classification in (DeltaClassification.VIEW, DeltaClassification.CROSS_CUTTING):
+        delta_res = apply_specification_delta(target_spec_dict, workspace_dir=workspace_dir)
+        final_status = delta_res.get("status", "FULFILLED")
+        update_spec_status(spec_id, final_status, uow=uow)
+        return delta_res
 
     from onboarding.router_engine import BusinessSpec
     from service_layer.tdd_machine import execute_spec_tdd_loop
 
+    gwt = target_spec_dict.get("given_when_then")
+    if not gwt:
+        clauses = [
+            target_spec_dict.get("given_clause", ""),
+            target_spec_dict.get("when_clause", ""),
+            target_spec_dict.get("then_clause", "")
+        ]
+        gwt = " ".join([c for c in clauses if c]).strip()
+
     spec_obj = BusinessSpec(
-        spec_id=target_spec_dict.get("spec_id", spec_id),
+        spec_id=target_spec_dict.get("spec_id") or target_spec_dict.get("id", spec_id),
         title=target_spec_dict.get("title", ""),
-        description=target_spec_dict.get("description", ""),
-        given_when_then=target_spec_dict.get("given_when_then", ""),
-        target_aggregate=target_spec_dict.get("target_aggregate", "Pallet"),
+        description=target_spec_dict.get("description", target_spec_dict.get("title", "")),
+        given_when_then=gwt,
+        target_aggregate=target_spec_dict.get("target_aggregate") or target_spec_dict.get("target", "Session"),
         spec_type=target_spec_dict.get("spec_type", "DOMAIN_INVARIANT"),
         is_mathematical_boundary=target_spec_dict.get("is_mathematical_boundary", False),
         priority=target_spec_dict.get("priority", "High")
@@ -1437,11 +1764,250 @@ def _aggregate_view(key: str, name: str, is_root: bool, attrs: list) -> Dict[str
     }
 
 
+def parse_bdd_clauses(text: str) -> Dict[str, str]:
+    """Extracts given, when, then, unless clauses from a Gherkin/BDD formatted string."""
+    given = ""
+    when = ""
+    then = ""
+    unless = ""
+
+    if not text:
+        return {"given_clause": "", "when_clause": "", "then_clause": "", "unless_clause": ""}
+
+    # Match Given ... When ... Then ... (Unless ...)
+    m_given = re.search(r"Given\s+(.*?)(?=\s+When\b|\s+Then\b|\s+Unless\b|$)", text, re.IGNORECASE | re.DOTALL)
+    if m_given:
+        given = m_given.group(1).strip()
+
+    m_when = re.search(r"When\s+(.*?)(?=\s+Then\b|\s+Unless\b|$)", text, re.IGNORECASE | re.DOTALL)
+    if m_when:
+        when = m_when.group(1).strip()
+
+    m_then = re.search(r"Then\s+(.*?)(?=\s+Unless\b|$)", text, re.IGNORECASE | re.DOTALL)
+    if m_then:
+        then = m_then.group(1).strip()
+
+    m_unless = re.search(r"Unless\s+(.*?)$", text, re.IGNORECASE | re.DOTALL)
+    if m_unless:
+        unless = m_unless.group(1).strip()
+
+    return {
+        "given_clause": given,
+        "when_clause": when,
+        "then_clause": then,
+        "unless_clause": unless
+    }
+
+
+def synthesize_living_deck_cards(
+    pitch_text: str,
+    structure: Any,
+    inbox_specs: List[Any],
+    extra_view_cards: Optional[List[Dict[str, Any]]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Synthesizes the complete Living Rule Deck representing the high-level abstraction of the app:
+    1. LOGIC Cards: Invariants, state machine rules, validation boundaries, win/loss/completion criteria.
+    2. VIEW Cards: Interactive visual workspace, control surface, HUD telemetry, and tactile gesture bindings.
+    """
+    cards: List[Dict[str, Any]] = []
+    seen_ids = set()
+
+    master_entity = None
+    if hasattr(structure, "entities") and structure.entities:
+        for ent in structure.entities:
+            if getattr(ent, "is_aggregate_root", False):
+                master_entity = ent
+                break
+        if not master_entity:
+            master_entity = structure.entities[0]
+
+    master_name = getattr(master_entity, "name", "Application") if master_entity else getattr(structure, "domain_name", "Application")
+    p_lower = pitch_text.lower()
+
+    # 1. Synthesize LOGIC Cards from Inbox Specs with explicit Invariant Taxonomy
+    for idx, s in enumerate(inbox_specs, 1):
+        s_dict = s.dict() if hasattr(s, "dict") else dict(s)
+        spec_id = s_dict.get("spec_id") or f"SPEC-{idx:03d}"
+        gwt = s_dict.get("given_when_then", "")
+        clauses = parse_bdd_clauses(gwt)
+
+        category = s_dict.get("category")
+        if not category:
+            if s_dict.get("is_mathematical_boundary"):
+                category = "CALCULATION"
+            elif any(k in (s_dict.get("title", "") + gwt).lower() for k in ["transition", "state", "victory", "defeat", "resolve"]):
+                category = "STATE_TRANSITION"
+            elif any(k in (s_dict.get("title", "") + gwt).lower() for k in ["cascade", "spread", "flood", "notify"]):
+                category = "PROPAGATION"
+            else:
+                category = "INVARIANT"
+
+        chapter = s_dict.get("chapter") or "General"
+
+        cards.append({
+            "id": spec_id,
+            "title": s_dict.get("title", f"Rule {idx}"),
+            "chapter": chapter,
+            "card_type": "LOGIC",
+            "category": category,
+            "target": s_dict.get("target_aggregate") or master_name,
+            "description": s_dict.get("description", ""),
+            "given_clause": clauses["given_clause"] or gwt,
+            "when_clause": clauses["when_clause"],
+            "then_clause": clauses["then_clause"],
+            "unless_clause": clauses["unless_clause"],
+            "is_active": True,
+            "status": "ACTIVE",
+            "priority": s_dict.get("priority", "High")
+        })
+        seen_ids.add(spec_id)
+
+    # 2. Synthesize Standard User Affordance VIEW Cards (Category-Free & Domain-Agnostic)
+    view_canvas_id = "VIEW-CANVAS-001"
+    if view_canvas_id not in seen_ids:
+        cards.append({
+            "id": view_canvas_id,
+            "title": f"{master_name} Interactive Visual Workspace",
+            "chapter": "User Interface & Canvas",
+            "card_type": "VIEW",
+            "category": "CANVAS",
+            "target": f"{master_name}View",
+            "description": f"Primary tactile presentation surface and interactive visual canvas for {master_name}.",
+            "given_clause": f"An initialized or active {master_name} session",
+            "when_clause": "User views or directly interacts with elements on the canvas",
+            "then_clause": "Render responsive domain layout, selection highlights, and real-time state mutations",
+            "unless_clause": "Session is in locked or terminal error state",
+            "is_active": True,
+            "status": "ACTIVE",
+            "priority": "High"
+        })
+        seen_ids.add(view_canvas_id)
+
+    view_controls_id = "VIEW-CONTROLS-002"
+    if view_controls_id not in seen_ids:
+        cards.append({
+            "id": view_controls_id,
+            "title": f"{master_name} Action Controls & Operation Bar",
+            "chapter": "User Interface & Canvas",
+            "card_type": "VIEW",
+            "category": "CONTROLS",
+            "target": f"{master_name}Controls",
+            "description": f"Primary user controls for triggering domain commands, preset switches, and actions.",
+            "given_clause": f"Rendered control panel for {master_name}",
+            "when_clause": "User clicks action triggers, selects presets, or executes actions",
+            "then_clause": "Dispatch domain commands to backend and update responsive feedback in real time",
+            "unless_clause": "Operation is in flight or action is disabled",
+            "is_active": True,
+            "status": "ACTIVE",
+            "priority": "High"
+        })
+        seen_ids.add(view_controls_id)
+
+    view_history_id = "VIEW-HUD-003"
+    if view_history_id not in seen_ids:
+        cards.append({
+            "id": view_history_id,
+            "title": f"{master_name} Telemetry & Status HUD",
+            "chapter": "Telemetry & Status",
+            "card_type": "VIEW",
+            "category": "TELEMETRY",
+            "target": f"{master_name}History",
+            "description": f"Real-time status indicators, metric meters, and chronological domain event log.",
+            "given_clause": f"Active state updates occurring in {master_name}",
+            "when_clause": "Domain events, timer ticks, or aggregate mutations trigger",
+            "then_clause": "Update status badges, counters, elapsed time, and event log display",
+            "unless_clause": "No events recorded yet",
+            "is_active": True,
+            "status": "ACTIVE",
+            "priority": "Medium"
+        })
+        seen_ids.add(view_history_id)
+
+    view_interact_id = "VIEW-INTERACT-004"
+    if view_interact_id not in seen_ids:
+        cards.append({
+            "id": view_interact_id,
+            "title": f"{master_name} Direct Interaction & Selection Affordances",
+            "chapter": "User Interface & Canvas",
+            "card_type": "VIEW",
+            "category": "AFFORDANCE",
+            "target": f"{master_name}View",
+            "description": f"Direct pointer selection, contextual triggers, and tactile feedback for {master_name} elements.",
+
+            "given_clause": f"Interactive elements rendered on the {master_name} surface",
+            "when_clause": "User selects, toggles, or triggers contextual actions on items",
+            "then_clause": "Provide instant physical feedback (highlights, depressed state, badge updates) without page reload",
+            "unless_clause": "Input is locked by completed, paused, or terminal state",
+            "is_active": True,
+            "status": "ACTIVE",
+            "priority": "High"
+        })
+        seen_ids.add(view_interact_id)
+
+    # 3. Synthesize Standard Non-Functional Responsiveness & Layout Quality Specifications
+    view_resp_mobile_id = "SPEC-RESP-001"
+    if view_resp_mobile_id not in seen_ids:
+        cards.append({
+            "id": view_resp_mobile_id,
+            "title": f"{master_name} Mobile Viewport Containment",
+            "chapter": "Interface & Responsiveness",
+            "card_type": "VIEW",
+            "category": "RESPONSIVENESS",
+            "target": f"{master_name}View",
+            "description": "Zero horizontal overflow invariant across small viewports (Mobile 375px).",
+            "given_clause": f"An active {master_name} display rendered on a 375px mobile device viewport",
+            "when_clause": "The entire layout hierarchy paints and user navigates components",
+            "then_clause": "document.documentElement.scrollWidth must not exceed innerWidth (zero horizontal scrollbar clipping)",
+            "unless_clause": "Device viewport is zero or DOM is unmounted",
+            "is_active": True,
+            "status": "ACTIVE",
+            "priority": "High"
+        })
+        seen_ids.add(view_resp_mobile_id)
+
+    view_resp_fluid_id = "SPEC-RESP-002"
+    if view_resp_fluid_id not in seen_ids:
+        cards.append({
+            "id": view_resp_fluid_id,
+            "title": f"{master_name} Fluid Grid & Adaptive Scaling",
+            "chapter": "Interface & Responsiveness",
+            "card_type": "VIEW",
+            "category": "RESPONSIVENESS",
+            "target": f"{master_name}View",
+            "description": "Adaptive scaling and fluid wrapping across Tablet (768px) and Desktop (1280px) breakpoints.",
+            "given_clause": f"An initialized {master_name} view session",
+            "when_clause": "Viewport resizes across tablet or desktop break thresholds",
+            "then_clause": "Content containers scale fluidly, grid surfaces adjust columns automatically, and controls remain accessible",
+            "unless_clause": "Screen aspect ratio is non-standard or browser zoom exceeds 300%",
+            "is_active": True,
+            "status": "ACTIVE",
+            "priority": "High"
+        })
+        seen_ids.add(view_resp_fluid_id)
+
+    # 4. Merge any extra view cards if provided
+    if extra_view_cards:
+        for evc in extra_view_cards:
+            evc_id = evc.get("id") or f"VIEW-EXT-{len(cards)+1:03d}"
+            if evc_id not in seen_ids:
+                evc["card_type"] = "VIEW"
+                if "is_active" not in evc:
+                    evc["is_active"] = True
+                if "status" not in evc:
+                    evc["status"] = "ACTIVE"
+                cards.append(evc)
+                seen_ids.add(evc_id)
+
+    return cards
+
+
 @traced("svc.kickstart_and_scaffold")
 def kickstart_domain_and_scaffold(
     pitch: str,
     uow: AbstractUnitOfWork,
-    workspace_dir: Optional[str] = None
+    workspace_dir: Optional[str] = None,
+    mode: str = "fast"
 ) -> Dict[str, Any]:
     """
     Synchronous Kickstart Engine:
@@ -1456,18 +2022,47 @@ def kickstart_domain_and_scaffold(
         workspace_dir = get_workspace_base()
 
     pitch_text = pitch.strip() or "An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
+
+    start_kickstart = time.time()
+    timings: Dict[str, float] = {}
+    print(f"\n[Kickstart] ════════════════════════════════════════════════════════", flush=True)
+
     from onboarding import intent as intent_step
+    # Decide what kind of product the user asked for from their own words, before any expansion can inflate the scope.
+    product_intent = intent_step.classify_pitch_intent(pitch_text)
+
+    # 0. Autonomous Intent Grounding (Expand concise pitch into explicit interactive full-stack spec)
+    is_offline_test = "PYTEST_CURRENT_TEST" in os.environ or type(uow).__name__ == "FakeUnitOfWork"
+    from onboarding.prompt_expander import expand_pitch_into_interactive_specification
+    t0_start = time.time()
+    if not is_offline_test and mode != "mock":
+        print(f"[Kickstart] [0/5] Grounding intent: expanding pitch into interactive full-stack specification...", flush=True)
+        pitch_text = expand_pitch_into_interactive_specification(pitch_text)
+        t0_elapsed = round(time.time() - t0_start, 2)
+        timings["0_intent_grounding"] = t0_elapsed
+        print(f"[Kickstart] [0/5] ✓ Specification expanded ({len(pitch_text.split())} words) in {t0_elapsed}s", flush=True)
+    else:
+        timings["0_intent_grounding"] = 0.0
+
     from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
     from onboarding.skeleton_builder import build_and_write_skeleton
 
-    # Step 1: decide what kind of product the pitch asks for; step 2: design the domain model within that scope.
-    product_intent = intent_step.classify_pitch_intent(pitch_text)
+    t1_start = time.time()
+    print(f"[Kickstart] [1/5] Decomposing pitch into domain aggregates and inbox specs...", flush=True)
     decomp = decompose_pitch_into_structure_and_inbox(pitch_text, intent=product_intent)
     structure = decomp.structure
     inbox_specs = decomp.inbox.specs if hasattr(decomp, "inbox") and hasattr(decomp.inbox, "specs") else []
+    t1_elapsed = round(time.time() - t1_start, 2)
+    timings["1_decomposition"] = t1_elapsed
+    print(f"[Kickstart] [1/5] ✓ Decomposed in {t1_elapsed}s: Domain '{structure.domain_name}' ({len(structure.entities)} entities: {[e.name for e in structure.entities]})", flush=True)
 
     # Build and write skeleton files
+    t2_start = time.time()
+    print(f"[Kickstart] [2/5] Scaffolding pure DDD skeleton files...", flush=True)
     created_files = build_and_write_skeleton(structure, target_dir=workspace_dir)
+    t2_elapsed = round(time.time() - t2_start, 2)
+    timings["2_skeleton_scaffold"] = t2_elapsed
+    print(f"[Kickstart] [2/5] ✓ Scaffolding complete in {t2_elapsed}s: {len(created_files)} files created", flush=True)
 
     # Format domain aggregates
     aggregates = []
@@ -1487,14 +2082,18 @@ def kickstart_domain_and_scaffold(
             is_aggregate_root=ent.is_aggregate_root
         )
 
-    # Sync workspace App.tsx
-    try:
-        sync_workspace_app_shell()
-    except Exception as e:
-        print(f"App shell sync notice: {e}")
-
     # Persist kickstart state in database
+    t3_start = time.time()
+    print(f"[Kickstart] [3/5] Persisting domain state in SQLite...", flush=True)
     spec_dicts = [s.dict() if hasattr(s, "dict") else dict(s) for s in inbox_specs]
+
+    # Auto-populate comprehensive living rule deck (Logic + View Cards)
+    living_cards = synthesize_living_deck_cards(
+        pitch_text=pitch_text,
+        structure=structure,
+        inbox_specs=inbox_specs
+    )
+
     with uow:
         state = uow.kickstart.get()
         state.business_pitch = pitch_text
@@ -1502,8 +2101,177 @@ def kickstart_domain_and_scaffold(
         state.entity_schemas = entity_schemas_map
         state.inbox_specs = spec_dicts
         state.intent = product_intent.to_dict()
+        state.rule_cards = living_cards
+
         uow.kickstart.save(state)
         uow.commit()
+
+    t3_elapsed = round(time.time() - t3_start, 2)
+    timings["3_persistence_deck"] = t3_elapsed
+    logic_count = sum(1 for c in state.rule_cards if c.get("card_type") == "LOGIC")
+    view_count = sum(1 for c in state.rule_cards if c.get("card_type") == "VIEW")
+    print(f"[Kickstart] [3/5] ✓ State persisted in {t3_elapsed}s ({len(state.rule_cards)} rule cards in Living Deck: {logic_count} Logic, {view_count} Views).", flush=True)
+
+    # Sync workspace App.tsx & Dynamic Acceptance Test Suite Generation
+    t4_start = time.time()
+    print(f"[Kickstart] [4/5] Syncing workspace App.tsx preview shell & test suite...", flush=True)
+    is_offline_test = "PYTEST_CURRENT_TEST" in os.environ or type(uow).__name__ == "FakeUnitOfWork"
+    should_run_compiler_graph = not is_offline_test and mode not in ("offline_test", "mock", "no_agent")
+
+    if not should_run_compiler_graph:
+        try:
+            sync_workspace_app_shell(ws_base=workspace_dir, uow=uow)
+        except Exception as e:
+            print(f"[Kickstart] [4/5] ⚠️ App shell sync notice: {e}", flush=True)
+    else:
+        print(f"[Kickstart] [4/5] Deferring App.tsx generation to Node 3 interactive synthesizer.", flush=True)
+
+    from onboarding.dynamic_test_generator import (
+        generate_dynamic_acceptance_suite,
+        generate_dynamic_frontend_acceptance_suite,
+        _to_snake_case
+    )
+    try:
+        acceptance_suite_code = generate_dynamic_acceptance_suite(structure.domain_name, inbox_specs)
+        tests_unit_dir = os.path.join(workspace_dir, "tests", "unit")
+        os.makedirs(tests_unit_dir, exist_ok=True)
+        domain_slug = _to_snake_case(structure.domain_name or "domain")
+        acceptance_test_path = os.path.join(tests_unit_dir, f"test_{domain_slug}_acceptance.py")
+        with open(acceptance_test_path, "w", encoding="utf-8") as f:
+            f.write(acceptance_suite_code)
+        if acceptance_test_path not in created_files:
+            created_files.append(acceptance_test_path)
+
+        # Generate Universal Frontend Acceptance Suite
+        frontend_suite_code = generate_dynamic_frontend_acceptance_suite(structure.domain_name)
+        frontend_test_path = os.path.join(tests_unit_dir, f"test_{domain_slug}_frontend_acceptance.py")
+        with open(frontend_test_path, "w", encoding="utf-8") as f:
+            f.write(frontend_suite_code)
+        if frontend_test_path not in created_files:
+            created_files.append(frontend_test_path)
+    except Exception as e:
+        print(f"[Kickstart] Acceptance suite generation notice: {e}", flush=True)
+
+    t4_elapsed = round(time.time() - t4_start, 2)
+    timings["4_shell_and_acceptance"] = t4_elapsed
+    print(f"[Kickstart] [4/5] ✓ App shell & test suite ready in {t4_elapsed}s.", flush=True)
+
+    # 5. Deterministic Compiler Graph: Node 2 (Domain Engine) & Node 3 (Presentation Projection)
+    is_offline_test = "PYTEST_CURRENT_TEST" in os.environ or type(uow).__name__ == "FakeUnitOfWork"
+    print(f"[Kickstart] [5/5] Executing Deterministic Compiler Graph (is_offline_test={is_offline_test}, mode={mode})...", flush=True)
+    timings["5a_domain_engine"] = 0.0
+    timings["5b_presentation_projection"] = 0.0
+    qa_verdict: Optional[Dict[str, Any]] = None
+
+    if not is_offline_test and mode not in ("offline_test", "mock", "no_agent"):
+        try:
+            from onboarding.domain_engine_synthesizer import synthesize_and_write_domain_engine
+            from onboarding.presentation_projection_synthesizer import synthesize_and_write_presentation_projection
+
+            # Node 2: Pure Python DDD Domain Engine & FastAPI REST Endpoints
+            t5a_start = time.time()
+            engine_res = synthesize_and_write_domain_engine(
+                pitch=pitch_text,
+                structure=structure,
+                inbox_specs=inbox_specs,
+                workspace_dir=workspace_dir
+            )
+            t5a_elapsed = round(time.time() - t5a_start, 2)
+            timings["5a_domain_engine"] = t5a_elapsed
+            for f in engine_res.get("files", []):
+                if f not in created_files:
+                    created_files.append(f)
+
+            # Node 3: Interactive Presentation Projection & Anti-Monolith React Shell
+            t5b_start = time.time()
+            pres_res = synthesize_and_write_presentation_projection(
+                pitch=pitch_text,
+                structure=structure,
+                inbox_specs=inbox_specs,
+                workspace_dir=workspace_dir,
+                action_manifest=engine_res.get("action_manifest"),
+                router_code=engine_res.get("router_code")
+            )
+            t5b_elapsed = round(time.time() - t5b_start, 2)
+            timings["5b_presentation_projection"] = t5b_elapsed
+            for f in pres_res.get("files", []):
+                if f not in created_files:
+                    created_files.append(f)
+
+            # Node 5c: Dedicated Aesthetic & Styling Pass
+            t5c_start = time.time()
+            try:
+                from onboarding.styling_synthesizer import run_aesthetic_styling_pipeline
+                print(f"[Kickstart] [5c/6] Applying audience-native styling pass...", flush=True)
+                style_res = run_aesthetic_styling_pipeline(
+                    workspace_dir=workspace_dir,
+                    pitch_spec=pitch_text,
+                    component_files=pres_res.get("files", [])
+                )
+                t5c_elapsed = round(time.time() - t5c_start, 2)
+                timings["5c_aesthetic_styling"] = t5c_elapsed
+            except Exception as style_err:
+                timings["5c_aesthetic_styling"] = 0.0
+                print(f"[Kickstart] Styling pass notice: {style_err}", flush=True)
+
+            # Node 4: Multi-Device Responsive QA Audit Gate (Mobile 375px, Tablet 768px, Desktop 1280px)
+            t6_start = time.time()
+            try:
+                from onboarding.qa_auditor import run_responsive_qa_audit
+                from onboarding.code_verifier import self_heal_presentation_suite
+                from onboarding.qa_gate import run_qa_gate
+                print(f"[Kickstart] [6/6] Executing Multi-Device Responsive QA Audit Gate...", flush=True)
+
+                def _rework(defects: List[str], console_errs: List[str]) -> bool:
+                    print(f"[Kickstart] [6/6] ⚠️ QA flagged defects: {defects} (Console: {len(console_errs)} errors)", flush=True)
+                    print(f"[Kickstart] [6/6] 🔄 Engaging Closed-Loop LLM Self-Healing Node...", flush=True)
+                    healed = self_heal_presentation_suite(
+                        workspace_dir=workspace_dir,
+                        pitch=pitch_text,
+                        defects=defects,
+                        console_errors=console_errs
+                    )
+                    if healed:
+                        time.sleep(1.0)
+                    return bool(healed)
+
+                qa_verdict = run_qa_gate(
+                    audit=lambda: run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=True),
+                    rework=_rework,
+                )
+                timings["6_qa_audit"] = round(time.time() - t6_start, 2)
+                if qa_verdict["passed"]:
+                    print(f"[Kickstart] [6/6] ✓ QA Audit Gate passed after {qa_verdict['attempts']} rework attempt(s) ({timings['6_qa_audit']}s).", flush=True)
+                else:
+                    print(f"[Kickstart] [6/6] ❌ QA Audit Gate FAILED ({qa_verdict['verdict']}): {qa_verdict['defects']}", flush=True)
+            except Exception as qa_err:
+                timings["6_qa_audit"] = round(time.time() - t6_start, 2)
+                qa_verdict = {"passed": False, "verdict": "audit_error", "attempts": 0,
+                              "defects": [], "console_errors": [], "error": str(qa_err)}
+                print(f"[Kickstart] [6/6] QA Audit error: {qa_err}", flush=True)
+        except Exception as synth_err:
+            print(f"[Kickstart] ⚠️ Compiler Graph synthesis notice: {synth_err}", flush=True)
+    else:
+        print(f"[Kickstart] [5/5] Compiler Graph synthesis bypassed (offline or mock mode).", flush=True)
+
+    total_time = round(time.time() - start_kickstart, 2)
+    timings["total"] = total_time
+
+    print(f"\n[Kickstart] ────────────────────────────────────────────────────────────", flush=True)
+    print(f"[Kickstart] ⏱️  PIPELINE LATENCY BREAKDOWN:", flush=True)
+    print(f"[Kickstart]   [0/5] Intent Grounding (Prompt Expansion):     {timings.get('0_intent_grounding', 0):>6.2f}s", flush=True)
+    print(f"[Kickstart]   [1/5] Router Decomposition (Specs & Chapters): {timings.get('1_decomposition', 0):>6.2f}s", flush=True)
+    print(f"[Kickstart]   [2/5] DDD Skeleton Scaffolding:                {timings.get('2_skeleton_scaffold', 0):>6.2f}s", flush=True)
+    print(f"[Kickstart]   [3/5] Living Deck & SQLite Persistence:        {timings.get('3_persistence_deck', 0):>6.2f}s", flush=True)
+    print(f"[Kickstart]   [4/5] Shell Sync & Acceptance Suite Gen:       {timings.get('4_shell_and_acceptance', 0):>6.2f}s", flush=True)
+    print(f"[Kickstart]   [5/5] Node 2 (DDD Domain Engine & Routers):    {timings.get('5a_domain_engine', 0):>6.2f}s", flush=True)
+    print(f"[Kickstart]   [5/5] Node 3 (Interactive Presentation React): {timings.get('5b_presentation_projection', 0):>6.2f}s", flush=True)
+    print(f"[Kickstart]   [6/6] Node 4 (Multi-Device Responsive QA):     {timings.get('6_qa_audit', 0):>6.2f}s", flush=True)
+    print(f"[Kickstart]   ──────────────────────────────────────────────────────────", flush=True)
+    print(f"[Kickstart]   🏁 TOTAL PIPELINE EXECUTION TIME:              {total_time:>6.2f}s", flush=True)
+    print(f"[Kickstart] ────────────────────────────────────────────────────────────\n", flush=True)
+    print(f"[Kickstart] Kickstart complete in {total_time}s! ({len(created_files)} files created)", flush=True)
+    print(f"[Kickstart] ════════════════════════════════════════════════════════\n", flush=True)
 
     return {
         "success": True,
@@ -1511,7 +2279,9 @@ def kickstart_domain_and_scaffold(
         "aggregates": aggregates,
         "inbox_specs": spec_dicts,
         "intent": product_intent.to_dict(),
-        "created_files": created_files
+        "created_files": created_files,
+        "timing_breakdown": timings,
+        "qa": qa_verdict
     }
 
 
@@ -1551,6 +2321,47 @@ def get_active_domain_aggregates(uow: AbstractUnitOfWork) -> Dict[str, Any]:
             "aggregates": aggregates,
             "inbox_specs": list(state.inbox_specs)
         }
+
+
+def get_requirement_events_service(
+    req_id: str,
+    uow: AbstractUnitOfWork
+) -> List[Dict[str, Any]]:
+    with uow:
+        req = uow.requirements.get(req_id)
+        if not req:
+            raise exceptions.RequirementNotFound(f"Requirement '{req_id}' not found.")
+        events_out = []
+        for ev in getattr(req, "events", []):
+            if hasattr(ev, "__dict__"):
+                d = dict(ev.__dict__)
+                d["event_type"] = ev.__class__.__name__
+                events_out.append(d)
+            elif isinstance(ev, dict):
+                events_out.append(ev)
+        return events_out
+
+
+def update_requirements_bulk_status_service(
+    req_ids: List[str],
+    target_status: str,
+    uow: AbstractUnitOfWork
+) -> List[Requirement]:
+    updated = []
+    with uow:
+        for rid in req_ids:
+            req = uow.requirements.get(rid)
+            if not req:
+                raise exceptions.RequirementNotFound(f"Requirement '{rid}' not found.")
+            req.transition_to(target_status)
+            uow.requirements.add(req)
+            updated.append(req)
+        uow.commit()
+    return updated
+
+
+
+
 
 
 

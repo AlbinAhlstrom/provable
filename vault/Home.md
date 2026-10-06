@@ -21,6 +21,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 
 
 ### 2. 🔄 Agent Workflows & Operations
+- [[Clanker-Protocol]]: The Clanker Protocol operational paradigm: Principal Architect persona, The Three Laws, "The Fatal Flaw" pushback mechanism, and UX Dual-Track routing (Track A vs Track B).
 - [[Onboarding and Discovery Workflow]]: Bounded context discovery, router engine decomposition (`router_engine.py`), skeleton scaffolding (`skeleton_builder.py`), and clean workspace scaffold invariants.
 - [[Shift-Left TDD Workflow]]: Unified pre-implementation testing execution, requirement-driven failing test spec generation, and Allure coverage mapping.
 - [[Agent Execution Loop]]: TDD execution loop (`tdd_machine.py`) enforcing RED phase, LibCST class extraction, SHA-256 test integrity check, and the single-feedback-retry dead-end policy.

@@ -83,6 +83,7 @@ class DomainCapabilitySpec:
         return asdict(self)
 
 
+
 @dataclass
 class DomainOntologySpec:
     pitch: str

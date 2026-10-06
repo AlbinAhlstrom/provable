@@ -53,3 +53,12 @@ Follow the strict 4-step TDD loop:
    **NEVER execute `git commit` or `git commit --amend` without running the full test suite (`python -m pytest backend/tests/`) first.** Every commit MUST be preceded by empirical runtime verification showing 100% PASS across unit, integration, and E2E test suites.
 2. **Mandatory Pre-Flight Check**:
    **Before concluding ANY task or communicating back to the user that you are done, you MUST execute `python scripts/agent_preflight_check.py`.** If it fails, fix the errors and re-run, then report what failed and what you did. You are strictly forbidden from presenting broken code as done; if you cannot get it green, say so with the failing output. Phase 6 (screenshot) is skipped when the stack is not running; see `02-frontend-and-ui.md`.
+
+---
+
+## 6. Hermetic Test Suite & Boss Fight Testing Policy
+1. **Hermetic Standard Tests**:
+   - Standard unit, integration, and E2E tests (`backend/tests/unit/`, `backend/tests/integration/`, etc.) MUST be **100% hermetic and offline**, using mock test doubles (such as `backend/tests/conftest.py`'s `mock_llm_for_unit_tests` fixture).
+   - Standard test runs skip live LLM generation to ensure fast (<5s), deterministic, and zero-cost local CI execution.
+2. **Boss Fight Execution**:
+   - Live LLM calls and unmocked synthesis are **explicitly permitted and expected** for tests decorated with `@pytest.mark.boss_fight` and executed with `RUN_BOSS_FIGHTS=1` (or `pytest -m boss_fight`).

@@ -1,11 +1,24 @@
 from pipeline_trace import traced_llm
 import subprocess
 import os
+import sys
 import json
 import re
 import time
 import dotenv
 import asyncio
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(line_buffering=True, encoding="utf-8")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(line_buffering=True, encoding="utf-8")
+    except Exception:
+        pass
+
 import aiohttp
 import aiohttp.client_exceptions
 if not hasattr(aiohttp, 'SocketTimeoutError'):
@@ -110,11 +123,11 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
     base_url = os.environ.get("OPENAI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
     # LLM_MODEL_<STAGE> (e.g. LLM_MODEL_RED_TEST_GENERATION) lets one stage use a different model, such as a
     # different model writing the tests than the one writing the code.
-    model_name = os.environ.get(f"LLM_MODEL_{stage.upper()}") or os.environ.get("LLM_MODEL", "gemini-2.5-flash")
+    model_name = os.environ.get(f"LLM_MODEL_{stage.upper()}") or os.environ.get("LLM_MODEL", "gemini-3.8-flash")
 
     if not api_key:
         LAST_LLM_ERROR = "No LLM API key configured (set GEMINI_API_KEY, LLM_API_KEY or OPENAI_API_KEY)."
-        print(f"[Warning] {LAST_LLM_ERROR}")
+        print(f"[Warning] {LAST_LLM_ERROR}", flush=True)
         return ""
 
     effort = reasoning_effort if reasoning_effort is not None else os.environ.get("LLM_REASONING_EFFORT", "low")
@@ -122,17 +135,21 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
         "model": model_name,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.2,
+        "timeout": 60.0,
         **({"response_format": {"type": "json_object"}} if json_mode else {}),
     }
     client = OpenAI(api_key=api_key, base_url=base_url, max_retries=0)
+    t0 = time.time()
     try:
+        print(f"[LLM] Dispatching request for stage '{stage}' (model: {model_name})...", flush=True)
         response = client.chat.completions.create(**request, **({"reasoning_effort": effort} if effort else {}))
+        print(f"[LLM] Received response for stage '{stage}' in {round(time.time() - t0, 2)}s", flush=True)
         return response.choices[0].message.content or ""
     except Exception as e:
         LAST_LLM_ERROR = f"{type(e).__name__}: {e}"
         if effort and "reasoning" in str(e).lower():
             LAST_LLM_ERROR += " (this provider rejected reasoning_effort: set LLM_REASONING_EFFORT= (empty) to omit it)"
-        print(f"[Warning] LLM Call Exception ({stage}): {LAST_LLM_ERROR}")
+        print(f"[Warning] LLM Call Exception ({stage}) after {round(time.time() - t0, 2)}s: {LAST_LLM_ERROR}", flush=True)
         return ""
 
 

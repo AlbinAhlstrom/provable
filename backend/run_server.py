@@ -8,6 +8,11 @@ instead of broadcasting console-wide CTRL_C_EVENT signals that stop parent scrip
 import sys
 import os
 
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(line_buffering=True, encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(line_buffering=True, encoding='utf-8')
+
 if sys.platform == "win32":
     try:
         import uvicorn.supervisors.basereload
@@ -17,7 +22,11 @@ if sys.platform == "win32":
             if hasattr(self, "process") and self.process and self.process.is_alive():
                 self.process.terminate()
                 self.process.join()
-            self.process = self.get_subprocess()
+            self.process = uvicorn.supervisors.basereload.get_subprocess(
+                config=self.config,
+                target=self.target,
+                sockets=self.sockets
+            )
             self.process.start()
 
         uvicorn.supervisors.basereload.BaseReload.restart = _patched_restart

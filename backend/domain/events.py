@@ -42,3 +42,13 @@ class ComponentAdded(Event):
 @dataclass
 class ComponentDeleted(Event):
     canonical_key: str
+
+@dataclass
+class RequirementStatusChanged(Event):
+    req_id: str
+    old_status: str
+    new_status: str
+    timestamp: float = 0.0
+
+
+

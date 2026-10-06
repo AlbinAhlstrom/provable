@@ -75,6 +75,30 @@ All PM Studio features and backend UI generators MUST adhere to the following mo
 
 ---
 
+## 🧭 4. Wayfinder UX & BDD Invariants: Behavior Over Technical Plumbing
+
+Wayfinder exists to guide non-technical stakeholders and domain experts from an ambiguous idea to a verified domain model. To prevent technical alienation and premature architectural lock-in, the Wayfinder UX must strictly adhere to the following invariants:
+
+### 1. Behavior Over Implementation (User Experience > Plumbing)
+- **The Core Rule**: The user cares about **how the product works and feels**, not how it is built.
+- **Strict Ban on Engineering Jargon in BDD & Wayfinder UI**: Never present choices or BDD clauses mentioning databases, storage strategies (e.g. `Event Sourcing`, `FEN snapshots`, `SQLite vs Postgres`), concurrency models (e.g. `OCC`, `Last-Write-Wins`), network protocols (`WebSockets`, `SSE`, `REST`), or backend patterns (`UnitOfWork`, `FastAPI routers`, `asynchronous messagebus`).
+- **User-Centric Framing**:
+  - ❌ *Bad*: "Optimistic Concurrency Control with version checks to resolve mutation collisions."
+  - ✅ *Good*: "If two people edit the same document at once, prompt the user to review changes before overwriting."
+
+### 2. Non-Technical Accessibility (The BDD Plain-English Invariant)
+- **The Dan North Principle**: BDD was created specifically to eliminate the communication gap between business stakeholders and developers. If a non-technical founder, product manager, or 10-year-old cannot understand a BDD clause instantly, the clause has failed.
+- **Stupid Simple Language**: Use everyday conversational language in `GIVEN / WHEN / THEN / UNLESS`:
+  - ❌ *Bad*: "GIVEN active GameSession WHEN move is dispatched THEN fold sequence of MoveMade events to project board state UNLESS optimistic concurrency version mismatch occurs."
+  - ✅ *Good*: "GIVEN it is my turn WHEN I drag a piece to a valid square THEN the piece moves there UNLESS the king would be left in check."
+
+### 3. Zero Presumptive Branching & True Fog of War
+- **Never Assume Basic Capabilities**: Do NOT assume multiplayer, social feeds, payment gateways, clocks, or complex backend infrastructure from a high-level pitch like *"a chess app"*.
+- **The Fog of War Holds All Conditional Features**: Downstream capabilities that depend on unmade choices must remain locked in the Fog of War. If an upstream decision rejects a path (e.g. user chooses "Solo play vs. Computer"), all multiplayer questions (rooms, matchmaking, clocks, disconnect grace periods) must NEVER appear on the Frontier.
+- **Root Frontier Focus**: The initial Frontier must only ask foundational human-experience questions: *Who is using this, and how are they interacting with it?*
+
+---
+
 ## 🏛️ Discrepancies & Evolution Tags
 
 > [!NOTE]
@@ -82,7 +106,7 @@ All PM Studio features and backend UI generators MUST adhere to the following mo
 
 ---
 
-## 💾 4. Persistence & Memory Channels
+## 💾 5. Persistence & Memory Channels
 
 To ensure these decisions persist across future agent chat sessions:
 1. **`CLAUDE.md` / `.agents/AGENTS.md`**: Codifies mandatory rules and layout invariants into the agent's system prompt.
