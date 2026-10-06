@@ -314,8 +314,11 @@ def generate_router_module(entity: EntitySpec) -> str:
 FastAPI Router for {entity.name} (Auto-projected from domain model).
 """
 
+import inspect
+import re
 from fastapi import APIRouter, HTTPException, status
-from typing import List
+from pydantic import BaseModel, Field
+from typing import Any, Dict, List
 from src.entrypoints.schemas import {entity.name}CreateSchema, {entity.name}ResponseSchema
 from src.domain.{slug} import {entity.name}
 from src.service_layer.unit_of_work import FakeUnitOfWork
@@ -346,6 +349,46 @@ def get_{slug}(item_id: str):
         if not item:
             raise HTTPException(status_code=404, detail="{entity.name} not found")
         return item.to_dict()
+
+
+class ActionRequest(BaseModel):
+    action_type: str = Field(..., description="Name of a public domain method on {entity.name}")
+    params: Dict[str, Any] = Field(default_factory=dict, description="Keyword arguments for that method")
+
+
+def _public_actions(item) -> Dict[str, Any]:
+    return {{
+        name: member for name, member in inspect.getmembers(item, inspect.ismethod)
+        if not name.startswith("_") and name != "to_dict"
+    }}
+
+
+@router.post("/{{item_id}}/action")
+def run_{slug}_action(item_id: str, request: ActionRequest):
+    """Runs one of the aggregate's own domain methods; the domain decides whether the action is allowed."""
+    name = re.sub(r"[^a-z0-9]+", "_", request.action_type.strip().lower()).strip("_")
+    with _uow:
+        item = getattr(_uow, "{plural_slug}").get(item_id)
+        if not item:
+            raise HTTPException(status_code=404, detail="{entity.name} not found")
+        actions = _public_actions(item)
+        if name not in actions:
+            raise HTTPException(status_code=404, detail=f"Unknown action '{{request.action_type}}'. Available: {{sorted(actions)}}")
+        method = actions[name]
+        try:
+            inspect.signature(method).bind(**request.params)
+        except TypeError as exc:
+            raise HTTPException(status_code=422, detail=f"Invalid parameters for '{{name}}': {{exc}}")
+        try:
+            result = method(**request.params)
+        except Exception as exc:  # the domain rejected the action; its state is left as the domain left it
+            raise HTTPException(status_code=400, detail=str(exc) or type(exc).__name__)
+        _uow.commit()
+        return {{
+            "success": True,
+            "state": item.to_dict(),
+            "message": result if isinstance(result, str) else f"{{request.action_type}} completed",
+        }}
 '''
 
 
@@ -507,7 +550,6 @@ def generate_frontend_index_html(app_title: str) -> str:
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{app_title}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-slate-950 text-slate-100 antialiased min-h-screen">
     <div id="root"></div>

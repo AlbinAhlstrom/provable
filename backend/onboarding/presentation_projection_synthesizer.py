@@ -211,15 +211,8 @@ def synthesize_and_write_presentation_projection(
             desc_part = f" — {desc}" if desc else ""
             alias_part = f" (aliases: {aliases})" if aliases else ""
             protocol_lines.append(f"- Action `{name}`{alias_part}: expected params [{params}]{desc_part}")
-    elif router_code:
-        from onboarding.domain_engine_synthesizer import _extract_action_manifest
-        extracted = _extract_action_manifest({}, router_code)
-        for act in extracted.get("actions", []):
-            name = act.get("name", "action")
-            params = ", ".join(f"`{p}`" for p in act.get("params", [])) or "None"
-            protocol_lines.append(f"- Action `{name}`: expected params [{params}]")
     else:
-        protocol_lines.append("- Action `dispatch`: parameters according to domain state")
+        protocol_lines.append("- (No action protocol available: build the read-only views and the creation form only.)")
 
     action_protocol_block = "\n".join(protocol_lines)
 
@@ -251,17 +244,14 @@ Respond STRICTLY with JSON:
         with open(prompt_path, "r", encoding="utf-8") as f:
             prompt_template = f.read()
 
-    # Read synthesized backend state model for authoritative schema grounding
-    state_path = os.path.join(workspace_dir, "src", "domain", "state.py")
+    # The authoritative backend model is the master aggregate's dataclass (owned by the skeleton and the TDD loop)
+    domain_path = os.path.join(workspace_dir, "src", "domain", f"{master_slug}.py")
     backend_state_model = ""
-    if os.path.exists(state_path):
-        try:
-            with open(state_path, "r", encoding="utf-8") as f:
-                backend_state_model = f.read().strip()
-        except Exception:
-            pass
+    if os.path.exists(domain_path):
+        with open(domain_path, "r", encoding="utf-8") as f:
+            backend_state_model = f.read().strip()
     if not backend_state_model:
-        backend_state_model = "# Standard domain state snapshot"
+        backend_state_model = f"# (domain module for {master_name} not written yet)"
 
     if ux_blueprint is None:
         try:

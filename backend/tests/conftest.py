@@ -401,12 +401,9 @@ class {cls_name}:
         return True
 ```"""
             elif stage == "domain_engine_synthesis":
-                return json.dumps({
-                    "domain_rules_py": "# Pure Python Domain Rules\ndef validate_state(state): return True",
-                    "domain_state_py": "from dataclasses import dataclass\n@dataclass\nclass DomainState:\n    id: str = 'default'",
-                    "domain_aggregate_py": "from dataclasses import dataclass\n@dataclass\nclass DomainAggregate:\n    id: str = 'default'",
-                    "router_py": "from fastapi import APIRouter\nrouter = APIRouter(prefix='/api/test', tags=['Test'])\n@router.get('')\ndef get_items(): return []"
-                })
+                return json.dumps({"action_manifest": {"actions": [
+                    {"name": "update_status", "aggregate": "Item", "params": ["status"], "description": "Changes the status"}
+                ]}})
             elif stage == "presentation_projection_synthesis":
                 return json.dumps({
                     "client_ts": "export async function fetchItems() { return []; }",

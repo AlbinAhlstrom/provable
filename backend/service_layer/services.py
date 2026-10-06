@@ -2037,7 +2037,7 @@ def kickstart_domain_and_scaffold(
     t0_start = time.time()
     if not is_offline_test and mode != "mock":
         print(f"[Kickstart] [0/5] Grounding intent: expanding pitch into interactive full-stack specification...", flush=True)
-        pitch_text = expand_pitch_into_interactive_specification(pitch_text)
+        pitch_text = expand_pitch_into_interactive_specification(pitch_text, intent=product_intent)
         t0_elapsed = round(time.time() - t0_start, 2)
         timings["0_intent_grounding"] = t0_elapsed
         print(f"[Kickstart] [0/5] ✓ Specification expanded ({len(pitch_text.split())} words) in {t0_elapsed}s", flush=True)
@@ -2124,6 +2124,12 @@ def kickstart_domain_and_scaffold(
         from onboarding.templates.workspace_scaffold import ensure_workspace_dependencies
         if ensure_workspace_dependencies(workspace_dir):
             print("[Kickstart] [4/5] Installed missing workspace npm dependencies.", flush=True)
+            # Vite reads package.json and postcss/tailwind config only at startup (and dies if a configured plugin
+            # was not installed yet), so the preview server is restarted once the packages are in place.
+            from config_loader import is_serverless
+            if not is_serverless():
+                from onboarding.server_manager import start_project_servers
+                start_project_servers()
 
     if not should_run_compiler_graph:
         try:
@@ -2172,12 +2178,12 @@ def kickstart_domain_and_scaffold(
 
     if not is_offline_test and mode not in ("offline_test", "mock", "no_agent"):
         try:
-            from onboarding.domain_engine_synthesizer import synthesize_and_write_domain_engine
+            from onboarding.domain_engine_synthesizer import synthesize_action_protocol
             from onboarding.presentation_projection_synthesizer import synthesize_and_write_presentation_projection
 
-            # Node 2: Pure Python DDD Domain Engine & FastAPI REST Endpoints
+            # Node 2: Action protocol (the domain class and the action endpoint come from the skeleton + TDD loop)
             t5a_start = time.time()
-            engine_res = synthesize_and_write_domain_engine(
+            engine_res = synthesize_action_protocol(
                 pitch=pitch_text,
                 structure=structure,
                 inbox_specs=inbox_specs,

@@ -64,10 +64,31 @@ def create_default_workspace_scaffold(ws_base: str):
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
     "typescript": "^5.2.0",
     "vite": "^5.0.0"
   }
 }''')
+
+    # Generated UIs use Tailwind classes: bundle Tailwind in the build instead of relying on a runtime CDN.
+    with open(os.path.join(ws_base, 'tailwind.config.js'), 'w', encoding='utf-8') as f:
+        f.write('''/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: { extend: {} },
+  plugins: [],
+}
+''')
+    with open(os.path.join(ws_base, 'postcss.config.js'), 'w', encoding='utf-8') as f:
+        f.write('''export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+''')
 
     tsconfig_json = os.path.join(ws_base, 'tsconfig.json')
     with open(tsconfig_json, 'w', encoding='utf-8') as f:
@@ -141,6 +162,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     index_css = os.path.join(src_dir, 'index.css')
     with open(index_css, 'w', encoding='utf-8') as f:
         f.write('''@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body { margin: 0; background: #0f172a; color: #f8fafc; font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }''')
 
     app_tsx = os.path.join(src_dir, 'App.tsx')
