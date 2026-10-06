@@ -41,6 +41,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[ADR-003 LLM Abstraction Layer and Prompt Externalization]]: Decision record on prompt externalization and model-agnostic routing via OpenAI SDK.
 - [[ADR-004 Allure Reporting Server Docker Integration]]: Decision record on utilizing a containerized Allure service for automated visual test reports.
 - [[ADR-005 Vercel Multi-Service Deployment]]: Decision record on deploying the engine API and Studio as Vercel services, the serverless mode, and what a deployment cannot do (ephemeral state, no generated-app preview).
+- [[ADR-006 Spec-Derived RED Tests and Fragment GREEN]]: Decision record on LLM-written behavioral RED tests, the stricter RED gate, module-fragment GREEN, rollback and the evidence behind them.
 
 
 ### 5. 📜 Agent Rules & Governance
