@@ -14,12 +14,13 @@ import time
 import socket
 
 if hasattr(sys.stdout, 'reconfigure'):
-    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(line_buffering=True, encoding='utf-8')
 if hasattr(sys.stderr, 'reconfigure'):
-    sys.stderr.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(line_buffering=True, encoding='utf-8')
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 os.environ["PYTHONUTF8"] = "1"
+os.environ["PYTHONUNBUFFERED"] = "1"
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 IS_WINDOWS = os.name == 'nt'
@@ -62,6 +63,7 @@ def start_process(cmd, cwd, prefix, env=None):
     if env:
         process_env.update(env)
     process_env["PYTHONPATH"] = cwd + os.pathsep + process_env.get("PYTHONPATH", "")
+    process_env["PYTHONUNBUFFERED"] = "1"
     kwargs = {
         "cwd": cwd,
         "env": process_env,
@@ -255,7 +257,7 @@ def main():
     if not is_port_in_use(8001):
         print("[ws-api] Starting Workspace Domain API uvicorn server on port 8001...", flush=True)
         ws_backend_cmd = [
-            py_exe, "-m", "uvicorn", "src.app:app",
+            py_exe, run_server_script, "src.app:app",
             "--reload",
             "--reload-dir", ws_dir,
             "--host", "0.0.0.0",

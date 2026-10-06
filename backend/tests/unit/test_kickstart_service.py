@@ -69,7 +69,7 @@ def test_analyze_kickstart_pitch_service(monkeypatch):
     """
     monkeypatch.setattr(
         "onboarding.domain_ontology.analyze_pitch_for_kickstart",
-        lambda pitch: {
+        lambda pitch, mode="fast": {
             "blocks": [{"id": "catalog", "title": "Product Catalog"}],
             "extracted_requirements": [{"id": "REQ-PITCH-1", "title": "Pizza Catalog", "type": "Requirement"}]
         }

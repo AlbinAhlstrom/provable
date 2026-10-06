@@ -2,37 +2,37 @@
 # Change model/base_url/api_key_env here to swap LLMs without touching Python code.
 
 default:
-  model: gemini-2.5-flash
+  model: gemini-3.8-flash
   base_url: https://generativelanguage.googleapis.com/v1beta/openai/
   api_key_env: LLM_API_KEY
 
 stages:
   code_generation:
-    model: gemini-2.5-flash
+    model: gemini-3.8-flash
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     api_key_env: LLM_API_KEY
 
   visual_qa:
-    model: gemini-2.5-flash
+    model: gemini-3.8-flash
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     api_key_env: LLM_API_KEY
 
   task_decomposition:
-    model: gemini-2.5-flash
+    model: gemini-3.8-flash
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     api_key_env: LLM_API_KEY
 
   merge_resolution:
-    model: gemini-2.5-flash
+    model: gemini-3.8-flash
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     api_key_env: LLM_API_KEY
 
   requirement_audit:
-    model: gemini-2.5-flash
+    model: gemini-3.8-flash
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     api_key_env: LLM_API_KEY
 
   test_case_generation:
-    model: gemini-2.5-flash
+    model: gemini-3.8-flash
     base_url: https://generativelanguage.googleapis.com/v1beta/openai/
     api_key_env: LLM_API_KEY

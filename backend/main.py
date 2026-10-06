@@ -6,9 +6,9 @@ to guarantee 100% backward compatibility with all test suites, Uvicorn, and run.
 
 import sys
 if hasattr(sys.stdout, 'reconfigure'):
-    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(line_buffering=True, encoding='utf-8')
 if hasattr(sys.stderr, 'reconfigure'):
-    sys.stderr.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(line_buffering=True, encoding='utf-8')
 
 from app import app, lifespan
 from entrypoints.schemas import *

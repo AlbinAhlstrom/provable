@@ -1,10 +1,23 @@
 import subprocess
 import os
+import sys
 import json
 import re
 import time
 import dotenv
 import asyncio
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(line_buffering=True, encoding="utf-8")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(line_buffering=True, encoding="utf-8")
+    except Exception:
+        pass
+
 import aiohttp
 import aiohttp.client_exceptions
 if not hasattr(aiohttp, 'SocketTimeoutError'):
@@ -78,22 +91,27 @@ def call_gemini(prompt: str, stage: str = "general") -> str:
     """OpenAI Python SDK wrapper for LLM calls (configured via env/yaml)."""
     api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
     base_url = os.environ.get("OPENAI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
-    model_name = os.environ.get("LLM_MODEL", "gemini-2.5-flash")
+    model_name = os.environ.get("LLM_MODEL", "gemini-3.8-flash")
 
     if not api_key:
-        print(f"[Warning] No LLM API key configured in environment (LLM_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY).")
+        print(f"[Warning] No LLM API key configured in environment (LLM_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY).", flush=True)
         return ""
 
     client = OpenAI(api_key=api_key, base_url=base_url)
+    t0 = time.time()
     try:
+        print(f"[LLM] Dispatching request for stage '{stage}' (model: {model_name})...", flush=True)
         response = client.chat.completions.create(
             model=model_name,
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.2
+            temperature=0.2,
+            timeout=60.0
         )
-        return response.choices[0].message.content or ""
+        content = response.choices[0].message.content or ""
+        print(f"[LLM] ✓ Received response for stage '{stage}' in {round(time.time() - t0, 2)}s", flush=True)
+        return content
     except Exception as e:
-        print(f"[Warning] LLM Call Exception ({stage}): {e}")
+        print(f"[Warning] LLM Call Exception ({stage}) after {round(time.time() - t0, 2)}s: {e}", flush=True)
         return ""
 
 

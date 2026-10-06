@@ -92,10 +92,13 @@ class DomainSynthesisRequest(BaseModel):
 
 class KickstartAnalyzeRequest(BaseModel):
     business_pitch: str
+    mode: Optional[str] = "fast"
 
 class KickstartSynthesisRequest(BaseModel):
     business_pitch: Optional[str] = None
     pitch: Optional[str] = None
+    mode: Optional[str] = "fast"
+    answers: Optional[Dict[str, str]] = None
     selected_blocks: Optional[List[str]] = None
     selected_block_ids: Optional[List[str]] = None
     requirements: Optional[List[Dict[str, Any]]] = None
@@ -158,3 +161,11 @@ class OrderIn(BaseModel):
 
     def get_item_name(self) -> str:
         return self.pizza_name or self.item_name
+
+
+class BulkStatusUpdateRequest(BaseModel):
+    req_ids: List[str]
+    target_status: str
+
+
+

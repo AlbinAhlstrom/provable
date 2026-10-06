@@ -1,13 +1,29 @@
+import os
+import sys
 import json
 import re
 import pytest
 
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(line_buffering=True, encoding="utf-8")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(line_buffering=True, encoding="utf-8")
+    except Exception:
+        pass
+
 
 @pytest.fixture(autouse=True)
-def mock_allure_client_network_calls(monkeypatch):
+def mock_external_network_gateways(monkeypatch, request):
     """
-    Autouse fixture ensuring unit tests never block on external network I/O or timeouts.
+    Autouse fixture ensuring unit tests never block on external network I/O, Allure, or OpenCode probes.
     """
+    if "boss_fight" in request.keywords and os.environ.get("RUN_BOSS_FIGHTS"):
+        return
+
     try:
         from integrations import allure_client
         monkeypatch.setattr(
@@ -21,13 +37,61 @@ def mock_allure_client_network_calls(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def mock_llm_for_unit_tests(monkeypatch):
+def isolate_test_workspace(monkeypatch, tmp_path_factory, request):
+    """
+    Hermetic Workspace Isolation Fixture:
+    Redirects config_loader.get_workspace_base and PROVABLE_WORKSPACE to a temporary directory
+    for all unit and integration tests.
+    Strictly protects the user's active live workspace from being wiped, mutated, or overwritten
+    by tests running kickstart or reset endpoints.
+    Bypassed only when running live boss fight tests with RUN_BOSS_FIGHTS=1.
+    """
+    if "boss_fight" in request.keywords and os.environ.get("RUN_BOSS_FIGHTS"):
+        return
+
+    test_ws = tmp_path_factory.mktemp("hermetic_workspace")
+    test_ws_str = str(test_ws)
+
+    # Initialize minimal workspace scaffold structure
+    from onboarding.templates.workspace_scaffold import create_default_workspace_scaffold
+    create_default_workspace_scaffold(test_ws_str)
+
+    # Set default environment variable
+    monkeypatch.setenv("PROVABLE_WORKSPACE", test_ws_str)
+
+    def _get_test_ws():
+        env_ws = os.environ.get("PROVABLE_WORKSPACE")
+        if env_ws and os.path.exists(env_ws):
+            return os.path.abspath(env_ws)
+        return test_ws_str
+
+    # Monkeypatch config_loader.get_workspace_base
+    import config_loader
+    monkeypatch.setattr(config_loader, "get_workspace_base", _get_test_ws)
+
+    # Monkeypatch get_workspace_base across all loaded modules
+    import sys
+    for mod in list(sys.modules.values()):
+        if mod and hasattr(mod, "get_workspace_base"):
+            try:
+                monkeypatch.setattr(mod, "get_workspace_base", _get_test_ws)
+            except Exception:
+                pass
+
+
+@pytest.fixture(autouse=True)
+def mock_llm_for_unit_tests(monkeypatch, request):
     """
     Hermetic Unit Test Mock for LLM calls:
     Returns structured, schema-compliant JSON payloads for unit tests
     so that production code has ZERO keyword tokenizers or mock heuristics.
+    Bypassed when running live boss fight tests with RUN_BOSS_FIGHTS=1.
     """
+    if "boss_fight" in request.keywords and os.environ.get("RUN_BOSS_FIGHTS"):
+        return
+
     try:
+
         import agent_orchestrator
 
         def fake_call_gemini(prompt: str, stage: str = "general") -> str:
@@ -239,34 +303,91 @@ def mock_llm_for_unit_tests(monkeypatch):
                                 "description": f"Calculates rates or applies boundary thresholds for {noun.lower()}.",
                                 "given_when_then": f"Given an active {noun} When applying size multipliers or boundary limits Then total amount conforms to rules",
                                 "target_aggregate": f"{noun}Order" if "order" in pitch.lower() or "pizza" in pitch.lower() else noun,
-                                "spec_type": "DOMAIN_INVARIANT",
-                                "is_mathematical_boundary": is_math,
                                 "priority": "High",
                                 "status": "PENDING"
                             }
                         ]
                     }
                 })
+            elif stage == "red_test_generation":
+                m_spec = re.search(r"Specification ID\*\*:\s*([A-Za-z0-9_\-]+)", prompt)
+                s_id = m_spec.group(1).lower().replace("-", "_") if m_spec else "spec_001"
+                m_mod = re.search(r"Module Name\*\*:\s*([A-Za-z0-9_\-]+)", prompt)
+                mod_name = m_mod.group(1) if m_mod else "pallet"
+                m_cls = re.search(r"Target Aggregate\*\*:\s*([A-Za-z0-9_\-]+)", prompt)
+                cls_name = m_cls.group(1) if m_cls else "Pallet"
+                return f"""```python
+import pytest
+from src.domain.{mod_name} import {cls_name}
+
+def test_{s_id}():
+    instance = {cls_name}(id="TEST-001")
+    assert getattr(instance, "status", None) == "AVAILABLE"
+```"""
+            elif stage == "green_code_repair":
+                m_cls = re.search(r"Target Aggregate\*\*:\s*([A-Za-z0-9_]+)", prompt) or re.search(r"class definition for `?([A-Za-z0-9_]+)`?", prompt) or re.search(r"class\s+([A-Za-z0-9_]+)\s*:", prompt)
+                cls_name = m_cls.group(1) if m_cls else "Pallet"
+                return f"""```python
+@dataclass
+class {cls_name}:
+    id: str
+    name: str = "Standard {cls_name}"
+    status: str = "AVAILABLE"
+    events: List[Any] = field(default_factory=list)
+
+    def validate_invariants(self) -> bool:
+        return True
+```"""
+            elif stage == "domain_engine_synthesis":
+                return json.dumps({
+                    "domain_rules_py": "# Pure Python Domain Rules\ndef validate_state(state): return True",
+                    "domain_state_py": "from dataclasses import dataclass\n@dataclass\nclass DomainState:\n    id: str = 'default'",
+                    "domain_aggregate_py": "from dataclasses import dataclass\n@dataclass\nclass DomainAggregate:\n    id: str = 'default'",
+                    "router_py": "from fastapi import APIRouter\nrouter = APIRouter(prefix='/api/test', tags=['Test'])\n@router.get('')\ndef get_items(): return []"
+                })
+            elif stage == "presentation_projection_synthesis":
+                return json.dumps({
+                    "client_ts": "export async function fetchItems() { return []; }",
+                    "view_tsx": "import React from 'react';\nexport const View: React.FC = () => <div>Interactive Canvas</div>;",
+                    "controls_tsx": "import React from 'react';\nexport const Controls: React.FC = () => <div>Controls</div>;",
+                    "history_tsx": "import React from 'react';\nexport const History: React.FC = () => <div>History</div>;",
+                    "app_tsx": "import React from 'react';\nexport const App: React.FC = () => <div>App Shell</div>;"
+                })
+            elif stage == "prompt_expansion":
+                return "Expanded interactive full-stack specification: Canvas grid with tactile interactions, domain state transitions, reset controls, and event log."
 
             return "{}"
 
         import sys
         monkeypatch.setattr(agent_orchestrator, "call_gemini", fake_call_gemini)
-        for mod_name in [
+        modules_to_patch = [
+            "agent_orchestrator",
             "onboarding.frontend_planning_engine",
             "onboarding.requirement_generator",
             "onboarding.code_verifier",
             "onboarding.test_importer",
             "onboarding.domain_ontology",
             "onboarding.router_engine",
-            "service_layer.tdd_machine"
-        ]:
+            "onboarding.domain_engine_synthesizer",
+            "onboarding.presentation_projection_synthesizer",
+            "onboarding.prompt_expander",
+            "onboarding.ui_generator",
+            "service_layer.tdd_machine",
+        ]
+        for mod_name in modules_to_patch:
             try:
                 mod = sys.modules.get(mod_name) or __import__(mod_name, fromlist=["call_gemini"])
                 if hasattr(mod, "call_gemini"):
                     monkeypatch.setattr(mod, "call_gemini", fake_call_gemini)
             except Exception:
                 pass
+
+        for mod in list(sys.modules.values()):
+            if mod and hasattr(mod, "call_gemini"):
+                try:
+                    monkeypatch.setattr(mod, "call_gemini", fake_call_gemini)
+                except Exception:
+                    pass
     except ImportError:
         pass
 

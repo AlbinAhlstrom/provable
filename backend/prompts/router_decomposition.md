@@ -1,4 +1,4 @@
-﻿You are a Principal Enterprise Software Architect & Domain-Driven Design (DDD) Lead.
+You are a Principal Enterprise Software Architect & Domain-Driven Design (DDD) Lead.
 
 Analyze the following natural language business pitch and perform a STRICT SEPARATION between:
 1. DOMAIN STRUCTURE (Entities, Value Objects, Types, Aggregate Roots)
@@ -9,8 +9,9 @@ BUSINESS PITCH:
 
 CRITICAL DECOMPOSITION INSTRUCTIONS:
 - STRUCTURE:
+  - Focus strictly on the primary 2 to 4 domain entities needed for the core user value loop.
   - Identify the primary Aggregate Roots (e.g. Order, Pallet, Booking).
-  - Define clear entity attributes with primitive/semantic types ("string", "float", "int", "boolean", "datetime").
+  - Define clear entity attributes with primitive/semantic types ("string", "float", "int", "boolean", "datetime"). Represent user inputs as genuine operational attributes (text values, numbers, dates) rather than artificial boolean flags.
   - Do NOT put business logic or rules inside the structure section.
 
 - BEHAVIOR INBOX:

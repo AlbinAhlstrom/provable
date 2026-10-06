@@ -93,14 +93,19 @@ def synthesize_application_stack(domain_schema: Dict[str, Any], uow: Optional[Ab
     # ── STEP 5: Immediate Verification Run (Automated Test Execution) ─────────────
     if type(uow).__name__ != "FakeUnitOfWork":
         try:
-            import subprocess
+            test_env = os.environ.copy()
+            test_env["PYTHONUNBUFFERED"] = "1"
             res = subprocess.run(
                 ["python", "-m", "pytest", "tests/"],
                 cwd=ws_base,
+                env=test_env,
                 capture_output=True,
                 text=True
             )
-            print(f"[Test] Verification Completed (exitcode {res.returncode}):\n{res.stdout}")
+            out = res.stdout
+            if res.stderr:
+                out += f"\n[stderr]:\n{res.stderr}"
+            print(f"[Test] Verification Completed (exitcode {res.returncode}):\n{out}", flush=True)
             
             with uow:
                 reqs = uow.requirements.list()

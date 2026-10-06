@@ -20,8 +20,8 @@ $$\text{Domain Model (Pure)} \longrightarrow \text{Repository Pattern} \longrigh
 
 ---
 
-## 2. Mandatory 4-Step TDD Execution Workflow (No Subagents)
-**DO NOT invoke developer subagents for code edits. Perform all coding, testing, and debugging directly in the main conversation context.**
+## 2. Mandatory 4-Step TDD Execution Workflow
+Perform code editing and TDD execution through the active role pipeline (`feature-role`, `patch-role`). Worker roles focused on research, exploration, or hypothesis validation may run as subagents when context isolation is beneficial, while production code changes and gate reviews remain governed by the role graph.
 
 Follow the strict 4-step TDD loop:
 1. **RED**: Write a unit test in `backend/tests/unit/test_<target>.py` using `FakeUnitOfWork` and in-memory test doubles. Run ONLY `python -m pytest backend/tests/unit/test_<target>.py` and verify failure.
@@ -45,3 +45,14 @@ Follow the strict 4-step TDD loop:
    **NEVER execute `git commit` or `git commit --amend` without running the full test suite (`python -m pytest backend/tests/`) first.** Every commit MUST be preceded by empirical runtime verification showing 100% PASS across unit, integration, and E2E test suites.
 2. **Mandatory Pre-Flight Check**:
    **Before concluding ANY task or communicating back to the user that you are done, you MUST execute `python scripts/agent_preflight_check.py`.** If it fails, you must fix the errors silently before responding. You are strictly forbidden from presenting broken code.
+
+---
+
+## 5. Hermetic Test Suite & Boss Fight Testing Policy
+1. **Hermetic Standard Tests**:
+   - Standard unit, integration, and E2E tests (`backend/tests/unit/`, `backend/tests/integration/`, etc.) MUST be **100% hermetic and offline**, using mock test doubles (such as `backend/tests/conftest.py`'s `mock_llm_for_unit_tests` fixture).
+   - Standard test runs skip live LLM generation to ensure fast (<5s), deterministic, and zero-cost local CI execution.
+2. **Boss Fight Execution**:
+   - Live LLM calls and unmocked synthesis are **explicitly permitted and expected** for tests decorated with `@pytest.mark.boss_fight` and executed with `RUN_BOSS_FIGHTS=1` (or `pytest -m boss_fight`).
+
+

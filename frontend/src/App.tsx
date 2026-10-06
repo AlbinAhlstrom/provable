@@ -5,7 +5,7 @@ import CoverageHub from './components/CoverageHub';
 import ProjectSelector from './components/ProjectSelector';
 import { Requirement } from './hooks/useRequirements';
 
-export function App() {
+export function ProvableApp() {
   const [currentView, setCurrentView] = useState<string>('Domain');
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [selectedReqId, setSelectedReqId] = useState<string | null>(null);
@@ -131,4 +131,4 @@ export function App() {
   );
 }
 
-export default App;
+export default ProvableApp;

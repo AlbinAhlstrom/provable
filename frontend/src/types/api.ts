@@ -178,7 +178,7 @@ export interface TestSpecAddDTO {
 
 export interface EntityAttributeDTO {
   name: string;
-  type: 'string' | 'currency' | 'number' | 'tags' | 'boolean';
+  type: 'string' | 'number' | 'tags' | 'boolean' | string;
   required?: boolean;
   default_value?: any;
   display_mode?: 'visible' | 'tag_chips' | 'badge' | 'subtitle' | 'hidden';
@@ -224,5 +224,37 @@ export interface BusinessSpecItemDTO {
   priority: string;
   status: 'PENDING' | 'IN_PROGRESS' | 'FULFILLED' | 'REQUIRES_HUMAN_INTERVENTION' | string;
 }
+
+export interface RuleCardDTO {
+  id: string;
+  title: string;
+  chapter?: string;
+  card_type: 'LOGIC' | 'VIEW' | string;
+  category?: string;
+  target: string;
+  description?: string;
+  given_clause?: string;
+  when_clause?: string;
+  then_clause?: string;
+  unless_clause?: string;
+  is_active: boolean;
+  status: 'PENDING' | 'IN_PROGRESS' | 'FULFILLED' | 'CONFLICT' | 'PAUSED' | 'REQUIRES_HUMAN_INTERVENTION' | string;
+  derived_from_id?: string | null;
+}
+
+export interface LivingDeckDTO {
+  chapters?: Record<string, RuleCardDTO[]>;
+  logic_cards: {
+    global: RuleCardDTO[];
+    entities: Record<string, RuleCardDTO[]>;
+  };
+  view_cards: {
+    global_theme: RuleCardDTO[];
+    components: Record<string, RuleCardDTO[]>;
+  };
+  all_cards?: RuleCardDTO[];
+}
+
+
 
 

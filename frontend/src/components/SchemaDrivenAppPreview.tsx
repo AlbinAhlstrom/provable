@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Form from '@rjsf/mui';
 import validator from '@rjsf/validator-ajv8';
 import { RJSFSchema } from '@rjsf/utils';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { fetchWorkspaceEntities, createWorkspaceEntity } from '../hooks/useWorkspaceDomainData';
 
 const darkTheme = createTheme({
   palette: {
@@ -104,7 +105,9 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
   const [selectedEntity, setSelectedEntity] = useState<string>('');
   const [records, setRecords] = useState<Record<string, any[]>>({});
   const [formData, setFormData] = useState<any>({});
-  const [notification, setNotification] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     if (domainClasses.length > 0) {
@@ -115,6 +118,22 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
   }, [domainClasses, selectedEntity]);
 
   const activeClass = domainClasses.find(c => c.name === selectedEntity) || domainClasses[0];
+
+  const fetchLiveRecords = useCallback(async (entityName: string) => {
+    if (!entityName) return;
+    setLoading(true);
+    const res = await fetchWorkspaceEntities(entityName);
+    if (res.success) {
+      setRecords(prev => ({ ...prev, [entityName]: res.data }));
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (activeClass?.name) {
+      fetchLiveRecords(activeClass.name);
+    }
+  }, [activeClass?.name, fetchLiveRecords]);
 
   const mapFieldTypeToSchemaType = (pyType: string): string => {
     const t = pyType.toLowerCase();
@@ -158,24 +177,89 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
 
   const currentSchema = generateSchema(activeClass);
 
-  const handleSubmit = (data: { formData?: any }) => {
+  const handleSubmit = async (data: { formData?: any }) => {
     if (!activeClass) return;
+    setSubmitting(true);
+    setNotification(null);
     const submittedData = data.formData || {};
     const entityName = activeClass.name;
-    const newRecord = {
-      ...submittedData,
-      _id: submittedData.id || `REC-${Date.now().toString().slice(-4)}`,
-      _created_at: new Date().toLocaleTimeString()
-    };
 
-    setRecords(prev => ({
-      ...prev,
-      [entityName]: [...(prev[entityName] || []), newRecord]
-    }));
+    const res = await createWorkspaceEntity(entityName, submittedData);
+    if (res.success) {
+      setNotification({
+        type: 'success',
+        message: `✅ Created new ${entityName} record in Workspace API (:8001)`
+      });
+      setFormData({});
+      await fetchLiveRecords(entityName);
+    } else {
+      setNotification({
+        type: 'error',
+        message: `❌ Domain / Validation Error: ${res.error}`
+      });
+    }
+    setSubmitting(false);
+    setTimeout(() => setNotification(null), 6000);
+  };
 
-    setFormData({});
-    setNotification(`✅ Created new ${entityName} record successfully.`);
-    setTimeout(() => setNotification(null), 3000);
+  const generateSampleDataForClass = (cls: DomainClassModel, variant = 0): Record<string, any> => {
+    const sample: Record<string, any> = {};
+    cls.fields.forEach((f, idx) => {
+      const name = f.name.toLowerCase();
+      const type = mapFieldTypeToSchemaType(f.type);
+      const prefix = cls.name.slice(0, 4).toUpperCase();
+
+      if (idx === 0 || name.endsWith('_id') || name === 'id') {
+        sample[f.name] = `${prefix}-${100 + variant}`;
+      } else if (type === 'integer') {
+        sample[f.name] = 100 + variant * 10;
+      } else if (type === 'number') {
+        sample[f.name] = 150.0 + variant * 50.0;
+      } else if (type === 'boolean') {
+        sample[f.name] = true;
+      } else if (name.includes('date') || name.includes('time')) {
+        sample[f.name] = '2026-09-15';
+      } else if (name.includes('mail')) {
+        sample[f.name] = `contact_${variant + 1}@example.com`;
+      } else if (name.includes('phone') || name.includes('tel')) {
+        sample[f.name] = `+4670100000${variant}`;
+      } else if (name.includes('status') || name.includes('state')) {
+        sample[f.name] = variant === 0 ? 'ACTIVE' : 'READY';
+      } else {
+        sample[f.name] = `Value_${variant + 1}`;
+      }
+    });
+    return sample;
+  };
+
+  const handleAutofill = () => {
+    if (!activeClass) return;
+    const sample = generateSampleDataForClass(activeClass, records[activeClass.name]?.length || 0);
+    setFormData(sample);
+  };
+
+  const handleSeedAllEntities = async () => {
+    if (domainClasses.length === 0) return;
+    setSubmitting(true);
+    setNotification(null);
+    let createdCount = 0;
+    for (const cls of domainClasses) {
+      const sample1 = generateSampleDataForClass(cls, 0);
+      const sample2 = generateSampleDataForClass(cls, 1);
+      const res1 = await createWorkspaceEntity(cls.name, sample1);
+      const res2 = await createWorkspaceEntity(cls.name, sample2);
+      if (res1.success) createdCount++;
+      if (res2.success) createdCount++;
+    }
+    if (activeClass) {
+      await fetchLiveRecords(activeClass.name);
+    }
+    setSubmitting(false);
+    setNotification({
+      type: 'success',
+      message: `🌱 Seeded ${createdCount} sample records across all aggregates in Workspace API (:8001)!`
+    });
+    setTimeout(() => setNotification(null), 5000);
   };
 
   const currentRecords = activeClass ? (records[activeClass.name] || []) : [];
@@ -273,15 +357,16 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
 
       {notification && (
         <div style={{
-          background: 'rgba(34, 197, 94, 0.15)',
-          border: '1px solid #22c55e',
-          color: '#4ade80',
-          padding: '0.5rem 1rem',
-          borderRadius: '0.4rem',
-          fontSize: '0.8rem',
-          fontWeight: 600
+          background: notification.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+          border: `1px solid ${notification.type === 'error' ? '#ef4444' : '#22c55e'}`,
+          color: notification.type === 'error' ? '#fca5a5' : '#4ade80',
+          padding: '0.75rem 1rem',
+          borderRadius: '0.5rem',
+          fontSize: '0.85rem',
+          fontWeight: 700,
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
         }}>
-          {notification}
+          {notification.message}
         </div>
       )}
 
@@ -303,9 +388,27 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
             <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#f8fafc', fontWeight: 700 }}>
               📝 Schema Form: {activeClass?.name}
             </h4>
-            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-              {activeClass?.fields.length || 0} fields
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <button
+                type="button"
+                onClick={handleAutofill}
+                style={{
+                  background: 'rgba(56, 189, 248, 0.15)',
+                  border: '1px solid #0284c7',
+                  color: '#38bdf8',
+                  padding: '0.2rem 0.55rem',
+                  borderRadius: '4px',
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                ✨ Auto-fill Exempel
+              </button>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                {activeClass?.fields.length || 0} fält
+              </span>
+            </div>
           </div>
 
           <div className="rjsf-dark-container" style={{ fontSize: '0.85rem' }}>
@@ -317,23 +420,29 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
                 onChange={e => setFormData(e.formData)}
                 onSubmit={handleSubmit}
               >
-                <div style={{ marginTop: '1rem' }}>
+                <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
                   <button
                     type="submit"
+                    disabled={submitting}
                     style={{
-                      background: '#0284c7',
+                      background: submitting ? '#0369a1' : '#0284c7',
                       color: '#ffffff',
                       border: 'none',
-                      padding: '0.6rem 1.25rem',
+                      padding: '0.65rem 1.25rem',
                       borderRadius: '0.4rem',
-                      fontSize: '0.85rem',
+                      fontSize: '0.9rem',
                       fontWeight: 700,
-                      cursor: 'pointer',
-                      width: '100%',
-                      transition: 'background 0.2s ease'
+                      cursor: submitting ? 'not-allowed' : 'pointer',
+                      flex: 1,
+                      boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)',
+                      transition: 'background 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem'
                     }}
                   >
-                    🚀 Submit &amp; Project Entity
+                    {submitting ? '⏳ Executing on Workspace API (:8001)...' : `🚀 Skapa ${activeClass?.name}`}
                   </button>
                 </div>
               </Form>
@@ -351,13 +460,51 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
           flexDirection: 'column',
           gap: '0.75rem'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
             <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#f8fafc', fontWeight: 700 }}>
               📊 Live Entity Records ({currentRecords.length})
             </h4>
-            <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontFamily: 'monospace' }}>
-              Projection State: Active
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <button
+                onClick={handleSeedAllEntities}
+                disabled={submitting || loading}
+                style={{
+                  background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                  border: 'none',
+                  color: '#ffffff',
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: submitting || loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+                }}
+              >
+                🌱 Seed Demo Data (:8001)
+              </button>
+              <button
+                onClick={() => activeClass?.name && fetchLiveRecords(activeClass.name)}
+                disabled={loading}
+                style={{
+                  background: '#0f172a',
+                  border: '1px solid #475569',
+                  color: '#f8fafc',
+                  padding: '0.25rem 0.6rem',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.3rem'
+                }}
+              >
+                {loading ? '⏳ Laddar...' : '🔄 Ladda om (:8001)'}
+              </button>
+            </div>
           </div>
 
           {currentRecords.length === 0 ? (
@@ -369,9 +516,9 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
               borderRadius: '0.5rem',
               border: '1px dashed #334155'
             }}>
-              <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600 }}>No records created yet.</p>
+              <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600 }}>Inga poster skapade ännu i Workspace API.</p>
               <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.75rem' }}>
-                Use the schema form on the left to submit a new {activeClass?.name} instance.
+                Fyll i formuläret till vänster eller kör ett POST-anrop i Swagger (:8001) för att skapa {activeClass?.name}-instanser.
               </p>
             </div>
           ) : (
@@ -384,20 +531,16 @@ export function SchemaDrivenAppPreview({ domainClasses }: SchemaDrivenAppPreview
                         {f.name}
                       </th>
                     ))}
-                    <th style={{ padding: '0.45rem 0.65rem', color: '#94a3b8', fontWeight: 600 }}>TIME</th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentRecords.map((rec, idx) => (
-                    <tr key={idx} style={{ background: idx % 2 === 0 ? '#1e293b' : '#0f172a', borderBottom: '1px solid #334155' }}>
+                    <tr key={rec.id || idx} style={{ background: idx % 2 === 0 ? '#1e293b' : '#0f172a', borderBottom: '1px solid #334155' }}>
                       {activeClass?.fields.map(f => (
                         <td key={f.name} style={{ padding: '0.45rem 0.65rem', color: '#f8fafc', fontFamily: 'monospace' }}>
                           {String(rec[f.name] !== undefined ? rec[f.name] : '—')}
                         </td>
                       ))}
-                      <td style={{ padding: '0.45rem 0.65rem', color: '#64748b', fontSize: '0.75rem' }}>
-                        {rec._created_at || 'now'}
-                      </td>
                     </tr>
                   ))}
                 </tbody>

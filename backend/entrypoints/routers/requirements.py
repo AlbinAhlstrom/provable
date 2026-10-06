@@ -3,17 +3,24 @@ Requirements API Router — Handles requirements CRUD, folders, parameters, togg
 """
 
 from typing import List
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from entrypoints.schemas import (
     Requirement, CreateRequirementPayload, CreateFolderPayload,
-    EditRequirementPayload, ParamUpdateRequest, FeatureToggleRequest
+    EditRequirementPayload, ParamUpdateRequest, FeatureToggleRequest,
+    BulkStatusUpdateRequest
 )
 from config_loader import get_workspace_base
 from agent_orchestrator import run_openhands_loop
-from service_layer.unit_of_work import SqliteUnitOfWork
+from service_layer.unit_of_work import AbstractUnitOfWork, SqliteUnitOfWork
 from service_layer import services
 
+def get_uow() -> AbstractUnitOfWork:
+    return SqliteUnitOfWork()
+
 router = APIRouter()
+
+
+
 
 @router.get("/api/requirements")
 def get_requirements():
@@ -126,3 +133,31 @@ def toggle_requirement_feature(req: FeatureToggleRequest):
         )
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+@router.get("/api/requirements/{req_id}/events")
+def get_requirement_events(req_id: str, uow: AbstractUnitOfWork = Depends(get_uow)):
+    """Fetches domain event audit log for a specific aggregate root."""
+    try:
+        events_list = services.get_requirement_events_service(req_id=req_id, uow=uow)
+        return {"req_id": req_id, "events": events_list}
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/api/requirements/bulk-status-update")
+def bulk_status_update(payload: BulkStatusUpdateRequest, uow: AbstractUnitOfWork = Depends(get_uow)):
+    """Atomically updates statuses for multiple requirements via Unit of Work."""
+    try:
+        updated = services.update_requirements_bulk_status_service(
+            req_ids=payload.req_ids,
+            target_status=payload.target_status,
+            uow=uow
+        )
+        return {"success": True, "updated_count": len(updated), "status": payload.target_status}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+
+

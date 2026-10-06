@@ -8,7 +8,7 @@ If syntax errors are detected, triggers a targeted self-healing LLM repair step.
 import re
 import sys
 import os
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from agent_orchestrator import call_gemini
 
@@ -89,3 +89,97 @@ Return ONLY valid React TypeScript code inside a single ```tsx code block. Do NO
         print(f"⚠️ [self_heal_tsx_code] Self-healing step failed: {e}")
 
     return code
+
+
+def self_heal_presentation_suite(
+    workspace_dir: str,
+    pitch: str,
+    defects: List[str],
+    console_errors: List[str]
+) -> bool:
+    """
+    Closed-loop LLM repair for live preview issues detected by QA Auditor.
+    Identifies the broken component from compiler/browser traces, feeds it to Gemini,
+    and writes back the repaired code.
+    Returns True if repaired and saved.
+    """
+    if not defects and not console_errors:
+        return False
+
+    combined_errors = "\n".join([f"- Defect: {d}" for d in defects] + [f"- Console Error: {ce}" for ce in console_errors])
+
+    # Detect if a specific component file was flagged in traceback
+    target_rel = "src/App.tsx"
+    file_match = re.search(r'src/([a-zA-Z0-9_/]+\.tsx)', combined_errors)
+    if file_match:
+        target_rel = f"src/{file_match.group(1)}"
+
+    target_paths = [
+        os.path.join(workspace_dir, target_rel),
+        os.path.join(workspace_dir, "frontend", target_rel)
+    ]
+
+    target_path = None
+    for p in target_paths:
+        if os.path.exists(p):
+            target_path = p
+            break
+
+    if not target_path:
+        # Fallback to App.tsx
+        for p in [os.path.join(workspace_dir, "src", "App.tsx"), os.path.join(workspace_dir, "frontend", "src", "App.tsx")]:
+            if os.path.exists(p):
+                target_path = p
+                target_rel = "src/App.tsx"
+                break
+
+    if not target_path or not os.path.exists(target_path):
+        return False
+
+    try:
+        with open(target_path, "r", encoding="utf-8") as f:
+            broken_code = f.read()
+    except Exception as e:
+        print(f"⚠️ [self_heal_presentation_suite] Could not read {target_path}: {e}")
+        return False
+
+    prompt = f"""You are Provable's Principal Lead Frontend Architect.
+The live application preview on :5174 failed runtime verification.
+
+--- OBJECTIVE RUNTIME DEFECTS & BROWSER LOGS ---
+{combined_errors}
+
+--- PRODUCT PITCH ---
+{pitch}
+
+--- CURRENT FILE ({target_rel}) ---
+{broken_code}
+
+Task:
+1. Diagnose the exact runtime, compilation, or layout error from the logs and code above.
+2. If this is `App.tsx`, ensure it properly exports the default component (`export default App;`) and satisfies modular orchestrator contracts.
+3. Fix all syntax, JSX escaping, prop mismatches, or layout scaling issues so the component renders cleanly without errors.
+4. Keep user-facing copy natural and persona-focused (avoid internal compiler terms like Invariant, Audit Ledger, Boundary Guards).
+
+Return ONLY the corrected code inside a single ```tsx code block.
+"""
+    try:
+        repaired = call_gemini(prompt, stage="self_healing")
+        if repaired:
+            cleaned = repaired.strip()
+            fence_match = re.search(r'```(?:tsx|jsx|typescript|javascript)?\s*\n(.*?)```', cleaned, re.DOTALL)
+            if fence_match:
+                cleaned = fence_match.group(1).strip()
+
+            for p in target_paths:
+                if os.path.exists(os.path.dirname(p)):
+                    with open(p, "w", encoding="utf-8") as f:
+                        f.write(cleaned.strip() + "\n")
+
+            print(f"✨ [self_heal_presentation_suite] Successfully healed {target_rel} via LLM closed loop!", flush=True)
+            return True
+    except Exception as e:
+        print(f"⚠️ [self_heal_presentation_suite] Self-healing LLM call failed: {e}", flush=True)
+
+    return False
+

@@ -93,12 +93,14 @@ export default defineConfig({
     with open(main_tsx, 'w', encoding='utf-8') as f:
         f.write('''import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import * as AppModule from './App';
 import './index.css';
+
+const App = (AppModule as any).default || (AppModule as any).App;
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    {App ? <App /> : <div style={{ color: 'red', padding: 20 }}>Failed to load App component</div>}
   </React.StrictMode>
 );''')
 

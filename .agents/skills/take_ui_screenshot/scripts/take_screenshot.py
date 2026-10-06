@@ -61,12 +61,19 @@ def main():
                     target_btn = btn
                     break
             
+            if not target_btn:
+                all_buttons = driver.find_elements(By.TAG_NAME, "button")
+                for btn in all_buttons:
+                    if args.view.lower() in btn.text.strip().lower():
+                        target_btn = btn
+                        break
+            
             if target_btn:
-                print(f"🤖 Clicking on navigation tab: '{btn.text}'")
+                print(f"🤖 Clicking on navigation tab: '{target_btn.text}'")
                 target_btn.click()
                 time.sleep(2.5) # Wait for page render/API fetch completion
             else:
-                print(f"⚠️ Warning: Navigation tab '{args.view}' not found. Available tabs: {[b.text for b in buttons]}")
+                print(f"⚠️ Warning: Navigation tab '{args.view}' not found.")
                 
         # Create output directory if it doesn't exist
         out_dir = os.path.dirname(os.path.abspath(args.output))

@@ -82,6 +82,19 @@ class DomainCapabilitySpec:
 
 
 @dataclass
+class ClarificationQuestion:
+    id: str
+    question: str
+    category: str
+    options: List[str]
+    default_choice: str
+    impact_rationale: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
 class DomainOntologySpec:
     pitch: str
     brand_name: str
@@ -261,10 +274,138 @@ Respond ONLY with a valid JSON object matching this schema (no markdown, no expl
         raise RuntimeError(f"Domain Ontology Storming failed to process pitch '{pitch_clean}': {e}") from e
 
 
-def analyze_pitch_for_kickstart(pitch: str) -> Dict[str, Any]:
+def generate_clarification_questions(ontology: DomainOntologySpec, pitch: str, mode: str = "fast") -> List[Dict[str, Any]]:
+    """
+    Generates strategic domain-fork clarification questions without questionnaire fatigue.
+    - fast mode: 0-3 questions (0-3 questions based on ambiguity).
+    - guided mode: max 5 strategic domain-fork questions.
+    """
+    noun = ontology.master_entity.entity_name
+    plural = ontology.master_entity.entity_plural
+    cat = ontology.domain_category
+    pitch_lower = pitch.lower()
+
+    candidates: List[ClarificationQuestion] = []
+
+    # 1. Fulfillment & Workflow Model
+    if "book" in pitch_lower or "rent" in pitch_lower or "service" in pitch_lower or "fleet" in pitch_lower or cat == "calendar_service":
+        candidates.append(ClarificationQuestion(
+            id="q_fulfillment_flow",
+            question=f"Hur ska allokering/bokning av {plural.lower()} ske i systemet?",
+            category="Allokeringsflöde",
+            options=[
+                f"Direktbokning (Kunden allokerar {noun.lower()} direkt online)",
+                "Offertförfrågan (Kräver manuell granskning & godkännande av handläggare)",
+                "Abonnemang / Fast tilldelning"
+            ],
+            default_choice=f"Direktbokning (Kunden allokerar {noun.lower()} direkt online)",
+            impact_rationale="Avgör om allokeringsprocessen är 1-stegs eller 2-stegs med godkännandekö."
+        ))
+        candidates.append(ClarificationQuestion(
+            id="q_maintenance_policy",
+            question=f"Hur ska service, drift och underhållsspärrar hanteras för {plural.lower()}?",
+            category="Drift & Underhåll",
+            options=[
+                "Automatisk driftstidsspärr vid uppnådd servicetröskel",
+                "Manuell flaggning och revision av tekniker",
+                "Varningsnotis utan automatisk bokningsspärr"
+            ],
+            default_choice="Automatisk driftstidsspärr vid uppnådd servicetröskel",
+            impact_rationale="Styr om schemalagd service automatiskt låser entiteten från nya allokeringar."
+        ))
+    elif "order" in pitch_lower or "cart" in pitch_lower or "buy" in pitch_lower or cat == "catalog_cart":
+        candidates.append(ClarificationQuestion(
+            id="q_checkout_mode",
+            question=f"Hur ska beställningar av {plural.lower()} bekräftas och betalas?",
+            category="Orderflöde",
+            options=[
+                "Direktbetalning & orderkvittens",
+                "Offert / Faktura i efterhand",
+                "Reservera online och betala vid leverans/upphämtning"
+            ],
+            default_choice="Direktbetalning & orderkvittens",
+            impact_rationale="Avgör tillståndsmaskinen för orderhantering."
+        ))
+        candidates.append(ClarificationQuestion(
+            id="q_inventory_lock",
+            question=f"Hur ska lagersaldo och allokering hanteras för {plural.lower()}?",
+            category="Lagerallokering",
+            options=[
+                "Validering och minskning av saldo vid slutbetalning",
+                "Realtidsreservering med timeout i varukorg",
+                "Obegränsat saldo (on-demand produktion)"
+            ],
+            default_choice="Validering och minskning av saldo vid slutbetalning",
+            impact_rationale="Styr när lagerinvarianter appliceras i domänmodellen."
+        ))
+    else:
+        candidates.append(ClarificationQuestion(
+            id="q_operational_flow",
+            question=f"Vilket primärt verksamhetsflöde ska styra livscykeln för {plural.lower()}?",
+            category="Verksamhetsflöde",
+            options=[
+                f"Standard tillståndsflöde (Skapad ➔ Aktiv ➔ Slutförd)",
+                f"Tvåstegsverifiering med granskningssteg",
+                f"Händelsedriven händelselogg (Event Sourcing)"
+            ],
+            default_choice=f"Standard tillståndsflöde (Skapad ➔ Aktiv ➔ Slutförd)",
+            impact_rationale="Definierar tillståndsövergångar i domänaggregatet."
+        ))
+
+    # 2. Concurrency & Collision Policy
+    candidates.append(ClarificationQuestion(
+        id="q_concurrency_policy",
+        question=f"Hur ska samtidiga ändringar och krockar hanteras på {plural.lower()}?",
+        category="Samtidighet & Integritet",
+        options=[
+            "Optimistic Concurrency Control (OCC med versionsnummer & kollisionslås)",
+            "Enkel överskrivning (senaste ändring gäller)",
+            "Köläggning med strikt sekvensiering"
+        ],
+        default_choice="Optimistic Concurrency Control (OCC med versionsnummer & kollisionslås)",
+        impact_rationale="Förhindrar datainkonsistens och samtidiga krockar i databasen."
+    ))
+
+    # 3. Notification & Events
+    candidates.append(ClarificationQuestion(
+        id="q_domain_events",
+        question=f"Ska asynkrona domänhändelser publiceras vid viktiga statusändringar?",
+        category="Händelseavisering",
+        options=[
+            "Ja, registrera domänhändelser i self.events för externa integrationer",
+            "Nej, endast lokala databasuppdateringar"
+        ],
+        default_choice="Ja, registrera domänhändelser i self.events för externa integrationer",
+        impact_rationale="Möjliggör asynkron integration med meddelandebussar och notifieringar."
+    ))
+
+    # 4. Pricing / Calculation Rules
+    candidates.append(ClarificationQuestion(
+        id="q_pricing_rules",
+        question=f"Vilken beräknings- och valideringslogik ska gälla för {plural.lower()}?",
+        category="Valideringsregler",
+        options=[
+            "Strikta matematiska gränser och icke-negativa värden",
+            "Dynamiska multiplikatorer baserat på storlek/volym",
+            "Schablontaxor med fasta nivåer"
+        ],
+        default_choice="Strikta matematiska gränser och icke-negativa värden",
+        impact_rationale="Bestämmer vilka matematiska invarianter som byggs in i domänkärnan."
+    ))
+
+    # In Fast mode (Snabbstart), adopt all standard opinionated defaults automatically (0 questions).
+    if mode == "fast":
+        return []
+
+    return [q.to_dict() for q in candidates[:5]]
+
+
+
+def analyze_pitch_for_kickstart(pitch: str, mode: str = "fast") -> Dict[str, Any]:
     """
     Analyzes a natural language business pitch by delegating to storm_domain_ontology
-    to extract domain capabilities, master entities, and formal business invariants.
+    to extract domain capabilities, master entities, formal business invariants, and
+    mode-sensitive clarification questions (0-3 for fast, max 5 for guided).
     """
     ontology = storm_domain_ontology(pitch)
 
@@ -300,11 +441,15 @@ def analyze_pitch_for_kickstart(pitch: str) -> Dict[str, Any]:
             "priority": "High"
         })
 
+    clarification_questions = generate_clarification_questions(ontology, pitch, mode=mode)
+
     return {
         "pitch": pitch,
+        "mode": mode,
         "blocks": analyzed_capabilities,
         "capabilities": [cap.to_dict() for cap in ontology.capabilities],
-        "extracted_requirements": extracted_requirements
+        "extracted_requirements": extracted_requirements,
+        "clarification_questions": clarification_questions
     }
 
 

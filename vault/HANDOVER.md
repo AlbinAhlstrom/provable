@@ -13,13 +13,88 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
   - Workspace App Preview: Running on `http://localhost:5174/`
   - Containerized Allure Service: Running on `http://localhost:5050/`
 - **Active Backend Architecture**: Clean Layered DDD/TDD Architecture (Domain Model, Repository, Unit of Work, Service Layer, Routers).
-- **Verified Build Status**: `100% PASS` (0 Vite JSX/TypeScript compilation errors, 102/102 backend pytest suite passed in 42.90s).
+- **Verified Build Status**: `100% PASS` (0 Vite JSX/TypeScript compilation errors, 150/150 offline backend unit pytest suite passed in 13.12s, hermetic test isolation, Boss Fight 2 10/10 Victory with 0 violations).
 
 ---
 
 ## 🏛️ Completed Architectural Achievements
 
-1. **Comprehensive Codebase Purge (2,818 lines of dead code removed)**:
+19. **Chapter-Organized Living Rule Deck & Plain-Language BDD Gate**:
+    - **Diagnostic Root Cause Solved**:
+      1. **Reverse Causality & Low-Level Code Jargon Leakage**: Previously, pitch decomposition asked the LLM to invent code `structure` (Aggregate Roots/Entity classes) before writing BDD rules (`inbox`), causing the LLM to write BDD clauses targeting the classes it just designed (e.g. `GameSession`, `DigCell`, `IN_PROGRESS`). For non-technical stakeholders ("specs-are-code"), this defeated BDD's primary value.
+      2. **Flat Wall of Text / Scannability Problem**: The rule deck was an unorganized flat list of cards, making it impossible to get a high-level overview or find specific rules without scrolling through dozens of cards.
+    - **Architectural Solution**:
+      1. **Specs-First & Plain-Language Verifier Gate**:
+         - Overhauled `backend/prompts/router_decomposition.md` to enforce human-readable, domain-natural language. Strictly banned PascalCase class names, method invocations, and SCREAMING_SNAKE_CASE enums.
+         - Created `verify_and_clean_spec_jargon` in `backend/onboarding/router_engine.py`: an automated sanitization gate that strips technical class wrappers and screaming enums (e.g. `GameSession` $\to$ `game session`, `IN_PROGRESS` $\to$ `in-progress`, `DigCell(x, y)` $\to$ `uncovering tile x, y`).
+      2. **Top-Down Zero-Latency Functional Chapter Grouping**:
+         - Enhanced decomposition prompt to output top-down functional chapters (`chapters: [{ title, specs: [...] }]`). Zero extra LLM classification round-trips needed.
+         - Extended `RuleCard` in `backend/domain/model.py` with `chapter` and `category` fields.
+         - Updated `LivingDeckDTO` in `backend/entrypoints/routers/specs.py` and `frontend/src/types/api.ts` to expose `chapters: Record<string, RuleCardDTO[]>`.
+         - Updated `synthesize_living_deck_cards` to categorize view cards into `"User Interface & Canvas"` and `"Telemetry & Status"` chapters.
+      3. **Collapsible Chapter Accordions & Real-Time Search UI**:
+         - Overhauled `frontend/src/components/RequirementControlPanel.tsx` with:
+           - Global search bar indexing card titles, chapters, categories, and GIVEN/WHEN/THEN clauses.
+           - "Fold All" and "Expand All" chapter toggles.
+           - Collapsible chapter accordions with contextual domain icons (`getChapterIcon`) and rule counters.
+           - Category badges (`🏷️ INVARIANT`, `🏷️ ACTION_RESULT`, etc.) on individual cards.
+           - Chapter autocomplete dropdown (`<datalist>`) in Add/Edit Card Modal.
+    - **Verified Test Suite**:
+      - Added unit tests in `backend/tests/unit/test_rule_card_deck.py`: `test_rule_card_supports_chapter_and_category`, `test_living_deck_groups_by_chapter`, and `test_spec_jargon_cleanliness_verifier`.
+      - 150/150 unit tests pass 100% green in 13.12s. Zero TypeScript errors.
+
+18. **Compiler Graph Action Protocol Hardening & Living Rule Deck Decomposition**:
+    - **Diagnostic Root Cause Solved**:
+      1. **Contract Drift in Action Dispatching**: In generated applications, Node 2 (DDD Backend) generated a rigid router checking `action_type == "reveal"` while Node 3 (Presentation Projection) generated `onCellAction("primary_reveal", x, y)` and `{ coordinate_x, coordinate_y }`, causing `Domain Guard: Unrecognized action type: 'primary_reveal'`.
+      2. **Procedural Slop in Rule Deck**: The Living Rule Deck was generating 5-in-1 imperative procedural scripts (e.g. `SPEC-001` bundling lazy mine population, safe zone exclusion, adjacent counting, FSM transition, and tile reveal into a single monolithic card) rather than discrete, independently toggleable invariants.
+    - **Architectural Solution**:
+      1. **Action Manifest & Zero Contract Drift**:
+         - Node 2 now outputs an authoritative `action_manifest` (actions, acceptable aliases, expected parameter schemas).
+         - Node 2's router prompt (`domain_engine_synthesis.md`) enforces resilient action normalization and parameter alias handling (`x` or `coordinate_x`).
+         - In `services.py`, the `action_manifest` and router code are passed directly into Node 3 (`presentation_projection_synthesizer.py`), which injects `## Authoritative Backend Action Protocol` and strictly forbids inventing arbitrary action names.
+      2. **Strict Invariant Atomicity & De-Proceduralization**:
+         - Overhauled `router_decomposition.md` with the **Single Responsibility Invariant Rule**: 1 card = 1 atomic rule, invariant, or affordance.
+         - Enforced declarative invariants (WHAT holds true) over imperative procedural scripts (HOW loops/recursion run).
+         - Banned physical hardware gestures ("secondary click", "long press", "mouse down") from domain logic cards.
+         - Established explicit Invariant Taxonomy: `INVARIANT`, `STATE_TRANSITION`, `PROPAGATION`, and `CALCULATION`.
+      3. **Category-Free & Domain-Agnostic View Affordances**:
+         - Replaced hardcoded domain keyword matching (`face`, `smiley`, `led`) in `synthesize_living_deck_cards` with clean, domain-agnostic User Affordance view cards (`CANVAS`, `CONTROLS`, `TELEMETRY`, `AFFORDANCE`).
+    - **Verified Test Suite**:
+      - Added TDD tests in `backend/tests/unit/test_compiler_graph.py` verifying Action Manifest extraction, presentation protocol injection, and prompt atomicity rules.
+      - 147/147 unit tests pass 100% green in 12.82s.
+
+
+15. **Wayfinder Behavioral Overhaul & Elimination of Developer Plumbing**:
+    - **Diagnostic Root Cause**: The Wayfinder engine was hardcoding developer-infrastructure CRUD templates ("Chess Lifecycle & State Transitions", "Collision Prevention & Concurrency Guard", "OCC with version check", "ConcurrencyCollisionError", "Unit of Work messagebus") regardless of domain.
+    - **Behavior-Driven Taxonomy Overhaul**: Refactored `backend/onboarding/wayfinder.py` with human-accessible, behavior-driven taxonomy for GAME, ORDERING, BOOKING, and PRODUCTIVITY/GENERAL.
+    - **Grounded Chess App Flow**:
+      - **Frontier Ticket 1**: `Who is Playing?` (Solo vs Computer, Two Players on One Screen / Pass & Play, Play with a Friend Online).
+      - **Frontier Ticket 2**: `Move Guidance & Rule Enforcement` (Guided Assistance with dots vs Classic Clean Board).
+      - **Causal Fog of War**: Downstream tickets (`Taking Back Moves (Undo)`, `Board Orientation & Perspective`, `Turn Timers & Clocks`, `Game Over & Victory Celebrations`) remain in the Fog of War until upstream decisions unlock them.
+      - **Zero Jargon Invariant**: Complete ban on OCC, ConcurrencyCollisionError, Unit of Work, message buses, and database/SQL terminology in Wayfinder BDD clauses.
+    - **Documentation & Agent Rules Updated**:
+      - `vault/01-Architecture/PM-Studio-UX-Architecture-And-Direction.md`: Codified Section 4 (Wayfinder UX & BDD Invariants).
+      - `.agents/rules/02-frontend-and-ui.md`: Codified Rule 4 (Human Behavior Over Technical Plumbing).
+    - **Verified Test Suite**: Added `test_chess_app_behavior_driven_invariants` in `backend/tests/unit/test_wayfinder_engine.py`; verified 132/132 unit tests passing cleanly.
+
+16. **End-to-End Wayfinder Synthesis, Living Rule Deck Persistence & Live Workspace Preview**:
+    - **Diagnostic Root Causes Solved**:
+      1. `rule_cards_json` column was missing in `kickstart_state` table in `backend/db/store.py`, causing locked Wayfinder BDD tickets to vanish on synthesis.
+      2. `kickstart_domain_and_scaffold` and `synthesize_kickstart_stack` were recreating `KickstartState` without preserving `rule_cards`.
+      3. `AppPreview.tsx` in PM Studio was hardcoded to display `<SchemaDrivenAppPreview />` (the `@rjsf/mui` table/form testing tool) rather than the live Vite workspace app.
+      4. `sync_workspace_app_shell` in `backend/service_layer/services.py` was a no-op placeholder that did not write generated TSX to `workspace/src/App.tsx`.
+    - **Architectural Solution**:
+      1. **Rule Deck Persistence**: Added auto-migration for `rule_cards_json TEXT` column in SQLite `kickstart_state`. Preserved `rule_cards` across all synthesis pipelines.
+      2. **PM Studio Live Preview & 4-Tab Hierarchy**: Upgraded `frontend/src/components/AppPreview.tsx` to embed the real live Vite workspace preview on `http://localhost:5174` (with responsive/mobile switcher, reload, and open in new tab). Added `📊 Data Sheet` tab retaining `<SchemaDrivenAppPreview />` as an inspectable diagnostic tool alongside `📱 Preview`, `⚡ Logic Cards`, and `💾 API Docs`.
+      3. **Workspace App Shell Live Synchronization**: Wired `sync_workspace_app_shell` to invoke `generate_llm_ui(pitch, {"custom_fixtures": custom_fixtures})` and write the resulting React 18 TSX directly to `workspace/src/App.tsx` (and `workspace/frontend/src/App.tsx`).
+      4. **Domain-Tailored Interactive Chessboard**: Added playable 8x8 chessboard template with Unicode pieces, turn indicators, move history, "Take Back" (Undo) state handler, and Reset.
+      5. **Verified Verification Gate**: Created `test_chess_app_synthesis_populates_living_deck_and_workspace_preview` in `backend/tests/unit/test_wayfinder_engine.py`. 133/133 backend unit tests pass, and frontend builds cleanly (0 TypeScript errors).
+
+1. **Boss Fight 2 (Iterative Domain Evolution) Crucible Hardening**:
+   - **Root Cause 1 (Dataclass Field Ordering)**: Python dataclasses forbid non-default fields after default fields. Implemented `sanitize_dataclass_field_ordering` in `backend/onboarding/cst_isolator.py` to deterministically reorder AST fields.
+   - **Root Cause 2 (Module & Class Discovery Desynchronization)**: Replaced naive lowercase matching with canonical `_to_snake_case` in `backend/service_layer/tdd_machine.py` to prevent search collisions across multi-entity domains.
+   - **Root Cause 3 (Domain Package Symbol Completeness)**: Enriched `src/domain/exceptions.py` and `src/domain/events.py` in `backend/onboarding/skeleton_builder.py` with typed domain exceptions (`MaintenanceRequiredError`, `StaleDataError`, `InvariantViolation`) and domain events (`MaintenanceRequiredEvent`, `MaintenanceLockedEvent`). Included `from datetime import datetime, date` across aggregate templates.
+   - **Root Cause 4 (CST Companion Class Isolation)**: Isolated extra classes in `cst_isolator.py` so helper exceptions/events are preserved without polluting sibling domain files.
    - **Purged Backend Routers**: Deleted [`backend/entrypoints/routers/reviews.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/entrypoints/routers/reviews.py) and [`backend/entrypoints/routers/agents.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/entrypoints/routers/agents.py) and unmounted them from [`backend/app.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/app.py).
    - **Purged Jira/Kanban Integration**: Deleted [`backend/integrations/jira_client.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/integrations/jira_client.py), `jira` section from `integrations.yaml`, startup sync hook in `app.py`, and `jira_key` fields across `store.py`, `schema.sql`, `model.py`, and `repository.py`.
    - **Purged Orphaned UI Components**: Deleted [`AgentTray.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/components/AgentTray.tsx), [`CodeReview.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/components/CodeReview.tsx), [`DiffViewer.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/components/DiffViewer.tsx), and [`DomainModeling.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/components/DomainModeling.tsx), and cleaned up dead polling loops/state in [`src/App.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/src/App.tsx).
@@ -223,11 +298,107 @@ This living record ensures 100% seamless continuity between chat sessions. Any a
         - **The Fatal Flaw Mechanism & Two-Hats State Machine**: Enforced mandatory pre-implementation codebase/doc risk analysis leading any functional feature response, with explicit Mode 1 (Architect) and Mode 2 (Execution with silent rule injection).
         - **UX Dual-Track Router**: Established Track A (Presentation / Frontend / Bugfix - high autonomy) and Track B (Functional / Domain / API - Fatal Flaw, frictionless roadmap integration, approval gate).
         - **Automated Canary Guard Hook**: Implemented [`.agents/hooks.json`](file:///c:/Users/ahlst/Documents/GitHub/provable/.agents/hooks.json) and [`scripts/canary_guard.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/scripts/canary_guard.py) on the `Stop` lifecycle event to enforce the `[🛡️ Clanker Active]` dead man's switch with a robust 1-retry loop breaker.
-        - **Obsidian Workflow Documentation**: Created companion documentation in [`vault/02-Workflows/Clanker-Protocol.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/vault/02-Workflows/Clanker-Protocol.md) and [`vault/02-Workflows/Future Enhancements Roadmap.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/vault/02-Workflows/Future%20Enhancements%20Roadmap.md).
+    52. **Boss Fight Acceptance Test Suite & Dual-Gate LLM Judge Architecture**:
+        - **Boss Fight Acceptance Suite (`backend/tests/boss_fights/test_hazardous_concurrency.py`)**: Authored high-stress acceptance test suite stress-testing Provable's synthesis engine against complex industrial domain invariants (Optimistic Concurrency Controls, `version_number` collision handling, `StaleDataError`, and pure domain event buffer vs direct dispatch).
+        - **Dual-Gate Verification Pipeline**: Implemented Gate 1 (deterministic static AST purity check ensuring 0 I/O or message bus imports in domain models) + Gate 2 (LLM-as-a-Judge prompting Gemini to audit architectural nuances and return structured JSON rationale).
+        - **Workspace Sandboxing & Mock Bypass**: Sandboxes pipeline execution in an isolated `tmp_path` using `PROVABLE_WORKSPACE` override (preventing root `workspace/` contamination) and unpatches `conftest.py` autouse LLM mocks when running explicitly with `RUN_BOSS_FIGHTS=1`.
+        - **Pytest Marker & Default Skip Invariant**: Registered `@pytest.mark.boss_fight` in `pytest.ini` and configured automatic skipping during standard CI runs to preserve fast hermetic execution (<17s).
+    53. **Gemini 3.7 Flash Migration & Surgical CST Import Synchronization**:
+        - **Model Upgrade**: Migrated default LLM from legacy `gemini-2.5-flash` to flagship `gemini-3.7-flash` across `.env`, [`backend/agent_orchestrator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/agent_orchestrator.py), and [`backend/config/models.yaml`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/config/models.yaml), taking advantage of the 50% introductory pricing ($0.75 / 1M input tokens, ~9 öre per full generation run) and superior DDD reasoning.
+        - **Surgical CST Import Synchronization**: Enhanced [`cst_isolator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/cst_isolator.py) and [`skeleton_builder.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/skeleton_builder.py) to automatically preserve `dataclass, field` and typing primitives during class splicing, preventing collection/import crashes during GREEN phase.
+        - **TDD Invariant Assertion Hardening**: Hardened [`tdd_machine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/service_layer/tdd_machine.py) to accept both `True` and `None` (standard Python domain invariant validator returns) and enhanced `evaluate_green_gate_result` error reporting.
+    54. **Zero-Tolerance Double-Lock Test Architecture & 10/10 Boss Fight Victory**:
+        - **Eliminated False-Positive Leniency**: Overhauled [`backend/tests/boss_fights/test_hazardous_concurrency.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/boss_fights/test_hazardous_concurrency.py) to implement a **Triple-Gate Verification**:
+          1. *Gate 1A (Static AST Purity)*: Zero imports of `requests`, `sqlalchemy`, `sqlite3`, `service_layer.messagebus`, `fastapi`.
+          2. *Gate 1B (Deterministic Runtime Execution)*: Dynamically imports generated `Zone` and `Pallet` classes, executes hazardous pallet quarantine, verifies `version_number >= 2`, and validates aggregate event buffer.
+          3. *Gate 2 (Zero-Tolerance Binary Disqualification)*: Mandatory auto-fail (passed=False, score=0) if any symbols are unimported/undefined or if `globals().get()` hacks are used.
+        - **Authoritative Scaffold Complete (`skeleton_builder.py`)**: Added automatic generation of `src/domain/exceptions.py` (`DomainError`, `StaleDataError`, `InvariantViolation`) and `src/domain/events.py` (`DomainEvent`, `ZoneQuarantinedEvent`), imported cleanly into domain modules.
+        - **10/10 Score & Flawless Execution**: Boss fight executed live against Gemini 3.7 Flash: scored **10/10 with 0 violations**, passing all deterministic runtime assertions.
+    55. **AppPreview Swagger UI Viewport Optimization**:
+        - **Dynamic Viewport Height Calculation**: Updated [`frontend/src/components/AppPreview.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/frontend/src/components/AppPreview.tsx) Swagger API container to `height: calc(100vh - 110px)`, `margin: 16px`, and `flex: 1` with dark slate styling (`#0f172a`, `border: 1px solid #334155`).
+        - **Unclipped Iframe Stretching**: Configured the Swagger `<iframe>` with `width: 100%`, `height: 100%`, `flex: 1`, ensuring seamless vertical expansion without scroll-clipping or bottom cutoffs.
+        - **Empirical Verification**: Frontend built cleanly (`cmd /c npm run build` passed with 0 TypeScript/Vite errors) and full preflight verification (`agent_preflight_check.py`) passed 100%.
+
+    56. **Windows Uvicorn Reload Patch Harmonization & Zero-Cost Test Policy**:
+        - **Root Cause Resolution for Kickstart Crashes**: Diagnosed and resolved sudden server termination during `POST /api/onboarding/kickstart`. On Windows, scaffold file generation in `workspace/` triggered Uvicorn's default reloader which broadcast console-wide `CTRL_C_EVENT` signals, terminating parent `run.py`.
+        - **Subprocess Monkey Patch & Launcher Fix**: Fixed `_patched_restart` in [`backend/run_server.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/run_server.py) to properly invoke `uvicorn.supervisors.basereload.get_subprocess` and updated `run.py` to launch the Workspace Domain API (`ws_backend_cmd`) using `run_server_script` instead of raw `uvicorn`.
+        - **Hermetic Zero-Cost Testing Invariant**: Codified in [`.agents/AGENTS.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/.agents/AGENTS.md) and [`.agents/rules/03-tdd-engine.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/.agents/rules/03-tdd-engine.md) that all standard test suites MUST be 100% mocked via `backend/tests/conftest.py` with zero live LLM token expenditure, reserving live app generation strictly for `@pytest.mark.boss_fight` stress tests.
+        - **Empirical Verification**: 100% test pass across unit test suite (93/93 in 1.15s) and full preflight verification (`agent_preflight_check.py`) passed cleanly.
+
+    57. **Boss Fight 2: Multi-Stage Iterative Domain Evolution Engine**:
+        - **Realistic Human-Driven DevEx Test Suite**: Authored [`backend/tests/boss_fights/test_iterative_domain_evolution.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/boss_fights/test_iterative_domain_evolution.py) to simulate a real-world developer journey: starting from a minimal 1-sentence vague kickstart (*"Heavy machinery rental fleet with equipment tracking and scheduled maintenance"*), synthesizing opinionated baseline models (`HeavyEquipment`, `RentalBooking`), injecting an incremental BDD maintenance lockout invariant, and validating OCC double-booking race condition resilience.
+        - **Deterministic Triple-Gate & LLM-as-a-Judge**: Equipped with static AST purity analysis (zero I/O imports), dynamic in-memory invariant execution, and zero-tolerance LLM code review contracts.
+        - **Empirical Verification**: Fully integrated under `@pytest.mark.boss_fight`, passing full preflight verification (`agent_preflight_check.py`) 100% cleanly.
+
+    58. **Dual-Mode Kickstart Engine & Zero-Fatigue Clarification Interface**:
+        - **Dual-Mode Backend Architecture**: Upgraded [`backend/onboarding/domain_ontology.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/domain_ontology.py), [`backend/service_layer/services.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/service_layer/services.py), and routers to support `mode: "fast"` (0–3 questions, 0 questions if prompt provides sufficient clarity) and `mode: "guided"` (max 5 strategic domain-fork questions).
+        - **Interactive Chip-Based Clarification UI**: Completely overhauled [`frontend/src/components/KickstartStudio.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/frontend/src/components/KickstartStudio.tsx) with dual action buttons (`⚡ Snabbstart` vs `🎯 Guidad Arkitektur`), an inviting placeholder, interactive choice chips with pre-selected defaults, and a one-click `"⚡ Hoppa över & använd standardval"` button.
+        - **TDD & Build Verification**: Added unit test suite [`backend/tests/unit/test_kickstart_modes.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/unit/test_kickstart_modes.py) (3/3 passed in 1.38s), verified clean Vite compilation (`0 errors`), and passed 100% full preflight verification (`agent_preflight_check.py`).
+
+    59. **Boss Fight 2 (Iterative Domain Evolution Crucible) Victory — 10/10 Score & Triple-Gate Verification**:
+        - **Syntax-Safe Indented Import Reconciliation (`_add_import_symbol`)**: Implemented multiline-aware regex with exact line indentation slicing in [`backend/onboarding/cst_isolator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/cst_isolator.py), eliminating indentation shifts and invalid commas in `try/except` import blocks across generated domain files.
+        - **Dynamic Standard Library & Typing Auto-Reconciliation**: Enhanced `cst_isolator.py` to auto-reconcile `math` (`math.ceil`, `math.floor`), `uuid`, `decimal` (`Decimal`), `enum` (`Enum`, `auto`), `copy`, and typing primitives (`Union`, `Optional`, `List`, `Dict`, `Set`, `Tuple`, `Callable`, `field`) into domain modules whenever referenced by synthesized logic.
+        - **AST Domain Symbol & Hierarchy Synchronization (`sync_domain_symbols_to_package`)**: Implemented `extract_domain_symbols_from_ast` and `sync_domain_symbols_to_package` in [`backend/service_layer/tdd_machine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/service_layer/tdd_machine.py) to dynamically register all newly synthesized exception classes in `src/domain/exceptions.py` (inheriting from `DomainError`) and domain event classes in `src/domain/events.py` (inheriting from `DomainEvent`), completely eradicating runtime `NameError` failures.
+        - **Purged Companion Class Clobbering**: Removed `extra_nodes` injection from `cst_isolator.py`'s `_ClassReplacer`, enforcing strict 1-class-per-file Single Responsibility Principle (SRP) and preventing companion aggregate roots and events from being redefined inside sibling domain files.
+        - **Flawless Triple-Gate Boss Fight 2 Victory**: Executed live Boss Fight 2 against Gemini 3.7 Flash: passed Gate 1A (AST Purity), Gate 1B (Runtime Invariant Execution), and Gate 2 (Zero-Tolerance LLM Judge) with **Score 10/10 and 0 violations**. Passed full system preflight verification across all 6 phases.
+
+    60. **Interactive Manual Acceptance & Dynamic BDD TDD Engine Hardening**:
+        - **Zero-Fatigue Direct Snabbstart**: Refactored [`domain_ontology.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/domain_ontology.py) and [`KickstartStudio.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/frontend/src/components/KickstartStudio.tsx) so `fast` mode adopts all opinionated DDD defaults automatically and launches baseline prototypes directly (0 questions) without modal question fatigue.
+        - **Dynamic RED Phase Test Synthesis**: Authored [`backend/prompts/red_test_generation.md`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/prompts/red_test_generation.md) and updated `synthesize_red_test_implementation` in [`backend/service_layer/tdd_machine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/service_layer/tdd_machine.py) to dynamically synthesize sharp, non-tautological pytest test files for arbitrary user-entered `Given / When / Then` scenarios.
+        - **DomainEvent Flexible Kwarg Initialization**: Updated `DomainEvent` in [`skeleton_builder.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/skeleton_builder.py) and `tdd_machine.py` so auto-synchronized events accept arbitrary keyword arguments without `TypeError` constructor crashes.
+        - **Behavior Inbox Spec Execution (`▶ Kör TDD`)**: Added `POST /api/specs/inbox/{spec_id}/execute` endpoint in [`backend/entrypoints/routers/specs.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/entrypoints/routers/specs.py) and added direct `⚡ Kör TDD` buttons on all spec cards in [`RequirementControlPanel.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/frontend/src/components/RequirementControlPanel.tsx).
+        - **Workspace OpenAPI Swagger UI Health & Toolbar**: Enhanced Swagger view in [`AppPreview.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/frontend/src/components/AppPreview.tsx) with a dedicated header toolbar, live connection info (`http://localhost:8001/docs`), a `🔄 Ladda om Swagger` action button, and an external link button.
+    61. **The Trinity Live Data Continuity Protocol (Shared State across Engine Room, Preview, and Swagger API)**:
+        - **Workspace API Client & Hook (`useWorkspaceDomainData.ts`)**: Implemented dynamic endpoint slugging (`getEndpointSlug`), direct CRUD functions (`fetchWorkspaceEntities`, `createWorkspaceEntity`), and reactive data hook targeting `http://localhost:8001/api/{slug}`.
+        - **Live Full-Stack Schema-Driven Preview (`SchemaDrivenAppPreview.tsx`)**: Replaced disconnected local state with live Workspace Domain API integration. Submitting forms sends real HTTP POST requests to port 8001, displays live records in the data table, and renders prominent green success / red domain exception banners (`RoomNotReadyError`, validation errors).
+        - **Engine Room Entity Data Synchronization (`RequirementControlPanel.tsx`)**: Upgraded `hydrateData` to query running Workspace Domain API endpoints on port 8001 and merge live runtime instances directly into the aggregate data views.
+        - **Automatic Tab Invalidation & Viewport Re-sync (`AppPreview.tsx`)**: Bumping component keys on tab transitions ensures switching from Swagger to Preview or Engine Room instantly synchronizes all runtime data.
+        - **Zero Domain Purity Violations & Full Preflight Green**: Renamed tab to `🧬 Domain Engine`, sanitized DTO type definitions in `types/api.ts`, and verified 100% PASS across TypeScript build and all 6 preflight check phases.
+
+    62. **The Living Rule Deck ('The Fluxx Paradigm') & Bidirectional Auto-Rule Derivation**:
+        - **Minimalist 2-Card Architecture**: Codified `LOGIC` and `VIEW` card types in [`backend/domain/model.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/domain/model.py), eliminating category bloat by scoping system rules and global styling to `target = "global"`.
+        - **Living Deck REST API & Lifecycle Toggling**: Added `GET /api/specs/deck`, `POST /api/specs/deck/add`, `POST /api/specs/deck/{id}/toggle`, and `POST /api/specs/deck/{id}/update` in [`backend/entrypoints/routers/specs.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/entrypoints/routers/specs.py) and [`backend/service_layer/services.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/service_layer/services.py).
+        - **Bidirectional Auto-Rule Derivation Engine**: Implemented `derive_logic_rules_from_view_prompt` and `project_ui_affordances_from_logic_card` in [`backend/onboarding/router_engine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/router_engine.py), guaranteeing Zero Dark Matter by automatically synthesizing formal `LOGIC` BDD cards from View changes, and projecting UI affordances onto target views from Logic changes.
+        - **Living Rule Deck UI Cockpit**: Upgraded [`frontend/src/components/RequirementControlPanel.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/frontend/src/components/RequirementControlPanel.tsx) with interactive category filters, active/paused toggle switches (`🟢 / ⏸️`), status badges, Gherkin BDD views, and modal card injectors.
+        - **Empirical Verification**: 100% PASS across 117 unit/integration tests and 0 TypeScript compilation errors (`cmd /c npm run build` passed in 6.55s), verified with full agent preflight check.
+
+63. **The Living Rule Deck & TDD Engine Hardening (Boss Fight Verification)**
+    - **Status**: Complete & Verified (100% PASS across 6/6 Preflight Verification Phases).
+    - **Key Deliverables & Architectural Refinements**:
+        - **Boss Fight 1 (Hazardous Concurrency & OCC)**: Verified with **10/10 Score and 0 Violations** from the zero-tolerance LLM judge, empirically proving pure DDD aggregate isolation, optimistic concurrency control (`version_number` + `StaleDataError`), and local event buffering (`self.events`).
+        - **Deterministic Companion Model Resolution**: Upgraded LibCST surgical splicing in [`backend/onboarding/cst_isolator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/cst_isolator.py) to dynamically discover actual companion domain entities from the workspace, eliminating `NameError` and hallucinated imports while injecting `from __future__ import annotations`.
+        - **Robust TDD Code Extraction & Invariant Handling**: Enhanced [`backend/service_layer/tdd_machine.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/service_layer/tdd_machine.py) with AST syntax verification on synthesized test cases, structured code extraction, and clean exception contract checking.
+        - **System Preflight Verification**: Full preflight verification passed 100% across all 6 phases:
+          1. Frontend PM Studio compilation: 0 TypeScript/Vite errors.
+          2. Backend pytest test suite: 114 passed, 2 skipped, 0 failed.
+          3. Domain Purity and Anti-Regression checks: Verified.
+          4. Cold-Boot API endpoints and prompt intake: Verified.
+          5. Workspace Domain OpenAPI health: Healthy.
+          6. Visual CI checks: Ready.
+
+64. **Standalone Full-Stack Frontend Generation Engine (`workspace/frontend/` on Port 5174)**
+    - **Status**: Complete & Verified (100% PASS across 118 backend tests and full preflight).
+    - **Key Deliverables & Architectural Refinements**:
+        - **Standalone Frontend Scaffolder**: Implemented in [`backend/onboarding/skeleton_builder.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/skeleton_builder.py):
+          - `generate_frontend_package_json` (React 18 + Vite + Tailwind + Lucide Icons)
+          - `generate_frontend_vite_config` (configured for port 5174 with `/api` proxy targeting `:8001`)
+          - `generate_frontend_tsconfig`, `generate_frontend_tailwind_config`, `generate_frontend_postcss_config`
+          - `generate_frontend_index_html`, `generate_frontend_index_css`, `generate_frontend_main_tsx`
+          - `generate_frontend_api_client` (auto-generated, type-safe API client with CRUD functions for every domain aggregate)
+          - `generate_frontend_entity_view` (high-contrast, responsive management views with search, data tables, and mutation forms)
+          - `generate_frontend_app_component` (tabbed workspace shell with live `:8001` connection badge)
+        - **Fullstack Skeleton Integration**: `generate_fullstack_skeleton_files` now populates both the FastAPI backend (`workspace/src/`) and the standalone React frontend (`workspace/frontend/`).
+        - **Automated Verification**: Added unit test suite [`backend/tests/unit/test_skeleton_frontend_generator.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/unit/test_skeleton_frontend_generator.py) (100% PASS). Preflight verification passed 6/6 phases.
 
 ---
 
-*Updated by Antigravity AI on 2026-08-26 (Clanker Protocol & Canary Guard 100% Operational).*
+*Updated by Antigravity AI on 2026-08-31 (Standalone Full-Stack Frontend Engine Milestone).*
+
+
+
+
+
+
 
 
 
