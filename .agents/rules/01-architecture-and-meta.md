@@ -47,8 +47,8 @@ The fallback template is deliberately domain-neutral (it renders only blueprint 
   docker compose -f docker-compose.allure.yaml up -d
   ```
 - **Application Stack Execution Invariant**:
-  **Do not start `python run.py` from the agent unless the user explicitly asks for it in that session** (then run it in the background with `PROVABLE_ALLOW_RUN=1 nohup python run.py > <log> 2>&1 &`; the guard hook requires that flag).
-  It spawns long-lived WatchFiles reloader processes that restart the system and interrupt the agent's turn. The user manages `python run.py` in their own terminal, while Uvicorn and Vite hot-reload automatically. If you need a running service for verification (e.g. a screenshot), start just that service yourself (e.g. `npx vite --port 5173` in `frontend/`) and stop it afterwards.
+  **In Claude Code cloud sessions the agent owns the running app**: a SessionStart hook starts it, and `bash .claude/hooks/ensure_app_running.sh [--restart|--stop]` is the only way the agent starts, restarts or stops it (idempotent, detached, logs to `logs/run.log`). Do not launch `run.py` by hand (the guard hook blocks it). On a developer's own machine the developer runs `python run.py` in their terminal.
+  `run.py` spawns long-lived reloader processes; uvicorn and Vite hot-reload code edits automatically, so a restart is only needed for changes that require a clean boot (new dependencies, startup code, env vars). Port conflicts are cleared by the script.
 
 ---
 

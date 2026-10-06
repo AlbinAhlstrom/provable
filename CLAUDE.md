@@ -18,9 +18,9 @@ Spec-driven code generation engine: TDD verification loops + DDD architecture. T
 - Pre-flight (build + tests + purity lint + live checks): `python scripts/agent_preflight_check.py`.
   Runs without an LLM key (tests mock the LLM). Phases 1-5 work standalone; Phase 6 (UI screenshot) is only
   captured if PM Studio is running on :5173, otherwise it is reported as SKIPPED, which means no visual verification.
-- Run the stack: `python run.py` — normally the **user** runs this in their own terminal. Only start it from the agent when the user explicitly asks, with `PROVABLE_ALLOW_RUN=1` (see rule 01).
-- Trace every pipeline step's input/output: set `PROVABLE_TRACE_DIR=logs/trace` before starting the backend, use the app, then run `python scripts/trace_report.py logs/trace` (`--full N` shows one step). Implemented in `backend/pipeline_trace.py`; API keys are redacted.
-- Copy `.env.example` to `.env` and set `GEMINI_API_KEY` (or `OPENAI_API_KEY`) for real LLM calls.
+- **The agent owns the running app.** In cloud sessions a SessionStart hook starts the full stack (backend :8000, Studio :5173, preview :5174, via `run.py`) if it isn't already up. Before testing anything, check it with `bash .claude/hooks/ensure_app_running.sh` (idempotent); use `--restart` after backend changes that need a clean boot and `--stop` to stop it. Logs: `logs/run.log`; step traces: `logs/trace` (see below). Never launch `run.py` by hand.
+- Every pipeline step's input/output is traced to `logs/trace` while the app runs (the launcher sets `PROVABLE_TRACE_DIR`); clear it with `rm -rf logs/trace` before a fresh experiment, then run `python scripts/trace_report.py logs/trace` (`--full N` shows one step). Implemented in `backend/pipeline_trace.py`; API keys are redacted.
+- Real LLM calls need `GEMINI_API_KEY` (or `LLM_API_KEY` / `OPENAI_API_KEY`), plus optionally `OPENAI_BASE_URL` and `LLM_MODEL`. Locally copy `.env.example` to `.env`; in cloud sessions set them as environment variables in the cloud environment's settings (never paste keys into chat or commit them). Without a key the app still starts, but generation fails loudly.
 
 ## Hard invariants (details in the rule files)
 - **`workspace/` is read-only for you** (it is an embedded git repo of generated output). Fix the generator in
@@ -28,7 +28,7 @@ Spec-driven code generation engine: TDD verification loops + DDD architecture. T
 - Ports: engine API :8000, PM Studio :5173, generated app API :8001, generated preview :5174, Allure :5050.
 - DDD layering: pure domain (no FastAPI/Pydantic/DB) -> repositories -> service layer/UoW -> routers.
   Routers never import `db.store`.
-- TDD loop: RED -> GREEN -> WIRE -> VERIFY, done directly (no developer subagents). Don't weaken tests to get green;
+- TDD loop: RED -> GREEN -> WIRE -> VERIFY, done directly in the main context (subagents only for read-only research/review). Don't weaken tests to get green;
   if the architecture evolved, rewrite or delete the obsolete test.
 - Frontend is domain-agnostic: no hardcoded domain terms (Pallet, Pizza, Order...) and no mock UI. Fail loudly.
 - Run the full test suite before every commit and the pre-flight check before declaring work done.
