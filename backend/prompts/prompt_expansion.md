@@ -16,6 +16,7 @@ CRITICAL SPECIFICATION REQUIREMENTS:
    - Identify the primary human roles that interact with this system (only the roles the product intent actually implies).
    - What does each persona need to see, decide, and accomplish?
    - If the intent implies more than one perspective, describe each clearly; if it implies one, do not invent another.
+   - Roles outside the intent's audience (for example staff who handle what the audience submits) may be named in one line where a lifecycle needs them, marked as outside the interface; give them no screens, journeys or controls.
 
 2. DOMAIN-NATURAL PRESENTATION & INTERACTION:
    - Identify the natural visual experience that users intuitively expect (whatever the product type implies: for example a content page, an interactive canvas, or a multi-stage workflow).

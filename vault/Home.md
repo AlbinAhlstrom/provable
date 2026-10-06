@@ -44,6 +44,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[ADR-005 Vercel Multi-Service Deployment]]: Decision record on deploying the engine API and Studio as Vercel services, the serverless mode, and what a deployment cannot do (ephemeral state, no generated-app preview).
 - [[ADR-006 Spec-Derived RED Tests and Fragment GREEN]]: Decision record on LLM-written behavioral RED tests, the stricter RED gate, module-fragment GREEN, rollback and the evidence behind them.
 - [[ADR-007 Product Intent Step]]: Decision record on classifying what kind of product a pitch asks for before designing the domain model.
+- [[ADR-008 Aggregate Ownership and Audience-Scoped UI]]: The TDD loop owns the aggregate, the intent reaches every stage, and the UI serves only the product's audience; lists the known remaining gaps.
 
 
 ### 5. 📜 Agent Rules & Governance

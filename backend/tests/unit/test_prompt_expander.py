@@ -56,13 +56,26 @@ def test_expand_pitch_returns_expanded_specification(monkeypatch):
     assert "Aggregate Root" in spec
 
 
-def test_expand_pitch_graceful_fallback_on_failure(monkeypatch):
-    """Verifies that if the LLM call fails or returns empty, the original pitch is safely returned."""
-    from onboarding.prompt_expander import expand_pitch_into_interactive_specification
+def test_expand_pitch_fails_loudly_when_the_llm_fails(monkeypatch):
+    """Verify an expansion failure is raised with its reason, not hidden behind the unexpanded pitch.
 
+    id: TST-EXP-004
+    Given: The LLM call returns nothing, or raises
+    When: The pitch is expanded
+    Then: ExpansionError carries the reason (policy: no fallbacks on error)
+    """
+    import pytest
     import agent_orchestrator
-    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda prompt, stage: None)
+    from onboarding.prompt_expander import ExpansionError, expand_pitch_into_interactive_specification
 
-    original_pitch = "A terse app pitch"
-    result = expand_pitch_into_interactive_specification(original_pitch)
-    assert result == original_pitch
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda prompt, stage="general", **kw: None)
+    monkeypatch.setattr(agent_orchestrator, "LAST_LLM_ERROR", "quota exceeded", raising=False)
+    with pytest.raises(ExpansionError, match="quota exceeded"):
+        expand_pitch_into_interactive_specification("A terse app pitch")
+
+    def boom(prompt, stage="general", **kw):
+        raise ConnectionError("network down")
+
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", boom)
+    with pytest.raises(ExpansionError, match="network down"):
+        expand_pitch_into_interactive_specification("A terse app pitch")

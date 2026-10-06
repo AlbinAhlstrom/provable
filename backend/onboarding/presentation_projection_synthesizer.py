@@ -9,6 +9,7 @@ import re
 import json
 import time
 from typing import List, Dict, Any, Optional
+from onboarding.action_protocol import format_action_protocol
 from onboarding.intent import ProductIntent, intent_block
 from onboarding.router_engine import DomainStructureSchema, BusinessSpec
 from agent_orchestrator import call_gemini
@@ -202,21 +203,8 @@ def synthesize_and_write_presentation_projection(
     provable_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     rel_ws = os.path.relpath(workspace_dir, provable_root).replace("\\", "/")
 
-    # Format authoritative Action Protocol block
-    protocol_lines = []
-    if action_manifest and isinstance(action_manifest, dict) and "actions" in action_manifest:
-        for act in action_manifest["actions"]:
-            name = act.get("name", "action")
-            aliases = ", ".join(f"`{a}`" for a in act.get("aliases", []))
-            params = ", ".join(f"`{p}`" for p in act.get("params", [])) or "None"
-            desc = act.get("description", "")
-            desc_part = f" — {desc}" if desc else ""
-            alias_part = f" (aliases: {aliases})" if aliases else ""
-            protocol_lines.append(f"- Action `{name}`{alias_part}: expected params [{params}]{desc_part}")
-    else:
-        protocol_lines.append("- (No action protocol available: build the read-only views and the creation form only.)")
-
-    action_protocol_block = "\n".join(protocol_lines)
+    # Authoritative Action Protocol block (UI actions vs API-only actions)
+    action_protocol_block = format_action_protocol(action_manifest)
 
     # Load prompt template
     prompt_path = os.path.join(os.path.dirname(__file__), "..", "prompts", "presentation_projection_synthesis.md")

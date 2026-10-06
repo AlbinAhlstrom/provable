@@ -8,6 +8,7 @@ import os
 import re
 import time
 from typing import Dict, Any, List, Optional
+from onboarding.action_protocol import format_action_protocol
 from onboarding.intent import ProductIntent, intent_block
 from onboarding.router_engine import DomainStructureSchema, BusinessSpec
 from agent_orchestrator import call_gemini
@@ -35,17 +36,7 @@ def plan_ux_blueprint(
         entity_summaries.append(f"- **{ent.name}**: [{attr_desc}]")
     entities_block = "\n".join(entity_summaries) if entity_summaries else f"- **{master_name}**: Primary Aggregate Root"
 
-    protocol_lines = []
-    if action_manifest and isinstance(action_manifest, dict) and "actions" in action_manifest:
-        for act in action_manifest.get("actions", []):
-            name = act.get("name", "action")
-            params = ", ".join(f"`{p}`" for p in act.get("params", [])) or "None"
-            desc = act.get("description", "")
-            desc_part = f" — {desc}" if desc else ""
-            protocol_lines.append(f"- Action `{name}`: params [{params}]{desc_part}")
-    else:
-        protocol_lines.append("- Action `dispatch`: standard domain actions")
-    action_protocol_block = "\n".join(protocol_lines)
+    action_protocol_block = format_action_protocol(action_manifest)
 
     prompt_path = os.path.join(os.path.dirname(__file__), "..", "prompts", "ux_planning.md")
     if os.path.exists(prompt_path):

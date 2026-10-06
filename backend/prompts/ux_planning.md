@@ -17,7 +17,7 @@ Offer only the views and controls this intent calls for; never add surfaces it r
 {entities_block}
 
 ## Backend State & Action Protocol
-The backend domain engine provides these authoritative actions and state fields:
+The backend domain engine provides these authoritative actions and state fields (the interface offers only the audience-facing ones; plan nothing for actions marked API-only):
 {action_protocol_block}
 
 ---

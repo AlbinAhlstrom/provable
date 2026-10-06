@@ -26,7 +26,7 @@ The state returned by `GET /api/{master_slug}s/{id}` and actions directly serial
 
 ## Authoritative Backend Action Protocol (CRITICAL CONTRACT - ZERO DRIFT):
 The backend FastAPI router `/api/{master_slug}s/{id}/action` handles domain commands.
-You MUST dispatch ONLY these recognized action types and exact parameter keys in your API client and React components:
+Controls are built only for the actions listed above the "API-only" line (if any); for API-only actions render no controls and no mention. You MUST dispatch ONLY these recognized action types and exact parameter keys in your API client and React components:
 {action_protocol_block}
 
 ## UX Blueprint & Interaction Ergonomics (Cold-Start & Navigation Guide):
