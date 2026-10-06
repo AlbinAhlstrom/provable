@@ -120,8 +120,8 @@ STATUS: Backlog
 
 [REQUIREMENT]
 UID: REQ-AG-003
-TITLE: Context-Aware Code Generation (`code_generation`)
-STATEMENT: The agent shall load externalized prompt templates (`prompts/code_generation.md`), inject requirement specs, test assertion tracebacks, and prior attempt feedback to generate targeted code changes.
+TITLE: Context-Aware Code Generation (`green_class_repair`)
+STATEMENT: The agent shall load externalized prompt templates from `backend/prompts/` via `load_prompt` and inject the requirement or specification, the failing test output, and the current code to generate targeted code changes (e.g. `green_class_repair.md` for the GREEN phase).
 REQ_TYPE: Requirement
 PRIORITY: High
 STATUS: Backlog

@@ -85,7 +85,7 @@ def load_prompt(template_name: str, format_kwargs: Optional[dict] = None) -> str
 
 
 def call_gemini(prompt: str, stage: str = "general") -> str:
-    """OpenAI Python SDK wrapper for LLM calls (configured via env/yaml)."""
+    """OpenAI Python SDK wrapper for LLM calls (configured via environment variables)."""
     api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
     base_url = os.environ.get("OPENAI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
     model_name = os.environ.get("LLM_MODEL", "gemini-2.5-flash")
