@@ -2118,6 +2118,13 @@ def kickstart_domain_and_scaffold(
     is_offline_test = "PYTEST_CURRENT_TEST" in os.environ or type(uow).__name__ == "FakeUnitOfWork"
     should_run_compiler_graph = not is_offline_test and mode not in ("offline_test", "mock", "no_agent")
 
+    if should_run_compiler_graph:
+        # The generated UI imports packages the scaffold declares; install any that are missing now, loudly,
+        # instead of shipping a preview that crashes on an unresolved import.
+        from onboarding.templates.workspace_scaffold import ensure_workspace_dependencies
+        if ensure_workspace_dependencies(workspace_dir):
+            print("[Kickstart] [4/5] Installed missing workspace npm dependencies.", flush=True)
+
     if not should_run_compiler_graph:
         try:
             sync_workspace_app_shell(ws_base=workspace_dir, uow=uow)

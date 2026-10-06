@@ -3,7 +3,40 @@ Template generator for default workspace scaffold (React 18 + Vite).
 Guarantees that Vite port 5174 is ALWAYS valid and reachable on server startup.
 """
 
+import json
 import os
+import shutil
+import subprocess
+from typing import Callable, Optional
+
+def _npm_install(cwd: str) -> None:
+    npm = shutil.which("npm.cmd" if os.name == "nt" else "npm")
+    if not npm:
+        raise RuntimeError("npm is not installed, so the generated app's dependencies cannot be installed.")
+    result = subprocess.run([npm, "install", "--no-audit", "--no-fund"], cwd=cwd, capture_output=True, text=True, timeout=600)
+    if result.returncode != 0:
+        raise RuntimeError(f"npm install failed in the workspace: {(result.stderr or result.stdout)[-800:]}")
+
+
+def ensure_workspace_dependencies(ws_base: str, runner: Optional[Callable[[str], None]] = None) -> bool:
+    """Installs the workspace's declared npm packages when any is missing from node_modules.
+
+    The scaffold's package.json is rewritten on every reset/kickstart, so a package added to it (or a fresh
+    clone) would otherwise leave the generated app crashing on an unresolved import. Returns True when an
+    install ran; raises if it fails (no silent fallback).
+    """
+    pkg_path = os.path.join(ws_base, "package.json")
+    if not os.path.exists(pkg_path):
+        return False
+    with open(pkg_path, "r", encoding="utf-8") as f:
+        pkg = json.load(f)
+    declared = list(pkg.get("dependencies", {})) + list(pkg.get("devDependencies", {}))
+    missing = [d for d in declared if not os.path.isdir(os.path.join(ws_base, "node_modules", *d.split("/")))]
+    if not missing:
+        return False
+    (runner or _npm_install)(ws_base)
+    return True
+
 
 def create_default_workspace_scaffold(ws_base: str):
     """Write default clean React 18 + Vite scaffold into workspace so Vite port 5174 is ALWAYS valid."""
@@ -24,7 +57,8 @@ def create_default_workspace_scaffold(ws_base: str):
   },
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "lucide-react": "^0.344.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
