@@ -25,10 +25,21 @@ Tracing a real run of "a personal website for a babysitters firm" through the TD
 | `Booking` size | 1,067 lines, 84 methods | 103 lines |
 | Mutation check (4 deliberate bugs) | tests could not detect them | all 4 caught by the right spec's test |
 
+## Follow-ups implemented after the first evidence run
+- **Both sides of every boundary:** specs flagged `is_mathematical_boundary` must have a rejected case beyond the limit and an accepted case exactly at it (`lint_red_test(require_both_sides=True)`; the RED prompt asks for touching intervals on range rules). A mutation run showed a one-sided test lets `<` to `<=` survive; with two sides it is caught.
+- **Regression gate:** after a spec's own test passes, `tests/unit` runs in full; breaking an earlier spec is a GREEN rejection that names the broken files and consumes the single retry. A spec that dead-ends has its unverified test moved to `tests/pending` (a test rejected twice at RED is deleted), so it cannot fail later specs.
+- **Member-wise merge:** GREEN returns only the fields and methods it adds or changes; `_merge_class_members` (LibCST) replaces same-named members, keeps everything else and orders required dataclass fields first. Output no longer grows with the class.
+- **Existing tests as context:** both generators see the other verified tests for the same module (`collect_existing_tests`), because independently written tests contradicted each other (one expected status `submitted` after `submit()`, the next `NEW`).
+- **One module per class:** the loop used `target_class.lower()` while the skeleton, routers and repositories use snake_case, so for any multi-word aggregate the verified code lived in a module nothing imports. Both now use `skeleton_builder.to_snake_case`.
+- **Reviewable tests:** each spec stores its generated test, attempt history, error and rollback flag; PM Studio shows them in a collapsible section. `LLM_MODEL_<STAGE>` lets a different model write the tests than the code.
+
+## Evidence (second live run, intent step on, 3 domains tried)
+Six of six specs FULFILLED in 8-15 s each, one module per class, 16 tests passing together, classes of 19-43 lines, and 8 of 8 mutants (operator flips and removed `raise`) caught.
+
 ## Known gaps
-- Tests assert one side of a boundary (119 minutes rejected) but not the other (120 accepted); the RED prompt should demand both sides.
-- One model writes both the test and the code, so a shared misreading of the spec can pass. Showing the generated test on the spec card for review in PM Studio is not built.
-- GREEN still rewrites the whole class; method-level merging and a regression gate across earlier specs are not built.
+- One model still writes both test and code by default; the review UI and `LLM_MODEL_RED_TEST_GENERATION` mitigate but do not enforce independence.
+- The WIRE step is missing: verified behavior lives in domain methods (`submit`, `schedule`, ...) that the generated CRUD routers never call, and GREEN may add required fields that the generated request schemas do not know about.
+- Specs from the decomposition can still conflict with each other; the context and regression gate stop a contradictory spec from corrupting earlier ones, but the spec itself ends in `REQUIRES_HUMAN_INTERVENTION`.
 
 ## Status
 Accepted.
