@@ -1320,6 +1320,7 @@ def generate_allure_report(uow: AbstractUnitOfWork) -> Dict[str, Any]:
     }
 
 
+@traced("svc.add_spec")
 def add_inbox_spec(spec: Any, uow: AbstractUnitOfWork) -> Any:
     """Adds a new specification to the Behavior Inbox in SQLite."""
     with uow:
@@ -1366,6 +1367,7 @@ def update_spec_status(spec_id: str, status: str, uow: AbstractUnitOfWork) -> Di
         return dict(found)
 
 
+@traced("svc.execute_spec_tdd")
 def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir: Optional[str] = None) -> Dict[str, Any]:
     """
     Synchronously drives an inbox specification through the TDD state machine:

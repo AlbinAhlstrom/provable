@@ -5,6 +5,7 @@ Uses Meta LibCST to extract target class definitions with full fidelity
 without corrupting surrounding module code.
 """
 
+from pipeline_trace import traced
 from typing import Optional
 import libcst as cst
 
@@ -34,6 +35,7 @@ class _ClassReplacer(cst.CSTTransformer):
         return updated_node
 
 
+@traced("tdd.cst_extract")
 def extract_class_cst(source_code: str, class_name: str) -> str:
     """
     Extracts the exact CST representation of a target class from source code,
@@ -51,6 +53,7 @@ def extract_class_cst(source_code: str, class_name: str) -> str:
         return ""
 
 
+@traced("tdd.cst_splice")
 def splice_class_cst(original_source: str, class_name: str, new_class_code: str) -> str:
     """
     Replaces the target class definition in original_source with new_class_code

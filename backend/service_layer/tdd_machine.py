@@ -4,6 +4,7 @@ Enforces programmatic test evaluation, OS test-file locking, pytest timeouts,
 LibCST micro-context splicing, and automated dead-end git rollback handling.
 """
 
+from pipeline_trace import traced
 import os
 import sys
 import re
@@ -17,6 +18,7 @@ from onboarding.router_engine import BusinessSpec
 from onboarding.cst_isolator import extract_class_cst, splice_class_cst
 
 
+@traced("tdd.red_gate")
 def evaluate_red_gate_result(
     exit_code: int,
     report_json: Optional[Dict[str, Any]] = None,
@@ -69,6 +71,7 @@ def evaluate_red_gate_result(
     }
 
 
+@traced("tdd.green_gate")
 def evaluate_green_gate_result(
     exit_code: int,
     report_json: Optional[Dict[str, Any]] = None,
@@ -161,6 +164,7 @@ class TddExecutionState:
         return self.attempt > self.max_attempts or self.phase == "DEAD_END"
 
 
+@traced("tdd.pytest")
 def run_isolated_pytest(
     test_path: str,
     cwd: str,
@@ -223,6 +227,7 @@ def run_isolated_pytest(
         }
 
 
+@traced("tdd.green_synthesize")
 def synthesize_green_class_implementation(
     extracted_class: str,
     target_class_name: str,
@@ -285,6 +290,7 @@ def synthesize_green_class_implementation(
 
 
 
+@traced("tdd.run_loop")
 def execute_spec_tdd_loop(spec: BusinessSpec, workspace_dir: str) -> Dict[str, Any]:
     """
     Synchronous flat TDD loop execution:
