@@ -358,6 +358,33 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
                                 📋 {s.given_when_then}
                               </span>
                             </div>
+
+                            {/* Generated test + attempt history, so a human can review what "verified" actually means */}
+                            {s.tdd && (s.tdd.test_source || s.tdd.error) && (
+                              <details style={{ marginTop: '0.2rem' }}>
+                                <summary style={{ cursor: 'pointer', fontSize: '0.72rem', color: '#38bdf8' }}>
+                                  🧪 Generated test &amp; TDD attempts
+                                  {s.tdd.test_location ? ` (${s.tdd.test_location})` : ''}
+                                </summary>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', marginTop: '0.3rem' }}>
+                                  {[...s.tdd.red_attempts.map(a => ({ ...a, stage: 'RED' })), ...s.tdd.attempts.map(a => ({ ...a, stage: 'GREEN' }))].map((a, i) => (
+                                    <span key={i} style={{ fontSize: '0.7rem', color: a.approved ? '#86efac' : '#fca5a5' }}>
+                                      {a.approved ? '✔' : '✖'} {a.stage} attempt {a.attempt}{a.reason ? `: ${a.reason}` : ''}
+                                    </span>
+                                  ))}
+                                  {s.tdd.error && (
+                                    <span style={{ fontSize: '0.7rem', color: '#fca5a5' }}>
+                                      ⚠ {s.tdd.error}{s.tdd.rolled_back ? ' (domain code rolled back)' : ''}
+                                    </span>
+                                  )}
+                                  {s.tdd.test_source && (
+                                    <pre style={{ margin: 0, fontSize: '0.68rem', background: '#0b1220', border: '1px solid #334155', borderRadius: '4px', padding: '0.4rem', color: '#cbd5e1', overflowX: 'auto', maxHeight: '16rem' }}>
+                                      {s.tdd.test_source}
+                                    </pre>
+                                  )}
+                                </div>
+                              </details>
+                            )}
                           </div>
                         ))
                       )}

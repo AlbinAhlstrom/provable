@@ -108,7 +108,9 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
     LAST_LLM_ERROR = None
     api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
     base_url = os.environ.get("OPENAI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
-    model_name = os.environ.get("LLM_MODEL", "gemini-2.5-flash")
+    # LLM_MODEL_<STAGE> (e.g. LLM_MODEL_RED_TEST_GENERATION) lets one stage use a different model, such as a
+    # different model writing the tests than the one writing the code.
+    model_name = os.environ.get(f"LLM_MODEL_{stage.upper()}") or os.environ.get("LLM_MODEL", "gemini-2.5-flash")
 
     if not api_key:
         LAST_LLM_ERROR = "No LLM API key configured (set GEMINI_API_KEY, LLM_API_KEY or OPENAI_API_KEY)."

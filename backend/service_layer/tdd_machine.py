@@ -506,6 +506,7 @@ class {target_class}:
     red_eval: Dict[str, Any] = {}
     red_attempts: List[Dict[str, Any]] = []
     domain_broken = False
+    test_code = ""
     for red_attempt in (1, 2):
         test_code = generate_red_test(spec, current_class, used_module, target_class, rejection_feedback=red_feedback)
         lint_ok, lint_reason = lint_red_test(test_code, require_both_sides=bool(spec.is_mathematical_boundary))
@@ -539,7 +540,8 @@ class {target_class}:
             "phase": "RED_GATE",
             "spec_id": spec.spec_id,
             "error": red_attempts[-1]["reason"],
-            "red_attempts": red_attempts
+            "red_attempts": red_attempts,
+            "test_source": test_code
         }
 
     if domain_broken:
@@ -553,6 +555,7 @@ class {target_class}:
             "spec_id": spec.spec_id,
             "error": red_attempts[-1]["reason"],
             "red_attempts": red_attempts,
+            "test_source": test_code,
             "pending_test": _quarantine_test(test_file_path, workspace_dir)
         }
 
@@ -632,6 +635,7 @@ class {target_class}:
                     "red_eval": red_eval,
                     "green_eval": green_eval,
                     "red_attempts": red_attempts,
+                    "test_source": test_code,
                     "attempts": attempts
                 }
 
@@ -646,6 +650,7 @@ class {target_class}:
                     "spec_id": spec.spec_id,
                     "error": green_eval.get("reason"),
                     "red_attempts": red_attempts,
+                    "test_source": test_code,
                     "attempts": attempts,
                     "error_log": list(state.error_log),
                     "rolled_back": True,

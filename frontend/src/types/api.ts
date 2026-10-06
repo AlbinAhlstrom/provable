@@ -223,6 +223,24 @@ export interface BusinessSpecItemDTO {
   is_mathematical_boundary?: boolean;
   priority: string;
   status: 'PENDING' | 'IN_PROGRESS' | 'FULFILLED' | 'REQUIRES_HUMAN_INTERVENTION' | string;
+  tdd?: SpecTddSummaryDTO;
+}
+
+export interface TddAttemptDTO {
+  attempt: number;
+  approved: boolean;
+  reason?: string | null;
+}
+
+/** What the TDD loop did for a spec: the generated test (for human review) and every attempt's verdict. */
+export interface SpecTddSummaryDTO {
+  phase?: string | null;
+  error?: string | null;
+  test_source?: string | null;
+  test_location?: string | null;
+  red_attempts: TddAttemptDTO[];
+  attempts: TddAttemptDTO[];
+  rolled_back: boolean;
 }
 
 

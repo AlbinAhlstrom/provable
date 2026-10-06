@@ -1349,8 +1349,8 @@ def get_inbox_specs(uow: AbstractUnitOfWork) -> List[Dict[str, Any]]:
         return list(state.inbox_specs)
 
 
-def update_spec_status(spec_id: str, status: str, uow: AbstractUnitOfWork) -> Dict[str, Any]:
-    """Updates the execution status of a spec in the Behavior Inbox."""
+def update_spec_status(spec_id: str, status: str, uow: AbstractUnitOfWork, tdd: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Updates the execution status of a spec in the Behavior Inbox (and, if given, its reviewable TDD summary)."""
     with uow:
         state = uow.kickstart.get()
         found = None
@@ -1362,6 +1362,8 @@ def update_spec_status(spec_id: str, status: str, uow: AbstractUnitOfWork) -> Di
         if not found:
             found = {"spec_id": spec_id, "status": status}
             state.inbox_specs.append(found)
+        if tdd is not None:
+            found["tdd"] = tdd
         uow.kickstart.save(state)
         uow.commit()
         return dict(found)
@@ -1406,7 +1408,17 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
     tdd_result = execute_spec_tdd_loop(spec_obj, workspace_dir=workspace_dir)
     final_status = tdd_result.get("status", "FULFILLED" if tdd_result.get("success") else "REQUIRES_HUMAN_INTERVENTION")
 
-    update_spec_status(spec_id, final_status, uow=uow)
+    pending = tdd_result.get("pending_test")
+    summary = {
+        "phase": tdd_result.get("phase"),
+        "error": tdd_result.get("error"),
+        "test_source": tdd_result.get("test_source"),
+        "test_location": "tests/pending" if pending else ("tests/unit" if tdd_result.get("success") else None),
+        "red_attempts": tdd_result.get("red_attempts", []),
+        "attempts": tdd_result.get("attempts", []),
+        "rolled_back": bool(tdd_result.get("rolled_back")),
+    }
+    update_spec_status(spec_id, final_status, uow=uow, tdd=summary)
     return tdd_result
 
 
