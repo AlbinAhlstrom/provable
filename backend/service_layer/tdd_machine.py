@@ -302,8 +302,12 @@ def summarize_class_api(class_source: str, max_methods: int = 60) -> str:
     return "\n".join(lines)
 
 
-def lint_red_test(test_code: str) -> "tuple[bool, str]":
-    """Cheap static checks on a generated RED test, run before pytest: it must be valid, behavioral and assert something."""
+def lint_red_test(test_code: str, require_both_sides: bool = False) -> "tuple[bool, str]":
+    """Cheap static checks on a generated RED test, run before pytest: it must be valid, behavioral and assert something.
+
+    With require_both_sides (specs that state a numeric boundary) it must contain at least two cases: one beyond the
+    boundary and one exactly at it, as separate test functions or a parametrized test.
+    """
     import ast
     try:
         tree = ast.parse(test_code)
@@ -319,7 +323,39 @@ def lint_red_test(test_code: str) -> "tuple[bool, str]":
     has_assertion = any(isinstance(n, ast.Assert) for n in ast.walk(tree)) or "pytest.raises" in test_code
     if not has_assertion:
         return False, "The test asserts nothing (no assert statement and no pytest.raises)."
+    if require_both_sides:
+        test_functions = sum(1 for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name.startswith("test_"))
+        if test_functions < 2 and "parametrize" not in test_code:
+            return False, (
+                "The scenario states a boundary, so test BOTH sides of it: one case just beyond the boundary (rejected/invalid) "
+                "and one exactly at the boundary (accepted/valid), as two test functions or one parametrized test."
+            )
     return True, ""
+
+
+def _quarantine_test(test_file_path: str, workspace_dir: str) -> str:
+    """Moves an unverified test out of the regression suite (tests/unit) into tests/pending for a human to review."""
+    import shutil
+    pending_dir = os.path.join(workspace_dir, "tests", "pending")
+    os.makedirs(pending_dir, exist_ok=True)
+    target = os.path.join(pending_dir, os.path.basename(test_file_path))
+    if os.path.exists(test_file_path):
+        shutil.move(test_file_path, target)
+    return target
+
+
+def _failed_test_files(result: Dict[str, Any]) -> List[str]:
+    """File names of the tests that failed in a pytest-json-report result."""
+    names: List[str] = []
+    for t in (result.get("report") or {}).get("tests", []):
+        if t.get("outcome") == "failed" or (t.get("call") or {}).get("outcome") == "failed":
+            name = os.path.basename(str(t.get("nodeid", "")).split("::")[0])
+            if name and name not in names:
+                names.append(name)
+    for c in (result.get("report") or {}).get("collectors", []):
+        if c.get("outcome") == "failed":
+            names.append(os.path.basename(str(c.get("nodeid") or "collection")))
+    return names
 
 
 @traced("tdd.red_generate")
@@ -472,7 +508,7 @@ class {target_class}:
     domain_broken = False
     for red_attempt in (1, 2):
         test_code = generate_red_test(spec, current_class, used_module, target_class, rejection_feedback=red_feedback)
-        lint_ok, lint_reason = lint_red_test(test_code)
+        lint_ok, lint_reason = lint_red_test(test_code, require_both_sides=bool(spec.is_mathematical_boundary))
         if not lint_ok:
             red_attempts.append({"attempt": red_attempt, "approved": False, "reason": lint_reason})
             red_feedback = lint_reason
@@ -495,6 +531,8 @@ class {target_class}:
     else:
         state.phase = "DEAD_END"
         state.status = "REQUIRES_HUMAN_INTERVENTION"
+        if os.path.exists(test_file_path):  # a test rejected twice is known to be broken: do not keep it
+            os.remove(test_file_path)
         return {
             "success": False,
             "status": state.status,
@@ -507,13 +545,15 @@ class {target_class}:
     if domain_broken:
         state.phase = "DEAD_END"
         state.status = "REQUIRES_HUMAN_INTERVENTION"
+        # The test itself was never judged, so keep it for a human instead of letting it fail the regression suite.
         return {
             "success": False,
             "status": state.status,
             "phase": "RED_GATE",
             "spec_id": spec.spec_id,
             "error": red_attempts[-1]["reason"],
-            "red_attempts": red_attempts
+            "red_attempts": red_attempts,
+            "pending_test": _quarantine_test(test_file_path, workspace_dir)
         }
 
     state.advance_to_green()
@@ -566,6 +606,18 @@ class {target_class}:
                 # Run GREEN phase test execution
                 green_result = run_isolated_pytest(test_file_path, cwd=workspace_dir)
                 green_eval = evaluate_green_gate_result(green_result["exit_code"], green_result.get("report"), green_result.get("stderr"))
+
+                # Regression gate: the new implementation must not break any earlier, verified spec.
+                if green_eval["approved"]:
+                    regression = run_isolated_pytest(tests_dir, cwd=workspace_dir, timeout_seconds=30)
+                    if regression["exit_code"] != 0:
+                        broken = _failed_test_files(regression) or ["(unknown)"]
+                        green_result = regression
+                        green_eval = {
+                            "status": "REJECTED_REGRESSION",
+                            "approved": False,
+                            "reason": f"Regression: your change makes earlier tests fail again: {', '.join(broken)}. Keep every existing behavior."
+                        }
             attempts.append({"attempt": state.attempt, "approved": green_eval["approved"], "reason": green_eval.get("reason")})
 
             if green_eval["approved"]:
@@ -586,6 +638,7 @@ class {target_class}:
             state.record_green_failure(green_eval.get("reason", "Test failed in green phase"))
             if state.is_dead_end():
                 rollback()
+                pending = _quarantine_test(test_file_path, workspace_dir)
                 return {
                     "success": False,
                     "status": state.status,
@@ -595,7 +648,8 @@ class {target_class}:
                     "red_attempts": red_attempts,
                     "attempts": attempts,
                     "error_log": list(state.error_log),
-                    "rolled_back": True
+                    "rolled_back": True,
+                    "pending_test": pending
                 }
 
             failure_msg = (
@@ -604,4 +658,5 @@ class {target_class}:
             )
     except BaseException:
         rollback()
+        _quarantine_test(test_file_path, workspace_dir)
         raise

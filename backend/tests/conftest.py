@@ -139,8 +139,11 @@ def mock_llm_for_unit_tests(monkeypatch):
                 return (
                     "```python\nimport pytest\n"
                     f"from src.domain.{mod} import {cls}\n\n"
-                    "def test_mock_behavior():\n"
+                    "def test_mock_rejected_beyond_boundary():\n"
                     f"    instance = {cls}(id=\"MOCK-1\")\n"
+                    "    assert instance.validate_invariants() is True\n\n"
+                    "def test_mock_accepted_at_boundary():\n"
+                    f"    instance = {cls}(id=\"MOCK-2\")\n"
                     "    assert instance.validate_invariants() is True\n```"
                 )
             elif stage == "green_code_repair":

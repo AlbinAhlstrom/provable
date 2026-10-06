@@ -16,7 +16,7 @@ def _report(message, longrepr=""):
 def _spec():
     return BusinessSpec(spec_id="SPEC-R1", title="Minimum Booking Duration", description="Bookings last at least 2 hours.",
                         given_when_then="Given a 30 minute booking When it is validated Then InvalidDurationException is raised",
-                        target_aggregate="Booking", spec_type="DOMAIN_INVARIANT", is_mathematical_boundary=True, priority="High")
+                        target_aggregate="Booking", spec_type="DOMAIN_INVARIANT", is_mathematical_boundary=False, priority="High")
 
 
 # ── RED gate: only the right kind of failure counts as RED ──────────────────────────────────────
@@ -180,7 +180,9 @@ class _Script:
         monkeypatch.setattr(tm, "synthesize_green_class_implementation", lambda **k: "@dataclass\nclass Booking:\n    id: str = ''\n")
         runs = {"n": 0}
 
-        def run(path, cwd=None):
+        def run(path, cwd=None, timeout_seconds=5):
+            if os.path.isdir(path):  # regression run over tests/unit
+                return {"exit_code": 0, "stderr": "", "report": None}
             runs["n"] += 1
             if runs["n"] <= self.red_runs:
                 r = fake_run(path, cwd)

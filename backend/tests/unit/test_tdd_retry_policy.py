@@ -36,7 +36,7 @@ def scripted(monkeypatch):
                             lambda *a, **k: "import pytest\n\ndef test_a():\n    assert 1 == 2\n")
         monkeypatch.setattr(tdd_machine, "synthesize_green_class_implementation", fake_synth)
         monkeypatch.setattr(tdd_machine, "run_isolated_pytest",
-                            lambda path, cwd=None: {"exit_code": 1, "stderr": "pytest-output", "report": None})
+                            lambda path, cwd=None, timeout_seconds=5: {"exit_code": 0 if os.path.isdir(path) else 1, "stderr": "pytest-output", "report": None})
         monkeypatch.setattr(tdd_machine, "evaluate_red_gate_result",
                             lambda *a, **k: {"approved": True, "status": "APPROVED_RED", "reason": "red"})
         monkeypatch.setattr(tdd_machine, "evaluate_green_gate_result",

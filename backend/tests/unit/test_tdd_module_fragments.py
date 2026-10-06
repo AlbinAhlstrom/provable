@@ -141,7 +141,9 @@ def _script(monkeypatch, red_status="APPROVED_RED", green_pass=(False, False), f
         calls["synth"].append(failure_output)
         return next(frags)
 
-    def run(path, cwd=None):
+    def run(path, cwd=None, timeout_seconds=5):
+        if os.path.isdir(path):  # regression run over tests/unit
+            return {"exit_code": 0, "stderr": "", "report": None}
         runs["n"] += 1
         if runs["n"] == 1:
             return {"exit_code": 1, "stderr": "", "report": None}
