@@ -1456,10 +1456,13 @@ def kickstart_domain_and_scaffold(
         workspace_dir = get_workspace_base()
 
     pitch_text = pitch.strip() or "An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
+    from onboarding import intent as intent_step
     from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
     from onboarding.skeleton_builder import build_and_write_skeleton
 
-    decomp = decompose_pitch_into_structure_and_inbox(pitch_text)
+    # Step 1: decide what kind of product the pitch asks for; step 2: design the domain model within that scope.
+    product_intent = intent_step.classify_pitch_intent(pitch_text)
+    decomp = decompose_pitch_into_structure_and_inbox(pitch_text, intent=product_intent)
     structure = decomp.structure
     inbox_specs = decomp.inbox.specs if hasattr(decomp, "inbox") and hasattr(decomp.inbox, "specs") else []
 
@@ -1498,6 +1501,7 @@ def kickstart_domain_and_scaffold(
         state.synthesized = True
         state.entity_schemas = entity_schemas_map
         state.inbox_specs = spec_dicts
+        state.intent = product_intent.to_dict()
         uow.kickstart.save(state)
         uow.commit()
 
@@ -1506,6 +1510,7 @@ def kickstart_domain_and_scaffold(
         "domain_name": structure.domain_name,
         "aggregates": aggregates,
         "inbox_specs": spec_dicts,
+        "intent": product_intent.to_dict(),
         "created_files": created_files
     }
 
@@ -1542,6 +1547,7 @@ def get_active_domain_aggregates(uow: AbstractUnitOfWork) -> Dict[str, Any]:
         return {
             "success": True,
             "business_pitch": state.business_pitch,
+            "intent": dict(state.intent or {}),
             "aggregates": aggregates,
             "inbox_specs": list(state.inbox_specs)
         }

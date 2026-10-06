@@ -132,6 +132,16 @@ def mock_llm_for_unit_tests(monkeypatch):
                     "components": [{"key": "catalog", "name": "Catalog View", "target_entities": ["Item"]}],
                     "suggestions": ["Smart Allocation Engine", "Telemetry Live Stream", "Realtime Security Monitor"]
                 })
+            elif stage == "intent_classification":
+                return json.dumps({
+                    "product_type": "customer_app",
+                    "audience": "end customers",
+                    "primary_goal": "Let customers use the product described in the pitch.",
+                    "scope_summary": "A customer-facing application for the pitch's domain.",
+                    "model_focus": ["the pitch's core entities", "the rules customers experience"],
+                    "out_of_scope": [],
+                    "assumptions": []
+                })
             elif stage == "red_test_generation":
                 # Hermetic RED test: behavioral shape, fails with AttributeError until GREEN adds the method.
                 m = re.search(r"from src\.domain\.(\w+) import (\w+)", prompt)

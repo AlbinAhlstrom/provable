@@ -10,6 +10,9 @@ import re
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 import agent_orchestrator
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:  # avoid a runtime import cycle; the type is only used in a signature
+    from onboarding.intent import ProductIntent
 
 
 
@@ -67,12 +70,13 @@ class RouterDecompositionResult(BaseModel):
 
 
 @traced("router.decompose")
-def decompose_pitch_into_structure_and_inbox(pitch: str) -> RouterDecompositionResult:
+def decompose_pitch_into_structure_and_inbox(pitch: str, intent: "Optional[ProductIntent]" = None) -> RouterDecompositionResult:
     """
     Analyzes business pitch using Router-LLM to strictly decouple Domain Structure from Behavior Inbox.
     """
     clean_pitch = pitch.strip()
-    prompt = agent_orchestrator.load_prompt("router_decomposition.md", {"business_pitch": clean_pitch})
+    from onboarding.intent import intent_block
+    prompt = agent_orchestrator.load_prompt("router_decomposition.md", {"business_pitch": clean_pitch, "intent_block": intent_block(intent)})
     
     raw_response = agent_orchestrator.call_gemini(prompt, stage="router_decomposition", json_mode=True)
     if not raw_response:

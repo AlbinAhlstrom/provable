@@ -7,7 +7,11 @@ Analyze the following natural language business pitch and perform a STRICT SEPAR
 BUSINESS PITCH:
 "{business_pitch}"
 
+PRODUCT INTENT (decided before this step; scope the model by it):
+{intent_block}
+
 CRITICAL DECOMPOSITION INSTRUCTIONS:
+- SCOPE: Model only what the product intent asks for. Anything listed under "Do NOT model" must not appear as an entity, and the BDD rules must concern what this product's users and owner experience, not internal operations the intent excludes.
 - STRUCTURE:
   - Identify the primary Aggregate Roots (e.g. Order, Pallet, Booking).
   - Define clear entity attributes with primitive/semantic types ("string", "float", "int", "boolean", "datetime").

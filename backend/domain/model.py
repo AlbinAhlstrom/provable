@@ -422,10 +422,12 @@ class KickstartState:
     custom_fixtures: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
     entity_schemas: Dict[str, DomainEntitySchema] = field(default_factory=dict)
     inbox_specs: List[Dict[str, Any]] = field(default_factory=list)
+    intent: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "business_pitch": self.business_pitch,
+            "intent": self.intent,
             "blocks": self.blocks,
             "extracted_requirements": self.extracted_requirements,
             "synthesized": self.synthesized,

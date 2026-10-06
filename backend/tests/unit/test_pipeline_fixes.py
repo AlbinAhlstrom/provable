@@ -68,7 +68,7 @@ def test_kickstart_does_not_label_every_entity_an_aggregate_root(tmp_path, monke
                   EntitySpec(name="Child", is_aggregate_root=False, attributes=[])],
         value_objects=[], enums=[])
     result = RouterDecompositionResult(structure=structure, inbox=DomainBehaviorInboxSchema(domain_name="Clinic", specs=[]))
-    monkeypatch.setattr("onboarding.router_engine.decompose_pitch_into_structure_and_inbox", lambda pitch: result)
+    monkeypatch.setattr("onboarding.router_engine.decompose_pitch_into_structure_and_inbox", lambda pitch, intent=None: result)
 
     uow = FakeUnitOfWork()
     out = services.kickstart_domain_and_scaffold(pitch="x", uow=uow, workspace_dir=str(tmp_path))

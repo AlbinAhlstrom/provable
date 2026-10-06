@@ -226,6 +226,17 @@ export interface BusinessSpecItemDTO {
   tdd?: SpecTddSummaryDTO;
 }
 
+/** What kind of product the pitch asks for, decided before the domain model is designed. */
+export interface ProductIntentDTO {
+  product_type: string;
+  audience: string;
+  primary_goal: string;
+  scope_summary: string;
+  model_focus: string[];
+  out_of_scope: string[];
+  assumptions: string[];
+}
+
 export interface TddAttemptDTO {
   attempt: number;
   approved: boolean;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BusinessSpecItemDTO } from '../types/api';
+import { BusinessSpecItemDTO, ProductIntentDTO } from '../types/api';
 
 export interface DomainAggregateItem {
   id: string;
@@ -18,6 +18,7 @@ export interface RequirementControlPanelProps {
 export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = ({ fullWidth = false, onParamUpdated }) => {
   const [aggregates, setAggregates] = useState<DomainAggregateItem[]>([]);
   const [specs, setSpecs] = useState<BusinessSpecItemDTO[]>([]);
+  const [intent, setIntent] = useState<ProductIntentDTO | null>(null);
   const [expandedAggregates, setExpandedAggregates] = useState<Set<string>>(new Set());
   const [activeTabByAggregate, setActiveTabByAggregate] = useState<Record<string, 'specs' | 'data'>>({});
   const [statusToast, setStatusToast] = useState<string | null>(null);
@@ -55,6 +56,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
       const aggRes = await fetch('/api/onboarding/aggregates');
       if (aggRes.ok) {
         const aggData = await aggRes.json();
+        setIntent(aggData && aggData.intent && aggData.intent.product_type ? aggData.intent : null);
         if (aggData && Array.isArray(aggData.aggregates) && aggData.aggregates.length > 0) {
           const loadedAggs = aggData.aggregates.map((a: any) => ({
             id: a.key || a.canonical_key || a.name.toLowerCase(),
@@ -196,6 +198,27 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
       overflow: 'hidden',
       boxSizing: 'border-box'
     }}>
+      {/* Detected product intent: what the pipeline decided this pitch is, so it can be challenged */}
+      {intent && (
+        <div style={{ background: '#0b1329', border: '1px solid #1e3a8a', borderRadius: '0.5rem', padding: '0.6rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span style={{ background: '#1e3a8a', color: '#93c5fd', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 700 }}>
+              🎯 {intent.product_type.replace(/_/g, ' ').toUpperCase()}
+            </span>
+            <span style={{ fontSize: '0.78rem', color: '#e2e8f0' }}>{intent.scope_summary}</span>
+          </div>
+          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>For {intent.audience}. {intent.primary_goal}</span>
+          <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+            {intent.model_focus.map((m, i) => (
+              <span key={`f${i}`} style={{ fontSize: '0.68rem', background: '#052e16', color: '#86efac', border: '1px solid #166534', borderRadius: '9999px', padding: '1px 8px' }}>＋ {m}</span>
+            ))}
+            {intent.out_of_scope.map((m, i) => (
+              <span key={`o${i}`} style={{ fontSize: '0.68rem', background: '#2a0a0a', color: '#fca5a5', border: '1px solid #7f1d1d', borderRadius: '9999px', padding: '1px 8px' }}>✕ {m}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Panel Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1e293b', paddingBottom: '0.65rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
