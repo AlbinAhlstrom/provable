@@ -10,6 +10,7 @@ import sys
 import os
 from typing import Dict, Any, Tuple
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import agent_orchestrator
 from agent_orchestrator import call_gemini
 
 
@@ -58,21 +59,11 @@ def self_heal_tsx_code(code: str, error_msg: str, pitch: str) -> str:
     Closed-loop repair step: sends the broken TSX code and compiler error
     back to Gemini for automatic self-healing.
     """
-    prompt = f"""
-You are a Principal Lead React Engineer. The following generated React TypeScript (`App.tsx`) code failed syntax verification:
-
---- ERROR TRACEBACK ---
-{error_msg}
-
---- ORIGINAL BUSINESS PITCH ---
-{pitch}
-
---- BROKEN CODE ---
-{code}
-
-Fix ALL syntax errors, unbalanced brackets, or missing JSX elements.
-Return ONLY valid React TypeScript code inside a single ```tsx code block. Do NOT include markdown intro/outro.
-"""
+    prompt = agent_orchestrator.load_prompt("self_healing.md", {
+        "error_message": error_msg,
+        "business_pitch": pitch,
+        "broken_code": code
+    })
     try:
         repaired = call_gemini(prompt, stage="self_healing")
         if repaired and "export default" in repaired:

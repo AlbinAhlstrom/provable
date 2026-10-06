@@ -44,3 +44,45 @@ def test_load_prompt_unknown_placeholder_raises():
     """
     with pytest.raises(KeyError):
         agent_orchestrator.load_prompt("router_decomposition.md", {"not_a_placeholder": "x"})
+
+
+def test_load_prompt_is_single_pass():
+    """Verify substituted values are not re-scanned for placeholders.
+
+    id: TST-LP-004
+    Given: A pitch that itself contains the text of another placeholder
+    When: self_healing.md is loaded with that text in the pitch
+    Then: The literal text survives instead of being replaced by the other value
+    """
+    prompt = agent_orchestrator.load_prompt(
+        "self_healing.md",
+        {"error_message": "E", "business_pitch": "uses {broken_code} literally", "broken_code": "CODE"},
+    )
+    assert "uses {broken_code} literally" in prompt
+
+
+@pytest.mark.parametrize("template,placeholders", [
+    ("component_planning.md", ["pitch", "noun", "category_id", "layout_name", "invariants_json"]),
+    ("aesthetic_planning.md", ["pitch", "category_id", "archetype"]),
+    ("app_assembly.md", ["pitch", "category_id", "layout_name", "brand_title", "archetype",
+                         "css_variables", "seed_data_json", "components_json"]),
+    ("pitch_component_analysis.md", ["business_pitch"]),
+    ("domain_ontology.md", ["business_pitch"]),
+    ("dynamic_requirements.md", ["schema_json"]),
+    ("self_healing.md", ["error_message", "business_pitch", "broken_code"]),
+    ("router_decomposition.md", ["business_pitch"]),
+    ("green_class_repair.md", ["extracted_class_code", "spec_title", "spec_given_when_then",
+                               "target_aggregate", "spec_type", "failure_output", "target_class_name"]),
+])
+def test_every_prompt_template_accepts_its_placeholders(template, placeholders):
+    """Verify each prompt file contains exactly the placeholders its caller supplies.
+
+    id: TST-LP-005
+    Given: A prompt template and the placeholder names its caller passes
+    When: The template is loaded with sentinel values
+    Then: Every sentinel appears in the output and no placeholder is left unfilled
+    """
+    prompt = agent_orchestrator.load_prompt(template, {p: f"<<{p}>>" for p in placeholders})
+    for p in placeholders:
+        assert f"<<{p}>>" in prompt
+        assert f"{{{p}}}" not in prompt

@@ -26,7 +26,7 @@ Provable operates on a strict multi-service architectural split. You MUST NOT co
 The `workspace/` directory contains the application produced by the automated generation pipeline.
 **NEVER directly write, edit, patch, or commit files inside `workspace/`.**
 
-Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/skeleton_builder.py`, `backend/onboarding/templates/workspace_scaffold.py`, and the inline LLM prompts / fallback template in `backend/onboarding/frontend_planning_engine.py`, e.g. `assemble_app_tsx_from_blueprint`).
+Any structural, template, or configuration change meant for `workspace/` MUST be implemented in the authoritative backend generator code (`backend/onboarding/skeleton_builder.py`, `backend/onboarding/templates/workspace_scaffold.py`, the LLM prompts in `backend/prompts/` (notably `app_assembly.md`), and the fallback template in `backend/onboarding/frontend_planning_engine.py`).
 
 ### Permitted Actions:
 - Read `workspace/` files to **diagnose** runtime/build errors or inspect generated output.

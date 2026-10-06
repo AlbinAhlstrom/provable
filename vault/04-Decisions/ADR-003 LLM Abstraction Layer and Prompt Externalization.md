@@ -18,4 +18,4 @@ We abstract all LLM interactions and externalize prompt templates:
 **Accepted**
 
 ## Amendment
-Only part of the prompt externalization was completed: 4 prompts are file-based and the rest remain inline in `backend/onboarding/`. The `models.yaml` router was never read by code and was removed. See [[LLM Abstraction and Prompts]] for the current state.
+Externalization was initially only partial (4 prompt files). The pipeline's inline prompts have since been moved to `backend/prompts/` too; only the standalone `test_importer.py` helper prompt remains inline. The `models.yaml` router was never read by code and was removed. See [[LLM Abstraction and Prompts]] for the current state.

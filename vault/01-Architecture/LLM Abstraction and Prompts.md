@@ -20,19 +20,24 @@ The test suite never needs a key: `backend/tests/conftest.py` mocks `call_gemini
 
 ## 2. Where prompts live
 
-**File-based prompts** (`backend/prompts/`, loaded with `agent_orchestrator.load_prompt(name, {placeholder: value})`; a missing file or a placeholder not present in the template raises):
+**Prompts** (`backend/prompts/`, loaded with `agent_orchestrator.load_prompt(name, {placeholder: value})`; a missing file or a placeholder not present in the template raises):
 
 | File | Used by | Placeholders |
 | :--- | :--- | :--- |
 | `router_decomposition.md` | `onboarding/router_engine.py` | `{business_pitch}` |
 | `green_class_repair.md` | `service_layer/tdd_machine.py` (GREEN phase) | `{extracted_class_code}`, `{spec_title}`, `{spec_given_when_then}`, `{target_aggregate}`, `{spec_type}`, `{failure_output}`, `{target_class_name}` |
 | `visual_qa.md`, `visual_audit.md` | `onboarding/visual_auditor.py` (read directly) | see file |
+| `domain_ontology.md` | `onboarding/domain_ontology.py` | `{business_pitch}` |
+| `component_planning.md` | `onboarding/frontend_planning_engine.py` | `{pitch}`, `{noun}`, `{category_id}`, `{layout_name}`, `{invariants_json}` |
+| `aesthetic_planning.md` | `onboarding/frontend_planning_engine.py` | `{pitch}`, `{category_id}`, `{archetype}` |
+| `app_assembly.md` | `onboarding/frontend_planning_engine.py` (`assemble_app_tsx_from_blueprint`) | `{pitch}`, `{category_id}`, `{layout_name}`, `{brand_title}`, `{archetype}`, `{css_variables}`, `{seed_data_json}`, `{components_json}` |
+| `pitch_component_analysis.md` | `onboarding/frontend_planning_engine.py` | `{business_pitch}` |
+| `dynamic_requirements.md` | `onboarding/requirement_generator.py` | `{schema_json}` |
+| `self_healing.md` | `onboarding/code_verifier.py` | `{error_message}`, `{business_pitch}`, `{broken_code}` |
 
-**Inline prompts** (f-strings in code, one per LLM `stage`):
-`domain_ontology`, `component_planning`, `aesthetic_planning`, `app_assembly`, `pitch_component_analysis` (`onboarding/domain_ontology.py`, `onboarding/frontend_planning_engine.py`), `dynamic_requirements` (`requirement_generator.py`), `self_healing` (`code_verifier.py`), plus the prompt in `test_importer.py`.
+`load_prompt` substitutes in a single pass (values are never re-scanned), raises `FileNotFoundError` for a missing template and `KeyError` for a placeholder the template lacks. `backend/tests/unit/test_load_prompt.py` checks every template against its caller's placeholders. To change what the generator asks the LLM, edit the `.md` file, not Python.
 
-> [!NOTE]
-> Externalizing the inline prompts into `backend/prompts/` (the original intent of [[ADR-003 LLM Abstraction Layer and Prompt Externalization]]) is unfinished. When touching an inline prompt, consider moving it to a file and loading it with `load_prompt`.
+**Still inline:** the one-off prompt in `onboarding/test_importer.py` (a standalone helper that decorates imported test files with Allure metadata).
 
 ---
 

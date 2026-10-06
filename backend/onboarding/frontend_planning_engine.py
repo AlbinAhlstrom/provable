@@ -13,6 +13,7 @@ from typing import Dict, Any, List, Tuple, Optional
 from pydantic import ValidationError
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import agent_orchestrator
 from agent_orchestrator import call_gemini
 from onboarding.planning_contracts import (
     CategoryLayoutPlan, LayoutSlotSpec, ComponentSlotAssignment, BespokeComponentSpec,
@@ -68,26 +69,13 @@ def _run_component_planning_agent(pitch: str, category_plan: CategoryLayoutPlan)
     ont = storm_domain_ontology(pitch)
     noun = ont.master_entity.entity_name
     
-    prompt = f"""
-You are a Principal Frontend Architect designing a 100% bespoke React application for:
-- Business Pitch: "{pitch}"
-- Master Entity: {noun}
-- Category: {category_plan.category_id} ({category_plan.layout_name})
-- Key Invariants: {json.dumps(ont.invariants)}
-
-Decompose this domain into 2 to 4 bespoke React components tailored specifically to this business.
-Respond ONLY with a JSON object in this format:
-{{
-  "bespoke_components": [
-    {{
-      "component_name": "<PascalCaseName>",
-      "slot": "<header|main_content|modal_drawer|sidebar>",
-      "description": "<purpose and data displayed>",
-      "key_interactions": ["<interaction 1>", "<interaction 2>"]
-    }}
-  ]
-}}
-"""
+    prompt = agent_orchestrator.load_prompt("component_planning.md", {
+        "pitch": pitch,
+        "noun": noun,
+        "category_id": category_plan.category_id,
+        "layout_name": category_plan.layout_name,
+        "invariants_json": json.dumps(ont.invariants)
+    })
     try:
         raw = call_gemini(prompt, stage="component_planning")
         cleaned = re.sub(r'^```[a-zA-Z]*\n?', '', raw.strip())
@@ -218,27 +206,11 @@ def _run_aesthetic_planning_agent(pitch: str, category_plan: CategoryLayoutPlan)
     tokens = DESIGN_ARCHETYPE_TOKENS[arch_id]
     profile = _extract_domain_entity_profile(pitch)
 
-    prompt = f"""
-You are a Lead UI/UX Designer creating an aesthetic design spec for pitch: "{pitch}".
-Category: "{cat_id}", Theme Archetype: "{arch_id}".
-
-Respond ONLY with a JSON object:
-{{
-  "domain_display_title": "<Clean Storefront/Service Title>",
-  "mock_seed_data": [
-    {{
-      "id": "1",
-      "title": "<Name/Title>",
-      "subtitle": "<Role/Category>",
-      "price_or_rate": "<e.g. $22/hr or €22/hour>",
-      "badge_status": "<e.g. Verified | CPR Certified>",
-      "rating": 4.9,
-      "initials": "<2 letter initials, e.g. EV>",
-      "availability_slots": ["09:00 AM", "01:00 PM"]
-    }}
-  ]
-}}
-"""
+    prompt = agent_orchestrator.load_prompt("aesthetic_planning.md", {
+        "pitch": pitch,
+        "category_id": cat_id,
+        "archetype": arch_id
+    })
     try:
         raw = call_gemini(prompt, stage="aesthetic_planning")
         cleaned = re.sub(r'^```[a-zA-Z]*\n?', '', raw.strip())
@@ -293,34 +265,16 @@ def assemble_app_tsx_from_blueprint(blueprint: UnifiedFrontendBlueprint, custom_
     
     # Prompt LLM to synthesize 100% bespoke domain-native React 18 TSX application from scratch
     css_vars = aesthetics.get_css_variables_style()
-    prompt = f"""
-You are a Master React TSX Developer. Synthesize a complete, production-grade, 100% bespoke `App.tsx` component tailored specifically to this business pitch:
-
-- **Business Pitch**: "{pitch}"
-- **Category Layout Intent**: "{cat_id}" ({blueprint.category_layout.layout_name})
-- **Brand Title**: "{aesthetics.domain_display_title}"
-- **Aesthetic Archetype**: "{arch_id}"
-- **CSS Variable Tokens**:
-{css_vars}
-
-- **Mock Domain Seed Data**: {json.dumps(aesthetics.mock_seed_data, indent=2)}
-
-- **Bespoke Domain Components & Interactions**:
-{json.dumps([b.dict() for b in blueprint.components.bespoke_components], indent=2)}
-
-### Implementation Guidelines:
-1. Export a default React component `export default function App()`.
-2. Include a CSS root variable style block at top of App render with global resets (`* {{ box-sizing: border-box; }} body {{ margin: 0; overflow-x: hidden; }} img, svg {{ max-width: 100%; }}`).
-3. Use CSS variables `var(--bg-main)`, `var(--bg-card)`, `var(--text-primary)`, `var(--color-primary)`, `var(--color-mint)`, `var(--border-color)`, `var(--font-heading)` instead of hardcoded hex strings.
-4. Design domain-native interactive controls that naturally fit the business mechanics (e.g. interactive canvas, radar visualizer, custom builder, booking matrix, or operational queue).
-5. **CRITICAL MOBILE-FIRST RESPONSIVENESS INVARIANT**:
-   - The application MUST be fully mobile-first responsive and render flawlessly on mobile screens (`375px` viewport) as well as desktop screens (`1280px`).
-   - Headers and navigation bars MUST use `flexWrap: 'wrap'` and flexible gaps (`gap: '0.75rem'`) so header titles and navigation links wrap cleanly on 375px screens without horizontal scrolling.
-   - Any slide-over panel, drawer, or modal MUST use fluid width styling (e.g. `width: '100%', maxWidth: '380px'`). NEVER use hardcoded fixed pixel widths like `width: '380px'` without `maxWidth: '100%'`.
-   - Outer container padding MUST be responsive (e.g. `padding: '1rem 0.75rem'` on mobile).
-
-Respond STRICTLY with valid React TypeScript code inside a single ```tsx code block. Do NOT include markdown text.
-"""
+    prompt = agent_orchestrator.load_prompt("app_assembly.md", {
+        "pitch": pitch,
+        "category_id": cat_id,
+        "layout_name": blueprint.category_layout.layout_name,
+        "brand_title": aesthetics.domain_display_title,
+        "archetype": arch_id,
+        "css_variables": css_vars,
+        "seed_data_json": json.dumps(aesthetics.mock_seed_data, indent=2),
+        "components_json": json.dumps([b.dict() for b in blueprint.components.bespoke_components], indent=2)
+    })
     try:
         raw_response = call_gemini(prompt, stage="app_assembly")
         cleaned = raw_response.strip()
@@ -1409,39 +1363,9 @@ def analyze_pitch_components_and_suggestions(pitch: str) -> Dict[str, Any]:
     (mapping reusable ones to premade template keys or creating custom component specs)
     and generates 6 domain-specific suggested prompts.
     """
-    prompt = f"""
-You are a Lead Product Architect. Analyze the following business pitch:
-"{pitch}"
-
-Deconstruct the application into:
-1. Active Components: Identify all UI components required for this application idea.
-   - For standard capabilities, map to canonical keys: "catalog" (menu/product grid), "cart" (shopping cart/checkout), "tracking" (order tracking pipeline), "kds" (admin/kitchen dashboard), "reviews" (ratings & feedback), "auth" (user login/profiles), "calendar" (booking/appointments).
-   - For custom concepts mentioned in pitch (e.g. "interactive calculator", "custom builder", "crypto wallet"), specify a clean canonical_key (e.g. "rate_calculator"), descriptive title, and component_type "custom".
-2. Suggested Prompts: Generate 3 to 6 dynamic, domain-aware feature suggestions that the user might want to add next (e.g. "Add payment system", "Add live chat", "Add analytics").
-
-Return ONLY valid JSON in this exact format (no markdown, no preamble):
-{{
-  "components": [
-    {{
-      "canonical_key": "catalog",
-      "title": "Item Catalog",
-      "component_type": "premade",
-      "description": "Product grid with category filters"
-    }},
-    {{
-      "canonical_key": "rate_calculator",
-      "title": "Interactive Rate Calculator",
-      "component_type": "custom",
-      "description": "Dynamic calculator tool embedded in application"
-    }}
-  ],
-  "suggestions": [
-    "Add payment system",
-    "Add loyalty points",
-    "Add table reservation"
-  ]
-}}
-"""
+    prompt = agent_orchestrator.load_prompt("pitch_component_analysis.md", {
+        "business_pitch": pitch
+    })
     try:
         raw_res = call_gemini(prompt, stage="pitch_component_analysis")
         json_match = re.search(r'\{.*\}', raw_res, re.DOTALL)
