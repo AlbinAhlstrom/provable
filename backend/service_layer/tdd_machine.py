@@ -15,7 +15,9 @@ import hashlib
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
 from onboarding.router_engine import BusinessSpec
-from onboarding.cst_isolator import extract_class_cst, splice_class_cst
+from onboarding.cst_isolator import (
+    FragmentError, extract_class_cst, merge_module_fragment, module_import_lines, splice_class_cst
+)
 
 
 # Failures that mean the TEST is broken (not that the behavior is missing): never a valid RED.
@@ -23,6 +25,13 @@ _BROKEN_TEST_MARKERS = (
     "syntaxerror", "indentationerror", "importerror", "modulenotfounderror", "nameerror", "timed out",
     "fixture '", "module 'src.",
 )
+
+
+def _headline(text: str) -> str:
+    """The most informative line of a failure text: the final 'E ' (error) line, else the first line."""
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    errors = [ln for ln in lines if ln.startswith("E ")]
+    return (errors[-1][1:].strip() if errors else (lines[0] if lines else text))[:240]
 
 
 def _failure_texts(report_json: Optional[Dict[str, Any]]) -> List[str]:
@@ -60,6 +69,17 @@ def evaluate_red_gate_result(
             "reason": "Test passed before logic was implemented (tautological false pass)."
         }
 
+    # A collection (import-time) error that runs through src/domain/ means the DOMAIN module is broken, not the test.
+    for collector in (report_json or {}).get("collectors", []):
+        text = str(collector.get("longrepr") or "")
+        domain_files = re.findall(r"(src/domain/[\w/]+\.py)", text)
+        if collector.get("outcome") == "failed" and domain_files:
+            return {
+                "status": "REJECTED_DOMAIN_BROKEN",
+                "approved": False,
+                "reason": f"The domain module does not import ({domain_files[-1]}): {_headline(text)}. This is not the test's fault."
+            }
+
     messages = _failure_texts(report_json)
     for text in messages + ([stderr] if stderr else []):
         low = text.lower()
@@ -67,13 +87,13 @@ def evaluate_red_gate_result(
             return {
                 "status": "REJECTED_BROKEN_TEST",
                 "approved": False,
-                "reason": f"Broken test, not a valid RED: the test constructs the class with arguments it does not accept ({text.splitlines()[0][:200]}). Use only the fields listed in the class API."
+                "reason": f"Broken test, not a valid RED: the test constructs the class with arguments it does not accept ({_headline(text)}). Use only the fields listed in the class API."
             }
         if any(marker in low for marker in _BROKEN_TEST_MARKERS):
             return {
                 "status": "REJECTED_SYNTAX_OR_EXEC",
                 "approved": False,
-                "reason": f"Broken test, not a valid RED: {text.splitlines()[0][:200] if text.strip() else text}"
+                "reason": f"Broken test, not a valid RED: {_headline(text)}"
             }
 
     if exit_code == 1:
@@ -344,7 +364,8 @@ def synthesize_green_class_implementation(
     target_class_name: str,
     spec: BusinessSpec,
     failure_output: str = "",
-    test_source: str = ""
+    test_source: str = "",
+    module_imports: str = ""
 ) -> str:
     """Synthesizes the GREEN phase domain class implementation using LLM micro-context prompt.
 
@@ -357,9 +378,10 @@ def synthesize_green_class_implementation(
         spec: The BusinessSpec containing BDD scenario and mutation requirements.
         failure_output: Concise evidence of why the frozen test currently fails.
         test_source: The frozen RED test the implementation must satisfy.
+        module_imports: The import lines the target module already has.
 
     Returns:
-        The updated Python class definition string.
+        A module fragment (imports + helper classes + the target class) for merge_module_fragment.
 
     Raises:
         RuntimeError: If the LLM returns nothing usable. There is deliberately NO fallback stub: a fake
@@ -374,6 +396,7 @@ def synthesize_green_class_implementation(
         "target_aggregate": spec.target_aggregate or target_class_name,
         "spec_type": spec.spec_type,
         "test_source": test_source or "(no test source available)",
+        "module_imports": module_imports or "(none)",
         "failure_output": failure_output or "The frozen test does not pass yet.",
         "target_class_name": target_class_name
     })
@@ -446,6 +469,7 @@ class {target_class}:
     red_result: Dict[str, Any] = {}
     red_eval: Dict[str, Any] = {}
     red_attempts: List[Dict[str, Any]] = []
+    domain_broken = False
     for red_attempt in (1, 2):
         test_code = generate_red_test(spec, current_class, used_module, target_class, rejection_feedback=red_feedback)
         lint_ok, lint_reason = lint_red_test(test_code)
@@ -463,8 +487,24 @@ class {target_class}:
         red_attempts.append({"attempt": red_attempt, "approved": red_eval["approved"], "reason": red_eval.get("reason")})
         if red_eval["approved"]:
             break
+        if red_eval.get("status") == "REJECTED_DOMAIN_BROKEN":
+            # Regenerating the test cannot help: the domain module itself does not import. Fail loudly now.
+            domain_broken = True
+            break
         red_feedback = f"{red_eval.get('reason')}\n{summarize_pytest_failure(red_result)}"
     else:
+        state.phase = "DEAD_END"
+        state.status = "REQUIRES_HUMAN_INTERVENTION"
+        return {
+            "success": False,
+            "status": state.status,
+            "phase": "RED_GATE",
+            "spec_id": spec.spec_id,
+            "error": red_attempts[-1]["reason"],
+            "red_attempts": red_attempts
+        }
+
+    if domain_broken:
         state.phase = "DEAD_END"
         state.status = "REQUIRES_HUMAN_INTERVENTION"
         return {
@@ -485,66 +525,83 @@ class {target_class}:
     name: str = "Standard {target_class}"
 '''
     attempts: List[Dict[str, Any]] = []
+    domain_before = open(domain_file, "r", encoding="utf-8").read()
 
-    # Retry policy (see .agents/rules/03-tdd-engine.md): at most ONE retry, and only because the GREEN gate
-    # rejected the first attempt; the gate's verdict and the failing test output are fed back to the generator.
-    # Provider errors, tampering and anything else fail loudly without a retry.
-    while True:
-        with open(domain_file, "r", encoding="utf-8") as f:
-            domain_source = f.read()
-        extracted_class = extract_class_cst(domain_source, target_class) or default_class
-
-        # LLM-driven micro-context class synthesis
-        updated_class = synthesize_green_class_implementation(
-            extracted_class=extracted_class,
-            target_class_name=target_class,
-            spec=spec,
-            failure_output=failure_msg,
-            test_source=test_code
-        )
-
-        # Splice updated class back into module using LibCST
-        new_domain_source = splice_class_cst(domain_source, target_class, updated_class)
+    def rollback() -> None:
+        """A spec that does not reach GREEN must leave the domain exactly as it found it."""
         with open(domain_file, "w", encoding="utf-8") as f:
-            f.write(new_domain_source)
+            f.write(domain_before)
 
-        # Verify anti-cheat test file integrity hash
-        verify_test_file_integrity(test_file_path, initial_test_hash)
+    # Retry policy (rule 03 section 4): at most ONE retry, and only because the GREEN gate (or the merge of the
+    # model's answer) rejected the first attempt; the verdict and the failing test output are fed back to the
+    # generator. Provider errors, tampering and anything else fail loudly without a retry.
+    try:
+        while True:
+            with open(domain_file, "r", encoding="utf-8") as f:
+                domain_source = f.read()
+            extracted_class = extract_class_cst(domain_source, target_class) or default_class
 
-        # Run GREEN phase test execution
-        green_result = run_isolated_pytest(test_file_path, cwd=workspace_dir)
-        green_eval = evaluate_green_gate_result(green_result["exit_code"], green_result.get("report"), green_result.get("stderr"))
-        attempts.append({"attempt": state.attempt, "approved": green_eval["approved"], "reason": green_eval.get("reason")})
+            # LLM-driven micro-context synthesis: a module fragment (imports + helper classes + the class)
+            fragment = synthesize_green_class_implementation(
+                extracted_class=extracted_class,
+                target_class_name=target_class,
+                spec=spec,
+                failure_output=failure_msg,
+                test_source=test_code,
+                module_imports=module_import_lines(domain_source)
+            )
 
-        if green_eval["approved"]:
-            state.phase = "COMMITTED"
-            state.status = "FULFILLED"
-            return {
-                "success": True,
-                "status": "FULFILLED",
-                "phase": "COMMITTED",
-                "spec_id": spec.spec_id,
-                "test_file": test_file_path,
-                "red_eval": red_eval,
-                "green_eval": green_eval,
-                "red_attempts": red_attempts,
-                "attempts": attempts
-            }
+            try:
+                new_domain_source = merge_module_fragment(domain_source, target_class, fragment)
+            except FragmentError as err:
+                green_result = {"exit_code": 1, "stderr": str(err), "report": None}
+                green_eval = {"status": "REJECTED_UNMERGEABLE", "approved": False, "reason": str(err)}
+            else:
+                with open(domain_file, "w", encoding="utf-8") as f:
+                    f.write(new_domain_source)
 
-        state.record_green_failure(green_eval.get("reason", "Test failed in green phase"))
-        if state.is_dead_end():
-            return {
-                "success": False,
-                "status": state.status,
-                "phase": state.phase,
-                "spec_id": spec.spec_id,
-                "error": green_eval.get("reason"),
-                "attempts": attempts,
-                "error_log": list(state.error_log)
-            }
+                # Verify anti-cheat test file integrity hash
+                verify_test_file_integrity(test_file_path, initial_test_hash)
 
-        failure_msg = (
-            f"The previous GREEN attempt was rejected: {green_eval.get('reason')}\n"
-            + summarize_pytest_failure(green_result)
-        )
+                # Run GREEN phase test execution
+                green_result = run_isolated_pytest(test_file_path, cwd=workspace_dir)
+                green_eval = evaluate_green_gate_result(green_result["exit_code"], green_result.get("report"), green_result.get("stderr"))
+            attempts.append({"attempt": state.attempt, "approved": green_eval["approved"], "reason": green_eval.get("reason")})
 
+            if green_eval["approved"]:
+                state.phase = "COMMITTED"
+                state.status = "FULFILLED"
+                return {
+                    "success": True,
+                    "status": "FULFILLED",
+                    "phase": "COMMITTED",
+                    "spec_id": spec.spec_id,
+                    "test_file": test_file_path,
+                    "red_eval": red_eval,
+                    "green_eval": green_eval,
+                    "red_attempts": red_attempts,
+                    "attempts": attempts
+                }
+
+            state.record_green_failure(green_eval.get("reason", "Test failed in green phase"))
+            if state.is_dead_end():
+                rollback()
+                return {
+                    "success": False,
+                    "status": state.status,
+                    "phase": state.phase,
+                    "spec_id": spec.spec_id,
+                    "error": green_eval.get("reason"),
+                    "red_attempts": red_attempts,
+                    "attempts": attempts,
+                    "error_log": list(state.error_log),
+                    "rolled_back": True
+                }
+
+            failure_msg = (
+                f"The previous GREEN attempt was rejected: {green_eval.get('reason')}\n"
+                + summarize_pytest_failure(green_result)
+            )
+    except BaseException:
+        rollback()
+        raise

@@ -144,7 +144,7 @@ def mock_llm_for_unit_tests(monkeypatch):
                     "    assert instance.validate_invariants() is True\n```"
                 )
             elif stage == "green_code_repair":
-                m = re.search(r"definition for `(\w+)`", prompt)
+                m = re.search(r"definition of `(\w+)`", prompt)
                 cls = m.group(1) if m else "Entity"
                 return (
                     "```python\n@dataclass\n"

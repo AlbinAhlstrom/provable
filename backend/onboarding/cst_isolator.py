@@ -85,3 +85,91 @@ def splice_class_cst(original_source: str, class_name: str, new_class_code: str)
     except Exception as e:
         print(f"LibCST splicing notice ({class_name}): {e}")
         return original_source
+
+
+class FragmentError(ValueError):
+    """The LLM's module fragment cannot be merged (invalid Python, missing target class, forbidden module-level code)."""
+
+
+def _is_import_line(stmt: cst.CSTNode) -> bool:
+    return isinstance(stmt, cst.SimpleStatementLine) and all(
+        isinstance(item, (cst.Import, cst.ImportFrom)) for item in stmt.body
+    )
+
+
+def _is_docstring_line(stmt: cst.CSTNode) -> bool:
+    return (
+        isinstance(stmt, cst.SimpleStatementLine)
+        and len(stmt.body) == 1
+        and isinstance(stmt.body[0], cst.Expr)
+        and isinstance(stmt.body[0].value, (cst.SimpleString, cst.ConcatenatedString))
+    )
+
+
+def module_import_lines(source_code: str) -> str:
+    """The module's top-level import statements, as text (what the generator may already rely on)."""
+    try:
+        module = cst.parse_module(source_code)
+    except Exception:
+        return ""
+    return "\n".join(module.code_for_node(s).strip() for s in module.body if _is_import_line(s))
+
+
+@traced("tdd.cst_merge")
+def merge_module_fragment(original_source: str, target_class: str, fragment: str) -> str:
+    """Merges an LLM-produced module fragment into a module.
+
+    The fragment may contain import statements, helper classes (e.g. domain exceptions) and the target
+    class. Missing imports are added after the existing ones, helper classes are inserted before the
+    target (or replaced when they already exist), and the target class is replaced. Anything else at
+    module level is refused, as is unparseable output: this raises FragmentError instead of silently
+    returning the original source.
+    """
+    try:
+        frag = cst.parse_module(fragment.strip() + "\n")
+    except Exception as e:
+        raise FragmentError(f"Your answer is not valid Python: {str(e).splitlines()[0] if str(e) else type(e).__name__}") from e
+
+    imports, classes = [], []
+    for stmt in frag.body:
+        if _is_import_line(stmt):
+            imports.append(stmt)
+        elif isinstance(stmt, cst.ClassDef):
+            classes.append(stmt)
+        elif _is_docstring_line(stmt):
+            continue
+        else:
+            kind = type(stmt).__name__
+            raise FragmentError(
+                f"Only import statements and class definitions are allowed at module level (found {kind}). "
+                "Move helper logic into a class."
+            )
+    if target_class not in {c.name.value for c in classes}:
+        raise FragmentError(f"Your answer does not define class {target_class}.")
+
+    orig = cst.parse_module(original_source)
+    body = list(orig.body)
+
+    present = {orig.code_for_node(s).strip() for s in body if _is_import_line(s)}
+    new_imports = [s for s in imports if frag.code_for_node(s).strip() not in present]
+    import_positions = [i for i, s in enumerate(body) if _is_import_line(s)]
+    if import_positions:
+        pos = import_positions[-1] + 1
+    else:
+        pos = 1 if body and _is_docstring_line(body[0]) else 0
+    body[pos:pos] = new_imports
+
+    def index_of(name: str) -> Optional[int]:
+        return next((i for i, s in enumerate(body) if isinstance(s, cst.ClassDef) and s.name.value == name), None)
+
+    for cls in classes:
+        name = cls.name.value
+        idx = index_of(name)
+        if idx is not None:
+            body[idx] = cls
+        elif name == target_class:
+            body.append(cls)
+        else:
+            target_idx = index_of(target_class)
+            body.insert(target_idx if target_idx is not None else len(body), cls)
+    return orig.with_changes(body=body).code
