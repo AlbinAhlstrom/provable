@@ -1,4 +1,5 @@
-<div align="center">
+
+<div align="center">
 
 # 🛡️ Provable
 
@@ -137,7 +138,7 @@ Once launched, the following services will be available:
 provable/
 ├── backend/                  # FastAPI backend engine & DDD orchestrator
 │   ├── adapters/             # Repository Pattern & Workspace adapters
-│   ├── config/               # Model routing (models.yaml) & configuration
+│   ├── config/               # Runtime configuration (integrations.yaml)
 │   ├── db/                   # SQLite DataStore wrapper & schema migrations (store.py)
 │   ├── domain/               # Core domain entities & business exceptions
 │   ├── entrypoints/          # REST API routers (specs, kickstart, onboarding, requirements)
@@ -153,7 +154,6 @@ provable/
 │   ├── 01-Architecture/      # System architecture, DDD patterns, schema-driven UI
 │   ├── 02-Workflows/         # TDD workflows, verification pipelines, roadmap
 │   ├── 04-Decisions/         # Architectural Decision Records (ADRs)
-│   ├── HANDOVER.md           # Cross-chat continuity & active system state
 │   └── Home.md               # Vault sitemap & wiki index
 ├── docker-compose.allure.yaml# Docker Compose manifest for Allure reporting service
 ├── run.py                    # Unified single cross-platform launcher script

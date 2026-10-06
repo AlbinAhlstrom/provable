@@ -61,16 +61,26 @@ def update_agent_status(active=None, ticket_id=None, step=None, attempt=None, ma
 
 
 def load_prompt(template_name: str, format_kwargs: Optional[dict] = None) -> str:
-    """Load and format a prompt template from backend/prompts/."""
+    """Load a prompt template from backend/prompts/ and substitute `{placeholder}` values.
+
+    Raises:
+        FileNotFoundError: If the template does not exist.
+        KeyError: If a supplied placeholder is not present in the template (catches typos).
+    """
     prompts_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'prompts'))
     prompt_path = os.path.join(prompts_dir, template_name)
     if not os.path.exists(prompt_path):
-        return ""
-    with open(prompt_path, 'r', encoding='utf-8') as f:
+        raise FileNotFoundError(f"Prompt template not found: {prompt_path}")
+    with open(prompt_path, 'r', encoding='utf-8-sig') as f:
         content = f.read()
-    if format_kwargs:
-        for k, v in format_kwargs.items():
-            content = content.replace(f"{{{k}}}", str(v))
+    values = {k: str(v) for k, v in (format_kwargs or {}).items()}
+    for k in values:
+        if f"{{{k}}}" not in content:
+            raise KeyError(f"Placeholder {{{k}}} not found in prompt template {template_name}")
+    if values:
+        # Single pass so substituted values are never re-scanned for placeholders.
+        pattern = re.compile("|".join(re.escape(f"{{{k}}}") for k in values))
+        content = pattern.sub(lambda m: values[m.group(0)[1:-1]], content)
     return content
 
 

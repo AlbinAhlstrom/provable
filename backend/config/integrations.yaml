@@ -1,14 +1,7 @@
-active_project: C:\Users\ahlst\Documents\GitHub\provable\workspace
 allure:
   enabled: true
   project_id: default
   server_url: http://localhost:5050
-
-project:
-  workspace_path: C:\Users\ahlst\Documents\GitHub\provable\workspace
-projects:
-- name: Default Workspace
-  path: C:\Users\ahlst\Documents\GitHub\provable\workspace
 strictdoc:
   enabled: true
   requirements_dir: ../workspace/requirements

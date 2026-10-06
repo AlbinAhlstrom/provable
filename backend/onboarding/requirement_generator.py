@@ -7,6 +7,7 @@ import json
 import os
 import re
 from typing import List, Dict, Any, Optional
+import agent_orchestrator
 from agent_orchestrator import call_gemini
 
 def _link_logic_reqs_to_ui_components(reqs: List[dict], schema: Optional[dict] = None) -> List[dict]:
@@ -128,37 +129,9 @@ def generate_dynamic_requirements(schema: dict) -> List[dict]:
     """Dynamically synthesize formal ISO 29148 requirements across 3 layers with BDD scenarios & Event State Machine contracts.
     100% prompt-agnostic for any domain.
     """
-    prompt = f"""
-You are a Principal Lead Requirements Architect. Given the following DDD domain schema:
-{json.dumps(schema, indent=2)}
-
-Synthesize a comprehensive 3-layer hierarchy of 8 to 12 formal ISO/IEC/IEEE 29148 software requirements tailored EXACTLY to this domain:
-1. Presentation Layer UI Components (id prefix REQ-UI-, layer "PRESENTATION"). Must include Event-Driven Interaction contracts: User Action ➔ Triggered Event ➔ State Transition.
-2. Domain Invariants & Component BDD Logic (id prefix REQ-SVC- or REQ-DOM-, layer "LOGIC", with parentId linked to the corresponding REQ-UI- component). Must include Feature-Level BDD Given/When/Then scenarios.
-3. Infrastructure & API Contracts (id prefix REQ-API- or REQ-PERS-, layer "INFRASTRUCTURE", with parentId linked to the corresponding REQ-UI- component).
-
-Return ONLY a JSON array of requirement objects in this exact format (no markdown, no explanation):
-[
-  {{
-    "id": "REQ-UI-001",
-    "title": "Interactive Main Workstation Component Contract",
-    "description": "User Action: Click Action Control ➔ Triggered Event: ExecuteDomainService ➔ State Transition: UI updates dynamic entity state.",
-    "type": "Requirement",
-    "layer": "PRESENTATION",
-    "priority": "High",
-    "status": "Done",
-    "tests": [
-      {{
-        "name": "test_main_workstation_triggers_service",
-        "given": "Given active domain workstation",
-        "when": "When action control is clicked",
-        "then": "Then state updates dynamically",
-        "status": "pass"
-      }}
-    ]
-  }}
-]
-"""
+    prompt = agent_orchestrator.load_prompt("dynamic_requirements.md", {
+        "schema_json": json.dumps(schema, indent=2)
+    })
     try:
         raw = call_gemini(prompt, stage="dynamic_requirements")
         if raw and raw != "Mock LLM Response":

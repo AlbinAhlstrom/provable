@@ -6,8 +6,8 @@ In early Provable prototypes, LLM API calls were hardcoded to Gemini models, and
 ## Decision
 We abstract all LLM interactions and externalize prompt templates:
 
-1. **LLM Abstraction Layer**: Built using the OpenAI Python SDK to allow a standardized, API-compatible interface. LLM routing is configured in `backend/config/models.yaml`, mapping custom identifiers (e.g., `gemini-2.5-flash`) to specific API models and parameters.
-2. **Prompt Externalization**: Removed all system prompts and templates from Python files. They are stored as structured markdown files under `backend/prompts/` (e.g., `write_code.md`, `run_tests.md`) and loaded dynamically at runtime.
+1. **LLM Abstraction Layer**: Built using the OpenAI Python SDK to allow a standardized, API-compatible interface. Provider, endpoint and model are chosen via environment variables.
+2. **Prompt Externalization**: Intended to move system prompts and templates out of Python files. They are stored as structured markdown files under `backend/prompts/` and loaded at runtime with `load_prompt`.
 3. **Environment Setup**: The API key and LLM provider endpoint are configured via standard `.env` variables (`LLM_API_KEY`, etc.).
 
 ## Alternatives Considered
@@ -16,3 +16,6 @@ We abstract all LLM interactions and externalize prompt templates:
 
 ## Status
 **Accepted**
+
+## Amendment
+Externalization was initially only partial (4 prompt files). The pipeline's inline prompts have since been moved to `backend/prompts/` too; only the standalone `test_importer.py` helper prompt remains inline. The `models.yaml` router was never read by code and was removed. See [[LLM Abstraction and Prompts]] for the current state.

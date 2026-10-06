@@ -218,7 +218,7 @@ def check_visual_render():
     out_png = os.path.join(logs_dir, "latest_ui_render.png")
 
     if is_port_active(5173):
-        script_path = os.path.join(ROOT, ".agents", "skills", "take_ui_screenshot", "scripts", "take_screenshot.py")
+        script_path = os.path.join(ROOT, ".claude", "skills", "take_ui_screenshot", "scripts", "take_screenshot.py")
         if os.path.exists(script_path):
             cmd = [
                 sys.executable, script_path,
@@ -230,11 +230,11 @@ def check_visual_render():
             if res.returncode == 0 and os.path.exists(out_png):
                 log(f"✅ Phase 6: Live UI render captured and saved to logs/latest_ui_render.png.")
             else:
-                log(f"⚠️ Phase 6 Notice: Screenshot script exited with code {res.returncode}: {res.stderr.strip() or res.stdout.strip()}")
+                log(f"⚠️ Phase 6 FAILED (non-fatal): UI changes are NOT visually verified. Screenshot script exited with code {res.returncode}: {res.stderr.strip() or res.stdout.strip()}")
         else:
-            log("⚠️ Phase 6: Screenshot script not found, skipped.")
+            log("⚠️ Phase 6 SKIPPED: screenshot script not found. UI changes are NOT visually verified.")
     else:
-        log("ℹ️ Phase 6: Port 5173 is not active in this session. When PM Studio is running, preflight captures logs/latest_ui_render.png.")
+        log("⚠️ Phase 6 SKIPPED: port 5173 is not active, so no screenshot was captured. If you changed frontend/src/, start the stack and re-run before claiming the UI is verified.")
 
 
 def main():

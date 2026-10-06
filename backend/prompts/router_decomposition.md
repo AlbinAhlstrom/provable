@@ -1,4 +1,4 @@
-﻿You are a Principal Enterprise Software Architect & Domain-Driven Design (DDD) Lead.
+You are a Principal Enterprise Software Architect & Domain-Driven Design (DDD) Lead.
 
 Analyze the following natural language business pitch and perform a STRICT SEPARATION between:
 1. DOMAIN STRUCTURE (Entities, Value Objects, Types, Aggregate Roots)

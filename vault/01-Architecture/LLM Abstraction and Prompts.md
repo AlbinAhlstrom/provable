@@ -1,88 +1,52 @@
-# LLM Abstraction Layer & System Prompt Catalog
+# LLM Abstraction Layer & Prompt Catalog
 
-Provable routes all LLM calls through a model-agnostic abstraction layer defined in `backend/config_loader.py` and `backend/agent_orchestrator.py`. Prompts are externalized into dedicated markdown files in `backend/prompts/`.
-
----
-
-## 1. Model Configuration (`backend/config/models.yaml`)
-
-Models and provider settings are configured centrally in YAML:
-
-```yaml
-default:
-  model: gemini-2.5-flash
-  base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-  api_key_env: LLM_API_KEY
-
-stages:
-  code_generation:
-    model: gemini-2.5-flash
-    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-    api_key_env: LLM_API_KEY
-
-  visual_qa:
-    model: gemini-2.5-flash
-    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-    api_key_env: LLM_API_KEY
-
-  task_decomposition:
-    model: gemini-2.5-flash
-    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-    api_key_env: LLM_API_KEY
-
-  merge_resolution:
-    model: gemini-2.5-flash
-    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-    api_key_env: LLM_API_KEY
-
-  requirement_audit:
-    model: gemini-2.5-flash
-    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-    api_key_env: LLM_API_KEY
-
-  test_case_generation:
-    model: gemini-2.5-flash
-    base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-    api_key_env: LLM_API_KEY
-```
+All LLM calls go through `call_gemini()` in `backend/agent_orchestrator.py`, a thin wrapper over the OpenAI Python SDK. Because it speaks the OpenAI-compatible protocol, any compatible provider works.
 
 ---
 
-## 2. Prompt Template Catalog & Format Rules
+## 1. Configuration (environment variables)
 
-All prompt files reside in `backend/prompts/`. They dictate system persona, context placeholders, and output schemas:
+There is no model YAML; configuration is environment-only (see `.env.example`):
 
-### 1. `router_decomposition.md`
-- **Purpose**: Decomposes raw natural language business pitches into structured `DomainStructureSchema` (Entities/Value Objects/Aggregate Roots) and `DomainBehaviorInboxSchema` (Atomic BDD Given/When/Then specs with mathematical boundary flags).
-- **Placeholders**: `{business_pitch}`.
+| Variable | Purpose | Default |
+| :--- | :--- | :--- |
+| `LLM_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY` | API key (first one set wins) | none (calls return empty and the pipeline fails loudly) |
+| `OPENAI_BASE_URL` | Provider endpoint | Gemini's OpenAI-compatible endpoint |
+| `LLM_MODEL` | Model name | `gemini-2.5-flash` |
 
-### 2. `domain_discovery.md`
-- **Purpose**: Extracts ubiquitous language, core domain nouns, entity attributes, commands, and domain invariants from raw business pitches.
-- **Placeholders**: `{business_pitch}`.
-
-### 3. `test_case_generation.md`
-- **Purpose**: Generates failing pytest BDD test cases (`workspace/tests/test_<REQ_ID>.py`) establishing the initial TDD Red state with BDD Given/When/Then docstrings.
-- **Placeholders**: `{req_id}`, `{title}`, `{description}`, `{test_case_id}`.
-
-### 4. `code_generation.md`
-- **Purpose**: Generates drop-in source code files and accompanying pytest test files.
-- **Placeholders**: `{current_workspace_context}`, `{task_desc}`, `{feedback_note_attempt}`, `{test_context}`, `{test_file_path}`, `{parent_id}`.
-
-### 5. `visual_qa.md` & `visual_audit.md`
-- **Purpose**: Multi-modal vision analysis evaluating mobile (`375x812`) and desktop (`1280x800`) screenshots against layout defect rubrics.
-- **Placeholders**: `{proposed_code}`, `{screen_type}`.
+The test suite never needs a key: `backend/tests/conftest.py` mocks `call_gemini` per `stage` name.
 
 ---
 
-## 🏛️ Discrepancies & Evolution Tags
+## 2. Where prompts live
 
-> [!NOTE]
-> [DISCREPANCY: Doc approach better - Externalizing all prompt templates into backend/prompts/*.md enables independent prompt iteration without touching Python code. However, ui_generation.md still contains references to legacy e-commerce cart and pizza order snapshot patterns, which should be sanitized to pure industrial domain standards.]
+**Prompts** (`backend/prompts/`, loaded with `agent_orchestrator.load_prompt(name, {placeholder: value})`; a missing file or a placeholder not present in the template raises):
+
+| File | Used by | Placeholders |
+| :--- | :--- | :--- |
+| `router_decomposition.md` | `onboarding/router_engine.py` | `{business_pitch}` |
+| `green_class_repair.md` | `service_layer/tdd_machine.py` (GREEN phase) | `{extracted_class_code}`, `{spec_title}`, `{spec_given_when_then}`, `{target_aggregate}`, `{spec_type}`, `{failure_output}`, `{target_class_name}` |
+| `visual_qa.md`, `visual_audit.md` | `onboarding/visual_auditor.py` (read directly) | see file |
+| `domain_ontology.md` | `onboarding/domain_ontology.py` | `{business_pitch}` |
+| `component_planning.md` | `onboarding/frontend_planning_engine.py` | `{pitch}`, `{noun}`, `{category_id}`, `{layout_name}`, `{invariants_json}` |
+| `aesthetic_planning.md` | `onboarding/frontend_planning_engine.py` | `{pitch}`, `{category_id}`, `{archetype}` |
+| `app_assembly.md` | `onboarding/frontend_planning_engine.py` (`assemble_app_tsx_from_blueprint`) | `{pitch}`, `{category_id}`, `{layout_name}`, `{brand_title}`, `{archetype}`, `{css_variables}`, `{seed_data_json}`, `{components_json}` |
+| `pitch_component_analysis.md` | `onboarding/frontend_planning_engine.py` | `{business_pitch}` |
+| `dynamic_requirements.md` | `onboarding/requirement_generator.py` | `{schema_json}` |
+| `self_healing.md` | `onboarding/code_verifier.py` | `{error_message}`, `{business_pitch}`, `{broken_code}` |
+
+`load_prompt` substitutes in a single pass (values are never re-scanned), raises `FileNotFoundError` for a missing template and `KeyError` for a placeholder the template lacks. `backend/tests/unit/test_load_prompt.py` checks every template against its caller's placeholders. To change what the generator asks the LLM, edit the `.md` file, not Python.
+
+**Still inline:** the one-off prompt in `onboarding/test_importer.py` (a standalone helper that decorates imported test files with Allure metadata).
 
 ---
 
-## 🔗 Related Documentation
+## 3. History
+Earlier prototypes had prompt files for a Jira/Kanban developer-agent pipeline (`code_generation`, `test_case_generation`, `task_decomposition`, `requirement_audit`, `merge_resolution`, `ddd_guidelines_template`), a `domain_discovery` prompt, a `ui_generation` prompt and a `models.yaml` router. None were wired into the current pipeline and they were removed.
+
+---
+
+## Related Documentation
 - [[System Architecture]]
 - [[Enterprise-AppGen-TDD-Engine-Architecture]]
 - [[ADR-003 LLM Abstraction Layer and Prompt Externalization]]
-

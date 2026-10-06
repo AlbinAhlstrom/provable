@@ -6,15 +6,15 @@ This document outlines the strict execution protocol for the `ddd_tdd_developer`
 
 ## 🏛️ Architectural Layer Boundaries
 
-1. **Domain Model Layer** ([`backend/domain/`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/domain/)):
+1. **Domain Model Layer** ([`backend/domain/`](../../backend/domain)):
    - Contains pure Python dataclasses (`Requirement`, `Component`, `Project`, `AgentRun`) and custom business domain exceptions (`InvalidStatusTransition`).
    - **Rule**: ZERO imports from FastAPI, Pydantic, SQLAlchemy, or SQLite.
-2. **Adapter Layer** ([`backend/adapters/`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/adapters/)):
+2. **Adapter Layer** ([`backend/adapters/`](../../backend/adapters)):
    - Defines `AbstractRepository` interfaces with concrete implementations (`SqliteRepository`) and fast in-memory fakes (`FakeRepository`).
-3. **Service Layer & Unit of Work** ([`backend/service_layer/`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/service_layer/)):
+3. **Service Layer & Unit of Work** ([`backend/service_layer/`](../../backend/service_layer)):
    - Defines `AbstractUnitOfWork`, `SqliteUnitOfWork`, and `FakeUnitOfWork` context managers managing transaction atomicity (`commit()`, `rollback()`).
    - Houses stateless use-case workflows (`create_requirement`, `list_requirements`, `get_requirement`).
-4. **Presentation Entrypoints** ([`backend/entrypoints/routers/`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/entrypoints/routers/)):
+4. **Presentation Entrypoints** ([`backend/entrypoints/routers/`](../../backend/entrypoints/routers)):
    - Modular FastAPI routers.
    - **Rule**: MUST NEVER import `db.store` directly. Every POST/GET handler delegates to `services.<use_case>(uow=SqliteUnitOfWork())`.
 

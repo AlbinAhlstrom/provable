@@ -21,7 +21,7 @@ $$\text{Domain Model (Pure)} \longrightarrow \text{Repository Pattern} \longrigh
 ---
 
 ## 2. Mandatory 4-Step TDD Execution Workflow (No Subagents)
-**DO NOT invoke developer subagents for code edits. Perform all coding, testing, and debugging directly in the main conversation context.**
+**Do the coding, testing, and debugging for a change directly in the main conversation context so the RED/GREEN evidence stays visible. Subagents are fine for read-only work (searching, review), not for writing the implementation.**
 
 Follow the strict 4-step TDD loop:
 1. **RED**: Write a unit test in `backend/tests/unit/test_<target>.py` using `FakeUnitOfWork` and in-memory test doubles. Run ONLY `python -m pytest backend/tests/unit/test_<target>.py` and verify failure.
@@ -44,4 +44,4 @@ Follow the strict 4-step TDD loop:
 1. **Pre-Commit Full Test Suite Invariant**:
    **NEVER execute `git commit` or `git commit --amend` without running the full test suite (`python -m pytest backend/tests/`) first.** Every commit MUST be preceded by empirical runtime verification showing 100% PASS across unit, integration, and E2E test suites.
 2. **Mandatory Pre-Flight Check**:
-   **Before concluding ANY task or communicating back to the user that you are done, you MUST execute `python scripts/agent_preflight_check.py`.** If it fails, you must fix the errors silently before responding. You are strictly forbidden from presenting broken code.
+   **Before concluding ANY task or communicating back to the user that you are done, you MUST execute `python scripts/agent_preflight_check.py`.** If it fails, fix the errors and re-run, then report what failed and what you did. You are strictly forbidden from presenting broken code as done; if you cannot get it green, say so with the failing output. Phase 6 (screenshot) is skipped when the stack is not running; see `02-frontend-and-ui.md`.

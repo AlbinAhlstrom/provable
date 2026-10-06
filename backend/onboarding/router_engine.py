@@ -71,8 +71,6 @@ def decompose_pitch_into_structure_and_inbox(pitch: str) -> RouterDecompositionR
     """
     clean_pitch = pitch.strip()
     prompt = agent_orchestrator.load_prompt("router_decomposition.md", {"business_pitch": clean_pitch})
-    if not prompt:
-        prompt = f'Decompose into structure and behavior inbox: "{clean_pitch}"'
     
     raw_response = agent_orchestrator.call_gemini(prompt, stage="router_decomposition")
     if not raw_response:

@@ -1,0 +1,21 @@
+# Python dependencies for the Provable engine (backend + tests).
+# Mirrors the package list in run.py's auto_setup_environment, plus the
+# extra packages the test suite and orchestrator import.
+fastapi>=0.100.0
+uvicorn>=0.23.0
+pydantic>=2.0.0
+langgraph>=0.2.0
+openai>=1.0.0
+sqlalchemy
+aiosqlite
+aiohttp
+requests
+selenium
+python-dotenv
+pyyaml
+libcst
+pytest
+pytest-timeout
+pytest-json-report
+# Optional: screenshot fallback when Selenium cannot start a browser (see .claude/skills/take_ui_screenshot)
+playwright
