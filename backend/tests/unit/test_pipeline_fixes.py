@@ -133,3 +133,49 @@ def test_call_gemini_exposes_the_failure_reason(monkeypatch):
     with pytest.raises(RuntimeError, match="429 quota exceeded"):
         decompose_pitch_into_structure_and_inbox("anything")
     assert "429 quota exceeded" in agent_orchestrator.LAST_LLM_ERROR
+
+
+def test_reasoning_effort_defaults_to_low_and_is_configurable(monkeypatch):
+    """Verify hidden-reasoning cost is capped by default and can be overridden or disabled.
+
+    id: TST-FIX-006
+    Given: A fake provider client
+    When: call_gemini runs by default, with LLM_REASONING_EFFORT=high, and with it set empty
+    Then: reasoning_effort is "low", "high", and omitted respectively
+    """
+    monkeypatch.setenv("GEMINI_API_KEY", "k" * 20)
+    comp = _FakeCompletions()
+    monkeypatch.setattr(agent_orchestrator, "OpenAI", _fake_openai(comp))
+    monkeypatch.delenv("LLM_REASONING_EFFORT", raising=False)
+    _REAL_CALL_GEMINI("p", stage="s")
+    assert comp.kwargs["reasoning_effort"] == "low"
+    monkeypatch.setenv("LLM_REASONING_EFFORT", "high")
+    _REAL_CALL_GEMINI("p", stage="s")
+    assert comp.kwargs["reasoning_effort"] == "high"
+    monkeypatch.setenv("LLM_REASONING_EFFORT", "")
+    _REAL_CALL_GEMINI("p", stage="s")
+    assert "reasoning_effort" not in comp.kwargs
+
+
+def test_provider_that_rejects_reasoning_effort_is_retried_without_it(monkeypatch):
+    """Verify providers without the parameter still work.
+
+    id: TST-FIX-007
+    Given: A provider that errors when reasoning_effort is sent
+    When: call_gemini runs
+    Then: It retries once without the parameter and returns the completion
+    """
+    monkeypatch.setenv("GEMINI_API_KEY", "k" * 20)
+    calls = []
+
+    class Picky:
+        def create(self, **kwargs):
+            calls.append(dict(kwargs))
+            if "reasoning_effort" in kwargs:
+                raise RuntimeError("Unrecognized request argument supplied: reasoning_effort")
+            msg = type("M", (), {"content": "ok"})()
+            return type("R", (), {"choices": [type("C", (), {"message": msg})()]})()
+
+    monkeypatch.setattr(agent_orchestrator, "OpenAI", _fake_openai(Picky()))
+    assert _REAL_CALL_GEMINI("p", stage="s") == "ok"
+    assert len(calls) == 2 and "reasoning_effort" in calls[0] and "reasoning_effort" not in calls[1]

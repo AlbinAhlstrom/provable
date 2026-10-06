@@ -91,11 +91,16 @@ LAST_LLM_ERROR: Optional[str] = None
 
 
 @traced_llm
-def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False) -> str:
+def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, reasoning_effort: Optional[str] = None) -> str:
     """OpenAI Python SDK wrapper for LLM calls (configured via environment variables).
 
     json_mode asks the provider for a syntactically valid JSON object (use for stages whose output
     is parsed as JSON). Failures return "" and set LAST_LLM_ERROR with the reason.
+
+    reasoning_effort limits hidden "thinking" tokens. Measured on the GREEN-repair prompt with
+    gemini-3.8-flash: default effort = 259 s / 35,335 tokens, "low" = 5 s / 1,566 tokens. Defaults to
+    $LLM_REASONING_EFFORT, else "low"; set the variable to an empty string to send nothing. Providers
+    that reject the parameter are retried once without it.
     """
     global LAST_LLM_ERROR
     LAST_LLM_ERROR = None
@@ -108,14 +113,23 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False) ->
         print(f"[Warning] {LAST_LLM_ERROR}")
         return ""
 
+    effort = reasoning_effort if reasoning_effort is not None else os.environ.get("LLM_REASONING_EFFORT", "low")
+    request = {
+        "model": model_name,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.2,
+        **({"response_format": {"type": "json_object"}} if json_mode else {}),
+    }
     client = OpenAI(api_key=api_key, base_url=base_url)
     try:
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.2,
-            **({"response_format": {"type": "json_object"}} if json_mode else {})
-        )
+        try:
+            response = client.chat.completions.create(**request, **({"reasoning_effort": effort} if effort else {}))
+        except Exception as first_err:
+            if effort and "reasoning" in str(first_err).lower():
+                print(f"[Notice] Provider rejected reasoning_effort ({stage}); retrying without it.")
+                response = client.chat.completions.create(**request)
+            else:
+                raise
         return response.choices[0].message.content or ""
     except Exception as e:
         LAST_LLM_ERROR = f"{type(e).__name__}: {e}"
