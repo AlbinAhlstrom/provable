@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 import pytest
 from onboarding.cst_isolator import merge_module_fragment
+from service_layer import tdd_machine as tm
 
 MODULE = '''from dataclasses import dataclass
 from typing import Optional
@@ -105,5 +106,5 @@ def test_green_prompt_asks_only_for_added_or_changed_members():
     When: Its text is read
     Then: It says to return only added/changed members and that omitted members are kept
     """
-    text = open(os.path.join(os.path.dirname(merge_module_fragment.__code__.co_filename), "..", "prompts", "green_class_repair.md"), encoding="utf-8").read().lower()
+    text = open(os.path.join(os.path.dirname(tm.__file__), "..", "prompts", "green_class_repair.md"), encoding="utf-8").read().lower()
     assert "only the fields and methods you add or change" in text and "kept exactly as they are" in text
