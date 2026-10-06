@@ -1,6 +1,26 @@
+import atexit
 import json
+import os
 import re
+import shutil
+import sys
+import tempfile
+
 import pytest
+
+# ── Hermetic workspace ────────────────────────────────────────────────────────
+# Several tests drive the real API (TestClient), including /api/onboarding/kickstart and /reset.
+# Without isolation they overwrite or wipe the live `workspace/` and its database, which
+# desynchronizes a running app from its files. Point the whole session at a throwaway
+# workspace + database BEFORE any backend module reads its configuration.
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+_TEST_WORKSPACE = tempfile.mkdtemp(prefix="provable-test-ws-")
+os.makedirs(os.path.join(_TEST_WORKSPACE, "requirements"), exist_ok=True)
+os.environ["PROVABLE_WORKSPACE"] = _TEST_WORKSPACE
+os.environ["DATABASE_URL"] = "sqlite:///" + os.path.join(_TEST_WORKSPACE, "requirements", "provable.db")
+atexit.register(shutil.rmtree, _TEST_WORKSPACE, ignore_errors=True)
+from onboarding.templates.workspace_scaffold import create_default_workspace_scaffold  # noqa: E402
+create_default_workspace_scaffold(_TEST_WORKSPACE)
 
 
 @pytest.fixture(autouse=True)

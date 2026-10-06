@@ -13,7 +13,7 @@ Spec-driven code generation engine: TDD verification loops + DDD architecture. T
 
 ## Commands
 - Install: `pip install -r requirements.txt` and `cd frontend && npm ci` (auto-run in cloud sessions by `.claude/hooks/session_start.sh`)
-- Backend tests (fast, ~15s): `python -m pytest backend/tests/`
+- Backend tests (fast, ~20s): `python -m pytest backend/tests/` — hermetic: `conftest.py` points the session at a throwaway workspace and database, so tests never touch the live app's `workspace/` or state (guarded by `test_test_isolation.py`). Safe to run while the app is up.
 - Frontend build/typecheck: `cd frontend && npm run build`
 - Pre-flight (build + tests + purity lint + live checks): `python scripts/agent_preflight_check.py`.
   Runs without an LLM key (tests mock the LLM). Phases 1-5 work standalone; Phase 6 (UI screenshot) is only

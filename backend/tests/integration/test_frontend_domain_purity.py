@@ -31,12 +31,13 @@ def extract_domain_terms_from_backend() -> Set[str]:
     """
     domain_terms: Set[str] = set()
 
-    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    from config_loader import get_workspace_base
+    workspace_root = str(get_workspace_base())  # the isolated test workspace, never the live one
 
-    # 1. Scan generated/active business domain files (workspace/src/domain and workspace/domain)
+    # 1. Scan generated/active business domain files (<workspace>/src/domain and <workspace>/domain)
     domain_dirs = [
-        os.path.join(repo_root, "workspace", "src", "domain"),
-        os.path.join(repo_root, "workspace", "domain"),
+        os.path.join(workspace_root, "src", "domain"),
+        os.path.join(workspace_root, "domain"),
     ]
 
     for d in domain_dirs:
