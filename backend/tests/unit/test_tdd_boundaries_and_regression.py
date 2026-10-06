@@ -50,7 +50,7 @@ def _spec(boundary):
 def _wire(monkeypatch, tests, run):
     gens = iter(tests)
     seen = {"prompts": []}
-    monkeypatch.setattr(tm, "generate_red_test", lambda spec, cls, mod, name, rejection_feedback="": seen["prompts"].append(rejection_feedback) or next(gens))
+    monkeypatch.setattr(tm, "generate_red_test", lambda spec, cls, mod, name, rejection_feedback="", existing_tests="": seen["prompts"].append(rejection_feedback) or next(gens))
     monkeypatch.setattr(tm, "synthesize_green_class_implementation", lambda **k: "@dataclass\nclass Booking:\n    id: str = ''\n")
     monkeypatch.setattr(tm, "run_isolated_pytest", run)
     monkeypatch.setattr(tm, "evaluate_red_gate_result", lambda *a, **k: {"approved": True, "status": "APPROVED_RED", "reason": "ok"})

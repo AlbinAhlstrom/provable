@@ -18,6 +18,11 @@ A pytest unit test has failed in the RED phase. Your task is to update the targe
 - **Target Aggregate**: {target_aggregate}
 - **Mutation Type**: {spec_type}
 
+## Other verified tests for this class (they must keep passing; do not change behavior they rely on):
+```python
+{existing_tests}
+```
+
 ## Frozen Test (written in the RED phase; it must pass and you may NOT change it):
 ```python
 {test_source}

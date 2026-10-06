@@ -358,13 +358,37 @@ def _failed_test_files(result: Dict[str, Any]) -> List[str]:
     return names
 
 
+def collect_existing_tests(tests_dir: str, exclude: str, module_name: str, limit: int = 6000) -> str:
+    """Source of the OTHER verified tests that exercise this module, so a new spec stays consistent with them.
+
+    Without it each spec's test is written blind and specs end up contradicting one another (one test expects
+    status "submitted" after submit(), the next expects "NEW"). Capped so the prompt cannot grow without bound.
+    """
+    if not os.path.isdir(tests_dir):
+        return ""
+    needle = f"src.domain.{module_name}"
+    chunks: List[str] = []
+    for name in sorted(os.listdir(tests_dir)):
+        path = os.path.join(tests_dir, name)
+        if not name.startswith("test_spec_") or not name.endswith(".py"):
+            continue
+        if exclude and os.path.abspath(path) == os.path.abspath(exclude):
+            continue
+        with open(path, "r", encoding="utf-8") as f:
+            source = f.read()
+        if needle in source:
+            chunks.append(f"# {name}\n{source.strip()}\n")
+    return "\n".join(chunks)[:limit]
+
+
 @traced("tdd.red_generate")
 def generate_red_test(
     spec: BusinessSpec,
     class_source: str,
     module_name: str,
     class_name: str,
-    rejection_feedback: str = ""
+    rejection_feedback: str = "",
+    existing_tests: str = ""
 ) -> str:
     """Asks the LLM for a behavioral pytest module that encodes the spec's Given/When/Then.
 
@@ -384,6 +408,7 @@ def generate_red_test(
         "module_name": module_name,
         "target_class_name": class_name,
         "class_api": summarize_class_api(class_source),
+        "existing_tests": existing_tests or "(none yet: this is the first verified test for this class)",
         "feedback_block": feedback_block,
     })
     raw = agent_orchestrator.call_gemini(prompt, stage="red_test_generation")
@@ -401,7 +426,8 @@ def synthesize_green_class_implementation(
     spec: BusinessSpec,
     failure_output: str = "",
     test_source: str = "",
-    module_imports: str = ""
+    module_imports: str = "",
+    existing_tests: str = ""
 ) -> str:
     """Synthesizes the GREEN phase domain class implementation using LLM micro-context prompt.
 
@@ -433,6 +459,7 @@ def synthesize_green_class_implementation(
         "spec_type": spec.spec_type,
         "test_source": test_source or "(no test source available)",
         "module_imports": module_imports or "(none)",
+        "existing_tests": existing_tests or "(none yet)",
         "failure_output": failure_output or "The frozen test does not pass yet.",
         "target_class_name": target_class_name
     })
@@ -502,6 +529,7 @@ class {target_class}:
 
     # Retry policy (rule 03 section 4): at most ONE regeneration, only because the lint or the RED gate rejected
     # the first test, and the rejection reason is fed back to the test generator.
+    existing_tests = collect_existing_tests(tests_dir, exclude=test_file_path, module_name=used_module)
     red_feedback = ""
     red_result: Dict[str, Any] = {}
     red_eval: Dict[str, Any] = {}
@@ -509,7 +537,8 @@ class {target_class}:
     domain_broken = False
     test_code = ""
     for red_attempt in (1, 2):
-        test_code = generate_red_test(spec, current_class, used_module, target_class, rejection_feedback=red_feedback)
+        test_code = generate_red_test(spec, current_class, used_module, target_class,
+                                      rejection_feedback=red_feedback, existing_tests=existing_tests)
         lint_ok, lint_reason = lint_red_test(test_code, require_both_sides=bool(spec.is_mathematical_boundary))
         if not lint_ok:
             red_attempts.append({"attempt": red_attempt, "approved": False, "reason": lint_reason})
@@ -592,7 +621,8 @@ class {target_class}:
                 spec=spec,
                 failure_output=failure_msg,
                 test_source=test_code,
-                module_imports=module_import_lines(domain_source)
+                module_imports=module_import_lines(domain_source),
+                existing_tests=existing_tests
             )
 
             try:

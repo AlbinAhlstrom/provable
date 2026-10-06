@@ -133,11 +133,11 @@ def _script(monkeypatch, red_status="APPROVED_RED", green_pass=(False, False), f
     frags = iter(fragments)
     runs = {"n": 0}
 
-    def gen(spec, class_source, module_name, class_name, rejection_feedback=""):
+    def gen(spec, class_source, module_name, class_name, rejection_feedback="", existing_tests=""):
         calls["red_gen"] += 1
         return GOOD_TEST
 
-    def synth(extracted_class, target_class_name, spec, failure_output="", test_source="", module_imports=""):
+    def synth(extracted_class, target_class_name, spec, failure_output="", test_source="", module_imports="", existing_tests=""):
         calls["synth"].append(failure_output)
         return next(frags)
 

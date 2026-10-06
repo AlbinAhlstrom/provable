@@ -72,10 +72,10 @@ def test_load_prompt_is_single_pass():
     ("self_healing.md", ["error_message", "business_pitch", "broken_code"]),
     ("router_decomposition.md", ["business_pitch"]),
     ("green_class_repair.md", ["extracted_class_code", "spec_title", "spec_given_when_then",
-                               "target_aggregate", "spec_type", "module_imports", "test_source", "failure_output",
+                               "target_aggregate", "spec_type", "module_imports", "existing_tests", "test_source", "failure_output",
                                "target_class_name"]),
     ("red_test_generation.md", ["spec_title", "spec_description", "spec_given_when_then", "module_name",
-                                "target_class_name", "class_api", "feedback_block"]),
+                                "target_class_name", "class_api", "existing_tests", "feedback_block"]),
 ])
 def test_every_prompt_template_accepts_its_placeholders(template, placeholders):
     """Verify each prompt file contains exactly the placeholders its caller supplies.

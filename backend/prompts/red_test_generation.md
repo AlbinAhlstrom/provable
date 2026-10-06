@@ -12,6 +12,12 @@ Its CURRENT public API (fields and methods that already exist):
 ```python
 {class_api}
 ```
+
+## Existing verified tests for this class
+Your test must be consistent with these (same meaning of states, same method names and signatures, same behavior); never contradict them. If the scenario seems to conflict with one, test the part of the scenario that does not conflict and keep the same vocabulary.
+```python
+{existing_tests}
+```
 {feedback_block}
 ## Rules
 1. Write ONE pytest test module that verifies the scenario's behavior: arrange (Given), act (When), assert (Then).
