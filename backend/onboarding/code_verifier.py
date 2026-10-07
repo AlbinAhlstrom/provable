@@ -5,6 +5,7 @@ Parses React TSX code for structural balance and syntax errors before saving to 
 If syntax errors are detected, triggers a targeted self-healing LLM repair step.
 """
 
+from pipeline_trace import traced
 import re
 import sys
 import os
@@ -125,6 +126,7 @@ def _component_index(workspace_dir: str, component_files: List[str]) -> Dict[str
     return index
 
 
+@traced("qa.self_heal")
 def self_heal_presentation_suite(
     workspace_dir: str,
     pitch: str,

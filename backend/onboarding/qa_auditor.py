@@ -7,11 +7,14 @@ Tests live application previews on port 5174 across a responsive device matrix:
 - Desktop: 1280x800 (Laptop standard)
 
 Enforces Hard QA Invariants:
-1. Zero Horizontal Overflow: document.documentElement.scrollWidth <= innerWidth
+1. Zero Horizontal Overflow: the page's scroll width fits the device's width (the emulated width, not
+   window.innerWidth, which a mobile browser widens to fit overflowing content)
 2. Zero Console Exceptions: window.console.errors and unhandled promise rejections
 3. Interactive Element Visibility: key interactive widgets must be rendered and visible
 """
 
+from pipeline_trace import traced
+import base64
 import os
 import time
 from typing import Dict, Any, List, Optional
@@ -39,6 +42,26 @@ DEVICE_MATRIX = [
     }
 ]
 
+MAX_FULL_PAGE_HEIGHT = 12000  # CSS pixels; a taller page is captured up to here
+
+
+def _save_full_page(driver, path: str, width: int, page_height: Any, scale_factor: float) -> Optional[str]:
+    """Saves the whole page, top to bottom, at one image pixel per CSS pixel. The viewport screenshot shows only the
+    first screen at the device's own density; this one is what makes the rest of the page reviewable."""
+    try:
+        height = min(int(page_height), MAX_FULL_PAGE_HEIGHT)
+        shot = driver.execute_cdp_cmd("Page.captureScreenshot", {
+            "format": "png", "captureBeyondViewport": True,
+            "clip": {"x": 0, "y": 0, "width": width, "height": height, "scale": 1 / scale_factor}})
+        with open(path, "wb") as f:
+            f.write(base64.b64decode(shot["data"]))
+        return path
+    except Exception as err:
+        print(f"[QA Gate] No whole-page screenshot for {os.path.basename(path)}: {err}", flush=True)
+        return None
+
+
+@traced("qa.responsive_audit")
 def run_responsive_qa_audit(
     url: str = "http://localhost:5174",
     timeout: int = 5,
@@ -70,6 +93,7 @@ def run_responsive_qa_audit(
     results: List[Dict[str, Any]] = []
     overall_passed = True
     defects: List[str] = []
+    warnings: List[str] = []  # reported with the verdict; they do not fail the audit
     all_console_errors: List[str] = []
 
     try:
@@ -78,6 +102,7 @@ def run_responsive_qa_audit(
         for dev in DEVICE_MATRIX:
             dev_name = dev["name"]
             width, height = dev["viewport"]
+            device_started = time.time()
 
             # Emulate device via Chrome DevTools Protocol
             driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride", {
@@ -107,7 +132,10 @@ def run_responsive_qa_audit(
             metrics = driver.execute_script("""
                 var doc = document.documentElement;
                 var body = document.body;
-                var innerW = window.innerWidth;
+                // The width to hold the page to is the emulated device's. window.innerWidth cannot be used for that:
+                // a mobile browser widens its layout viewport to fit content that overflows, so the two grow together
+                // and an overflowing page measures as fitting.
+                var innerW = arguments[0] || window.innerWidth;
                 var innerH = window.innerHeight;
                 var docScrollW = doc.scrollWidth;
                 var bodyScrollW = body ? body.scrollWidth : 0;
@@ -126,6 +154,35 @@ def run_responsive_qa_audit(
                 // Check for console errors if intercepted or check document body text for React error overlay
                 var errorOverlay = document.querySelector('vite-error-overlay');
                 var hasCrashOverlay = !!errorOverlay;
+                // What the overlay says: the compiler's message and the file and line it points at
+                var overlayRoot = errorOverlay && errorOverlay.shadowRoot;
+                var overlayText = function (selector) {
+                    var el = overlayRoot && overlayRoot.querySelector(selector);
+                    return el ? el.textContent.trim().slice(0, 600) : '';
+                };
+
+                // Text or controls that start on screen and end beyond its right edge. The page may not scroll
+                // (an ancestor hides the overflow), so the scroll-width check above cannot see them.
+                var clipped = [];
+                var candidates = document.querySelectorAll('a, button, input, select, textarea, label, span, p, li, td, th, h1, h2, h3, h4');
+                for (var i = 0; i < candidates.length; i++) {
+                    var el = candidates[i];
+                    var rect = el.getBoundingClientRect();
+                    if (rect.width === 0 || rect.height === 0 || rect.left >= innerW || rect.right <= innerW + 1) continue;
+                    var ownText = '';
+                    for (var n = 0; n < el.childNodes.length; n++) {
+                        if (el.childNodes[n].nodeType === 3) ownText += el.childNodes[n].textContent;
+                    }
+                    ownText = (ownText.trim() || el.value || el.placeholder || '').toString().trim();
+                    if (!ownText) continue;
+                    var scrollable = false;
+                    for (var parent = el.parentElement; parent; parent = parent.parentElement) {
+                        var overflowX = getComputedStyle(parent).overflowX;
+                        if (overflowX === 'auto' || overflowX === 'scroll') { scrollable = true; break; }
+                    }
+                    if (scrollable) continue;
+                    clipped.push(el.tagName.toLowerCase() + ' "' + ownText.slice(0, 40) + '" ends at ' + Math.round(rect.right) + 'px');
+                }
 
                 var rootEl = document.getElementById('root');
                 var isRootEmpty = !rootEl || rootEl.childElementCount === 0;
@@ -135,6 +192,7 @@ def run_responsive_qa_audit(
 
                 return {
                     innerWidth: innerW,
+                    layoutViewportWidth: window.innerWidth,
                     innerHeight: innerH,
                     maxScrollWidth: maxScrollW,
                     maxScrollHeight: maxScrollH,
@@ -143,11 +201,16 @@ def run_responsive_qa_audit(
                     hasVerticalOverflow: hasVOverflow,
                     verticalOverflowDelta: overflowDeltaY,
                     hasCrashOverlay: hasCrashOverlay,
+                    crashMessage: overlayText('.message-body'),
+                    crashFile: overlayText('.file'),
+                    clippedCount: clipped.length,
+                    clippedSamples: clipped.slice(0, 5),
                     isRootEmpty: isRootEmpty
                 };
-            """)
+            """, width)
 
             screenshot_path = None
+            full_page_path = None
             if save_screenshots:
                 shot_name = f"qa_{dev_name.lower()}_{width}x{height}.png"
                 shot_full = os.path.join(output_dir, shot_name)
@@ -156,14 +219,25 @@ def run_responsive_qa_audit(
                     screenshot_path = shot_full
                 except Exception:
                     pass
+                full_page_path = _save_full_page(
+                    driver, os.path.join(output_dir, f"qa_{dev_name.lower()}_full.png"), width,
+                    metrics.get("maxScrollHeight"), dev.get("device_scale_factor", 1))
 
             passed = True
             device_defects: List[str] = []
+            device_warnings: List[str] = []
+            if metrics.get("clippedCount"):
+                samples = "; ".join(str(sample) for sample in metrics.get("clippedSamples") or [])
+                device_warnings.append(f"[{dev_name}] {metrics['clippedCount']} element(s) with text run past the "
+                                       f"{width}px screen edge: {samples}")
+                warnings.extend(device_warnings)
 
             if metrics.get("hasCrashOverlay"):
                 passed = False
-                device_defects.append(f"React Vite error overlay present on {dev_name}")
-                defects.append(f"[{dev_name}] Application crashed: React error overlay detected")
+                said = " ".join(str(metrics.get(k) or "") for k in ("crashMessage", "crashFile")).strip()
+                said = f": {said}" if said else ""
+                device_defects.append(f"React Vite error overlay present on {dev_name}{said}")
+                defects.append(f"[{dev_name}] Application crashed: React error overlay detected{said}")
 
             if metrics.get("isRootEmpty"):
                 passed = False
@@ -181,7 +255,9 @@ def run_responsive_qa_audit(
                 passed = False
                 delta = metrics.get("overflowDelta", 0)
                 device_defects.append(f"Horizontal overflow detected: scrollWidth {metrics.get('maxScrollWidth')}px exceeds viewport {width}px by {delta}px")
-                defects.append(f"[{dev_name}] Layout defect: {delta}px horizontal overflow on {width}px screen")
+                widest = "; ".join(str(sample) for sample in metrics.get("clippedSamples") or [])
+                defects.append(f"[{dev_name}] Layout defect: {delta}px horizontal overflow on {width}px screen"
+                               + (f" (running past the edge: {widest})" if widest else ""))
 
             if check_vertical_containment and metrics.get("hasVerticalOverflow"):
                 passed = False
@@ -199,7 +275,10 @@ def run_responsive_qa_audit(
                 "passed": passed,
                 "metrics": metrics,
                 "defects": device_defects,
-                "screenshot": screenshot_path
+                "warnings": device_warnings,
+                "screenshot": screenshot_path,
+                "full_page_screenshot": full_page_path,
+                "duration_s": round(time.time() - device_started, 2)
             })
 
     except Exception as e:
@@ -231,6 +310,7 @@ def run_responsive_qa_audit(
         "overall_status": status_str,
         "device_results": results,
         "defects": defects,
+        "warnings": warnings,
         "console_errors": all_console_errors,
         "summary": summary_text
     }

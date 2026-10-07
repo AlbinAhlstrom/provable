@@ -15,6 +15,10 @@ CRITICAL DECOMPOSITION INSTRUCTIONS:
 - STRUCTURE:
   - Focus strictly on the primary 2 to 4 domain entities needed for the core user value loop.
   - Identify the primary Aggregate Roots (e.g. Order, Pallet, Booking).
+  - Give every entity an `audience_role`, derived from the product intent's audience and goal:
+    - "created_by_audience": records the audience itself brings into being by using the product (a visitor's inquiry or booking request, a customer's order, a player's game session). The product's primary interaction centres on these.
+    - "shown_to_audience": content the business publishes for the audience to read (offerings with their rates, credentials, testimonials, menu items). The audience never creates these; they are authored by the business and shown to the audience.
+    - "internal": back-office state the audience never sees.
   - Define clear entity attributes with primitive/semantic types ("string", "float", "int", "boolean", "datetime"). Represent user inputs as genuine operational attributes (text values, numbers, dates) rather than artificial boolean flags.
   - Do NOT put business logic or rules inside the structure section.
 
@@ -33,6 +37,7 @@ Respond STRICTLY with a valid JSON object matching this schema (no markdown, no 
       {
         "name": "<EntityName>",
         "is_aggregate_root": true,
+        "audience_role": "created_by_audience",
         "attributes": [
           {"name": "<attr_name>", "type": "<type>", "required": true, "default_value": null}
         ],

@@ -22,7 +22,7 @@ Personas, interactions and layouts are derived from the user's intent. Never sor
 
 ## Typed contracts
 
-Stages exchange dataclasses, not loose dicts. Behaviour changes to existing code go through `cst_isolator.py` (surgical deltas); presentation changes go through `presentation_specs.py` (one view, proved by a build). The kickstart asks the user nothing: the user is the CEO, and the pipeline makes opinionated assumptions.
+Stages exchange dataclasses, not loose dicts. Entities carry an `audience_role` (what the audience creates, what is shown to it, what is internal); the master aggregate and the clients the presentation may import follow from it, and content the audience reads comes from validated seed records served by the API, never from literals in generated UI (`vault/01-Architecture/Audience Roles and Seed Data.md`). Behaviour changes to existing code go through `cst_isolator.py` (surgical deltas); presentation changes go through `presentation_specs.py` (one view, proved by a build). The kickstart asks the user nothing: the user is the CEO, and the pipeline makes opinionated assumptions.
 
 ## Retry policy (retries mask errors)
 
@@ -39,4 +39,4 @@ The TDD loop hash-locks the RED test (`compute_test_file_hash` / `verify_test_fi
 
 ## Observing the pipeline
 
-Every step's input and output is traced to `logs/trace` while the app runs. Clear it with `rm -rf logs/trace` before an experiment, then `python scripts/trace_report.py logs/trace` (`--full N` shows one step). Use `/fix-pipeline-bug` to trace a defect in generated output to the responsible stage.
+Every kickstart and spec execution is recorded to its own folder `logs/runs/<id>/` (`backend/run_recorder.py`, always on): which commit and model ran, every stage's outcome and the files it wrote, every traced step's and LLM call's input and output, and a copy of the generated app. Start with `python scripts/trace_report.py` (latest run; `--list`, `--compare A B`, `--full N`). A stage that fails must say why: return the reason (`error`) and mark the stage with `stage_begin(...).fail(reason)`; never let a later stage hide it. Stages that do not depend on each other run side by side (`onboarding/synthesis_stages.py`): a stage that overlaps another declares the files it `owns` (`stage_begin(name, owns=...)`), and work handed to a thread pool goes through `pipeline_trace.bind_context(fn)` so its steps stay in the call tree. Use `/fix-pipeline-bug` to trace a defect in generated output to the responsible stage.

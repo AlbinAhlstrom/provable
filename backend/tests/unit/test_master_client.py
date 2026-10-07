@@ -32,19 +32,32 @@ def test_client_matches_the_router_and_invents_nothing():
     assert "/action" in client
 
 
-def test_presentation_stage_writes_the_deterministic_client_and_ignores_a_model_client(tmp_path, monkeypatch):
-    """Verify a client in the model's answer is not written; the generated one is.
+def _blocks(**sections):
+    return "".join(f"<<<{name}>>>\n{code}\n" for name, code in sections.items())
+
+
+_GOOD = dict(view_tsx="export const V = 1", controls_tsx="export const C = 1", history_tsx="export const H = 1",
+             app_tsx="import {CareInquiryView} from './views/CareInquiryView'; export const App = 1")
+
+
+def _synthesize(pps, tmp_path, monkeypatch, answer):
+    monkeypatch.setattr(pps, "call_gemini", lambda prompt, stage="general", **k: answer)
+    return pps.synthesize_and_write_presentation_projection(
+        pitch="p", structure=STRUCTURE, inbox_specs=[SPEC], workspace_dir=str(tmp_path), action_manifest={"actions": []}, ux_blueprint="plan")
+
+
+def test_presentation_stage_writes_the_deterministic_client_and_rejects_a_model_client(tmp_path, monkeypatch):
+    """Verify the model cannot supply the client: an unknown section is rejected, the generated client is written.
 
     id: TST-CLI-002
-    Given: A presentation answer that includes its own client_ts with a fabricated fallback
+    Given: An answer with an extra client section, then a well-formed answer
     When: The projection is synthesized
-    Then: src/api/<slug>Client.ts is the generated client
+    Then: The first is rejected naming the section; the second writes the generated client
     """
     from onboarding import presentation_projection_synthesizer as pps
-    answer = '{"client_ts": "FABRICATED", "view_tsx": "export const V = 1", "controls_tsx": "export const C = 1", "history_tsx": "export const H = 1", "app_tsx": "import {CareInquiryView} from \'./views/CareInquiryView\'; export const App = 1"}'
-    monkeypatch.setattr(pps, "call_gemini", lambda prompt, stage="general", **k: answer)
-    result = pps.synthesize_and_write_presentation_projection(
-        pitch="p", structure=STRUCTURE, inbox_specs=[SPEC], workspace_dir=str(tmp_path), action_manifest={"actions": []}, ux_blueprint="plan")
+    rejected = _synthesize(pps, tmp_path, monkeypatch, _blocks(client_ts="FABRICATED", **_GOOD))
+    assert rejected["success"] is False and "client_ts" in rejected["error"]
+    result = _synthesize(pps, tmp_path, monkeypatch, _blocks(**_GOOD))
     assert result["success"] is True
     written = (tmp_path / "src" / "api" / "care_inquiryClient.ts").read_text(encoding="utf-8")
     assert "FABRICATED" not in written and "listCareInquiry" in written
@@ -59,10 +72,7 @@ def test_app_that_does_not_wire_the_master_view_fails_loudly(tmp_path, monkeypat
     Then: The stage reports failure with the reason and writes no files
     """
     from onboarding import presentation_projection_synthesizer as pps
-    answer = '{"view_tsx": "export const V = 1", "app_tsx": "export const App = 1"}'
-    monkeypatch.setattr(pps, "call_gemini", lambda prompt, stage="general", **k: answer)
-    result = pps.synthesize_and_write_presentation_projection(
-        pitch="p", structure=STRUCTURE, inbox_specs=[SPEC], workspace_dir=str(tmp_path), action_manifest={"actions": []}, ux_blueprint="plan")
+    result = _synthesize(pps, tmp_path, monkeypatch, _blocks(view_tsx="export const V = 1", app_tsx="export const App = 1"))
     assert result["success"] is False and "master view" in result["error"] and result["files"] == []
     assert not (tmp_path / "src" / "App.tsx").exists()
 
@@ -81,36 +91,70 @@ def test_presentation_prompt_states_the_real_api():
     assert "client_ts" not in body and "/reset`: Resets" not in body
 
 
-def test_json_payload_is_read_with_a_real_decoder_not_cut_at_a_fence():
-    """Verify a ``` inside a JSON string value (code in a code field) does not cut the payload.
+def test_file_blocks_carry_code_verbatim_and_malformed_answers_say_what_is_wrong():
+    """Verify code with quotes, braces, backticks and fences survives, and bad answers are named precisely.
 
     id: TST-CLI-005
-    Given: A fenced JSON answer whose view_tsx string contains a literal triple backtick
-    When: The payload is extracted
-    Then: Every field, including the ones after it, is present
+    Given: Block answers: one with awkward code, one fenced, and malformed ones
+    When: They are parsed
+    Then: Code is verbatim (a fence around a block is unwrapped); a missing marker, an unknown or a repeated section raises
     """
-    from onboarding.presentation_projection_synthesizer import _extract_json_payload
-    raw = '```json\n{"view_tsx": "const a = `x`; // ```", "app_tsx": "export const App = 1"}\n```'
-    assert _extract_json_payload(raw) == {"view_tsx": "const a = `x`; // ```", "app_tsx": "export const App = 1"}
-    assert agent_orchestrator.extract_json_object('prose {"a": 1} trailing') == {"a": 1}
+    import pytest
+    from onboarding.presentation_projection_synthesizer import parse_file_blocks
+    code = 'const a = `x`; const s = "q\\"uote"; // ```\nexport const App = () => <div style={{ a: 1 }} />;'
+    one = f"<<<view_tsx>>>\n{code}\n<<<app_tsx>>>\nexport const App = 1\n"
+    assert parse_file_blocks(one) == {"view_tsx": code, "app_tsx": "export const App = 1"}
+    fenced = "<<<app_tsx>>>\n```tsx\nexport const App = 1\n```\n"
+    assert parse_file_blocks(fenced) == {"app_tsx": "export const App = 1"}
+    for bad, fragment in (("just prose", "no <<<section>>> markers"), ("<<<nope>>>\nx", "unknown section"),
+                          ("<<<app_tsx>>>\na\n<<<app_tsx>>>\nb", "appears twice")):
+        with pytest.raises(ValueError, match=fragment):
+            parse_file_blocks(bad)
 
 
-def test_presentation_call_asks_the_provider_for_json(tmp_path, monkeypatch):
-    """Verify the file-bundle answer is requested in JSON mode, like every other JSON-producing stage.
+def test_presentation_prompt_asks_for_marked_blocks_not_json():
+    """Verify the prompt and the parser agree on the answer format.
 
     id: TST-CLI-006
-    Given: A presentation synthesis
-    When: The model is called
-    Then: json_mode is requested (the provider then returns one object, not several fenced fragments)
+    Given: The presentation prompt
+    When: It is read
+    Then: It names every section marker the parser accepts and does not ask for JSON
+    """
+    from onboarding.presentation_projection_synthesizer import SECTIONS
+    path = os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts", "presentation_projection_synthesis.md")
+    body = open(path, encoding="utf-8").read()
+    assert all(f"<<<{name}>>>" in body for name in SECTIONS)
+    assert "JSON object" not in body and "STRICTLY with a JSON" not in body
+
+
+def test_an_optional_file_the_model_did_not_write_is_not_created(tmp_path, monkeypatch):
+    """Verify an empty module is not written as a component (styling later turned one into 440 lines nothing imports).
+
+    id: TST-CLI-020
+    Given: An answer with a view and an App, an empty-module controls block and no history block
+    When: The projection is synthesized
+    Then: Only the view and App are written as components, and the result names both omitted files
     """
     from onboarding import presentation_projection_synthesizer as pps
-    seen = {}
+    answer = _blocks(view_tsx=_GOOD["view_tsx"], controls_tsx="export {};", app_tsx=_GOOD["app_tsx"])
+    result = _synthesize(pps, tmp_path, monkeypatch, answer)
+    assert result["success"] is True
+    assert not (tmp_path / "src" / "components" / "Controls" / "CareInquiryControls.tsx").exists()
+    assert not (tmp_path / "src" / "components" / "History" / "CareInquiryHistory.tsx").exists()
+    assert result["omitted"] == ["controls_tsx", "history_tsx"]
+    assert not any("Controls" in f or "History" in f for f in result["files"])
+    assert result["component_lines"] == {"src/views/CareInquiryView.tsx": 1, "src/App.tsx": 1}
 
-    def fake(prompt, stage="general", **kwargs):
-        seen.update(kwargs)
-        return "{}"
 
-    monkeypatch.setattr(pps, "call_gemini", fake)
-    pps.synthesize_and_write_presentation_projection(
-        pitch="p", structure=STRUCTURE, inbox_specs=[SPEC], workspace_dir=str(tmp_path), action_manifest={"actions": []}, ux_blueprint="plan")
-    assert seen.get("json_mode") is True
+def test_presentation_prompt_asks_for_only_the_files_that_are_needed():
+    """Verify the prompt tells the model to leave an unneeded file's marker out, not to fill it with a stub.
+
+    id: TST-CLI-021
+    Given: The presentation prompt
+    When: It is read
+    Then: It says a marker is written only for a file that has a component in it
+    """
+    path = os.path.join(os.path.dirname(__file__), "..", "..", "prompts", "presentation_projection_synthesis.md")
+    with open(path, encoding="utf-8") as f:
+        text = " ".join(f.read().split())
+    assert "Write a marker only for a file you actually write" in text

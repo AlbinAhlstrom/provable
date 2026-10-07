@@ -1,0 +1,147 @@
+"""Unit tests for the stages between the skeleton and styling (backend/onboarding/synthesis_stages.py)."""
+
+import json
+import threading
+
+import pytest
+
+import run_recorder
+from onboarding.synthesis_stages import run_synthesis_stages
+
+WAIT = 5  # seconds a fake waits for its peer before the test fails instead of hanging
+
+
+def _stages(**overrides):
+    stages = dict(
+        review=lambda specs, intent=None: {"success": True, "conflicts": []},
+        protocol=lambda **kw: {"success": True, "files": [], "action_manifest": {"actions": [{"name": "submit"}]}},
+        seed=lambda **kw: {"success": True, "files": ["seed.json"]},
+        presentation=lambda **kw: {"success": True, "files": ["App.tsx"]},
+    )
+    stages.update(overrides)
+    return stages
+
+
+def _run(tmp_path, manifests=None, **overrides):
+    return run_synthesis_stages(
+        pitch="p", structure=object(), inbox_specs=[], workspace_dir=str(tmp_path), intent=None,
+        on_action_manifest=(manifests if manifests is not None else []).append, **_stages(**overrides))
+
+
+def test_seed_data_and_spec_review_run_while_the_presentation_is_being_written(tmp_path):
+    """Verify the independent stages overlap instead of queueing in front of the slowest one.
+
+    id: TST-SYN-001
+    Given: A presentation stage that only finishes once seed data and the spec review have both started
+    When: The stages run
+    Then: All of them finish (run one after another, the presentation would wait forever)
+    """
+    seed_started, review_started = threading.Event(), threading.Event()
+
+    def seed(**kw):
+        seed_started.set()
+        return {"success": True, "files": []}
+
+    def review(specs, intent=None):
+        review_started.set()
+        return {"success": True, "conflicts": []}
+
+    def presentation(**kw):
+        assert seed_started.wait(WAIT) and review_started.wait(WAIT), "the other stages did not run alongside"
+        return {"success": True, "files": ["App.tsx"]}
+
+    outcome = _run(tmp_path, seed=seed, review=review, presentation=presentation)
+    assert outcome.presentation["success"] and outcome.failures == []
+    assert outcome.files == ["App.tsx"]
+
+
+def test_the_presentation_receives_the_action_protocol_and_the_manifest_is_handed_over(tmp_path):
+    """Verify the one real dependency between these stages is kept.
+
+    id: TST-SYN-002
+    Given: An action protocol stage that returns a manifest
+    When: The stages run
+    Then: The presentation stage is called with that manifest, and the manifest is handed to the caller to store
+    """
+    seen, manifests = {}, []
+
+    def presentation(**kw):
+        seen.update(kw)
+        return {"success": True, "files": []}
+
+    _run(tmp_path, manifests=manifests, presentation=presentation)
+    assert seen["action_manifest"] == {"actions": [{"name": "submit"}]}
+    assert manifests == [{"actions": [{"name": "submit"}]}]
+
+
+def test_every_stage_that_does_not_deliver_is_reported_with_its_reason(tmp_path, monkeypatch):
+    """Verify failures of stages that ran in parallel are all kept, each with its own reason and stage record.
+
+    id: TST-SYN-003
+    Given: A spec review, a seed stage and a presentation stage that each fail differently, in a recorded run
+    When: The stages run
+    Then: The outcome lists the three failures and the run summary marks exactly those stages failed
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.delenv("PROVABLE_RECORD_RUNS", raising=False)
+    workspace = tmp_path / "ws"
+    (workspace / "src").mkdir(parents=True)
+    with run_recorder.recorded_run("kickstart", "p", workspace_dir=str(workspace)):
+        outcome = _run(
+            workspace,
+            review=lambda specs, intent=None: {"success": False, "error": "quota"},
+            seed=lambda **kw: {"success": False, "error": "the domain rejected the records twice", "files": []},
+            presentation=lambda **kw: {"success": False, "error": "no App.tsx", "files": []})
+    assert sorted((f["stage"], f["error"]) for f in outcome.failures) == [
+        ("presentation", "no App.tsx"), ("seed_data", "the domain rejected the records twice"), ("spec_review", "quota")]
+    run = next(p for p in (tmp_path / "runs").iterdir() if p.is_dir())
+    stages = {s["name"]: s["status"] for s in json.loads((run / "summary.json").read_text(encoding="utf-8"))["stages"]}
+    assert stages == {"spec_review": "failed", "seed_data": "failed", "action_protocol": "ok", "presentation": "failed"}
+
+
+def test_seed_data_is_credited_with_its_file_and_the_presentation_with_its_own(tmp_path, monkeypatch):
+    """Verify the run summary still says which stage wrote which file when they write at the same time.
+
+    id: TST-SYN-004
+    Given: A seed stage that writes src/seed_data.json while the presentation stage writes src/App.tsx
+    When: The stages run in a recorded run
+    Then: Each stage's record lists only its own file
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.delenv("PROVABLE_RECORD_RUNS", raising=False)
+    workspace = tmp_path / "ws"
+    (workspace / "src").mkdir(parents=True)
+    seed_written = threading.Event()
+
+    def seed(**kw):
+        (workspace / "src" / "seed_data.json").write_text("{}", encoding="utf-8")
+        seed_written.set()
+        return {"success": True, "files": []}
+
+    def presentation(**kw):
+        assert seed_written.wait(WAIT)
+        (workspace / "src" / "App.tsx").write_text("app", encoding="utf-8")
+        return {"success": True, "files": []}
+
+    with run_recorder.recorded_run("kickstart", "p", workspace_dir=str(workspace)):
+        _run(workspace, seed=seed, presentation=presentation)
+    run = next(p for p in (tmp_path / "runs").iterdir() if p.is_dir())
+    stages = {s["name"]: [f["path"] for f in s["files_changed"]]
+              for s in json.loads((run / "summary.json").read_text(encoding="utf-8"))["stages"]}
+    assert stages["seed_data"] == ["src/seed_data.json"] and stages["presentation"] == ["src/App.tsx"]
+    assert stages["spec_review"] == [] and stages["action_protocol"] == []
+
+
+def test_a_crash_in_a_parallel_stage_is_raised_not_lost(tmp_path):
+    """Verify an unexpected exception in a background stage reaches the caller after the other stages have finished.
+
+    id: TST-SYN-005
+    Given: A seed stage that raises
+    When: The stages run
+    Then: The exception propagates
+    """
+    def seed(**kw):
+        raise RuntimeError("seed crashed")
+
+    with pytest.raises(RuntimeError, match="seed crashed"):
+        _run(tmp_path, seed=seed)

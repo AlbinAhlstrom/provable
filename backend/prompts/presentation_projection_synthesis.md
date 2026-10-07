@@ -40,8 +40,17 @@ Follow this UX Blueprint for initial view defaults, navigation tabs, empty-state
 - `POST /api/{master_slug}s/{id}/action`: runs a domain action `{ "action_type": string, "params": { ... } }`. Returns `{ "success": boolean, "state": { ... }, "message": string }`. A rejected action returns HTTP 400 with `{ "detail": string }`.
 There is no "default" record and no reset endpoint.
 
-## API client (already written; do NOT write it)
-`src/api/{master_slug}Client.ts` exists and exports exactly: `{master_name}State` (the type of one record), `list{master_name}(): Promise<{master_name}State[]>`, `get{master_name}(id: string)`, `create{master_name}(data: Partial<{master_name}State>)` and `sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{ success: boolean; state: {master_name}State; message?: string }>`. Every function throws an `Error` carrying the server's message when the request fails. Import from it; never re-implement fetch calls and never fabricate data when a request fails: show the error.
+## API clients (already written; do NOT write them)
+{clients_block}
+
+Every function throws an `Error` carrying the server's message when the request fails. Import from these clients; never re-implement fetch calls and never fabricate data when a request fails: show the error. Load the lists the page needs together (`Promise.all`) and let a rejected request reach the page's error state, so that an empty list on screen always means the server answered with no records. All entities above expose the same four endpoints as the master (`GET /api/<plural>`, `POST /api/<plural>`, `GET /api/<plural>/{id}`, `POST /api/<plural>/{id}/action`).
+
+## Content that is shown to the audience
+Entities marked "shown to the audience" hold content the business publishes (offerings and rates, credentials, testimonials, and the like). The backend starts with sample records for them that the business edits later. Render that content from the list function of its client, in the product's own words and layout; the interface never contains the records themselves as literals. The same holds for everything the page says about the business (its name, credentials, guarantees, ratings, insurance): it is shown where a record carries it. When a list is empty show a calm note, and when it fails to load show the error; a record or field that is missing leaves its element out, with no stand-in name, text or rating in its place.
+
+## Forms that create records
+A form reports success only after its `create...` call resolves, and shows the server's message when it fails. It never reports success on its own.
+Each label is bound to its control (`htmlFor` and `id`), and the control matches the field's type (a field that holds a date and a time gets a date-and-time picker). The payload holds what the visitor entered: an optional field left empty is left out of it.
 
 ---
 
@@ -54,9 +63,9 @@ There is no "default" record and no reset endpoint.
 
 3. **Defensive Runtime Rendering & Collection Resilience**:
    - Use optional chaining for fields that may be absent.
-   - When iterating over collections/entities/records, ALWAYS normalize arrays vs dictionaries/maps:
+   - What a client's `list...()` returns is already a typed array: use it as it is.
+   - A collection field inside a record follows the domain class and may arrive as an array or as a map, so normalize it before iterating:
      `const itemsList = Array.isArray(data.items) ? data.items : Object.values(data.items || {});`
-     Never call `.filter()`, `.map()`, or `.forEach()` directly on a state property without normalizing it with `Array.isArray(...) ? ... : Object.values(...)`.
    - Never assume nested properties exist without optional chaining or fallbacks. Zero runtime `TypeError` crashes.
 4. **Anti-Monolith Invariant & Contextual Layout Orchestration**:
    - `App.tsx` must be STRICTLY under 100 lines of code. It orchestrates active state, top-level brand header, navigation views, and passes action dispatchers down.
@@ -64,11 +73,11 @@ There is no "default" record and no reset endpoint.
      - Views, forms, and primary actions are organized contextually according to the domain's user journeys and the UX blueprint.
      - Controls and history components render when relevant to the active view and user workflow.
    - `App.tsx` MUST:
-     1. Import `{master_name}View` from `./views/{master_name}View`, `{master_name}Controls` from `./components/Controls/{master_name}Controls`, `{master_name}History` from `./components/History/{master_name}History`, and `{master_name}State`, `list{master_name}`, `sendAction` from `./api/{master_slug}Client`.
-     2. Manage the loaded records with `useState<{master_name}State[]>([])` and load them on mount via `useEffect` and `list{master_name}()`.
-     3. Provide an action handler `handleAction(actionType, params)` that calls `sendAction(record.id, actionType, params)` and replaces that record with `res.state`.
+     1. Import `{master_name}View` from `./views/{master_name}View` and use it. Controls (`./components/Controls/{master_name}Controls`) and history (`./components/History/{master_name}History`) are written and imported only when the audience has actions or a history to use; otherwise omit those blocks.
+     2. Load records through the clients above: the entities shown to the audience via their list functions; the master's records only when the audience is meant to see them (their own game, order or booking), never the records other visitors submitted.
+     3. When controls are present, provide an action handler `handleAction(actionType, params)` that calls `sendAction(record.id, actionType, params)` and replaces that record with `res.state`.
      4. Pass required props cleanly to child components.
-     5. Provide a header with a domain-appropriate title derived dynamically from the application identity.
+     5. Provide a header with a domain-appropriate title derived dynamically from the application identity. `App.tsx` owns the page shell: the one header, the one footer, the page width and its outer padding. The view renders the page's sections and no shell of its own.
      6. Export App as default export: `export default App;` (and named export `export const App`).
    - All other component files must be STRICTLY under 150 lines of code.
 
@@ -79,7 +88,7 @@ There is no "default" record and no reset endpoint.
    - Compiler plumbing abstractions (`AggregateRoot`, `Invariant`, `Action Protocol`, `Audit Ledger`, `Boundary Guards`, `Session Lifecycle`, `OCC Version`) belong strictly to internal layers and are excluded from user-facing UI copy.
    - When the domain involves multiple perspectives (e.g. public client vs service operator), provide natural navigation affordances for each role.
    - Use standard React hooks (`useState`, `useEffect`), Tailwind CSS classes, and optionally icons from `lucide-react`.
-   - Include inline CSS style fallbacks on layout containers (e.g. `style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)' }}` or `style={{ display: 'flex' }}`) to guarantee crisp, unbreakable layout rendering in all environments.
+   - Lay out with Tailwind classes. Where a layout depends on a computed value (a board of N columns), set that value with an inline style (e.g. `style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, 1fr)` }}`).
 6. **Resilience & Non-Blank Initial State**:
    - Handle loading states, API errors, and domain violation messages gracefully.
    - While records load show a loading indicator; if loading fails show the error message.
@@ -89,13 +98,20 @@ There is no "default" record and no reset endpoint.
 7. **Viewport Containment (Zero Overflow Invariant)**:
    - Never use hardcoded pixel minimums for grid columns; use fluid sizing such as `repeat(auto-fit, minmax(0, 1fr))` and `max-w-full` containers so the page never scrolls horizontally.
    - Wrap long text and wide content (`break-words`, `min-w-0`) instead of letting it overflow.
+   - The header fits a 375px-wide screen on one row: the brand and the primary action, with the other links appearing from `sm` up.
 
 ---
 
-Respond STRICTLY with a JSON object containing the complete TypeScript/TSX code for each file (no markdown outside the JSON):
-{
-  "view_tsx": "<complete React TSX code for src/views/{master_name}View.tsx>",
-  "controls_tsx": "<complete React TSX code for src/components/Controls/{master_name}Controls.tsx>",
-  "history_tsx": "<complete React TSX code for src/components/History/{master_name}History.tsx>",
-  "app_tsx": "<complete React TSX code for src/App.tsx under 100 lines>"
-}
+Answer with the four complete files as four blocks, in this order. Each block starts with its marker alone on a line and
+continues until the next marker; write the code as plain source text (no JSON, no escaping, no commentary around the blocks).
+Write a marker only for a file you actually write: when the audience has no actions or no history to use, leave the
+controls or history marker out of the answer altogether.
+
+<<<view_tsx>>>
+(complete React TSX code for src/views/{master_name}View.tsx)
+<<<controls_tsx>>>
+(only when needed: complete React TSX code for src/components/Controls/{master_name}Controls.tsx)
+<<<history_tsx>>>
+(only when needed: complete React TSX code for src/components/History/{master_name}History.tsx)
+<<<app_tsx>>>
+(complete React TSX code for src/App.tsx under 100 lines)

@@ -1,4 +1,5 @@
 from pipeline_trace import traced
+from run_recorder import current_run, recorded, stage_begin
 import os
 import sys
 import time
@@ -622,6 +623,23 @@ def sync_workspace_app_shell(ws_base: Optional[str] = None, uow: Optional[Abstra
     except Exception as e:
         print(f"[Notice] Notice syncing workspace app shell: {e}")
 
+
+
+def sync_workspace_app_shell_on_startup(ws_base: Optional[str] = None, uow: Optional[AbstractUnitOfWork] = None):
+    """Backend startup: re-sync the shell of a domain that was synthesized earlier, and nothing else.
+
+    A fresh or just-reset state carries only the default pitch. Syncing it would run the multi-agent UI generator
+    for a product nobody asked for, inside the startup hook, so the API port stays closed for minutes."""
+    if uow is None:
+        from service_layer.unit_of_work import SqliteUnitOfWork
+        uow = SqliteUnitOfWork()
+    with uow:
+        state = uow.kickstart.get()
+        synthesized = bool(state and state.synthesized)
+    if not synthesized:
+        print("[Startup] No synthesized domain yet; the workspace shell is left untouched.", flush=True)
+        return
+    sync_workspace_app_shell(ws_base=ws_base, uow=uow)
 
 
 @traced("svc.get_fixtures")
@@ -1673,6 +1691,7 @@ def delete_rule_card(card_id: str, uow: AbstractUnitOfWork) -> bool:
 
 
 
+@recorded("spec", label="spec_id")
 @traced("svc.execute_spec_tdd")
 def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir: Optional[str] = None) -> Dict[str, Any]:
     """
@@ -2026,6 +2045,7 @@ def synthesize_living_deck_cards(
     return cards
 
 
+@recorded("kickstart", label="pitch")
 @traced("svc.kickstart_and_scaffold")
 def kickstart_domain_and_scaffold(
     pitch: str,
@@ -2053,12 +2073,15 @@ def kickstart_domain_and_scaffold(
 
     from onboarding import intent as intent_step
     # Decide what kind of product the user asked for from their own words, before any expansion can inflate the scope.
+    st = stage_begin("intent")
     product_intent = intent_step.classify_pitch_intent(pitch_text)
+    st.ok()
 
     # 0. Autonomous Intent Grounding (Expand concise pitch into explicit interactive full-stack spec)
     is_offline_test = "PYTEST_CURRENT_TEST" in os.environ or type(uow).__name__ == "FakeUnitOfWork"
     from onboarding.prompt_expander import expand_pitch_into_interactive_specification
     t0_start = time.time()
+    st = stage_begin("expansion")
     if not is_offline_test and mode != "mock":
         print(f"[Kickstart] [0/5] Grounding intent: expanding pitch into interactive full-stack specification...", flush=True)
         pitch_text = expand_pitch_into_interactive_specification(pitch_text, intent=product_intent)
@@ -2067,13 +2090,16 @@ def kickstart_domain_and_scaffold(
         print(f"[Kickstart] [0/5] ✓ Specification expanded ({len(pitch_text.split())} words) in {t0_elapsed}s", flush=True)
     else:
         timings["0_intent_grounding"] = 0.0
+    st.ok()
 
     from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
     from onboarding.skeleton_builder import build_and_write_skeleton
 
     t1_start = time.time()
     print(f"[Kickstart] [1/5] Decomposing pitch into domain aggregates and inbox specs...", flush=True)
+    st = stage_begin("decomposition")
     decomp = decompose_pitch_into_structure_and_inbox(pitch_text, intent=product_intent)
+    st.ok()
     structure = decomp.structure
     inbox_specs = decomp.inbox.specs if hasattr(decomp, "inbox") and hasattr(decomp.inbox, "specs") else []
     t1_elapsed = round(time.time() - t1_start, 2)
@@ -2083,7 +2109,9 @@ def kickstart_domain_and_scaffold(
     # Build and write skeleton files
     t2_start = time.time()
     print(f"[Kickstart] [2/5] Scaffolding pure DDD skeleton files...", flush=True)
+    st = stage_begin("skeleton")
     created_files = build_and_write_skeleton(structure, target_dir=workspace_dir)
+    st.ok()
     t2_elapsed = round(time.time() - t2_start, 2)
     timings["2_skeleton_scaffold"] = t2_elapsed
     print(f"[Kickstart] [2/5] ✓ Scaffolding complete in {t2_elapsed}s: {len(created_files)} files created", flush=True)
@@ -2109,6 +2137,7 @@ def kickstart_domain_and_scaffold(
     # Persist kickstart state in database
     t3_start = time.time()
     print(f"[Kickstart] [3/5] Persisting domain state in SQLite...", flush=True)
+    st = stage_begin("persistence")
     spec_dicts = [s.dict() if hasattr(s, "dict") else dict(s) for s in inbox_specs]
 
     # Auto-populate comprehensive living rule deck (Logic + View Cards)
@@ -2129,6 +2158,7 @@ def kickstart_domain_and_scaffold(
 
         uow.kickstart.save(state)
         uow.commit()
+    st.ok()
 
     t3_elapsed = round(time.time() - t3_start, 2)
     timings["3_persistence_deck"] = t3_elapsed
@@ -2139,6 +2169,7 @@ def kickstart_domain_and_scaffold(
     # Sync workspace App.tsx & Dynamic Acceptance Test Suite Generation
     t4_start = time.time()
     print(f"[Kickstart] [4/5] Syncing workspace App.tsx preview shell & test suite...", flush=True)
+    st = stage_begin("shell_and_acceptance")
     is_offline_test = "PYTEST_CURRENT_TEST" in os.environ or type(uow).__name__ == "FakeUnitOfWork"
     should_run_compiler_graph = not is_offline_test and mode not in ("offline_test", "mock", "no_agent")
 
@@ -2189,6 +2220,7 @@ def kickstart_domain_and_scaffold(
     except Exception as e:
         print(f"[Kickstart] Acceptance suite generation notice: {e}", flush=True)
 
+    st.ok()
     t4_elapsed = round(time.time() - t4_start, 2)
     timings["4_shell_and_acceptance"] = t4_elapsed
     print(f"[Kickstart] [4/5] ✓ App shell & test suite ready in {t4_elapsed}s.", flush=True)
@@ -2204,80 +2236,60 @@ def kickstart_domain_and_scaffold(
     stage_failures: List[Dict[str, str]] = []  # stages that did not deliver; the app is degraded, never silently
     if not is_offline_test and mode not in ("offline_test", "mock", "no_agent"):
         try:
-            from onboarding.domain_engine_synthesizer import synthesize_action_protocol
-            from onboarding.presentation_projection_synthesizer import synthesize_and_write_presentation_projection
-            from onboarding.spec_review import review_spec_consistency
+            # Spec review, seed data, and action protocol -> presentation: run alongside each other (synthesis_stages.py)
+            from onboarding.synthesis_stages import run_synthesis_stages
 
-            # Specs that contradict each other are reported now, not discovered as a late regression dead end
-            review = review_spec_consistency(inbox_specs, intent=product_intent)
-            if review["success"]:
-                spec_conflicts = review["conflicts"]
-                for conflict in spec_conflicts:
-                    print(f"[Kickstart] ⚠️ Specs {conflict['specs']} contradict each other: {conflict['reason']}", flush=True)
-            else:
-                stage_failures.append({"stage": "spec_review", "error": review["error"]})
-
-            # Node 2: Action protocol (the domain class and the action endpoint come from the skeleton + TDD loop)
-            t5a_start = time.time()
-            engine_res = synthesize_action_protocol(
-                pitch=pitch_text,
-                structure=structure,
-                inbox_specs=inbox_specs,
-                workspace_dir=workspace_dir,
-                intent=product_intent
-            )
-            t5a_elapsed = round(time.time() - t5a_start, 2)
-            timings["5a_domain_engine"] = t5a_elapsed
-            if not engine_res.get("success"):
-                stage_failures.append({"stage": "action_protocol", "error": str(engine_res.get("error"))})
-            else:
+            def _store_action_manifest(manifest: Dict[str, Any]) -> None:
                 with uow:  # kept so the manifest can later be checked against the methods the TDD loop wrote
                     manifest_state = uow.kickstart.get()
-                    manifest_state.action_manifest = engine_res.get("action_manifest") or {}
+                    manifest_state.action_manifest = manifest
                     uow.kickstart.save(manifest_state)
                     uow.commit()
-            for f in engine_res.get("files", []):
-                if f not in created_files:
-                    created_files.append(f)
 
-            # Node 3: Interactive Presentation Projection & Anti-Monolith React Shell
-            t5b_start = time.time()
-            pres_res = synthesize_and_write_presentation_projection(
-                pitch=pitch_text,
-                structure=structure,
-                inbox_specs=inbox_specs,
-                workspace_dir=workspace_dir,
-                action_manifest=engine_res.get("action_manifest"),
-                router_code=engine_res.get("router_code"),
-                intent=product_intent
-            )
-            t5b_elapsed = round(time.time() - t5b_start, 2)
-            timings["5b_presentation_projection"] = t5b_elapsed
-            if not pres_res.get("success"):
-                stage_failures.append({"stage": "presentation", "error": str(pres_res.get("error") or "no files were written")})
-            for f in pres_res.get("files", []):
+            synthesis = run_synthesis_stages(
+                pitch=pitch_text, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,
+                intent=product_intent, on_action_manifest=_store_action_manifest)
+            spec_conflicts = synthesis.spec_conflicts
+            stage_failures.extend(synthesis.failures)
+            timings.update(synthesis.timings)
+            pres_res = synthesis.presentation
+            for f in synthesis.files:
                 if f not in created_files:
                     created_files.append(f)
 
             # Node 5c: Dedicated Aesthetic & Styling Pass
             t5c_start = time.time()
+            st = stage_begin("styling")
             try:
                 from onboarding.styling_synthesizer import run_aesthetic_styling_pipeline
-                print(f"[Kickstart] [5c/6] Applying audience-native styling pass...", flush=True)
-                style_res = run_aesthetic_styling_pipeline(
-                    workspace_dir=workspace_dir,
-                    pitch_spec=pitch_text,
-                    component_files=pres_res.get("files", [])
-                )
-                t5c_elapsed = round(time.time() - t5c_start, 2)
-                timings["5c_aesthetic_styling"] = t5c_elapsed
+                if not pres_res.get("files"):
+                    timings["5c_aesthetic_styling"] = 0.0
+                    st.skip("the presentation stage delivered no components to style")
+                else:
+                    print(f"[Kickstart] [5c/6] Applying audience-native styling pass...", flush=True)
+                    style_res = run_aesthetic_styling_pipeline(
+                        workspace_dir=workspace_dir,
+                        pitch_spec=pitch_text,
+                        component_files=pres_res.get("files", [])
+                    )
+                    timings["5c_aesthetic_styling"] = round(time.time() - t5c_start, 2)
+                    st.note("styled", f"{style_res.get('styled_count', 0)}/{style_res.get('total_targets', 0)}")
+                    st.note("components", style_res.get("results", []))
+                    if style_res.get("success") and style_res.get("styled_count", 0) > 0:
+                        st.ok()
+                    else:
+                        styling_error = str(style_res.get("error") or "no component was restyled")
+                        stage_failures.append({"stage": "styling", "error": styling_error})
+                        st.fail(styling_error)
             except Exception as style_err:
                 timings["5c_aesthetic_styling"] = 0.0
                 stage_failures.append({"stage": "styling", "error": str(style_err)})
+                st.fail(str(style_err))
                 print(f"[Kickstart] Styling pass notice: {style_err}", flush=True)
 
             # Node 4: Multi-Device Responsive QA Audit Gate (Mobile 375px, Tablet 768px, Desktop 1280px)
             t6_start = time.time()
+            st = stage_begin("qa")
             try:
                 from onboarding.qa_auditor import run_responsive_qa_audit
                 from onboarding.code_verifier import self_heal_presentation_suite
@@ -2303,6 +2315,16 @@ def kickstart_domain_and_scaffold(
                     rework=_rework,
                 )
                 timings["6_qa_audit"] = round(time.time() - t6_start, 2)
+                st.note("verdict", qa_verdict["verdict"])
+                st.note("rework_attempts", qa_verdict["attempts"])
+                if qa_verdict.get("warnings"):
+                    st.note("warnings", qa_verdict["warnings"])
+                    for warning in qa_verdict["warnings"]:
+                        print(f"[Kickstart] [6/6] ⚠️ QA warning: {warning}", flush=True)
+                if qa_verdict["passed"]:
+                    st.ok()
+                else:
+                    st.fail(f"QA verdict {qa_verdict['verdict']}: {qa_verdict['defects']}")
                 if qa_verdict["passed"]:
                     print(f"[Kickstart] [6/6] ✓ QA Audit Gate passed after {qa_verdict['attempts']} rework attempt(s) ({timings['6_qa_audit']}s).", flush=True)
                 else:
@@ -2311,12 +2333,20 @@ def kickstart_domain_and_scaffold(
                 timings["6_qa_audit"] = round(time.time() - t6_start, 2)
                 qa_verdict = {"passed": False, "verdict": "audit_error", "attempts": 0,
                               "defects": [], "console_errors": [], "error": str(qa_err)}
+                st.fail(str(qa_err))
                 print(f"[Kickstart] [6/6] QA Audit error: {qa_err}", flush=True)
         except Exception as synth_err:
             stage_failures.append({"stage": "synthesis", "error": str(synth_err)})
             print(f"[Kickstart] ⚠️ Compiler Graph synthesis notice: {synth_err}", flush=True)
     else:
         print(f"[Kickstart] [5/5] Compiler Graph synthesis bypassed (offline or mock mode).", flush=True)
+
+    # What the generated frontend consists of, and which of its files the served app never reaches
+    from onboarding.app_inventory import inventory_frontend
+    app_inventory = inventory_frontend(workspace_dir).to_dict()
+    if app_inventory["unreachable"]:
+        print(f"[Kickstart] ⚠️ {len(app_inventory['unreachable'])} generated frontend file(s) are not reachable from "
+              f"{app_inventory['entry']} ({app_inventory['unreachable_lines']} lines): {app_inventory['unreachable']}", flush=True)
 
     total_time = round(time.time() - start_kickstart, 2)
     timings["total"] = total_time
@@ -2348,9 +2378,11 @@ def kickstart_domain_and_scaffold(
         "created_files": created_files,
         "timing_breakdown": timings,
         "stage_failures": stage_failures,
+        "run_id": current_run().id if current_run() else None,
         "spec_conflicts": spec_conflicts,
         "verification_models": verification_models(),
-        "qa": qa_verdict
+        "qa": qa_verdict,
+        "app_inventory": app_inventory
     }
 
 
@@ -2369,19 +2401,8 @@ def get_active_domain_aggregates(uow: AbstractUnitOfWork) -> Dict[str, Any]:
             ]
             aggregates.append(_aggregate_view(k.lower(), ent_name, bool(getattr(ent, "is_aggregate_root", True)), attrs))
 
-        # If no schemas in state, attempt dynamic domain decomposition based on business_pitch
-        if not aggregates:
-            try:
-                from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
-                decomp = decompose_pitch_into_structure_and_inbox(state.business_pitch)
-                for ent in decomp.structure.entities:
-                    k = ent.name.lower()
-                    attrs = [{"name": a.name, "type": a.type, "required": a.required} for a in ent.attributes]
-                    aggregates.append(_aggregate_view(k, ent.name, ent.is_aggregate_root, attrs))
-            except Exception as e:
-                print(f"Notice: Dynamic decomposition for un-synthesized pitch deferred: {e}")
-                aggregates = []
-
+        # No schemas means nothing has been synthesized yet, and the answer is an empty list. This is a read the Studio
+        # polls: it never calls the LLM (it used to decompose the stored pitch on every poll and discard the result).
 
         return {
             "success": True,

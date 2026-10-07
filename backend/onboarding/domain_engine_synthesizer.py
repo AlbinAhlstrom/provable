@@ -48,7 +48,7 @@ def synthesize_action_protocol(
 ) -> Dict[str, Any]:
     """Asks the LLM for the action manifest. Writes no files. On any failure returns success False with the reason."""
     start_time = time.time()
-    master = next((e for e in structure.entities if e.is_aggregate_root), None) or (structure.entities[0] if structure.entities else None)
+    master = structure.master_entity()
     master_name = _sanitize_name(master.name) if master else _sanitize_name(structure.domain_name or "Application")
 
     classes_block = "\n\n".join(

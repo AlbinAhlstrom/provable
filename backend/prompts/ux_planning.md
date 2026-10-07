@@ -16,6 +16,8 @@ Offer only the views and controls this intent calls for; never add surfaces it r
 - **Entities & Attributes**:
 {entities_block}
 
+Entities marked "shown to audience" hold what the business publishes (its offerings, credentials, testimonials and the like). That content is loaded from the API as records the business edits later, so plan a loading state, a calm note for an empty list and an error message for a failed load; everything the page says about the business comes from those records.
+
 ## Backend State & Action Protocol
 The backend domain engine provides these authoritative actions and state fields (the interface offers only the audience-facing ones; plan nothing for actions marked API-only):
 {action_protocol_block}

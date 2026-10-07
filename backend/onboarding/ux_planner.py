@@ -4,6 +4,7 @@ Reasons holistically about Cold Start defaults, information architecture,
 action prerequisites, and human copy before presentation code synthesis.
 """
 
+from pipeline_trace import traced
 import os
 import re
 import time
@@ -14,6 +15,7 @@ from onboarding.router_engine import DomainStructureSchema, BusinessSpec
 from agent_orchestrator import call_gemini
 
 
+@traced("ux.plan_blueprint")
 def plan_ux_blueprint(
     pitch: str,
     structure: DomainStructureSchema,
@@ -33,7 +35,8 @@ def plan_ux_blueprint(
     entity_summaries = []
     for ent in structure.entities:
         attr_desc = ", ".join(f"{a.name}: {a.type}" for a in ent.attributes)
-        entity_summaries.append(f"- **{ent.name}**: [{attr_desc}]")
+        role = f" ({ent.audience_role.value.replace('_', ' ')})" if ent.audience_role.value != "internal" else ""
+        entity_summaries.append(f"- **{ent.name}**{role}: [{attr_desc}]")
     entities_block = "\n".join(entity_summaries) if entity_summaries else f"- **{master_name}**: Primary Aggregate Root"
 
     action_protocol_block = format_action_protocol(action_manifest)

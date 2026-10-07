@@ -39,9 +39,17 @@ class AttributeSpec(BaseModel):
     default_value: Optional[Any] = None
 
 
+class AudienceRole(str, Enum):
+    """How an entity relates to the product's audience (decided by the decomposition from the product intent)."""
+    CREATED = "created_by_audience"   # records the audience brings into being: an inquiry, an order, a game session
+    SHOWN = "shown_to_audience"       # content the business publishes for the audience to read: offerings, credentials
+    INTERNAL = "internal"             # back-office state the audience never sees
+
+
 class EntitySpec(BaseModel):
     name: str
     is_aggregate_root: bool = True
+    audience_role: AudienceRole = AudienceRole.INTERNAL
     attributes: List[AttributeSpec] = Field(default_factory=list)
     relationships: List[Dict[str, str]] = Field(default_factory=list)
 
@@ -51,6 +59,21 @@ class DomainStructureSchema(BaseModel):
     entities: List[EntitySpec] = Field(default_factory=list)
     value_objects: List[EntitySpec] = Field(default_factory=list)
     enums: List[Dict[str, Any]] = Field(default_factory=list)
+
+    def master_entity(self) -> Optional[EntitySpec]:
+        """The aggregate the interface is organised around: what the audience creates, else the first aggregate root
+        (structures without roles keep that rule), else the first entity."""
+        created = next((e for e in self.entities if e.audience_role == AudienceRole.CREATED), None)
+        root = next((e for e in self.entities if e.is_aggregate_root), None)
+        return created or root or (self.entities[0] if self.entities else None)
+
+    def shown_entities(self) -> List[EntitySpec]:
+        return [e for e in self.entities if e.audience_role == AudienceRole.SHOWN]
+
+    def presented_entities(self) -> List[EntitySpec]:
+        """Entities the audience-facing interface talks to: the master and everything shown to the audience."""
+        master = self.master_entity()
+        return [e for e in self.entities if e is master or e.audience_role == AudienceRole.SHOWN]
 
 
 class BusinessSpec(BaseModel):

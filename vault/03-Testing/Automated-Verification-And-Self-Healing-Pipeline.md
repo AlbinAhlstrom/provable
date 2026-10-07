@@ -29,6 +29,10 @@ graph LR
 ### 3. Pytest Execution Gate & 5-Line Hash Lock (`tdd_machine.py`)
 - **Objective**: Programmatically enforce RED (Exit Code 1 + `AssertionError`), GREEN (Exit Code 0), and anti-tampering SHA-256 test file integrity.
 
+### 4. Gates on the generated frontend (kickstart)
+- **Restyle gate** (`backend/onboarding/styling_synthesizer.py`): a restyled component replaces the working one only if it still has the exports other files import and compiles in the workspace (`compile_tsx` in `backend/onboarding/verification.py`, the esbuild that Vite serves the preview with). A refusal is fed back for one more attempt; after a second refusal the component stays as the presentation stage wrote it. Bracket counting and a rule that demanded `export default` are no longer the verdict: the first let a broken type through to the preview, the second refused correct restyles.
+- **QA gate** (`backend/onboarding/qa_auditor.py`, `qa_gate.py`): three devices, one rework fed the defects. Horizontal overflow is measured against the emulated device width, never `window.innerWidth` (a mobile browser widens its layout viewport to fit overflowing content, so the two grow together). A crash defect quotes the Vite overlay's message and file, and an overflow defect names the elements that run past the edge. Text that an `overflow-hidden` ancestor cuts off at the screen edge is reported as a warning: it is in the verdict and the run summary, and does not trigger rework.
+
 ---
 
 ## 🏛️ Discrepancies & Evolution Tags

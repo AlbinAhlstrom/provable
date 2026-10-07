@@ -315,6 +315,8 @@ FastAPI Router for {entity.name} (Auto-projected from domain model).
 """
 
 import inspect
+import json
+import os
 import re
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
@@ -328,14 +330,46 @@ router = APIRouter(prefix="/api/{plural_slug}", tags=["{entity.name}"])
 # Active in-memory UoW store for fast runtime execution
 _uow = FakeUnitOfWork()
 
+# Starting content (src/seed_data.json, written at generation time for entities shown to the audience). It is read on
+# the first request after the file appears or changes, because the file is written after this server has started.
+# The domain decides: a record it rejects is reported loudly and left out, the API stays up.
+_SEED_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "seed_data.json")
+_seed_state = {{"mtime": None}}
+
+
+def _ensure_seeded() -> None:
+    try:
+        mtime = os.path.getmtime(_SEED_PATH)
+    except OSError:
+        return
+    if _seed_state["mtime"] == mtime:
+        return
+    _seed_state["mtime"] = mtime
+    with open(_SEED_PATH, encoding="utf-8") as seed_file:
+        records = json.load(seed_file).get("{entity.name}", [])
+    with _uow:
+        repo = getattr(_uow, "{plural_slug}")
+        known = {{getattr(i, 'id', None) for i in repo.list()}}
+        for record in records:
+            if record.get("id") in known:
+                continue
+            try:
+                repo.add({entity.name}(**record))
+            except Exception as exc:
+                print(f"[seed] {entity.name} record {{record.get('id')!r}} was rejected by the domain: {{exc}}", flush=True)
+        _uow.commit()
+
+
 @router.get("", response_model=List[{entity.name}ResponseSchema])
 def list_{plural_slug}():
+    _ensure_seeded()
     with _uow:
         items = getattr(_uow, "{plural_slug}").list()
         return [i.to_dict() for i in items]
 
 @router.post("", response_model={entity.name}ResponseSchema, status_code=status.HTTP_201_CREATED)
 def create_{slug}(payload: {entity.name}CreateSchema):
+    _ensure_seeded()
     item = {entity.name}(**payload.dict())
     with _uow:
         getattr(_uow, "{plural_slug}").add(item)
@@ -344,6 +378,7 @@ def create_{slug}(payload: {entity.name}CreateSchema):
 
 @router.get("/{{item_id}}", response_model={entity.name}ResponseSchema)
 def get_{slug}(item_id: str):
+    _ensure_seeded()
     with _uow:
         item = getattr(_uow, "{plural_slug}").get(item_id)
         if not item:
@@ -366,6 +401,7 @@ def _public_actions(item) -> Dict[str, Any]:
 @router.post("/{{item_id}}/action")
 def run_{slug}_action(item_id: str, request: ActionRequest):
     """Runs one of the aggregate's own domain methods; the domain decides whether the action is allowed."""
+    _ensure_seeded()
     name = re.sub(r"[^a-z0-9]+", "_", request.action_type.strip().lower()).strip("_")
     with _uow:
         item = getattr(_uow, "{plural_slug}").get(item_id)

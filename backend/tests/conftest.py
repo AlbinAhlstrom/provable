@@ -20,6 +20,7 @@ _TEST_WORKSPACE = tempfile.mkdtemp(prefix="provable-test-ws-")
 os.makedirs(os.path.join(_TEST_WORKSPACE, "requirements"), exist_ok=True)
 os.environ["PROVABLE_WORKSPACE"] = _TEST_WORKSPACE
 os.environ["DATABASE_URL"] = "sqlite:///" + os.path.join(_TEST_WORKSPACE, "requirements", "provable.db")
+os.environ["PROVABLE_RUNS_DIR"] = os.path.join(_TEST_WORKSPACE, "runs")  # recorded runs never touch logs/runs
 atexit.register(shutil.rmtree, _TEST_WORKSPACE, ignore_errors=True)
 from onboarding.templates.workspace_scaffold import create_default_workspace_scaffold  # noqa: E402
 create_default_workspace_scaffold(_TEST_WORKSPACE)
@@ -407,12 +408,13 @@ class {cls_name}:
             elif stage == "presentation_projection_synthesis":
                 m_master = re.search(r"Master Aggregate\*\*:\s*`([A-Za-z0-9_]+)`", prompt)
                 master = m_master.group(1) if m_master else "Item"
-                return json.dumps({
-                    "view_tsx": "import React from 'react';\nexport const View: React.FC = () => <div>Interactive Canvas</div>;",
-                    "controls_tsx": "import React from 'react';\nexport const Controls: React.FC = () => <div>Controls</div>;",
-                    "history_tsx": "import React from 'react';\nexport const History: React.FC = () => <div>History</div>;",
-                    "app_tsx": f"import React from 'react';\nimport {{ {master}View }} from './views/{master}View';\nexport const App: React.FC = () => <div>App Shell</div>;"
-                })
+                return (
+                    "<<<view_tsx>>>\nimport React from 'react';\nexport const View: React.FC = () => <div>Interactive Canvas</div>;\n"
+                    "<<<controls_tsx>>>\nimport React from 'react';\nexport const Controls: React.FC = () => <div>Controls</div>;\n"
+                    "<<<history_tsx>>>\nimport React from 'react';\nexport const History: React.FC = () => <div>History</div>;\n"
+                    f"<<<app_tsx>>>\nimport React from 'react';\nimport {{ {master}View }} from './views/{master}View';\n"
+                    "export const App: React.FC = () => <div>App Shell</div>;\n"
+                )
             elif stage == "prompt_expansion":
                 return "Expanded interactive full-stack specification: Canvas grid with tactile interactions, domain state transitions, reset controls, and event log."
 

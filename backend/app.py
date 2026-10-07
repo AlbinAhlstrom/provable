@@ -31,9 +31,9 @@ async def lifespan(app: FastAPI):
         store.set_active_db(_active_db)
         store.init_db()
 
-        # Sync App.tsx shell with provable.db requirements on startup
-        from entrypoints.routers.components import sync_workspace_app_shell
-        sync_workspace_app_shell()
+        # Re-sync the App.tsx shell of an already synthesized domain (never generates one from the default pitch)
+        from service_layer import services
+        services.sync_workspace_app_shell_on_startup()
 
         # Guarantee a valid working React scaffold exists so Vite port 5174 is always active
         if not (os.path.exists(os.path.join(_ws_base, 'package.json')) and os.path.exists(os.path.join(_ws_base, 'src', 'App.tsx'))):
@@ -69,6 +69,9 @@ async def lifespan(app: FastAPI):
         except Exception as server_err:
             print(f"⚠️ Startup: Failed to start project servers: {server_err}")
     yield
+    if not (os.environ.get("DATABASE_URL") or "pytest" in sys.modules):
+        from onboarding.server_manager import stop_project_servers
+        stop_project_servers()
 
 
 app = FastAPI(title="Provable Backend Platform API", lifespan=lifespan)

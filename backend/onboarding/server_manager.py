@@ -34,17 +34,67 @@ def _wait_for_port(port: int, timeout: int = 30) -> bool:
     return False
 
 
+def _kill_pid_tree(pid: int) -> None:
+    """Kill a process and everything it started. `npm run dev` is a shell -> npm -> node chain; terminating only the
+    shell (all that Popen.terminate() does on Windows) leaves the node dev server running."""
+    if sys.platform == "win32":
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True)
+        return
+    try:
+        os.killpg(os.getpgid(pid), signal.SIGKILL)
+    except (ProcessLookupError, PermissionError, OSError):
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except OSError:
+            pass
+
+
+def _terminate_tree(proc: subprocess.Popen) -> None:
+    _kill_pid_tree(proc.pid)
+    try:
+        proc.wait(timeout=5)
+    except Exception:
+        pass
+
+
+def _listening_pids(netstat_output: str, port: int) -> List[int]:
+    """PIDs listening on exactly `port`, from `netstat -ano` output."""
+    pids: List[int] = []
+    for line in netstat_output.splitlines():
+        parts = line.split()
+        if len(parts) >= 5 and parts[3] == "LISTENING" and parts[1].rsplit(":", 1)[-1] == str(port):
+            pid = int(parts[-1])
+            if pid > 0 and pid not in pids:
+                pids.append(pid)
+    return pids
+
+
+def free_port(port: int) -> None:
+    """Kill whatever listens on `port` (with its children), like the launcher does for the application ports. A backend
+    that hot-reloads loses its in-memory process list, so the port itself is the only reliable handle on the previous
+    dev server."""
+    try:
+        if sys.platform == "win32":
+            out = subprocess.run(["netstat", "-ano", "-p", "TCP"], capture_output=True, text=True).stdout
+            pids = _listening_pids(out, port)
+        else:
+            out = subprocess.run(["lsof", "-t", f"-iTCP:{port}", "-sTCP:LISTEN"], capture_output=True, text=True).stdout
+            pids = [int(p) for p in out.split()]
+        for pid in pids:
+            if pid != os.getpid():
+                _kill_pid_tree(pid)
+                print(f"🛑 server_manager: Freed port {port} (stopped PID {pid} and its children)", flush=True)
+    except Exception as e:
+        print(f"⚠️ server_manager: Could not free port {port}: {e}", flush=True)
+
+
 def stop_project_servers() -> None:
-    """Terminate all running project dev-server processes."""
+    """Terminate all running project dev-server processes, including their child processes."""
     global _running_procs
     for proc in _running_procs:
         try:
             if proc.poll() is None:
-                proc.terminate()
-                try:
-                    proc.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
+                _terminate_tree(proc)
             print(f"🛑 server_manager: Stopped process PID {proc.pid}")
         except Exception as e:
             print(f"⚠️ server_manager: Error stopping process: {e}")
@@ -74,6 +124,7 @@ def start_project_servers(project_path: Optional[str] = None) -> bool:
         return False
 
     port = int(dev_cfg.get('port') or 5174)
+    free_port(port)  # a previous backend process (hot reload) may still hold it; never stack a second server beside it
 
     # Support multi-process launch (e.g. backend + frontend microservices)
     # If start_command is a list, launch each sequentially

@@ -9,7 +9,7 @@ disable-model-invocation: true
 
 Problem to fix: $ARGUMENTS
 
-1. **Observe.** Read the relevant files in `workspace/` (read only; never edit them). If the problem is visual or runtime, ask the user for a screenshot or console output rather than starting the stack. Alternatively run the `workspace-inspector` subagent for a traced report.
+1. **Observe.** Read the relevant files in `workspace/` (read only; never edit them). If the problem is visual or runtime, ask the user for a screenshot or console output rather than starting the stack. Read the recorded run first: `python scripts/trace_report.py` shows which stage failed and why, which stage wrote each file, and the prompt and raw answer of every LLM call (`--full N`); `--compare A B` against an earlier good run shows what changed. Alternatively run the `workspace-inspector` subagent for a traced report.
 2. **Locate the department.** Use the symptom-to-file table in `.claude/agents/workspace-inspector.md`. Read that file and the prompt it uses end to end before changing anything.
 3. **Find the root cause.** Ask why the stage produced this. Typical causes: an ambiguous or misplaced instruction in a prompt, a schema that lets bad output through, or a contract mismatch between two departments. Do not add a regex repair, a string patch or a "MUST NOT" line.
 4. **Reproduce hermetically.** Write a failing unit test against the department's function with a recorded or hand-written LLM response, so no live model call is needed.

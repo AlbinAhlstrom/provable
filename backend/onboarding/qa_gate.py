@@ -7,6 +7,7 @@ The auditor and the rework department are injected so the gate stays a pure
 orchestration policy with no browser, LLM or filesystem dependency.
 """
 
+from pipeline_trace import traced
 from typing import Any, Callable, Dict, List
 
 AuditFn = Callable[[], Dict[str, Any]]
@@ -28,10 +29,12 @@ def _verdict(passed: bool, verdict: str, attempts: int, report: Dict[str, Any], 
         "attempts": attempts,
         "defects": list(report.get("defects") or []),
         "console_errors": list(report.get("console_errors") or []),
+        "warnings": list(report.get("warnings") or []),  # reported, never a reason for rework
         **extra,
     }
 
 
+@traced("qa.gate")
 def run_qa_gate(
     audit: AuditFn,
     rework: ReworkFn,

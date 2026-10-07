@@ -50,3 +50,31 @@ def test_ux_planner_fallback_on_error():
         )
         assert "Default Landing & Cold-Start Behavior" in blueprint
         assert "Primary Navigation & View Structure" in blueprint
+
+
+def test_the_ux_planner_is_told_which_content_is_served_as_records():
+    """Verify the plan cannot call published content "static" (a plan that did made the page hard-code credentials).
+
+    id: TST-UX-ROLES
+    Given: A structure with an entity that is shown to the audience and one the audience creates
+    When: The UX blueprint is planned
+    Then: The prompt marks each entity's role and says published content is loaded from the API
+    """
+    from onboarding.router_engine import AudienceRole
+    structure = DomainStructureSchema(domain_name="Site", entities=[
+        EntitySpec(name="Offering", audience_role=AudienceRole.SHOWN,
+                   attributes=[AttributeSpec(name="title", type="string", required=True)]),
+        EntitySpec(name="Inquiry", is_aggregate_root=True, audience_role=AudienceRole.CREATED,
+                   attributes=[AttributeSpec(name="name", type="string", required=True)]),
+    ])
+    prompts = []
+
+    def fake(prompt, stage="general", **options):
+        prompts.append(prompt)
+        return "### 1. Default Landing & Cold-Start Behavior\n" + "plan " * 30
+
+    with patch("onboarding.ux_planner.call_gemini", fake):
+        plan_ux_blueprint(pitch="A site", structure=structure, master_name="Inquiry", master_slug="inquiry")
+    prompt = prompts[0]
+    assert "**Offering** (shown to audience)" in prompt and "**Inquiry** (created by audience)" in prompt
+    assert "loaded from the API as records" in prompt

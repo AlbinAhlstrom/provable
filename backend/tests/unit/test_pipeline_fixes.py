@@ -199,3 +199,71 @@ def test_sdk_automatic_retries_are_disabled(monkeypatch):
     monkeypatch.setattr(agent_orchestrator, "OpenAI", Recorder)
     _REAL_CALL_GEMINI("p", stage="s")
     assert seen.get("max_retries") == 0
+
+
+def test_the_failure_reason_belongs_to_the_thread_that_made_the_call():
+    """Verify stages running in parallel cannot clear or overwrite each other's failure reason.
+
+    id: TST-FIX-020
+    Given: One thread whose LLM call failed
+    When: Another thread records a success before the first reads its reason
+    Then: The first thread still reads its own reason
+    """
+    import threading
+    seen = {}
+
+    def failing():
+        agent_orchestrator.LAST_LLM_ERROR = "429 quota exceeded"
+        other = threading.Thread(target=lambda: setattr(agent_orchestrator, "LAST_LLM_ERROR", None))
+        other.start()
+        other.join()
+        seen["reason"] = agent_orchestrator.LAST_LLM_ERROR
+
+    worker = threading.Thread(target=failing)
+    worker.start()
+    worker.join()
+    assert seen["reason"] == "429 quota exceeded"
+
+
+def test_hidden_reasoning_tokens_are_recorded(monkeypatch, tmp_path):
+    """Verify thinking the provider bills but does not return is visible (a 7-token answer that took 4 s).
+
+    id: TST-FIX-021
+    Given: A provider whose usage totals 120 tokens for a 10-token prompt and a 30-token answer
+    When: call_gemini is traced
+    Then: The call's meta holds total_tokens 120 and reasoning_tokens 80
+    """
+    import glob
+    import json
+    import types
+    monkeypatch.setenv("GEMINI_API_KEY", "k" * 20)
+    monkeypatch.setenv("PROVABLE_TRACE_DIR", str(tmp_path))
+    usage = types.SimpleNamespace(prompt_tokens=10, completion_tokens=30, total_tokens=120)
+    response = types.SimpleNamespace(usage=usage, choices=[types.SimpleNamespace(
+        finish_reason="stop", message=types.SimpleNamespace(content="ok"))])
+
+    class Completions:
+        def create(self, **kwargs):
+            return response
+
+    monkeypatch.setattr(agent_orchestrator, "OpenAI", _fake_openai(Completions()))
+    assert _REAL_CALL_GEMINI("p", stage="s") == "ok"
+    meta = json.load(open(glob.glob(str(tmp_path / "*.json"))[0]))["meta"]
+    assert meta["total_tokens"] == 120 and meta["reasoning_tokens"] == 80
+
+
+def test_reading_the_aggregates_never_calls_the_llm(monkeypatch):
+    """Verify a read the Studio polls costs nothing (four stray decompositions of the default pitch ran during a kickstart).
+
+    id: TST-FIX-022
+    Given: A kickstart state with nothing synthesized
+    When: The aggregates are read
+    Then: The answer is an empty list and the decomposition is not called
+    """
+    from onboarding import router_engine
+    from service_layer import services
+    from service_layer.unit_of_work import FakeUnitOfWork
+    calls = []
+    monkeypatch.setattr(router_engine, "decompose_pitch_into_structure_and_inbox", lambda *a, **k: calls.append(a))
+    result = services.get_active_domain_aggregates(uow=FakeUnitOfWork())
+    assert result["success"] is True and result["aggregates"] == [] and calls == []

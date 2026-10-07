@@ -11,6 +11,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[System Architecture]]: Overview of PM Studio frontend (`KickstartStudio`, `BehaviorInboxPanel`, `RequirementControlPanel`, `AppPreview`), FastAPI backend engine, SQLite DataStore, and TDD state machine.
 - [[Full-LLM-Free-Form-Orchestration-Graph]]: Full-LLM synthesis pipeline featuring Domain Storming, Backend DDD/TDD, Skeleton Builder, and Verification Gates.
 - [[PM-Studio-UX-Architecture-And-Direction]]: Breakdown of PM Studio 3-Pillar UX Architecture (Pages Bar, Executable Test Specs / Behavior Inbox, Domain Entities Inspector) and Mobile-First responsive design system invariants.
+- [[Audience Roles and Seed Data]]: Which entity the interface is organised around (what the audience creates), clients for shown content, and the validated starter records that fill it.
 - [[Universal-Dynamic-Domain-AST-Generator]]: Dynamic domain generator scaffolding pure DDD domain aggregates (`Pallet`, `Zone`, `Operator`), Pydantic DTOs, Unit of Work, and FastAPI routers.
 - [[Database Schema]]: Comprehensive documentation of SQLite tables (`requirements`, `test_cases`, `agent_runs`, `kickstart_state`, `projects`), schema triggers, JSON columns, and DataStore sync mechanisms.
 - [[Frontend Components]]: Breakdown of React components (`App`, `KickstartStudio`, `AppPreview`, `BehaviorInboxPanel`, `RequirementControlPanel`, `DomainEntitiesPanel`, `CoverageHub`), state hooks, and CSS design system.
@@ -27,6 +28,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[DDD_TDD_Developer_Workflow]]: Pure DDD layer boundaries, 4-step execution loop (RED-GREEN-WIRE-VERIFY), and anti-leakage verification gate.
 - [[Bug-Reproduction-and-Testing-Policy]]: Strict policy and automated regression test workflow for bug reproduction, tri-service stack startup (:8000, :5173, :5174), and zero-regression guarantees.
 - [[Helper Scripts]]: Single cross-platform application launcher (`run.py`) and PowerShell/Bash wrappers.
+- [[Run Recorder]]: One folder per pipeline run (`logs/runs/`): commit and model, per-stage outcome, full step and LLM trace, generated-app snapshot; `scripts/trace_report.py` reads and compares runs.
 
 
 ### 3. 🧪 Testing & Quality Assurance

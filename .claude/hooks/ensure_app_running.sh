@@ -6,7 +6,7 @@
 #   bash .claude/hooks/ensure_app_running.sh --restart  stop and start again (e.g. after backend edits that need a clean boot)
 #   bash .claude/hooks/ensure_app_running.sh --stop     stop the stack
 #
-# Output goes to logs/run.log; every pipeline step is traced to logs/trace (see backend/pipeline_trace.py).
+# Output goes to logs/run.log; every pipeline run records itself to logs/runs/<id> (see backend/run_recorder.py).
 set -uo pipefail
 
 cd "${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}"
@@ -42,10 +42,9 @@ if [ -z "${GEMINI_API_KEY:-}${LLM_API_KEY:-}${OPENAI_API_KEY:-}" ] && ! grep -qE
 fi
 
 mkdir -p logs
-export PROVABLE_TRACE_DIR="${PROVABLE_TRACE_DIR:-$PWD/logs/trace}"
 # setsid detaches the stack from this shell so it outlives the hook / tool call.
 setsid nohup python3 run.py > logs/run.log 2>&1 < /dev/null &
-echo "[app] starting (log: logs/run.log, trace: $PROVABLE_TRACE_DIR)"
+echo "[app] starting (log: logs/run.log, pipeline runs: logs/runs)"
 
 for _ in $(seq 1 90); do
   if up 8000 && up 5173; then

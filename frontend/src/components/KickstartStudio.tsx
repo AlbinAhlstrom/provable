@@ -52,7 +52,10 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
 
       if (res.ok && data.success) {
         setSynthesized(true);
-        setResetMessage("✨ Domain architecture synthesized successfully!");
+        const failures: { stage: string; error: string }[] = data.stage_failures || [];
+        setResetMessage(failures.length
+          ? `⚠️ Built with problems. ${failures.map(f => `${f.stage}: ${f.error}`).join(' | ')}${data.run_id ? ` (run ${data.run_id})` : ''}`
+          : `✨ Domain architecture synthesized successfully${data.timing_breakdown?.total ? ` in ${Math.round(data.timing_breakdown.total)}s` : ''}${data.run_id ? ` (run ${data.run_id})` : ''}`);
         if (onAppSynthesized) onAppSynthesized();
       } else {
         const msg = data.error || data.detail || data.message || `Synthesis failed (HTTP ${res.status})`;
