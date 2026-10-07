@@ -7,6 +7,7 @@ import service_layer.services as services
 
 client = TestClient(app)
 
+@pytest.mark.slow
 def test_add_and_get_inbox_spec_router(monkeypatch):
     fake_state = KickstartState()
     

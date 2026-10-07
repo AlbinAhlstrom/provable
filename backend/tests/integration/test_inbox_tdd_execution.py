@@ -19,6 +19,7 @@ from service_layer.tdd_machine import (
 )
 
 
+@pytest.mark.slow
 def test_inbox_tdd_execution_domain_invariant_synchronous():
     """
     Submits a DOMAIN_INVARIANT specification to /api/specs/inbox/add,

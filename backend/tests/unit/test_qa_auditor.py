@@ -16,6 +16,7 @@ def test_qa_auditor_matrix_definitions():
 
 
 @patch("selenium.webdriver.Chrome")
+@pytest.mark.slow
 def test_qa_auditor_passes_when_no_overflow_and_no_crash(mock_chrome_cls, tmp_path):
     """Hermetically tests that QA auditor passes when scrollWidth <= innerWidth."""
     mock_driver = MagicMock()
@@ -40,6 +41,7 @@ def test_qa_auditor_passes_when_no_overflow_and_no_crash(mock_chrome_cls, tmp_pa
 
 
 @patch("selenium.webdriver.Chrome")
+@pytest.mark.slow
 def test_qa_auditor_flags_horizontal_overflow_defects(mock_chrome_cls, tmp_path):
     """Hermetically tests that QA auditor flags horizontal overflow and marks passed=False."""
     mock_driver = MagicMock()
@@ -63,6 +65,7 @@ def test_qa_auditor_flags_horizontal_overflow_defects(mock_chrome_cls, tmp_path)
 
 
 @patch("selenium.webdriver.Chrome")
+@pytest.mark.slow
 def test_qa_auditor_flags_vite_react_error_overlay(mock_chrome_cls, tmp_path):
     """Hermetically tests that QA auditor detects application crash overlays."""
     mock_driver = MagicMock()
@@ -91,6 +94,7 @@ def test_qa_auditor_graceful_offline_fallback():
 
 
 @patch("selenium.webdriver.Chrome")
+@pytest.mark.slow
 def test_qa_auditor_flags_vertical_overflow_defects(mock_chrome_cls, tmp_path):
     """Hermetically tests that QA auditor flags vertical overflow when check_vertical_containment=True."""
     mock_driver = MagicMock()

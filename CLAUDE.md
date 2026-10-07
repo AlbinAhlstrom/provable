@@ -13,7 +13,7 @@ Spec-driven code generation engine: TDD verification loops + DDD architecture. T
 
 ## Commands
 - Install: `pip install -r requirements.txt` and `cd frontend && npm ci` (auto-run in cloud sessions by `.claude/hooks/session_start.sh`)
-- Backend tests (fast, ~20s): `python -m pytest backend/tests/` — hermetic: `conftest.py` points the session at a throwaway workspace and database, so tests never touch the live app's `workspace/` or state (guarded by `test_test_isolation.py`). Safe to run while the app is up.
+- Backend tests: while iterating run the fast tier, `python -m pytest backend/tests/ -m "not slow"` (~10s). The full suite (`python -m pytest backend/tests/`, ~40s) adds the headless-browser and Vite-build tests marked `slow`; it runs on every `git commit` via the guard hook, so do not run it by hand first. — hermetic: `conftest.py` points the session at a throwaway workspace and database, so tests never touch the live app's `workspace/` or state (guarded by `test_test_isolation.py`). Safe to run while the app is up.
 - Frontend build/typecheck: `cd frontend && npm run build`
 - Pre-flight (build + tests + purity lint + live checks): `python scripts/agent_preflight_check.py`.
   Runs without an LLM key (tests mock the LLM). Phases 1-5 work standalone; Phase 6 (UI screenshot) is only
@@ -32,8 +32,8 @@ Spec-driven code generation engine: TDD verification loops + DDD architecture. T
   if the architecture evolved, rewrite or delete the obsolete test.
 - Retries mask errors: at most ONE retry, only when a verifying step rejects a generator's output and its verdict is fed back; never retry provider/parse/infra errors (rule 03 §4).
 - Frontend is domain-agnostic: no hardcoded domain terms (Pallet, Pizza, Order...) and no mock UI. Fail loudly.
-- Run the full test suite before every commit and the pre-flight check before declaring work done.
-  (`.claude/hooks/guard.py` enforces the test run on `git commit`, and blocks `workspace/` edits and starting the stack.)
+- Every commit is gated by the full test suite, which `.claude/hooks/guard.py` runs for you on `git commit` (it also blocks `workspace/` edits and starting the stack). Run the pre-flight check once, before declaring a task done, not per commit.
+- Live-LLM runs (kickstart, spec execution) take minutes and cost money: do them only when a change alters what a model sees or writes, in the background, and as the smallest run that answers the question (one spec, or kickstart only), never the whole pipeline by reflex. Restart the app only for dependency or startup changes; hot reload covers the rest.
 
 ## Environment notes
 - Vercel deployment: `vercel.json` (services `backend` + `frontend`), serverless mode when `VERCEL=1`; see `vault/04-Decisions/ADR-005 Vercel Multi-Service Deployment.md`. Frontend code must use relative `/api/...` URLs, never `http://localhost:8000`.

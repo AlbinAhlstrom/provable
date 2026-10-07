@@ -52,6 +52,7 @@ def test_workspace_scaffold_configuration_and_tsconfig_integrity(tmp_path):
     assert "proxy" in vite_cfg
 
 
+@pytest.mark.slow
 def test_workspace_vite_build_integrity(tmp_path):
     """
     Validates that a freshly scaffolded workspace compiles and bundles cleanly via Vite.
@@ -72,6 +73,7 @@ def test_workspace_vite_build_integrity(tmp_path):
     assert res.returncode == 0, f"Workspace build failed:\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}"
 
 
+@pytest.mark.slow
 def test_frontend_pm_studio_vite_build_integrity():
     """
     Validates that PM Studio React 18 frontend compiles and bundles cleanly with zero TS errors.
