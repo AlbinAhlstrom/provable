@@ -79,3 +79,38 @@ def test_presentation_prompt_states_the_real_api():
     body = open(path, encoding="utf-8").read()
     assert "no \"default\" record" in body and "no reset endpoint" in body
     assert "client_ts" not in body and "/reset`: Resets" not in body
+
+
+def test_json_payload_is_read_with_a_real_decoder_not_cut_at_a_fence():
+    """Verify a ``` inside a JSON string value (code in a code field) does not cut the payload.
+
+    id: TST-CLI-005
+    Given: A fenced JSON answer whose view_tsx string contains a literal triple backtick
+    When: The payload is extracted
+    Then: Every field, including the ones after it, is present
+    """
+    from onboarding.presentation_projection_synthesizer import _extract_json_payload
+    raw = '```json\n{"view_tsx": "const a = `x`; // ```", "app_tsx": "export const App = 1"}\n```'
+    assert _extract_json_payload(raw) == {"view_tsx": "const a = `x`; // ```", "app_tsx": "export const App = 1"}
+    assert agent_orchestrator.extract_json_object('prose {"a": 1} trailing') == {"a": 1}
+
+
+def test_presentation_call_asks_the_provider_for_json(tmp_path, monkeypatch):
+    """Verify the file-bundle answer is requested in JSON mode, like every other JSON-producing stage.
+
+    id: TST-CLI-006
+    Given: A presentation synthesis
+    When: The model is called
+    Then: json_mode is requested (the provider then returns one object, not several fenced fragments)
+    """
+    from onboarding import presentation_projection_synthesizer as pps
+    seen = {}
+
+    def fake(prompt, stage="general", **kwargs):
+        seen.update(kwargs)
+        return "{}"
+
+    monkeypatch.setattr(pps, "call_gemini", fake)
+    pps.synthesize_and_write_presentation_projection(
+        pitch="p", structure=STRUCTURE, inbox_specs=[SPEC], workspace_dir=str(tmp_path), action_manifest={"actions": []}, ux_blueprint="plan")
+    assert seen.get("json_mode") is True

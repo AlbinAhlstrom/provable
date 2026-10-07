@@ -27,18 +27,7 @@ def _sanitize_name(name: str) -> str:
 
 
 def _extract_json_payload(raw_response: str) -> Dict[str, Any]:
-    text = raw_response.strip()
-    if "```json" in text:
-        text = text.split("```json", 1)[1].split("```", 1)[0].strip()
-    elif "```" in text:
-        text = text.split("```", 1)[1].split("```", 1)[0].strip()
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        match = re.search(r"\{.*\}", text, re.DOTALL)
-        if match:
-            return json.loads(match.group(0))
-        raise
+    return agent_orchestrator.extract_json_object(raw_response)
 
 
 def _read_domain_class(workspace_dir: str, class_name: str) -> str:

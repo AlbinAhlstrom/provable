@@ -103,6 +103,18 @@ def load_prompt(template_name: str, format_kwargs: Optional[dict] = None) -> str
 LAST_LLM_ERROR: Optional[str] = None
 
 
+def extract_json_object(raw: str) -> dict:
+    """Parses the first JSON object in an LLM answer. Reads from the first `{` with a real JSON decoder, so a markdown
+    fence (or any text) inside a string value, such as code in a code field, can never truncate the payload."""
+    start = (raw or "").find("{")
+    if start < 0:
+        raise ValueError("no JSON object in the answer")
+    value, _ = json.JSONDecoder().raw_decode(raw[start:])
+    if not isinstance(value, dict):
+        raise ValueError("the JSON answer is not an object")
+    return value
+
+
 def model_for_stage(stage: str) -> str:
     """The model a stage runs on: LLM_MODEL_<STAGE>, else LLM_MODEL, else the default."""
     return os.environ.get(f"LLM_MODEL_{stage.upper()}") or os.environ.get("LLM_MODEL", "gemini-3.8-flash")

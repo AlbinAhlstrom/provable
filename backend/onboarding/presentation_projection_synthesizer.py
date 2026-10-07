@@ -12,6 +12,7 @@ from typing import List, Dict, Any, Optional
 from onboarding.action_protocol import format_action_protocol
 from onboarding.intent import ProductIntent, intent_block
 from onboarding.router_engine import DomainStructureSchema, BusinessSpec
+import agent_orchestrator
 from agent_orchestrator import call_gemini
 
 
@@ -25,19 +26,7 @@ def _sanitize_name(name: str) -> str:
 
 
 def _extract_json_payload(raw_response: str) -> Dict[str, Any]:
-    text = raw_response.strip()
-    if "```json" in text:
-        text = text.split("```json", 1)[1].split("```", 1)[0].strip()
-    elif "```" in text:
-        text = text.split("```", 1)[1].split("```", 1)[0].strip()
-
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        match = re.search(r"\{.*\}", text, re.DOTALL)
-        if match:
-            return json.loads(match.group(0))
-        raise
+    return agent_orchestrator.extract_json_object(raw_response)
 
 
 def synthesize_and_write_presentation_projection(
@@ -155,7 +144,7 @@ Respond STRICTLY with JSON:
 
     print(f"[Compiler:Node3] Synthesizing interactive presentation projection and modular UI...", flush=True)
 
-    raw_response = call_gemini(prompt, stage="presentation_projection_synthesis")
+    raw_response = call_gemini(prompt, stage="presentation_projection_synthesis", json_mode=True)
     created_files = []
 
     if not raw_response:
