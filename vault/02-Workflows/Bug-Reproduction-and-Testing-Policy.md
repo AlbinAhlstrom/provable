@@ -1,4 +1,4 @@
-﻿# Bug Reproduction & Live Stack Testing Policy
+# Bug Reproduction & Live Stack Testing Policy
 
 ## Översikt & Syfte
 För att säkerställa hög tillförlitlighet, förhindra regressionsfel och eliminera runtime-överraskningar (såsom utebliven serveranslutning på `localhost:5174` eller brutna build-scripts), gäller en strikt policy för alla AI-agenter och utvecklare: **Varje fel som identifieras ska omedelbart förses med ett automatiserat regressionstest som reproducerar och verifierar lösningen.**
@@ -29,4 +29,3 @@ AppGen-plattformen består av tre sammankopplade tjänster som alltid ska vara v
 
 ## Relevanta Testfiler
 - `backend/tests/integration/test_app_startup_and_preview_connectivity.py`: Verifierar komplett scaffolding, TypeScript-konfiguration och felfri Vite-kompilering för både PM Studio och Workspace Preview.
-- `backend/tests/integration/test_jsx_compilation_integrity.py`: Verifierar AST- och JSX-kompileringsintegritet för genererade React-komponenter.

@@ -86,3 +86,15 @@ def test_console_errors_alone_trigger_rework():
 
     assert verdict["passed"] is True
     assert seen["errors"] == ["TypeError: x"]
+
+
+def test_default_policy_is_exactly_one_rework_with_feedback():
+    """Retry policy: one retry, fed the verdict (defects and console errors), then fail loudly."""
+    audit = _audit_sequence({"passed": False, "defects": ["blank root"], "console_errors": ["boom"]})
+    seen = []
+    verdict = run_qa_gate(audit, lambda defects, errors: seen.append((defects, errors)) or True)
+
+    assert verdict["passed"] is False
+    assert verdict["verdict"] == "defects_remain"
+    assert verdict["attempts"] == 1
+    assert seen == [(["blank root"], ["boom"])]

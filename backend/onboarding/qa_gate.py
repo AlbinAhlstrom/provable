@@ -2,7 +2,7 @@
 QA Rework Gate.
 
 Company analogy: QA audits the build, files defects back to the responsible
-department for rework (bounded), re-audits, and signs off with an honest verdict.
+department for rework (one retry, with the verdict as feedback), re-audits, and signs off with an honest verdict.
 The auditor and the rework department are injected so the gate stays a pure
 orchestration policy with no browser, LLM or filesystem dependency.
 """
@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, List
 AuditFn = Callable[[], Dict[str, Any]]
 ReworkFn = Callable[[List[str], List[str]], bool]
 
-DEFAULT_MAX_REWORK_ATTEMPTS = 2
+DEFAULT_MAX_REWORK_ATTEMPTS = 1  # one retry, fed the defects and console errors (retry policy)
 
 
 def _has_defects(report: Dict[str, Any]) -> bool:

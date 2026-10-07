@@ -206,7 +206,7 @@ def test_presentation_projection_synthesizer_accepts_action_manifest(tmp_path):
 @pytest.mark.xfail(
     strict=True,
     reason="KNOWN REGRESSION: router_decomposition.md lost the atomicity / invariant-taxonomy rules "
-           "documented in vault/HANDOVER.md #18 (and the specs-first rules of #19); they never reached git. "
+           "documented in the old handover notes #18 and #19 (git history: vault/HANDOVER-archive.md); they never reached git. "
            "Restore the prompt, then delete this marker (strict=True fails once the test passes).",
 )
 def test_router_decomposition_prompt_enforces_atomicity_and_forbids_procedural_slop():
