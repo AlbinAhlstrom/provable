@@ -31,7 +31,7 @@ Stages exchange dataclasses, not loose dicts. Behaviour changes to existing code
 - No hidden retries: no retry loops, fallbacks-on-error or SDK auto-retries (the OpenAI client is built with `max_retries=0`). Every attempt is visible in the result (`attempts`) and in the trace.
 - Changing this policy needs an explicit decision from the user.
 
-Known deviations awaiting that decision: `qa_gate.py` allows `max_rework_attempts=2` (two rework rounds, not one), and `agent_orchestrator.py` and `domain/model.py` report `max_attempts=3` in status payloads. Do not copy these patterns into new code.
+Known inconsistency: `agent_orchestrator.py` and `domain/model.py` report `max_attempts=3` in status payloads. It is display only and not enforced; do not copy it into new code.
 
 ## Test integrity (5-line hash lock)
 
