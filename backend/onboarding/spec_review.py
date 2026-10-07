@@ -2,7 +2,7 @@
 Spec consistency review: specs from one decomposition are implemented one by one on the same classes, and the TDD loop
 only shows each spec the earlier verified tests. A pair of specs that demand opposite results therefore surfaces late, as
 a regression dead end on whichever runs second. One LLM call over the whole set names such pairs up front so they are
-reported with the kickstart. It reports; it never rewrites specs or retries (rule 03 section 4).
+reported with the kickstart. It reports; it never rewrites specs or retries (.claude/rules/pipeline.md, retry policy).
 """
 
 import json

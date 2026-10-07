@@ -115,7 +115,7 @@ def test_retry_succeeds_after_feedback(workspace, monkeypatch):
 
 
 def test_provider_and_parse_errors_are_not_retried(workspace, monkeypatch):
-    """Verify non-verdict failures fail loudly after one attempt (rule 03 section 4).
+    """Verify non-verdict failures fail loudly after one attempt (.claude/rules/pipeline.md, retry policy).
 
     id: TST-PSPEC-005
     Given: An empty LLM answer, then an answer with no code

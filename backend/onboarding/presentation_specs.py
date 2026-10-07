@@ -4,7 +4,7 @@ behaviour specs, which the TDD loop proves with a RED test and a GREEN domain ch
 
 A spec declares its own kind (`SpecKind`), decided by the decomposition step that understands it; there is no
 keyword guessing here. A presentation spec is applied by rewriting the one view that belongs to its aggregate and
-is verified by building the frontend. A failed build is fed back once (rule 03 section 4); if it still fails the
+is verified by building the frontend. A failed build is fed back once (.claude/rules/pipeline.md, retry policy); if it still fails the
 original file is restored and the spec reports REQUIRES_HUMAN_INTERVENTION with every attempt. FULFILLED therefore
 means "the changed view compiles", never "a file was written".
 """

@@ -47,7 +47,7 @@ graph TD
 ## 🛡️ Active Generator Architecture
 
 > [!NOTE]
-> **Pure LibCST & Skeleton Generator Pipeline**: Legacy monolithic string-template generators (`dynamic_domain_generator.py` and `site_ast_compiler.py`) have been entirely purged. All domain synthesis routes through `skeleton_builder.py` and Meta `cst_isolator.py`.
+> **Pure LibCST & Skeleton Generator Pipeline**: Legacy monolithic string-template generators (the old domain-generator and site-compiler modules) have been entirely purged. All domain synthesis routes through `skeleton_builder.py` and Meta `cst_isolator.py`.
 
 
 ---

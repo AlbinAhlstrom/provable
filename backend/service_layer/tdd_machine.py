@@ -530,7 +530,7 @@ class {target_class}:
         current_source = f.read()
     current_class = extract_class_cst(current_source, target_class) or f"@dataclass\nclass {target_class}:\n    id: str\n"
 
-    # Retry policy (rule 03 section 4): at most ONE regeneration, only because the lint or the RED gate rejected
+    # Retry policy (.claude/rules/pipeline.md, retry policy): at most ONE regeneration, only because the lint or the RED gate rejected
     # the first test, and the rejection reason is fed back to the test generator.
     existing_tests = collect_existing_tests(tests_dir, exclude=test_file_path, module_name=used_module)
     red_feedback = ""
@@ -609,7 +609,7 @@ class {target_class}:
         with open(domain_file, "w", encoding="utf-8") as f:
             f.write(domain_before)
 
-    # Retry policy (rule 03 section 4): at most ONE retry, and only because the GREEN gate (or the merge of the
+    # Retry policy (.claude/rules/pipeline.md, retry policy): at most ONE retry, and only because the GREEN gate (or the merge of the
     # model's answer) rejected the first attempt; the verdict and the failing test output are fed back to the
     # generator. Provider errors, tampering and anything else fail loudly without a retry.
     try:

@@ -91,22 +91,11 @@ Automate bidirectional synchronization between SQLite `provable.db` database rec
 
 ---
 
-## 6. 🛡️ Automated Context Canary Verification Hook (`hooks.json`)
+
+## 6. 🥊 Boss Fight Acceptance Test Suite: Hazardous Pallet Concurrency & Optimistic Concurrency Control (OCC)
 
 ### Overview
-Automate context integrity detection via an Antigravity lifecycle hook (`.agents/hooks.json` and `scripts/canary_check.py`).
-
-### Technical Blueprint
-- **Trigger**: Lifecycle `Stop` event (`terminationReason: "model_stop"`).
-- **Verification**: Parses the latest `PLANNER_RESPONSE` step from `transcript.jsonl` (provided via `stdin`).
-- **Gate**: If `[🛡️ Clanker Active]` is missing from the assistant's final response text, returns `{"decision": "continue", "reason": "Canary missing: append [🛡️ Clanker Active]"}` to enforce protocol compliance or notify of context degradation.
-
----
-
-## 7. 🥊 Boss Fight Acceptance Test Suite: Hazardous Pallet Concurrency & Optimistic Concurrency Control (OCC)
-
-### Overview
-A stress-test acceptance suite ([`backend/tests/boss_fights/test_hazardous_concurrency.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/tests/boss_fights/test_hazardous_concurrency.py)) that feeds complex industrial DDD prompts through the full Provable pipeline (OCC versioning, stale data collisions, domain event recording vs direct dispatch) and performs multi-tiered deterministic verification combined with an LLM-as-a-Judge code audit.
+A stress-test acceptance suite (`backend/tests/boss_fights/test_hazardous_concurrency.py`) that feeds complex industrial DDD prompts through the full Provable pipeline (OCC versioning, stale data collisions, domain event recording vs direct dispatch) and performs multi-tiered deterministic verification combined with an LLM-as-a-Judge code audit.
 
 ### Test Architecture Blueprint:
 1. **Isolated Workspace Execution**: Runs synthesis inside a sandboxed `tmp_path` workspace via `PROVABLE_WORKSPACE` override to prevent polluting root `workspace/`.
@@ -120,11 +109,11 @@ A stress-test acceptance suite ([`backend/tests/boss_fights/test_hazardous_concu
 
 ---
 
-## 8. 🧠 Agent Harness & DevEx Loops: Claude Code Pattern with High-Signal BDD Context
+## 7. 🧠 Agent Harness & DevEx Loops: Claude Code Pattern with High-Signal BDD Context
 
 ### Overview
 Integrate a dual-layer agent architecture:
-1. **Developer Experience (DevEx) Skills (`.agents/skills/`)**: Modular interactive tools (e.g. `/grill-me`, `/to-spec`, `/bdd-loop`) inspired by Matt Pocock, used during pair-programming to challenge requirements and generate crystal-clear BDD specs.
+1. **Developer Experience (DevEx) Skills (`.claude/skills/`)**: Modular interactive tools (e.g. `/grill-me`, `/to-spec`, `/bdd-loop`) inspired by Matt Pocock, used during pair-programming to challenge requirements and generate crystal-clear BDD specs.
 2. **Runtime Agent Execution Engine (`backend/service_layer/tdd_machine.py`)**: A Claude Code-style agentic workflow where the LLM is given full problem-solving autonomy within a sandboxed, high-signal micro-context (BDD spec + failing test traceback + domain aggregate), while the deterministic test runner acts as the objective evaluator-optimizer gate.
 
 ### Key Capabilities:
@@ -134,7 +123,7 @@ Integrate a dual-layer agent architecture:
 
 ---
 
-## 9. 🥊 Boss Fight 2: The Multi-Stage Iterative Evolution Engine (Realistic Human-Driven DevEx)
+## 8. 🥊 Boss Fight 2: The Multi-Stage Iterative Evolution Engine (Realistic Human-Driven DevEx)
 
 ### Overview
 A multi-stage acceptance stress-test (`backend/tests/boss_fights/test_iterative_domain_evolution.py`) that replicates the true, iterative journey of real-world software engineering rather than expecting a dense, monolithic initial prompt:
@@ -144,10 +133,10 @@ A multi-stage acceptance stress-test (`backend/tests/boss_fights/test_iterative_
 
 ---
 
-## 10. 🎛️ Dual-Mode Kickstart Engine: Quick Launch (0–3 Questions) vs Guided Co-Design (Max 5 Questions)
+## 9. 🎛️ Dual-Mode Kickstart Engine: Quick Launch (0–3 Questions) vs Guided Co-Design (Max 5 Questions)
 
 ### Overview
-Enhance [`KickstartStudio.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/frontend/src/components/KickstartStudio.tsx) and [`domain_ontology.py`](file:///c:/Users/ahlst/Documents/GitHub/provable/backend/onboarding/domain_ontology.py) with a dual-mode launch selector giving users full agency over synthesis depth while strictly capping question fatigue:
+Enhance `frontend/src/components/KickstartStudio.tsx` and `backend/onboarding/domain_ontology.py` with a dual-mode launch selector giving users full agency over synthesis depth while strictly capping question fatigue:
 1. **Mode A: ⚡ Quick Launch (Snabbläge)**:
    - **Target**: 0 questions for 99% of normal prompts.
    - **Mechanism**: Automatically applies all standard opinionated DDD defaults (OCC, Domain Events, Standard State Flow) and immediately synthesizes the baseline prototype. ONLY prompts the user if there is a critical architectural ambiguity where defaults cannot be inferred and synthesis would be blocked.
@@ -168,7 +157,7 @@ class ClarificationQuestion:
 
 ---
 
-## 11. 🏨 Interactive End-to-End Domain Acceptance Playbook (Hotel Room Booking & Housekeeping Lockout)
+## 10. 🏨 Interactive End-to-End Domain Acceptance Playbook (Hotel Room Booking & Housekeeping Lockout)
 
 ### Overview
 A human-executable, intuitive manual acceptance testing scenario for verifying Provable's end-to-end capabilities in an everyday domain (Hotel Room Booking & Housekeeping Management), mirroring the full architectural complexity of Boss Fight 2 (state machines, optimistic concurrency control, domain event dispatch, and incremental BDD invariant injection).
@@ -189,10 +178,10 @@ A human-executable, intuitive manual acceptance testing scenario for verifying P
 
 ---
 
-## 12. ⚡ Live Full-Stack Preview Integration (Wiring SchemaDrivenAppPreview to Workspace Domain API on Port 8001)
+## 11. ⚡ Live Full-Stack Preview Integration (Wiring SchemaDrivenAppPreview to Workspace Domain API on Port 8001)
 
 ### Overview
-Upgrade [`frontend/src/components/SchemaDrivenAppPreview.tsx`](file:///c:/Users/ahlst/Documents/GitHub/provable/frontend/src/components/SchemaDrivenAppPreview.tsx) from disconnected local React mock state to a true live full-stack client communicating directly with the Workspace Domain API (`http://localhost:8001/api/{slug}`).
+Upgrade `frontend/src/components/SchemaDrivenAppPreview.tsx` from disconnected local React mock state to a true live full-stack client communicating directly with the Workspace Domain API (`http://localhost:8001/api/{slug}`).
 
 ### Key Capabilities:
 - **Live Bidirectional Fetch & Sync**: Automatically fetches live entity records via `GET http://localhost:8001/api/{slug}` and updates table rows in real-time.
@@ -202,7 +191,7 @@ Upgrade [`frontend/src/components/SchemaDrivenAppPreview.tsx`](file:///c:/Users/
 
 ---
 
-## 13. 🔄 The Trinity Live Data Continuity Protocol (Engine Room ⇄ Preview ⇄ Swagger API)
+## 12. 🔄 The Trinity Live Data Continuity Protocol (Engine Room ⇄ Preview ⇄ Swagger API)
 
 ### Overview
 Establish full runtime data continuity across the three primary views of PM Studio by establishing the running **Workspace Domain API (`http://localhost:8001`)** as the single authoritative source of truth for entity data.
@@ -233,7 +222,7 @@ graph LR
 
 ---
 
-## 14. 🃏 The "Fluxx" Living Invariant Deck & Dynamic Rule Projection Paradigm
+## 13. 🃏 The "Fluxx" Living Invariant Deck & Dynamic Rule Projection Paradigm
 
 ### Overview
 Elevate Provable from an isolated DDD/FastAPI code generator into a venture-grade **Rule-First Living Application Platform** ("The Fluxx Paradigm"). Rather than forcing users to manipulate raw code or inspect sterile admin forms, the application is defined, evolved, and verified as a living deck of modular **Rules & Invariants** that can be dynamically added, toggled, and verified against a running system.
@@ -273,7 +262,7 @@ graph TD
 
 ---
 
-## 15. ⚡ The Surgical Native Fullstack Pipeline (Micro-Context CST & JSX Orchestrator)
+## 14. ⚡ The Surgical Native Fullstack Pipeline (Micro-Context CST & JSX Orchestrator)
 
 ### Overview
 Rather than relying on heavy, non-deterministic external CLI subprocesses (e.g. Aider) which inflate token costs by 15x–30x per turn and introduce fragile search-replace parsing, Provable utilizes a **Surgical Native Micro-Context Pipeline**. By passing only isolated AST slices for backend classes (`cst_isolator.py`) and single-component JSX templates for frontend views, the engine achieves multi-file fullstack synthesis in **<3 seconds** at **<2,500 tokens** per card (a 90%+ cost reduction).
@@ -305,7 +294,7 @@ graph TD
 
 ---
 
-## 16. 🎭 The Dual-Track Cockpit: Presentation Chat vs. Living Invariant Deck
+## 15. 🎭 The Dual-Track Cockpit: Presentation Chat vs. Living Invariant Deck
 
 ### Overview
 Architect the PM Studio Cockpit as a **Dual-Track Interaction Engine** that cleanly separates the generation of creative visual interfaces from the deterministic enforcement of backend business logic:
@@ -342,7 +331,7 @@ graph TD
 
 ---
 
-## 17. 🃏 The Pure Unified Card Engine & Visual Inspector (Zero-Chat Paradigm)
+## 16. 🃏 The Pure Unified Card Engine & Visual Inspector (Zero-Chat Paradigm)
 
 ### Overview
 Completely eradicate generic freeform chat boxes in favor of a 100% **Card-Native Living Architecture**. Presentation, Layout, and Logic are all first-class cards within the Living Deck, coupled with a direct **Visual Click-to-Edit Inspector** inside the Live Preview:
@@ -378,7 +367,7 @@ graph TD
 
 ---
 
-## 18. 🔄 The Auto-Rule Derivation Engine & Dual-Scope Hierarchy
+## 17. 🔄 The Auto-Rule Derivation Engine & Dual-Scope Hierarchy
 
 ### Overview
 Formally resolve the two primary interaction dilemmas of the Living Rule Deck:
@@ -405,7 +394,7 @@ sequenceDiagram
 
 ---
 
-## 19. 🔄 The Bidirectional Symmetry Engine (Logic-to-View Auto-Projection)
+## 18. 🔄 The Bidirectional Symmetry Engine (Logic-to-View Auto-Projection)
 
 ### Overview
 Complete the bidirectional lifecycle loop between backend domain logic and frontend user interfaces. Just as View changes auto-derive Logic cards (Section 18), **Logic changes automatically project onto the relevant View cards**:
@@ -428,7 +417,7 @@ When a user adds a `LOGIC` card (e.g. chess timers, cancellation policies, promo
 
 ---
 
-## 20. 🚀 Standalone Generated Full-Stack Frontend Engine (`workspace/frontend/` on Port 5174)
+## 19. 🚀 Standalone Generated Full-Stack Frontend Engine (`workspace/frontend/` on Port 5174)
 
 ### Overview
 Expand Provable's generation engine from pure backend FastAPI scaffolding to a complete, standalone **Vite + React + Tailwind** application in `workspace/frontend/` running on `http://localhost:5174`, driven by the OpenAPI schema and Living Rule Deck `VIEW` cards.
@@ -465,7 +454,6 @@ graph TD
 - [[System Architecture]]
 - [[Universal-Dynamic-Domain-AST-Generator]]
 - [[Automated-Verification-And-Self-Healing-Pipeline]]
-- [[Clanker-Protocol]]
 
 
 
