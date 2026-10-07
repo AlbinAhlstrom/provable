@@ -2291,7 +2291,8 @@ def kickstart_domain_and_scaffold(
                         workspace_dir=workspace_dir,
                         pitch=pitch_text,
                         defects=defects,
-                        console_errors=console_errs
+                        console_errors=console_errs,
+                        component_files=pres_res.get("files", [])
                     )
                     if healed:
                         time.sleep(1.0)
