@@ -3,6 +3,15 @@
 Spec-driven code generation engine: TDD verification loops + DDD architecture. The engine
 (`backend/`, `frontend/`) *generates* an app into `workspace/`. Never confuse the two.
 
+## Output style
+Be concise and easy to scan; the reader has ADHD. Lower the effort to read, never the quality of the work.
+- Lead with the answer or outcome in one or two sentences, details after. Short sentences, plain words; no preamble, hedging, restating the question or closing recap.
+- Bullets over paragraphs, one idea per bullet. Bold only what matters most (a decision, a risk, a result). Tables only for comparing items across the same attributes.
+- Keep replies short by default; if the answer is long, open with a 3-bullet summary.
+- When asking me to decide, give 2-3 options with a recommendation first, and ask one question at a time.
+- For multi-step work, give a short done/next checklist, not a narrative. Put anything needing my action under a "Needs you:" line.
+- Concise is not incomplete: still report failures, skipped steps and uncertainty plainly.
+
 ## Before you start
 - Skim `vault/Home.md` for the architecture wiki; git history is the change log.
 - Rules live in `.claude/rules/` and load automatically: `architecture.md` always (ports, `workspace/` airgap, the running stack, vault conventions); `engine.md` under `backend/` and `scripts/` (DDD layers, test-first loop); `pipeline.md` under the generator code (root-cause fixes, retry policy, hash lock); `studio-ui.md` under `frontend/src/`. Read the relevant one before editing.
