@@ -15,12 +15,8 @@ import pytest
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 VAULT = os.path.join(REPO, "vault")
 
-# Reference material copied from outside the project: not wiki pages, not checked against the code.
-EXTERNAL_PREFIXES = ("06-Cosmic-Python-Journey/references/",)
-# Narrative pages that quote the book's or an old session's file names.
-HISTORICAL = ("06-Cosmic-Python-Journey/", "HANDOVER-archive.md")
-# Forward-looking: names components and tests that are planned, not yet built.
-ASPIRATIONAL = ("02-Workflows/Future Enhancements Roadmap.md",)
+# Narrative pages that quote the book's file names rather than this repo's.
+HISTORICAL = ("06-Cosmic-Python-Journey/",)
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".obsidian", "logs", "dist", ".pytest_cache"}
 
 
@@ -38,10 +34,6 @@ def _pages():
 def _read(path):
     with open(path, encoding="utf-8-sig") as handle:
         return handle.read()
-
-
-def _wiki_pages(pages):
-    return {rel: path for rel, path in pages.items() if not rel.startswith(EXTERNAL_PREFIXES)}
 
 
 def _repo_basenames():
@@ -64,7 +56,7 @@ def test_wikilinks_resolve():
 
 
 def test_home_lists_every_page():
-    pages = _wiki_pages(_pages())
+    pages = _pages()
     home = _read(os.path.join(VAULT, "Home.md"))
     missing = [
         rel for rel in pages
@@ -76,8 +68,8 @@ def test_home_lists_every_page():
 def test_referenced_source_files_exist():
     existing = _repo_basenames()
     stale = []
-    for rel, path in _wiki_pages(_pages()).items():
-        if rel.startswith(HISTORICAL + ASPIRATIONAL):
+    for rel, path in _pages().items():
+        if rel.startswith(HISTORICAL):
             continue
         for ref in set(re.findall(r"`([\w./-]+\.(?:py|tsx|ts|sh|tmpl))`", _read(path))):
             if os.path.basename(ref) not in existing:
@@ -87,7 +79,7 @@ def test_referenced_source_files_exist():
 
 def test_no_absolute_machine_paths():
     offenders = []
-    for rel, path in _wiki_pages(_pages()).items():
+    for rel, path in _pages().items():
         if rel.startswith(HISTORICAL):
             continue
         if re.search(r"file:///|[A-Za-z]:[\\/]Users[\\/]|/home/\w+/", _read(path)):

@@ -14,7 +14,7 @@ You audit new or changed code. You never edit files. Use Bash only for read-only
 4. **Duplication**: re-implemented helpers (fence stripping, snake_case, JSON extraction). Point to the existing one.
 5. **Swallowed errors**: `except ...: pass` or `continue` without logging or a re-raise.
 6. **Size and shape**: functions over about 50 lines, files that keep growing (`services.py`, `frontend_planning_engine.py`), primitive obsession, untyped signatures.
-7. **Tests**: weakened or deleted assertions. Check with `git log -S` and the HANDOVER notes whether the behaviour the test pinned is still documented; if it is, flag it as a regression, not a cleanup.
+7. **Tests**: weakened or deleted assertions. Check with `git log -S` and the ADRs in `vault/04-Decisions/` whether the behaviour the test pinned is still documented; if it is, flag it as a regression, not a cleanup.
 
 ## Report
 

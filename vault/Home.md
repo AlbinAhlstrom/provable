@@ -25,7 +25,6 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[Shift-Left TDD Workflow]]: Unified pre-implementation testing execution, requirement-driven failing test spec generation, and Allure coverage mapping.
 - [[Agent Execution Loop]]: TDD execution loop (`tdd_machine.py`) enforcing RED phase, LibCST class extraction, SHA-256 test integrity check, and the single-feedback-retry dead-end policy.
 - [[DDD_TDD_Developer_Workflow]]: Pure DDD layer boundaries, 4-step execution loop (RED-GREEN-WIRE-VERIFY), and anti-leakage verification gate.
-- [[Future Enhancements Roadmap]]: Detailed blueprints for Schema-Driven Dynamic Forms, LLM LibCST repair loops, and Multi-Domain Stress Testing.
 - [[Bug-Reproduction-and-Testing-Policy]]: Strict policy and automated regression test workflow for bug reproduction, tri-service stack startup (:8000, :5173, :5174), and zero-regression guarantees.
 - [[Helper Scripts]]: Single cross-platform application launcher (`run.py`) and PowerShell/Bash wrappers.
 
@@ -55,7 +54,3 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[Chapter-07-Aggregates-and-Optimistic-Concurrency|Chapter 7: Aggregates & Optimistic Concurrency]]: Aggregate consistency boundaries, `version_number` tracking, and SQLAlchemy `version_id_col` optimistic locks.
 - [[Chapter-13-Dependency-Injection-and-Bootstrap|Chapter 13: DI & Bootstrap Container]]: The book's dependency-injection container and decoupled message bus (a reference pattern; the engine itself injects a unit of work per request).
 
----
-
-### 7. 🗄️ Archive
-- [[HANDOVER-archive]]: Archived session handover notes from earlier development; read it for the history behind a behaviour a test pins, not as current documentation.

@@ -32,7 +32,7 @@ Do this directly in the main context so the RED/GREEN evidence stays visible. Su
 ## Failing tests
 
 A failing test is either stale or a regression. Decide with evidence before deleting anything:
-- Check `git log -S"<symbol>"` and `vault/HANDOVER-archive.md` for the behaviour the test pins.
+- Check `git log -S"<symbol>"` and the ADRs in `vault/04-Decisions/` for the behaviour the test pins.
 - Behaviour deliberately removed (the architecture moved on): rewrite or delete the test. Never revert architectural progress to satisfy a legacy test.
 - Behaviour still documented: the code regressed. Fix the code. If the fix has to wait, keep the test as `@pytest.mark.xfail(strict=True, reason=...)` so the regression stays visible.
 
