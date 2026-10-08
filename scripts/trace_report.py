@@ -8,7 +8,7 @@ Usage:
     python scripts/trace_report.py --compare A B       what changed between two runs (code version, stages, files)
 
 The report shows the verdict, where the wall time went, each stage (when it started, status, time, the files it wrote
-with their line counts, why it failed), what styling changed, the generated frontend's files that nothing imports,
+with their line counts, why it failed), what the visual review saw and repaired, the generated frontend's files that nothing imports,
 LLM totals per stage (with hidden reasoning tokens and output speed) and the traced call tree on a timeline.
 `--full N` prints the complete input/output of traced step N (the prompt and the raw answer for an LLM call).
 """
@@ -91,8 +91,6 @@ def show_run(folder, trace_dir):
                 print(f"          {change['change']:<8} {change['path']}{size}")
             if len(st["files_changed"]) > 12:
                 print(f"          ... and {len(st['files_changed']) - 12} more")
-            for comp in (st.get("notes") or {}).get("components") or []:
-                show_styled_component(comp)
             for problem in (st.get("notes") or {}).get("problems") or []:
                 print(f"          saw: {str(problem)[:200]}")
             for edit in (st.get("notes") or {}).get("edits") or []:
@@ -119,24 +117,6 @@ def show_run(folder, trace_dir):
     print("\nTRACE")
     show_trace(traces(trace_dir))
     print(f"\nFolder: {folder}   (--full N prints one step; the generated app is in workspace/)")
-
-
-def show_styled_component(comp):
-    """One restyled file: how its size moved and which visitor-facing text the restyle added or dropped."""
-    if not comp.get("styled"):
-        print(f"          not restyled  {comp.get('file')} after {comp.get('attempts', 1)} attempt(s): {comp.get('reason')}")
-        return
-    added, removed = comp.get("text_added") or [], comp.get("text_removed") or []
-    print(f"          restyled  {comp.get('file')}  {comp.get('lines_before')} -> {comp.get('lines_after')} lines, "
-          f"visible text +{len(added)} -{len(removed)}"
-          + (f", {comp['attempts']} attempts (the first restyle was refused)" if (comp.get("attempts") or 1) > 1 else ""))
-    for refusal in comp.get("refusals") or []:
-        print(f"              refused: {refusal[:160]}")
-    for sign, texts in (("+", added), ("-", removed)):
-        for text in texts[:4]:
-            print(f"              {sign} {text[:90]}")
-        if len(texts) > 4:
-            print(f"              {sign} ... {len(texts) - 4} more")
 
 
 def show_inventory(inventory):

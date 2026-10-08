@@ -1,4 +1,4 @@
-"""The stages between the skeleton and styling, run alongside each other where nothing forces an order.
+"""The stages between the skeleton and QA, run alongside each other where nothing forces an order.
 
     spec_review      ─┐
     seed_data        ─┤

@@ -29,7 +29,7 @@ The original pitch, and optionally the rule deck, the expected behaviour, or a s
 | Edits clobbered unrelated code | `presentation_specs.py`, `cst_isolator.py` |
 | Domain, service or router code wrong | `domain_engine_synthesizer.py`, `prompts/domain_engine_synthesis.md` |
 | Components, view logic, action mismatch | `presentation_projection_synthesizer.py`, `frontend_planning_engine.py`, `prompts/presentation_projection_synthesis.md` |
-| Colors, typography, tokens | `styling_synthesizer.py`, `prompts/styling_synthesis.md` |
+| Colors, typography, tokens | `ux_planner.py`, `prompts/ux_planning.md` (visual direction), `visual_review.py`, `prompts/visual_review.md` |
 | Defect passed QA unnoticed | `qa_auditor.py`, `qa_gate.py` |
 
 ## Report

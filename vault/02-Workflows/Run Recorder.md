@@ -57,7 +57,7 @@ offset say where the wall time went.
 ## Reading a run
 
 ```
-python scripts/trace_report.py                  # latest: verdict, wall time, stages, files, styling changes, inventory, LLM totals, call tree
+python scripts/trace_report.py                  # latest: verdict, wall time, stages, files, visual repairs, inventory, LLM totals, call tree
 python scripts/trace_report.py --list           # every run with its verdict
 python scripts/trace_report.py --compare A B    # code version, stage status changes, frontend size, files written differently
 python scripts/trace_report.py <run> --full 12  # the whole input/output of one step (prompt and raw answer)

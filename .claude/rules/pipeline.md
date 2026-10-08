@@ -8,7 +8,7 @@ paths:
 
 # Pipeline rules: how the generator must behave
 
-These govern the generation pipeline itself (COO -> intent -> Analyst -> Architect -> Product Manager -> TDD -> Backend -> Frontend -> Styling -> QA).
+These govern the generation pipeline itself (COO -> intent -> Analyst -> Architect -> Product Manager -> TDD -> Backend -> UX plan -> Frontend -> QA -> Visual review).
 
 ## Root cause only
 
