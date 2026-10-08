@@ -44,7 +44,7 @@ draft of the product, not as an admin tool:
 
 If the presentation stage fails, the draft stays as the app, so it keeps a working "Add" form.
 
-## Records survive restarts (`src/adapters/record_store.py` in the generated app)
+## Records survive restarts (the generated app's record store adapter, written by `backend/onboarding/skeleton_builder.py`)
 
 The generated API keeps its records in memory and restarts every time the build writes a rule. Each router saves
 its collection to `.data/<plural>.json` after every change and reads it back on its first request, so what a user
