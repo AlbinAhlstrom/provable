@@ -1,6 +1,20 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from onboarding.qa_auditor import run_responsive_qa_audit, DEVICE_MATRIX
+from onboarding.qa_form_check import FormCheck
+
+
+@pytest.fixture(autouse=True)
+def form_checks(monkeypatch):
+    """The form check has its own tests against a real browser; here it is a double that records who ran it."""
+    ran = {"devices": [], "result": FormCheck()}
+
+    def fake(driver, device):
+        ran["devices"].append(device)
+        return ran["result"]
+
+    monkeypatch.setattr("onboarding.qa_auditor.exercise_forms", fake)
+    return ran
 
 
 def test_qa_auditor_matrix_definitions():
@@ -261,3 +275,30 @@ def test_qa_auditor_gives_each_device_its_own_browser_and_reports_them_in_order(
     assert len(drivers) == 3 and all(d.quit.called for d in drivers)
     assert [r["device"] for r in report["device_results"]] == ["Mobile", "Tablet", "Desktop"]
     assert report["passed"] is True
+
+
+@patch("selenium.webdriver.Chrome")
+@pytest.mark.slow
+def test_qa_auditor_fails_a_page_whose_form_the_api_refuses(mock_chrome_cls, tmp_path, form_checks):
+    """Verify a page that measures perfectly still fails the audit when using it does not work.
+
+    id: TST-QA-FORMS
+    Given: A page with clean layout metrics whose form submission is refused, and one form the check could not fill
+    When: The audit runs
+    Then: The forms are exercised once (on the desktop), the refusal is a defect that fails the audit, and the
+          unfilled form is a warning
+    """
+    mock_driver = MagicMock()
+    mock_chrome_cls.return_value = mock_driver
+    mock_driver.execute_script.return_value = {"innerWidth": 375, "maxScrollWidth": 375, "hasHorizontalOverflow": False,
+                                               "overflowDelta": 0, "hasCrashOverlay": False}
+    form_checks["result"] = FormCheck(defects=['[Desktop] Submitting the form "Send" failed: POST /api/x answered 422: id required'],
+                                      warnings=['[Desktop] the form check could not fill the form "Join"'])
+
+    report = run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=False, output_dir=str(tmp_path))
+
+    assert form_checks["devices"] == ["Desktop"]
+    assert report["passed"] is False
+    assert report["defects"] == ['[Desktop] Submitting the form "Send" failed: POST /api/x answered 422: id required']
+    assert report["warnings"] == ['[Desktop] the form check could not fill the form "Join"']
+    assert [r["passed"] for r in report["device_results"]] == [True, True, False]

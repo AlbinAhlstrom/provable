@@ -11,6 +11,8 @@ Enforces Hard QA Invariants:
    window.innerWidth, which a mobile browser widens to fit overflowing content)
 2. Zero Console Exceptions: window.console.errors and unhandled promise rejections
 3. Interactive Element Visibility: key interactive widgets must be rendered and visible
+4. Forms work: on the desktop, each form is filled and submitted, and a request the API refuses is a defect
+   (qa_form_check.py)
 """
 
 import pipeline_trace
@@ -22,6 +24,8 @@ import time
 from typing import Dict, Any, List, Optional
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+
+from onboarding.qa_form_check import exercise_forms
 
 DEVICE_MATRIX = [
     {
@@ -40,7 +44,8 @@ DEVICE_MATRIX = [
         "name": "Desktop",
         "viewport": (1280, 800),
         "is_mobile": False,
-        "device_scale_factor": 1
+        "device_scale_factor": 1,
+        "exercise_forms": True  # once is enough: whether a submission is accepted does not depend on the screen
     }
 ]
 
@@ -259,6 +264,17 @@ def run_responsive_qa_audit(
                 defects.append(f"[{dev_name}] Layout defect: {delta}px horizontal overflow on {width}px screen"
                                + (f" (running past the edge: {widest})" if widest else ""))
 
+            # Last, after the screenshots: submitting a form changes what the page shows
+            form_check = None
+            if dev.get("exercise_forms") and not metrics.get("hasCrashOverlay") and not metrics.get("isRootEmpty"):
+                form_check = exercise_forms(driver, dev_name)
+                device_warnings.extend(form_check.warnings)
+                warnings.extend(form_check.warnings)
+                if form_check.defects:
+                    passed = False
+                    device_defects.extend(form_check.defects)
+                    defects.extend(form_check.defects)
+
             if check_vertical_containment and metrics.get("hasVerticalOverflow"):
                 passed = False
                 delta_y = metrics.get("verticalOverflowDelta", 0)
@@ -275,6 +291,7 @@ def run_responsive_qa_audit(
                 "warnings": device_warnings,
                 "screenshot": screenshot_path,
                 "full_page_screenshot": full_page_path,
+                "forms": form_check.outcomes if form_check else None,
                 "duration_s": round(time.time() - device_started, 2)
             }, defects, warnings, all_console_errors
         finally:

@@ -392,6 +392,16 @@ def get_{slug}(item_id: str):
             raise HTTPException(status_code=404, detail="{entity.name} not found")
         return item.to_dict()
 
+@router.delete("/{{item_id}}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_{slug}(item_id: str):
+    _ensure_seeded()
+    with _uow:
+        repo = getattr(_uow, "{plural_slug}")
+        if not repo.get(item_id):
+            raise HTTPException(status_code=404, detail="{entity.name} not found")
+        repo.delete(item_id)
+        _uow.commit()
+
 
 class ActionRequest(BaseModel):
     action_type: str = Field(..., description="Name of a public domain method on {entity.name}")

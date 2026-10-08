@@ -153,3 +153,22 @@ def test_the_generated_api_assigns_the_id_of_a_record_the_audience_creates(works
     assert (status_a, status_b) == (201, 201), (first, second)
     assert first["id"] and second["id"] and first["id"] != second["id"]
     assert sorted(i["parent_name"] for i in listed) == ["Ada", "Bo"]
+
+
+def test_the_generated_api_removes_a_record(workspace):
+    """Verify a stored record can be removed again (the QA form check removes what it created).
+
+    id: TST-SEED-DELETE
+    Given: A generated API with one created record
+    When: The record is deleted, then deleted again
+    Then: The first delete answers 204 and the record is gone; the second answers 404
+    """
+    script = ("from fastapi.testclient import TestClient\nfrom src.app import app\nc = TestClient(app)\n"
+              "import json\n"
+              "made = c.post('/api/client_inquiries', json={'parent_name': 'Ada'}).json()\n"
+              "first = c.delete('/api/client_inquiries/' + made['id'])\n"
+              "second = c.delete('/api/client_inquiries/' + made['id'])\n"
+              "print(json.dumps([first.status_code, second.status_code, c.get('/api/client_inquiries').json()]))")
+    out = subprocess.run([sys.executable, "-c", script], cwd=workspace, capture_output=True, text=True)
+    assert out.returncode == 0, out.stderr
+    assert json.loads(out.stdout.strip().splitlines()[-1]) == [204, 404, []]
