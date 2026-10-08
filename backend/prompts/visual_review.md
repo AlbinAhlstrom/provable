@@ -32,7 +32,7 @@ Judge the page as a first-time visitor on each screen size would see it:
 Report only what a visitor would notice. A page that works and follows its direction has nothing to report: answer with an empty list. Report at most {max_problems} problems, the most visible first.
 
 ## Claims
-Separately from how the page looks, read the source for what it says about the business. List every statement written into the source as fixed text (a name, a credential, a guarantee, a safety measure, a rating, a number) that no record above carries, quoted as written. Headings that name a section, labels, buttons and guidance are the page's own wording and do not count. Text that comes from a record's field does not count. When there is none, the list is empty.
+Separately from how the page looks, read the source for what it says about the business. List every statement written into the source as fixed text (a name, a credential, a guarantee, a safety measure, a rating, a number) that no record above carries, quoted as written. A sentence under a heading that describes the business (how verified, trusted, experienced, certified or quick to answer it is) is such a statement. Headings that name a section, labels, buttons and guidance on what the visitor can do are the page's own wording and do not count. Text that comes from a record's field does not count. When there is none, the list is empty.
 
 ## How a problem is repaired
 Every repair is a change of Tailwind classes on elements that already exist: in one file, a piece of class text is replaced by another.

@@ -204,3 +204,4 @@ def test_the_review_prompt_asks_about_claims_the_records_do_not_carry():
     import agent_orchestrator
     body = open(os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts", "visual_review.md"), encoding="utf-8").read()
     assert "{records}" in body and "no record carries" in body and '"claims"' in body
+    assert "under a heading" in body  # a sub-heading that describes the business is a claim too

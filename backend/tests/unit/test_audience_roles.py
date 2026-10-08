@@ -179,3 +179,4 @@ def test_the_page_states_about_the_business_only_what_its_records_hold():
     body = open(os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts", "presentation_projection_synthesis.md"), encoding="utf-8").read()
     assert "one item per record" in body
     assert "state nothing about the business themselves" in body
+    assert "a line under a heading" in body  # a section's sub-heading is guidance, not a description of the business
