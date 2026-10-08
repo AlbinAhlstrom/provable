@@ -10,8 +10,12 @@ A repair is a surgical delta, applied here and not by the model:
 - class text holds class names only (no quotes, braces or code);
 - the changed file must still compile, and the page must still pass the QA audit, or the files are put back.
 
-One look, never a second (.claude/rules/pipeline.md, retry policy). Provider and parse errors are reported, not
-retried, and never read as "the page is fine". Whatever is not repaired is listed in the result.
+One look. When the applier refuses a repair (the class text is not in the file, it holds more than class names, the
+file no longer compiles), the refused repairs go back to the reviewer once with the reason, and its corrected repairs
+are applied the same way: the one retry the policy allows, a verifier's verdict fed back (.claude/rules/pipeline.md).
+Provider and parse errors are reported, not retried, and never read as "the page is fine". Whatever is not repaired
+is listed in the result, and `unresolved()` turns it into the stage's failure: a problem a visitor would notice and
+that is still on the page degrades the build by name.
 """
 
 import os
@@ -26,6 +30,7 @@ from onboarding.verification import compile_tsx
 from pipeline_trace import traced
 
 REVIEW_PROMPT = "visual_review.md"
+REFUSED_PROMPT = "visual_review_refused.md"
 MAX_PROBLEMS = 6
 MAX_RECORDS_CHARS = 8000  # the records are context for one check; a very large seed is shown up to here
 
@@ -129,6 +134,45 @@ def _sources_block(sources: Dict[str, str]) -> str:
     return "\n\n".join(f"--- FILE ({rel}) ---\n{code}" for rel, code in sources.items())
 
 
+def unresolved(review: Dict[str, Any]) -> str:
+    """What a review leaves on the page: the problems it saw and could not repair, or why its repairs were taken
+    back. "" when nothing is left."""
+    if review.get("verdict") == "reverted":
+        return str(review.get("error") or "the repairs were taken back")
+    return "; ".join(str(item) for item in review.get("not_repaired") or [])
+
+
+def _apply_repairs(problems: List[Dict[str, Any]], sources: Dict[str, str], workspace_dir: str,
+                   compile_check: Callable[[str, str], Tuple[bool, str]]) -> Tuple[Dict[str, str], List[EditOutcome], List[str]]:
+    """Applies each problem's class change to `sources`. Returns the sources after the repairs, one outcome per
+    repair, and the problems that came without a repair. A changed file that no longer compiles goes back to what it
+    was in `sources`, with its repairs marked refused."""
+    current = dict(sources)
+    outcomes: List[EditOutcome] = []
+    without_repair: List[str] = []
+    for problem in problems:
+        description = str(problem.get("problem") or "").strip()
+        file, find, replace = problem.get("file"), problem.get("find"), problem.get("replace")
+        if not (isinstance(file, str) and isinstance(find, str) and isinstance(replace, str)):
+            without_repair.append(f"{description}: no class change can fix it")
+            continue
+        edit = ClassEdit(problem=description, file=file, find=find, replace=replace)
+        if file not in current:
+            reason, count = f"{file} is not one of the page's components", 0
+        else:
+            current[file], count, reason = apply_class_edit(current[file], edit)
+        outcomes.append(EditOutcome(**asdict(edit), applied=not reason, occurrences=count, reason=reason))
+
+    for rel in [r for r in current if current[r] != sources[r]]:
+        compiles, verdict = compile_check(workspace_dir, current[rel])
+        if not compiles:
+            current[rel] = sources[rel]
+            outcomes = [EditOutcome(**{**asdict(o), "applied": False, "occurrences": 0,
+                                       "reason": f"the repaired file does not compile: {verdict}"})
+                        if o.file == rel and o.applied else o for o in outcomes]
+    return current, outcomes, without_repair
+
+
 @traced("visual.review")
 def review_and_repair(
     workspace_dir: str,
@@ -143,8 +187,9 @@ def review_and_repair(
     """Looks at the page once and repairs what looks wrong with class changes.
 
     `screenshots` maps a label ("desktop", "phone") to an image file. `audit` re-checks the page after a repair; a
-    failed audit puts every file back. Returns {verdict, problems, edits, not_repaired, claims, error,
-    elapsed_seconds} with verdict one of clean | repaired | unrepaired | reverted | error. `claims` are statements
+    failed audit puts every file back. Returns {verdict, problems, edits, not_repaired, claims, error, attempts,
+    elapsed_seconds} with verdict one of clean | repaired | unrepaired | reverted | error. `attempts` is 2 when
+    refused repairs were sent back to the reviewer. `claims` are statements
     about the business written into the page that no record carries: reported, since no class change removes one.
     """
     started = time.time()
@@ -160,20 +205,23 @@ def review_and_repair(
 
     def result(verdict: str, **extra: Any) -> Dict[str, Any]:
         base = {"verdict": verdict, "problems": [], "edits": [], "not_repaired": [], "claims": claims, "error": None,
-                "elapsed_seconds": round(time.time() - started, 2)}
+                "attempts": attempts, "elapsed_seconds": round(time.time() - started, 2)}
         return {**base, **extra}
 
     claims: List[str] = []
+    attempts = 1
     images = [path for path in screenshots.values() if path and os.path.exists(path)]
     if not images or not originals:
         return result("error", error="there is no screenshot or no component to review")
 
-    prompt = agent_orchestrator.load_prompt(REVIEW_PROMPT, {
-        "pitch": pitch, "visual_direction": visual_direction or "(no direction was planned)",
-        "screenshots": ", ".join(f"image {i + 1}: {label}" for i, label in enumerate(screenshots)),
-        "sources": _sources_block(originals), "records": _records_block(workspace_dir), "max_problems": MAX_PROBLEMS,
-    })
-    raw = llm(prompt, stage="visual_review", json_mode=True, images=images)
+    def review_prompt(sources: Dict[str, str]) -> str:
+        return agent_orchestrator.load_prompt(REVIEW_PROMPT, {
+            "pitch": pitch, "visual_direction": visual_direction or "(no direction was planned)",
+            "screenshots": ", ".join(f"image {i + 1}: {label}" for i, label in enumerate(screenshots)),
+            "sources": _sources_block(sources), "records": _records_block(workspace_dir), "max_problems": MAX_PROBLEMS,
+        })
+
+    raw = llm(review_prompt(originals), stage="visual_review", json_mode=True, images=images)
     if not raw or not raw.strip():
         return result("error", error=agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response")
     try:
@@ -185,33 +233,33 @@ def review_and_repair(
     if not problems:
         return result("clean")
 
-    current = dict(originals)
-    outcomes: List[EditOutcome] = []
-    not_repaired: List[str] = []
-    for problem, description in zip(problems, descriptions):
-        file, find, replace = problem.get("file"), problem.get("find"), problem.get("replace")
-        if not (isinstance(file, str) and isinstance(find, str) and isinstance(replace, str)):
-            not_repaired.append(f"{description}: no class change can fix it")
-            continue
-        edit = ClassEdit(problem=description, file=file, find=find, replace=replace)
-        if file not in current:
-            reason, count = f"{file} is not one of the page's components", 0
-        else:
-            current[file], count, reason = apply_class_edit(current[file], edit)
-        outcomes.append(EditOutcome(**asdict(edit), applied=not reason, occurrences=count, reason=reason))
+    current, outcomes, not_repaired = _apply_repairs(problems, originals, workspace_dir, compile_check)
 
-    # A changed file must still compile; one that does not goes back as it was, with its edits marked refused
-    for rel in [r for r in current if current[r] != originals[r]]:
-        compiles, verdict = compile_check(workspace_dir, current[rel])
-        if not compiles:
-            current[rel] = originals[rel]
-            outcomes = [EditOutcome(**{**asdict(o), "applied": False, "occurrences": 0,
-                                       "reason": f"the repaired file does not compile: {verdict}"})
-                        if o.file == rel and o.applied else o for o in outcomes]
+    # The one retry: repairs the applier refused go back to the reviewer with the reason, once
+    refused = [o for o in outcomes if not o.applied]
+    retry_error = ""
+    if refused:
+        attempts = 2
+        feedback = "\n".join(f"- {o.problem}\n  file: {o.file}\n  find: {o.find}\n  replace: {o.replace}\n  refused: {o.reason}"
+                             for o in refused)
+        retry_prompt = review_prompt(current) + agent_orchestrator.load_prompt(REFUSED_PROMPT, {"refused": feedback})
+        retry_raw = llm(retry_prompt, stage="visual_review", json_mode=True, images=images)
+        try:
+            if not retry_raw or not retry_raw.strip():
+                raise ValueError(agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response")
+            retry_problems, _ = _read_review(retry_raw)
+        except Exception as exc:  # the first repairs stand; the refused ones stay refused, with this reason beside them
+            retry_problems, retry_error = [], f"the corrected repairs could not be read: {exc}"
+        current, corrected, no_repair = _apply_repairs(retry_problems, current, workspace_dir, compile_check)
+        answered = {o.problem for o in corrected} | {entry.rsplit(": no class change can fix it", 1)[0] for entry in no_repair}
+        outcomes = [o for o in outcomes if o.applied or o.problem not in answered] + corrected
+        not_repaired += no_repair
 
     changed = [rel for rel in current if current[rel] != originals[rel]]
     not_repaired += [f"{o.problem}: {o.reason}" for o in outcomes if not o.applied]
     report = dict(problems=descriptions, edits=[asdict(o) for o in outcomes], not_repaired=not_repaired)
+    if retry_error:
+        report["error"] = retry_error
     if not changed:
         return result("unrepaired", **report)
 

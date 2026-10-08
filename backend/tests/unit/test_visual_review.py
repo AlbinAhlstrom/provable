@@ -65,13 +65,18 @@ def _workspace(tmp_path):
     return view, {"desktop": str(shot)}
 
 
-def _review(tmp_path, answer, audit=None, compiles=(True, ""), calls=None):
+def _review(tmp_path, answer, audit=None, compiles=(True, ""), calls=None, retry_answer=None):
+    """`answer` is the review; `retry_answer` is what the model says when refused repairs are sent back (nothing new
+    by default)."""
     view, shots = _workspace(tmp_path)
+    answers = [answer, retry_answer if retry_answer is not None else {"problems": []}]
+    if calls is None:
+        calls = []
 
     def llm(prompt, stage="general", **options):
-        if calls is not None:
-            calls.append({"prompt": prompt, "stage": stage, **options})
-        return answer if isinstance(answer, str) else json.dumps(answer)
+        calls.append({"prompt": prompt, "stage": stage, **options})
+        given = answers[min(len(calls), len(answers)) - 1]
+        return given if isinstance(given, str) else json.dumps(given)
 
     result = review_and_repair(
         workspace_dir=str(tmp_path), pitch="p", visual_direction="warm cream page, one amber accent",
@@ -205,3 +210,92 @@ def test_the_review_prompt_asks_about_claims_the_records_do_not_carry():
     body = open(os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts", "visual_review.md"), encoding="utf-8").read()
     assert "{records}" in body and "no record carries" in body and '"claims"' in body
     assert "under a heading" in body  # a sub-heading that describes the business is a claim too
+
+
+_CONDITION = "active ? 'bg-slate-500' : 'bg-white'"
+
+
+def test_a_refused_repair_is_sent_back_once_with_the_reason(tmp_path):
+    """Verify the one retry the policy allows: the applier refused a repair, and its verdict goes back to the reviewer.
+
+    id: TST-VR-RETRY-001
+    Given: A review whose repair copies a whole condition instead of class names, and a second answer that gives the
+           classes alone
+    When: The page is reviewed
+    Then: Two calls are made; the second is told which repair was refused and why; the corrected repair is applied
+          and the result says two attempts were made
+    """
+    calls = []
+    first = {"problems": [{"problem": "pale heading", "file": "src/views/View.tsx", "find": _CONDITION, "replace": "active ? 'bg-slate-900' : 'bg-white'"}]}
+    second = {"problems": [{"problem": "pale heading", "file": "src/views/View.tsx", "find": "bg-white", "replace": "bg-slate-900"}]}
+    view, result = _review(tmp_path, first, calls=calls, retry_answer=second)
+
+    assert len(calls) == 2 and result["attempts"] == 2 and result["verdict"] == "repaired"
+    assert "the edit must hold only class names" in calls[1]["prompt"] and _CONDITION in calls[1]["prompt"]
+    assert calls[1]["images"] == calls[0]["images"]
+    assert "'bg-slate-900'" in view.read_text(encoding="utf-8") and result["not_repaired"] == []
+
+
+def test_a_repair_refused_twice_is_reported_and_never_tried_a_third_time(tmp_path):
+    """Verify the retry is exactly one.
+
+    id: TST-VR-RETRY-002
+    Given: A review whose repair is refused, and a second answer that is refused the same way
+    When: The page is reviewed
+    Then: Two calls are made, nothing changes, and the problem is listed as not repaired with the reason
+    """
+    calls = []
+    bad = {"problems": [{"problem": "pale heading", "file": "src/views/View.tsx", "find": _CONDITION, "replace": "x ? 'a' : 'b'"}]}
+    view, result = _review(tmp_path, bad, calls=calls, retry_answer=bad)
+
+    assert len(calls) == 2 and result["verdict"] == "unrepaired" and view.read_text(encoding="utf-8") == _VIEW
+    assert result["not_repaired"] == ["pale heading: the edit must hold only class names"]
+
+
+def test_no_second_call_when_no_repair_was_refused(tmp_path):
+    """Verify the retry is only ever an answer to a refusal.
+
+    id: TST-VR-RETRY-003
+    Given: A review with one repair that applies and one problem it says no class change can fix
+    When: The page is reviewed
+    Then: One call is made
+    """
+    calls = []
+    answer = {"problems": [
+        {"problem": "grey page background", "file": "src/views/View.tsx", "find": "bg-slate-500", "replace": "bg-amber-50"},
+        {"problem": "the hero has no image", "file": None, "find": None, "replace": None}]}
+    _, result = _review(tmp_path, answer, calls=calls)
+    assert len(calls) == 1 and result["attempts"] == 1
+
+
+def test_what_the_review_saw_and_could_not_repair_is_a_reported_failure():
+    """Verify a visible problem left on the page is not a silent note in the log.
+
+    id: TST-VR-UNRESOLVED
+    Given: A clean review, a review that repaired everything, one that left a problem, and one whose repairs were taken back
+    When: Each is asked what it leaves unresolved
+    Then: The first two leave nothing; the others name the problem or the reason
+    """
+    assert visual_review.unresolved({"verdict": "clean", "not_repaired": [], "error": None}) == ""
+    assert visual_review.unresolved({"verdict": "repaired", "not_repaired": [], "error": None}) == ""
+    left = visual_review.unresolved({"verdict": "unrepaired", "not_repaired": ["white pieces are invisible: the edit must hold only class names"], "error": None})
+    assert "white pieces are invisible" in left
+    assert "no longer passed QA" in visual_review.unresolved(
+        {"verdict": "reverted", "not_repaired": [], "error": "the repairs were taken back, the page no longer passed QA: overflow"})
+
+
+def test_the_prompts_say_how_to_repair_classes_inside_a_condition_and_ask_for_contrast_on_every_background():
+    """Verify the two prompts state what this run got wrong.
+
+    id: TST-VR-PROMPTS
+    Given: The visual review prompt and the presentation prompt
+    When: They are read
+    Then: The review prompt says which text to copy when classes sit inside a condition; the presentation prompt asks
+          that whatever is placed on more than one background is readable on each
+    """
+    import agent_orchestrator
+    prompts = os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts")
+    review = open(os.path.join(prompts, "visual_review.md"), encoding="utf-8").read()
+    page = open(os.path.join(prompts, "presentation_projection_synthesis.md"), encoding="utf-8").read()
+    assert "inside a condition" in review and "one of its quoted strings" in review
+    assert "more than one background" in page and "readable on each" in page

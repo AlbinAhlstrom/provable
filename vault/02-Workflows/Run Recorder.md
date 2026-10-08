@@ -48,7 +48,7 @@ offset say where the wall time went.
   exports nothing (`export {};`) is not written. When the page is written, the skeleton's scaffold it no longer imports is removed and listed as `removed_scaffold`. The `action_behaviour` stage notes which actions have a method (`implemented`), which do not (`missing`, which fails the stage) and how each aggregate's TDD loop ended (`runs`). The `behaviour_specs` stage notes the specs it `fulfilled` and the ones it did not (`unfulfilled`, with each reason, which fails the stage).
 - **UX plan** notes whether it carries a visual direction (section 6 of the blueprint).
 - **Visual review** notes its verdict (`clean`, `repaired`, `unrepaired`, `reverted`, `error`), the problems it saw,
-  every class change with whether it was applied and why not, and what it could not repair.
+  every class change with whether it was applied and why not, and what it could not repair. A repair the applier refuses is sent back to the reviewer once with the reason (`attempts` is then 2). A problem that is still on the page afterwards (`not_repaired`), or repairs taken back because the page no longer passed QA, fail the stage and degrade the build.
 - **QA** notes the verdict, the rework attempts and its warnings (text cut off at the screen edge). Each device result
   in the trace holds its metrics, how long it took and both screenshots; the desktop result also holds what using each form showed (`forms`: the requests it sent and the API's answers).
 - **Frontend inventory** (`backend/onboarding/app_inventory.py`, in the result as `app_inventory`): every source file

@@ -2304,17 +2304,19 @@ def kickstart_domain_and_scaffold(
                 st.skip("the page did not pass QA")
             else:
                 from onboarding.ux_planner import visual_direction
-                from onboarding.visual_review import review_and_repair, screenshots_from_audit
+                from onboarding.visual_review import review_and_repair, screenshots_from_audit, unresolved
                 review = review_and_repair(
                     workspace_dir=workspace_dir, pitch=pitch_text,
                     visual_direction=visual_direction(synthesis.ux_blueprint),
                     component_files=pres_res.get("files", []),
                     screenshots=screenshots_from_audit(last_audit.get("report") or {}), audit=_audit)
-                for key in ("verdict", "problems", "edits", "not_repaired", "claims"):
+                for key in ("verdict", "problems", "edits", "not_repaired", "claims", "attempts"):
                     st.note(key, review[key])
-                if review["verdict"] == "error":
-                    stage_failures.append({"stage": "visual_review", "error": str(review["error"])})
-                    st.fail(str(review["error"]))
+                # A problem the review saw and could not repair is still on the page: the build says so
+                left_on_page = str(review["error"]) if review["verdict"] == "error" else unresolved(review)
+                if left_on_page:
+                    stage_failures.append({"stage": "visual_review", "error": left_on_page})
+                    st.fail(left_on_page)
                 else:
                     st.ok()
                 print(f"[Kickstart] Visual review: {review['verdict']} ({len(review['problems'])} problem(s), "

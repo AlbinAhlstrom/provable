@@ -41,6 +41,7 @@ Every repair is a change of Tailwind classes on elements that already exist: in 
 - `find`: class text copied exactly from that file's source, whole class names (one class or several that stand next to each other).
 - `replace`: the class text that takes its place. Class names only.
 - Every place in that file where `find` appears as classes is changed, so choose text that identifies what you mean to change.
+- When the classes sit inside a condition (`selected ? 'bg-amber-600 text-white' : 'bg-white'`), `find` is the class text inside one of its quoted strings (`bg-amber-600 text-white`), without the condition and the quotes around it.
 - The words on the page, the elements and the code are final. A problem that only a change to those could fix is still worth reporting: give it with `file`, `find` and `replace` set to null.
 
 Respond STRICTLY with a JSON object, no commentary:
