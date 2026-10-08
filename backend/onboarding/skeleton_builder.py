@@ -473,8 +473,9 @@ def list_{plural_slug}():
 @router.post("", response_model={entity.name}ResponseSchema, status_code=status.HTTP_201_CREATED)
 def create_{slug}(payload: {entity.name}CreateSchema):
     _ensure_seeded()
-    data = payload.dict()
-    if "id" in data and not data["id"]:
+    # Only what the client sent: every other field starts as the class itself says (its starting state)
+    data = payload.model_dump(exclude_unset=True)
+    if "id" in type(payload).model_fields and not data.get("id"):
         data["id"] = uuid.uuid4().hex
     item = {entity.name}(**data)
     with _uow:

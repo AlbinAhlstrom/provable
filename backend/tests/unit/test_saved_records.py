@@ -112,3 +112,34 @@ def test_a_new_build_starts_without_the_previous_apps_records(tmp_path):
     assert (tmp_path / DATA_DIR / "bookings.json").exists()
     build_and_write_skeleton(STRUCTURE, target_dir=str(tmp_path))
     assert not (tmp_path / DATA_DIR).exists()
+
+
+def test_a_new_record_starts_as_its_class_says_not_as_the_form_defaults(tmp_path):
+    """Verify fields the client did not send are left to the class, which knows its own starting state.
+
+    id: TST-CREATE-CLASS-DEFAULTS
+    Given: A generated app whose Booking class starts every booking with a note of its own, and whose create
+           schema gives that field an empty default (as every list of owned parts gets: a chess match was created
+           with an empty board because the schema's empty list was passed over the class's starting position)
+    When: A booking is created with only its guest, and another with an explicit note
+    Then: The first has the class's note, the second the note it was sent
+    """
+    build_and_write_skeleton(STRUCTURE, target_dir=str(tmp_path))
+    domain = tmp_path / "src" / "domain" / "booking.py"
+    source = domain.read_text(encoding="utf-8")
+    assert "    guest: str\n" in source
+    domain.write_text(source.replace("    guest: str\n", "    guest: str\n    notes: List[str] = field(default_factory=lambda: ['welcome'])\n"),
+                      encoding="utf-8")
+    schemas = tmp_path / "src" / "entrypoints" / "schemas.py"
+    schema = schemas.read_text(encoding="utf-8")
+    assert "class BookingCreateSchema(BaseModel):\n    guest: str\n" in schema
+    schemas.write_text(schema.replace("class BookingCreateSchema(BaseModel):\n    guest: str\n",
+                                      "class BookingCreateSchema(BaseModel):\n    guest: str\n    notes: List[str] = Field(default_factory=list)\n"),
+                       encoding="utf-8")
+    out = subprocess.run([sys.executable, "-c", CLIENT + (
+        "a = c.post('/api/bookings', json={'guest': 'Ada'}).json()\n"
+        "b = c.post('/api/bookings', json={'guest': 'Bo', 'notes': ['vip']}).json()\n"
+        "print(json.dumps([a['notes'], b['notes'], bool(a['id'])]))")], cwd=tmp_path, capture_output=True, text=True,
+        env={**os.environ, "APP_DATA_DIR": ""})
+    assert out.returncode == 0, out.stderr
+    assert json.loads(out.stdout.strip().splitlines()[-1]) == [["welcome"], ["vip"], True]

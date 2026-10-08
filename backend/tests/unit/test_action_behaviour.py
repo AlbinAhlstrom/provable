@@ -173,3 +173,42 @@ def test_the_rule_writers_are_told_the_starting_state_too():
     from onboarding.action_protocol import format_interface_contract
     assert "status is 'held'" in format_interface_contract(STARTING, "Appointment")
     assert "status is 'held'" not in format_interface_contract(STARTING, "Stylist")
+
+
+WORDS = {**STARTING,
+         "vocabulary": [{"aggregate": "Appointment", "field": "status", "values": [
+             {"value": "held", "meaning": "a slot is reserved and not yet confirmed"},
+             {"value": "confirmed", "meaning": "the guest gave contact details"}]}],
+         "rejections": [{"aggregate": "Appointment", "error": "SlotTakenError", "raised_when": "the slot is no longer free"}]}
+
+
+def test_the_shared_words_reach_every_writer_of_the_class():
+    """Verify field values and refusal names are fixed once and handed to the tests' and the code's writers.
+
+    id: TST-ACTB-WORDS-001
+    Given: A manifest that fixes the values of Appointment.status and the name of its one refusal (tests written
+           side by side each invented their own: one expected ValueError, another IllegalMoveError, and no code
+           could satisfy both)
+    When: The interface contract and the actions' spec for Appointment are rendered
+    Then: Both state every status value with its meaning and the refusal with its name; Stylist's contract has none
+    """
+    from onboarding.action_protocol import format_interface_contract
+    contract = format_interface_contract(WORDS, "Appointment")
+    spec = action_spec("Appointment", [a for a in WORDS["actions"] if a["aggregate"] == "Appointment"], manifest=WORDS)
+    for text in (contract, spec.description + spec.given_when_then):
+        assert '"held"' in text and "a slot is reserved and not yet confirmed" in text and '"confirmed"' in text
+        assert "SlotTakenError" in text and "the slot is no longer free" in text
+    assert "SlotTakenError" not in format_interface_contract(WORDS, "Stylist")
+
+
+def test_the_page_writer_is_given_the_field_values_too():
+    """Verify the page compares a status against the value the domain stores, not one it guessed.
+
+    id: TST-ACTB-WORDS-002
+    Given: A manifest that fixes the values of Appointment.status
+    When: The action protocol is rendered for the page writer
+    Then: It lists the values, and not the refusal names (the page shows the refusal's message)
+    """
+    from onboarding.action_protocol import format_action_protocol
+    text = format_action_protocol(WORDS)
+    assert '"held"' in text and '"confirmed"' in text and "SlotTakenError" not in text

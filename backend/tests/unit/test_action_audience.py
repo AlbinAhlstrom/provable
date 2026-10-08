@@ -113,6 +113,28 @@ def test_the_action_protocol_is_held_to_a_schema_and_asks_for_starting_states(tm
     monkeypatch.setattr(agent_orchestrator, "call_gemini", fake)
     result = synthesize_action_protocol("p", STRUCTURE, [SPEC], str(tmp_path), intent=INTENT)
     manifest_schema = seen["json_schema"]["properties"]["action_manifest"]["properties"]
-    assert set(manifest_schema) == {"actions", "starting_states"}
+    assert {"actions", "starting_states"} <= set(manifest_schema)
     assert "starting_states" in seen["prompt"]
     assert result["success"] and result["action_manifest"]["starting_states"][0]["description"] == "status is new"
+
+
+def test_the_action_protocol_fixes_the_shared_words(tmp_path, monkeypatch):
+    """Verify the protocol is asked for field values and refusal names, and the schema carries them.
+
+    id: TST-AUD-WORDS
+    Given: A domain with a master aggregate
+    When: The action protocol is synthesized
+    Then: The schema requires `vocabulary` and `rejections` beside the actions, and the prompt asks for both
+    """
+    from onboarding.domain_engine_synthesizer import synthesize_action_protocol
+    seen = {}
+
+    def fake(prompt, stage="general", **kwargs):
+        seen.update(prompt=prompt, **kwargs)
+        return '{"action_manifest": {"actions": [], "starting_states": [], "vocabulary": [], "rejections": []}}'
+
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", fake)
+    synthesize_action_protocol("p", STRUCTURE, [SPEC], str(tmp_path), intent=INTENT)
+    manifest_schema = seen["json_schema"]["properties"]["action_manifest"]
+    assert {"vocabulary", "rejections"} <= set(manifest_schema["required"])
+    assert "vocabulary" in seen["prompt"] and "rejections" in seen["prompt"]

@@ -98,6 +98,17 @@ While the page is written, the rule deck's behaviour specs are written together 
   (`prompt_expansion.md`, `router_decomposition.md`). A deck of six rules produced a chess game without castling
   on one side and without en passant, and every test passed: a rule is only enforced as far as a spec states it.
 
+- The words the tests share are fixed before they are written: the action protocol lists, per class, every value
+  a fixed-set field takes (`vocabulary`) and the name of every refusal (`rejections`). They are part of the
+  interface contract every test writer is shown, of the actions' spec, and (the values) of what the page writer is
+  given. Written side by side without them, one test expected `ValueError` and another `IllegalMoveError`, one a
+  status of `Draw` and another `Draw (Threefold Repetition)`, and no code answer could satisfy both.
+- The code writer implements each rule in full: the tests are examples of a rule, not its extent
+  (`green_class_repair.md`). A class written only as far as its tests reached accepted almost any chess move.
+- The generated create endpoint passes the class only the fields the client sent, so every other field starts as
+  the class says. Passing the create schema's empty defaults overrode the class's starting state (a new chess
+  match had no pieces).
+
 Each spec's status is stored as when the user runs it from the Studio, where a single spec still goes through the
 single loop. QA starts once the specs are done, so it audits a domain that no longer changes. Presentation specs are
 not run here: the page is written from them. One spec after another, a nine-rule deck took about 230 seconds (nine

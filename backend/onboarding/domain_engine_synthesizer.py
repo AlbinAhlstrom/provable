@@ -38,8 +38,17 @@ MANIFEST_SCHEMA: Dict[str, Any] = {
                 "type": "object",
                 "properties": {"aggregate": _TEXT, "description": _TEXT},
                 "required": ["aggregate", "description"]}},
+            "vocabulary": {"type": "array", "items": {
+                "type": "object",
+                "properties": {"aggregate": _TEXT, "field": _TEXT, "values": {"type": "array", "items": {
+                    "type": "object", "properties": {"value": _TEXT, "meaning": _TEXT}, "required": ["value", "meaning"]}}},
+                "required": ["aggregate", "field", "values"]}},
+            "rejections": {"type": "array", "items": {
+                "type": "object",
+                "properties": {"aggregate": _TEXT, "error": _TEXT, "raised_when": _TEXT},
+                "required": ["aggregate", "error", "raised_when"]}},
         },
-        "required": ["actions", "starting_states"]}},
+        "required": ["actions", "starting_states", "vocabulary", "rejections"]}},
     "required": ["action_manifest"],
 }
 

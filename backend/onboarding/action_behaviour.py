@@ -22,7 +22,7 @@ import os
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
-from onboarding.action_protocol import check_action_contract, starting_state
+from onboarding.action_protocol import check_action_contract, shared_words, starting_state
 from onboarding.router_engine import BusinessSpec
 from onboarding.skeleton_builder import to_snake_case
 from pipeline_trace import traced
@@ -49,7 +49,8 @@ class ActionBehaviour:
         return f"no method implements: {names}" + (f" ({reasons})" if reasons else "")
 
 
-def action_spec(aggregate: str, actions: List[Dict[str, Any]], starting_state: str = "") -> BusinessSpec:
+def action_spec(aggregate: str, actions: List[Dict[str, Any]], starting_state: str = "",
+                manifest: Optional[Dict[str, Any]] = None) -> BusinessSpec:
     """The one spec that states everything the application will ask this aggregate to do, and what a new object
     holds before any of it (the application shows a new object at once, so the class starts that way by itself)."""
     scenarios = []
@@ -65,7 +66,8 @@ def action_spec(aggregate: str, actions: List[Dict[str, Any]], starting_state: s
         spec_id=f"SPEC-ACT-{aggregate.upper()}",
         title=f"{aggregate} carries out its actions",
         description=(f"The application calls these methods on {aggregate} by exactly these names and keyword arguments. "
-                     f"Each one changes the object as described."),
+                     f"Each one changes the object as described."
+                     + "".join(f"\n{line}" for line in shared_words(manifest, aggregate))),
         given_when_then=(f"Given a {aggregate} in a state where the action is allowed (arrange that by setting its fields). "
                          + " ".join(scenarios) + " One test function per method."),
         target_aggregate=aggregate,
@@ -97,7 +99,7 @@ def implement_actions(
         if not os.path.exists(os.path.join(workspace_dir, "src", "domain", f"{to_snake_case(aggregate)}.py")):
             run.update(status="NO_DOMAIN_CLASS", error="the decomposition has no such class")
             continue
-        spec = action_spec(aggregate, actions, starting_state(manifest, aggregate))
+        spec = action_spec(aggregate, actions, starting_state(manifest, aggregate), manifest=manifest)
         run["spec_id"] = spec.spec_id
         try:
             loop = run_spec(spec, workspace_dir, action_manifest=manifest)

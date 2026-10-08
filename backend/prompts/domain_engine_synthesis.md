@@ -22,6 +22,11 @@ List only actions a user of THIS product would actually perform, drawn from the 
 ## What a new object holds
 The application creates an object by constructing its class with only its required fields (often just the id), and the interface shows it right away, before any action. For every class that owns an action, say in `starting_states` what such a newly created object holds: the values its fields start with so that it is ready for its first action and looks right on screen (a game is set up for its first turn with everything in its starting place, a request starts in its first status with nothing decided yet). The class is written to start that way by itself, so no action is needed to set it up, and you list no action whose only purpose is to prepare a new object.
 
+## The words everyone shares
+After this step, the test for every specification above is written by a different person at the same time, and one implementation must then satisfy all of those tests. Whatever two of them could spell differently is therefore fixed here, once:
+- `vocabulary`: for every field of these classes whose value is one of a fixed set (a status, a colour, a kind, an outcome), every value it can take, spelled exactly as it is stored, and when it holds. Include every value the specifications' rules need: go through them and give each state they mention (each way a thing can end, each stage it passes through) its value.
+- `rejections`: every kind of refusal the specifications describe: the name of the exception class raised (CamelCase, ending in `Error`) and when. Use as few as the rules need to be told apart; one name for "this is not allowed by the rules" is better than one per rule.
+
 Respond STRICTLY with a JSON object, no commentary:
 {
   "action_manifest": {
@@ -38,6 +43,20 @@ Respond STRICTLY with a JSON object, no commentary:
       {
         "aggregate": "<class that owns at least one action>",
         "description": "<what a newly created object's fields hold, concretely enough to test: which field holds what>"
+      }
+    ],
+    "vocabulary": [
+      {
+        "aggregate": "<class>",
+        "field": "<field whose value is one of a fixed set>",
+        "values": [{"value": "<exactly as stored>", "meaning": "<when the field holds it>"}]
+      }
+    ],
+    "rejections": [
+      {
+        "aggregate": "<class>",
+        "error": "<ExceptionClassName>",
+        "raised_when": "<the kind of request it refuses>"
       }
     ]
   }
