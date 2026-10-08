@@ -253,7 +253,7 @@ def test_the_rule_specs_run_after_the_actions_and_while_the_page_is_written(tmp_
         order.append("behaviour")
         return ActionBehaviour(implemented=["submit"])
 
-    def specs(inbox_specs):
+    def specs(inbox_specs, report):
         assert order == ["behaviour"], "the specs ran before the actions were implemented"
         specs_started.set()
         return SpecRun(fulfilled=["SPEC-001"])
@@ -276,6 +276,6 @@ def test_a_spec_that_was_not_fulfilled_is_a_reported_failure(tmp_path):
     """
     unfulfilled = SpecRun(unfulfilled=[{"spec_id": "SPEC-002", "title": "No double booking", "status": "REQUIRES_HUMAN_INTERVENTION",
                                         "error": "assert raised"}])
-    outcome = _run(tmp_path, specs=lambda inbox_specs: unfulfilled)
+    outcome = _run(tmp_path, specs=lambda inbox_specs, report: unfulfilled)
     assert [f["stage"] for f in outcome.failures] == ["behaviour_specs"]
     assert "SPEC-002" in outcome.failures[0]["error"] and outcome.presentation["success"]

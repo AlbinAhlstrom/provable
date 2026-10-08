@@ -1,5 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AppPreview } from './AppPreview';
+import { BuildProgress, BuildProgressScreen, BuildProgressStrip } from './BuildProgressPanel';
+
+const PROGRESS_POLL_MS = 1500;       // while a build runs
+const IDLE_PROGRESS_POLL_MS = 4000;  // to notice a build started elsewhere (another tab, the API)
+
+const fetchProgress = async (): Promise<BuildProgress | null> => {
+  const res = await fetch('/api/onboarding/progress');
+  return res.ok ? res.json() : null;
+};
 
 export interface KickstartStudioProps {
   onAppSynthesized?: () => void;
@@ -12,27 +21,61 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
   const [resetMessage, setResetMessage] = useState<string | null>(null);
   const [synthesized, setSynthesized] = useState<boolean>(false);
   const [llmConfigured, setLlmConfigured] = useState<boolean>(true);
+  const [progress, setProgress] = useState<BuildProgress | null>(null);
+  const [reloadToken, setReloadToken] = useState<number>(0);
+  const followedBuild = useRef<boolean>(false);  // the running build has been seen at least once
+
+  const checkState = async () => {
+    try {
+      const res = await fetch('/api/kickstart/state');
+      const state = await res.json();
+      if (state) {
+        if (state.business_pitch) setPitch(state.business_pitch);
+        if (typeof state.synthesized === 'boolean') setSynthesized(state.synthesized);
+        if (typeof state.llm_configured === 'boolean') setLlmConfigured(state.llm_configured);
+      }
+    } catch (err) {
+      console.error("Failed to fetch kickstart state:", err);
+    }
+  };
 
   useEffect(() => {
-    const checkState = async () => {
-      try {
-        const res = await fetch('/api/kickstart/state');
-        const state = await res.json();
-        if (state) {
-          if (state.business_pitch) setPitch(state.business_pitch);
-          if (typeof state.synthesized === 'boolean') setSynthesized(state.synthesized);
-          if (typeof state.llm_configured === 'boolean') setLlmConfigured(state.llm_configured);
-        }
-      } catch (err) {
-        console.error("Failed to fetch kickstart state:", err);
-      }
-    };
     checkState();
   }, []);
 
+  // Ask what the running build has delivered so far; the app is shown as soon as its page is written. A build this
+  // page did not start (it was reloaded, or the build came from elsewhere) is picked up the same way.
+  useEffect(() => {
+    const poll = async () => {
+      try {
+        const next = await fetchProgress();
+        if (!next) return;
+        if (next.building) {
+          followedBuild.current = true;
+          setProgress(next);
+          setBuilding(true);
+        } else if (followedBuild.current) {
+          // The build this page was following has ended
+          followedBuild.current = false;
+          setBuilding(false);
+          setProgress(null);
+          setReloadToken(t => t + 1);
+          checkState();
+        }
+      } catch (err) {
+        console.error("Failed to fetch build progress:", err);
+      }
+    };
+    poll();
+    const timer = setInterval(poll, building ? PROGRESS_POLL_MS : IDLE_PROGRESS_POLL_MS);
+    return () => clearInterval(timer);
+  }, [building]);
+
   const triggerSynthesis = async () => {
     if (!pitch.trim()) return;
+    followedBuild.current = false;
     setBuilding(true);
+    setProgress(null);
     setResetMessage(null);
     try {
       const res = await fetch('/api/onboarding/kickstart', {
@@ -66,6 +109,8 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
       setResetMessage(`❌ Network error: ${err?.message || 'Could not connect to backend server on port 8000.'}`);
     } finally {
       setBuilding(false);
+      setProgress(null);
+      setReloadToken(t => t + 1);
     }
   };
 
@@ -90,8 +135,13 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
     }
   };
 
-  // ── VIEW 2: POST-GENERATION LIVE APP VIEW WITH RESET WORKSPACE ─────────────────
-  if (synthesized) {
+  // ── VIEW 0: A BUILD IS RUNNING AND ITS PAGE IS NOT WRITTEN YET ─────────────────
+  if (building && !progress?.page_ready) {
+    return <BuildProgressScreen progress={progress} />;
+  }
+
+  // ── VIEW 2: LIVE APP VIEW (ALSO WHILE THE BUILD CONTINUES BEHIND IT) ───────────
+  if (synthesized || building) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
         <div style={{ flex: 1, minHeight: 0 }}>
@@ -99,6 +149,8 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
             onResetWorkspace={handleResetAllProjects}
             resetting={resetting}
             resetMessage={resetMessage}
+            reloadToken={reloadToken}
+            banner={building && progress ? <BuildProgressStrip progress={progress} /> : undefined}
           />
         </div>
       </div>

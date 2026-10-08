@@ -20,7 +20,7 @@ The stage functions are injected so the ordering policy is testable without an L
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
 import pipeline_trace
@@ -60,11 +60,12 @@ def run_synthesis_stages(
     presentation: Optional[Callable[..., Dict[str, Any]]] = None,
     ux: Optional[Callable[..., str]] = None,
     behaviour: Optional[Callable[..., ActionBehaviour]] = None,
-    specs: Optional[Callable[[List[Any]], SpecRun]] = None,
+    specs: Optional[Callable[[List[Any], Callable[[Any], None]], SpecRun]] = None,
 ) -> SynthesisOutcome:
     """Runs the four stages and returns what each delivered. `on_action_manifest` receives the manifest of a
     successful action protocol (the caller stores it). `specs` runs the rule deck's behaviour specs (the caller owns
-    where a spec's status is stored); without it they stay pending. An exception in any stage propagates once all
+    where a spec's status is stored) and tells its second argument how far it has come, which the stage keeps as its
+    `rules` note for the build progress; without it they stay pending. An exception in any stage propagates once all
     have finished."""
     if review is None:
         from onboarding.spec_review import review_spec_consistency as review
@@ -128,7 +129,7 @@ def run_synthesis_stages(
             if not outcome.behaviour.success:
                 return handle.skip("the actions the specs build on are not implemented")
             started = time.time()
-            outcome.specs = specs(inbox_specs)
+            outcome.specs = specs(inbox_specs, lambda rules: handle.note("rules", asdict(rules)))
             outcome.timings["5c_behaviour_specs"] = round(time.time() - started, 2)
             handle.note("fulfilled", outcome.specs.fulfilled)
             if outcome.specs.skipped:

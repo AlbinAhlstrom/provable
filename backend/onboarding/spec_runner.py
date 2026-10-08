@@ -15,7 +15,7 @@ How a spec is executed, and where its status is stored, belongs to the caller (`
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from onboarding.router_engine import BusinessSpec, SpecKind
 from pipeline_trace import traced
@@ -37,13 +37,29 @@ class SpecRun:
         return "; ".join(f"{u['spec_id']} ({u['title']}): {u['error'] or u['status']}" for u in self.unfulfilled)
 
 
+@dataclass
+class RuleProgress:
+    """How far the deck's behaviour specs have come: shown to the user while the app is being built."""
+    done: int = 0      # specs that went through the loop, whatever the outcome
+    total: int = 0
+    active: int = 0    # of those, the ones the app now enforces
+
+
 @traced("specs.run_behaviour_specs")
-def run_behaviour_specs(specs: List[BusinessSpec], execute: Callable[[BusinessSpec], Dict[str, Any]]) -> SpecRun:
-    """Runs every behaviour spec through `execute` (the TDD loop), in order."""
+def run_behaviour_specs(specs: List[BusinessSpec], execute: Callable[[BusinessSpec], Dict[str, Any]],
+                        report: Optional[Callable[[RuleProgress], None]] = None) -> SpecRun:
+    """Runs every behaviour spec through `execute` (the TDD loop), in order. `report` is told how far the deck has
+    come before the first spec and after each one."""
     behaviour = [s for s in specs if getattr(s, "kind", SpecKind.BEHAVIOR.value) == SpecKind.BEHAVIOR.value]
     if not behaviour:
         return SpecRun(skipped="the deck has no behaviour spec")
     run = SpecRun()
+
+    def tell() -> None:
+        if report is not None:
+            report(RuleProgress(done=len(run.fulfilled) + len(run.unfulfilled), total=len(behaviour), active=len(run.fulfilled)))
+
+    tell()
     for spec in behaviour:
         try:
             result = execute(spec)
@@ -54,5 +70,6 @@ def run_behaviour_specs(specs: List[BusinessSpec], execute: Callable[[BusinessSp
         else:
             run.unfulfilled.append({"spec_id": spec.spec_id, "title": spec.title,
                                     "status": str(result.get("status") or ""), "error": str(result.get("error") or "")})
+        tell()
         print(f"[Compiler:Specs] {spec.spec_id} {spec.title}: {result.get('status')}", flush=True)
     return run

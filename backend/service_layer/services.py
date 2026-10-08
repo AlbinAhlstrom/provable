@@ -2232,8 +2232,8 @@ def kickstart_domain_and_scaffold(
             synthesis = run_synthesis_stages(
                 pitch=pitch_text, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,
                 intent=product_intent, on_action_manifest=_store_action_manifest,
-                specs=lambda deck: run_behaviour_specs(deck, lambda spec: execute_inbox_spec_tdd(
-                    spec.spec_id, uow=type(uow)(), workspace_dir=workspace_dir)))
+                specs=lambda deck, report: run_behaviour_specs(deck, lambda spec: execute_inbox_spec_tdd(
+                    spec.spec_id, uow=type(uow)(), workspace_dir=workspace_dir), report=report))
             spec_conflicts = synthesis.spec_conflicts
             stage_failures.extend(synthesis.failures)
             timings.update(synthesis.timings)

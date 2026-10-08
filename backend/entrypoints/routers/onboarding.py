@@ -38,6 +38,13 @@ def kickstart_endpoint(req: KickstartRequest):
 
 
 
+@router.get("/progress")
+def build_progress_endpoint():
+    """What the running kickstart has delivered so far (answered while the kickstart request is still open)."""
+    from onboarding.build_progress import current_progress
+    return current_progress().to_dict()
+
+
 @router.get("/aggregates")
 def get_aggregates_endpoint():
     """Returns the active domain aggregates discovered for the current bounded context."""

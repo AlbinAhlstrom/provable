@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { RequirementControlPanel } from './RequirementControlPanel';
 
 export interface AppPreviewProps {
   onResetWorkspace?: () => void;
   resetting?: boolean;
   resetMessage?: string | null;
+  banner?: ReactNode;      // shown above the preview, e.g. what a running build is still working on
+  reloadToken?: number;    // the preview reloads when this changes
 }
 
-export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPreviewProps = {}) {
+export function AppPreview({ onResetWorkspace, resetting, resetMessage, banner, reloadToken = 0 }: AppPreviewProps = {}) {
   const [layoutMode, setLayoutMode] = useState<'full' | 'split'>('split');
   const [deviceMode, setDeviceMode] = useState<'desktop' | 'mobile'>('desktop');
   const [fitToView, setFitToView] = useState<boolean>(false);
@@ -46,6 +48,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden', boxSizing: 'border-box' }}>
+      {banner}
       {/* Main View Container: Dynamic Split or Full View */}
       <div 
         className="app-preview-container"
@@ -218,7 +221,7 @@ export function AppPreview({ onResetWorkspace, resetting, resetMessage }: AppPre
           {/* Embed Workspace Vite App */}
           <div style={{ flex: 1, width: '100%', height: '100%', minHeight: 0, overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', background: '#090d16' }}>
             <iframe
-              key={`workspace-iframe-${key}`}
+              key={`workspace-iframe-${key}-${reloadToken}`}
               src="http://localhost:5174"
               title="Workspace Live App"
               style={{
