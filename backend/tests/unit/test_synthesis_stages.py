@@ -170,3 +170,29 @@ def test_the_ux_plan_is_made_while_the_action_protocol_is_designed(tmp_path):
 
     outcome = _run(tmp_path, ux=ux, protocol=protocol)
     assert outcome.failures == [] and "ink on paper" in outcome.ux_blueprint
+
+
+def test_a_written_page_leaves_no_scaffold_it_does_not_reach(tmp_path):
+    """Verify the presentation stage finishes by removing the scaffold its page superseded, and says what it removed.
+
+    id: TST-SYN-SCAFFOLD
+    Given: A workspace whose app reaches one view, with a scaffold view nothing imports
+    When: The stages run and the presentation succeeds; and again when the presentation fails
+    Then: After the success the scaffold view is gone and reported; after the failure it is kept
+    """
+    def workspace(root):
+        for rel, text in (("src/main.tsx", "import App from './App';\n"), ("src/App.tsx", "import './views/View';\n"),
+                          ("src/views/View.tsx", "export {};\n"), ("src/views/ScaffoldView.tsx", "export {};\n")):
+            path = root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+        return root
+
+    done = workspace(tmp_path / "done")
+    outcome = _run(done)
+    assert not (done / "src/views/ScaffoldView.tsx").exists()
+    assert outcome.removed_scaffold == ["src/views/ScaffoldView.tsx"]
+
+    failed = workspace(tmp_path / "failed")
+    outcome = _run(failed, presentation=lambda **kw: {"success": False, "error": "no answer", "files": []})
+    assert (failed / "src/views/ScaffoldView.tsx").exists() and outcome.removed_scaffold == []

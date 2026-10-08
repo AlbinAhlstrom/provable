@@ -45,12 +45,12 @@ offset say where the wall time went.
 ## What the stages report about their output
 
 - **Presentation** notes the line count of each component it wrote and the optional files it left out. A block that
-  exports nothing (`export {};`) is not written.
+  exports nothing (`export {};`) is not written. When the page is written, the skeleton's scaffold it no longer imports is removed and listed as `removed_scaffold`.
 - **UX plan** notes whether it carries a visual direction (section 6 of the blueprint).
 - **Visual review** notes its verdict (`clean`, `repaired`, `unrepaired`, `reverted`, `error`), the problems it saw,
   every class change with whether it was applied and why not, and what it could not repair.
 - **QA** notes the verdict, the rework attempts and its warnings (text cut off at the screen edge). Each device result
-  in the trace holds its metrics, how long it took and both screenshots.
+  in the trace holds its metrics, how long it took and both screenshots; the desktop result also holds what using each form showed (`forms`: the requests it sent and the API's answers).
 - **Frontend inventory** (`backend/onboarding/app_inventory.py`, in the result as `app_inventory`): every source file
   under `src/`, its line count, and the files `src/main.tsx` never reaches through imports. It only reports.
 

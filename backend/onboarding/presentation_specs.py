@@ -3,17 +3,19 @@ Presentation specs: specifications about what the user sees (a section, a layout
 behaviour specs, which the TDD loop proves with a RED test and a GREEN domain change.
 
 A spec declares its own kind (`SpecKind`), decided by the decomposition step that understands it; there is no
-keyword guessing here. A presentation spec is applied by rewriting the one view that belongs to its aggregate and
-is verified by building the frontend. A failed build is fed back once (.claude/rules/pipeline.md, retry policy); if it still fails the
+keyword guessing here. A presentation spec is applied by rewriting the one view that shows its aggregate (the
+aggregate's own view when the page renders it, otherwise the rendered view that loads the aggregate's records) and
+is verified by building the frontend. A view the page does not render is never the target. A failed build is fed back once (.claude/rules/pipeline.md, retry policy); if it still fails the
 original file is restored and the spec reports REQUIRES_HUMAN_INTERVENTION with every attempt. FULFILLED therefore
 means "the changed view compiles", never "a file was written".
 """
 
 import os
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import agent_orchestrator
+from onboarding.app_inventory import imports_of, inventory_frontend
 from onboarding.router_engine import SpecKind
 from onboarding.verification import run_workspace_build
 from pipeline_trace import traced
@@ -29,9 +31,36 @@ def spec_kind(spec: Dict[str, Any]) -> SpecKind:
     return SpecKind.BEHAVIOR
 
 
-def _view_path(workspace_dir: str, aggregate: str) -> str:
+def _loads_records_of(source: str, aggregate: str) -> bool:
+    """Whether a view imports the aggregate's API client (`api/<aggregate>Client`, in any casing)."""
+    wanted = re.sub(r"[^a-z0-9]", "", aggregate.lower()) + "client"
+    return any(re.sub(r"[^a-z0-9]", "", specifier.rsplit("/", 1)[-1].lower()) == wanted for specifier in imports_of(source))
+
+
+def target_view(workspace_dir: str, aggregate: str) -> Tuple[Optional[str], str]:
+    """The view a presentation spec for `aggregate` changes, or (None, why there is none).
+
+    The aggregate's own view when the page renders it; otherwise the one rendered view that loads the aggregate's
+    records. Only views the served app reaches count: editing any other file changes nothing on screen.
+    """
     name = re.sub(r"[^A-Za-z0-9_]", "", aggregate or "")
-    return os.path.join(workspace_dir, "src", "views", f"{name}View.tsx")
+    own = f"src/views/{name}View.tsx"
+    inventory = inventory_frontend(workspace_dir)
+    # Without the entry file reachability is unknown, so every view that exists counts
+    rendered = [f.path for f in inventory.files
+                if f.path.startswith("src/views/") and f.path.endswith(".tsx") and (f.reachable or not inventory.entry_found)]
+    if own in rendered:
+        return os.path.join(workspace_dir, *own.split("/")), ""
+    showing = []
+    for rel in rendered:
+        with open(os.path.join(workspace_dir, *rel.split("/")), "r", encoding="utf-8") as f:
+            if _loads_records_of(f.read(), name):
+                showing.append(rel)
+    if len(showing) == 1:
+        return os.path.join(workspace_dir, *showing[0].split("/")), ""
+    if showing:
+        return None, f"several views the page renders show '{aggregate}' ({', '.join(showing)}); the spec must name one"
+    return None, f"there is no view {own} for aggregate '{aggregate}', and no view the page renders loads its records"
 
 
 def _extract_tsx(raw: str) -> Optional[str]:
@@ -54,10 +83,10 @@ def _result(status: str, files: List[str], attempts: List[Dict[str, Any]], error
 def execute_presentation_spec(spec: Dict[str, Any], workspace_dir: str) -> Dict[str, Any]:
     """Applies a presentation spec to its aggregate's view and verifies it with a frontend build."""
     aggregate = spec.get("target_aggregate") or spec.get("target") or ""
-    path = _view_path(workspace_dir, aggregate)
+    path, missing = target_view(workspace_dir, aggregate)
+    if path is None:
+        return _result("REQUIRES_HUMAN_INTERVENTION", [], [], missing)
     shown = os.path.relpath(path, workspace_dir).replace(os.sep, "/")
-    if not os.path.exists(path):
-        return _result("REQUIRES_HUMAN_INTERVENTION", [], [], f"there is no view {shown} for aggregate '{aggregate}'")
 
     with open(path, "r", encoding="utf-8") as f:
         original = f.read()

@@ -3,7 +3,11 @@ reaches it.
 
 The preview serves `src/main.tsx` and whatever that imports. Anything else under `src/` is generated code nobody sees:
 it costs generation time, misleads whoever reads the workspace, and is edited in vain by a later presentation spec. The
-inventory makes that visible in every run's summary. It only reports; it never deletes or rewrites a file.
+inventory makes that visible in every run's summary.
+
+The skeleton's scaffold (a table view per entity and one shared client) is what the app shows until the presentation
+stage writes the real page. Once that page is written, the scaffold it no longer imports is removed
+(`remove_unreachable`), so every file left under `src/` is one the page renders.
 """
 
 import os
@@ -46,6 +50,11 @@ class AppInventory:
         }
 
 
+def imports_of(source: str) -> List[str]:
+    """The relative import specifiers in a source file."""
+    return _IMPORT.findall(source)
+
+
 def _read(path: str) -> str:
     try:
         with open(path, encoding="utf-8") as f:
@@ -77,10 +86,23 @@ def inventory_frontend(workspace_dir: str, entry: str = ENTRY) -> AppInventory:
         if current in reached:
             continue
         reached.add(current)
-        for specifier in _IMPORT.findall(sources[current]):
+        for specifier in imports_of(sources[current]):
             target = _resolve(workspace_dir, current, specifier)
             if target in sources and target not in reached:
                 queue.append(target)
 
     files = [SourceFile(path=p, lines=len(sources[p].splitlines()), reachable=p in reached) for p in sorted(sources)]
     return AppInventory(entry=entry, entry_found=entry in sources, files=files)
+
+
+def remove_unreachable(workspace_dir: str, entry: str = ENTRY) -> List[str]:
+    """Deletes the frontend source files the served app does not reach and returns their paths. Without the entry
+    file nothing can be called reachable, so nothing is removed."""
+    inventory = inventory_frontend(workspace_dir, entry)
+    if not inventory.entry_found:
+        return []
+    removed = []
+    for source in inventory.unreachable():
+        os.remove(os.path.join(workspace_dir, source.path))
+        removed.append(source.path)
+    return removed

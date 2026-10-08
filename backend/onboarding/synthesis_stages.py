@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
 import pipeline_trace
+from onboarding.app_inventory import remove_unreachable
 from onboarding.seed_data import SEED_FILE
 from run_recorder import stage
 
@@ -34,6 +35,7 @@ class SynthesisOutcome:
     timings: Dict[str, float] = field(default_factory=dict)
     files: List[str] = field(default_factory=list)              # every file the stages report having written
     ux_blueprint: str = ""                                      # the UX plan, including the visual direction
+    removed_scaffold: List[str] = field(default_factory=list)   # skeleton files the written page no longer reaches
 
 
 def run_synthesis_stages(
@@ -132,6 +134,11 @@ def run_synthesis_stages(
                     handle.note(key, outcome.presentation[key])
             if not outcome.presentation.get("success"):
                 fail("presentation", handle, outcome.presentation.get("error") or "no files were written")
+            else:
+                # The page replaced the skeleton's app; the scaffold it no longer imports would only mislead later edits
+                outcome.removed_scaffold = remove_unreachable(workspace_dir)
+                if outcome.removed_scaffold:
+                    handle.note("removed_scaffold", outcome.removed_scaffold)
 
     with ThreadPoolExecutor(max_workers=3, thread_name_prefix="synthesis") as pool:
         alongside = [pool.submit(pipeline_trace.bind_context(task)) for task in (review_specs, seed_content)]

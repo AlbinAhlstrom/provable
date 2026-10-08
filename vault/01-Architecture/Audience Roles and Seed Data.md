@@ -37,3 +37,24 @@ Every stored entity (an aggregate root, or anything created by or shown to the a
 loader and clients key records by `id`; a model that named its identity `offering_id` made every seeded record
 collapse into one. Whoever creates a record does not know its id, so the generated create endpoint assigns one when
 none is sent, and the presentation prompt lists the fields a create must carry.
+
+## Lists are entities, facts are attributes
+
+A page that wants three credential cards but is given one `certifications_summary` string writes the cards itself,
+as fixed text: claims about a real business that nobody entered and the owner cannot edit. Three contracts prevent it:
+
+- **Decomposition**: whatever the business publishes as several items of one kind is its own shown-to-audience entity
+  with one record per item.
+- **UX plan**: it is made before the records exist, so it writes the page's own wording (headings, labels, buttons,
+  guidance) and names the attribute that carries a fact (`Entity.attribute`) instead of writing a value.
+- **Presentation**: a section has one item per record; headings and labels state nothing about the business.
+
+The visual review reports what still slips through (see [[Automated-Verification-And-Self-Healing-Pipeline]]).
+
+## Scaffold and the written page
+
+The skeleton writes a table view per entity and one shared client, which is what the app shows until the presentation
+stage writes the real page. When that page is written, the scaffold it no longer imports is removed
+(`app_inventory.remove_unreachable`). A later presentation spec changes the aggregate's own view when the page renders
+it, otherwise the rendered view that loads the aggregate's records (`presentation_specs.target_view`); a view the page
+does not render is never edited.

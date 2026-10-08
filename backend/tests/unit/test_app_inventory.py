@@ -1,6 +1,6 @@
 """Unit tests for the generated-frontend inventory (backend/onboarding/app_inventory.py)."""
 
-from onboarding.app_inventory import inventory_frontend
+from onboarding.app_inventory import inventory_frontend, remove_unreachable
 
 
 def _write(root, rel, text):
@@ -51,3 +51,43 @@ def test_a_workspace_without_an_entry_point_reports_nothing_reachable(tmp_path):
     inventory = inventory_frontend(str(tmp_path))
     assert inventory.entry_found is False
     assert [f.path for f in inventory.unreachable()] == ["src/App.tsx"]
+
+
+def test_scaffold_the_page_no_longer_reaches_is_removed(tmp_path):
+    """Verify files the written page superseded do not stay behind (a later change request edited an entity view
+    the page never rendered: it succeeded and changed nothing on screen).
+
+    id: TST-INV-REMOVE
+    Given: An app that reaches one view and one client, beside a scaffold view and a scaffold client nothing imports
+    When: Unreachable frontend files are removed
+    Then: The two scaffold files are gone and named, and everything the app reaches, and the backend, is untouched
+    """
+    _write(tmp_path, "src/main.tsx", "import App from './App';\nimport './index.css';\n")
+    _write(tmp_path, "src/index.css", "body {}\n")
+    _write(tmp_path, "src/App.tsx", "import { View } from './views/View';\nexport default View;\n")
+    _write(tmp_path, "src/views/View.tsx", "import { list } from '../api/thingClient';\nexport const View = () => null;\n")
+    _write(tmp_path, "src/api/thingClient.ts", "export const list = () => [];\n")
+    _write(tmp_path, "src/views/OtherView.tsx", "import { fetchAll } from '../api/client';\n")
+    _write(tmp_path, "src/api/client.ts", "export const fetchAll = () => [];\n")
+    _write(tmp_path, "src/domain/model.py", "x = 1\n")
+
+    removed = remove_unreachable(str(tmp_path))
+
+    assert removed == ["src/api/client.ts", "src/views/OtherView.tsx"]
+    assert not (tmp_path / "src/views/OtherView.tsx").exists() and not (tmp_path / "src/api/client.ts").exists()
+    for kept in ("src/main.tsx", "src/index.css", "src/App.tsx", "src/views/View.tsx", "src/api/thingClient.ts", "src/domain/model.py"):
+        assert (tmp_path / kept).exists()
+    assert inventory_frontend(str(tmp_path)).unreachable() == []
+
+
+def test_nothing_is_removed_when_the_entry_is_missing(tmp_path):
+    """Verify a workspace whose entry cannot be found is left alone: without it nothing counts as reachable.
+
+    id: TST-INV-REMOVE-SAFE
+    Given: Frontend files but no src/main.tsx
+    When: Unreachable frontend files are removed
+    Then: Nothing is removed
+    """
+    _write(tmp_path, "src/App.tsx", "export default null;\n")
+    assert remove_unreachable(str(tmp_path)) == []
+    assert (tmp_path / "src/App.tsx").exists()

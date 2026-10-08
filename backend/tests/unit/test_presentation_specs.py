@@ -169,3 +169,62 @@ def test_service_routes_a_presentation_spec_away_from_the_tdd_loop(workspace, mo
     stored = next(s for s in services.get_inbox_specs(uow=uow) if s["spec_id"] == "S1")
     assert result["status"] == stored["status"] == "FULFILLED"
     assert stored["tdd"]["phase"] == "presentation" and stored["tdd"]["attempts"][0]["approved"] is True
+
+
+def _page(root, view_imports):
+    """An app that renders one page view; `view_imports` are the clients that view loads."""
+    files = {"src/main.tsx": "import App from './App';\n", "src/App.tsx": "import { PageView } from './views/PageView';\n",
+             "src/views/PageView.tsx": "".join(f"import {{ list }} from '../api/{c}Client';\n" for c in view_imports) + ORIGINAL}
+    for rel, text in files.items():
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return root / "src" / "views" / "PageView.tsx"
+
+
+def test_a_change_to_content_shown_on_another_view_edits_the_view_that_renders_it(tmp_path, monkeypatch):
+    """Verify a spec reaches the screen: an entity without a view of its own is changed where the page shows it.
+
+    id: TST-PSPEC-TARGET
+    Given: A page view that loads the service offerings, and no ServiceOfferingView
+    When: A presentation spec for ServiceOffering is executed
+    Then: The page view is the file rewritten and the spec is FULFILLED
+    """
+    page = _page(tmp_path, ["service_offering", "enquiry"])
+    _llm(monkeypatch, [f"```tsx\n{UPDATED}\n```"])
+    _builds(monkeypatch, [{"ok": True, "output": ""}])
+    result = ps.execute_presentation_spec({**SPEC, "target_aggregate": "ServiceOffering"}, str(tmp_path))
+    assert result["status"] == "FULFILLED" and result["files_updated"] == [str(page)]
+    assert "<div>new</div>" in page.read_text(encoding="utf-8")
+
+
+def test_a_view_the_page_does_not_render_is_never_the_target(tmp_path, monkeypatch):
+    """Verify a leftover view of the aggregate's own name is not edited in vain when the page does not import it.
+
+    id: TST-PSPEC-UNRENDERED
+    Given: A page view that loads the service offerings, and a ServiceOfferingView that nothing imports
+    When: A presentation spec for ServiceOffering is executed
+    Then: The page view is rewritten and the unrendered view is untouched
+    """
+    page = _page(tmp_path, ["service_offering"])
+    leftover = tmp_path / "src" / "views" / "ServiceOfferingView.tsx"
+    leftover.write_text(ORIGINAL, encoding="utf-8")
+    _llm(monkeypatch, [f"```tsx\n{UPDATED}\n```"])
+    _builds(monkeypatch, [{"ok": True, "output": ""}])
+    result = ps.execute_presentation_spec({**SPEC, "target_aggregate": "ServiceOffering"}, str(tmp_path))
+    assert result["files_updated"] == [str(page)] and leftover.read_text(encoding="utf-8") == ORIGINAL
+
+
+def test_a_spec_for_content_no_rendered_view_shows_fails_with_the_reason(tmp_path, monkeypatch):
+    """Verify the spec stops, before any model call, when nothing on the page shows its aggregate.
+
+    id: TST-PSPEC-NOWHERE
+    Given: A page view that loads only enquiries
+    When: A presentation spec for Testimonial is executed
+    Then: It needs a human, the reason names the aggregate, and no model call or build happened
+    """
+    _page(tmp_path, ["enquiry"])
+    prompts, builds = _llm(monkeypatch, []), _builds(monkeypatch, [])
+    result = ps.execute_presentation_spec({**SPEC, "target_aggregate": "Testimonial"}, str(tmp_path))
+    assert result["status"] == "REQUIRES_HUMAN_INTERVENTION" and "Testimonial" in result["error"]
+    assert not prompts and not builds
