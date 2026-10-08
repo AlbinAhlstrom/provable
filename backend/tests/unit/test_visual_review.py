@@ -291,11 +291,13 @@ def test_the_prompts_say_how_to_repair_classes_inside_a_condition_and_ask_for_co
     Given: The visual review prompt and the presentation prompt
     When: They are read
     Then: The review prompt says which text to copy when classes sit inside a condition; the presentation prompt asks
-          that whatever is placed on more than one background is readable on each
+          that each owner's things keep one colour of their own, readable on each background they land on; the
+          reviewer looks for owners that cannot be told apart
     """
     import agent_orchestrator
     prompts = os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts")
     review = open(os.path.join(prompts, "visual_review.md"), encoding="utf-8").read()
     page = open(os.path.join(prompts, "presentation_projection_synthesis.md"), encoding="utf-8").read()
     assert "inside a condition" in review and "one of its quoted strings" in review
-    assert "more than one background" in page and "readable on each" in page
+    assert "stays the same wherever the thing is placed" in page and "readable on each" in page and "uFE0E" in page
+    assert "Telling things apart" in review

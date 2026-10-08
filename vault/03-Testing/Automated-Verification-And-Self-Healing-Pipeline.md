@@ -77,6 +77,16 @@ While the page is written, the rule deck's behaviour specs are written together 
   code written for it stays (it is part of the answer that carries the other rules); every test left in
   `tests/unit` passes.
 
+- A test that neither answer could meet goes back to its writer once, with the failure and its own test
+  (`reconsider_test`). Generated tests can expect the wrong thing: replayed against a chess class a reference engine
+  found correct, two of eight tests did (each reached its position through a move sequence the writer mis-tracked).
+  The writer corrects the expectation or returns the test unchanged; a corrected test must pass on the kept class
+  and fail on the hollow one. It is the test writer's single regeneration (a test the RED gate already sent back is
+  not reconsidered) and no code is written after it.
+- The test writer is told to arrange the scenario's state directly by setting fields, with as few items as it needs,
+  and to work out each expected result in a comment above the assertion (`red_test_generation.md`). On the same
+  replay that brought wrong expectations from two in eight to one in 24.
+
 Each spec's status is stored as when the user runs it from the Studio, where a single spec still goes through the
 single loop. QA starts once the specs are done, so it audits a domain that no longer changes. Presentation specs are
 not run here: the page is written from them. One spec after another, a nine-rule deck took about 230 seconds (nine

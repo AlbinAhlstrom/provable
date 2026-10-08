@@ -7,8 +7,12 @@ every rule of one class is then written in one answer and judged test by test.
 import os
 import threading
 
+import pytest
+
 from onboarding.router_engine import BusinessSpec
 from service_layer import tdd_batch, tdd_machine
+
+pytestmark = pytest.mark.slow  # every case runs pytest in the generated workspace several times
 
 INVOICE = '''from dataclasses import dataclass
 from typing import Any, Dict
@@ -235,3 +239,89 @@ def test_a_rule_settled_by_its_test_alone_asks_for_no_code(tmp_path, monkeypatch
     assert not results["SPEC-003"]["success"] and results["SPEC-003"]["phase"] == "RED_GATE"
     assert results["SPEC-002"]["success"]
     assert len(calls) == 1 and "test_spec_002.py" in calls[0]["test_source"] and "test_spec_001.py" not in calls[0]["test_source"]
+
+
+WRONG_003 = '''from src.domain.invoice import Invoice
+
+
+def test_a_paid_invoice_takes_no_more_lines():
+    invoice = Invoice(id="i1", status="paid")
+    invoice.add_line(amount=1)
+    assert invoice.total == 1
+'''
+
+
+def _writer(monkeypatch, first, second):
+    """A test writer whose first test for SPEC-003 is `first` and whose reconsidered one is `second`."""
+    asked = []
+
+    def write_test(spec, *args, rejection_feedback="", **kwargs):
+        if spec.spec_id != "SPEC-003":
+            return TESTS[spec.spec_id]
+        asked.append(rejection_feedback)
+        return first if len(asked) == 1 else second
+    monkeypatch.setattr(tdd_machine, "generate_red_test", write_test)
+    return asked
+
+
+def test_a_test_no_code_answer_could_meet_is_reconsidered_once_by_its_writer(tmp_path, monkeypatch):
+    """Verify a wrong expectation in a test does not fail a rule the code enforces.
+
+    id: TST-BATCH-007
+    Given: A test for SPEC-003 that expects a paid invoice to take a line (the rule says it is refused), and two
+           code answers that both enforce the rule correctly
+    When: The specs are executed together, and the writer, shown its test and the failure, corrects it
+    Then: Two code calls and no third; the writer was shown the failing output and its own test; the spec is
+          fulfilled by the corrected test, which is the one kept in tests/unit; nothing is left in tests/pending
+    """
+    workspace = _workspace(tmp_path)
+    calls = _models(monkeypatch, [_fragment(PAY, ADD_LINE), _fragment(PAY, ADD_LINE)])
+    asked = _writer(monkeypatch, WRONG_003, TESTS["SPEC-003"])
+
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert len(calls) == 2 and len(asked) == 2
+    assert "A paid invoice takes no more lines" in asked[1] and "assert invoice.total == 1" in asked[1]
+    fulfilled = results["SPEC-003"]
+    assert fulfilled["success"] and fulfilled["reconsidered"] and len(fulfilled["red_attempts"]) == 2
+    assert (tmp_path / "tests" / "unit" / "test_spec_003.py").read_text(encoding="utf-8") == TESTS["SPEC-003"]
+    assert not (tmp_path / "tests" / "pending" / "test_spec_003.py").exists()
+    assert results["SPEC-001"]["success"] and results["SPEC-002"]["success"]
+
+
+def test_a_writer_that_stands_by_its_test_leaves_the_rule_unfulfilled(tmp_path, monkeypatch):
+    """Verify reconsidering is not a way to make a failing rule pass.
+
+    id: TST-BATCH-008
+    Given: Code that does not enforce SPEC-003 in either answer, and a writer that returns its (correct) test again
+    When: The specs are executed together
+    Then: The writer was asked exactly once more; the spec stays unfulfilled with its test in tests/pending
+    """
+    workspace = _workspace(tmp_path)
+    _models(monkeypatch, [_fragment(PAY, ADD_LINE_OPEN), _fragment(PAY, ADD_LINE_OPEN)])
+    asked = _writer(monkeypatch, TESTS["SPEC-003"], TESTS["SPEC-003"])
+
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert len(asked) == 2 and not results["SPEC-003"]["success"]
+    assert (tmp_path / "tests" / "pending" / "test_spec_003.py").exists()
+    assert not (tmp_path / "tests" / "unit" / "test_spec_003.py").exists()
+
+
+def test_a_test_already_regenerated_once_is_not_reconsidered(tmp_path, monkeypatch):
+    """Verify the test writer gets one more attempt in all, whichever gate asked for it.
+
+    id: TST-BATCH-009
+    Given: A first test for SPEC-003 the RED gate refuses (it asserts nothing about behaviour), a regenerated one
+           with a wrong expectation, and code that enforces the rule correctly
+    When: The specs are executed together
+    Then: The writer was called twice for the spec and no third time; the spec is unfulfilled
+    """
+    workspace = _workspace(tmp_path)
+    _models(monkeypatch, [_fragment(PAY, ADD_LINE), _fragment(PAY, ADD_LINE)])
+    nothing = "from src.domain.invoice import Invoice\n\n\ndef test_starts_open():\n    assert Invoice(id='i1').status == 'open'\n"
+    asked = _writer(monkeypatch, nothing, WRONG_003)
+
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert len(asked) == 2 and not results["SPEC-003"]["success"]

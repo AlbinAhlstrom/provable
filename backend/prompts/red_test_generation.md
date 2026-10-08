@@ -24,6 +24,11 @@ Your test must be consistent with these (same meaning of states, same method nam
 {existing_tests}
 ```
 {feedback_block}
+## Arranging the Given
+Put the object straight into the situation the scenario starts from by setting its fields after construction: in a collection it owns, clear what the scenario does not need and write in only the few items it does need. Reach a situation through a sequence of calls only when the scenario is about that sequence itself. Every step of a long sequence is a place where your expectation and the product's rules can part ways, and a test with a wrong expectation fails a correct implementation.
+
+Above each assertion, write a short comment that works out the expected result from the product's rules for exactly the state you arranged, item by item (what is where, what can reach what, what blocks it). If the working shows your expectation does not hold, change the arrangement until it does.
+
 ## Rules
 1. Write ONE pytest test module that verifies the scenario's behavior: arrange (Given), act (When), assert (Then).
 2. Construct the object using ONLY fields that appear in the current API, and pass every field that has no default. Never invent constructor arguments. If the scenario needs a field that does not exist yet, set it as an attribute after construction.

@@ -23,6 +23,12 @@ What is kept afterwards:
   for it cannot be taken out of an answer that also carries the other rules: it stays, and every test left in
   `tests/unit` passes.
 - The hash lock holds for every test of the batch: the code writer cannot have changed any of them.
+- A test that neither code answer could meet goes back to its writer once (`reconsider_test`), with the failure and
+  its own test: a test can expect the wrong thing (a check that is not one), and then a correct class fails it.
+  The writer either corrects the expectation or returns the test unchanged. A corrected test must pass on the class
+  as kept and fail on the hollow class (`hollow_check.py`); it then stands as the rule's test. This is the test
+  writer's one regeneration: a test the RED gate already sent back is not reconsidered, and no code is written
+  after it.
 
 Classes are implemented one after another (the regression run covers the whole folder); the tests of classes still
 waiting are ignored in that run.
@@ -41,6 +47,24 @@ from service_layer.tdd_machine import DomainTarget, RedOutcome
 
 RED_WORKERS = 8
 FEEDBACK_LIMIT = 6000  # characters of failing-test output shown to the code writer on the retry
+
+RECONSIDER_EVIDENCE = 2500
+RECONSIDER = """Two implementations of the class could not make this test pass, while every other test of the class passes.
+
+Your test:
+```python
+{test}
+```
+
+How it fails:
+```
+{evidence}
+```
+
+Either the implementation lacks the rule, or the test expects the wrong thing for the state it arranges. Work out from
+the product's rules, item by item, what the correct result is for exactly that state. If the test expected the wrong
+thing, write it again with a correct expectation, still testing this rule in a situation where it applies. If the test
+was right, return it exactly as it is."""
 
 Approved = Tuple[BusinessSpec, RedOutcome]
 
@@ -152,12 +176,14 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
     for s, red in batch:
         name = os.path.basename(red.test_file_path)
         if name in still:
-            why = next((tdd_machine._headline(str((t.get("call") or {}).get("longrepr") or ""))
-                        for t in (run.get("report") or {}).get("tests", [])
-                        if name in str(t.get("nodeid", "")) and (t.get("call") or {}).get("outcome") == "failed"), "")
+            evidence = "\n".join(str((t.get("call") or {}).get("longrepr") or "")
+                                 for t in (run.get("report") or {}).get("tests", [])
+                                 if name in str(t.get("nodeid", "")) and (t.get("call") or {}).get("outcome") == "failed")
+            why = tdd_machine._headline(evidence) if evidence.strip() else ""
             results[s.spec_id] = _failing_spec_result(
                 s, red, attempts, f"Test assertions failed in GREEN phase{': ' + why if why else '.'}", workspace_dir)
             results[s.spec_id]["rolled_back"] = False  # the answer also carries the rules that passed, so it stays
+            results[s.spec_id]["failure_evidence"] = evidence[-RECONSIDER_EVIDENCE:]
         else:
             results[s.spec_id] = {
                 "success": True, "status": "FULFILLED", "phase": "COMMITTED", "spec_id": s.spec_id,
@@ -165,6 +191,50 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
                 "green_eval": {"status": "APPROVED_GREEN", "approved": True, "reason": "All tests passed cleanly."},
                 "red_attempts": red.attempts, "test_source": red.test_code, "attempts": attempts}
     return results
+
+
+@traced("tdd.reconsider_test")
+def reconsider_test(spec: BusinessSpec, red: RedOutcome, failed: Dict[str, Any], target: DomainTarget,
+                    workspace_dir: str, existing_tests: str, action_manifest: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """The test writer's one regeneration, spent on a test no code answer could meet. Returns the spec's result:
+    fulfilled by a corrected test that the kept class passes and the hollow class fails, else `failed` with what
+    the reconsideration came to."""
+    def stays(reason: str, attempt: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        return {**failed, "error": f"{failed['error']} {reason}", "red_attempts": red.attempts + ([attempt] if attempt else [])}
+
+    with open(target.domain_file, "r", encoding="utf-8") as f:
+        current_class = extract_class_cst(f.read(), target.class_name) or ""
+    test_code = tdd_machine.generate_red_test(
+        spec, current_class, target.module_name, target.class_name,
+        rejection_feedback=RECONSIDER.format(test=red.test_code.strip(), evidence=failed.get("failure_evidence") or failed["error"]),
+        existing_tests=existing_tests,
+        interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name))
+    if test_code.strip() == red.test_code.strip():
+        return stays("Its writer, shown the failure, stands by the test.")
+    lint_ok, lint_reason = tdd_machine.lint_red_test(test_code, require_both_sides=bool(spec.is_mathematical_boundary))
+    if not lint_ok:
+        return stays("The reconsidered test was refused.", {"attempt": 2, "approved": False, "reason": lint_reason})
+
+    with open(red.test_file_path, "w", encoding="utf-8") as f:
+        f.write(test_code)
+    run = tdd_machine.run_isolated_pytest(red.test_file_path, cwd=workspace_dir)
+    if run["exit_code"] == 0 and tdd_machine.fails_without_behaviour(
+            red.test_file_path, workspace_dir, target.domain_file, target.class_name,
+            run=tdd_machine.run_isolated_pytest, judge=tdd_machine.evaluate_red_gate_result):
+        if failed.get("pending_test") and os.path.exists(failed["pending_test"]):
+            os.remove(failed["pending_test"])  # replaced by the corrected test
+        evaluation = {"status": "ALREADY_SATISFIED", "approved": True,
+                      "reason": "The first test expected the wrong thing. The corrected test passes on the class as "
+                                "written and fails once the class's methods do nothing."}
+        return {"success": True, "status": "FULFILLED", "phase": "COMMITTED", "spec_id": spec.spec_id,
+                "test_file": red.test_file_path, "red_eval": evaluation, "test_source": test_code,
+                "red_attempts": red.attempts + [{"attempt": 2, "approved": True, "reason": evaluation["reason"]}],
+                "attempts": failed.get("attempts", []), "already_satisfied": True, "reconsidered": True}
+    os.remove(red.test_file_path)
+    reason = ("The reconsidered test fails too." if run["exit_code"] != 0
+              else "The reconsidered test passes even when the class's methods do nothing, so it asserts no behaviour.")
+    return stays(reason, {"attempt": 2, "approved": False,
+                          "reason": f"{reason} {tdd_machine._headline(tdd_machine.summarize_pytest_failure(run))}".strip()})
 
 
 @traced("tdd.execute_together")
@@ -220,6 +290,23 @@ def execute_specs_together(
             done = {s.spec_id: {"success": False, "status": "ERROR", "phase": "GREEN_GEN", "spec_id": s.spec_id,
                                 "error": f"{type(err).__name__}: {err}", "red_attempts": red.attempts,
                                 "test_source": red.test_code, "rolled_back": True} for s, red in batch}
+        # A test neither answer could meet, and never sent back before, goes to its writer once
+        doubted = [(spec, red) for spec, red in batch
+                   if "failure_evidence" in done[spec.spec_id] and len(red.attempts) == 1]
+
+        def reconsider(pair: Approved) -> Dict[str, Any]:
+            spec, red = pair
+            try:
+                return reconsider_test(spec, red, done[spec.spec_id], targets[spec.spec_id], workspace_dir,
+                                       earlier_tests[domain_file], action_manifest)
+            except Exception as err:  # a provider error: the spec stays failed, with this beside its reason
+                return {**done[spec.spec_id], "error": f"{done[spec.spec_id]['error']} Reconsidering its test failed: "
+                                                       f"{type(err).__name__}: {err}"}
+
+        if doubted:
+            with ThreadPoolExecutor(max_workers=RED_WORKERS, thread_name_prefix="reconsider") as pool:
+                for (spec, _), result in zip(doubted, pool.map(pipeline_trace.bind_context(reconsider), doubted)):
+                    done[spec.spec_id] = result
         for spec, _ in batch:
             settle(spec, done[spec.spec_id])
     return results

@@ -23,11 +23,12 @@ Judge the page as a first-time visitor on each screen size would see it:
 
 1. **Direction**: does the page carry the direction above (its palette, its type, the treatment of the first screen)? A surface or background that falls outside the palette is a problem.
 2. **Legibility**: text that is hard to read against its background, or too small to read.
-3. **Hierarchy**: the first screen has one clear headline and one clear primary action; headings step down in size in an orderly way.
-4. **Spacing and alignment**: cramped or lopsided sections, cards of one row with unequal heights or padding, large empty gaps.
-5. **Consistency**: buttons, cards, badges and corner radii that differ from each other for no reason.
-6. **Phone**: text or controls that wrap awkwardly, are cut off, or are too small to tap.
-7. **Anything visibly broken**: an empty box, overlapping elements, a placeholder left in view.
+3. **Telling things apart**: things that belong to different owners or kinds (two players' pieces, two statuses) that look alike, or one owner's things drawn in different colours in different places.
+4. **Hierarchy**: the first screen has one clear headline and one clear primary action; headings step down in size in an orderly way.
+5. **Spacing and alignment**: cramped or lopsided sections, cards of one row with unequal heights or padding, large empty gaps.
+6. **Consistency**: buttons, cards, badges and corner radii that differ from each other for no reason.
+7. **Phone**: text or controls that wrap awkwardly, are cut off, or are too small to tap.
+8. **Anything visibly broken**: an empty box, overlapping elements, a placeholder left in view.
 
 Report only what a visitor would notice. A page that works and follows its direction has nothing to report: answer with an empty list. Report at most {max_problems} problems, the most visible first.
 
