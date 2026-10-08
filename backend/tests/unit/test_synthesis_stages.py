@@ -7,6 +7,7 @@ import pytest
 
 import run_recorder
 from onboarding.action_behaviour import ActionBehaviour
+from onboarding.spec_runner import SpecRun
 from onboarding.synthesis_stages import run_synthesis_stages
 
 WAIT = 5  # seconds a fake waits for its peer before the test fails instead of hanging
@@ -101,7 +102,7 @@ def test_every_stage_that_does_not_deliver_is_reported_with_its_reason(tmp_path,
     run = next(p for p in (tmp_path / "runs").iterdir() if p.is_dir())
     stages = {s["name"]: s["status"] for s in json.loads((run / "summary.json").read_text(encoding="utf-8"))["stages"]}
     assert stages == {"spec_review": "failed", "seed_data": "failed", "ux_plan": "ok", "action_protocol": "ok",
-                      "action_behaviour": "ok", "presentation": "failed"}
+                      "action_behaviour": "ok", "behaviour_specs": "skipped", "presentation": "failed"}
 
 
 def test_seed_data_is_credited_with_its_file_and_the_presentation_with_its_own(tmp_path, monkeypatch):
@@ -236,3 +237,45 @@ def test_an_action_nothing_implements_is_a_reported_failure_and_the_page_is_stil
     assert [f["stage"] for f in outcome.failures] == ["action_behaviour"]
     assert "submit" in outcome.failures[0]["error"]
     assert outcome.presentation["success"]
+
+
+def test_the_rule_specs_run_after_the_actions_and_while_the_page_is_written(tmp_path):
+    """Verify the specs build on the actions' methods and do not queue in front of the presentation.
+
+    id: TST-SYN-SPECS
+    Given: A spec stage that checks the actions are implemented, and a presentation that only finishes once it started
+    When: The stages run
+    Then: Both finish, and the spec result is in the outcome before the stages return (QA runs on a settled domain)
+    """
+    order, specs_started = [], threading.Event()
+
+    def behaviour(manifest, workspace_dir):
+        order.append("behaviour")
+        return ActionBehaviour(implemented=["submit"])
+
+    def specs(inbox_specs):
+        assert order == ["behaviour"], "the specs ran before the actions were implemented"
+        specs_started.set()
+        return SpecRun(fulfilled=["SPEC-001"])
+
+    def presentation(**kw):
+        assert specs_started.wait(WAIT), "the specs did not run alongside the presentation"
+        return {"success": True, "files": ["App.tsx"]}
+
+    outcome = _run(tmp_path, behaviour=behaviour, specs=specs, presentation=presentation)
+    assert outcome.specs.fulfilled == ["SPEC-001"] and outcome.failures == []
+
+
+def test_a_spec_that_was_not_fulfilled_is_a_reported_failure(tmp_path):
+    """Verify a rule the app does not enforce degrades the run by name.
+
+    id: TST-SYN-SPECS-UNFULFILLED
+    Given: A spec stage with one spec that did not reach GREEN
+    When: The stages run
+    Then: The failure names the stage and the spec, and the presentation still delivered
+    """
+    unfulfilled = SpecRun(unfulfilled=[{"spec_id": "SPEC-002", "title": "No double booking", "status": "REQUIRES_HUMAN_INTERVENTION",
+                                        "error": "assert raised"}])
+    outcome = _run(tmp_path, specs=lambda inbox_specs: unfulfilled)
+    assert [f["stage"] for f in outcome.failures] == ["behaviour_specs"]
+    assert "SPEC-002" in outcome.failures[0]["error"] and outcome.presentation["success"]

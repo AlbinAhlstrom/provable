@@ -64,6 +64,8 @@ protocol and the presentation:
   DEGRADED; nothing is stubbed.
 - The page is written afterwards, against the class as it really is (its fields and methods).
 
+While the page is written, the rule deck's behaviour specs run through the same loop, one after another in deck order (`backend/onboarding/spec_runner.py`, stage `behaviour_specs`). Each spec's status is stored as when the user runs it from the Studio. A spec that does not reach GREEN is rolled back, named with its reason, and the run is DEGRADED; the specs after it still run. QA starts once the specs are done, so it audits a domain that no longer changes. Presentation specs are not run here: the page is written from them. Each spec costs about 15 seconds, and only what exceeds the presentation's own time adds to the kickstart.
+
 The regression gate re-runs `tests/unit` only. The page's browser checks live in `tests/acceptance`: they say nothing
 about a domain change and take longer than the gate waits. A regression run that does not finish is not a verdict on
 the code: the spec fails with that reason and is not retried.

@@ -2220,6 +2220,7 @@ def kickstart_domain_and_scaffold(
         try:
             # Spec review, seed data, and action protocol -> presentation: run alongside each other (synthesis_stages.py)
             from onboarding.synthesis_stages import run_synthesis_stages
+            from onboarding.spec_runner import run_behaviour_specs
 
             def _store_action_manifest(manifest: Dict[str, Any]) -> None:
                 with uow:  # kept so the manifest can later be checked against the methods the TDD loop wrote
@@ -2230,7 +2231,9 @@ def kickstart_domain_and_scaffold(
 
             synthesis = run_synthesis_stages(
                 pitch=pitch_text, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,
-                intent=product_intent, on_action_manifest=_store_action_manifest)
+                intent=product_intent, on_action_manifest=_store_action_manifest,
+                specs=lambda deck: run_behaviour_specs(deck, lambda spec: execute_inbox_spec_tdd(
+                    spec.spec_id, uow=type(uow)(), workspace_dir=workspace_dir)))
             spec_conflicts = synthesis.spec_conflicts
             stage_failures.extend(synthesis.failures)
             timings.update(synthesis.timings)

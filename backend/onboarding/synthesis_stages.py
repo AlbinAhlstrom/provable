@@ -3,12 +3,14 @@
     spec_review      ─┐
     seed_data        ─┤
     ux_plan          ─┼─ start together
-    action_protocol  ─┘→ action_behaviour → presentation (needs the action protocol, the domain and the UX plan)
+    action_protocol  ─┘→ action_behaviour ─┬→ presentation (needs the action protocol, the domain and the UX plan)
+                                           └→ behaviour_specs (the rule deck, alongside the presentation)
 
 All of them read the same decomposition and the skeleton on disk. The action protocol names the actions; the
 behaviour stage writes the methods behind them (`action_behaviour.py`), so the presentation is written against a
 domain that already does what the page will ask of it. The presentation also needs the UX plan, which carries the
-page's visual direction. Seed data and the spec review used to queue in front of the presentation, the slowest step, and
+page's visual direction. While the page is written, the rule deck's behaviour specs run through the TDD loop
+(`spec_runner.py`); the stages return once both are done, so QA audits a domain that no longer changes. Seed data and the spec review used to queue in front of the presentation, the slowest step, and
 added their full duration to every kickstart.
 
 The stage functions are injected so the ordering policy is testable without an LLM. Each stage keeps its own record
@@ -25,6 +27,7 @@ import pipeline_trace
 from onboarding.action_behaviour import ActionBehaviour
 from onboarding.app_inventory import remove_unreachable
 from onboarding.seed_data import SEED_FILE
+from onboarding.spec_runner import SpecRun
 from run_recorder import stage
 
 
@@ -40,6 +43,7 @@ class SynthesisOutcome:
     ux_blueprint: str = ""                                      # the UX plan, including the visual direction
     removed_scaffold: List[str] = field(default_factory=list)   # skeleton files the written page no longer reaches
     behaviour: ActionBehaviour = field(default_factory=ActionBehaviour)  # the methods behind the manifest's actions
+    specs: SpecRun = field(default_factory=SpecRun)             # which rule specs the kickstart fulfilled
 
 
 def run_synthesis_stages(
@@ -56,9 +60,12 @@ def run_synthesis_stages(
     presentation: Optional[Callable[..., Dict[str, Any]]] = None,
     ux: Optional[Callable[..., str]] = None,
     behaviour: Optional[Callable[..., ActionBehaviour]] = None,
+    specs: Optional[Callable[[List[Any]], SpecRun]] = None,
 ) -> SynthesisOutcome:
     """Runs the four stages and returns what each delivered. `on_action_manifest` receives the manifest of a
-    successful action protocol (the caller stores it). An exception in any stage propagates once all have finished."""
+    successful action protocol (the caller stores it). `specs` runs the rule deck's behaviour specs (the caller owns
+    where a spec's status is stored); without it they stay pending. An exception in any stage propagates once all
+    have finished."""
     if review is None:
         from onboarding.spec_review import review_spec_consistency as review
     if protocol is None:
@@ -112,7 +119,25 @@ def run_synthesis_stages(
             handle.note("has_visual_direction", "### 6. Visual Direction" in (blueprint or ""))
             return blueprint
 
-    def protocol_then_presentation(ux_plan: Any) -> None:
+    def run_rule_specs() -> None:
+        # The domain's rules, on top of the methods the behaviour stage wrote. Overlaps the presentation, so it
+        # declares the files it writes.
+        with stage("behaviour_specs", owns=("src/domain", "tests/unit", "tests/pending")) as handle:
+            if specs is None:
+                return handle.skip("no spec executor was given; the specs stay pending")
+            if not outcome.behaviour.success:
+                return handle.skip("the actions the specs build on are not implemented")
+            started = time.time()
+            outcome.specs = specs(inbox_specs)
+            outcome.timings["5c_behaviour_specs"] = round(time.time() - started, 2)
+            handle.note("fulfilled", outcome.specs.fulfilled)
+            if outcome.specs.skipped:
+                handle.skip(outcome.specs.skipped)
+            elif not outcome.specs.success:
+                handle.note("unfulfilled", outcome.specs.unfulfilled)
+                fail("behaviour_specs", handle, outcome.specs.error)
+
+    def protocol_then_presentation(ux_plan: Any, pool: ThreadPoolExecutor) -> None:
         # Action protocol (the domain class and the action endpoint come from the skeleton + TDD loop)
         started = time.time()
         with stage("action_protocol") as handle:
@@ -143,6 +168,8 @@ def run_synthesis_stages(
                     handle.note("missing", outcome.behaviour.missing)
                     fail("action_behaviour", handle, outcome.behaviour.error)
 
+        alongside.append(pool.submit(pipeline_trace.bind_context(run_rule_specs)))
+
         # Interactive presentation projection & React shell
         outcome.ux_blueprint = ux_plan.result()
         started = time.time()
@@ -163,13 +190,13 @@ def run_synthesis_stages(
                 if outcome.removed_scaffold:
                     handle.note("removed_scaffold", outcome.removed_scaffold)
 
-    with ThreadPoolExecutor(max_workers=3, thread_name_prefix="synthesis") as pool:
+    with ThreadPoolExecutor(max_workers=4, thread_name_prefix="synthesis") as pool:
         alongside = [pool.submit(pipeline_trace.bind_context(task)) for task in (review_specs, seed_content)]
         ux_plan = pool.submit(pipeline_trace.bind_context(plan_ux))
         try:
-            protocol_then_presentation(ux_plan)
+            protocol_then_presentation(ux_plan, pool)
         finally:
-            crashes = [f.exception() for f in alongside]  # waits for both
+            crashes = [f.exception() for f in alongside]  # waits for all of them
     for crash in crashes:
         if crash is not None:
             raise crash

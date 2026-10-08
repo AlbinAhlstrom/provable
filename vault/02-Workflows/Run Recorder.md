@@ -45,7 +45,7 @@ offset say where the wall time went.
 ## What the stages report about their output
 
 - **Presentation** notes the line count of each component it wrote and the optional files it left out. A block that
-  exports nothing (`export {};`) is not written. When the page is written, the skeleton's scaffold it no longer imports is removed and listed as `removed_scaffold`. The `action_behaviour` stage notes which actions have a method (`implemented`), which do not (`missing`, which fails the stage) and how each aggregate's TDD loop ended (`runs`).
+  exports nothing (`export {};`) is not written. When the page is written, the skeleton's scaffold it no longer imports is removed and listed as `removed_scaffold`. The `action_behaviour` stage notes which actions have a method (`implemented`), which do not (`missing`, which fails the stage) and how each aggregate's TDD loop ended (`runs`). The `behaviour_specs` stage notes the specs it `fulfilled` and the ones it did not (`unfulfilled`, with each reason, which fails the stage).
 - **UX plan** notes whether it carries a visual direction (section 6 of the blueprint).
 - **Visual review** notes its verdict (`clean`, `repaired`, `unrepaired`, `reverted`, `error`), the problems it saw,
   every class change with whether it was applied and why not, and what it could not repair.
