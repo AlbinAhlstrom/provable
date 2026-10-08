@@ -28,6 +28,9 @@ _BROKEN_TEST_MARKERS = (
 )
 
 
+REGRESSION_TIMEOUT_S = 30  # the domain tests in tests/unit; the page's browser checks live in tests/acceptance
+
+
 def _headline(text: str) -> str:
     """The most informative line of a failure text: the final 'E ' (error) line, else the first line."""
     lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
@@ -647,7 +650,23 @@ class {target_class}:
 
                 # Regression gate: the new implementation must not break any earlier, verified spec.
                 if green_eval["approved"]:
-                    regression = run_isolated_pytest(tests_dir, cwd=workspace_dir, timeout_seconds=30)
+                    regression = run_isolated_pytest(tests_dir, cwd=workspace_dir, timeout_seconds=REGRESSION_TIMEOUT_S)
+                    if regression.get("timed_out"):
+                        # Not a verdict on the code: the suite never answered, so there is nothing to feed back
+                        rollback()
+                        return {
+                            "success": False,
+                            "status": "REQUIRES_HUMAN_INTERVENTION",
+                            "phase": "REGRESSION_GATE",
+                            "spec_id": spec.spec_id,
+                            "error": f"The regression suite (tests/unit) did not finish within {REGRESSION_TIMEOUT_S} "
+                                     f"seconds, so the change could not be verified.",
+                            "red_attempts": red_attempts,
+                            "test_source": test_code,
+                            "attempts": attempts,
+                            "rolled_back": True,
+                            "pending_test": _quarantine_test(test_file_path, workspace_dir)
+                        }
                     if regression["exit_code"] != 0:
                         broken = _failed_test_files(regression) or ["(unknown)"]
                         green_result = regression

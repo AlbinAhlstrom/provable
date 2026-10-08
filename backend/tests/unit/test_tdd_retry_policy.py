@@ -101,3 +101,28 @@ def test_provider_errors_are_not_retried(scripted, tmp_path):
     with pytest.raises(RuntimeError, match="provider down"):
         tdd_machine.execute_spec_tdd_loop(_spec(), str(tmp_path))
     assert len(calls["synth"]) == 1
+
+
+def test_a_regression_run_that_does_not_finish_is_not_a_verdict_and_is_not_retried(scripted, tmp_path, monkeypatch):
+    """Verify a regression suite that timed out fails the spec with that reason instead of blaming the code.
+
+    id: TST-RP-TIMEOUT
+    Given: A GREEN gate that approves, and a regression run over tests/unit that times out
+    When: The loop runs
+    Then: The synthesizer was called once, the error says the suite did not finish, and the domain is as it was
+    """
+    calls = scripted([True, True])
+
+    def run(path, cwd=None, timeout_seconds=5):
+        if os.path.isdir(path):
+            return {"exit_code": 2, "stderr": "Pytest execution timed out after 30 seconds.", "report": {}, "timed_out": True}
+        return {"exit_code": 1, "stderr": "pytest-output", "report": None}
+
+    monkeypatch.setattr(tdd_machine, "run_isolated_pytest", run)
+    result = tdd_machine.execute_spec_tdd_loop(_spec(), str(tmp_path))
+
+    assert result["success"] is False and len(calls["synth"]) == 1
+    assert "did not finish" in result["error"] and "Regression: your change" not in result["error"]
+    assert result["rolled_back"] is True
+    assert "class Widget" in (tmp_path / "src" / "domain" / "widget.py").read_text(encoding="utf-8")
+    assert "id: str = ''" not in (tmp_path / "src" / "domain" / "widget.py").read_text(encoding="utf-8")
