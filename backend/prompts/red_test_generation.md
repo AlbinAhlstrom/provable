@@ -25,7 +25,7 @@ Your test must be consistent with these (same meaning of states, same method nam
 ```
 {feedback_block}
 ## Arranging the Given
-Put the object straight into the situation the scenario starts from by setting its fields after construction: in a collection it owns, clear what the scenario does not need and write in only the few items it does need. Reach a situation through a sequence of calls only when the scenario is about that sequence itself. Every step of a long sequence is a place where your expectation and the product's rules can part ways, and a test with a wrong expectation fails a correct implementation.
+Put the object straight into the situation the scenario starts from by setting its fields after construction: in a collection it owns, clear what the scenario does not need and write in only the few items it does need. Keep the shape the object has when it is newly created: a collection that starts with one item for every position (each square of a board, each slot of a day) keeps one item for every position, each with every key the class's description lists, and you change only what the items hold. Reach a situation through a sequence of calls only when the scenario is about that sequence itself. Every step of a long sequence is a place where your expectation and the product's rules can part ways, and a test with a wrong expectation fails a correct implementation.
 
 Above each assertion, write a short comment that works out the expected result from the product's rules for exactly the state you arranged, item by item (what is where, what can reach what, what blocks it). If the working shows your expectation does not hold, change the arrangement until it does.
 

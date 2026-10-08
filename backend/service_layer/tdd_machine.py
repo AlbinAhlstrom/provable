@@ -19,7 +19,7 @@ from onboarding.action_protocol import format_interface_contract
 from dataclasses import dataclass, field
 from onboarding.router_engine import BusinessSpec
 from onboarding.cst_isolator import (
-    FragmentError, extract_class_cst, merge_module_fragment, module_import_lines, splice_class_cst
+    FragmentError, extract_class_cst, merge_module_fragment, module_helpers_source, module_import_lines, splice_class_cst
 )
 
 
@@ -435,7 +435,8 @@ def synthesize_green_class_implementation(
     failure_output: str = "",
     test_source: str = "",
     module_imports: str = "",
-    existing_tests: str = ""
+    existing_tests: str = "",
+    module_helpers: str = ""
 ) -> str:
     """Synthesizes the GREEN phase domain class implementation using LLM micro-context prompt.
 
@@ -467,6 +468,7 @@ def synthesize_green_class_implementation(
         "spec_type": spec.spec_type,
         "test_source": test_source or "(no test source available)",
         "module_imports": module_imports or "(none)",
+        "module_helpers": module_helpers or "(none)",
         "existing_tests": existing_tests or "(none yet)",
         "failure_output": failure_output or "The frozen test does not pass yet.",
         "target_class_name": target_class_name
@@ -682,7 +684,8 @@ class {target_class}:
                 failure_output=failure_msg,
                 test_source=test_code,
                 module_imports=module_import_lines(domain_source),
-                existing_tests=existing_tests
+                existing_tests=existing_tests,
+                module_helpers=module_helpers_source(domain_source, target_class)
             )
 
             try:

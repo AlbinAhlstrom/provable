@@ -26,7 +26,7 @@ def scripted(monkeypatch):
     def install(green_verdicts, synth_error=None):
         verdicts = iter(green_verdicts)
 
-        def fake_synth(extracted_class, target_class_name, spec, failure_output, test_source="", module_imports="", existing_tests=""):
+        def fake_synth(extracted_class, target_class_name, spec, failure_output, test_source="", module_imports="", existing_tests="", **_ignored):
             calls["synth"].append(failure_output)
             if synth_error:
                 raise synth_error

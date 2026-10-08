@@ -156,7 +156,8 @@ def test_tests_still_failing_are_fed_back_once(tmp_path, monkeypatch):
     id: TST-BATCH-003
     Given: A first answer that satisfies two of three tests, and a second that satisfies all
     When: The specs are executed together
-    Then: Two code calls; the second was told the failing test by name; every spec is fulfilled with two attempts
+    Then: Two code calls; the second was told the failing test by name, was given only that test to satisfy and
+          the two that already pass as tests to keep passing; every spec is fulfilled with two attempts
     """
     workspace = _workspace(tmp_path)
     calls = _models(monkeypatch, [_fragment(PAY, ADD_LINE_OPEN), _fragment(ADD_LINE)])
@@ -164,6 +165,8 @@ def test_tests_still_failing_are_fed_back_once(tmp_path, monkeypatch):
     results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
 
     assert len(calls) == 2 and "test_spec_003.py" in calls[1]["failure_output"]
+    assert "test_spec_003.py" in calls[1]["test_source"] and "test_spec_001.py" not in calls[1]["test_source"]
+    assert "test_spec_001.py" in calls[1]["existing_tests"] and "test_spec_002.py" in calls[1]["existing_tests"]
     assert all(results[i]["success"] for i in TESTS) and len(results["SPEC-003"]["attempts"]) == 2
 
 
@@ -282,6 +285,7 @@ def test_a_test_no_code_answer_could_meet_is_reconsidered_once_by_its_writer(tmp
 
     assert len(calls) == 2 and len(asked) == 2
     assert "A paid invoice takes no more lines" in asked[1] and "assert invoice.total == 1" in asked[1]
+    assert "def add_line(self, amount: int) -> None:" in asked[1]  # the implementation it is asked to trace
     fulfilled = results["SPEC-003"]
     assert fulfilled["success"] and fulfilled["reconsidered"] and len(fulfilled["red_attempts"]) == 2
     assert (tmp_path / "tests" / "unit" / "test_spec_003.py").read_text(encoding="utf-8") == TESTS["SPEC-003"]

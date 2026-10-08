@@ -39,13 +39,15 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import pipeline_trace
-from onboarding.cst_isolator import FragmentError, extract_class_cst, merge_module_fragment, module_import_lines
+from onboarding.cst_isolator import (
+    FragmentError, extract_class_cst, merge_module_fragment, module_helpers_source, module_import_lines
+)
 from onboarding.router_engine import BusinessSpec
 from pipeline_trace import traced
 from service_layer import tdd_machine
 from service_layer.tdd_machine import DomainTarget, RedOutcome
 
-RED_WORKERS = 8
+RED_WORKERS = 24  # one wave for a deck of two dozen rules; the calls are I/O bound
 FEEDBACK_LIMIT = 6000  # characters of failing-test output shown to the code writer on the retry
 
 RECONSIDER_EVIDENCE = 2500
@@ -61,10 +63,17 @@ How it fails:
 {evidence}
 ```
 
-Either the implementation lacks the rule, or the test expects the wrong thing for the state it arranges. Work out from
-the product's rules, item by item, what the correct result is for exactly that state. If the test expected the wrong
-thing, write it again with a correct expectation, still testing this rule in a situation where it applies. If the test
-was right, return it exactly as it is."""
+The implementation:
+```python
+{implementation}
+```
+
+Either the implementation lacks the rule or gets it wrong, or the test expects the wrong thing for the state it
+arranges (often because another rule of the product also applies to that state). Trace the implementation for exactly
+that state to see which of its rules produces the result it gives. Then decide from the product's rules, not from the
+implementation, which is right. If the test expected the wrong thing, write it again with a correct expectation, still
+testing this rule in a situation where it applies and no other rule interferes. If the test was right, return it
+exactly as it is."""
 
 Approved = Tuple[BusinessSpec, RedOutcome]
 
@@ -106,7 +115,7 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
     `waiting` holds the test files of classes not implemented yet: they fail by design and are not counted."""
     with open(target.domain_file, "r", encoding="utf-8") as f:
         domain_before = f.read()
-    spec = rules_spec(target.class_name, [s for s, _ in batch])
+    frozen, verified = list(batch), existing_tests  # on the retry: the tests still failing, and those to keep passing
     own = {os.path.basename(red.test_file_path) for _, red in batch}
     attempts: List[Dict[str, Any]] = []
     kept: Optional[Tuple[str, Set[str], Dict[str, Any]]] = None   # (source, the batch's failing tests, pytest result)
@@ -123,9 +132,10 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
                 domain_source = f.read()
             fragment = tdd_machine.synthesize_green_class_implementation(
                 extracted_class=extract_class_cst(domain_source, target.class_name) or "",
-                target_class_name=target.class_name, spec=spec, failure_output=failure,
-                test_source=_tests_block(batch), module_imports=module_import_lines(domain_source),
-                existing_tests=existing_tests)
+                target_class_name=target.class_name, spec=rules_spec(target.class_name, [s for s, _ in frozen]),
+                failure_output=failure, test_source=_tests_block(frozen),
+                module_imports=module_import_lines(domain_source), existing_tests=verified,
+                module_helpers=module_helpers_source(domain_source, target.class_name))
             try:
                 merged = merge_module_fragment(domain_source, target.class_name, fragment)
             except FragmentError as err:
@@ -158,6 +168,10 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
                     if kept is None or len(still) <= len(kept[1]):
                         kept = (merged, still, run)
                     restore(kept[0])
+                    # The retry is asked for what is still failing; what already passes is shown as tests to keep
+                    frozen = [(s, red) for s, red in batch if os.path.basename(red.test_file_path) in kept[1]]
+                    passing = [(s, red) for s, red in batch if os.path.basename(red.test_file_path) not in kept[1]]
+                    verified = "\n".join(part for part in (existing_tests, _tests_block(passing)) if part)
             attempts.append({"attempt": attempt, "approved": not reason, "reason": reason or "All tests passed cleanly."})
             if not reason:
                 break
@@ -203,10 +217,12 @@ def reconsider_test(spec: BusinessSpec, red: RedOutcome, failed: Dict[str, Any],
         return {**failed, "error": f"{failed['error']} {reason}", "red_attempts": red.attempts + ([attempt] if attempt else [])}
 
     with open(target.domain_file, "r", encoding="utf-8") as f:
-        current_class = extract_class_cst(f.read(), target.class_name) or ""
+        implementation = f.read()
+    current_class = extract_class_cst(implementation, target.class_name) or ""
     test_code = tdd_machine.generate_red_test(
         spec, current_class, target.module_name, target.class_name,
-        rejection_feedback=RECONSIDER.format(test=red.test_code.strip(), evidence=failed.get("failure_evidence") or failed["error"]),
+        rejection_feedback=RECONSIDER.format(test=red.test_code.strip(), implementation=implementation.strip(),
+                                             evidence=failed.get("failure_evidence") or failed["error"]),
         existing_tests=existing_tests,
         interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name))
     if test_code.strip() == red.test_code.strip():

@@ -27,6 +27,7 @@ CRITICAL DECOMPOSITION INSTRUCTIONS:
 
 - BEHAVIOR INBOX:
   - Extract each distinct business rule, invariant, pricing formula, or edge case as an atomic spec item.
+  - A rule is enforced only as far as a spec states it. Where the pitch lists several rules, special cases or exceptions (each special move of a game, each way it can end, each tier of a price), every one of them is a spec of its own with its own Given/When/Then; a single spec that says "the rules are followed" covers none of them.
   - Formulate a precise BDD specification ("Given ... When ... Then ...").
   - Target the specific Aggregate Root that owns the invariant.
   - Set `kind` to "behavior" when the rule is about what the domain allows, calculates or records, and to "presentation" when it is only about what a user sees (a section, layout or visual state). A rule that needs both is two specs: one of each kind.

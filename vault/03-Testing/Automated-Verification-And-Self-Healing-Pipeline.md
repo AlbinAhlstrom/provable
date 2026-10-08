@@ -87,6 +87,17 @@ While the page is written, the rule deck's behaviour specs are written together 
   and to work out each expected result in a comment above the assertion (`red_test_generation.md`). On the same
   replay that brought wrong expectations from two in eight to one in 24.
 
+- The retry is asked only for the tests still failing; the batch's tests that already pass are shown as tests to
+  keep passing. When reconsidering, the writer is also shown the implementation, to trace which of its rules gives
+  the result (a fifty-move test failed because its two-kings-and-a-knight position was already drawn by another
+  rule), and decides from the product's rules which side is right.
+- A code answer may carry helper functions and constants beside the class, merged by name like helper classes
+  (`merge_module_fragment`), and the code writer is shown the helpers the module already has. Refusing a helper
+  function cost the action stage its one retry on a formality in three of five chess builds.
+- The expansion lists every rule of an established rule set by name and the analyst gives each its own spec
+  (`prompt_expansion.md`, `router_decomposition.md`). A deck of six rules produced a chess game without castling
+  on one side and without en passant, and every test passed: a rule is only enforced as far as a spec states it.
+
 Each spec's status is stored as when the user runs it from the Studio, where a single spec still goes through the
 single loop. QA starts once the specs are done, so it audits a domain that no longer changes. Presentation specs are
 not run here: the page is written from them. One spec after another, a nine-rule deck took about 230 seconds (nine

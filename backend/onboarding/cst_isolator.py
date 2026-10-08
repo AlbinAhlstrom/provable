@@ -250,6 +250,20 @@ def _is_import_line(stmt: cst.CSTNode) -> bool:
     )
 
 
+def _module_name_of(stmt: cst.CSTNode) -> Optional[str]:
+    """The one name a module-level statement defines: a class, a function, or a constant assigned to a single name.
+    None for anything else."""
+    if isinstance(stmt, (cst.ClassDef, cst.FunctionDef)):
+        return stmt.name.value
+    if isinstance(stmt, cst.SimpleStatementLine) and len(stmt.body) == 1:
+        inner = stmt.body[0]
+        if isinstance(inner, cst.AnnAssign) and isinstance(inner.target, cst.Name):
+            return inner.target.value
+        if isinstance(inner, cst.Assign) and len(inner.targets) == 1 and isinstance(inner.targets[0].target, cst.Name):
+            return inner.targets[0].target.value
+    return None
+
+
 def _is_docstring_line(stmt: cst.CSTNode) -> bool:
     return (
         isinstance(stmt, cst.SimpleStatementLine)
@@ -266,6 +280,14 @@ def module_import_lines(source_code: str) -> str:
     except Exception:
         return ""
     return "\n".join(module.code_for_node(s).strip() for s in module.body if _is_import_line(s))
+
+
+def module_helpers_source(source: str, target_class: str) -> str:
+    """The module's helpers beside the target class (classes, functions, constants), as source: what a code writer
+    shown only the class would otherwise not know exists, and write a second time under another name."""
+    module = cst.parse_module(source)
+    return "\n\n".join(module.code_for_node(s).strip() for s in module.body
+                       if _module_name_of(s) not in (None, target_class))
 
 
 def _member_key(stmt: cst.CSTNode) -> Optional[tuple]:
@@ -327,12 +349,12 @@ def _merge_class_members(original: cst.ClassDef, fragment: cst.ClassDef) -> cst.
 def merge_module_fragment(original_source: str, target_class: str, fragment: str) -> str:
     """Merges an LLM-produced module fragment into a module.
 
-    The fragment may contain import statements, helper classes (e.g. domain exceptions) and the target
-    class. Missing imports are added after the existing ones, helper classes are inserted before the
-    target (or replaced when they already exist), and the target class is merged member by member (members
-    the fragment does not mention are kept). Anything else at
-    module level is refused, as is unparseable output: this raises FragmentError instead of silently
-    returning the original source.
+    The fragment may contain import statements, helpers (classes such as domain exceptions, functions, and
+    constants assigned to one name) and the target class. Missing imports are added after the existing ones,
+    helpers are inserted before the target (or replaced when one of that name already exists), and the target
+    class is merged member by member (members the fragment does not mention are kept). Anything else at
+    module level (code that runs at import, an assignment to several names) is refused, as is unparseable
+    output: this raises FragmentError instead of silently returning the original source.
     """
     try:
         frag = cst.parse_module(fragment.strip() + "\n")
@@ -343,17 +365,17 @@ def merge_module_fragment(original_source: str, target_class: str, fragment: str
     for stmt in frag.body:
         if _is_import_line(stmt):
             imports.append(stmt)
-        elif isinstance(stmt, cst.ClassDef):
-            classes.append(stmt)
+        elif _module_name_of(stmt) is not None:
+            classes.append(stmt)  # the target class and every named helper beside it
         elif _is_docstring_line(stmt):
             continue
         else:
-            kind = type(stmt).__name__
+            kind = type(stmt.body[0] if isinstance(stmt, cst.SimpleStatementLine) else stmt).__name__
             raise FragmentError(
-                f"Only import statements and class definitions are allowed at module level (found {kind}). "
-                "Move helper logic into a class."
+                f"Only imports, classes, functions and constants assigned to one name are allowed at module level "
+                f"(found {kind}). Move that logic into a function or a class."
             )
-    if target_class not in {c.name.value for c in classes}:
+    if target_class not in {_module_name_of(c) for c in classes if isinstance(c, cst.ClassDef)}:
         raise FragmentError(f"Your answer does not define class {target_class}.")
 
     orig = cst.parse_module(original_source)
@@ -369,10 +391,10 @@ def merge_module_fragment(original_source: str, target_class: str, fragment: str
     body[pos:pos] = new_imports
 
     def index_of(name: str) -> Optional[int]:
-        return next((i for i, s in enumerate(body) if isinstance(s, cst.ClassDef) and s.name.value == name), None)
+        return next((i for i, s in enumerate(body) if _module_name_of(s) == name), None)
 
     for cls in classes:
-        name = cls.name.value
+        name = _module_name_of(cls)
         idx = index_of(name)
         if idx is not None and name == target_class:
             body[idx] = _merge_class_members(body[idx], cls)
