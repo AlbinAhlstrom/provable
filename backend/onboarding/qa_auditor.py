@@ -13,7 +13,9 @@ Enforces Hard QA Invariants:
 3. Interactive Element Visibility: key interactive widgets must be rendered and visible
 """
 
+import pipeline_trace
 from pipeline_trace import traced
+from concurrent.futures import ThreadPoolExecutor
 import base64
 import os
 import time
@@ -80,26 +82,24 @@ def run_responsive_qa_audit(
     if save_screenshots:
         os.makedirs(output_dir, exist_ok=True)
 
-    options = Options()
-    options.add_argument("--headless=new")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--remote-debugging-port=9222")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--window-size=1400,1000")
-    options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
+    def browser_options() -> Options:
+        options = Options()
+        options.add_argument("--headless=new")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--window-size=1400,1000")
+        options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
+        return options
 
-    driver = None
-    results: List[Dict[str, Any]] = []
-    overall_passed = True
-    defects: List[str] = []
-    warnings: List[str] = []  # reported with the verdict; they do not fail the audit
-    all_console_errors: List[str] = []
-
-    try:
-        driver = webdriver.Chrome(options=options)
-
-        for dev in DEVICE_MATRIX:
+    def audit_device(dev: Dict[str, Any]) -> tuple:
+        """Audits one device in a browser of its own, so the devices are measured at the same time.
+        Returns (result, defects, warnings, console errors)."""
+        defects: List[str] = []
+        warnings: List[str] = []  # reported with the verdict; they do not fail the audit
+        all_console_errors: List[str] = []
+        driver = webdriver.Chrome(options=browser_options())
+        try:
             dev_name = dev["name"]
             width, height = dev["viewport"]
             device_started = time.time()
@@ -265,10 +265,7 @@ def run_responsive_qa_audit(
                 device_defects.append(f"Vertical overflow detected: scrollHeight {metrics.get('maxScrollHeight')}px exceeds viewport {height}px by {delta_y}px")
                 defects.append(f"[{dev_name}] Layout defect: {delta_y}px vertical cutoff/overflow on {height}px screen")
 
-            if not passed:
-                overall_passed = False
-
-            results.append({
+            return {
                 "device": dev_name,
                 "width": width,
                 "height": height,
@@ -279,8 +276,16 @@ def run_responsive_qa_audit(
                 "screenshot": screenshot_path,
                 "full_page_screenshot": full_page_path,
                 "duration_s": round(time.time() - device_started, 2)
-            })
+            }, defects, warnings, all_console_errors
+        finally:
+            try:
+                driver.quit()
+            except Exception:
+                pass
 
+    try:
+        with ThreadPoolExecutor(max_workers=len(DEVICE_MATRIX)) as pool:
+            audited = list(pool.map(pipeline_trace.bind_context(audit_device), DEVICE_MATRIX))
     except Exception as e:
         print(f"[QA Gate] WebDriver connection or execution notice: {e}")
         # In offline/mock test environments without active Chrome/Vite, return a graceful fallback
@@ -291,12 +296,17 @@ def run_responsive_qa_audit(
             "defects": [],
             "summary": f"QA test run bypassed (browser or server unavailable): {e}"
         }
-    finally:
-        if driver:
-            try:
-                driver.quit()
-            except Exception:
-                pass
+
+    results: List[Dict[str, Any]] = []
+    defects: List[str] = []
+    warnings: List[str] = []
+    all_console_errors: List[str] = []
+    for result, device_defects, device_warnings, device_console_errors in audited:  # in DEVICE_MATRIX order
+        results.append(result)
+        defects.extend(device_defects)
+        warnings.extend(device_warnings)
+        all_console_errors.extend(e for e in device_console_errors if e not in all_console_errors)
+    overall_passed = all(r["passed"] for r in results)
 
     status_str = "PASS" if overall_passed else "FAIL"
     summary_text = (

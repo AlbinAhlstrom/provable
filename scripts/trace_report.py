@@ -78,7 +78,8 @@ def show_run(folder, trace_dir):
         print("\nSTAGES   (start = seconds after the run began)")
         for st in summary["stages"]:
             mark = {"ok": "ok     ", "failed": "FAILED ", "skipped": "skipped"}.get(st["status"], st["status"])
-            notes = {k: v for k, v in (st.get("notes") or {}).items() if k not in ("components", "warnings")}
+            notes = {k: v for k, v in (st.get("notes") or {}).items()
+                     if k not in ("components", "warnings", "problems", "edits", "not_repaired")}
             start = f"start {st['t_offset_s']:>6.1f}s" if "t_offset_s" in st else ""
             print(f"  {mark} {st['name']:<22} {start} {st.get('duration_s', 0):>7.1f}s"
                   + (f"  {notes}" if notes else ""))
@@ -92,6 +93,13 @@ def show_run(folder, trace_dir):
                 print(f"          ... and {len(st['files_changed']) - 12} more")
             for comp in (st.get("notes") or {}).get("components") or []:
                 show_styled_component(comp)
+            for problem in (st.get("notes") or {}).get("problems") or []:
+                print(f"          saw: {str(problem)[:200]}")
+            for edit in (st.get("notes") or {}).get("edits") or []:
+                mark_edit = f"repaired ({edit['occurrences']}x)" if edit.get("applied") else f"not applied: {edit.get('reason')}"
+                print(f"          {mark_edit}  {edit.get('file')}: '{edit.get('find')}' -> '{edit.get('replace')}'"[:260])
+            for missed in (st.get("notes") or {}).get("not_repaired") or []:
+                print(f"          not repaired: {str(missed)[:200]}")
             for warning in (st.get("notes") or {}).get("warnings") or []:
                 print(f"          warning: {str(warning)[:300]}")
         result = summary.get("result") or {}

@@ -157,8 +157,9 @@ def test_qa_auditor_saves_the_whole_page_not_only_the_first_screen(mock_chrome_c
     mobile = report["device_results"][0]
     assert mobile["full_page_screenshot"].endswith("qa_mobile_full.png")
     assert (tmp_path / "qa_mobile_full.png").read_bytes() == b"png-bytes"
-    assert captures[0]["captureBeyondViewport"] is True
-    assert captures[0]["clip"]["height"] == 3000 and abs(captures[0]["clip"]["scale"] - 1 / 3) < 1e-9
+    mobile_capture = next(c for c in captures if c["clip"]["width"] == 375)  # the devices run at the same time
+    assert mobile_capture["captureBeyondViewport"] is True
+    assert mobile_capture["clip"]["height"] == 3000 and abs(mobile_capture["clip"]["scale"] - 1 / 3) < 1e-9
     assert mobile["duration_s"] >= 0
     assert len(captures) == 3
 
@@ -230,7 +231,33 @@ def test_qa_auditor_measures_overflow_against_the_device_width(mock_chrome_cls, 
 
     report = run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=False, output_dir=str(tmp_path))
 
-    assert [call.args[1] for call in mock_driver.execute_script.call_args_list] == [375, 768, 1280]
+    assert sorted(call.args[1] for call in mock_driver.execute_script.call_args_list) == [375, 768, 1280]
     assert "arguments[0]" in mock_driver.execute_script.call_args_list[0].args[0]
     overflow = [d for d in report["defects"] if "horizontal overflow" in d]
     assert overflow and 'span "Ages 4-11" ends at 450px' in overflow[0]
+
+
+@patch("selenium.webdriver.Chrome")
+@pytest.mark.slow
+def test_qa_auditor_gives_each_device_its_own_browser_and_reports_them_in_order(mock_chrome_cls, tmp_path):
+    """Verify the devices are audited side by side without sharing a browser, and the report keeps its order.
+
+    id: TST-QA-PARALLEL
+    Given: Three devices
+    When: The audit runs
+    Then: Three browsers are started and closed, and the results read Mobile, Tablet, Desktop
+    """
+    drivers = []
+
+    def new_driver(*args, **kwargs):
+        driver = MagicMock()
+        driver.execute_script.return_value = {"innerWidth": 375, "maxScrollWidth": 375, "hasHorizontalOverflow": False,
+                                              "overflowDelta": 0, "hasCrashOverlay": False}
+        drivers.append(driver)
+        return driver
+
+    mock_chrome_cls.side_effect = new_driver
+    report = run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=False, output_dir=str(tmp_path))
+    assert len(drivers) == 3 and all(d.quit.called for d in drivers)
+    assert [r["device"] for r in report["device_results"]] == ["Mobile", "Tablet", "Desktop"]
+    assert report["passed"] is True

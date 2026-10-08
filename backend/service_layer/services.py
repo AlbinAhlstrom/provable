@@ -2257,36 +2257,6 @@ def kickstart_domain_and_scaffold(
                 if f not in created_files:
                     created_files.append(f)
 
-            # Node 5c: Dedicated Aesthetic & Styling Pass
-            t5c_start = time.time()
-            st = stage_begin("styling")
-            try:
-                from onboarding.styling_synthesizer import run_aesthetic_styling_pipeline
-                if not pres_res.get("files"):
-                    timings["5c_aesthetic_styling"] = 0.0
-                    st.skip("the presentation stage delivered no components to style")
-                else:
-                    print(f"[Kickstart] [5c/6] Applying audience-native styling pass...", flush=True)
-                    style_res = run_aesthetic_styling_pipeline(
-                        workspace_dir=workspace_dir,
-                        pitch_spec=pitch_text,
-                        component_files=pres_res.get("files", [])
-                    )
-                    timings["5c_aesthetic_styling"] = round(time.time() - t5c_start, 2)
-                    st.note("styled", f"{style_res.get('styled_count', 0)}/{style_res.get('total_targets', 0)}")
-                    st.note("components", style_res.get("results", []))
-                    if style_res.get("success") and style_res.get("styled_count", 0) > 0:
-                        st.ok()
-                    else:
-                        styling_error = str(style_res.get("error") or "no component was restyled")
-                        stage_failures.append({"stage": "styling", "error": styling_error})
-                        st.fail(styling_error)
-            except Exception as style_err:
-                timings["5c_aesthetic_styling"] = 0.0
-                stage_failures.append({"stage": "styling", "error": str(style_err)})
-                st.fail(str(style_err))
-                print(f"[Kickstart] Styling pass notice: {style_err}", flush=True)
-
             # Node 4: Multi-Device Responsive QA Audit Gate (Mobile 375px, Tablet 768px, Desktop 1280px)
             t6_start = time.time()
             st = stage_begin("qa")
@@ -2310,10 +2280,13 @@ def kickstart_domain_and_scaffold(
                         time.sleep(1.0)
                     return bool(healed)
 
-                qa_verdict = run_qa_gate(
-                    audit=lambda: run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=True),
-                    rework=_rework,
-                )
+                last_audit: Dict[str, Any] = {}
+
+                def _audit() -> Dict[str, Any]:
+                    last_audit["report"] = run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=True)
+                    return last_audit["report"]
+
+                qa_verdict = run_qa_gate(audit=_audit, rework=_rework)
                 timings["6_qa_audit"] = round(time.time() - t6_start, 2)
                 st.note("verdict", qa_verdict["verdict"])
                 st.note("rework_attempts", qa_verdict["attempts"])
@@ -2335,6 +2308,33 @@ def kickstart_domain_and_scaffold(
                               "defects": [], "console_errors": [], "error": str(qa_err)}
                 st.fail(str(qa_err))
                 print(f"[Kickstart] [6/6] QA Audit error: {qa_err}", flush=True)
+
+            # The page was written already styled, from the UX plan's visual direction. One look at the QA screenshots
+            # repairs what looks wrong with class changes (onboarding/visual_review.py); nothing is rewritten.
+            t7_start = time.time()
+            st = stage_begin("visual_review")
+            if not pres_res.get("files"):
+                st.skip("the presentation stage delivered no components to review")
+            elif not (qa_verdict and qa_verdict.get("passed")):
+                st.skip("the page did not pass QA")
+            else:
+                from onboarding.ux_planner import visual_direction
+                from onboarding.visual_review import review_and_repair, screenshots_from_audit
+                review = review_and_repair(
+                    workspace_dir=workspace_dir, pitch=pitch_text,
+                    visual_direction=visual_direction(synthesis.ux_blueprint),
+                    component_files=pres_res.get("files", []),
+                    screenshots=screenshots_from_audit(last_audit.get("report") or {}), audit=_audit)
+                for key in ("verdict", "problems", "edits", "not_repaired"):
+                    st.note(key, review[key])
+                if review["verdict"] == "error":
+                    stage_failures.append({"stage": "visual_review", "error": str(review["error"])})
+                    st.fail(str(review["error"]))
+                else:
+                    st.ok()
+                print(f"[Kickstart] Visual review: {review['verdict']} ({len(review['problems'])} problem(s), "
+                      f"{sum(1 for e in review['edits'] if e['applied'])} repair(s) applied)", flush=True)
+            timings["7_visual_review"] = round(time.time() - t7_start, 2)
         except Exception as synth_err:
             stage_failures.append({"stage": "synthesis", "error": str(synth_err)})
             print(f"[Kickstart] ⚠️ Compiler Graph synthesis notice: {synth_err}", flush=True)

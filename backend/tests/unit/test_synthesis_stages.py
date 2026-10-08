@@ -17,6 +17,7 @@ def _stages(**overrides):
         protocol=lambda **kw: {"success": True, "files": [], "action_manifest": {"actions": [{"name": "submit"}]}},
         seed=lambda **kw: {"success": True, "files": ["seed.json"]},
         presentation=lambda **kw: {"success": True, "files": ["App.tsx"]},
+        ux=lambda **kw: "### 1. Plan\n### 6. Visual Direction\nwarm cream, one amber accent",
     )
     stages.update(overrides)
     return stages
@@ -71,6 +72,7 @@ def test_the_presentation_receives_the_action_protocol_and_the_manifest_is_hande
 
     _run(tmp_path, manifests=manifests, presentation=presentation)
     assert seen["action_manifest"] == {"actions": [{"name": "submit"}]}
+    assert "warm cream" in seen["ux_blueprint"]  # the plan made alongside the protocol reaches the presentation
     assert manifests == [{"actions": [{"name": "submit"}]}]
 
 
@@ -96,7 +98,8 @@ def test_every_stage_that_does_not_deliver_is_reported_with_its_reason(tmp_path,
         ("presentation", "no App.tsx"), ("seed_data", "the domain rejected the records twice"), ("spec_review", "quota")]
     run = next(p for p in (tmp_path / "runs").iterdir() if p.is_dir())
     stages = {s["name"]: s["status"] for s in json.loads((run / "summary.json").read_text(encoding="utf-8"))["stages"]}
-    assert stages == {"spec_review": "failed", "seed_data": "failed", "action_protocol": "ok", "presentation": "failed"}
+    assert stages == {"spec_review": "failed", "seed_data": "failed", "ux_plan": "ok", "action_protocol": "ok",
+                      "presentation": "failed"}
 
 
 def test_seed_data_is_credited_with_its_file_and_the_presentation_with_its_own(tmp_path, monkeypatch):
@@ -145,3 +148,25 @@ def test_a_crash_in_a_parallel_stage_is_raised_not_lost(tmp_path):
 
     with pytest.raises(RuntimeError, match="seed crashed"):
         _run(tmp_path, seed=seed)
+
+
+def test_the_ux_plan_is_made_while_the_action_protocol_is_designed(tmp_path):
+    """Verify the UX plan no longer waits for the action protocol.
+
+    id: TST-SYN-006
+    Given: An action protocol stage that only finishes once the UX plan has started
+    When: The stages run
+    Then: All of them finish, and the outcome carries the plan
+    """
+    ux_started = threading.Event()
+
+    def ux(**kw):
+        ux_started.set()
+        return "### 6. Visual Direction\nink on paper"
+
+    def protocol(**kw):
+        assert ux_started.wait(WAIT), "the UX plan did not run alongside the action protocol"
+        return {"success": True, "files": [], "action_manifest": {"actions": []}}
+
+    outcome = _run(tmp_path, ux=ux, protocol=protocol)
+    assert outcome.failures == [] and "ink on paper" in outcome.ux_blueprint

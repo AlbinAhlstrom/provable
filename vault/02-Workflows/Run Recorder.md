@@ -20,15 +20,15 @@ The test suite points it at a throwaway directory.
 ## Stages and failure
 
 The kickstart marks its stages (intent, expansion, decomposition, skeleton, persistence, shell and acceptance, spec
-review, seed data, action protocol, presentation, styling, QA). A stage that does not deliver is `failed` with its reason; a
-stage that cannot run because an earlier one failed is `skipped` with the reason (styling never restyles a skeleton
-the presentation stage failed to replace). Any failed stage makes the run `degraded`, and the Studio shows the failures
+review, seed data, UX plan, action protocol, presentation, QA, visual review). A stage that does not deliver is `failed` with its reason; a
+stage that cannot run because an earlier one failed is `skipped` with the reason (the visual review never looks at a
+page the presentation stage failed to deliver or that did not pass QA). Any failed stage makes the run `degraded`, and the Studio shows the failures
 and the run id when a build finishes degraded, and the build time and run id when it succeeds.
 
 ## Stages that run at the same time
 
-Spec review and seed data run alongside the action protocol and the presentation
-(`backend/onboarding/synthesis_stages.py`); styling restyles its components in parallel. Three things keep the
+Spec review, seed data and the UX plan run alongside the action protocol, and the presentation follows
+(`backend/onboarding/synthesis_stages.py`); QA audits its three devices in parallel browsers. Three things keep the
 record truthful when stages overlap:
 
 - **Files.** A stage's changed files are the workspace diff between its start and end, which overlapping stages would
@@ -46,9 +46,9 @@ offset say where the wall time went.
 
 - **Presentation** notes the line count of each component it wrote and the optional files it left out. A block that
   exports nothing (`export {};`) is not written.
-- **Styling** notes, per component, whether it was restyled and why not, how many attempts it took and the verifier's
-  verdict on each refused one, the line count before and after, and the visitor-facing text the restyle added or
-  dropped (`StyleResult`). The styling prompt keeps the copy verbatim, so a non-empty text diff is drift worth reading.
+- **UX plan** notes whether it carries a visual direction (section 6 of the blueprint).
+- **Visual review** notes its verdict (`clean`, `repaired`, `unrepaired`, `reverted`, `error`), the problems it saw,
+  every class change with whether it was applied and why not, and what it could not repair.
 - **QA** notes the verdict, the rework attempts and its warnings (text cut off at the screen edge). Each device result
   in the trace holds its metrics, how long it took and both screenshots.
 - **Frontend inventory** (`backend/onboarding/app_inventory.py`, in the result as `app_inventory`): every source file

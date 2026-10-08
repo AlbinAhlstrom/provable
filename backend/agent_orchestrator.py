@@ -1,4 +1,5 @@
 from pipeline_trace import traced_llm, record_llm_meta
+import base64
 import subprocess
 import os
 import sys
@@ -149,17 +150,31 @@ def extract_json_object(raw: str) -> dict:
     return value
 
 
+def _message_content(prompt: str, images: Optional[List[str]]) -> Any:
+    """The user message: the prompt alone, or the prompt followed by each image as a data URL."""
+    if not images:
+        return prompt
+    parts: List[Dict[str, Any]] = [{"type": "text", "text": prompt}]
+    for path in images:
+        with open(path, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode("ascii")
+        parts.append({"type": "image_url", "image_url": {"url": f"data:image/png;base64,{encoded}"}})
+    return parts
+
+
 def model_for_stage(stage: str) -> str:
     """The model a stage runs on: LLM_MODEL_<STAGE>, else LLM_MODEL, else the default."""
     return os.environ.get(f"LLM_MODEL_{stage.upper()}") or os.environ.get("LLM_MODEL", "gemini-3.8-flash")
 
 
 @traced_llm
-def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, reasoning_effort: Optional[str] = None) -> str:
+def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, reasoning_effort: Optional[str] = None,
+                images: Optional[List[str]] = None) -> str:
     """OpenAI Python SDK wrapper for LLM calls (configured via environment variables).
 
     json_mode asks the provider for a syntactically valid JSON object (use for stages whose output
-    is parsed as JSON). Failures return "" and set LAST_LLM_ERROR with the reason.
+    is parsed as JSON). images are PNG files shown to the model after the prompt, in order (the trace
+    records their paths, not their bytes). Failures return "" and set LAST_LLM_ERROR with the reason.
 
     reasoning_effort limits hidden "thinking" tokens. Measured on the GREEN-repair prompt with
     gemini-3.8-flash: default effort = 259 s / 35,335 tokens, "low" = 5 s / 1,566 tokens. Defaults to
@@ -184,7 +199,7 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
     effort = reasoning_effort if reasoning_effort is not None else os.environ.get("LLM_REASONING_EFFORT", "low")
     request = {
         "model": model_name,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": [{"role": "user", "content": _message_content(prompt, images)}],
         "temperature": 0.2,
         "timeout": 60.0,
         **({"response_format": {"type": "json_object"}} if json_mode else {}),

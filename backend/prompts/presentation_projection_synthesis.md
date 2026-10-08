@@ -33,6 +33,9 @@ Controls are built only for the actions listed above the "API-only" line (if any
 Follow this UX Blueprint for initial view defaults, navigation tabs, empty-state guidance, and labeled form inputs:
 {ux_blueprint}
 
+## Visual direction (this is the only styling pass)
+Section 6 of the blueprint above is the page's visual direction: its feel, palette, type, first screen and shape. Build the finished look from it now, in Tailwind classes; nothing restyles the page afterwards. Use its palette for every background, surface, text and accent, give the first screen the composition it describes, and keep one radius, one shadow and one button style across the page.
+
 ## Backend API Endpoints (exactly these exist; nothing else is served):
 - `GET /api/{master_slug}s`: a JSON array of every stored `{master_name}`. It is empty until something has been created; an empty list is a normal state the UI must handle (show the content and forms that make sense with no records, never invented records).
 - `POST /api/{master_slug}s`: creates one `{master_name}` from a JSON body with its fields; returns it.

@@ -1,11 +1,12 @@
 """The stages between the skeleton and styling, run alongside each other where nothing forces an order.
 
     spec_review      ─┐
-    seed_data        ─┼─ start together
-    action_protocol  ─┘→ presentation (UX plan, then the components)
+    seed_data        ─┤
+    ux_plan          ─┼─ start together
+    action_protocol  ─┘→ presentation (needs the action protocol and the UX plan)
 
-All of them read the same decomposition and the skeleton on disk. Only the presentation needs another stage's answer
-(the action protocol). Seed data and the spec review used to queue in front of the presentation, the slowest step, and
+All of them read the same decomposition and the skeleton on disk. Only the presentation needs other stages' answers
+(the action protocol and the UX plan, which also carries the page's visual direction). Seed data and the spec review used to queue in front of the presentation, the slowest step, and
 added their full duration to every kickstart.
 
 The stage functions are injected so the ordering policy is testable without an LLM. Each stage keeps its own record
@@ -32,6 +33,7 @@ class SynthesisOutcome:
     failures: List[Dict[str, str]] = field(default_factory=list)
     timings: Dict[str, float] = field(default_factory=dict)
     files: List[str] = field(default_factory=list)              # every file the stages report having written
+    ux_blueprint: str = ""                                      # the UX plan, including the visual direction
 
 
 def run_synthesis_stages(
@@ -46,6 +48,7 @@ def run_synthesis_stages(
     protocol: Optional[Callable[..., Dict[str, Any]]] = None,
     seed: Optional[Callable[..., Dict[str, Any]]] = None,
     presentation: Optional[Callable[..., Dict[str, Any]]] = None,
+    ux: Optional[Callable[..., str]] = None,
 ) -> SynthesisOutcome:
     """Runs the four stages and returns what each delivered. `on_action_manifest` receives the manifest of a
     successful action protocol (the caller stores it). An exception in any stage propagates once all have finished."""
@@ -58,7 +61,12 @@ def run_synthesis_stages(
     if presentation is None:
         from onboarding.presentation_projection_synthesizer import synthesize_and_write_presentation_projection as presentation
 
+    if ux is None:
+        from onboarding.ux_planner import plan_ux_blueprint as ux
+
     outcome = SynthesisOutcome()
+    master = structure.master_entity() if hasattr(structure, "master_entity") else None
+    master_name = getattr(master, "name", "") or ""
 
     def fail(stage_name: str, handle: Any, reason: Any) -> None:
         outcome.failures.append({"stage": stage_name, "error": str(reason)})
@@ -88,7 +96,14 @@ def run_synthesis_stages(
             elif not outcome.seed.get("success"):
                 fail("seed_data", handle, outcome.seed.get("error"))
 
-    def protocol_then_presentation() -> None:
+    def plan_ux() -> str:
+        with stage("ux_plan", owns=()) as handle:
+            blueprint = ux(pitch=pitch, structure=structure, master_name=master_name, intent=intent,
+                           inbox_specs=inbox_specs)
+            handle.note("has_visual_direction", "### 6. Visual Direction" in (blueprint or ""))
+            return blueprint
+
+    def protocol_then_presentation(ux_plan: Any) -> None:
         # Action protocol (the domain class and the action endpoint come from the skeleton + TDD loop)
         started = time.time()
         with stage("action_protocol") as handle:
@@ -104,12 +119,13 @@ def run_synthesis_stages(
                 fail("action_protocol", handle, outcome.engine.get("error"))
 
         # Interactive presentation projection & React shell
+        outcome.ux_blueprint = ux_plan.result()
         started = time.time()
         with stage("presentation") as handle:
             outcome.presentation = presentation(
                 pitch=pitch, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,
                 action_manifest=outcome.engine.get("action_manifest"), router_code=outcome.engine.get("router_code"),
-                intent=intent)
+                ux_blueprint=outcome.ux_blueprint, intent=intent)
             outcome.timings["5b_presentation_projection"] = round(time.time() - started, 2)
             for key in ("component_lines", "omitted"):
                 if outcome.presentation.get(key):
@@ -117,10 +133,11 @@ def run_synthesis_stages(
             if not outcome.presentation.get("success"):
                 fail("presentation", handle, outcome.presentation.get("error") or "no files were written")
 
-    with ThreadPoolExecutor(max_workers=2, thread_name_prefix="synthesis") as pool:
+    with ThreadPoolExecutor(max_workers=3, thread_name_prefix="synthesis") as pool:
         alongside = [pool.submit(pipeline_trace.bind_context(task)) for task in (review_specs, seed_content)]
+        ux_plan = pool.submit(pipeline_trace.bind_context(plan_ux))
         try:
-            protocol_then_presentation()
+            protocol_then_presentation(ux_plan)
         finally:
             crashes = [f.exception() for f in alongside]  # waits for both
     for crash in crashes:
