@@ -80,8 +80,11 @@ def _clients_block(presented: List[Any], master_name: str) -> str:
         role = _ROLE_TEXT.get(getattr(ent.audience_role, "value", ent.audience_role), "internal").replace("{n}", n)
         if n == master_name and getattr(ent.audience_role, "value", None) != "created_by_audience":
             role = "the master"
+        needed = [a.name for a in ent.attributes if a.required and a.default_value is None and a.name != "id"]
+        create_note = (f" (the server assigns `id`; the data must carry: {', '.join(f'`{a}`' for a in needed)}, with a "
+                       f"value the form works out itself for any the visitor does not enter)") if needed else " (the server assigns `id`)"
         lines.append(f"- `src/api/{_to_snake_case(n)}Client.ts` ({role}) exports exactly: `{n}State` (the type of one record), "
-                     f"`list{n}(): Promise<{n}State[]>`, `get{n}(id: string)`, `create{n}(data: Partial<{n}State>)` and "
+                     f"`list{n}(): Promise<{n}State[]>`, `get{n}(id: string)`, `create{n}(data: Partial<{n}State>)`{create_note} and "
                      f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; message?: string }}>`.")
     return "\n".join(lines)
 
@@ -273,6 +276,7 @@ Answer with four blocks, each introduced by its marker alone on a line:
         "success": True,
         "files": created_files,
         "omitted": omitted,  # the files the model had no component for
+        "ux_blueprint": ux_blueprint,
         "component_lines": component_lines,
         "elapsed_seconds": elapsed,
         "master_name": master_name,

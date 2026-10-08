@@ -120,3 +120,34 @@ def test_presentation_prompt_forbids_literal_content_and_fake_success():
     assert "never contains the records themselves as literals" in body
     assert "only after its `create...` call resolves" in body
     assert "{clients_block}" in body
+
+
+def test_every_stored_entity_is_identified_by_id():
+    """Verify the identity the generated API keys records by always exists (a model that named it `offering_id`
+    made four seeded offerings collapse into one).
+
+    id: TST-ROLE-ID
+    Given: A shown entity whose identity is named offering_id, one that already has id, and an internal value object
+    When: The structure is built
+    Then: The first gains `id` as its first attribute, the second is unchanged, and the value object gains nothing
+    """
+    from onboarding.router_engine import AttributeSpec, AudienceRole, EntitySpec
+    shown = EntitySpec(name="Offering", is_aggregate_root=False, audience_role=AudienceRole.SHOWN,
+                       attributes=[AttributeSpec(name="offering_id", type="string"), AttributeSpec(name="title", type="string")])
+    assert [a.name for a in shown.attributes] == ["id", "offering_id", "title"]
+    kept = EntitySpec(name="Inquiry", attributes=[AttributeSpec(name="id", type="string"), AttributeSpec(name="name", type="string")])
+    assert [a.name for a in kept.attributes] == ["id", "name"]
+    value_object = EntitySpec(name="Money", is_aggregate_root=False, attributes=[AttributeSpec(name="amount", type="float")])
+    assert [a.name for a in value_object.attributes] == ["amount"]
+
+
+def test_the_decomposition_prompt_names_the_identity_attribute():
+    """Verify the model is told how records are identified, so the guarantee above is rarely needed.
+
+    id: TST-ROLE-ID-PROMPT
+    Given: The decomposition prompt
+    When: It is read
+    Then: It says every entity's identity is an attribute named id
+    """
+    body = open(os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts", "router_decomposition.md"), encoding="utf-8").read()
+    assert "named exactly `id`" in body

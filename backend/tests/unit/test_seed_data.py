@@ -131,3 +131,25 @@ def test_a_product_with_no_shown_entities_needs_no_seed(tmp_path, monkeypatch):
     structure = DomainStructureSchema(domain_name="Game", entities=[EntitySpec(name="Session", audience_role=AudienceRole.CREATED)])
     result = seed_data.synthesize_seed_data("a game", structure, [], str(tmp_path))
     assert result["success"] is True and result["skipped"] and calls == [] and result["files"] == []
+
+
+def test_the_generated_api_assigns_the_id_of_a_record_the_audience_creates(workspace):
+    """Verify a visitor's form can create a record: the browser does not know an id, so the server assigns one
+    (the generated create endpoint demanded `id` from the client and every form submission was rejected).
+
+    id: TST-SEED-CREATE
+    Given: A generated API for an entity the audience creates
+    When: Two records are posted without an id
+    Then: Both are created with different ids and both are listed
+    """
+    script = ("from fastapi.testclient import TestClient\nfrom src.app import app\nc = TestClient(app)\n"
+              "import json\n"
+              "a = c.post('/api/client_inquiries', json={'parent_name': 'Ada'})\n"
+              "b = c.post('/api/client_inquiries', json={'parent_name': 'Bo'})\n"
+              "print(json.dumps([a.status_code, b.status_code, a.json(), b.json(), c.get('/api/client_inquiries').json()]))")
+    out = subprocess.run([sys.executable, "-c", script], cwd=workspace, capture_output=True, text=True)
+    assert out.returncode == 0, out.stderr
+    status_a, status_b, first, second, listed = json.loads(out.stdout.strip().splitlines()[-1])
+    assert (status_a, status_b) == (201, 201), (first, second)
+    assert first["id"] and second["id"] and first["id"] != second["id"]
+    assert sorted(i["parent_name"] for i in listed) == ["Ada", "Bo"]

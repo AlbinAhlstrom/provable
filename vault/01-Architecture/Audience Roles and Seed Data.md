@@ -29,3 +29,11 @@ The generated routers read the seed file on the first request after it appears o
 `performed_by` in the action manifest is `audience` for what the product's users do and `other` for whoever runs it (owner, staff, automation). Only `audience` actions get controls in the interface.
 
 Related: [[Run Recorder]], [[ADR-008 Aggregate Ownership and Audience-Scoped UI]].
+
+## Record identity
+
+Every stored entity (an aggregate root, or anything created by or shown to the audience) has the identity attribute
+`id`: the decomposition prompt asks for it and `EntitySpec` guarantees it. The generated repository, router, seed
+loader and clients key records by `id`; a model that named its identity `offering_id` made every seeded record
+collapse into one. Whoever creates a record does not know its id, so the generated create endpoint assigns one when
+none is sent, and the presentation prompt lists the fields a create must carry.

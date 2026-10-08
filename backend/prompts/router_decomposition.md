@@ -20,6 +20,7 @@ CRITICAL DECOMPOSITION INSTRUCTIONS:
     - "shown_to_audience": content the business publishes for the audience to read (offerings with their rates, credentials, testimonials, menu items). The audience never creates these; they are authored by the business and shown to the audience.
     - "internal": back-office state the audience never sees.
   - Define clear entity attributes with primitive/semantic types ("string", "float", "int", "boolean", "datetime"). Represent user inputs as genuine operational attributes (text values, numbers, dates) rather than artificial boolean flags.
+  - Every entity's identity is its first attribute, named exactly `id` (type "string"). An attribute that points at another entity is named after it (`<entity>_id`).
   - Do NOT put business logic or rules inside the structure section.
 
 - BEHAVIOR INBOX:
@@ -39,6 +40,7 @@ Respond STRICTLY with a valid JSON object matching this schema (no markdown, no 
         "is_aggregate_root": true,
         "audience_role": "created_by_audience",
         "attributes": [
+          {"name": "id", "type": "string", "required": true, "default_value": null},
           {"name": "<attr_name>", "type": "<type>", "required": true, "default_value": null}
         ],
         "relationships": [

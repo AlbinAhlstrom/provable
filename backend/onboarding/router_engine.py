@@ -8,7 +8,7 @@ import os
 import json
 import re
 from typing import List, Dict, Any, Optional, Tuple
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 import agent_orchestrator
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:  # avoid a runtime import cycle; the type is only used in a signature
@@ -52,6 +52,16 @@ class EntitySpec(BaseModel):
     audience_role: AudienceRole = AudienceRole.INTERNAL
     attributes: List[AttributeSpec] = Field(default_factory=list)
     relationships: List[Dict[str, str]] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _records_are_identified_by_id(self) -> "EntitySpec":
+        """An entity whose records are stored and served has the identity attribute `id`. The generated repository,
+        router, seed loader and clients all key records by it; a model that names its identity anything else
+        (`offering_id`) would have every record collapse into one."""
+        stored = self.is_aggregate_root or self.audience_role != AudienceRole.INTERNAL
+        if stored and not any(a.name == "id" for a in self.attributes):
+            self.attributes.insert(0, AttributeSpec(name="id", type="string", required=True))
+        return self
 
 
 class DomainStructureSchema(BaseModel):

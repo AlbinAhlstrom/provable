@@ -281,12 +281,15 @@ def generate_schemas_module(entities: List[EntitySpec], value_objects: List[Enti
                 fields.append(f"    {attr.name}: {py_type}")
         
         fields_code = "\n".join(fields) if fields else "    id: str"
+        # Whoever creates a record does not know its id: the create endpoint assigns one when none is sent
+        create_fields = [f for f in fields if f != "    id: str"] + ["    id: Optional[str] = None"]
+        create_fields_code = "\n".join(create_fields)
 
         schemas_blocks.append(f'''class {ent.name}Schema(BaseModel):
 {fields_code}
 
 class {ent.name}CreateSchema(BaseModel):
-{fields_code}
+{create_fields_code}
 
 class {ent.name}ResponseSchema(BaseModel):
 {fields_code}
@@ -318,6 +321,7 @@ import inspect
 import json
 import os
 import re
+import uuid
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 from typing import Any, Dict, List
@@ -370,7 +374,10 @@ def list_{plural_slug}():
 @router.post("", response_model={entity.name}ResponseSchema, status_code=status.HTTP_201_CREATED)
 def create_{slug}(payload: {entity.name}CreateSchema):
     _ensure_seeded()
-    item = {entity.name}(**payload.dict())
+    data = payload.dict()
+    if "id" in data and not data["id"]:
+        data["id"] = uuid.uuid4().hex
+    item = {entity.name}(**data)
     with _uow:
         getattr(_uow, "{plural_slug}").add(item)
         _uow.commit()

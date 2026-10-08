@@ -158,3 +158,20 @@ def test_presentation_prompt_asks_for_only_the_files_that_are_needed():
     with open(path, encoding="utf-8") as f:
         text = " ".join(f.read().split())
     assert "Write a marker only for a file you actually write" in text
+
+
+def test_the_prompt_tells_the_form_which_fields_a_create_needs(tmp_path, monkeypatch):
+    """Verify the form is told what to send, so a create is not rejected for a field the visitor never enters.
+
+    id: TST-CLI-022
+    Given: A master aggregate with a required field, an optional field and an id
+    When: The presentation prompt is built
+    Then: It says the server assigns the id and names the required field to send, not the optional one
+    """
+    from onboarding import presentation_projection_synthesizer as pps
+    prompts = []
+    monkeypatch.setattr(pps, "call_gemini", lambda prompt, stage="general", **k: prompts.append(prompt) or _blocks(**_GOOD))
+    pps.synthesize_and_write_presentation_projection(
+        pitch="p", structure=STRUCTURE, inbox_specs=[SPEC], workspace_dir=str(tmp_path), action_manifest={"actions": []}, ux_blueprint="plan")
+    line = next(l for l in prompts[0].splitlines() if "care_inquiryClient.ts" in l)
+    assert "the server assigns `id`" in line and "must carry: `hours`" in line and "parent_email" not in line.split("must carry:")[1]
