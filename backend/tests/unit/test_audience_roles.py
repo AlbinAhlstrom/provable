@@ -151,3 +151,31 @@ def test_the_decomposition_prompt_names_the_identity_attribute():
     """
     body = open(os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts", "router_decomposition.md"), encoding="utf-8").read()
     assert "named exactly `id`" in body
+
+
+def test_content_published_as_a_list_is_an_entity_not_a_summary_string():
+    """Verify the decomposition gives several items of one kind a record each (a single `certifications_summary`
+    string left the page nothing to build its credential cards from, so it invented them).
+
+    id: TST-ROLE-LISTS
+    Given: The decomposition prompt
+    When: It is read
+    Then: It asks for one shown-to-audience entity per kind of listed content, with one record per item
+    """
+    body = open(os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts", "router_decomposition.md"), encoding="utf-8").read()
+    assert "one record per item" in body
+    assert "never folded into a summary" in body
+    assert "plus one entity for each kind of content the business publishes as a list" in body
+
+
+def test_the_page_states_about_the_business_only_what_its_records_hold():
+    """Verify the presentation prompt ties a section's items to its records.
+
+    id: TST-ROLE-CLAIMS
+    Given: The presentation prompt
+    When: It is read
+    Then: It says a section has one item per record and that headings and labels state nothing about the business
+    """
+    body = open(os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts", "presentation_projection_synthesis.md"), encoding="utf-8").read()
+    assert "one item per record" in body
+    assert "state nothing about the business themselves" in body

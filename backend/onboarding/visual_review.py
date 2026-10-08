@@ -21,11 +21,13 @@ from dataclasses import asdict, dataclass
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import agent_orchestrator
+from onboarding.seed_data import SEED_FILE
 from onboarding.verification import compile_tsx
 from pipeline_trace import traced
 
 REVIEW_PROMPT = "visual_review.md"
 MAX_PROBLEMS = 6
+MAX_RECORDS_CHARS = 8000  # the records are context for one check; a very large seed is shown up to here
 
 # Class text: Tailwind class names separated by spaces, including variants and arbitrary values. Nothing that could
 # close the attribute or start an expression.
@@ -102,11 +104,25 @@ def screenshots_from_audit(report: Dict[str, Any]) -> Dict[str, str]:
     return shots
 
 
-def _read_problems(raw: str) -> List[Dict[str, Any]]:
-    problems = agent_orchestrator.extract_json_object(raw).get("problems")
+def _read_review(raw: str) -> Tuple[List[Dict[str, Any]], List[str]]:
+    """The visual problems and, separately, the statements about the business that no record carries."""
+    answer = agent_orchestrator.extract_json_object(raw)
+    problems = answer.get("problems")
     if not isinstance(problems, list) or not all(isinstance(p, dict) for p in problems):
         raise ValueError("the answer has no `problems` list of objects")
-    return problems[:MAX_PROBLEMS]
+    claims = answer.get("claims") or []
+    if not isinstance(claims, list):
+        raise ValueError("`claims` is not a list")
+    return problems[:MAX_PROBLEMS], [str(c).strip() for c in claims if str(c).strip()]
+
+
+def _records_block(workspace_dir: str) -> str:
+    """The seed records the page is served, so a claim written into the page can be told from content it loads."""
+    path = os.path.join(workspace_dir, SEED_FILE)
+    if not os.path.exists(path):
+        return "(the page is served no records)"
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read().strip()[:MAX_RECORDS_CHARS]
 
 
 def _sources_block(sources: Dict[str, str]) -> str:
@@ -127,8 +143,9 @@ def review_and_repair(
     """Looks at the page once and repairs what looks wrong with class changes.
 
     `screenshots` maps a label ("desktop", "phone") to an image file. `audit` re-checks the page after a repair; a
-    failed audit puts every file back. Returns {verdict, problems, edits, not_repaired, error, elapsed_seconds} with
-    verdict one of clean | repaired | unrepaired | reverted | error.
+    failed audit puts every file back. Returns {verdict, problems, edits, not_repaired, claims, error,
+    elapsed_seconds} with verdict one of clean | repaired | unrepaired | reverted | error. `claims` are statements
+    about the business written into the page that no record carries: reported, since no class change removes one.
     """
     started = time.time()
     llm = llm or agent_orchestrator.call_gemini
@@ -142,10 +159,11 @@ def review_and_repair(
             originals[rel] = f.read()
 
     def result(verdict: str, **extra: Any) -> Dict[str, Any]:
-        base = {"verdict": verdict, "problems": [], "edits": [], "not_repaired": [], "error": None,
+        base = {"verdict": verdict, "problems": [], "edits": [], "not_repaired": [], "claims": claims, "error": None,
                 "elapsed_seconds": round(time.time() - started, 2)}
         return {**base, **extra}
 
+    claims: List[str] = []
     images = [path for path in screenshots.values() if path and os.path.exists(path)]
     if not images or not originals:
         return result("error", error="there is no screenshot or no component to review")
@@ -153,13 +171,14 @@ def review_and_repair(
     prompt = agent_orchestrator.load_prompt(REVIEW_PROMPT, {
         "pitch": pitch, "visual_direction": visual_direction or "(no direction was planned)",
         "screenshots": ", ".join(f"image {i + 1}: {label}" for i, label in enumerate(screenshots)),
-        "sources": _sources_block(originals), "max_problems": MAX_PROBLEMS,
+        "sources": _sources_block(originals), "records": _records_block(workspace_dir), "max_problems": MAX_PROBLEMS,
     })
     raw = llm(prompt, stage="visual_review", json_mode=True, images=images)
     if not raw or not raw.strip():
         return result("error", error=agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response")
     try:
-        problems = _read_problems(raw)
+        problems, found = _read_review(raw)
+        claims.extend(found)
     except Exception as exc:
         return result("error", error=f"the answer is not a usable review: {exc}")
     descriptions = [str(p.get("problem") or "").strip() for p in problems]

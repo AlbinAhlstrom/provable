@@ -96,6 +96,8 @@ def show_run(folder, trace_dir):
             for edit in (st.get("notes") or {}).get("edits") or []:
                 mark_edit = f"repaired ({edit['occurrences']}x)" if edit.get("applied") else f"not applied: {edit.get('reason')}"
                 print(f"          {mark_edit}  {edit.get('file')}: '{edit.get('find')}' -> '{edit.get('replace')}'"[:260])
+            for claim in (st.get("notes") or {}).get("claims") or []:
+                print(f"          claim no record carries: {str(claim)[:200]}")
             for missed in (st.get("notes") or {}).get("not_repaired") or []:
                 print(f"          not repaired: {str(missed)[:200]}")
             for warning in (st.get("notes") or {}).get("warnings") or []:

@@ -18,6 +18,8 @@ Offer only the views and controls this intent calls for; never add surfaces it r
 
 Entities marked "shown to audience" hold what the business publishes (its offerings, credentials, testimonials and the like). That content is loaded from the API as records the business edits later, so plan a loading state, a calm note for an empty list and an error message for a failed load; everything the page says about the business comes from those records.
 
+The records are written separately and you have not seen them. In this blueprint, write the wording the page owns: headings, labels, buttons, guidance and messages. Where the page states a fact about the business (its name, a credential, a rate, a guarantee, a response time, a number of years), name the attribute that carries it as `Entity.attribute` in place of a value, and plan each section around the entity whose records fill it: every card, badge, highlight and reassurance in it is one record or one attribute, so a section shows as many of them as the records hold.
+
 ## What the product does
 {action_protocol_block}
 
@@ -55,7 +57,7 @@ Reason holistically about the target personas and interaction ergonomics. Produc
    - **Feel**: the page's character in a few words drawn from the audience and the product.
    - **Palette** as Tailwind colours: page background, surface, text, and exactly one accent colour for actions and highlights.
    - **Type**: which Tailwind family carries headings and which carries body text (`font-serif`, `font-sans`, `font-mono`), and how large and heavy the first-screen headline is.
-   - **First screen**: what a visitor sees before scrolling and how it is composed: a headline in the product's own voice, what sits beside or under it, the one primary action. There are no photographs; compose with type, colour, shape and the product's own records.
+   - **First screen**: what a visitor sees before scrolling and how it is composed: a headline in the product's own voice, what sits beside or under it, the one primary action. There are no photographs; compose with type, colour, shape and the product's own records (a badge or highlight on the first screen is an `Entity.attribute`, like every other fact).
    - **Shape and rhythm**: corner radius, border or shadow, spacing between sections, how dense the page is.
 ---
 

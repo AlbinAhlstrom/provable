@@ -113,3 +113,19 @@ def test_a_plan_made_before_the_action_protocol_is_given_the_products_rules():
     with patch("onboarding.ux_planner.call_gemini", lambda prompt, stage="general", **o: prompts.append(prompt) or ("plan " * 30)):
         plan_ux_blueprint(pitch="A site", structure=structure, master_name="Inquiry", inbox_specs=[spec])
     assert "Given a past date When submitted Then it is rejected" in prompts[0]
+
+
+def test_the_plan_names_the_attribute_that_carries_a_fact_about_the_business():
+    """Verify the plan writes wording, not facts: it is made before the records exist, and a plan that wrote
+    "verified badges (CPR/First Aid)" put that claim on the page as fixed text.
+
+    id: TST-UX-FACTS
+    Given: The UX planning prompt
+    When: It is read
+    Then: It says a fact about the business is referred to by the attribute that carries it, as `Entity.attribute`
+    """
+    prompt_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "prompts", "ux_planning.md"))
+    body = open(prompt_path, encoding="utf-8").read()
+    assert "`Entity.attribute`" in body
+    assert "you have not seen them" in body
+    assert "badge" in body  # the first screen's badges and highlights are fields of records too

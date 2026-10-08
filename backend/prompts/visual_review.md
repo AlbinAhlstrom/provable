@@ -11,6 +11,11 @@ Screenshots of the whole page, top to bottom ({screenshots}), and the source of 
 
 {sources}
 
+## The records the page is served
+Everything the page may say about the business comes from these records (the business edits them later):
+
+{records}
+
 ---
 
 ## What to look for
@@ -26,6 +31,9 @@ Judge the page as a first-time visitor on each screen size would see it:
 
 Report only what a visitor would notice. A page that works and follows its direction has nothing to report: answer with an empty list. Report at most {max_problems} problems, the most visible first.
 
+## Claims
+Separately from how the page looks, read the source for what it says about the business. List every statement written into the source as fixed text (a name, a credential, a guarantee, a safety measure, a rating, a number) that no record above carries, quoted as written. Headings that name a section, labels, buttons and guidance are the page's own wording and do not count. Text that comes from a record's field does not count. When there is none, the list is empty.
+
 ## How a problem is repaired
 Every repair is a change of Tailwind classes on elements that already exist: in one file, a piece of class text is replaced by another.
 
@@ -39,5 +47,6 @@ Respond STRICTLY with a JSON object, no commentary:
 {
   "problems": [
     { "problem": "<what is wrong and where, in one sentence>", "file": "<path or null>", "find": "<class text or null>", "replace": "<class text or null>" }
-  ]
+  ],
+  "claims": ["<a statement in the source that no record carries, quoted>"]
 }

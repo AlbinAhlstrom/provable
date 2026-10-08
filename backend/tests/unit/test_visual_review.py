@@ -1,6 +1,7 @@
 """Unit tests for the visual review (backend/onboarding/visual_review.py): look once, repair only what looks wrong."""
 
 import json
+import os
 
 import pytest
 
@@ -163,3 +164,43 @@ def test_the_review_prompt_asks_for_class_changes_only():
     body = agent_orchestrator.load_prompt(visual_review.REVIEW_PROMPT)
     assert all(field in body for field in ('"problems"', '"find"', '"replace"', '"file"'))
     assert "empty list" in body
+
+
+def test_the_review_is_shown_the_records_and_reports_a_claim_no_record_carries(tmp_path):
+    """Verify the one look before shipping also reads what the page says about the business against its records.
+
+    id: TST-VR-008
+    Given: A workspace with seed records, and a review that lists two claims no record carries and no visual problem
+    When: The page is reviewed
+    Then: The model was shown the records, the claims are in the result under their own key, and no file changes
+    """
+    seed = tmp_path / "src" / "seed_data.json"
+    seed.parent.mkdir(parents=True)
+    seed.write_text(json.dumps({"Profile": [{"id": "a", "name": "Ada Lind"}]}), encoding="utf-8")
+    view = tmp_path / "src" / "views" / "View.tsx"
+    view.parent.mkdir(parents=True)
+    view.write_text(_VIEW, encoding="utf-8")
+    shot = tmp_path / "desktop.png"
+    shot.write_bytes(b"png")
+    calls = []
+
+    def llm(prompt, stage="general", **options):
+        calls.append(prompt)
+        return json.dumps({"problems": [], "claims": ["Fully insured", "Every sitter is background checked"]})
+
+    result = review_and_repair(workspace_dir=str(tmp_path), pitch="p", visual_direction="d", component_files=[str(view)],
+                               screenshots={"desktop": str(shot)}, llm=llm, compile_check=lambda ws, code: (True, ""))
+    assert "Ada Lind" in calls[0]
+    assert result["verdict"] == "clean" and result["claims"] == ["Fully insured", "Every sitter is background checked"]
+    assert view.read_text(encoding="utf-8") == _VIEW
+
+
+def test_the_review_prompt_asks_about_claims_the_records_do_not_carry():
+    """id: TST-VR-009
+    Given: The visual review prompt
+    When: It is read
+    Then: It has a place for the records and asks for statements about the business that no record carries
+    """
+    import agent_orchestrator
+    body = open(os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts", "visual_review.md"), encoding="utf-8").read()
+    assert "{records}" in body and "no record carries" in body and '"claims"' in body

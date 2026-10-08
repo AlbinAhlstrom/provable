@@ -2325,7 +2325,7 @@ def kickstart_domain_and_scaffold(
                     visual_direction=visual_direction(synthesis.ux_blueprint),
                     component_files=pres_res.get("files", []),
                     screenshots=screenshots_from_audit(last_audit.get("report") or {}), audit=_audit)
-                for key in ("verdict", "problems", "edits", "not_repaired"):
+                for key in ("verdict", "problems", "edits", "not_repaired", "claims"):
                     st.note(key, review[key])
                 if review["verdict"] == "error":
                     stage_failures.append({"stage": "visual_review", "error": str(review["error"])})
