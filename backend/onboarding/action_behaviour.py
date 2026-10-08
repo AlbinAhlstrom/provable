@@ -8,6 +8,8 @@ TDD loop every later spec uses (a RED test from the action's own description, th
 against the manifest (`check_action_contract`). The page is then written against the class as it really is.
 
 - One spec per aggregate, covering all of its actions: one test file, one implementation.
+- The same spec states what a newly created object holds (the manifest's `starting_states`): the application creates
+  an object and shows it at once, so a class that needs an action to become usable shows up empty.
 - Its test joins the regression suite (`tests/unit/test_spec_act_<aggregate>.py`), so a later spec that refines an
   action is written knowing it and cannot break it unnoticed.
 - An action still without a method afterwards fails the stage by name. Nothing is stubbed.
@@ -20,7 +22,7 @@ import os
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
-from onboarding.action_protocol import check_action_contract
+from onboarding.action_protocol import check_action_contract, starting_state
 from onboarding.router_engine import BusinessSpec
 from onboarding.skeleton_builder import to_snake_case
 from pipeline_trace import traced
@@ -47,9 +49,13 @@ class ActionBehaviour:
         return f"no method implements: {names}" + (f" ({reasons})" if reasons else "")
 
 
-def action_spec(aggregate: str, actions: List[Dict[str, Any]]) -> BusinessSpec:
-    """The one spec that states everything the application will ask this aggregate to do."""
+def action_spec(aggregate: str, actions: List[Dict[str, Any]], starting_state: str = "") -> BusinessSpec:
+    """The one spec that states everything the application will ask this aggregate to do, and what a new object
+    holds before any of it (the application shows a new object at once, so the class starts that way by itself)."""
     scenarios = []
+    if starting_state:
+        scenarios.append(f"When a {aggregate} is created with only its required fields and nothing is called on it "
+                         f"Then {starting_state.rstrip('.')}.")
     for action in actions:
         params = ", ".join(str(p) for p in action.get("params") or [])
         effect = str(action.get("description") or "the object carries out the action").strip().rstrip(".")
@@ -91,7 +97,7 @@ def implement_actions(
         if not os.path.exists(os.path.join(workspace_dir, "src", "domain", f"{to_snake_case(aggregate)}.py")):
             run.update(status="NO_DOMAIN_CLASS", error="the decomposition has no such class")
             continue
-        spec = action_spec(aggregate, actions)
+        spec = action_spec(aggregate, actions, starting_state(manifest, aggregate))
         run["spec_id"] = spec.spec_id
         try:
             loop = run_spec(spec, workspace_dir, action_manifest=manifest)

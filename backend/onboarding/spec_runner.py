@@ -5,13 +5,13 @@ The actions' methods (`action_behaviour.py`) give a generated app its basic beha
 must be legal, a stylist cannot be double-booked. Left for the user to run one by one, a fresh app enforces none of
 them. So each behaviour spec goes through the TDD loop during the kickstart, while the page is being written.
 
-- One after another, in deck order: every spec's test is written knowing the tests before it, and the loop's
-  regression gate re-runs all of them.
-- A spec that does not reach GREEN is rolled back by the loop and named here with its reason; the specs after it
-  still run. Nothing is retried beyond the loop's own single retry.
+- Together: every spec's test is written side by side, then each class gets one code answer for all of its rules,
+  judged test by test (`service_layer/tdd_batch.py`). One after another, the deck was most of a kickstart's duration.
+- A spec that does not reach GREEN is named here with its reason; the others stand. Nothing is retried beyond the
+  loop's own single retry.
 - Presentation specs are not run: the page is written from them in the same kickstart.
 
-How a spec is executed, and where its status is stored, belongs to the caller (`execute`).
+How the specs are executed, and where a spec's status is stored, belongs to the caller (`execute`).
 """
 
 from dataclasses import dataclass, field
@@ -46,34 +46,46 @@ class RuleProgress:
     latest: str = ""   # title of the rule that became active last
 
 
+Execute = Callable[[List[BusinessSpec], Callable[[BusinessSpec, Dict[str, Any]], None]], Any]
+
+
 @traced("specs.run_behaviour_specs")
-def run_behaviour_specs(specs: List[BusinessSpec], execute: Callable[[BusinessSpec], Dict[str, Any]],
+def run_behaviour_specs(specs: List[BusinessSpec], execute: Execute,
                         report: Optional[Callable[[RuleProgress], None]] = None) -> SpecRun:
-    """Runs every behaviour spec through `execute` (the TDD loop), in order. `report` is told how far the deck has
-    come before the first spec and after each one."""
+    """Hands every behaviour spec to `execute` (the TDD batch), which tells its second argument each spec's result as
+    it is settled. `report` is told how far the deck has come before the first spec and after each one."""
     behaviour = [s for s in specs if getattr(s, "kind", SpecKind.BEHAVIOR.value) == SpecKind.BEHAVIOR.value]
     if not behaviour:
         return SpecRun(skipped="the deck has no behaviour spec")
-    run = SpecRun()
-    titles: List[str] = []  # of the fulfilled specs, in order
+    results: Dict[str, Dict[str, Any]] = {}
+    titles: List[str] = []  # of the fulfilled specs, in the order they were settled
 
     def tell() -> None:
         if report is not None:
-            report(RuleProgress(done=len(run.fulfilled) + len(run.unfulfilled), total=len(behaviour),
-                                active=len(run.fulfilled), latest=titles[-1] if titles else ""))
+            report(RuleProgress(done=len(results), total=len(behaviour), active=len(titles),
+                                latest=titles[-1] if titles else ""))
+
+    def settled(spec: BusinessSpec, result: Dict[str, Any]) -> None:
+        results[spec.spec_id] = result
+        if result.get("success"):
+            titles.append(spec.title)
+        tell()
+        print(f"[Compiler:Specs] {spec.spec_id} {spec.title}: {result.get('status')}", flush=True)
 
     tell()
-    for spec in behaviour:
-        try:
-            result = execute(spec)
-        except Exception as err:  # a provider or infrastructure error: reported with its reason, never retried
-            result = {"success": False, "status": "ERROR", "error": f"{type(err).__name__}: {err}"}
+    try:
+        execute(behaviour, settled)
+    except Exception as err:  # a provider or infrastructure error: reported with its reason, never retried
+        for spec in behaviour:
+            if spec.spec_id not in results:
+                settled(spec, {"success": False, "status": "ERROR", "error": f"{type(err).__name__}: {err}"})
+
+    run = SpecRun()
+    for spec in behaviour:  # deck order, whatever order they were settled in
+        result = results.get(spec.spec_id) or {"success": False, "status": "ERROR", "error": "the executor gave no result"}
         if result.get("success"):
             run.fulfilled.append(spec.spec_id)
-            titles.append(spec.title)
         else:
             run.unfulfilled.append({"spec_id": spec.spec_id, "title": spec.title,
                                     "status": str(result.get("status") or ""), "error": str(result.get("error") or "")})
-        tell()
-        print(f"[Compiler:Specs] {spec.spec_id} {spec.title}: {result.get('status')}", flush=True)
     return run

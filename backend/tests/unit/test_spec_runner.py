@@ -12,43 +12,51 @@ def _spec(spec_id, kind=SpecKind.BEHAVIOR.value):
                         target_aggregate="Match", kind=kind)
 
 
-def test_behaviour_specs_run_one_after_another_in_deck_order():
-    """Verify every behaviour spec goes through the executor, in order, and presentation specs are left alone.
+def _each(answer):
+    """An executor that settles the specs one by one with `answer(spec)`."""
+    def execute(batch, done):
+        for spec in batch:
+            done(spec, answer(spec))
+    return execute
+
+
+def test_the_behaviour_specs_are_handed_over_together_in_deck_order():
+    """Verify every behaviour spec reaches the executor in one batch, and presentation specs are left alone.
 
     id: TST-SPECRUN-001
     Given: Two behaviour specs with a presentation spec between them, and an executor that fulfils everything
     When: The specs are run
-    Then: The executor saw the two behaviour specs in order and both are fulfilled
+    Then: The executor was given the two behaviour specs at once, in order, and both are fulfilled
     """
-    seen = []
+    batches = []
 
-    def execute(spec):
-        seen.append(spec.spec_id)
-        return {"success": True, "status": "FULFILLED"}
+    def execute(batch, done):
+        batches.append([spec.spec_id for spec in batch])
+        for spec in reversed(batch):
+            done(spec, {"success": True, "status": "FULFILLED"})
 
     result = run_behaviour_specs([_spec("SPEC-001"), _spec("SPEC-002", SpecKind.PRESENTATION.value), _spec("SPEC-003")], execute)
-    assert isinstance(result, SpecRun) and seen == ["SPEC-001", "SPEC-003"]
+    assert isinstance(result, SpecRun) and batches == [["SPEC-001", "SPEC-003"]]
     assert result.fulfilled == ["SPEC-001", "SPEC-003"] and result.unfulfilled == [] and result.success
 
 
-def test_a_spec_that_does_not_reach_green_is_named_with_its_reason_and_the_rest_still_run():
-    """Verify one dead end neither hides itself nor stops the specs after it.
+def test_a_spec_that_does_not_reach_green_is_named_with_its_reason_and_the_rest_stand():
+    """Verify one dead end neither hides itself nor takes the other specs with it.
 
     id: TST-SPECRUN-002
-    Given: Three specs: the first dead-ends, the second's executor raises (a provider error), the third is fulfilled
+    Given: Three specs: the first dead-ends, the second is fulfilled, and the executor then raises (a provider
+           error) before settling the third
     When: The specs are run
-    Then: The third is fulfilled, and the result is a failure naming the other two with why each stopped
+    Then: The second is fulfilled, and the result is a failure naming the other two with why each stopped
     """
-    def execute(spec):
-        if spec.spec_id == "SPEC-001":
-            return {"success": False, "status": "REQUIRES_HUMAN_INTERVENTION", "error": "assert turn == 'Black'"}
-        if spec.spec_id == "SPEC-002":
-            raise RuntimeError("RED test generation failed: quota")
-        return {"success": True, "status": "FULFILLED"}
+    def execute(batch, done):
+        done(batch[0], {"success": False, "status": "REQUIRES_HUMAN_INTERVENTION", "error": "assert turn == 'Black'"})
+        done(batch[1], {"success": True, "status": "FULFILLED"})
+        raise RuntimeError("GREEN synthesis failed: quota")
 
     result = run_behaviour_specs([_spec("SPEC-001"), _spec("SPEC-002"), _spec("SPEC-003")], execute)
-    assert result.fulfilled == ["SPEC-003"] and not result.success
-    assert [u["spec_id"] for u in result.unfulfilled] == ["SPEC-001", "SPEC-002"]
+    assert result.fulfilled == ["SPEC-002"] and not result.success
+    assert [u["spec_id"] for u in result.unfulfilled] == ["SPEC-001", "SPEC-003"]
     assert "SPEC-001" in result.error and "assert turn == 'Black'" in result.error and "quota" in result.error
 
 
@@ -60,5 +68,5 @@ def test_a_deck_without_behaviour_specs_is_skipped():
     When: The specs are run
     Then: The executor is never called and the result says why it was skipped
     """
-    result = run_behaviour_specs([_spec("SPEC-001", SpecKind.PRESENTATION.value)], lambda spec: 1 / 0)
+    result = run_behaviour_specs([_spec("SPEC-001", SpecKind.PRESENTATION.value)], lambda batch, done: 1 / 0)
     assert result.success and result.skipped

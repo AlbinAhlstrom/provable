@@ -92,9 +92,10 @@ def test_rule_progress_counts_the_specs_done_and_active(tmp_path):
     with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
         handle = stage_begin("behaviour_specs", owns=())
 
-        def execute(spec):
-            seen.append(current_progress().rules)
-            return {"success": spec.spec_id == "SPEC-001", "status": "FULFILLED" if spec.spec_id == "SPEC-001" else "DEAD_END"}
+        def execute(batch, done):
+            for spec in batch:
+                seen.append(current_progress().rules)
+                done(spec, {"success": spec.spec_id == "SPEC-001", "status": "FULFILLED" if spec.spec_id == "SPEC-001" else "DEAD_END"})
 
         run_behaviour_specs(specs, execute, report=lambda rules: handle.note("rules", asdict(rules)))
         after = current_progress().rules

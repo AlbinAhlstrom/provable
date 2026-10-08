@@ -35,11 +35,22 @@ def format_action_protocol(manifest: Optional[Dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def starting_state(manifest: Optional[Dict[str, Any]], aggregate: str) -> str:
+    """What the manifest says a newly created object of this class holds, "" when it says nothing."""
+    for entry in (manifest or {}).get("starting_states") or []:
+        if isinstance(entry, dict) and entry.get("aggregate") == aggregate and entry.get("description"):
+            return str(entry["description"]).strip()
+    return ""
+
+
 def format_interface_contract(manifest: Optional[Dict[str, Any]], aggregate: str) -> str:
     """The methods the interface has been told an aggregate offers, for the test/code stages that write them. The
     action protocol is fixed before the specs run, so the TDD loop must give the methods these names, not its own."""
     lines = [_line(a) for a in ((manifest or {}).get("actions") or [])
              if isinstance(a, dict) and a.get("name") and a.get("aggregate") == aggregate]
+    start = starting_state(manifest, aggregate)
+    if start:
+        lines.append(f"- A newly created `{aggregate}` (constructed with only its required fields) holds: {start}")
     return "\n".join(lines) or "(none: no interface method has been promised for this class)"
 
 

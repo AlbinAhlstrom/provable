@@ -64,7 +64,29 @@ protocol and the presentation:
   DEGRADED; nothing is stubbed.
 - The page is written afterwards, against the class as it really is (its fields and methods).
 
-While the page is written, the rule deck's behaviour specs run through the same loop, one after another in deck order (`backend/onboarding/spec_runner.py`, stage `behaviour_specs`). Each spec's status is stored as when the user runs it from the Studio. A spec that does not reach GREEN is rolled back, named with its reason, and the run is DEGRADED; the specs after it still run. QA starts once the specs are done, so it audits a domain that no longer changes. Presentation specs are not run here: the page is written from them. Each spec costs about 15 seconds, and only what exceeds the presentation's own time adds to the kickstart.
+While the page is written, the rule deck's behaviour specs are written together (`backend/onboarding/spec_runner.py`,
+`backend/service_layer/tdd_batch.py`, stage `behaviour_specs`):
+
+- RED, side by side: every spec gets its test through the single loop's RED phase (lint, RED gate, hollow check, one
+  regeneration with the verdict fed back). The tests are written against the class as the action stage left it.
+- GREEN, once per class: one code answer implements every rule of the class. `tests/unit` is run and each spec is
+  judged by its own test file; tests still failing are fed back for the one retry.
+- The answer kept is the one that leaves the fewest of the batch's tests failing among those that break no earlier
+  verified test. If both answers break one, the class goes back to what it was and every spec fails by name.
+- A spec whose test still fails moves to `tests/pending`, is named with its reason, and the run is DEGRADED. The
+  code written for it stays (it is part of the answer that carries the other rules); every test left in
+  `tests/unit` passes.
+
+Each spec's status is stored as when the user runs it from the Studio, where a single spec still goes through the
+single loop. QA starts once the specs are done, so it audits a domain that no longer changes. Presentation specs are
+not run here: the page is written from them. One spec after another, a nine-rule deck took about 230 seconds (nine
+test calls and nine code calls in a row); together it takes about 45, less than the page it runs beside.
+
+The action protocol also says what a newly created object of each class holds (`starting_states`). The application
+creates an object and shows it at once, so the actions' spec includes that state and the class starts that way by
+itself: a game is set up without an action having to be called first. The protocol's answer is held to a JSON schema
+by the provider (`call_gemini(json_schema=...)`): JSON mode alone once returned trailing commas, and with no protocol
+there are no actions, so the rules are skipped too.
 
 The regression gate re-runs `tests/unit` only. The page's browser checks live in `tests/acceptance`: they say nothing
 about a domain change and take longer than the gate waits. A regression run that does not finish is not a verdict on

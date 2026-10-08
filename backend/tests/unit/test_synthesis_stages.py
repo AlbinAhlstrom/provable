@@ -320,3 +320,18 @@ def test_a_component_the_page_does_not_use_is_no_longer_reported_as_written(tmp_
     outcome = _run(tmp_path, presentation=lambda **kw: {"success": True, "files": [str(view), str(unused)]})
     assert outcome.presentation["files"] == [str(view)]
     assert str(unused) not in outcome.files and outcome.removed_scaffold == ["src/Unused.tsx"]
+
+
+def test_rules_are_not_written_when_there_is_no_action_protocol(tmp_path):
+    """Verify a failed action protocol stops the rules too: nothing was implemented for them to build on.
+
+    id: TST-SYN-SPECS-NO-PROTOCOL
+    Given: An action protocol stage that fails (its answer could not be read)
+    When: The stages run
+    Then: The spec executor is never called; the only failure is the action protocol's
+    """
+    def specs(inbox_specs, report):
+        raise AssertionError("the rules ran on a class without its actions")
+
+    outcome = _run(tmp_path, protocol=lambda **kw: {"success": False, "error": "not valid JSON", "files": []}, specs=specs)
+    assert [f["stage"] for f in outcome.failures] == ["action_protocol"]

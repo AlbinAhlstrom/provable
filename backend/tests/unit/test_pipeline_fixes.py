@@ -267,3 +267,21 @@ def test_reading_the_aggregates_never_calls_the_llm(monkeypatch):
     monkeypatch.setattr(router_engine, "decompose_pitch_into_structure_and_inbox", lambda *a, **k: calls.append(a))
     result = services.get_active_domain_aggregates(uow=FakeUnitOfWork())
     assert result["success"] is True and result["aggregates"] == [] and calls == []
+
+
+def test_call_gemini_sends_a_schema_when_the_stage_has_one(monkeypatch):
+    """Verify a stage with a typed answer asks the provider to hold the answer to that schema.
+
+    id: TST-FIX-JSON-SCHEMA
+    Given: A fake provider client and an API key
+    When: call_gemini runs with a json_schema
+    Then: response_format is the json_schema form carrying that schema (json_object alone let an answer with trailing
+          commas through, which sank a whole build)
+    """
+    monkeypatch.setenv("GEMINI_API_KEY", "k" * 20)
+    comp = _FakeCompletions()
+    monkeypatch.setattr(agent_orchestrator, "OpenAI", _fake_openai(comp))
+    schema = {"type": "object", "properties": {"a": {"type": "string"}}, "required": ["a"]}
+    _REAL_CALL_GEMINI("p", stage="domain_engine_synthesis", json_schema=schema)
+    sent = comp.kwargs["response_format"]
+    assert sent["type"] == "json_schema" and sent["json_schema"]["schema"] == schema and sent["json_schema"]["name"]

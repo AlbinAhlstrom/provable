@@ -23,6 +23,27 @@ from onboarding.skeleton_builder import to_snake_case
 from pipeline_trace import traced
 
 
+_TEXT = {"type": "string"}
+MANIFEST_SCHEMA: Dict[str, Any] = {
+    "type": "object",
+    "properties": {"action_manifest": {
+        "type": "object",
+        "properties": {
+            "actions": {"type": "array", "items": {
+                "type": "object",
+                "properties": {"name": _TEXT, "aggregate": _TEXT, "performed_by": {"type": "string", "enum": ["audience", "other"]},
+                               "params": {"type": "array", "items": _TEXT}, "description": _TEXT},
+                "required": ["name", "aggregate", "performed_by", "params", "description"]}},
+            "starting_states": {"type": "array", "items": {
+                "type": "object",
+                "properties": {"aggregate": _TEXT, "description": _TEXT},
+                "required": ["aggregate", "description"]}},
+        },
+        "required": ["actions", "starting_states"]}},
+    "required": ["action_manifest"],
+}
+
+
 def _sanitize_name(name: str) -> str:
     return re.sub(r"[^a-zA-Z0-9_]", "", name)
 
@@ -66,7 +87,7 @@ def synthesize_action_protocol(
         "bdd_section": specs_block,
         "intent_block": intent_block(intent),
     })
-    raw = agent_orchestrator.call_gemini(prompt, stage="domain_engine_synthesis", json_mode=True)
+    raw = agent_orchestrator.call_gemini(prompt, stage="domain_engine_synthesis", json_mode=True, json_schema=MANIFEST_SCHEMA)
     elapsed = lambda: round(time.time() - start_time, 2)  # noqa: E731
     if not raw or not raw.strip():
         reason = agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response"

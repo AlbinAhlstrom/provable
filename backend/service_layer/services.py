@@ -1755,8 +1755,13 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
     with uow:
         manifest = dict(uow.kickstart.get().action_manifest or {})
     tdd_result = execute_spec_tdd_loop(spec_obj, workspace_dir=workspace_dir, action_manifest=manifest)
-    final_status = tdd_result.get("status", "FULFILLED" if tdd_result.get("success") else "REQUIRES_HUMAN_INTERVENTION")
+    record_tdd_result(spec_id, tdd_result, uow=uow)
+    return tdd_result
 
+
+def record_tdd_result(spec_id: str, tdd_result: Dict[str, Any], uow: AbstractUnitOfWork) -> None:
+    """Stores what the TDD loop (or the kickstart's batch) made of a spec: its status and the evidence behind it."""
+    final_status = tdd_result.get("status", "FULFILLED" if tdd_result.get("success") else "REQUIRES_HUMAN_INTERVENTION")
     pending = tdd_result.get("pending_test")
     summary = {
         "phase": tdd_result.get("phase"),
@@ -1769,7 +1774,6 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
         "models": verification_models(),
     }
     update_spec_status(spec_id, final_status, uow=uow, tdd=summary)
-    return tdd_result
 
 
 def verification_models() -> Dict[str, Any]:
@@ -2221,6 +2225,7 @@ def kickstart_domain_and_scaffold(
             # Spec review, seed data, and action protocol -> presentation: run alongside each other (synthesis_stages.py)
             from onboarding.synthesis_stages import run_synthesis_stages
             from onboarding.spec_runner import run_behaviour_specs
+            from service_layer.tdd_batch import execute_specs_together
 
             def _store_action_manifest(manifest: Dict[str, Any]) -> None:
                 with uow:  # kept so the manifest can later be checked against the methods the TDD loop wrote
@@ -2229,11 +2234,16 @@ def kickstart_domain_and_scaffold(
                     uow.kickstart.save(manifest_state)
                     uow.commit()
 
+            def synthesis_manifest() -> Dict[str, Any]:
+                with type(uow)() as manifest_uow:
+                    return dict(manifest_uow.kickstart.get().action_manifest or {})
+
             synthesis = run_synthesis_stages(
                 pitch=pitch_text, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,
                 intent=product_intent, on_action_manifest=_store_action_manifest,
-                specs=lambda deck, report: run_behaviour_specs(deck, lambda spec: execute_inbox_spec_tdd(
-                    spec.spec_id, uow=type(uow)(), workspace_dir=workspace_dir), report=report))
+                specs=lambda deck, report: run_behaviour_specs(deck, lambda batch, done: execute_specs_together(
+                    batch, workspace_dir, action_manifest=synthesis_manifest(), on_result=lambda spec, result: (
+                        record_tdd_result(spec.spec_id, result, uow=type(uow)()), done(spec, result))), report=report))
             spec_conflicts = synthesis.spec_conflicts
             stage_failures.extend(synthesis.failures)
             timings.update(synthesis.timings)

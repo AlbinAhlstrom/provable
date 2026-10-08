@@ -127,3 +127,49 @@ def test_browser_checks_stay_out_of_the_domain_regression_suite(tmp_path):
     assert written == ["tests/unit/test_salon_acceptance.py", "tests/acceptance/test_salon_frontend_acceptance.py"]
     assert "run_responsive_qa_audit" in (tmp_path / "tests" / "acceptance" / "test_salon_frontend_acceptance.py").read_text(encoding="utf-8")
     assert not any("frontend" in name for name in os.listdir(tmp_path / "tests" / "unit"))
+
+
+STARTING = {**MANIFEST, "starting_states": [
+    {"aggregate": "Appointment", "description": "status is 'held' and no guest details are set"}]}
+
+
+def test_the_spec_states_what_a_new_object_holds_before_any_action():
+    """Verify the class is asked to start in the state its first action needs.
+
+    id: TST-ACTB-START-001
+    Given: A manifest that says what a newly created Appointment holds
+    When: The aggregate's spec is built
+    Then: The spec has a scenario for an object created with only its required fields, in the manifest's words
+    """
+    spec = action_spec("Appointment", [a for a in STARTING["actions"] if a["aggregate"] == "Appointment"],
+                       starting_state="status is 'held' and no guest details are set")
+    assert "created with only its required fields" in spec.given_when_then
+    assert "status is 'held' and no guest details are set" in spec.given_when_then
+
+
+def test_the_manifests_starting_state_reaches_the_aggregates_spec(tmp_path):
+    """Verify implement_actions hands each aggregate its own starting state.
+
+    id: TST-ACTB-START-002
+    Given: A manifest with a starting state for Appointment and none for Stylist
+    When: The actions are implemented
+    Then: Appointment's spec carries the starting state and Stylist's spec has no such scenario
+    """
+    run_spec = _writes_methods(("Appointment", ["confirm_booking", "cancel_appointment"]), ("Stylist", ["set_availability"]))
+    implement_actions(STARTING, _workspace(tmp_path), run_spec=run_spec)
+    by_aggregate = {s.target_aggregate: s.given_when_then for s in run_spec.specs}
+    assert "status is 'held'" in by_aggregate["Appointment"]
+    assert "created with only its required fields" not in by_aggregate["Stylist"]
+
+
+def test_the_rule_writers_are_told_the_starting_state_too():
+    """Verify the rules' tests are written knowing what a new object holds, so they agree with the actions' test.
+
+    id: TST-ACTB-START-003
+    Given: A manifest with a starting state for Appointment
+    When: The interface contract for Appointment is rendered
+    Then: It states the starting state; another aggregate's contract does not
+    """
+    from onboarding.action_protocol import format_interface_contract
+    assert "status is 'held'" in format_interface_contract(STARTING, "Appointment")
+    assert "status is 'held'" not in format_interface_contract(STARTING, "Stylist")

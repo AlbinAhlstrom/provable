@@ -19,6 +19,9 @@ The generated API runs an action by calling the public method of the same name o
 ## Your task
 List only actions a user of THIS product would actually perform, drawn from the specifications and the classes above (not from a generic template). Do not invent actions for behavior the specifications do not describe, and offer nothing the product intent rules out (for example no staff or back-office actions on a public website). For every action say who performs it (`performed_by`). "audience" is for what the people who USE the product do with it (a visitor sending an inquiry, a customer placing an order, a player making a move). "other" is for whoever RUNS the product: its owner, staff or an automated process, for example setting rates, publishing or hiding content, and reviewing, answering or archiving what the audience submitted. Decide by who performs the action, not by who the pitch is written for. Actions performed by anyone other than the audience are still part of the domain, but the interface will not offer them. Use snake_case verb names, and parameter names that are fields of the classes or values the specification mentions.
 
+## What a new object holds
+The application creates an object by constructing its class with only its required fields (often just the id), and the interface shows it right away, before any action. For every class that owns an action, say in `starting_states` what such a newly created object holds: the values its fields start with so that it is ready for its first action and looks right on screen (a game is set up for its first turn with everything in its starting place, a request starts in its first status with nothing decided yet). The class is written to start that way by itself, so no action is needed to set it up, and you list no action whose only purpose is to prepare a new object.
+
 Respond STRICTLY with a JSON object, no commentary:
 {
   "action_manifest": {
@@ -29,6 +32,12 @@ Respond STRICTLY with a JSON object, no commentary:
         "performed_by": "<\"audience\" if the people who use this product perform it, \"other\" if its owner, staff or an automated process does>",
         "params": ["<keyword_argument>"],
         "description": "<one or two sentences in the product's own language: what the object's fields hold afterwards, and when the action is allowed>"
+      }
+    ],
+    "starting_states": [
+      {
+        "aggregate": "<class that owns at least one action>",
+        "description": "<what a newly created object's fields hold, concretely enough to test: which field holds what>"
       }
     ]
   }

@@ -169,11 +169,12 @@ def model_for_stage(stage: str) -> str:
 
 @traced_llm
 def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, reasoning_effort: Optional[str] = None,
-                images: Optional[List[str]] = None) -> str:
+                images: Optional[List[str]] = None, json_schema: Optional[Dict[str, Any]] = None) -> str:
     """OpenAI Python SDK wrapper for LLM calls (configured via environment variables).
 
     json_mode asks the provider for a syntactically valid JSON object (use for stages whose output
-    is parsed as JSON). images are PNG files shown to the model after the prompt, in order (the trace
+    is parsed as JSON). json_schema goes further and has the provider hold the answer to that schema: json_mode
+    alone has let through answers no JSON parser accepts (a trailing comma after the last property). images are PNG files shown to the model after the prompt, in order (the trace
     records their paths, not their bytes). Failures return "" and set LAST_LLM_ERROR with the reason.
 
     reasoning_effort limits hidden "thinking" tokens. Measured on the GREEN-repair prompt with
@@ -202,7 +203,8 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
         "messages": [{"role": "user", "content": _message_content(prompt, images)}],
         "temperature": 0.2,
         "timeout": 60.0,
-        **({"response_format": {"type": "json_object"}} if json_mode else {}),
+        **({"response_format": {"type": "json_schema", "json_schema": {"name": stage, "schema": json_schema}}}
+           if json_schema else {"response_format": {"type": "json_object"}} if json_mode else {}),
     }
     client = OpenAI(api_key=api_key, base_url=base_url, max_retries=0)
     t0 = time.time()

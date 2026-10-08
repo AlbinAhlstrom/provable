@@ -136,7 +136,7 @@ def run_synthesis_stages(
         with stage("behaviour_specs", owns=("src/domain", "tests/unit", "tests/pending")) as handle:
             if specs is None:
                 return handle.skip("no spec executor was given; the specs stay pending")
-            if not outcome.behaviour.success:
+            if not outcome.engine.get("success") or not outcome.behaviour.success:
                 return handle.skip("the actions the specs build on are not implemented")
             started = time.time()
             outcome.specs = specs(inbox_specs, lambda rules: handle.note("rules", asdict(rules)))
