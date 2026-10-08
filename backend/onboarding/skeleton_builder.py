@@ -7,7 +7,9 @@ and FastAPI Routers to make OpenAPI /openapi.json available from second zero.
 from pipeline_trace import traced
 import os
 import re
+import shutil
 from typing import Dict, List, Any, Optional
+from onboarding.draft_theme import DraftTheme, theme_css
 from onboarding.router_engine import DomainStructureSchema, EntitySpec, AttributeSpec
 
 
@@ -230,6 +232,59 @@ from typing import List, Optional, Dict
 '''
 
 
+DATA_DIR = ".data"  # where the running app saves its records, beside `src/`
+
+_RECORD_STORE = r'''"""
+Record store: the records of the running app, kept in one JSON file per collection.
+
+The API holds its records in memory and restarts whenever its code changes. Each router saves its collection here
+after every change and reads it back on its first request, so a restart loses nothing. `APP_DATA_DIR` names the
+folder; set to an empty string (as the tests do) nothing is read or saved.
+"""
+
+import json
+import os
+from typing import Any, Dict, List, Optional
+
+_DEFAULT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "__DATA_DIR__")
+
+
+def _path(collection: str) -> Optional[str]:
+    folder = os.environ.get("APP_DATA_DIR", _DEFAULT_DIR)
+    return os.path.join(folder, f"{collection}.json") if folder else None
+
+
+def load(collection: str) -> Dict[str, Any]:
+    """The saved records and the modification time of the seed file they already include."""
+    path = _path(collection)
+    if not path or not os.path.exists(path):
+        return {"seed_mtime": None, "records": []}
+    with open(path, encoding="utf-8") as saved:
+        return json.load(saved)
+
+
+def save(collection: str, records: List[Dict[str, Any]], seed_mtime: Optional[float]) -> None:
+    path = _path(collection)
+    if not path:
+        return
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path + ".tmp", "w", encoding="utf-8") as out:
+        json.dump({"seed_mtime": seed_mtime, "records": records}, out, default=str)
+    os.replace(path + ".tmp", path)
+'''
+
+TESTS_CONFTEST = '''"""Tests run on records of their own: nothing the running app saved is read, and nothing a test creates is saved."""
+import os
+
+os.environ["APP_DATA_DIR"] = ""
+'''
+
+
+def generate_record_store_module() -> str:
+    """Generates the file store that keeps the app's records across restarts of its API."""
+    return _RECORD_STORE.replace("__DATA_DIR__", DATA_DIR)
+
+
 def generate_uow_module(entities: List[EntitySpec]) -> str:
     """Generates Unit of Work interfaces and in-memory test doubles."""
     uow_fields = []
@@ -353,20 +408,46 @@ from typing import Any, Dict, List
 from src.entrypoints.schemas import {entity.name}CreateSchema, {entity.name}ResponseSchema
 from src.domain.{slug} import {entity.name}
 from src.service_layer.unit_of_work import FakeUnitOfWork
+from src.adapters import record_store
 
 router = APIRouter(prefix="/api/{plural_slug}", tags=["{entity.name}"])
 
 # Active in-memory UoW store for fast runtime execution
 _uow = FakeUnitOfWork()
 
-# Starting content (src/seed_data.json, written at generation time for entities shown to the audience). It is read on
-# the first request after the file appears or changes, because the file is written after this server has started.
+# Records live in memory and are saved after every change (src/adapters/record_store.py), so a restart of this
+# server loses nothing. Starting content (src/seed_data.json, written at generation time for entities shown to the
+# audience) is read on the first request after the file appears or changes, because the file is written after this
+# server has started; a seed file that was already applied is not applied again, so a removed record stays removed.
 # The domain decides: a record it rejects is reported loudly and left out, the API stays up.
 _SEED_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "seed_data.json")
-_seed_state = {{"mtime": None}}
+_seed_state = {{"mtime": None, "loaded": False}}
+
+
+def _add_records(records: List[Dict[str, Any]], source: str) -> None:
+    repo = getattr(_uow, "{plural_slug}")
+    known = {{getattr(i, 'id', None) for i in repo.list()}}
+    for record in records:
+        if record.get("id") in known:
+            continue
+        try:
+            repo.add({entity.name}(**record))
+        except Exception as exc:
+            print(f"[{{source}}] {entity.name} record {{record.get('id')!r}} was rejected by the domain: {{exc}}", flush=True)
+
+
+def _save() -> None:
+    record_store.save("{plural_slug}", [i.to_dict() for i in getattr(_uow, "{plural_slug}").list()], _seed_state["mtime"])
 
 
 def _ensure_seeded() -> None:
+    if not _seed_state["loaded"]:
+        _seed_state["loaded"] = True
+        saved = record_store.load("{plural_slug}")
+        _seed_state["mtime"] = saved["seed_mtime"]
+        with _uow:
+            _add_records(saved["records"], "saved")
+            _uow.commit()
     try:
         mtime = os.path.getmtime(_SEED_PATH)
     except OSError:
@@ -377,16 +458,9 @@ def _ensure_seeded() -> None:
     with open(_SEED_PATH, encoding="utf-8") as seed_file:
         records = json.load(seed_file).get("{entity.name}", [])
     with _uow:
-        repo = getattr(_uow, "{plural_slug}")
-        known = {{getattr(i, 'id', None) for i in repo.list()}}
-        for record in records:
-            if record.get("id") in known:
-                continue
-            try:
-                repo.add({entity.name}(**record))
-            except Exception as exc:
-                print(f"[seed] {entity.name} record {{record.get('id')!r}} was rejected by the domain: {{exc}}", flush=True)
+        _add_records(records, "seed")
         _uow.commit()
+    _save()
 
 
 @router.get("", response_model=List[{entity.name}ResponseSchema])
@@ -406,6 +480,7 @@ def create_{slug}(payload: {entity.name}CreateSchema):
     with _uow:
         getattr(_uow, "{plural_slug}").add(item)
         _uow.commit()
+    _save()
     return item.to_dict()
 
 @router.get("/{{item_id}}", response_model={entity.name}ResponseSchema)
@@ -426,6 +501,7 @@ def delete_{slug}(item_id: str):
             raise HTTPException(status_code=404, detail="{entity.name} not found")
         repo.delete(item_id)
         _uow.commit()
+    _save()
 
 
 class ActionRequest(BaseModel):
@@ -462,6 +538,7 @@ def run_{slug}_action(item_id: str, request: ActionRequest):
         except Exception as exc:  # the domain rejected the action; its state is left as the domain left it
             raise HTTPException(status_code=400, detail=str(exc) or type(exc).__name__)
         _uow.commit()
+        _save()
         return {{
             "success": True,
             "state": item.to_dict(),
@@ -656,6 +733,7 @@ def generate_frontend_main_tsx() -> str:
 import ReactDOM from 'react-dom/client';
 import * as AppModule from './App';
 import './index.css';
+import './theme.css';
 
 const App = (AppModule as any).default || (AppModule as any).App;
 
@@ -798,234 +876,193 @@ export async function create{ent.name}(data: Partial<{ent.name}>): Promise<{ent.
 '''
 
 
-def generate_frontend_entity_view(entity: EntitySpec) -> str:
-    slug = _to_snake_case(entity.name)
-    headers = [attr.name for attr in entity.attributes]
-    if "id" not in headers:
-        headers.insert(0, "id")
-    
-    header_th = "\n".join([f'                  <th key="{h}" className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">{h}</th>' for h in headers[:5]])
-    row_td = "\n".join([f'                  <td key="{h}" className="px-4 py-3 text-sm text-slate-300 font-mono">{{item.{h} !== undefined ? String(item.{h}) : "-"}}</td>' for h in headers[:5]])
+def plain_plural(name: str) -> str:
+    """An entity's name as a visitor would say it: `SalonService` -> `Salon services`."""
+    return _pluralize(to_snake_case(name)).replace("_", " ").capitalize()
 
-    form_inputs = []
-    for attr in entity.attributes:
-        if attr.name == "id":
-            continue
-        form_inputs.append(f'''          <div key="{attr.name}">
-            <label className="block text-xs font-semibold text-slate-400 mb-1">{attr.name}</label>
-            <input
-              type="{ 'number' if _map_type(attr.type) in ('int', 'float') else 'text' }"
-              value={{formData.{attr.name} ?? ''}}
-              onChange={{(e) => setFormData({{ ...formData, {attr.name}: e.target.value }})}}
-              className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-              placeholder="{attr.name}"
-            />
-          </div>''')
-    form_inputs_code = "\n".join(form_inputs)
 
-    return f'''import React, {{ useState, useEffect }} from 'react';
-import {{ {entity.name}, fetch{entity.name}List, create{entity.name} }} from '../api/client';
-import {{ Plus, RefreshCw, AlertCircle, CheckCircle }} from 'lucide-react';
+_ENTITY_VIEW = r"""import React, { useEffect, useState } from 'react';
+import { __E__, fetch__E__List, create__E__ } from '../api/client';
 
-export const {entity.name}View: React.FC = () => {{
-  const [items, setItems] = useState<{entity.name}[]>([]);
-  const [loading, setLoading] = useState(false);
+// A first draft of the app: the records as they are, until the page is written.
+const TITLE_FIELD = '__TITLE__';
+const FORM_FIELDS: { name: string; numeric: boolean }[] = __FORM_FIELDS__;
+
+const label = (key: string) => key.replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
+const shown = (value: unknown): string =>
+  Array.isArray(value) ? String(value.length)
+    : typeof value === 'boolean' ? (value ? 'Yes' : 'No')
+    : value === null || value === undefined || value === '' ? '–' : String(value);
+const listed = (key: string) => key !== 'id' && key !== 'events' && key !== TITLE_FIELD && !key.endsWith('_id');
+
+const surface = { background: 'var(--draft-surface)', borderColor: 'color-mix(in srgb, var(--draft-text) 14%, transparent)' };
+const muted = { color: 'color-mix(in srgb, var(--draft-text) 62%, transparent)' };
+const accent = { background: 'var(--draft-accent)', color: 'var(--draft-on-accent)' };
+const heading = { fontFamily: 'var(--draft-heading-font)' };
+
+export const __E__View: React.FC = () => {
+  const [items, setItems] = useState<__E__[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
-  const [formData, setFormData] = useState<Record<string, any>>({{}});
+  const [adding, setAdding] = useState(false);
+  const [formData, setFormData] = useState<Record<string, any>>({});
 
-  const loadData = async () => {{
-    setLoading(true);
-    setError(null);
-    try {{
-      const data = await fetch{entity.name}List();
-      setItems(data);
-    }} catch (err: any) {{
-      setError(err.message || 'Failed to load {entity.name} records');
-    }} finally {{
-      setLoading(false);
-    }}
-  }};
+  const load = async () => {
+    try {
+      setItems(await fetch__E__List());
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || 'Could not load __PLURAL_LOWER__');
+    }
+  };
 
-  useEffect(() => {{
-    loadData();
-  }}, []);
+  // The starting content is written a little after the app starts: ask again while there is nothing to show
+  const empty = items.length === 0;
+  useEffect(() => {
+    load();
+    if (!empty) return;
+    const timer = setInterval(load, 3000);
+    return () => clearInterval(timer);
+  }, [empty]);
 
-  const handleCreate = async (e: React.FormEvent) => {{
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    try {{
-      await create{entity.name}(formData);
-      setSuccess('{entity.name} created successfully!');
-      setShowCreate(false);
-      setFormData({{}});
-      await loadData();
-    }} catch (err: any) {{
-      setError(err.message || 'Failed to create {entity.name}');
-    }}
-  }};
+    try {
+      await create__E__(formData);
+      setAdding(false);
+      setFormData({});
+      await load();
+    } catch (err: any) {
+      setError(err.message || 'Could not save');
+    }
+  };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-100">{entity.name} Management</h2>
-          <p className="text-sm text-slate-400">View, monitor, and mutate {entity.name} domain aggregates.</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={{loadData}}
-            disabled={{loading}}
-            className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-sm transition"
-          >
-            <RefreshCw className={{`w-4 h-4 ${{loading ? 'animate-spin' : ''}}`}} /> Refresh
+    <section className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-2xl font-semibold" style={heading}>__PLURAL__</h2>
+        {FORM_FIELDS.length > 0 && (
+          <button onClick={() => setAdding(!adding)} className="px-4 py-2 rounded-lg text-sm font-medium" style={accent}>
+            {adding ? 'Close' : 'Add'}
           </button>
-          <button
-            onClick={{() => setShowCreate(!showCreate)}}
-            className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-sm font-medium transition shadow-sm"
-          >
-            <Plus className="w-4 h-4" /> New {entity.name}
-          </button>
-        </div>
+        )}
       </div>
 
-      {{error && (
-        <div className="bg-rose-950/50 border border-rose-800 rounded p-4 flex items-center gap-3 text-rose-300 text-sm">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
-          <span>{{error}}</span>
-        </div>
-      )}}
+      {error && <p className="rounded-lg border px-4 py-3 text-sm" style={surface} role="alert">{error}</p>}
 
-      {{success && (
-        <div className="bg-emerald-950/50 border border-emerald-800 rounded p-4 flex items-center gap-3 text-emerald-300 text-sm">
-          <CheckCircle className="w-5 h-5 flex-shrink-0" />
-          <span>{{success}}</span>
-        </div>
-      )}}
-
-      {{showCreate && (
-        <form onSubmit={{handleCreate}} className="bg-slate-900/80 border border-slate-800 rounded-lg p-5 space-y-4">
-          <h3 className="text-base font-semibold text-slate-200">Create New {entity.name}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-{form_inputs_code}
+      {adding && (
+        <form onSubmit={handleCreate} className="rounded-xl border p-5 space-y-4" style={surface}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {FORM_FIELDS.map(field => (
+              <label key={field.name} className="block text-sm">
+                <span className="block mb-1" style={muted}>{label(field.name)}</span>
+                <input
+                  type={field.numeric ? 'number' : 'text'}
+                  value={formData[field.name] ?? ''}
+                  onChange={e => setFormData({ ...formData, [field.name]: field.numeric && e.target.value !== '' ? Number(e.target.value) : e.target.value })}
+                  className="w-full rounded-lg border px-3 py-2 text-sm bg-transparent"
+                  style={{ borderColor: surface.borderColor }}
+                />
+              </label>
+            ))}
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={{() => setShowCreate(false)}}
-              className="px-3 py-1.5 text-sm text-slate-400 hover:text-slate-200"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded transition"
-            >
-              Save {entity.name}
-            </button>
-          </div>
+          <button type="submit" className="px-4 py-2 rounded-lg text-sm font-medium" style={accent}>Save</button>
         </form>
-      )}}
+      )}
 
-      <div className="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden shadow">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-800">
-            <thead className="bg-slate-950">
-              <tr>
-{header_th}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60 bg-slate-900">
-              {{items.length === 0 ? (
-                <tr>
-                  <td colSpan={{{len(headers[:5])}}} className="px-4 py-8 text-center text-sm text-slate-500">
-                    No {entity.name} records found. Create one above to get started.
-                  </td>
-                </tr>
-              ) : (
-                items.map((item, idx) => (
-                  <tr key={{item.id || idx}} className="hover:bg-slate-800/50 transition">
-{row_td}
-                  </tr>
-                ))
-              )}}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {empty ? (
+        <p className="rounded-xl border border-dashed px-6 py-10 text-center text-sm" style={{ ...surface, ...muted }}>Nothing here yet.</p>
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item, index) => (
+            <li key={item.id || index} className="rounded-xl border p-5" style={surface}>
+              <h3 className="text-lg font-semibold mb-3" style={heading}>{shown(item[TITLE_FIELD])}</h3>
+              <dl className="space-y-1.5 text-sm">
+                {Object.keys(item).filter(listed).map(key => (
+                  <div key={key} className="flex justify-between gap-4">
+                    <dt style={muted}>{label(key)}</dt>
+                    <dd className="text-right break-words min-w-0">{shown(item[key])}</dd>
+                  </div>
+                ))}
+              </dl>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+};
+"""
+
+
+def generate_frontend_entity_view(entity: EntitySpec) -> str:
+    """The stand-in view of one entity: its records as cards under a plain name, coloured by `src/theme.css`."""
+    scalars = [a for a in entity.attributes if a.name != "id" and not getattr(a, "item_attributes", None)]
+    described = [a for a in scalars if not a.name.endswith("_id")]
+    title = (described or scalars or [None])[0]
+    form_fields = ", ".join(
+        f"{{ name: '{a.name}', numeric: {'true' if _map_type(a.type) in ('int', 'float') else 'false'} }}" for a in scalars)
+    plural = plain_plural(entity.name)
+    return (_ENTITY_VIEW.replace("__E__", entity.name).replace("__TITLE__", title.name if title else "id")
+            .replace("__FORM_FIELDS__", f"[{form_fields}]").replace("__PLURAL_LOWER__", plural.lower())
+            .replace("__PLURAL__", plural))
+
+
+_APP_COMPONENT = r"""import React, { useState } from 'react';
+__IMPORTS__
+
+// A first draft of the app: what it keeps track of, shown plainly until the page is written.
+const TABS: { name: string; label: string; view: React.FC }[] = [
+__TABS__
+];
+
+export const App: React.FC = () => {
+  const [active, setActive] = useState<string>(TABS[0]?.name ?? '');
+  const View = TABS.find(tab => tab.name === active)?.view;
+
+  return (
+    <div className="min-h-screen" style={{ background: 'var(--draft-bg)', color: 'var(--draft-text)' }}>
+      <header className="max-w-5xl mx-auto px-4 sm:px-6 pt-10 pb-2">
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight" style={{ fontFamily: 'var(--draft-heading-font)' }}>__TITLE__</h1>
+        {TABS.length > 1 && (
+          <nav className="mt-6 flex flex-wrap gap-2">
+            {TABS.map(tab => (
+              <button
+                key={tab.name}
+                onClick={() => setActive(tab.name)}
+                className="px-4 py-2 rounded-full text-sm font-medium border"
+                style={tab.name === active
+                  ? { background: 'var(--draft-accent)', color: 'var(--draft-on-accent)', borderColor: 'var(--draft-accent)' }
+                  : { borderColor: 'color-mix(in srgb, var(--draft-text) 20%, transparent)' }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        )}
+      </header>
+      <main>{View && <View />}</main>
     </div>
   );
-}};
-'''
+};
+
+export default App;
+"""
 
 
 def generate_frontend_app_component(entities: List[EntitySpec], app_title: str) -> str:
-    imports = []
-    tabs = []
-    cases = []
+    """The stand-in app: the product's name and one tab per entity it is given."""
+    imports = "\n".join(f"import {{ {e.name}View }} from './views/{e.name}View';" for e in entities)
+    tabs = "\n".join(f"  {{ name: '{e.name}', label: '{plain_plural(e.name)}', view: {e.name}View }}," for e in entities)
+    title = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", app_title).replace("{", "").replace("}", "")
+    return _APP_COMPONENT.replace("__IMPORTS__", imports).replace("__TABS__", tabs).replace("__TITLE__", title)
 
-    for ent in entities:
-        imports.append(f"import {{ {ent.name}View }} from './views/{ent.name}View';")
-        tabs.append(f'''          <button
-            key="{ent.name}"
-            onClick={{() => setActiveTab('{ent.name}')}}
-            className={{`px-4 py-2 text-sm font-medium rounded-md transition ${{
-              activeTab === '{ent.name}'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-            }}`}}
-          >
-            {ent.name}
-          </button>''')
-        cases.append(f"        {{activeTab === '{ent.name}' && <{ent.name}View />}}")
 
-    imports_code = "\n".join(imports)
-    tabs_code = "\n".join(tabs)
-    cases_code = "\n".join(cases)
-    default_tab = entities[0].name if entities else "Overview"
-
-    return f'''import React, {{ useState }} from 'react';
-import {{ Layers, Server }} from 'lucide-react';
-{imports_code}
-
-export const App: React.FC = () => {{
-  const [activeTab, setActiveTab] = useState<string>('{default_tab}');
-
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      <header className="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
-            <Layers className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold tracking-tight text-white">{app_title}</h1>
-            <p className="text-xs text-slate-400">Generated Full-Stack Domain Application</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 px-3 py-1 bg-emerald-950/60 border border-emerald-800/80 rounded-full text-emerald-400 text-xs font-medium">
-          <Server className="w-3.5 h-3.5" />
-          <span>API Connected (:8001)</span>
-        </div>
-      </header>
-
-      <div className="bg-slate-900/50 border-b border-slate-800 px-6 py-2 flex items-center gap-2">
-{tabs_code}
-      </div>
-
-      <main className="flex-1 overflow-y-auto">
-{cases_code}
-      </main>
-    </div>
-  );
-}};
-
-export default App;
-
-'''
+def _draft_entities(structure: DomainStructureSchema) -> List[EntitySpec]:
+    """The entities the stand-in app lists: the ones the audience works with, or all of them when the structure
+    says nothing about its audience."""
+    if any(getattr(e.audience_role, "value", "internal") != "internal" for e in structure.entities):
+        return structure.presented_entities()
+    return list(structure.entities)
 
 
 @traced("skeleton.generate_files")
@@ -1120,6 +1157,8 @@ class {ent.name}UpdatedEvent(DomainEvent):
     files[os.path.join(base_path, "src", "adapters", "repository.py")] = generate_repository_module(structure.entities)
     files[os.path.join(base_path, "src", "service_layer", "__init__.py")] = '"""Service Layer Package"""\n'
     files[os.path.join(base_path, "src", "service_layer", "unit_of_work.py")] = generate_uow_module(structure.entities)
+    files[os.path.join(base_path, "src", "adapters", "record_store.py")] = generate_record_store_module()
+    files[os.path.join(base_path, "tests", "conftest.py")] = TESTS_CONFTEST
 
     # 3. Pydantic DTO Schemas & Routers
     files[os.path.join(base_path, "src", "entrypoints", "__init__.py")] = '"""Entrypoints Package"""\n'
@@ -1198,9 +1237,12 @@ def test_fake_uow_commit():
     files[os.path.join(frontend_dir, "src", "main.tsx")] = generate_frontend_main_tsx()
     files[os.path.join(base_path, "src", "main.tsx")] = generate_frontend_main_tsx()
     files[os.path.join(frontend_dir, "src", "api", "client.ts")] = generate_frontend_api_client(structure.entities)
-    files[os.path.join(frontend_dir, "src", "App.tsx")] = generate_frontend_app_component(structure.entities, app_title)
+    draft_entities = _draft_entities(structure)
+    files[os.path.join(frontend_dir, "src", "App.tsx")] = generate_frontend_app_component(draft_entities, app_title)
+    for root in (frontend_dir, base_path):
+        files[os.path.join(root, "src", "theme.css")] = theme_css(DraftTheme())
     files[os.path.join(base_path, "src", "api", "client.ts")] = generate_frontend_api_client(structure.entities)
-    files[os.path.join(base_path, "src", "App.tsx")] = generate_frontend_app_component(structure.entities, app_title)
+    files[os.path.join(base_path, "src", "App.tsx")] = generate_frontend_app_component(draft_entities, app_title)
 
     for ent in structure.entities:
         files[os.path.join(frontend_dir, "src", "views", f"{ent.name}View.tsx")] = generate_frontend_entity_view(ent)
@@ -1214,6 +1256,7 @@ def build_and_write_skeleton(structure: DomainStructureSchema, target_dir: Optio
     """Generates all full-stack skeleton files and writes them to the specified target directory."""
     base = target_dir or os.getcwd()
     files_map = generate_fullstack_skeleton_files(structure, base_path=base)
+    shutil.rmtree(os.path.join(base, DATA_DIR), ignore_errors=True)  # a new app starts without the previous one's records
     created_paths = []
 
     for path, code in files_map.items():

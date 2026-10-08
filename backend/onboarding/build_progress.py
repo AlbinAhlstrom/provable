@@ -6,8 +6,9 @@ visual review come after. So the Studio shows the app as soon as there is a page
 Nothing is tracked for this: the run recorder already holds every stage of the running build with its status, and this
 module reads that out as a typed report.
 
-- `page_ready` turns true when the presentation stage delivered. Until then the workspace serves the skeleton's
-  stand-in app, which is not what was asked for and is not shown.
+- `draft_ready` turns true when the skeleton is written: from then on the workspace serves an app that can be
+  shown, first as the skeleton's draft (the records under plain names, in the plan's colours once decided).
+- `page_ready` turns true when the presentation stage delivered: the draft has been replaced by the written page.
 - `rules` is what the spec runner reports after every behaviour spec (`spec_runner.RuleProgress`).
 - Only a kickstart is a build. A single spec execution changes an app that already exists.
 """
@@ -36,6 +37,7 @@ STAGE_LABELS = {
     "qa": "Checking the page on phone, tablet and desktop",
     "visual_review": "Reviewing how the page looks",
 }
+DRAFT_STAGE = "skeleton"
 PAGE_STAGE = "presentation"
 RULES_STAGE = "behaviour_specs"
 
@@ -53,7 +55,8 @@ class BuildProgress:
     building: bool = False
     run_id: str = ""
     elapsed_s: float = 0.0
-    page_ready: bool = False
+    draft_ready: bool = False     # the skeleton is written: the app can be shown, as a first draft
+    page_ready: bool = False      # the page is written
     stages: List[StageProgress] = field(default_factory=list)
     rules: Optional[RuleProgress] = None
 
@@ -73,6 +76,8 @@ def current_progress() -> BuildProgress:
         record = handle.record
         progress.stages.append(StageProgress(name=record["name"], label=STAGE_LABELS.get(record["name"], record["name"].replace("_", " ").capitalize()),
                                              status=record["status"], error=record.get("error")))
+        if record["name"] == DRAFT_STAGE and record["status"] == "ok":
+            progress.draft_ready = True
         if record["name"] == PAGE_STAGE and record["status"] == "ok":
             progress.page_ready = True
         if record["name"] == RULES_STAGE and record["notes"].get("rules"):

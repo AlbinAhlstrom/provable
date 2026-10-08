@@ -419,7 +419,7 @@ def reset_all_projects(
                 with open(sdoc_path, 'w', encoding='utf-8') as f:
                     f.write('[DOCUMENT]\nTITLE: System Architecture & Business Requirements\n')
 
-            for folder in ['src', 'tests', 'dist']:
+            for folder in ['src', 'tests', 'dist', '.data']:
                 target = os.path.join(ws_base, folder)
                 if os.path.exists(target):
                     try:

@@ -135,8 +135,8 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
     }
   };
 
-  // ── VIEW 0: A BUILD IS RUNNING AND ITS PAGE IS NOT WRITTEN YET ─────────────────
-  if (building && !progress?.page_ready) {
+  // ── VIEW 0: A BUILD IS RUNNING AND THERE IS NO APP TO SHOW YET ─────────────────
+  if (building && !progress?.draft_ready) {
     return <BuildProgressScreen progress={progress} />;
   }
 

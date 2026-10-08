@@ -11,9 +11,10 @@ export interface BuildProgress {
   building: boolean;
   run_id: string;
   elapsed_s: number;
+  draft_ready: boolean;
   page_ready: boolean;
   stages: StageProgress[];
-  rules: { done: number; total: number; active: number } | null;
+  rules: { done: number; total: number; active: number; latest: string } | null;
 }
 
 const STATUS_MARK: Record<StageProgress['status'], { mark: string; color: string }> = {
@@ -28,7 +29,7 @@ const elapsed = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.
 const rulesText = (rules: BuildProgress['rules']) =>
   rules ? `${rules.active} of ${rules.total} rules active${rules.done > rules.active ? `, ${rules.done - rules.active} not enforced` : ''}` : null;
 
-/** Shown in place of the app until its page has been written: every stage of the running build and its status. */
+/** Shown until there is an app to show (its skeleton is written): every stage of the running build and its status. */
 export const BuildProgressScreen: React.FC<{ progress: BuildProgress | null }> = ({ progress }) => (
   <div style={{ maxWidth: '640px', margin: '3rem auto', padding: '0 1rem' }}>
     <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '1rem', padding: '2rem' }}>
@@ -37,7 +38,7 @@ export const BuildProgressScreen: React.FC<{ progress: BuildProgress | null }> =
         {progress?.building && <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontVariantNumeric: 'tabular-nums' }}>{elapsed(progress.elapsed_s)}</span>}
       </div>
       <p style={{ margin: '0 0 1.25rem', color: '#94a3b8', fontSize: '0.9rem' }}>
-        The app appears here as soon as its page is written. Rules and checks continue after that.
+        A first draft of the app appears here in a moment, and fills in as it is built.
       </p>
       {!progress?.stages.length && <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Starting…</div>}
       <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -63,11 +64,11 @@ export const BuildProgressStrip: React.FC<{ progress: BuildProgress }> = ({ prog
   const rules = rulesText(progress.rules);
   return (
     <div style={{ background: '#172554', border: '1px solid #1d4ed8', borderRadius: '0.6rem', padding: '0.55rem 0.9rem', marginBottom: '0.6rem', color: '#dbeafe', fontSize: '0.82rem', display: 'flex', flexWrap: 'wrap', gap: '0.4rem 1.25rem', alignItems: 'baseline' }}>
-      <strong style={{ color: '#ffffff' }}>Still building · {elapsed(progress.elapsed_s)}</strong>
+      <strong style={{ color: '#ffffff' }}>{progress.page_ready ? 'Still building' : 'First draft'} · {elapsed(progress.elapsed_s)}</strong>
       {running.length > 0 && <span>{running.join(' · ')}</span>}
       {rules && <span>{rules}</span>}
+      {progress.rules?.latest && <span style={{ color: '#86efac' }}>Now enforced: {progress.rules.latest}</span>}
       {failed.map(stage => <span key={stage.name} style={{ color: '#fca5a5' }}>{stage.label}: failed</span>)}
-      <span style={{ color: '#93c5fd' }}>Records you add now are cleared each time a rule lands.</span>
     </div>
   );
 };

@@ -43,6 +43,7 @@ class RuleProgress:
     done: int = 0      # specs that went through the loop, whatever the outcome
     total: int = 0
     active: int = 0    # of those, the ones the app now enforces
+    latest: str = ""   # title of the rule that became active last
 
 
 @traced("specs.run_behaviour_specs")
@@ -54,10 +55,12 @@ def run_behaviour_specs(specs: List[BusinessSpec], execute: Callable[[BusinessSp
     if not behaviour:
         return SpecRun(skipped="the deck has no behaviour spec")
     run = SpecRun()
+    titles: List[str] = []  # of the fulfilled specs, in order
 
     def tell() -> None:
         if report is not None:
-            report(RuleProgress(done=len(run.fulfilled) + len(run.unfulfilled), total=len(behaviour), active=len(run.fulfilled)))
+            report(RuleProgress(done=len(run.fulfilled) + len(run.unfulfilled), total=len(behaviour),
+                                active=len(run.fulfilled), latest=titles[-1] if titles else ""))
 
     tell()
     for spec in behaviour:
@@ -67,6 +70,7 @@ def run_behaviour_specs(specs: List[BusinessSpec], execute: Callable[[BusinessSp
             result = {"success": False, "status": "ERROR", "error": f"{type(err).__name__}: {err}"}
         if result.get("success"):
             run.fulfilled.append(spec.spec_id)
+            titles.append(spec.title)
         else:
             run.unfulfilled.append({"spec_id": spec.spec_id, "title": spec.title,
                                     "status": str(result.get("status") or ""), "error": str(result.get("error") or "")})

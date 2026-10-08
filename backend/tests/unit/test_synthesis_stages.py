@@ -279,3 +279,44 @@ def test_a_spec_that_was_not_fulfilled_is_a_reported_failure(tmp_path):
     outcome = _run(tmp_path, specs=lambda inbox_specs, report: unfulfilled)
     assert [f["stage"] for f in outcome.failures] == ["behaviour_specs"]
     assert "SPEC-002" in outcome.failures[0]["error"] and outcome.presentation["success"]
+
+
+def test_the_ux_plans_palette_is_written_as_the_drafts_theme(tmp_path):
+    """Verify the app on screen takes the plan's colours as soon as the plan is there.
+
+    id: TST-SYN-DRAFT-THEME
+    Given: A skeleton's neutral theme file, and a UX plan whose visual direction ends with its token line
+    When: The stages run
+    Then: The theme file holds the plan's background colour
+    """
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "theme.css").write_text(":root {}", encoding="utf-8")
+    plan = ("### 6. Visual Direction\nwarm cream\n"
+            "TOKENS background=#faf7f2 surface=#ffffff text=#1c1917 accent=#b45309 on_accent=#ffffff heading=serif")
+    _run(tmp_path, ux=lambda **kw: plan)
+    assert "--draft-bg: #faf7f2;" in (tmp_path / "src" / "theme.css").read_text(encoding="utf-8")
+
+
+def test_a_component_the_page_does_not_use_is_no_longer_reported_as_written(tmp_path, monkeypatch):
+    """Verify later stages are only handed files that still exist.
+
+    id: TST-SYN-REMOVED-COMPONENT
+    Given: A presentation that wrote a view and a component its page never imports, which the cleanup then removes
+    When: The stages run
+    Then: The presentation's files, and the outcome's, list the view and not the removed component
+    """
+    import onboarding.synthesis_stages as stages_module
+
+    view, unused = tmp_path / "src" / "View.tsx", tmp_path / "src" / "Unused.tsx"
+    view.parent.mkdir(parents=True)
+    view.write_text("export {}", encoding="utf-8")
+    unused.write_text("export {}", encoding="utf-8")
+
+    def cleanup(workspace_dir):
+        unused.unlink()
+        return ["src/Unused.tsx"]
+
+    monkeypatch.setattr(stages_module, "remove_unreachable", cleanup)
+    outcome = _run(tmp_path, presentation=lambda **kw: {"success": True, "files": [str(view), str(unused)]})
+    assert outcome.presentation["files"] == [str(view)]
+    assert str(unused) not in outcome.files and outcome.removed_scaffold == ["src/Unused.tsx"]

@@ -28,7 +28,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[DDD_TDD_Developer_Workflow]]: Pure DDD layer boundaries, 4-step execution loop (RED-GREEN-WIRE-VERIFY), and anti-leakage verification gate.
 - [[Bug-Reproduction-and-Testing-Policy]]: Strict policy and automated regression test workflow for bug reproduction, tri-service stack startup (:8000, :5173, :5174), and zero-regression guarantees.
 - [[Helper Scripts]]: Single cross-platform application launcher (`run.py`) and PowerShell/Bash wrappers.
-- [[Build Progress]]: The Studio shows an app while it is being built: a building screen until the page is written, then the live preview with what is still being worked on (`GET /api/onboarding/progress`).
+- [[Build Progress]]: The Studio shows an app while it is being built: a first draft in the plan's colours from the moment the skeleton exists, then the written page, with what is still being worked on above it (`GET /api/onboarding/progress`); records are saved across API restarts.
 - [[Run Recorder]]: One folder per pipeline run (`logs/runs/`): commit and model, per-stage outcome, full step and LLM trace, generated-app snapshot; `scripts/trace_report.py` reads and compares runs.
 
 

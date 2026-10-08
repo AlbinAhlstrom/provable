@@ -2,7 +2,7 @@
 
     spec_review      ─┐
     seed_data        ─┤
-    ux_plan          ─┼─ start together
+    ux_plan          ─┼─ start together (the UX plan also gives the app on screen its colours)
     action_protocol  ─┘→ action_behaviour ─┬→ presentation (needs the action protocol, the domain and the UX plan)
                                            └→ behaviour_specs (the rule deck, alongside the presentation)
 
@@ -26,9 +26,12 @@ from typing import Any, Callable, Dict, List, Optional
 import pipeline_trace
 from onboarding.action_behaviour import ActionBehaviour
 from onboarding.app_inventory import remove_unreachable
+from onboarding.draft_theme import THEME_FILE, parse_draft_theme, write_draft_theme
 from onboarding.seed_data import SEED_FILE
 from onboarding.spec_runner import SpecRun
 from run_recorder import stage
+
+THEME_FILES = (THEME_FILE.replace(os.sep, "/"), "frontend/" + THEME_FILE.replace(os.sep, "/"))
 
 
 @dataclass
@@ -114,10 +117,17 @@ def run_synthesis_stages(
                 fail("seed_data", handle, outcome.seed.get("error"))
 
     def plan_ux() -> str:
-        with stage("ux_plan", owns=()) as handle:
+        with stage("ux_plan", owns=THEME_FILES) as handle:
             blueprint = ux(pitch=pitch, structure=structure, master_name=master_name, intent=intent,
                            inbox_specs=inbox_specs)
             handle.note("has_visual_direction", "### 6. Visual Direction" in (blueprint or ""))
+            # The app is on screen before its page is written: it takes the plan's colours now (draft_theme.py)
+            theme = parse_draft_theme(blueprint)
+            if theme is None:
+                handle.note("draft_theme", "the visual direction has no complete token line; the draft keeps its neutral colours")
+            else:
+                write_draft_theme(workspace_dir, theme)
+                handle.note("draft_theme", asdict(theme))
             return blueprint
 
     def run_rule_specs() -> None:
@@ -190,6 +200,11 @@ def run_synthesis_stages(
                 outcome.removed_scaffold = remove_unreachable(workspace_dir)
                 if outcome.removed_scaffold:
                     handle.note("removed_scaffold", outcome.removed_scaffold)
+                    # A component the page never imports went with the scaffold: QA and the visual review are
+                    # handed the files that are still there
+                    outcome.presentation["files"] = [
+                        path for path in outcome.presentation.get("files", [])
+                        if os.path.exists(path if os.path.isabs(path) else os.path.join(workspace_dir, path))]
 
     with ThreadPoolExecutor(max_workers=4, thread_name_prefix="synthesis") as pool:
         alongside = [pool.submit(pipeline_trace.bind_context(task)) for task in (review_specs, seed_content)]

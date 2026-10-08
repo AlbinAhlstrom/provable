@@ -31,7 +31,8 @@ def test_a_running_kickstart_reports_its_stages_in_plain_words(tmp_path):
     id: TST-PROGRESS-002
     Given: A kickstart run whose skeleton stage is done and whose presentation stage is open
     When: The progress is asked for
-    Then: It is building; both stages are listed in order with their status and a label; the page is not ready
+    Then: It is building; both stages are listed in order with their status and a label; the app can be shown as a
+          draft, and the page is not ready
     """
     with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)) as run:
         stage_begin("skeleton").ok()
@@ -41,7 +42,7 @@ def test_a_running_kickstart_reports_its_stages_in_plain_words(tmp_path):
     assert progress.building is True and progress.run_id == run.id
     assert [(s.name, s.status) for s in progress.stages] == [("skeleton", "ok"), ("presentation", "running")]
     assert all(s.label and s.label != s.name for s in progress.stages)
-    assert progress.page_ready is False
+    assert progress.draft_ready is True and progress.page_ready is False
 
 
 def test_the_page_is_ready_once_the_presentation_stage_delivered(tmp_path):
@@ -99,7 +100,7 @@ def test_rule_progress_counts_the_specs_done_and_active(tmp_path):
         after = current_progress().rules
 
     assert (seen[0].done, seen[0].total, seen[0].active) == (0, 3, 0)   # known before the first spec starts
-    assert (seen[2].done, seen[2].total, seen[2].active) == (2, 3, 1)
+    assert (seen[2].done, seen[2].total, seen[2].active, seen[2].latest) == (2, 3, 1, "Rule 1")
     assert (after.done, after.total, after.active) == (3, 3, 1)
 
 
