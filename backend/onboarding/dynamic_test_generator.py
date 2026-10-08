@@ -4,6 +4,7 @@ Converts living BDD specifications into automated acceptance test suites.
 Strictly domain-agnostic: zero hardcoded domain keywords.
 """
 
+import os
 import re
 from typing import List
 from onboarding.router_engine import BusinessSpec
@@ -113,3 +114,24 @@ def test_frontend_satisfies_viewport_containment():
         )
 '''
     return template.replace("{domain_name}", domain_name)
+
+
+def write_acceptance_suites(workspace_dir: str, domain_name: str, inbox_specs: List[BusinessSpec]) -> List[str]:
+    """Writes the two acceptance suites and returns their paths.
+
+    The domain suite goes to `tests/unit`, the folder the TDD loop re-runs after every change. The browser suite
+    (three audits of the running page) goes to `tests/acceptance`: it says nothing about a domain change and takes
+    longer than the regression gate waits.
+    """
+    slug = _to_snake_case(domain_name or "domain")
+    suites = [
+        (os.path.join(workspace_dir, "tests", "unit", f"test_{slug}_acceptance.py"),
+         generate_dynamic_acceptance_suite(domain_name, inbox_specs)),
+        (os.path.join(workspace_dir, "tests", "acceptance", f"test_{slug}_frontend_acceptance.py"),
+         generate_dynamic_frontend_acceptance_suite(domain_name)),
+    ]
+    for path, code in suites:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(code)
+    return [path for path, _ in suites]

@@ -4,8 +4,9 @@ Action Protocol Synthesizer: designs the user-facing action contract between the
 The aggregate's domain class is owned by the skeleton (a plain dataclass) and evolved spec by spec by the TDD
 loop, and the generated API already exposes every public domain method through the deterministic
 `POST /api/<aggregates>/{id}/action` endpoint (see skeleton_builder.generate_router_module). This step therefore
-writes NO code: one LLM call names the actions the UI should offer (the domain methods the specs call for) and
-their parameters, so the presentation layer and the domain agree on names before the methods exist.
+writes NO code: one LLM call names the actions the UI should offer (the domain methods the specs call for), their
+parameters and what each changes. The methods are written from that right afterwards (`action_behaviour.py`), and
+the presentation layer is written against the same names.
 """
 
 import json

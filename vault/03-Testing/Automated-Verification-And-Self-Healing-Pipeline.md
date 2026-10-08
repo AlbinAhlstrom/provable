@@ -49,3 +49,24 @@ graph LR
 - [[Testing Strategy]]
 - [[Bug-Reproduction-and-Testing-Policy]]
 
+## Actions work before the page is written
+
+The action protocol only names the actions the page offers, and the generated API runs an action by calling the method
+of that name on the aggregate. A kickstart that stops there produces a page on which every action answers "Unknown
+action". So the kickstart's `action_behaviour` stage (`backend/onboarding/action_behaviour.py`) runs between the action
+protocol and the presentation:
+
+- One spec per aggregate states all of its actions (name, parameters, what each changes), and goes through the same
+  TDD loop as every later spec: a RED test, GREEN, the regression gate.
+- Its test is kept as `tests/unit/test_spec_act_<aggregate>.py`, so later specs are written knowing it and cannot break
+  an action unnoticed.
+- The code is then compared with the manifest. An action without a method fails the stage by name and the run is
+  DEGRADED; nothing is stubbed.
+- The page is written afterwards, against the class as it really is (its fields and methods).
+
+The regression gate re-runs `tests/unit` only. The page's browser checks live in `tests/acceptance`: they say nothing
+about a domain change and take longer than the gate waits. A regression run that does not finish is not a verdict on
+the code: the spec fails with that reason and is not retried.
+
+What this does not prove: that the page calls each action on the right record with the right parameters. The audit
+submits forms but does not click through an action's flow.

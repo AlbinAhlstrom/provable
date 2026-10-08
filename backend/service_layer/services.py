@@ -2194,29 +2194,11 @@ def kickstart_domain_and_scaffold(
     else:
         print(f"[Kickstart] [4/5] Deferring App.tsx generation to Node 3 interactive synthesizer.", flush=True)
 
-    from onboarding.dynamic_test_generator import (
-        generate_dynamic_acceptance_suite,
-        generate_dynamic_frontend_acceptance_suite,
-        _to_snake_case
-    )
+    from onboarding.dynamic_test_generator import write_acceptance_suites
     try:
-        acceptance_suite_code = generate_dynamic_acceptance_suite(structure.domain_name, inbox_specs)
-        tests_unit_dir = os.path.join(workspace_dir, "tests", "unit")
-        os.makedirs(tests_unit_dir, exist_ok=True)
-        domain_slug = _to_snake_case(structure.domain_name or "domain")
-        acceptance_test_path = os.path.join(tests_unit_dir, f"test_{domain_slug}_acceptance.py")
-        with open(acceptance_test_path, "w", encoding="utf-8") as f:
-            f.write(acceptance_suite_code)
-        if acceptance_test_path not in created_files:
-            created_files.append(acceptance_test_path)
-
-        # Generate Universal Frontend Acceptance Suite
-        frontend_suite_code = generate_dynamic_frontend_acceptance_suite(structure.domain_name)
-        frontend_test_path = os.path.join(tests_unit_dir, f"test_{domain_slug}_frontend_acceptance.py")
-        with open(frontend_test_path, "w", encoding="utf-8") as f:
-            f.write(frontend_suite_code)
-        if frontend_test_path not in created_files:
-            created_files.append(frontend_test_path)
+        for suite_path in write_acceptance_suites(workspace_dir, structure.domain_name, inbox_specs):
+            if suite_path not in created_files:
+                created_files.append(suite_path)
     except Exception as e:
         print(f"[Kickstart] Acceptance suite generation notice: {e}", flush=True)
 

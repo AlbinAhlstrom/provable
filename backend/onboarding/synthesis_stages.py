@@ -3,10 +3,12 @@
     spec_review      ─┐
     seed_data        ─┤
     ux_plan          ─┼─ start together
-    action_protocol  ─┘→ presentation (needs the action protocol and the UX plan)
+    action_protocol  ─┘→ action_behaviour → presentation (needs the action protocol, the domain and the UX plan)
 
-All of them read the same decomposition and the skeleton on disk. Only the presentation needs other stages' answers
-(the action protocol and the UX plan, which also carries the page's visual direction). Seed data and the spec review used to queue in front of the presentation, the slowest step, and
+All of them read the same decomposition and the skeleton on disk. The action protocol names the actions; the
+behaviour stage writes the methods behind them (`action_behaviour.py`), so the presentation is written against a
+domain that already does what the page will ask of it. The presentation also needs the UX plan, which carries the
+page's visual direction. Seed data and the spec review used to queue in front of the presentation, the slowest step, and
 added their full duration to every kickstart.
 
 The stage functions are injected so the ordering policy is testable without an LLM. Each stage keeps its own record
@@ -20,6 +22,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
 import pipeline_trace
+from onboarding.action_behaviour import ActionBehaviour
 from onboarding.app_inventory import remove_unreachable
 from onboarding.seed_data import SEED_FILE
 from run_recorder import stage
@@ -36,6 +39,7 @@ class SynthesisOutcome:
     files: List[str] = field(default_factory=list)              # every file the stages report having written
     ux_blueprint: str = ""                                      # the UX plan, including the visual direction
     removed_scaffold: List[str] = field(default_factory=list)   # skeleton files the written page no longer reaches
+    behaviour: ActionBehaviour = field(default_factory=ActionBehaviour)  # the methods behind the manifest's actions
 
 
 def run_synthesis_stages(
@@ -51,6 +55,7 @@ def run_synthesis_stages(
     seed: Optional[Callable[..., Dict[str, Any]]] = None,
     presentation: Optional[Callable[..., Dict[str, Any]]] = None,
     ux: Optional[Callable[..., str]] = None,
+    behaviour: Optional[Callable[..., ActionBehaviour]] = None,
 ) -> SynthesisOutcome:
     """Runs the four stages and returns what each delivered. `on_action_manifest` receives the manifest of a
     successful action protocol (the caller stores it). An exception in any stage propagates once all have finished."""
@@ -65,6 +70,8 @@ def run_synthesis_stages(
 
     if ux is None:
         from onboarding.ux_planner import plan_ux_blueprint as ux
+    if behaviour is None:
+        from onboarding.action_behaviour import implement_actions as behaviour
 
     outcome = SynthesisOutcome()
     master = structure.master_entity() if hasattr(structure, "master_entity") else None
@@ -119,6 +126,22 @@ def run_synthesis_stages(
                 on_action_manifest(outcome.engine.get("action_manifest") or {})
             else:
                 fail("action_protocol", handle, outcome.engine.get("error"))
+
+        # The methods behind those actions, written now so the page is built against the class as it really is
+        started = time.time()
+        with stage("action_behaviour") as handle:
+            if not outcome.engine.get("success"):
+                handle.skip("there is no action protocol to implement")
+            else:
+                outcome.behaviour = behaviour(outcome.engine.get("action_manifest") or {}, workspace_dir)
+                outcome.timings["5a_action_behaviour"] = round(time.time() - started, 2)
+                handle.note("implemented", outcome.behaviour.implemented)
+                handle.note("runs", outcome.behaviour.runs)
+                if outcome.behaviour.skipped:
+                    handle.skip(outcome.behaviour.skipped)
+                elif not outcome.behaviour.success:
+                    handle.note("missing", outcome.behaviour.missing)
+                    fail("action_behaviour", handle, outcome.behaviour.error)
 
         # Interactive presentation projection & React shell
         outcome.ux_blueprint = ux_plan.result()

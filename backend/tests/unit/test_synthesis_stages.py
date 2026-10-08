@@ -6,6 +6,7 @@ import threading
 import pytest
 
 import run_recorder
+from onboarding.action_behaviour import ActionBehaviour
 from onboarding.synthesis_stages import run_synthesis_stages
 
 WAIT = 5  # seconds a fake waits for its peer before the test fails instead of hanging
@@ -18,6 +19,7 @@ def _stages(**overrides):
         seed=lambda **kw: {"success": True, "files": ["seed.json"]},
         presentation=lambda **kw: {"success": True, "files": ["App.tsx"]},
         ux=lambda **kw: "### 1. Plan\n### 6. Visual Direction\nwarm cream, one amber accent",
+        behaviour=lambda manifest, workspace_dir: ActionBehaviour(implemented=["submit"]),
     )
     stages.update(overrides)
     return stages
@@ -99,7 +101,7 @@ def test_every_stage_that_does_not_deliver_is_reported_with_its_reason(tmp_path,
     run = next(p for p in (tmp_path / "runs").iterdir() if p.is_dir())
     stages = {s["name"]: s["status"] for s in json.loads((run / "summary.json").read_text(encoding="utf-8"))["stages"]}
     assert stages == {"spec_review": "failed", "seed_data": "failed", "ux_plan": "ok", "action_protocol": "ok",
-                      "presentation": "failed"}
+                      "action_behaviour": "ok", "presentation": "failed"}
 
 
 def test_seed_data_is_credited_with_its_file_and_the_presentation_with_its_own(tmp_path, monkeypatch):
@@ -196,3 +198,41 @@ def test_a_written_page_leaves_no_scaffold_it_does_not_reach(tmp_path):
     failed = workspace(tmp_path / "failed")
     outcome = _run(failed, presentation=lambda **kw: {"success": False, "error": "no answer", "files": []})
     assert (failed / "src/views/ScaffoldView.tsx").exists() and outcome.removed_scaffold == []
+
+
+def test_the_actions_are_implemented_before_the_page_that_calls_them_is_written(tmp_path):
+    """Verify the page is written against a domain that already has its methods and fields.
+
+    id: TST-SYN-BEHAVIOUR
+    Given: A behaviour stage that records the manifest it was given, and a presentation that checks it has run
+    When: The stages run
+    Then: Behaviour ran with the protocol's manifest before the presentation, and its result is in the outcome
+    """
+    seen = []
+
+    def behaviour(manifest, workspace_dir):
+        seen.append([a["name"] for a in manifest["actions"]])
+        return ActionBehaviour(implemented=["submit"])
+
+    def presentation(**kw):
+        assert seen == [["submit"]], "the page was written before its actions were implemented"
+        return {"success": True, "files": ["App.tsx"]}
+
+    outcome = _run(tmp_path, behaviour=behaviour, presentation=presentation)
+    assert outcome.behaviour.implemented == ["submit"] and outcome.failures == []
+
+
+def test_an_action_nothing_implements_is_a_reported_failure_and_the_page_is_still_written(tmp_path):
+    """Verify a missing action degrades the run loudly without stopping the page.
+
+    id: TST-SYN-BEHAVIOUR-MISSING
+    Given: A behaviour stage that leaves one action without a method
+    When: The stages run
+    Then: The failure names the stage and the action, and the presentation still delivered
+    """
+    missing = ActionBehaviour(missing=[{"action": "submit", "aggregate": "Inquiry", "performed_by": "audience"}],
+                              runs=[{"aggregate": "Inquiry", "status": "REQUIRES_HUMAN_INTERVENTION", "error": "assert failed"}])
+    outcome = _run(tmp_path, behaviour=lambda manifest, workspace_dir: missing)
+    assert [f["stage"] for f in outcome.failures] == ["action_behaviour"]
+    assert "submit" in outcome.failures[0]["error"]
+    assert outcome.presentation["success"]
