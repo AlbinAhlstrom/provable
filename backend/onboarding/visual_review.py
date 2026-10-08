@@ -251,8 +251,10 @@ def review_and_repair(
         except Exception as exc:  # the first repairs stand; the refused ones stay refused, with this reason beside them
             retry_problems, retry_error = [], f"the corrected repairs could not be read: {exc}"
         current, corrected, no_repair = _apply_repairs(retry_problems, current, workspace_dir, compile_check)
-        answered = {o.problem for o in corrected} | {entry.rsplit(": no class change can fix it", 1)[0] for entry in no_repair}
-        outcomes = [o for o in outcomes if o.applied or o.problem not in answered] + corrected
+        # The reviewer was asked for each refused problem once more, and may word it differently: every answer takes
+        # the place of one refusal, so a refusal stays only when the retry gave no answer for it
+        unanswered = refused[len(corrected) + len(no_repair):]
+        outcomes = [o for o in outcomes if o.applied] + unanswered + corrected
         not_repaired += no_repair
 
     changed = [rel for rel in current if current[rel] != originals[rel]]

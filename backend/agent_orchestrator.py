@@ -169,7 +169,8 @@ def model_for_stage(stage: str) -> str:
 
 @traced_llm
 def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, reasoning_effort: Optional[str] = None,
-                images: Optional[List[str]] = None, json_schema: Optional[Dict[str, Any]] = None) -> str:
+                images: Optional[List[str]] = None, json_schema: Optional[Dict[str, Any]] = None,
+                timeout_s: float = 60.0) -> str:
     """OpenAI Python SDK wrapper for LLM calls (configured via environment variables).
 
     json_mode asks the provider for a syntactically valid JSON object (use for stages whose output
@@ -202,7 +203,7 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
         "model": model_name,
         "messages": [{"role": "user", "content": _message_content(prompt, images)}],
         "temperature": 0.2,
-        "timeout": 60.0,
+        "timeout": timeout_s,
         **({"response_format": {"type": "json_schema", "json_schema": {"name": stage, "schema": json_schema}}}
            if json_schema else {"response_format": {"type": "json_object"}} if json_mode else {}),
     }

@@ -252,6 +252,27 @@ def test_a_repair_refused_twice_is_reported_and_never_tried_a_third_time(tmp_pat
     assert result["not_repaired"] == ["pale heading: the edit must hold only class names"]
 
 
+def test_a_corrected_repair_answers_its_problem_however_the_reviewer_words_it(tmp_path):
+    """Verify a problem repaired on the retry is not also reported as left on the page.
+
+    id: TST-VR-RETRY-004
+    Given: Two refused repairs, and a second answer that describes both problems in other words: one with a repair
+           that applies, one refused again
+    When: The page is reviewed
+    Then: The repaired problem is not listed as not repaired; the other is listed once, under its new wording
+    """
+    first = {"problems": [
+        {"problem": "pale heading", "file": "src/views/View.tsx", "find": _CONDITION, "replace": "active ? 'bg-slate-900' : 'bg-white'"},
+        {"problem": "grey button", "file": "src/views/View.tsx", "find": _CONDITION, "replace": "x ? 'a' : 'b'"}]}
+    second = {"problems": [
+        {"problem": "the heading is hard to read", "file": "src/views/View.tsx", "find": "bg-white", "replace": "bg-slate-900"},
+        {"problem": "the button looks disabled", "file": "src/views/View.tsx", "find": _CONDITION, "replace": "x ? 'a' : 'b'"}]}
+    view, result = _review(tmp_path, first, retry_answer=second)
+
+    assert result["verdict"] == "repaired" and "'bg-slate-900'" in view.read_text(encoding="utf-8")
+    assert result["not_repaired"] == ["the button looks disabled: the edit must hold only class names"]
+
+
 def test_no_second_call_when_no_repair_was_refused(tmp_path):
     """Verify the retry is only ever an answer to a refusal.
 
