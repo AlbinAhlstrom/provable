@@ -83,7 +83,12 @@ def implement_actions(
 ) -> ActionBehaviour:
     """Runs one TDD loop per aggregate that has actions, then compares the code with the manifest."""
     if run_spec is None:
-        from service_layer.tdd_machine import execute_spec_tdd_loop as run_spec
+        # The batch loop with one spec: the same gates as the single loop, and a test that no code answer could
+        # meet goes back to its writer once (a test with a slip in it must not cost the build its whole domain)
+        from service_layer import tdd_batch
+
+        def run_spec(spec: BusinessSpec, workspace_dir: str, action_manifest: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+            return tdd_batch.execute_specs_together([spec], workspace_dir, action_manifest=action_manifest)[spec.spec_id]
 
     by_aggregate: Dict[str, List[Dict[str, Any]]] = {}
     for action in (manifest or {}).get("actions") or []:

@@ -212,3 +212,26 @@ def test_the_page_writer_is_given_the_field_values_too():
     from onboarding.action_protocol import format_action_protocol
     text = format_action_protocol(WORDS)
     assert '"held"' in text and '"confirmed"' in text and "SlotTakenError" not in text
+
+
+def test_the_actions_spec_goes_through_the_loop_that_can_reconsider_a_test(tmp_path, monkeypatch):
+    """Verify the actions' spec is executed by the batch, whose test writer may correct a test no code could meet.
+
+    id: TST-ACTB-RECONSIDER
+    Given: No executor injected (a kickstart), and a batch executor that records what it is given (the actions'
+           test once read a field under a misspelt name; two code answers could not satisfy it, the stage failed,
+           and the build had no domain at all)
+    When: The actions are implemented
+    Then: Each aggregate's spec was executed through the batch, on its own, with the manifest
+    """
+    from service_layer import tdd_batch
+    seen = []
+
+    def together(specs, workspace_dir, action_manifest=None, on_result=None):
+        seen.append(([s.spec_id for s in specs], action_manifest is MANIFEST))
+        return {s.spec_id: {"success": True, "status": "FULFILLED", "attempts": []} for s in specs}
+
+    monkeypatch.setattr(tdd_batch, "execute_specs_together", together)
+    result = implement_actions(MANIFEST, _workspace(tmp_path))
+    assert seen == [(["SPEC-ACT-APPOINTMENT"], True), (["SPEC-ACT-STYLIST"], True)]
+    assert [r["status"] for r in result.runs] == ["FULFILLED", "FULFILLED"]
