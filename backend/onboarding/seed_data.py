@@ -51,7 +51,7 @@ print(json.dumps(errors))
 def _entity_block(structure: DomainStructureSchema) -> str:
     lines = []
     for ent in structure.shown_entities():
-        attrs = ", ".join(f"{a.name}: {a.type}{'' if a.required else ' (optional)'}" for a in ent.attributes)
+        attrs = ", ".join(f"{a.describe()}{'' if a.required else ' (optional)'}" for a in ent.attributes)
         lines.append(f"- **{ent.name}**: [{attrs}]")
     return "\n".join(lines)
 

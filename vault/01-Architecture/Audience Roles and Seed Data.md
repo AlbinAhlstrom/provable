@@ -60,3 +60,17 @@ stage writes the real page. When that page is written, the scaffold it no longer
 (`app_inventory.remove_unreachable`). A later presentation spec changes the aggregate's own view when the page renders
 it, otherwise the rendered view that loads the aggregate's records (`presentation_specs.target_view`); a view the page
 does not render is never edited.
+
+## Parts live inside their owner
+
+An entity that only exists inside one aggregate root (a board's squares, an order's lines) is marked by the
+decomposition as not an aggregate root, related to that root. `backend/onboarding/owned_parts.py` turns it into a list
+attribute on its owner (`AttributeSpec.item_name`, `item_attributes`) and removes it from the stored entities: it gets
+no module, repository, router or client of its own, and specs that targeted it target its owner. The owner's class
+holds the parts as plain records and documents what one holds, so the methods and rules written for the owner can read
+and change them (a game can look at its board). Stored as a separate collection, the owner's behaviour could not see
+them. Only a part with exactly one owning root is embedded.
+
+The generated response schemas allow extra fields, so a field the domain class grows later (through a spec) is served
+by `GET` as well as by the action that set it.
+

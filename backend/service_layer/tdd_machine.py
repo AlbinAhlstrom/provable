@@ -294,6 +294,9 @@ def summarize_class_api(class_source: str, max_methods: int = 60) -> str:
     except (SyntaxError, StopIteration):
         return class_source[:2000]
     lines = [f"class {cls.name}:"]
+    described = ast.get_docstring(cls)
+    if described:  # what the class says about itself, e.g. what one item of a list of its parts holds
+        lines.append('    """' + described.replace("\n", "\n    ") + '"""')
     methods = 0
     for node in cls.body:
         if isinstance(node, ast.AnnAssign):

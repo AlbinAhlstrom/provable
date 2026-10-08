@@ -37,6 +37,15 @@ class AttributeSpec(BaseModel):
     type: str = "str"
     required: bool = True
     default_value: Optional[Any] = None
+    item_name: str = ""                                         # set when the attribute is a list of an owned part
+    item_attributes: List["AttributeSpec"] = Field(default_factory=list)  # what one item of that list holds
+
+    def describe(self) -> str:
+        """The attribute as prompts state it: `name: type`, and for a list of parts what one item holds."""
+        if not self.item_attributes:
+            return f"{self.name}: {self.type}"
+        item = ", ".join(f"{a.name}: {a.type}" for a in self.item_attributes)
+        return f"{self.name}: list of {self.item_name} {{{item}}}"
 
 
 class AudienceRole(str, Enum):
@@ -223,6 +232,10 @@ def decompose_pitch_into_structure_and_inbox(pitch: str, intent: "Optional[Produ
             clean_s, _ = verify_and_clean_spec_jargon(s)
             sanitized_specs.append(BusinessSpec(**clean_s))
         
+        # An entity that only exists inside another is stored inside its owner (onboarding/owned_parts.py)
+        from onboarding.owned_parts import embed_owned_parts
+        embed_owned_parts(structure, sanitized_specs)
+
         inbox = DomainBehaviorInboxSchema(
             domain_name=inbox_data.get("domain_name", structure.domain_name),
             specs=sanitized_specs

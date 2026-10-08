@@ -35,7 +35,7 @@ def plan_ux_blueprint(
 
     entity_summaries = []
     for ent in structure.entities:
-        attr_desc = ", ".join(f"{a.name}: {a.type}" for a in ent.attributes)
+        attr_desc = ", ".join(a.describe() for a in ent.attributes)
         role = f" ({ent.audience_role.value.replace('_', ' ')})" if ent.audience_role.value != "internal" else ""
         entity_summaries.append(f"- **{ent.name}**{role}: [{attr_desc}]")
     entities_block = "\n".join(entity_summaries) if entity_summaries else f"- **{master_name}**: Primary Aggregate Root"

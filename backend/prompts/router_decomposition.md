@@ -15,6 +15,7 @@ CRITICAL DECOMPOSITION INSTRUCTIONS:
 - STRUCTURE:
   - Focus strictly on the primary 2 to 4 domain entities needed for the core user value loop, plus one entity for each kind of content the business publishes as a list.
   - Identify the primary Aggregate Roots (e.g. Order, Pallet, Booking).
+  - An entity that only exists inside one aggregate root (the squares of a game's board, the lines of an order, the moves of a match) has `is_aggregate_root` false and a "many_to_one" relationship to that root. It is stored inside its owner and read and changed through it, so everything the owner's rules must look at (positions, lines, history) is such a part of it. An entity that is created, listed or chosen on its own is an aggregate root.
   - Give every entity an `audience_role`, derived from the product intent's audience and goal:
     - "created_by_audience": records the audience itself brings into being by using the product (a visitor's inquiry or booking request, a customer's order, a player's game session). The product's primary interaction centres on these.
     - "shown_to_audience": content the business publishes for the audience to read (offerings with their rates, credentials, testimonials, menu items). The audience never creates these; they are authored by the business and shown to the audience.

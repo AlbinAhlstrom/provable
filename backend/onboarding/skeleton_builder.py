@@ -56,6 +56,29 @@ def _map_type(attr_type: str) -> str:
     return "str"
 
 
+PART_LIST = "List[Dict[str, Any]]"
+
+
+def _py_type(attr: Any) -> str:
+    """The Python type of an attribute: a list of an owned part is a list of plain records."""
+    return PART_LIST if getattr(attr, "item_attributes", None) else _map_type(attr.type)
+
+
+def _ts_type(py_type: str) -> str:
+    return {"int": "number", "float": "number", "bool": "boolean", "List[str]": "string[]",
+            "Dict[str, Any]": "Record<string, any>"}.get(py_type, "string")
+
+
+def _parts_doc(entity: EntitySpec) -> str:
+    """Docstring lines saying what one item of each part list holds (the class API shown to test and code writers)."""
+    lines = []
+    for attr in entity.attributes:
+        if getattr(attr, "item_attributes", None):
+            keys = ", ".join(f"{a.name} ({_map_type(a.type)})" for a in attr.item_attributes)
+            lines.append(f"    {attr.name}: the {attr.item_name} records this {entity.name} owns, one dict each with the keys {keys}.")
+    return ("\n\n" + "\n".join(lines) + "\n    ") if lines else ""
+
+
 def _format_default(default_val: Any, py_type: str) -> str:
     if default_val is None:
         return "None"
@@ -65,7 +88,7 @@ def _format_default(default_val: Any, py_type: str) -> str:
         return "True" if default_val else "False"
     if py_type in ("float", "int"):
         return str(default_val)
-    if py_type == "List[str]":
+    if py_type in ("List[str]", PART_LIST):
         return "field(default_factory=list)"
     if py_type == "Dict[str, Any]":
         return "field(default_factory=dict)"
@@ -84,7 +107,7 @@ def generate_domain_module(entity: EntitySpec) -> str:
     )
 
     for attr in sorted_attrs:
-        py_type = _map_type(attr.type)
+        py_type = _py_type(attr)
         if "List[" in py_type or "Dict[" in py_type:
             has_list_or_dict = True
         
@@ -133,6 +156,7 @@ except ImportError:
 
 @dataclass
 class {entity.name}:
+    """{entity.name}.{_parts_doc(entity)}"""
 {fields_code}
 
     def to_dict(self) -> Dict[str, Any]:
@@ -271,9 +295,9 @@ def generate_schemas_module(entities: List[EntitySpec], value_objects: List[Enti
             key=lambda a: 1 if (a.default_value is not None or not a.required) else 0
         )
         for attr in sorted_attrs:
-            py_type = _map_type(attr.type)
+            py_type = _py_type(attr)
             if attr.default_value is not None:
-                default_str = _format_default(attr.default_value, py_type)
+                default_str = _format_default(attr.default_value, py_type).replace("field(", "Field(")
                 fields.append(f"    {attr.name}: {py_type} = {default_str}")
             elif not attr.required:
                 fields.append(f"    {attr.name}: Optional[{py_type}] = None")
@@ -292,6 +316,7 @@ class {ent.name}CreateSchema(BaseModel):
 {create_fields_code}
 
 class {ent.name}ResponseSchema(BaseModel):
+    model_config = ConfigDict(extra="allow")  # fields the domain class grows later are served too
 {fields_code}
 ''')
 
@@ -301,7 +326,7 @@ class {ent.name}ResponseSchema(BaseModel):
 Pydantic DTO Schemas for FastAPI OpenAPI Contract Generation.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional, List, Dict, Any
 
 {blocks_code}
@@ -646,16 +671,11 @@ def _ts_interface_fields(entity: EntitySpec) -> List[str]:
     """TypeScript interface field lines for an entity's attributes."""
     lines = []
     for attr in entity.attributes:
-        py_t = _map_type(attr.type)
-        ts_t = "string"
-        if py_t in ("int", "float"):
-            ts_t = "number"
-        elif py_t == "bool":
-            ts_t = "boolean"
-        elif py_t == "List[str]":
-            ts_t = "string[]"
-        elif py_t == "Dict[str, Any]":
-            ts_t = "Record<string, any>"
+        if getattr(attr, "item_attributes", None):
+            item = "; ".join(f"{a.name}: {_ts_type(_map_type(a.type))}" for a in attr.item_attributes)
+            ts_t = f"Array<{{ {item} }}>"
+        else:
+            ts_t = _ts_type(_map_type(attr.type))
         optional_marker = "?" if (not attr.required or attr.default_value is not None) else ""
         lines.append(f"  {attr.name}{optional_marker}: {ts_t};")
     return lines
