@@ -66,7 +66,7 @@ def is_component_file(code: Optional[str]) -> bool:
 
 
 _ROLE_TEXT = {
-    "created_by_audience": "the master: the audience creates these records (use `create{n}`)",
+    "created_by_audience": "the audience creates and works with these records (use `create{n}`)",
     "shown_to_audience": "shown to the audience: read-only content the business publishes (render `list{n}()`)",
     "internal": "internal",
 }
@@ -78,8 +78,8 @@ def _clients_block(presented: List[Any], master_name: str) -> str:
     for ent in presented:
         n = _sanitize_name(ent.name)
         role = _ROLE_TEXT.get(getattr(ent.audience_role, "value", ent.audience_role), "internal").replace("{n}", n)
-        if n == master_name and getattr(ent.audience_role, "value", None) != "created_by_audience":
-            role = "the master"
+        if n == master_name:
+            role = "the master: " + role if getattr(ent.audience_role, "value", None) == "created_by_audience" else "the master"
         needed = [a.name for a in ent.attributes if a.required and a.default_value is None and a.name != "id"]
         create_note = (f" (the server assigns `id`; the data must carry: {', '.join(f'`{a}`' for a in needed)}, with a "
                        f"value the form works out itself for any the visitor does not enter)") if needed else " (the server assigns `id`)"
@@ -155,12 +155,18 @@ Answer with four blocks, each introduced by its marker alone on a line:
         with open(prompt_path, "r", encoding="utf-8") as f:
             prompt_template = f.read()
 
-    # The authoritative backend model is the master aggregate's dataclass (owned by the skeleton and the TDD loop)
-    domain_path = os.path.join(workspace_dir, "src", "domain", f"{master_slug}.py")
-    backend_state_model = ""
-    if os.path.exists(domain_path):
-        with open(domain_path, "r", encoding="utf-8") as f:
-            backend_state_model = f.read().strip()
+    # The authoritative backend model: the dataclass of the master and of every other entity the audience creates
+    # (owned by the skeleton and the TDD loop), read now so the page sees the fields and methods they really have
+    created = [_sanitize_name(e.name) for e in structure.entities
+               if getattr(e.audience_role, "value", None) == "created_by_audience" and _sanitize_name(e.name) != master_name]
+    class_sources = []
+    for class_name in [master_name] + created:
+        domain_path = os.path.join(workspace_dir, "src", "domain", f"{_to_snake_case(class_name)}.py")
+        if os.path.exists(domain_path):
+            with open(domain_path, "r", encoding="utf-8") as f:
+                source = f.read().strip()
+            class_sources.append(source[source.index("@dataclass"):] if class_sources and "@dataclass" in source else source)
+    backend_state_model = "\n\n\n".join(class_sources)
     if not backend_state_model:
         backend_state_model = f"# (domain module for {master_name} not written yet)"
 

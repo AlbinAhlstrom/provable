@@ -74,3 +74,11 @@ them. Only a part with exactly one owning root is embedded.
 The generated response schemas allow extra fields, so a field the domain class grows later (through a spec) is served
 by `GET` as well as by the action that set it.
 
+## The page reaches every entity its audience works with
+
+The interface is given a client for the master, for every other entity the audience creates and for everything shown
+to it (`DomainStructureSchema.presented_entities`). The users of an internal tool create customers, jobs and invoices
+alike; with a client for the master only, the page had no way to list or create the others. Each action in the
+protocol names the entity that owns it and that entity's client, and the presentation is shown the domain class of
+every created entity, so a job's action is sent to the job and not to the customer it belongs to.
+

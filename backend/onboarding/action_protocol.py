@@ -10,10 +10,15 @@ import re
 from typing import Any, Dict, Optional
 
 
-def _line(act: Dict[str, Any]) -> str:
+def _line(act: Dict[str, Any], with_client: bool = False) -> str:
     params = ", ".join(f"`{p}`" for p in act.get("params", [])) or "None"
     desc = f" — {act['description']}" if act.get("description") else ""
-    return f"- Action `{act.get('name', 'action')}`: params [{params}]{desc}"
+    owner = ""
+    if with_client and act.get("aggregate"):
+        from onboarding.skeleton_builder import to_snake_case
+        owner = (f" on `{act['aggregate']}` (`sendAction` of `src/api/{to_snake_case(str(act['aggregate']))}Client.ts`, "
+                 f"with the id of that {act['aggregate']})")
+    return f"- Action `{act.get('name', 'action')}`{owner}: params [{params}]{desc}"
 
 
 def format_action_protocol(manifest: Optional[Dict[str, Any]]) -> str:
@@ -21,7 +26,7 @@ def format_action_protocol(manifest: Optional[Dict[str, Any]]) -> str:
         return "- (No action protocol available: build the read-only views and the creation form only.)"
     ui = [a for a in manifest["actions"] if a.get("performed_by", "audience") != "other"]
     api_only = [a for a in manifest["actions"] if a.get("performed_by") == "other"]
-    lines = [_line(a) for a in ui] or ["- (No audience-facing actions.)"]
+    lines = [_line(a, with_client=True) for a in ui] or ["- (No audience-facing actions.)"]
     if api_only:
         lines.append("")
         lines.append("API-only actions (performed by someone other than this product's audience; render NO buttons, forms, "

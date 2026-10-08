@@ -19,13 +19,13 @@ Build only the views and controls this intent calls for. Never add surfaces it r
 
 ## Backend State Contract (Authoritative Single Source of Truth):
 The backend domain engine is running on `:8001` (accessible via Vite proxy `/api`).
-The state returned by `GET /api/{master_slug}s/{id}` and by actions directly serializes the backend domain dataclasses:
+The state returned by `GET /api/<plural>/{id}` and by actions directly serializes the backend domain dataclasses (the master first, then every other class the audience creates records of):
 ```python
 {backend_state_model}
 ```
 
 ## Authoritative Backend Action Protocol (CRITICAL CONTRACT - ZERO DRIFT):
-The backend FastAPI router `/api/{master_slug}s/{id}/action` handles domain commands.
+Every aggregate has its own action endpoint, `POST /api/<plural>/{id}/action`, reached through `sendAction` of that aggregate's client. An action is a method of one class: send it through the client of the entity it is listed on, with the id of a record of that entity (a job's action goes to the job, never to the customer it belongs to).
 Controls are built only for the actions listed above the "API-only" line (if any); for API-only actions render no controls and no mention. You MUST dispatch ONLY these recognized action types and exact parameter keys in your API client and React components:
 {action_protocol_block}
 
@@ -58,7 +58,7 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
 ---
 
 ## Technical Constraints & Invariants:
-1. **Single Source of Truth**: The React UI is a pure presentation projection of the backend state. It never simulates domain state mutations locally. All actions post to `/api/{master_slug}s/{id}/action` and update UI state from the returned response.
+1. **Single Source of Truth**: The React UI is a pure presentation projection of the backend state. It never simulates domain state mutations locally. Every action is posted through the client of the entity it is listed on, and the UI replaces that record with the state the response returns.
 2. **Zero Contract Drift (Action & Schema Alignment)**:
    - Your API client and interactive views MUST dispatch ONLY the canonical `action_type` strings or authorized aliases defined in the Action Protocol above. DO NOT invent arbitrary action names (e.g. if the protocol defines `"reveal"`, dispatch `"reveal"`, not `"primary_reveal"`).
    - Parameter keys in `params` MUST match the expected names in the Action Protocol (e.g. if the action expects `x` and `y`, pass `{ x, y }`).

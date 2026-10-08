@@ -90,9 +90,10 @@ class DomainStructureSchema(BaseModel):
         return [e for e in self.entities if e.audience_role == AudienceRole.SHOWN]
 
     def presented_entities(self) -> List[EntitySpec]:
-        """Entities the audience-facing interface talks to: the master and everything shown to the audience."""
+        """Entities the audience-facing interface talks to: the master, everything else the audience creates (a
+        tool's users work with customers, jobs and invoices alike) and everything shown to the audience."""
         master = self.master_entity()
-        return [e for e in self.entities if e is master or e.audience_role == AudienceRole.SHOWN]
+        return [e for e in self.entities if e is master or e.audience_role in (AudienceRole.SHOWN, AudienceRole.CREATED)]
 
 
 class BusinessSpec(BaseModel):
