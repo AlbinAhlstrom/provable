@@ -67,7 +67,7 @@ Built with React, TypeScript, Vite, and custom CSS styling across modular views:
 - **`onboarding/router_engine.py`**: Decomposes natural language pitches into `DomainStructureSchema` (Entities/Value Objects) and `DomainBehaviorInboxSchema` (Atomic BDD specs).
 - **`onboarding/skeleton_builder.py`**: Scaffolds pure DDD domain models, Abstract/Fake Repositories, Unit of Work, Pydantic DTOs, and FastAPI routers exporting `/openapi.json` from second zero.
 - **`onboarding/cst_isolator.py`**: Uses Meta `libcst` to extract and splice Aggregate Root classes with 100% preservation of comments, docstrings, formatting, and surrounding code.
-- **`service_layer/tdd_machine.py`**: Red-Gate TDD state machine with programmatic Pytest evaluation, tautology rejection (Exit 0 in RED), syntax/timeout rejection (Exit 2), SHA-256 5-line test integrity hash locking, and 3-strike dead-end rollback handling.
+- **`service_layer/tdd_machine.py`**: Red-Gate TDD state machine with programmatic Pytest evaluation, tautology rejection (Exit 0 in RED, unless the test fails against the hollowed class: then the rule is already satisfied), syntax/timeout rejection (Exit 2), SHA-256 5-line test integrity hash locking, and 3-strike dead-end rollback handling.
 - **`db/store.py`**: SQLite database wrapper (`provable.db`) managing relational data for requirements, test cases, projects, and kickstart states.
 
 ---

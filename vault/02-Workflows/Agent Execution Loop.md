@@ -48,6 +48,7 @@ sequenceDiagram
 - Executes Pytest with `--timeout=5` and `--json-report`.
 - **Programmatic Red-Gate Evaluation (`evaluate_red_gate_result`)**:
   - Exit Code 0 (Pass without code) $\rightarrow$ **REJECTED_TAUTOLOGY**.
+  - Before that verdict, the test is run once more against the class with every method emptied out (`service_layer/hollow_check.py`, on a temporary copy of the sources). If it fails there, it does test behaviour and the class already has it (the action stage writes the methods before the rule deck runs): the spec is `FULFILLED` with `already_satisfied`, no code is generated, and the test stays in `tests/unit` as the rule's regression guard. If it passes there too, it asserts nothing and is a tautology.
   - Exit Code 2 / SyntaxError / Timeout $\rightarrow$ **REJECTED_SYNTAX_OR_EXEC**.
   - Exit Code 1 with `AssertionError` $\rightarrow$ **APPROVED_RED**.
 

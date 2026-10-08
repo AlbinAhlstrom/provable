@@ -5,6 +5,7 @@ LibCST micro-context splicing, and automated dead-end git rollback handling.
 """
 
 from pipeline_trace import traced
+from service_layer.hollow_check import fails_without_behaviour
 import os
 import sys
 import re
@@ -544,6 +545,7 @@ class {target_class}:
     red_eval: Dict[str, Any] = {}
     red_attempts: List[Dict[str, Any]] = []
     domain_broken = False
+    already_satisfied = False
     test_code = ""
     for red_attempt in (1, 2):
         test_code = generate_red_test(spec, current_class, used_module, target_class,
@@ -561,6 +563,18 @@ class {target_class}:
         initial_test_hash = compute_test_file_hash(test_file_path)
         red_result = run_isolated_pytest(test_file_path, cwd=workspace_dir)
         red_eval = evaluate_red_gate_result(red_result["exit_code"], red_result.get("report"), red_result.get("stderr"))
+        if red_eval.get("status") == "REJECTED_TAUTOLOGY":
+            # A test that passes at once either asserts nothing, or tests a rule an earlier step already implemented
+            # (the action stage writes the methods first). Run against the class with its behaviour emptied out, the
+            # second kind fails (service_layer/hollow_check.py).
+            if fails_without_behaviour(test_file_path, workspace_dir, domain_file, target_class,
+                                       run=run_isolated_pytest, judge=evaluate_red_gate_result):
+                red_eval = {"status": "ALREADY_SATISFIED", "approved": True,
+                            "reason": "The class already enforces this rule: the test passes as it is and fails once "
+                                      "the class's methods do nothing. No code was needed."}
+                already_satisfied = True
+            else:
+                red_eval["reason"] += " It also passes when the class's methods do nothing, so it asserts no behaviour."
         red_attempts.append({"attempt": red_attempt, "approved": red_eval["approved"], "reason": red_eval.get("reason")})
         if red_eval["approved"]:
             break
@@ -582,6 +596,23 @@ class {target_class}:
             "error": red_attempts[-1]["reason"],
             "red_attempts": red_attempts,
             "test_source": test_code
+        }
+
+    if already_satisfied:
+        # Nothing to write: the test stays in tests/unit as the rule's regression guard
+        state.phase = "COMMITTED"
+        state.status = "FULFILLED"
+        return {
+            "success": True,
+            "status": "FULFILLED",
+            "phase": "COMMITTED",
+            "spec_id": spec.spec_id,
+            "test_file": test_file_path,
+            "red_eval": red_eval,
+            "red_attempts": red_attempts,
+            "test_source": test_code,
+            "attempts": [],
+            "already_satisfied": True
         }
 
     if domain_broken:
