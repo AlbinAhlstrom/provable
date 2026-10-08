@@ -18,6 +18,7 @@ Write as many records for each entity as this business would really have: one re
 - Use only the listed attribute names. Fill every required attribute.
 - `id` is a short unique lowercase string such as `infant-care`.
 - Numbers are JSON numbers; dates and times are ISO 8601 strings; booleans are JSON booleans.
+- Today is {today}. A date or time the audience acts on (an open shift, a bookable session, an upcoming event) falls within the next two weeks, spread over several days; a date that records history (when a credential was earned, when a review was written) lies before today.
 - Respect the rules above (for example a positive rate, or a valid status).
 {feedback_block}
 Respond STRICTLY with a JSON object, no commentary:

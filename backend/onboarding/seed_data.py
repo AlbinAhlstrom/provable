@@ -16,6 +16,7 @@ import os
 import subprocess
 import sys
 import time
+from datetime import date
 from typing import Any, Dict, List, Optional
 
 import agent_orchestrator
@@ -114,6 +115,7 @@ def synthesize_seed_data(
         prompt = agent_orchestrator.load_prompt("seed_data.md", {
             "pitch": pitch, "intent_block": intent_block(intent), "entities_block": _entity_block(structure),
             "rules_block": _rules_block(structure, inbox_specs), "feedback_block": feedback,
+            "today": date.today().isoformat(),
         })
         raw = agent_orchestrator.call_gemini(prompt, stage="seed_data", json_mode=True)
         if not raw or not raw.strip():

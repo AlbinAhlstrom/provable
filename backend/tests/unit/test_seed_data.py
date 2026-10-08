@@ -68,6 +68,21 @@ def test_valid_records_are_written_and_served_by_the_generated_api(workspace, mo
     assert [o["id"] for o in offerings] == ["infant-care", "after-school"] and inquiries == []
 
 
+def test_the_records_are_written_knowing_what_day_it_is(workspace, monkeypatch):
+    """Verify the model is told today's date, so a date the audience acts on (an open shift) is not in the past.
+
+    id: TST-SEED-TODAY
+    Given: A skeleton and a valid answer
+    When: Seed data is synthesized
+    Then: The prompt states today's date and asks for dates the audience acts on to be upcoming
+    """
+    from datetime import date
+    calls = _llm(monkeypatch, GOOD)
+    assert _run(workspace)["success"] is True
+    assert f"Today is {date.today().isoformat()}" in calls[0]
+    assert "the next two weeks" in calls[0]
+
+
 def test_a_rejected_record_is_fed_back_once_and_the_fix_is_accepted(workspace, monkeypatch):
     """Verify the one verdict-fed retry: the domain's rejection reaches the model, the corrected answer is written.
 

@@ -38,6 +38,8 @@ loader and clients key records by `id`; a model that named its identity `offerin
 collapse into one. Whoever creates a record does not know its id, so the generated create endpoint assigns one when
 none is sent, and the presentation prompt lists the fields a create must carry.
 
+The seed prompt states today's date: a date the audience acts on (an open shift, a bookable session) is written as upcoming, so a page that offers times has times to offer.
+
 ## Lists are entities, facts are attributes
 
 A page that wants three credential cards but is given one `certifications_summary` string writes the cards itself,
