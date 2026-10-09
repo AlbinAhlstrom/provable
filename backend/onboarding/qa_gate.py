@@ -30,6 +30,7 @@ def _verdict(passed: bool, verdict: str, attempts: int, report: Dict[str, Any], 
         "defects": list(report.get("defects") or []),
         "console_errors": list(report.get("console_errors") or []),
         "warnings": list(report.get("warnings") or []),  # reported, never a reason for rework
+        "reworked": [],
         **extra,
     }
 
@@ -47,21 +48,23 @@ def run_qa_gate(
         return _verdict(False, "audit_error", 0, {}, error=str(err))
 
     attempts = 0
+    reworked: List[str] = []  # what was sent to rework: later stages are told, so they do not undo what answered it
     while _has_defects(report):
         if attempts >= max_rework_attempts:
-            return _verdict(False, "defects_remain", attempts, report)
+            return _verdict(False, "defects_remain", attempts, report, reworked=reworked)
 
-        reworked = rework(
+        done = rework(
             list(report.get("defects") or []),
             list(report.get("console_errors") or []),
         )
-        if not reworked:
+        if not done:
             return _verdict(False, "rework_unavailable", attempts, report)
         attempts += 1
+        reworked.extend(report.get("defects") or [])
 
         try:
             report = audit()
         except Exception as err:
-            return _verdict(False, "audit_error", attempts, {}, error=str(err))
+            return _verdict(False, "audit_error", attempts, {}, error=str(err), reworked=reworked)
 
-    return _verdict(True, "passed", attempts, report)
+    return _verdict(True, "passed", attempts, report, reworked=reworked)

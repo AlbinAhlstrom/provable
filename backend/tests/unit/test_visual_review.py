@@ -322,3 +322,25 @@ def test_the_prompts_say_how_to_repair_classes_inside_a_condition_and_ask_for_co
     assert "inside a condition" in review and "one of its quoted strings" in review
     assert "stays the same wherever the thing is placed" in page and "readable on each" in page and "uFE0E" in page
     assert "Telling things apart" in review
+
+
+def test_the_reviewer_is_told_what_was_measured_and_repaired_before_it_looked(tmp_path):
+    """Verify the review does not undo a repair that answered a measured defect.
+
+    id: TST-VR-SETTLED
+    Given: A page whose unreadable text was repaired after QA measured it, and a page with nothing settled
+    When: Each is reviewed
+    Then: The first prompt quotes the settled defect and says what answers it stays; the second says nothing was settled
+    """
+    view, shots = _workspace(tmp_path)
+    prompts = []
+
+    def llm(prompt, **options):
+        prompts.append(prompt)
+        return json.dumps({"problems": []})
+
+    for settled in (["Unreadable text: drawn in #ffffff on a background of #fde68a"], []):
+        review_and_repair(workspace_dir=str(tmp_path), pitch="p", visual_direction="d", component_files=[str(view)],
+                          screenshots=shots, llm=llm, compile_check=lambda ws, code: (True, ""), settled=settled)
+    assert "drawn in #ffffff on a background of #fde68a" in prompts[0] and "stays as it is" in prompts[0]
+    assert "(nothing)" in prompts[1]

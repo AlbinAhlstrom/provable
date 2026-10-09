@@ -113,3 +113,16 @@ def test_warnings_reach_the_verdict_without_triggering_rework():
                           rework=lambda defects, errors: reworks.append(1) or True)
     assert verdict["passed"] is True and verdict["attempts"] == 0 and reworks == []
     assert verdict["warnings"] == ["clipped text"]
+
+
+def test_the_verdict_keeps_what_was_sent_to_rework():
+    """Verify later stages can know what was measured and repaired before they looked.
+
+    id: TST-QAGATE-REWORKED
+    Given: An audit with a defect that the rework repairs, and a clean audit
+    When: The gate runs on each
+    Then: The first verdict lists the defect as reworked although it no longer stands; the second lists nothing
+    """
+    verdict = run_qa_gate(_audit_sequence(BROKEN, CLEAN), lambda defects, errors: True)
+    assert verdict["defects"] == [] and verdict["reworked"] == ["overflow at 375px"]
+    assert run_qa_gate(_audit_sequence(CLEAN), lambda d, c: True)["reworked"] == []

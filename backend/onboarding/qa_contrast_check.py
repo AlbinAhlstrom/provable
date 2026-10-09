@@ -14,7 +14,7 @@ computes the contrast between the two (the ratio of their luminances, 1 for the 
 
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 from pipeline_trace import traced
 
@@ -81,6 +81,21 @@ def contrast_ratio(first: Sequence[float], second: Sequence[float]) -> float:
     return (lighter + 0.05) / (darker + 0.05)
 
 
+def _between(background: Sequence[float], texts: List[Sequence[float]]) -> Optional[List[int]]:
+    """The background's own hue, made darker or lighter until every one of `texts` reaches READABLE_FROM on it: the
+    nearest such tone to what the background is now. None when no tone carries them all. A writer cannot measure a
+    colour, so it is handed one."""
+    candidates = []
+    for step in range(0, 101):
+        for toward in (0, 255):
+            tone = [int(round(c + (toward - c) * step / 100)) for c in background[:3]]
+            if all(contrast_ratio(text, tone) >= READABLE_FROM for text in texts):
+                candidates.append((step, tone))
+        if candidates:
+            return min(candidates)[1]
+    return None
+
+
 def _hex(rgb: Sequence[float]) -> str:
     return "#" + "".join(f"{int(round(v)):02x}" for v in rgb[:3])
 
@@ -102,6 +117,9 @@ def verdict_from_samples(device: str, samples: List[Dict[str, Any]]) -> Contrast
         way_out = (f"The same background also carries text in {', '.join(_hex(c) for c in others)}, which it must keep "
                    f"readable, so the background has to become a tone between the two: clearly darker than its light "
                    f"text and clearly lighter than its dark text. " if others else "")
+        proposed = _between(pair[1], [pair[0]] + others) if others else None
+        if proposed:
+            way_out += f"All of that text can be read on this background made a middle tone, for example {_hex(proposed)}. "
         elsewhere = sorted({tuple(s["background"][:3]) for s in samples if tuple(s["color"][:3]) == pair[0]
                             and contrast_ratio(pair[0], s["background"]) >= READABLE_FROM})
         if elsewhere:

@@ -94,3 +94,23 @@ def test_text_readable_elsewhere_keeps_its_colour_and_the_background_changes():
     defect = cc.verdict_from_samples("Desktop", samples).defects[0]
     assert "reads well on #44403c" in defect and "keep the text one colour" in defect
     assert "reads well" not in cc.verdict_from_samples("Desktop", samples[:1]).defects[0]
+
+
+def test_the_defect_proposes_a_background_of_the_same_hue_that_both_texts_can_be_read_on():
+    """Verify the rework is handed a colour that works, since a writer cannot measure one.
+
+    id: TST-QA-CONTRAST-007
+    Given: A pale yellow background carrying near-white text (unreadable) and near-black text
+    When: The verdict is drawn
+    Then: The defect proposes a background; it is darker than the pale one, still more red than blue as the pale one
+          was, and both texts reach the asked contrast on it
+    """
+    light, dark, pale = [253, 252, 247], [28, 25, 23], [253, 230, 138]
+    defect = cc.verdict_from_samples("Desktop", [_sample("L", light, pale), _sample("D", dark, pale)]).defects[0]
+    proposed = defect.split("for example ")[1][:7]
+    rgb = [int(proposed[i:i + 2], 16) for i in (1, 3, 5)]
+    assert cc.contrast_ratio(light, rgb) >= 3 and cc.contrast_ratio(dark, rgb) >= 3
+    assert rgb[0] > rgb[2] and sum(rgb) < sum(pale)
+    assert "for example" not in cc.verdict_from_samples("Desktop", [_sample("a", [128, 128, 128], [130, 130, 130]),
+                                                                    _sample("b", [0, 0, 0], [130, 130, 130]),
+                                                                    _sample("c", [255, 255, 255], [130, 130, 130])]).defects[0]

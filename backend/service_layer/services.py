@@ -2322,7 +2322,8 @@ def kickstart_domain_and_scaffold(
                     workspace_dir=workspace_dir, pitch=pitch_text,
                     visual_direction=visual_direction(synthesis.ux_blueprint),
                     component_files=pres_res.get("files", []),
-                    screenshots=screenshots_from_audit(last_audit.get("report") or {}), audit=_audit)
+                    screenshots=screenshots_from_audit(last_audit.get("report") or {}), audit=_audit,
+                    settled=qa_verdict.get("reworked") or [])
                 for key in ("verdict", "problems", "edits", "not_repaired", "claims", "attempts"):
                     st.note(key, review[key])
                 # A problem the review saw and could not repair is still on the page: the build says so

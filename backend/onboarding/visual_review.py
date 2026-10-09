@@ -22,7 +22,7 @@ import os
 import re
 import time
 from dataclasses import asdict, dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, Sequence
 
 import agent_orchestrator
 from onboarding.seed_data import SEED_FILE
@@ -183,8 +183,12 @@ def review_and_repair(
     audit: Optional[Callable[[], Dict[str, Any]]] = None,
     llm: Optional[Callable[..., str]] = None,
     compile_check: Callable[[str, str], Tuple[bool, str]] = compile_tsx,
+    settled: Sequence[str] = (),
 ) -> Dict[str, Any]:
     """Looks at the page once and repairs what looks wrong with class changes.
+
+    `settled` are the defects QA measured and had repaired before this look; the reviewer is told, so that it does not
+    put back what was changed to answer them.
 
     `screenshots` maps a label ("desktop", "phone") to an image file. `audit` re-checks the page after a repair; a
     failed audit puts every file back. Returns {verdict, problems, edits, not_repaired, claims, error, attempts,
@@ -219,6 +223,7 @@ def review_and_repair(
             "pitch": pitch, "visual_direction": visual_direction or "(no direction was planned)",
             "screenshots": ", ".join(f"image {i + 1}: {label}" for i, label in enumerate(screenshots)),
             "sources": _sources_block(sources), "records": _records_block(workspace_dir), "max_problems": MAX_PROBLEMS,
+            "settled": "\n".join(f"- {defect}" for defect in settled) or "(nothing)",
         })
 
     raw = llm(review_prompt(originals), stage="visual_review", json_mode=True, images=images)

@@ -16,6 +16,12 @@ Everything the page may say about the business comes from these records (the bus
 
 {records}
 
+## What was measured and repaired before you looked
+These defects were measured on the page and repaired. What the page now has in their place stays as it is, also where
+it differs from the direction above: a repair of yours never brings one of them back.
+
+{settled}
+
 ---
 
 ## What to look for
