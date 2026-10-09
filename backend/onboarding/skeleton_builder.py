@@ -1060,6 +1060,8 @@ export const App: React.FC = () => {
           </nav>
         )}
       </header>
+      {/* The outline of the main view, drawn by theme.css once the plan has chosen its form */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6"><div className="draft-shape" aria-hidden="true" /></div>
       <main>{View && <View />}</main>
     </div>
   );

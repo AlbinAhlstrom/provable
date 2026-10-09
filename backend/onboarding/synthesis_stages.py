@@ -2,7 +2,7 @@
 
     spec_review      ─┐
     seed_data        ─┤
-    ux_plan          ─┼─ start together (the UX plan also gives the app on screen its colours)
+    ux_plan          ─┼─ start together (the UX plan also gives the app on screen its colours and outline)
     action_protocol  ─┘→ action_behaviour ─┬→ presentation (needs the action protocol, the domain and the UX plan)
                                            └→ behaviour_specs (the rule deck, alongside the presentation)
 
@@ -26,7 +26,7 @@ from typing import Any, Callable, Dict, List, Optional
 import pipeline_trace
 from onboarding.action_behaviour import ActionBehaviour
 from onboarding.app_inventory import remove_unreachable
-from onboarding.draft_theme import THEME_FILE, parse_draft_theme, write_draft_theme
+from onboarding.draft_theme import THEME_FILE, DraftTheme, parse_draft_layout, parse_draft_theme, write_draft_theme
 from onboarding.seed_data import SEED_FILE
 from onboarding.spec_runner import SpecRun
 from run_recorder import stage
@@ -61,13 +61,15 @@ def run_ux_plan_stage(ux: Callable[..., str], *, pitch: str, structure: Any, mas
         blueprint = ux(pitch=pitch, structure=structure, master_name=master_name, intent=intent,
                        inbox_specs=inbox_specs)
         handle.note("has_visual_direction", "### 6. Visual Direction" in (blueprint or ""))
-        # The app is on screen before its page is written: it takes the plan's colours now (draft_theme.py)
-        theme = parse_draft_theme(blueprint)
-        if theme is None:
-            handle.note("draft_theme", "the visual direction has no complete token line; the draft keeps its neutral colours")
-        else:
-            write_draft_theme(workspace_dir, theme)
-            handle.note("draft_theme", asdict(theme))
+        # The app is on screen before its page is written: it takes the plan's colours and the outline of its
+        # main view now (draft_theme.py)
+        theme, layout = parse_draft_theme(blueprint), parse_draft_layout(blueprint)
+        handle.note("draft_theme", asdict(theme) if theme else
+                    "the visual direction has no complete token line; the draft keeps its neutral colours")
+        handle.note("draft_layout", asdict(layout) if layout else
+                    "the visual direction has no complete layout line; the draft shows no outline of the main view")
+        if theme or layout:
+            write_draft_theme(workspace_dir, theme or DraftTheme(), layout)
         return blueprint
 
 

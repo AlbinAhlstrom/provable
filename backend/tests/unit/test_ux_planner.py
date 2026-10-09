@@ -155,3 +155,21 @@ def test_the_form_of_the_main_view_is_chosen_in_the_plan_built_to_it_and_judged_
 
     review = open(os.path.join(prompts, "visual_review.md"), encoding="utf-8").read()
     assert "**Form**" in review and "know by sight" in review
+
+
+def test_the_plan_restates_the_form_of_the_main_view_as_a_layout_line():
+    """Verify the plan is asked for the main view's form as numbers, so the app can show its outline before the page
+    is written.
+
+    id: TST-UX-LAYOUT
+    Given: The UX planning prompt
+    When: Its visual direction is read
+    Then: It asks for a LAYOUT line with columns and rows, for a fixed grid and for a view that grows with its
+          records, and the line it shows can be read back
+    """
+    from onboarding.draft_theme import parse_draft_layout
+    prompts = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "prompts"))
+    plan = open(os.path.join(prompts, "ux_planning.md"), encoding="utf-8").read()
+    direction = plan[plan.index("6. **Visual Direction"):plan.index("Respond STRICTLY")]
+    assert "`LAYOUT columns=" in direction and "rows=auto" in direction
+    assert parse_draft_layout(direction) is not None

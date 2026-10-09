@@ -297,6 +297,21 @@ def test_the_ux_plans_palette_is_written_as_the_drafts_theme(tmp_path):
     assert "--draft-bg: #faf7f2;" in (tmp_path / "src" / "theme.css").read_text(encoding="utf-8")
 
 
+def test_the_ux_plans_layout_is_drawn_in_the_draft_even_without_a_palette(tmp_path):
+    """Verify the app on screen shows the outline of its main view as soon as the plan states it.
+
+    id: TST-SYN-DRAFT-LAYOUT
+    Given: A skeleton's neutral theme file, and a UX plan that states a layout but no token line
+    When: The stages run
+    Then: The theme file draws the outline, in the neutral colours
+    """
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "theme.css").write_text(":root {}", encoding="utf-8")
+    _run(tmp_path, ux=lambda **kw: "### 6. Visual Direction\nwarm cream\nLAYOUT columns=7 rows=5")
+    css = (tmp_path / "src" / "theme.css").read_text(encoding="utf-8")
+    assert "aspect-ratio: 7 / 5;" in css and "--draft-bg:" in css
+
+
 def test_a_component_the_page_does_not_use_is_no_longer_reported_as_written(tmp_path, monkeypatch):
     """Verify later stages are only handed files that still exist.
 
