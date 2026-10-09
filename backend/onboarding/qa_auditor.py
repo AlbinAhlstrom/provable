@@ -17,6 +17,8 @@ Enforces Hard QA Invariants:
    (qa_contrast_check.py)
 6. The page agrees with its own types: when the audit is given the workspace, each error the TypeScript compiler
    reports is a defect (qa_type_check.py)
+7. Text is what was meant: on the desktop, an escape or entity the page shows letter by letter is a defect
+   (qa_text_check.py)
 """
 
 import pipeline_trace
@@ -32,6 +34,7 @@ from selenium.webdriver.chrome.options import Options
 
 from onboarding.qa_contrast_check import measure_contrast
 from onboarding.qa_form_check import exercise_forms
+from onboarding.qa_text_check import read_text
 from onboarding.qa_type_check import check_types
 
 DEVICE_MATRIX = [
@@ -53,7 +56,8 @@ DEVICE_MATRIX = [
         "is_mobile": False,
         "device_scale_factor": 1,
         "exercise_forms": True,  # once is enough: whether a submission is accepted does not depend on the screen
-        "measure_contrast": True  # once is enough: colours do not depend on the screen
+        "measure_contrast": True,  # once is enough: colours do not depend on the screen
+        "read_text": True  # once is enough: what the text says does not depend on the screen
     }
 ]
 
@@ -307,6 +311,15 @@ def run_responsive_qa_audit(
                     passed = False
                     device_defects.extend(contrast.defects)
                     defects.extend(contrast.defects)
+
+            if dev.get("read_text") and not metrics.get("hasCrashOverlay") and not metrics.get("isRootEmpty"):
+                text_check = read_text(driver, dev_name)
+                device_warnings.extend(text_check.warnings)
+                warnings.extend(text_check.warnings)
+                if text_check.defects:
+                    passed = False
+                    device_defects.extend(text_check.defects)
+                    defects.extend(text_check.defects)
 
             # Last, after the screenshots: submitting a form changes what the page shows
             form_check = None

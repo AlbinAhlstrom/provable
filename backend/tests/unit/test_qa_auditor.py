@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 from onboarding.qa_auditor import run_responsive_qa_audit, DEVICE_MATRIX
 from onboarding.qa_contrast_check import ContrastCheck
 from onboarding.qa_form_check import FormCheck
+from onboarding.qa_text_check import TextCheck
 from onboarding.qa_type_check import TypeCheck
 
 
@@ -30,6 +31,42 @@ def contrast_checks(monkeypatch):
 
     monkeypatch.setattr("onboarding.qa_auditor.measure_contrast", fake)
     return ran
+
+
+@pytest.fixture(autouse=True)
+def text_checks(monkeypatch):
+    """The text check has its own tests; here it is a double that records who ran it."""
+    ran = {"devices": [], "result": TextCheck()}
+
+    def fake(driver, device):
+        ran["devices"].append(device)
+        return ran["result"]
+
+    monkeypatch.setattr("onboarding.qa_auditor.read_text", fake)
+    return ran
+
+
+@patch("selenium.webdriver.Chrome")
+@pytest.mark.slow
+def test_qa_auditor_fails_a_page_that_shows_an_escape_as_letters(mock_chrome_cls, tmp_path, text_checks):
+    """Verify a page that fits every screen still fails the audit when it shows an escape letter by letter.
+
+    id: TST-QA-TEXT
+    Given: A page with clean layout metrics on which the text check finds an escape shown as letters
+    When: The audit runs
+    Then: The text is read once (on the desktop) and what it found is a defect that fails the audit
+    """
+    mock_driver = MagicMock()
+    mock_chrome_cls.return_value = mock_driver
+    mock_driver.execute_script.return_value = {"innerWidth": 375, "maxScrollWidth": 375, "hasHorizontalOverflow": False,
+                                               "overflowDelta": 0, "hasCrashOverlay": False}
+    text_checks["result"] = TextCheck(defects=["[Desktop] Escape shown as letters: 1 text(s) show the letters of x"])
+
+    report = run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=False, output_dir=str(tmp_path))
+
+    assert text_checks["devices"] == ["Desktop"]
+    assert report["passed"] is False
+    assert report["defects"] == ["[Desktop] Escape shown as letters: 1 text(s) show the letters of x"]
 
 
 @patch("selenium.webdriver.Chrome")
