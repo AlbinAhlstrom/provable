@@ -97,7 +97,8 @@ def test_file_blocks_carry_code_verbatim_and_malformed_answers_say_what_is_wrong
     id: TST-CLI-005
     Given: Block answers: one with awkward code, one fenced, and malformed ones
     When: They are parsed
-    Then: Code is verbatim (a fence around a block is unwrapped); a missing marker, an unknown or a repeated section raises
+    Then: Code is verbatim (a fence around a block is unwrapped); a missing marker, an unknown or a repeated section raises;
+          the answer ends at its end marker, and the prompt asks for that marker and types lists as their client does
     """
     import pytest
     from onboarding.presentation_projection_synthesizer import parse_file_blocks
@@ -106,6 +107,13 @@ def test_file_blocks_carry_code_verbatim_and_malformed_answers_say_what_is_wrong
     assert parse_file_blocks(one) == {"view_tsx": code, "app_tsx": "export const App = 1"}
     fenced = "<<<app_tsx>>>\n```tsx\nexport const App = 1\n```\n"
     assert parse_file_blocks(fenced) == {"app_tsx": "export const App = 1"}
+    closed = "<<<app_tsx>>>\nexport const App = 1\n<<<end>>>\nThat is the whole page.\n"
+    assert parse_file_blocks(closed) == {"app_tsx": "export const App = 1"}
+    import os
+    import agent_orchestrator
+    prompt = open(os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts",
+                               "presentation_projection_synthesis.md"), encoding="utf-8").read()
+    assert prompt.rstrip().endswith("<<<end>>>") and "Object.values" not in prompt
     for bad, fragment in (("just prose", "no <<<section>>> markers"), ("<<<nope>>>\nx", "unknown section"),
                           ("<<<app_tsx>>>\na\n<<<app_tsx>>>\nb", "appears twice")):
         with pytest.raises(ValueError, match=fragment):

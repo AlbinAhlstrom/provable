@@ -67,8 +67,7 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
 3. **Defensive Runtime Rendering & Collection Resilience**:
    - Use optional chaining for fields that may be absent.
    - What a client's `list...()` returns is already a typed array: use it as it is.
-   - A collection field inside a record follows the domain class and may arrive as an array or as a map, so normalize it before iterating:
-     `const itemsList = Array.isArray(data.items) ? data.items : Object.values(data.items || {});`
+   - A collection field inside a record is the typed array its client declares: read it as that type, with `?? []` where the field may be absent, so each item keeps its fields' types.
    - Never assume nested properties exist without optional chaining or fallbacks. Zero runtime `TypeError` crashes.
 4. **Anti-Monolith Invariant & Contextual Layout Orchestration**:
    - `App.tsx` must be STRICTLY under 100 lines of code. It orchestrates active state, top-level brand header, navigation views, and passes action dispatchers down.
@@ -107,7 +106,7 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
 ---
 
 Answer with the four complete files as four blocks, in this order. Each block starts with its marker alone on a line and
-continues until the next marker; write the code as plain source text (no JSON, no escaping, no commentary around the blocks).
+continues until the next marker; after the last file write the marker `<<<end>>>` alone on a line; write the code as plain source text (no JSON, no escaping, no commentary around the blocks).
 Write a marker only for a file you actually write: when the audience has no actions or no history to use, leave the
 controls or history marker out of the answer altogether.
 
@@ -119,3 +118,4 @@ controls or history marker out of the answer altogether.
 (only when needed: complete React TSX code for src/components/History/{master_name}History.tsx)
 <<<app_tsx>>>
 (complete React TSX code for src/App.tsx under 100 lines)
+<<<end>>>
