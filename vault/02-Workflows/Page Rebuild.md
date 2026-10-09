@@ -1,7 +1,8 @@
 # Page Rebuild
 
 Writes a generated app's page again, against the domain it already has. Use it when a change only alters how pages are
-planned, written, audited or reviewed: it costs about a tenth of a kickstart in tokens and about a quarter of its time.
+planned, written, audited or reviewed: it costs about a tenth of a kickstart in tokens and about a quarter of its time
+(measured on one app: 4 model calls and 57k tokens in 105 s, against 42 calls and 532k tokens in 430 s for its kickstart).
 
 ```
 kickstart      pitch -> decomposition -> skeleton -> actions -> rules -> UX plan -> page -> QA -> visual review
