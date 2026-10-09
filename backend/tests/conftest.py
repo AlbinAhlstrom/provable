@@ -57,6 +57,14 @@ def mock_external_network_gateways(monkeypatch, request):
 
 
 @pytest.fixture(autouse=True)
+def no_provider_from_the_developers_env(monkeypatch, request):
+    """The developer's .env names the provider their live runs use (LLM_PROVIDER); a test names its own."""
+    if "boss_fight" in request.keywords and os.environ.get("RUN_BOSS_FIGHTS"):
+        return
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+
+
+@pytest.fixture(autouse=True)
 def isolate_test_workspace(monkeypatch, tmp_path_factory, request):
     """
     Hermetic Workspace Isolation Fixture:

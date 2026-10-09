@@ -119,7 +119,7 @@ def audit_visual_presentation(url: str = "http://localhost:5174", pitch: str = "
                     ]
                 }
             ],
-            temperature=0.1
+            **({"temperature": 0.1} if connection.accepts_temperature else {})
         )
 
         content = response.choices[0].message.content or ""

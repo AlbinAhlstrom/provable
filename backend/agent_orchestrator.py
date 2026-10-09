@@ -202,7 +202,7 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
     request = {
         "model": model_name,
         "messages": [{"role": "user", "content": _message_content(prompt, images)}],
-        "temperature": 0.2,
+        **({"temperature": 0.2} if connection.accepts_temperature else {}),
         "timeout": timeout_s,
         **({"response_format": {"type": "json_schema", "json_schema": {"name": stage, "schema": json_schema}}}
            if json_schema else {"response_format": {"type": "json_object"}} if json_mode else {}),

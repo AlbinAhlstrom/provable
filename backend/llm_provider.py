@@ -16,11 +16,12 @@ class Provider:
     base_url: str
     model: str
     key_env: str
+    accepts_temperature: bool = True  # False when its models run only at their own fixed temperature
 
 
 PROVIDERS: Dict[str, Provider] = {
     "gemini": Provider("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-3.8-flash", "GEMINI_API_KEY"),
-    "openai": Provider("https://api.openai.com/v1", "gpt-6-luna", "OPENAI_API_KEY"),
+    "openai": Provider("https://api.openai.com/v1", "gpt-6-luna", "OPENAI_API_KEY", accepts_temperature=False),
 }
 
 
@@ -30,6 +31,7 @@ class Connection:
     api_key: str
     model: str
     key_hint: str  # which setting to fill when api_key is empty
+    accepts_temperature: bool = True
 
 
 def connection(stage: str = "general") -> Connection:
@@ -41,7 +43,7 @@ def connection(stage: str = "general") -> Connection:
             raise ValueError(f"LLM_PROVIDER={name!r} is not a known provider (known: {', '.join(sorted(PROVIDERS))}).")
         provider = PROVIDERS[name]
         return Connection(provider.base_url, os.environ.get(provider.key_env) or "", stage_model or provider.model,
-                          f"set {provider.key_env}")
+                          f"set {provider.key_env}", provider.accepts_temperature)
     default = PROVIDERS["gemini"]
     api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
     return Connection(os.environ.get("OPENAI_BASE_URL") or default.base_url, api_key or "",
