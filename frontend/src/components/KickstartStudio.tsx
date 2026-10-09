@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { AppPreview } from './AppPreview';
-import { BuildProgress, BuildProgressScreen, BuildProgressStrip } from './BuildProgressPanel';
+import { BuildProgress, BuildProgressBanner } from './BuildProgressPanel';
 import { StatusMessage, StudioMessage } from './StatusMessage';
 
 const PROGRESS_POLL_MS = 1500;       // while a build runs
@@ -41,7 +41,7 @@ export const KickstartStudio: React.FC = () => {
     checkState();
   }, []);
 
-  // Ask what the running build has delivered so far; the app is shown as soon as its page is written. A build this
+  // Ask what the running build has delivered so far. A build this
   // page did not start (it was reloaded, or the build came from elsewhere) is picked up the same way.
   useEffect(() => {
     const poll = async () => {
@@ -68,6 +68,12 @@ export const KickstartStudio: React.FC = () => {
     const timer = setInterval(poll, building ? PROGRESS_POLL_MS : IDLE_PROGRESS_POLL_MS);
     return () => clearInterval(timer);
   }, [building]);
+
+  // The live workspace is on screen from the start of a build; show what it has become each time the build
+  // delivers something to look at (the first draft, then the written page)
+  useEffect(() => {
+    if (progress?.draft_ready || progress?.page_ready) setReloadToken(t => t + 1);
+  }, [progress?.draft_ready, progress?.page_ready]);
 
   const triggerSynthesis = async () => {
     if (!pitch.trim()) return;
@@ -131,12 +137,7 @@ export const KickstartStudio: React.FC = () => {
     }
   };
 
-  // ── VIEW 0: A BUILD IS RUNNING AND THERE IS NO APP TO SHOW YET ─────────────────
-  if (building && !progress?.draft_ready) {
-    return <BuildProgressScreen progress={progress} />;
-  }
-
-  // ── VIEW 2: LIVE APP VIEW (ALSO WHILE THE BUILD CONTINUES BEHIND IT) ───────────
+  // ── VIEW 2: LIVE APP VIEW (FROM THE MOMENT A BUILD STARTS) ─────────────────────
   if (synthesized || building) {
     return (
       <AppPreview
@@ -144,7 +145,7 @@ export const KickstartStudio: React.FC = () => {
         resetting={resetting}
         message={message}
         reloadToken={reloadToken}
-        banner={building && progress ? <BuildProgressStrip progress={progress} /> : undefined}
+        banner={building ? <BuildProgressBanner progress={progress} /> : undefined}
       />
     );
   }

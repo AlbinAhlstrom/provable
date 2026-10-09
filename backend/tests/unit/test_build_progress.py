@@ -4,9 +4,13 @@ A kickstart answers only when everything is done, minutes after its page was wri
 knows about the running build (which stages are open, which delivered) is read out as a typed progress report: is the
 page there yet, how many rules are active, what is being worked on.
 """
+import json
+import os
 from dataclasses import asdict
 
-from onboarding.build_progress import BuildProgress, current_progress
+import pytest
+
+from onboarding.build_progress import STAGE_LABELS, BuildProgress, current_progress
 from onboarding.router_engine import BusinessSpec, SpecKind
 from onboarding.spec_runner import run_behaviour_specs
 from run_recorder import recorded_run, stage_begin
@@ -23,6 +27,19 @@ def test_nothing_is_reported_as_building_when_no_kickstart_runs():
     progress = current_progress()
     assert isinstance(progress, BuildProgress)
     assert progress.building is False and progress.stages == [] and progress.page_ready is False
+    assert progress.percent == 0.0
+
+
+def _started(progress):
+    return [(s.name, s.status) for s in progress.stages if s.status != "pending"]
+
+
+def _finished_build(root, durations):
+    """A recorded kickstart that went well, for the progress report to learn stage durations from."""
+    os.makedirs(os.path.join(root, "earlier-build"))
+    with open(os.path.join(root, "earlier-build", "summary.json"), "w", encoding="utf-8") as f:
+        json.dump({"kind": "kickstart", "status": "ok",
+                   "stages": [{"name": name, "status": "ok", "duration_s": seconds} for name, seconds in durations.items()]}, f)
 
 
 def test_a_running_kickstart_reports_its_stages_in_plain_words(tmp_path):
@@ -31,8 +48,8 @@ def test_a_running_kickstart_reports_its_stages_in_plain_words(tmp_path):
     id: TST-PROGRESS-002
     Given: A kickstart run whose skeleton stage is done and whose presentation stage is open
     When: The progress is asked for
-    Then: It is building; both stages are listed in order with their status and a label; the app can be shown as a
-          draft, and the page is not ready
+    Then: It is building; both stages carry their status and a label; the app can be shown as a draft, and the page
+          is not ready
     """
     with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)) as run:
         stage_begin("skeleton").ok()
@@ -40,7 +57,7 @@ def test_a_running_kickstart_reports_its_stages_in_plain_words(tmp_path):
         progress = current_progress()
 
     assert progress.building is True and progress.run_id == run.id
-    assert [(s.name, s.status) for s in progress.stages] == [("skeleton", "ok"), ("presentation", "running")]
+    assert _started(progress) == [("skeleton", "ok"), ("presentation", "running")]
     assert all(s.label and s.label != s.name for s in progress.stages)
     assert progress.draft_ready is True and progress.page_ready is False
 
@@ -61,7 +78,8 @@ def test_the_page_is_ready_once_the_presentation_stage_delivered(tmp_path):
         failed = current_progress()
 
     assert delivered.page_ready is True
-    assert failed.page_ready is False and failed.stages[0].error == "the answer has no App.tsx"
+    assert failed.page_ready is False
+    assert next(s for s in failed.stages if s.name == "presentation").error == "the answer has no App.tsx"
 
 
 def test_a_spec_execution_is_not_reported_as_a_build(tmp_path):
@@ -118,4 +136,102 @@ def test_progress_serialises_for_the_studio(tmp_path):
         data = current_progress().to_dict()
 
     assert data["building"] is True and data["page_ready"] is True and data["rules"] is None
-    assert data["stages"][0] == {"name": "presentation", "label": data["stages"][0]["label"], "status": "ok", "error": None}
+    page = next(s for s in data["stages"] if s["name"] == "presentation")
+    assert page == {"name": "presentation", "label": page["label"], "status": "ok", "error": None,
+                    "weight": page["weight"], "fraction": 1.0}
+    assert isinstance(data["percent"], float)
+
+
+def test_every_stage_of_the_build_is_listed_from_the_start(tmp_path):
+    """Verify the Studio knows the whole road ahead, not only the stages that have begun.
+
+    id: TST-PROGRESS-007
+    Given: A kickstart that has only read the idea so far
+    When: The progress is asked for
+    Then: Every stage of a build is listed in pipeline order; the ones not begun are pending
+    """
+    with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
+        stage_begin("intent").ok()
+        progress = current_progress()
+
+    assert [s.name for s in progress.stages] == list(STAGE_LABELS)
+    assert {s.status for s in progress.stages if s.name != "intent"} == {"pending"}
+
+
+def test_a_stage_the_pipeline_added_is_listed_after_the_known_ones(tmp_path):
+    """Verify a stage this module has no words for still shows up, so nothing the build does is hidden.
+
+    id: TST-PROGRESS-008
+    Given: A kickstart running a stage that has no label
+    When: The progress is asked for
+    Then: The stage is listed last, under its own name in readable form
+    """
+    with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
+        stage_begin("load_testing")
+        progress = current_progress()
+
+    assert (progress.stages[-1].name, progress.stages[-1].label, progress.stages[-1].status) == ("load_testing", "Load testing", "running")
+
+
+def test_the_bar_fills_by_each_stages_usual_share_of_a_build(tmp_path, monkeypatch):
+    """Verify a finished stage adds its usual share of the build's time to the total, whatever its position.
+
+    id: TST-PROGRESS-009
+    Given: An earlier build in which reading the idea took 10 seconds and writing the page 30, out of 40 in all
+    When: A new kickstart has read the idea, and then also written the page
+    Then: The total is 25 percent, then 100; the weights sum to one
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    _finished_build(str(tmp_path / "runs"), {name: 0.0 for name in STAGE_LABELS} | {"intent": 10.0, "presentation": 30.0})
+
+    with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
+        stage_begin("intent").ok()
+        early = current_progress()
+        stage_begin("presentation").ok()
+        late = current_progress()
+
+    assert early.percent == 25.0 and late.percent == 100.0
+    assert sum(s.weight for s in early.stages) == pytest.approx(1.0)
+    assert next(s for s in early.stages if s.name == "presentation").weight == pytest.approx(0.75)
+
+
+def test_a_running_stage_fills_by_the_time_it_has_spent(tmp_path, monkeypatch):
+    """Verify the bar moves inside a long stage instead of standing still until the stage ends.
+
+    id: TST-PROGRESS-010
+    Given: An earlier build in which writing the page, the only stage that took time, took 30 seconds
+    When: The page has been in the making for 15 seconds, and then for 90
+    Then: The stage is half done, then full and no more; the total follows
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    _finished_build(str(tmp_path / "runs"), {name: 0.0 for name in STAGE_LABELS} | {"presentation": 30.0})
+
+    with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)) as run:
+        stage_begin("presentation")
+        began = run.started + run.stages[0].record["t_offset_s"]
+        halfway = current_progress(now=began + 15.0)
+        overdue = current_progress(now=began + 90.0)
+
+    assert next(s for s in halfway.stages if s.name == "presentation").fraction == pytest.approx(0.5)
+    assert halfway.percent == 50.0
+    assert next(s for s in overdue.stages if s.name == "presentation").fraction == 1.0
+
+
+def test_without_earlier_builds_every_stage_is_an_equal_step(tmp_path, monkeypatch):
+    """Verify the bar works on a fresh install: equal steps, and a running stage adds nothing until it ends.
+
+    id: TST-PROGRESS-011
+    Given: No recorded builds
+    When: A kickstart has finished one stage and is running another
+    Then: Every stage weighs the same, and the total is one stage's share
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+
+    with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
+        stage_begin("intent").ok()
+        stage_begin("expansion")
+        progress = current_progress()
+
+    share = 1 / len(STAGE_LABELS)
+    assert all(s.weight == pytest.approx(share) for s in progress.stages)
+    assert progress.percent == pytest.approx(100 * share, abs=0.1)

@@ -10,14 +10,20 @@ module reads that out as a typed report.
   shown, first as the skeleton's draft (the records under plain names, in the plan's colours once decided).
 - `page_ready` turns true when the presentation stage delivered: the draft has been replaced by the written page.
 - `rules` is what the spec runner reports after every behaviour spec (`spec_runner.RuleProgress`).
+- `stages` lists every stage of a build from the start, the ones not begun as `pending`, each with a `weight`: its
+  usual share of a build's time (`stage_timing`, learned from the recorded builds). `fraction` is how far the stage
+  has come: all the way once it ended, and while it runs the time it has spent against the time it usually takes.
+  `percent` is the weighted sum: how far the whole build has come.
 - Only a kickstart is a build. A single spec execution changes an app that already exists.
 """
 
+import time
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import run_recorder
 from onboarding.spec_runner import RuleProgress
+from onboarding.stage_timing import average_durations, expected_durations, stage_weights
 
 # What each stage is doing, in the words of someone waiting for their app
 STAGE_LABELS = {
@@ -46,8 +52,10 @@ RULES_STAGE = "behaviour_specs"
 class StageProgress:
     name: str
     label: str
-    status: str                    # running | ok | failed | skipped
+    status: str                    # pending | running | ok | failed | skipped
     error: Optional[str] = None
+    weight: float = 0.0            # the stage's usual share of a build, 0..1; all stages sum to 1
+    fraction: float = 0.0          # how far the stage has come, 0..1
 
 
 @dataclass
@@ -59,27 +67,53 @@ class BuildProgress:
     page_ready: bool = False      # the page is written
     stages: List[StageProgress] = field(default_factory=list)
     rules: Optional[RuleProgress] = None
+    percent: float = 0.0          # how far the whole build has come, by the stages' weights
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
 
-def current_progress() -> BuildProgress:
-    """The running kickstart's progress, or an idle report when none runs."""
-    import time
+_averages: Tuple[str, Dict[str, float]] = ("", {})  # the recorded builds are read once per running build
 
+
+def _usual_durations(run: "run_recorder.Run") -> Dict[str, float]:
+    global _averages
+    if _averages[0] != run.dir:
+        _averages = (run.dir, average_durations())
+    return _averages[1]
+
+
+def _label(name: str) -> str:
+    return STAGE_LABELS.get(name) or name.replace("_", " ").capitalize()
+
+
+def current_progress(now: Optional[float] = None) -> BuildProgress:
+    """The running kickstart's progress, or an idle report when none runs."""
     run = run_recorder.current_run()
     if run is None or run.kind != "kickstart":
         return BuildProgress()
-    progress = BuildProgress(building=True, run_id=run.id, elapsed_s=round(time.time() - run.started, 1))
-    for handle in list(run.stages):  # stages open and close on the pipeline's threads while this reads
-        record = handle.record
-        progress.stages.append(StageProgress(name=record["name"], label=STAGE_LABELS.get(record["name"], record["name"].replace("_", " ").capitalize()),
-                                             status=record["status"], error=record.get("error")))
-        if record["name"] == DRAFT_STAGE and record["status"] == "ok":
-            progress.draft_ready = True
-        if record["name"] == PAGE_STAGE and record["status"] == "ok":
-            progress.page_ready = True
-        if record["name"] == RULES_STAGE and record["notes"].get("rules"):
-            progress.rules = RuleProgress(**record["notes"]["rules"])  # kept as plain data: notes go into the run's summary
+    now = time.time() if now is None else now
+    records = [handle.record for handle in list(run.stages)]  # stages open and close on the pipeline's threads while this reads
+    begun = {record["name"]: record for record in records}
+    names = list(STAGE_LABELS) + [name for name in begun if name not in STAGE_LABELS]
+    averages = _usual_durations(run)
+    weights, expected = stage_weights(names, averages), expected_durations(names, averages)
+
+    progress = BuildProgress(building=True, run_id=run.id, elapsed_s=round(now - run.started, 1))
+    for name in names:
+        record = begun.get(name)
+        stage = StageProgress(name=name, label=_label(name), status=record["status"] if record else "pending",
+                              error=record.get("error") if record else None, weight=weights[name])
+        if stage.status == "running":
+            spent = now - run.started - record["t_offset_s"]
+            stage.fraction = min(max(spent, 0.0) / expected[name], 1.0) if expected.get(name) else 0.0
+        elif stage.status != "pending":
+            stage.fraction = 1.0
+        progress.stages.append(stage)
+    progress.percent = round(100 * sum(stage.weight * stage.fraction for stage in progress.stages), 1)
+    progress.draft_ready = begun.get(DRAFT_STAGE, {}).get("status") == "ok"
+    progress.page_ready = begun.get(PAGE_STAGE, {}).get("status") == "ok"
+    rules = begun.get(RULES_STAGE, {}).get("notes", {}).get("rules")
+    if rules:
+        progress.rules = RuleProgress(**rules)  # kept as plain data: notes go into the run's summary
     return progress

@@ -8,7 +8,7 @@ import { SpecTree } from './specs/SpecTree';
 
 const DECK_POLL_MS = 4000;
 const TOAST_MS = 4000;
-const STACKED_LAYOUT = '(max-width: 768px)';  // keep in step with the media query in index.css
+export const STACKED_LAYOUT = '(max-width: 768px)';  // keep in step with the media query in index.css
 const DEFAULT_CHAPTER = 'General';
 
 export interface RequirementControlPanelProps {

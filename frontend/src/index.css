@@ -516,6 +516,62 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
 .kickstart-build { gap: 0.45rem; padding: 0.6rem 1.4rem; border-radius: 0.7rem; font-size: 1rem; font-weight: 600; }
 .kickstart-build svg { font-size: 1.15rem; }
 
+/* ── Build progress above the live workspace ───────────────────────────────── */
+
+.build-progress {
+  flex-shrink: 0;
+  margin-bottom: 0.6rem;
+  padding: 0.6rem 0.9rem 0.7rem;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+.build-progress-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1rem; }
+.build-progress-title { color: var(--text-primary); font-weight: 600; }
+.build-progress-figures { font-variant-numeric: tabular-nums; }
+.build-progress-now { flex: 1; min-width: 0; color: var(--text-primary); }
+.build-progress-failed { color: #fca5a5; }
+
+/* One segment per stage; its length (flex-grow) is the stage's usual share of a build */
+.build-bar { display: flex; gap: 2px; height: 0.5rem; margin-top: 0.55rem; }
+.build-bar-step {
+  flex: 0 1 0;
+  min-width: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.build-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  transition: width 1.5s linear;  /* one progress poll, so the bar moves evenly between two answers */
+}
+.build-bar-step-running .build-bar-fill { animation: build-pulse 1.6s ease-in-out infinite; }
+.build-bar-step-failed .build-bar-fill { background: var(--accent-danger); }
+.build-bar-step-skipped .build-bar-fill { background: rgba(255, 255, 255, 0.25); }
+@keyframes build-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+.build-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 0.2rem 1.25rem;
+  margin: 0.65rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.build-step { display: flex; align-items: baseline; gap: 0.4rem; color: var(--text-muted); }
+.build-step-ok, .build-step-skipped { color: var(--text-secondary); }
+.build-step-running { color: var(--text-primary); font-weight: 600; }
+.build-step-failed { color: #fca5a5; }
+.build-step-mark { display: inline-flex; flex-shrink: 0; align-self: center; justify-content: center; width: 1rem; font-size: 0.9rem; }
+.build-step-ok .build-step-mark { color: var(--accent-success); }
+.build-step-dot { width: 0.45rem; height: 0.45rem; border: 1px solid currentColor; border-radius: 50%; }
+.build-step-running .build-step-dot { background: var(--accent-primary); border-color: var(--accent-primary); animation: build-pulse 1.6s ease-in-out infinite; }
+.build-step-note { color: var(--text-secondary); font-weight: 400; }
+.build-step-error { display: block; font-size: 0.75rem; font-weight: 400; }
+
 /* ── Live workspace beside its specifications ──────────────────────────────── */
 
 .app-preview {
@@ -732,6 +788,8 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
   .modal-box { width: 95vw; padding: 1rem; }
   .kickstart { justify-content: flex-start; padding: 1.5rem 0 0; }
   .kickstart-hint { visibility: hidden; }
+  .build-progress-head { justify-content: space-between; }
+  .build-progress-now { flex-basis: 100%; order: 1; }  /* what is being worked on gets a line of its own */
 
   .app-preview-container { flex-direction: column; overflow-y: auto; }
   .preview-pane, .specs-pane { flex: none; }
