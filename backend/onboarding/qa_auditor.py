@@ -19,6 +19,8 @@ Enforces Hard QA Invariants:
    reports is a defect (qa_type_check.py)
 7. Text is what was meant: on the desktop, an escape or entity the page shows letter by letter is a defect
    (qa_text_check.py)
+8. Controls, fields and images have names: on the desktop, a button, field or picture a screen reader would announce
+   as nothing is a defect (qa_access_check.py)
 """
 
 import pipeline_trace
@@ -32,6 +34,7 @@ from typing import Callable, Dict, Any, List, Optional
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+from onboarding.qa_access_check import read_names
 from onboarding.qa_contrast_check import measure_contrast
 from onboarding.qa_form_check import exercise_forms
 from onboarding.qa_text_check import read_text
@@ -57,7 +60,8 @@ DEVICE_MATRIX = [
         "device_scale_factor": 1,
         "exercise_forms": True,  # once is enough: whether a submission is accepted does not depend on the screen
         "measure_contrast": True,  # once is enough: colours do not depend on the screen
-        "read_text": True  # once is enough: what the text says does not depend on the screen
+        "read_text": True,  # once is enough: what the text says does not depend on the screen
+        "read_names": True  # once is enough: the names of the elements do not depend on the screen
     }
 ]
 
@@ -320,6 +324,15 @@ def run_responsive_qa_audit(
                     passed = False
                     device_defects.extend(text_check.defects)
                     defects.extend(text_check.defects)
+
+            if dev.get("read_names") and not metrics.get("hasCrashOverlay") and not metrics.get("isRootEmpty"):
+                access_check = read_names(driver, dev_name)
+                device_warnings.extend(access_check.warnings)
+                warnings.extend(access_check.warnings)
+                if access_check.defects:
+                    passed = False
+                    device_defects.extend(access_check.defects)
+                    defects.extend(access_check.defects)
 
             # Last, after the screenshots: submitting a form changes what the page shows
             form_check = None

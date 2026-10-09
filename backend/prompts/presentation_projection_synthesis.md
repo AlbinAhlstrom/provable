@@ -53,7 +53,7 @@ Entities marked "shown to the audience" hold content the business publishes (off
 
 ## Forms that create records
 A form reports success only after its `create...` call resolves, and shows the server's message when it fails. It never reports success on its own.
-Each label is bound to its control (`htmlFor` and `id`), and the control matches the field's type (a field that holds a date and a time gets a date-and-time picker). The payload holds what the visitor entered: an optional field left empty is left out of it.
+Each label is bound to its control (`htmlFor` and `id`; a placeholder is not a label), and the control matches the field's type (a field that holds a date and a time gets a date-and-time picker). The payload holds what the visitor entered: an optional field left empty is left out of it.
 
 ---
 
@@ -91,6 +91,7 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
    - When the domain involves multiple perspectives (e.g. public client vs service operator), provide natural navigation affordances for each role.
    - Use standard React hooks (`useState`, `useEffect`), Tailwind CSS classes, and optionally icons from `lucide-react`.
    - Lay out with Tailwind classes. Where a layout depends on a computed value (a grid of N columns), set that value with an inline style (e.g. `style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, 1fr)` }}`).
+   - Every control and picture has a name a screen reader can announce: a button or link that shows only an icon carries an `aria-label`, and an `<img>` carries an `alt` that says what it shows (`alt=""` when it is only decoration).
 6. **Resilience & Non-Blank Initial State**:
    - Handle loading states, API errors, and domain violation messages gracefully.
    - While records load show a loading indicator; if loading fails show the error message.

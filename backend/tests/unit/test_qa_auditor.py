@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from onboarding.qa_auditor import run_responsive_qa_audit, DEVICE_MATRIX
+from onboarding.qa_access_check import AccessCheck
 from onboarding.qa_contrast_check import ContrastCheck
 from onboarding.qa_form_check import FormCheck
 from onboarding.qa_text_check import TextCheck
@@ -44,6 +45,42 @@ def text_checks(monkeypatch):
 
     monkeypatch.setattr("onboarding.qa_auditor.read_text", fake)
     return ran
+
+
+@pytest.fixture(autouse=True)
+def access_checks(monkeypatch):
+    """The access check has its own tests; here it is a double that records who ran it."""
+    ran = {"devices": [], "result": AccessCheck()}
+
+    def fake(driver, device):
+        ran["devices"].append(device)
+        return ran["result"]
+
+    monkeypatch.setattr("onboarding.qa_auditor.read_names", fake)
+    return ran
+
+
+@patch("selenium.webdriver.Chrome")
+@pytest.mark.slow
+def test_qa_auditor_fails_a_page_with_nameless_elements(mock_chrome_cls, tmp_path, access_checks):
+    """Verify a page that fits every screen still fails the audit when a screen reader would announce nothing.
+
+    id: TST-QA-ACCESS
+    Given: A page with clean layout metrics on which the access check finds a nameless button
+    When: The audit runs
+    Then: The names are read once (on the desktop) and what was found is a defect that fails the audit
+    """
+    mock_driver = MagicMock()
+    mock_chrome_cls.return_value = mock_driver
+    mock_driver.execute_script.return_value = {"innerWidth": 375, "maxScrollWidth": 375, "hasHorizontalOverflow": False,
+                                               "overflowDelta": 0, "hasCrashOverlay": False}
+    access_checks["result"] = AccessCheck(defects=["[Desktop] Nameless element: 1 button(s) or link(s)"])
+
+    report = run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=False, output_dir=str(tmp_path))
+
+    assert access_checks["devices"] == ["Desktop"]
+    assert report["passed"] is False
+    assert report["defects"] == ["[Desktop] Nameless element: 1 button(s) or link(s)"]
 
 
 @patch("selenium.webdriver.Chrome")
