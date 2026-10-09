@@ -30,17 +30,26 @@ def _compiles(workspace_dir, code):
 
 
 def _answer(*fixes):
-    return json.dumps({"fixes": [{"path": p, "code": c} for p, c in fixes]})
+    return "".join(f"<<<{p}>>>\n{c}\n" for p, c in fixes) + "<<<end>>>\n"
 
 
-def test_contract_parses_a_json_answer():
-    repair = PresentationRepair.from_response(_answer(("src/App.tsx", "x")))
-    assert repair.fixes == [FileFix(path="src/App.tsx", code="x")]
+def test_contract_parses_file_blocks_carrying_code_verbatim():
+    """Verify the rework answers in plain source, as the page writer does.
+
+    id: TST-HEAL-BLOCKS
+    Given: An answer of two file blocks with quotes, braces and backslashes in the code, closed by the end marker
+    When: It is parsed
+    Then: Each file's code is exactly what was written between its marker and the next; text after the end is dropped
+    """
+    code = 'const s = "q\\"uote"; export const App = () => <div style={{ a: 1 }} />;'
+    repair = PresentationRepair.from_response(_answer(("src/App.tsx", code), ("src/views/BoardView.tsx", "x")) + "Done.")
+    assert repair.fixes == [FileFix(path="src/App.tsx", code=code), FileFix(path="src/views/BoardView.tsx", code="x")]
 
 
 def test_contract_rejects_malformed_answer():
-    with pytest.raises(ValueError):
-        PresentationRepair.from_response(json.dumps({"fixes": [{"path": "src/App.tsx"}]}))
+    for bad in ("just prose", "<<<src/App.tsx>>>\n\n<<<end>>>"):
+        with pytest.raises(ValueError):
+            PresentationRepair.from_response(bad)
 
 
 def test_layout_defect_without_file_repairs_the_file_the_model_names(workspace, monkeypatch):
@@ -54,7 +63,8 @@ def test_layout_defect_without_file_repairs_the_file_the_model_names(workspace, 
     healed = self_heal_presentation_suite(str(workspace), "pitch", ["horizontal overflow at 375px"], [],
                                           component_files=_components(workspace), compile_check=_compiles)
     assert healed is True
-    assert seen["stage"] == "self_healing" and seen["json_mode"] is True
+    assert seen["stage"] == "self_healing" and seen["json_mode"] is False
+    assert "<<<end>>>" in seen["prompt"]
     assert "BOARD" in seen["prompt"] and "APP" in seen["prompt"]  # the model sees every component
     assert (workspace / "src/views/BoardView.tsx").read_text().strip() == "FIXED"
     assert (workspace / "frontend/src/views/BoardView.tsx").read_text().strip() == "FIXED"  # mirrored
@@ -71,7 +81,7 @@ def test_paths_outside_the_generated_components_are_refused(workspace, monkeypat
 
 def test_unparseable_answer_fails_without_retry(workspace, monkeypatch):
     calls = []
-    monkeypatch.setattr(code_verifier, "call_gemini", lambda *a, **k: calls.append(1) or "not json")
+    monkeypatch.setattr(code_verifier, "call_gemini", lambda *a, **k: calls.append(1) or "no blocks here")
     assert self_heal_presentation_suite(str(workspace), "p", ["d"], [], component_files=_components(workspace), compile_check=_compiles) is False
     assert len(calls) == 1
 

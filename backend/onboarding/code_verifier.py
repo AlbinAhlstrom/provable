@@ -85,6 +85,9 @@ def self_heal_tsx_code(code: str, error_msg: str, pitch: str) -> str:
     return code
 
 
+_FILE_MARKER = re.compile(r"^<<<([^<>\n]+)>>>[ \t]*$", re.MULTILINE)
+
+
 @dataclass(frozen=True)
 class FileFix:
     """One repaired component: its path relative to the workspace (e.g. src/App.tsx) and its full new source."""
@@ -99,15 +102,19 @@ class PresentationRepair:
 
     @classmethod
     def from_response(cls, raw: str) -> "PresentationRepair":
-        payload = agent_orchestrator.extract_json_object(raw)
-        entries = payload.get("fixes")
-        if not isinstance(entries, list):
-            raise ValueError("answer has no 'fixes' list")
+        """Reads `<<<src/...>>>` file blocks closed by `<<<end>>>`: plain source, as the page writer answers. A whole
+        file escaped into a JSON string proved fragile (one lost escape and the file no longer compiles)."""
+        marks = list(_FILE_MARKER.finditer(raw or ""))
+        if not marks:
+            raise ValueError(f"no <<<file>>> markers in the answer; it began: {(raw or '')[:200]!r}")
         fixes = []
-        for entry in entries:
-            path, code = (entry.get("path"), entry.get("code")) if isinstance(entry, dict) else (None, None)
-            if not isinstance(path, str) or not isinstance(code, str) or not code.strip():
-                raise ValueError(f"malformed fix entry: {entry!r}")
+        for mark, following in zip(marks, marks[1:] + [None]):
+            path = mark.group(1).strip()
+            if path == "end":
+                break
+            code = raw[mark.end():following.start() if following else len(raw)].strip()
+            if not code:
+                raise ValueError(f"the block for {path} is empty")
             fixes.append(FileFix(path=path, code=code))
         return cls(fixes=fixes)
 
@@ -191,10 +198,16 @@ Task:
 3. Keep user-facing copy natural and persona-focused (no internal compiler terms like Invariant, Audit Ledger, Boundary Guards).
 4. Change only the files that need it.
 
-Return ONLY a JSON object: {{"fixes": [{{"path": "<one of the FILE paths above>", "code": "<the complete corrected file>"}}]}}
+Answer with one block for each file you change: its marker alone on a line, `<<<` + one of the FILE paths above + `>>>`,
+then the complete corrected file as plain source text (no JSON, no escaping, no fences, no commentary). After the last
+file write the marker `<<<end>>>` alone on a line. For example:
+
+<<<src/App.tsx>>>
+(the complete corrected file)
+<<<end>>>
 """
     try:
-        raw = call_gemini(prompt, stage="self_healing", json_mode=True)
+        raw = call_gemini(prompt, stage="self_healing", json_mode=False)
         repair = PresentationRepair.from_response(raw)
     except Exception as e:
         print(f"⚠️ [self_heal_presentation_suite] Self-healing failed: {e} ({agent_orchestrator.LAST_LLM_ERROR or 'no provider error'})", flush=True)
