@@ -5,6 +5,7 @@ by uncovering the intuitive human interaction, primary canvas, and domain invari
 Strictly domain-agnostic: zero hardcoded domain keywords or rules.
 """
 
+from pipeline_trace import traced
 from typing import Optional
 import agent_orchestrator
 from onboarding.intent import ProductIntent, intent_block
@@ -14,6 +15,7 @@ class ExpansionError(RuntimeError):
     """The pitch could not be expanded (provider error or unusable answer). Never papered over with the raw pitch."""
 
 
+@traced("coo.expand_pitch")
 def expand_pitch_into_interactive_specification(pitch: str, intent: Optional[ProductIntent] = None) -> str:
     """
     Expands a concise pitch into an explicit Full-Stack Engineering Specification.

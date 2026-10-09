@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
-scripts/agent_preflight_check.py — Mandatory Systematic Safeguard & Agent Pre-Flight Verification.
+scripts/agent_preflight_check.py — Optional offline sanity check (build, tests, purity lint, cold boot, UI screenshot).
 
-Executes 6 critical verification phases before any task handover:
+Run it after UI changes (Phase 6 produces logs/latest_ui_render.png) or when asked. It never calls an LLM, so it
+says nothing about whether the generation pipeline works; that needs a real run (see CLAUDE.md).
+
+Executes 6 verification phases:
 1. Frontend Compilation Check: Runs npm run build in frontend/ (Asserts 0 TypeScript/Vite errors).
 2. Full Backend Pytest Suite: Runs python -m pytest backend/tests/ (Asserts 100% test pass across unit, integration, and e2e).
 3. Anti-Regression & Domain Purity Lint:
@@ -309,7 +312,7 @@ def main():
     check_visual_render()
 
     print("=" * 65, flush=True)
-    print("✨ ALL PRE-FLIGHT CHECKS PASSED: SYSTEM IS 100% HEALTHY & VERIFIED.", flush=True)
+    print("✨ ALL OFFLINE PRE-FLIGHT CHECKS PASSED (no live pipeline run was performed).", flush=True)
     print("=" * 65, flush=True)
     sys.exit(0)
 

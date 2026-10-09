@@ -86,7 +86,7 @@ def test_loop_passes_the_existing_tests_to_both_generators(monkeypatch, tmp_path
         got["red"] = existing_tests
         return "import pytest\n\ndef test_a():\n    assert 1 == 2\n"
 
-    def synth(extracted_class, target_class_name, spec, failure_output="", test_source="", module_imports="", existing_tests=""):
+    def synth(extracted_class, target_class_name, spec, failure_output="", test_source="", module_imports="", existing_tests="", **_ignored):
         got["green"] = existing_tests
         return "@dataclass\nclass ClientInquiry:\n    id: str = ''\n"
 

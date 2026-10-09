@@ -38,6 +38,22 @@ def kickstart_endpoint(req: KickstartRequest):
 
 
 
+@router.post("/page")
+def rebuild_page_endpoint():
+    """Writes the current app's page again against the domain it already has (no decomposition, no TDD loop)."""
+    try:
+        return services.rebuild_page(uow=SqliteUnitOfWork())
+    except Exception as e:
+        return {"success": False, "error": str(e), "detail": str(e)}
+
+
+@router.get("/progress")
+def build_progress_endpoint():
+    """What the running kickstart has delivered so far (answered while the kickstart request is still open)."""
+    from onboarding.build_progress import current_progress
+    return current_progress().to_dict()
+
+
 @router.get("/aggregates")
 def get_aggregates_endpoint():
     """Returns the active domain aggregates discovered for the current bounded context."""

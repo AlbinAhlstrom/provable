@@ -1,9 +1,16 @@
 """Opt-in I/O tracing for the generation pipeline.
 
-Set PROVABLE_TRACE_DIR=<dir> and every traced step (and every LLM call) writes one JSON file
+A recorded run (run_recorder.py) points the tracer at its own folder automatically. Otherwise, set
+PROVABLE_TRACE_DIR=<dir> and every traced step (and every LLM call) writes one JSON file
 `<seq>_<step>.json` with its input, output, duration, nesting depth and the chain of traced
 callers. Files are numbered in call-start order, so sorting them reproduces the pipeline's
-execution tree. When the variable is unset the decorators are pass-through.
+execution tree. With neither a recorded run nor the variable the decorators are pass-through. An LLM call's `meta` (model, token
+counts, finish reason, error) is recorded through record_llm_meta; the tracer adds the prompt and response sizes and the
+completion tokens per second.
+
+Every entry holds `t_offset_s` (seconds since the trace began) and its thread, so steps that ran at the same time can be
+laid out on one timeline. The caller chain is per thread: hand work to a thread pool through bind_context(fn) and the
+worker's steps stay attached to the step that started them.
 
 API keys found in the environment are scrubbed from everything that is written.
 """
@@ -24,8 +31,40 @@ _local = threading.local()
 _SECRET_ENV_NAMES = ("LLM_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY")
 
 
+_active_dir = ""  # set by run_recorder for the duration of a recorded run
+_epoch = time.time()  # what t_offset_s counts from; restarted with every recorded run
+
+
 def trace_dir() -> str:
-    return os.environ.get("PROVABLE_TRACE_DIR", "")
+    return _active_dir or os.environ.get("PROVABLE_TRACE_DIR", "")
+
+
+def set_trace_dir(directory: str) -> None:
+    """Direct the trace into `directory` (a recorded run's folder) and restart the numbering; "" switches it off."""
+    global _active_dir, _seq, _epoch
+    with _lock:
+        _active_dir = directory
+        _seq = 0
+        _epoch = time.time()
+
+
+def bind_context(fn: Callable) -> Callable:
+    """`fn`, to be run in another thread under the calling thread's chain of traced steps."""
+    chain = list(_stack())
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        _local.stack = list(chain)
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            _local.stack = []  # pool threads are reused
+    return wrapper
+
+
+def record_llm_meta(**fields: Any) -> None:
+    """Called by the LLM wrapper for the call in flight on this thread: model, tokens, finish reason, error."""
+    _local.llm_meta = fields
 
 
 def _next_seq() -> int:
@@ -74,10 +113,12 @@ def _write(seq: int, name: str, payload: dict) -> None:
 def _run(name: str, kind: str, fn: Callable, args: tuple, kwargs: dict, input_payload: Any) -> Any:
     seq = _next_seq()
     stack = _stack()
-    entry = {"seq": seq, "step": name, "kind": kind, "depth": len(stack), "caller_chain": [s for s in stack],
-             "started_at": time.strftime("%H:%M:%S"), "input": input_payload}
-    stack.append(name)
     start = time.time()
+    entry = {"seq": seq, "step": name, "kind": kind, "depth": len(stack), "caller_chain": [s for s in stack],
+             "started_at": time.strftime("%H:%M:%S"), "t_offset_s": round(start - _epoch, 3),
+             "thread": threading.current_thread().name, "input": input_payload}
+    stack.append(name)
+    _local.llm_meta = None
     try:
         result = fn(*args, **kwargs)
         entry["output"] = result
@@ -88,10 +129,23 @@ def _run(name: str, kind: str, fn: Callable, args: tuple, kwargs: dict, input_pa
     finally:
         stack.pop()
         entry["duration_s"] = round(time.time() - start, 3)
+        if kind == "llm" and getattr(_local, "llm_meta", None):
+            entry["meta"] = _llm_meta(_local.llm_meta, input_payload, entry.get("output"), entry["duration_s"])
         try:
             _write(seq, name, entry)
         except Exception as write_err:  # tracing must never break the pipeline
             print(f"[trace] could not write {name}: {write_err}")
+
+
+def _llm_meta(reported: dict, input_payload: Any, output: Any, duration_s: float) -> dict:
+    """What the wrapper reported plus what only the tracer sees: sizes in characters and the output speed."""
+    meta = dict(reported)
+    meta["prompt_chars"] = len(input_payload.get("prompt") or "") if isinstance(input_payload, dict) else None
+    meta["response_chars"] = len(output) if isinstance(output, str) else None
+    tokens = meta.get("completion_tokens")
+    if isinstance(tokens, int) and duration_s > 0:
+        meta["completion_tok_per_s"] = round(tokens / duration_s, 1)
+    return meta
 
 
 def traced(name: str) -> Callable:

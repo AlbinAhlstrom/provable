@@ -14,7 +14,7 @@ Tracing a real run of "a personal website for a babysitters firm" through the TD
 4. **GREEN returns a module fragment**: import lines, helper classes (e.g. domain exceptions) and the target class. `merge_module_fragment` (LibCST) adds missing imports, places helpers before the target and replaces the class; invalid fragments raise `FragmentError`, which counts as a GREEN rejection.
 5. **Rollback:** a spec that dead-ends, or any unexpected error, restores the domain file to its pre-GREEN content (`rolled_back` in the result).
 6. **No fake implementations:** an empty or unusable LLM answer raises; there is no stub fallback.
-7. **Retry policy** (rule 03 section 4): RED and GREEN each get at most one feedback retry, only for a verifying step's verdict; provider and parse errors are never retried.
+7. **Retry policy** (.claude/rules/pipeline.md, retry policy): RED and GREEN each get at most one feedback retry, only for a verifying step's verdict; provider and parse errors are never retried.
 8. LLM calls cap hidden reasoning with `reasoning_effort=low` (see `LLM_REASONING_EFFORT`).
 
 ## Evidence (live run, same prompt, `gemini-3.8-flash`)

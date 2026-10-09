@@ -248,3 +248,20 @@ def test_lint_failure_counts_as_the_red_retry(monkeypatch, tmp_path):
     s = _Script(monkeypatch, ["def test_a():\n    assert hasattr(object(), 'x')\n", GOOD], [1])
     result = tm.execute_spec_tdd_loop(_spec(), str(tmp_path))
     assert result["status"] == "FULFILLED" and "hasattr" in s.red_prompts[1]
+
+
+def test_the_test_writer_is_told_to_arrange_the_state_directly_and_show_its_working():
+    """Verify the RED prompt asks for a minimal, directly arranged Given and a worked-out expectation.
+
+    id: TST-RED-ARRANGE
+    Given: The RED test prompt (replayed on a correct chess class, two of eight tests had a wrong expectation: each
+           reached its position through a move sequence the writer mis-tracked; with this guidance, one of 24)
+    When: It is read
+    Then: It tells the writer to set the fields to the scenario's situation, and to work out each expected result
+          in a comment above the assertion
+    """
+    import agent_orchestrator
+    path = os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts", "red_test_generation.md")
+    prompt = open(path, encoding="utf-8").read()
+    assert "## Arranging the Given" in prompt and "by setting its fields" in prompt
+    assert "works out the expected result" in prompt

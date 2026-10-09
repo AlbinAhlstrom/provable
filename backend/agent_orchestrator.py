@@ -1,10 +1,13 @@
-from pipeline_trace import traced_llm
+from pipeline_trace import traced_llm, record_llm_meta
+import base64
 import subprocess
 import os
 import sys
 import json
 import re
+import threading
 import time
+import types
 import dotenv
 import asyncio
 
@@ -98,9 +101,41 @@ def load_prompt(template_name: str, format_kwargs: Optional[dict] = None) -> str
     return content
 
 
-# Reason the most recent call_gemini returned "" (provider error / missing key), so callers can
-# report it instead of guessing. None after a successful call.
-LAST_LLM_ERROR: Optional[str] = None
+# `LAST_LLM_ERROR`: the reason the most recent call_gemini on the current thread returned "" (provider error / missing
+# key), so callers can report it instead of guessing. None after a successful call. It is kept per thread because
+# stages run concurrently: one stage's call must never clear or overwrite the reason another stage is about to report.
+_llm_error = threading.local()
+
+
+class _OrchestratorModule(types.ModuleType):
+    @property
+    def LAST_LLM_ERROR(self) -> Optional[str]:
+        return getattr(_llm_error, "value", None)
+
+    @LAST_LLM_ERROR.setter
+    def LAST_LLM_ERROR(self, value: Optional[str]) -> None:
+        _llm_error.value = value
+
+
+sys.modules[__name__].__class__ = _OrchestratorModule
+
+
+def _token_count(value: Any) -> Optional[int]:
+    return value if isinstance(value, int) and not isinstance(value, bool) else None
+
+
+def _usage_meta(usage: Any) -> Dict[str, Optional[int]]:
+    """Token counts from the provider's usage block. `reasoning_tokens` is the hidden thinking: what the provider
+    reports as such, else what the total holds beyond the prompt and the visible answer."""
+    prompt = _token_count(getattr(usage, "prompt_tokens", None))
+    completion = _token_count(getattr(usage, "completion_tokens", None))
+    total = _token_count(getattr(usage, "total_tokens", None))
+    reasoning = _token_count(getattr(getattr(usage, "completion_tokens_details", None), "reasoning_tokens", None))
+    if reasoning is None and None not in (prompt, completion, total) and total > prompt + completion:
+        reasoning = total - prompt - completion
+    cached = _token_count(getattr(getattr(usage, "prompt_tokens_details", None), "cached_tokens", None))
+    return {"prompt_tokens": prompt, "completion_tokens": completion, "total_tokens": total,
+            "reasoning_tokens": reasoning, "cached_tokens": cached}
 
 
 def extract_json_object(raw: str) -> dict:
@@ -115,17 +150,33 @@ def extract_json_object(raw: str) -> dict:
     return value
 
 
+def _message_content(prompt: str, images: Optional[List[str]]) -> Any:
+    """The user message: the prompt alone, or the prompt followed by each image as a data URL."""
+    if not images:
+        return prompt
+    parts: List[Dict[str, Any]] = [{"type": "text", "text": prompt}]
+    for path in images:
+        with open(path, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode("ascii")
+        parts.append({"type": "image_url", "image_url": {"url": f"data:image/png;base64,{encoded}"}})
+    return parts
+
+
 def model_for_stage(stage: str) -> str:
     """The model a stage runs on: LLM_MODEL_<STAGE>, else LLM_MODEL, else the default."""
     return os.environ.get(f"LLM_MODEL_{stage.upper()}") or os.environ.get("LLM_MODEL", "gemini-3.8-flash")
 
 
 @traced_llm
-def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, reasoning_effort: Optional[str] = None) -> str:
+def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, reasoning_effort: Optional[str] = None,
+                images: Optional[List[str]] = None, json_schema: Optional[Dict[str, Any]] = None,
+                timeout_s: float = 60.0) -> str:
     """OpenAI Python SDK wrapper for LLM calls (configured via environment variables).
 
     json_mode asks the provider for a syntactically valid JSON object (use for stages whose output
-    is parsed as JSON). Failures return "" and set LAST_LLM_ERROR with the reason.
+    is parsed as JSON). json_schema goes further and has the provider hold the answer to that schema: json_mode
+    alone has let through answers no JSON parser accepts (a trailing comma after the last property). images are PNG files shown to the model after the prompt, in order (the trace
+    records their paths, not their bytes). Failures return "" and set LAST_LLM_ERROR with the reason.
 
     reasoning_effort limits hidden "thinking" tokens. Measured on the GREEN-repair prompt with
     gemini-3.8-flash: default effort = 259 s / 35,335 tokens, "low" = 5 s / 1,566 tokens. Defaults to
@@ -134,8 +185,7 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
     No retries happen here, by design (retries mask errors): the SDK's own automatic retries are
     disabled, and a provider that rejects reasoning_effort fails loudly with the fix in the message.
     """
-    global LAST_LLM_ERROR
-    LAST_LLM_ERROR = None
+    _llm_error.value = None
     api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
     base_url = os.environ.get("OPENAI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
     # LLM_MODEL_<STAGE> (e.g. LLM_MODEL_RED_TEST_GENERATION) lets one stage use a different model, such as a
@@ -143,17 +193,19 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
     model_name = model_for_stage(stage)
 
     if not api_key:
-        LAST_LLM_ERROR = "No LLM API key configured (set GEMINI_API_KEY, LLM_API_KEY or OPENAI_API_KEY)."
-        print(f"[Warning] {LAST_LLM_ERROR}", flush=True)
+        _llm_error.value = "No LLM API key configured (set GEMINI_API_KEY, LLM_API_KEY or OPENAI_API_KEY)."
+        print(f"[Warning] {_llm_error.value}", flush=True)
+        record_llm_meta(model=model_name, error=_llm_error.value)
         return ""
 
     effort = reasoning_effort if reasoning_effort is not None else os.environ.get("LLM_REASONING_EFFORT", "low")
     request = {
         "model": model_name,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": [{"role": "user", "content": _message_content(prompt, images)}],
         "temperature": 0.2,
-        "timeout": 60.0,
-        **({"response_format": {"type": "json_object"}} if json_mode else {}),
+        "timeout": timeout_s,
+        **({"response_format": {"type": "json_schema", "json_schema": {"name": stage, "schema": json_schema}}}
+           if json_schema else {"response_format": {"type": "json_object"}} if json_mode else {}),
     }
     client = OpenAI(api_key=api_key, base_url=base_url, max_retries=0)
     t0 = time.time()
@@ -161,12 +213,17 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
         print(f"[LLM] Dispatching request for stage '{stage}' (model: {model_name})...", flush=True)
         response = client.chat.completions.create(**request, **({"reasoning_effort": effort} if effort else {}))
         print(f"[LLM] Received response for stage '{stage}' in {round(time.time() - t0, 2)}s", flush=True)
+        record_llm_meta(model=model_name, json_mode=json_mode, reasoning_effort=effort or None,
+                        **_usage_meta(getattr(response, "usage", None)),
+                        finish_reason=response.choices[0].finish_reason)
         return response.choices[0].message.content or ""
     except Exception as e:
-        LAST_LLM_ERROR = f"{type(e).__name__}: {e}"
+        reason = f"{type(e).__name__}: {e}"
         if effort and "reasoning" in str(e).lower():
-            LAST_LLM_ERROR += " (this provider rejected reasoning_effort: set LLM_REASONING_EFFORT= (empty) to omit it)"
-        print(f"[Warning] LLM Call Exception ({stage}) after {round(time.time() - t0, 2)}s: {LAST_LLM_ERROR}", flush=True)
+            reason += " (this provider rejected reasoning_effort: set LLM_REASONING_EFFORT= (empty) to omit it)"
+        _llm_error.value = reason
+        record_llm_meta(model=model_name, json_mode=json_mode, reasoning_effort=effort or None, error=reason)
+        print(f"[Warning] LLM Call Exception ({stage}) after {round(time.time() - t0, 2)}s: {reason}", flush=True)
         return ""
 
 

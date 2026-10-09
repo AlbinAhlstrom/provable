@@ -4,10 +4,11 @@ Verification Gates for Generated Workspace Applications.
 2. Web Application Build & Preview Verification Gate (verify_preview_health)
 """
 
+from pipeline_trace import traced
 import os
 import subprocess
 import urllib.request
-from typing import Dict
+from typing import Dict, Tuple
 
 def audit_domain_vocabulary(pitch: str, code_files: Dict[str, str]) -> dict:
     """Automated Vocabulary Isolation Verification Gate.
@@ -33,6 +34,7 @@ def audit_domain_vocabulary(pitch: str, code_files: Dict[str, str]) -> dict:
     return {"status": "pass"}
 
 
+@traced("verify.workspace_build")
 def run_workspace_build(ws_base: str, timeout: int = 180) -> Dict[str, object]:
     """Builds the generated frontend (`npm run build`). Returns {"ok": bool, "output": str}; never raises."""
     npm_cmd = "npm.cmd" if os.name == "nt" else "npm"
@@ -41,6 +43,41 @@ def run_workspace_build(ws_base: str, timeout: int = 180) -> Dict[str, object]:
     except Exception as e:  # missing npm, timeout: report, do not guess
         return {"ok": False, "output": f"build could not run: {e}"}
     return {"ok": res.returncode == 0, "output": ((res.stdout or "") + (res.stderr or "")).strip()}
+
+
+# Reads one TSX source on stdin and compiles it with the workspace's esbuild (the compiler Vite serves the preview with).
+_COMPILE_SCRIPT = """
+const esbuild = require('esbuild');
+let source = '';
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', chunk => { source += chunk; });
+process.stdin.on('end', () => {
+  try {
+    esbuild.transformSync(source, { loader: 'tsx' });
+    process.stdout.write('OK');
+  } catch (err) {
+    const errors = (err.errors || []).map(e => e.location
+      ? `${e.text} (line ${e.location.line}: ${e.location.lineText.trim()})` : e.text);
+    process.stdout.write('ERR ' + (errors.join('; ') || String(err)));
+  }
+});
+"""
+
+
+def compile_tsx(ws_base: str, code: str, timeout: int = 30) -> Tuple[bool, str]:
+    """Compiles one TSX source the way the preview will. Returns (ok, reason): the compiler's message when it rejects
+    the source, and a refusal that says so when the compiler could not run. Never raises."""
+    try:
+        res = subprocess.run(["node", "-e", _COMPILE_SCRIPT], cwd=ws_base, input=code, capture_output=True,
+                             text=True, encoding="utf-8", timeout=timeout)
+    except Exception as e:  # missing node, timeout: report, do not guess
+        return False, f"the compiler could not run: {e}"
+    answer = (res.stdout or "").strip()
+    if res.returncode == 0 and answer == "OK":
+        return True, ""
+    if res.returncode == 0 and answer.startswith("ERR "):
+        return False, answer[4:]
+    return False, f"the compiler could not run: {((res.stderr or '') + answer).strip()[-500:]}"
 
 
 def verify_preview_health(ws_base: str) -> dict:

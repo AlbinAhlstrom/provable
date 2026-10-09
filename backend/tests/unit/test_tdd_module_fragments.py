@@ -69,20 +69,41 @@ def test_merge_places_helper_exception_before_the_target_and_replaces_existing_h
 @pytest.mark.parametrize("fragment,needle", [
     ("def broken(:\n", "not valid Python"),
     ("@dataclass\nclass Other:\n    id: str = ''\n", "class Booking"),
-    ("def helper():\n    return 1\n\n@dataclass\nclass Booking:\n    id: str = ''\n", "only import statements and class definitions"),
-    ("X = 1\n\n@dataclass\nclass Booking:\n    id: str = ''\n", "only import statements and class definitions"),
+    ("for n in range(3):\n    print(n)\n\n@dataclass\nclass Booking:\n    id: str = ''\n", "at module level"),
+    ("X, Y = 1, 2\n\n@dataclass\nclass Booking:\n    id: str = ''\n", "at module level"),
 ])
 def test_merge_rejects_unusable_fragments_loudly(fragment, needle):
     """Verify bad model output raises with a reason instead of silently returning the original source.
 
     id: TST-FRG-004
-    Given: Invalid Python, a missing target class, or module-level code that is not an import/class
+    Given: Invalid Python, a missing target class, or module-level code that runs at import (a loop) or cannot be
+           told apart by one name (a tuple assignment)
     When: The merge runs
     Then: FragmentError explains what is wrong
     """
     with pytest.raises(FragmentError) as err:
         merge_module_fragment(MODULE, "Booking", fragment)
     assert needle.lower() in str(err.value).lower()
+
+
+def test_merge_keeps_module_level_helper_functions_and_constants():
+    """Verify a helper function or a named constant beside the class is merged, not refused.
+
+    id: TST-FRG-HELPERS
+    Given: A fragment with a constant, a helper function and the target class (what a model writes for a lookup
+           table or a small pure helper; refusing it cost the code writer its one retry on a formality in three
+           of five chess builds)
+    When: It is merged, then merged again with both changed
+    Then: Both stand before the target class, exist once, and hold the latest definition
+    """
+    frag = ("STEPS = {'N': 2}\n\n\ndef on_board(n: int) -> bool:\n    return 0 <= n < 8\n\n\n"
+            "@dataclass\nclass Booking:\n    id: str = ''\n")
+    once = merge_module_fragment(MODULE, "Booking", frag)
+    assert once.index("STEPS = ") < once.index("class Booking") and once.index("def on_board") < once.index("class Booking")
+    twice = merge_module_fragment(once, "Booking", frag.replace("'N': 2", "'N': 3").replace("n < 8", "n < 9"))
+    assert twice.count("STEPS = ") == 1 and "'N': 3" in twice
+    assert twice.count("def on_board") == 1 and "n < 9" in twice
+    compile(twice, "booking.py", "exec")
 
 
 # ── RED gate: a broken DOMAIN module is not a broken TEST ────────────────────────────────────────
@@ -137,7 +158,7 @@ def _script(monkeypatch, red_status="APPROVED_RED", green_pass=(False, False), f
         calls["red_gen"] += 1
         return GOOD_TEST
 
-    def synth(extracted_class, target_class_name, spec, failure_output="", test_source="", module_imports="", existing_tests=""):
+    def synth(extracted_class, target_class_name, spec, failure_output="", test_source="", module_imports="", existing_tests="", **_ignored):
         calls["synth"].append(failure_output)
         return next(frags)
 
@@ -238,3 +259,31 @@ def test_unparseable_fragment_consumes_a_green_attempt_and_feeds_back(monkeypatc
     result = tm.execute_spec_tdd_loop(_spec(), str(tmp_path))
     assert result["status"] == "FULFILLED" and len(result["attempts"]) == 2
     assert "not valid python" in calls["synth"][1].lower()
+
+
+def test_the_code_writer_is_shown_the_helpers_beside_the_class(monkeypatch, tmp_path):
+    """Verify helpers at module level reach the GREEN prompt: shown only the class, the writer cannot use them.
+
+    id: TST-FRG-HELPERS-SHOWN
+    Given: A domain module with a helper class, a helper function and a constant beside the target class
+    When: A spec goes through the loop
+    Then: The code writer was given those three as source, and not the target class a second time
+    """
+    from onboarding.cst_isolator import module_helpers_source
+    source = MODULE + "\n\nLIMIT = 3\n\n\ndef within(n: int) -> bool:\n    return n <= LIMIT\n"
+    helpers = module_helpers_source(source, "Booking")
+    assert "class Marker" in helpers and "LIMIT = 3" in helpers and "def within" in helpers
+    assert "class Booking" not in helpers and "import" not in helpers
+
+    import agent_orchestrator
+    seen = {}
+
+    def answer(prompt, **kwargs):
+        seen["prompt"] = prompt
+        return ""
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", answer)
+    with pytest.raises(RuntimeError):
+        tm.synthesize_green_class_implementation(
+            extracted_class="@dataclass\nclass Booking:\n    id: str = ''\n", target_class_name="Booking",
+            spec=_spec(), module_helpers=helpers)
+    assert "def within(n: int) -> bool:" in seen["prompt"]

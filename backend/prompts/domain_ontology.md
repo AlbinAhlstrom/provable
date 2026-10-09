@@ -19,7 +19,7 @@ Requirements:
    - "border_color": Border hex code
    - "domain_emoji": 1 relevant unicode emoji
 6. "master_entity":
-   - "entity_name": Singular PascalCase name of primary domain entity (e.g. "Pizza", "Caregiver", "TelemetrySignal", "Qubit")
+   - "entity_name": Singular PascalCase name of primary domain entity (e.g. "Product", "Caregiver", "TelemetrySignal", "Qubit")
    - "entity_plural": Plural name
    - "action_verb": Primary CTA button label (e.g. "Add to Order", "Book Session", "Analyze Signal")
    - "attributes": List of domain attributes with fields:

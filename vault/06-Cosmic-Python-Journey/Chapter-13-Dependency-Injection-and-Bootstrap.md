@@ -20,7 +20,7 @@ graph TD
 
 ## 🏛️ Architectural Implementation
 
-In Provable, all synthesized application stacks expose a `bootstrap.py` module (`src/bootstrap.py`) that wires application dependencies:
+Provable does not generate a bootstrap container: the engine opens a `SqliteUnitOfWork` per request, and tests inject `FakeUnitOfWork`. The book's container looks like this (kept for reference):
 
 ```python
 import inspect
@@ -60,7 +60,7 @@ def bootstrap(
 
 ## 🔑 Key Benefits
 1. **Testing Flexibility**: Tests can invoke `bootstrap(start_orm=False, uow=FakeUnitOfWork())` to inject fake repositories and test doubles without touching SQLite databases.
-2. **Decoupled Entrypoints**: FastAPI API routes (`src/entrypoints/app.py`) do not manage ORM initialization or session factories; they simply call `bus.handle(command)`.
+2. **Decoupled Entrypoints**: Entrypoints do not manage ORM initialization or session factories; they simply call `bus.handle(command)`.
 
 ---
 

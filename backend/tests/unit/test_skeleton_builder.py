@@ -109,7 +109,7 @@ def test_generate_domain_module_orders_non_default_before_default_fields():
     assert pallet_cls is not None
 
     # Instantiate the dataclass with positional or keyword arguments
-    instance = pallet_cls(pallet_id="PAL-1", weight_kg=12.5, created_datetime="2026-08-26")
+    instance = pallet_cls(id="PAL-1", pallet_id="PAL-1", weight_kg=12.5, created_datetime="2026-08-26")  # every stored entity has `id`
     assert instance.pallet_id == "PAL-1"
     assert instance.weight_kg == 12.5
     assert instance.created_datetime == "2026-08-26"

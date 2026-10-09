@@ -5,8 +5,10 @@ LibCST micro-context splicing, and automated dead-end git rollback handling.
 """
 
 from pipeline_trace import traced
+from service_layer.hollow_check import fails_without_behaviour
 import os
 import sys
+import uuid
 import re
 import stat
 import subprocess
@@ -17,7 +19,7 @@ from onboarding.action_protocol import format_interface_contract
 from dataclasses import dataclass, field
 from onboarding.router_engine import BusinessSpec
 from onboarding.cst_isolator import (
-    FragmentError, extract_class_cst, merge_module_fragment, module_import_lines, splice_class_cst
+    FragmentError, extract_class_cst, merge_module_fragment, module_helpers_source, module_import_lines, splice_class_cst
 )
 
 
@@ -26,6 +28,9 @@ _BROKEN_TEST_MARKERS = (
     "syntaxerror", "indentationerror", "importerror", "modulenotfounderror", "nameerror", "timed out",
     "fixture '", "module 'src.",
 )
+
+
+REGRESSION_TIMEOUT_S = 30  # the domain tests in tests/unit; the page's browser checks live in tests/acceptance
 
 
 def _headline(text: str) -> str:
@@ -214,12 +219,8 @@ def run_isolated_pytest(
     Executes Pytest with pytest-json-report and hard timeout.
     Returns exit code, parsed report, and stdout/stderr.
     """
-    report_file = os.path.join(cwd, ".pytest_report.json")
-    if os.path.exists(report_file):
-        try:
-            os.remove(report_file)
-        except Exception:
-            pass
+    # One report file per run: specs' tests are run side by side (service_layer/tdd_batch.py)
+    report_file = os.path.join(cwd, f".pytest_report_{uuid.uuid4().hex}.json")
 
     env = os.environ.copy()
     current_pythonpath = env.get("PYTHONPATH", "")
@@ -249,6 +250,7 @@ def run_isolated_pytest(
                     report_data = json.load(rf)
             except Exception:
                 pass
+            os.remove(report_file)
 
         return {
             "exit_code": proc.returncode,
@@ -291,6 +293,9 @@ def summarize_class_api(class_source: str, max_methods: int = 60) -> str:
     except (SyntaxError, StopIteration):
         return class_source[:2000]
     lines = [f"class {cls.name}:"]
+    described = ast.get_docstring(cls)
+    if described:  # what the class says about itself, e.g. what one item of a list of its parts holds
+        lines.append('    """' + described.replace("\n", "\n    ") + '"""')
     methods = 0
     for node in cls.body:
         if isinstance(node, ast.AnnAssign):
@@ -382,6 +387,14 @@ def collect_existing_tests(tests_dir: str, exclude: str, module_name: str, limit
     return "\n".join(chunks)[:limit]
 
 
+# A reconsidered test is traced through the implementation, which the default (low) effort gets wrong about as
+# often as the first draft did; at medium effort an answer takes up to a minute, so it is kept for this one call
+LIMIT_NOTE = ("\n- **States a limit**: yes. Rule 7 below applies to this scenario: at least two cases, one just beyond "
+              "the limit and one exactly at it.")
+CAREFUL_EFFORT = "medium"
+CAREFUL_TIMEOUT_S = 180.0
+
+
 @traced("tdd.red_generate")
 def generate_red_test(
     spec: BusinessSpec,
@@ -391,11 +404,14 @@ def generate_red_test(
     rejection_feedback: str = "",
     existing_tests: str = "",
     interface_contract: str = "",
+    careful: bool = False,
+    other_rules: str = "",
 ) -> str:
     """Asks the LLM for a behavioral pytest module that encodes the spec's Given/When/Then.
 
     The prompt shows the class's real constructor/method API so the test cannot invent arguments, and
-    on the single retry it carries the gate's or linter's rejection reason.
+    on the single retry it carries the gate's or linter's rejection reason. `careful` is for a test that has
+    to be traced through an implementation (a reconsidered test): the writer thinks longer and is given the time.
     """
     import agent_orchestrator
 
@@ -413,8 +429,11 @@ def generate_red_test(
         "existing_tests": existing_tests or "(none yet: this is the first verified test for this class)",
         "interface_contract": interface_contract or "(none: no interface method has been promised for this class)",
         "feedback_block": feedback_block,
+        "limit_note": LIMIT_NOTE if spec.is_mathematical_boundary else "",
+        "other_rules": other_rules or "(none: this is the only rule being written for this class)",
     })
-    raw = agent_orchestrator.call_gemini(prompt, stage="red_test_generation")
+    thought = dict(reasoning_effort=CAREFUL_EFFORT, timeout_s=CAREFUL_TIMEOUT_S) if careful else {}
+    raw = agent_orchestrator.call_gemini(prompt, stage="red_test_generation", **thought)
     if not raw or not raw.strip():
         reason = agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response"
         raise RuntimeError(f"RED test generation failed: {reason}")
@@ -430,7 +449,8 @@ def synthesize_green_class_implementation(
     failure_output: str = "",
     test_source: str = "",
     module_imports: str = "",
-    existing_tests: str = ""
+    existing_tests: str = "",
+    module_helpers: str = ""
 ) -> str:
     """Synthesizes the GREEN phase domain class implementation using LLM micro-context prompt.
 
@@ -462,6 +482,7 @@ def synthesize_green_class_implementation(
         "spec_type": spec.spec_type,
         "test_source": test_source or "(no test source available)",
         "module_imports": module_imports or "(none)",
+        "module_helpers": module_helpers or "(none)",
         "existing_tests": existing_tests or "(none yet)",
         "failure_output": failure_output or "The frozen test does not pass yet.",
         "target_class_name": target_class_name
@@ -479,19 +500,21 @@ def synthesize_green_class_implementation(
     raise RuntimeError(f"GREEN synthesis failed: {reason}")
 
 
-@traced("tdd.run_loop")
-def execute_spec_tdd_loop(spec: BusinessSpec, workspace_dir: str, action_manifest: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """
-    Synchronous flat TDD loop execution:
-    RED -> GREEN (with LibCST micro-context extraction) -> Hash Lock Anti-Cheat -> COMMIT.
-    """
-    state = TddExecutionState(spec=spec)
-    state.advance_to_red()
+@dataclass
+class DomainTarget:
+    """Where a spec's class lives in the workspace."""
+    class_name: str
+    module_name: str   # the module the tests import it from (src.domain.<module_name>)
+    domain_file: str
+    tests_dir: str
 
+
+def locate_domain_target(spec: BusinessSpec, workspace_dir: str) -> DomainTarget:
+    """The class a spec is about and its module, created as a bare dataclass when the workspace has none."""
     target_class = spec.target_aggregate or "Pallet"
     from onboarding.skeleton_builder import to_snake_case
     target_mod_name = to_snake_case(target_class)  # same module name the skeleton/routers/repositories import
-    
+
     domain_dir = os.path.join(workspace_dir, "src", "domain")
     tests_dir = os.path.join(workspace_dir, "tests", "unit")
     os.makedirs(domain_dir, exist_ok=True)
@@ -503,7 +526,6 @@ def execute_spec_tdd_loop(spec: BusinessSpec, workspace_dir: str, action_manifes
         if os.path.exists(model_file) and target_class in open(model_file, encoding="utf-8").read():
             domain_file = model_file
         else:
-            domain_file = os.path.join(domain_dir, f"{target_mod_name}.py")
             init_code = f'''from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -519,79 +541,137 @@ class {target_class}:
                 f.write(init_code)
 
     used_module = target_mod_name if domain_file.endswith(f"{target_mod_name}.py") else "model"
+    return DomainTarget(class_name=target_class, module_name=used_module, domain_file=domain_file, tests_dir=tests_dir)
 
-    # -------------------------------------------------------------
-    # 1. RED Phase: the LLM writes a behavioral test from the BDD spec; the gate checks it fails for the RIGHT reason
-    # -------------------------------------------------------------
-    spec_clean_id = spec.spec_id.lower().replace("-", "_")
-    test_file_path = os.path.join(tests_dir, f"test_{spec_clean_id}.py")
 
-    with open(domain_file, "r", encoding="utf-8") as f:
+def spec_test_path(spec: BusinessSpec, tests_dir: str) -> str:
+    return os.path.join(tests_dir, f"test_{spec.spec_id.lower().replace('-', '_')}.py")
+
+
+@dataclass
+class RedOutcome:
+    """What the RED phase delivered for one spec. `verdict` is one of
+    approved (a valid failing test, locked by `test_hash`) | already_satisfied (the class enforces the rule; the test
+    is kept as its guard) | rejected (two tests were refused; none is kept) | domain_broken (the domain module does
+    not import; the test was never judged)."""
+    verdict: str
+    test_file_path: str
+    test_code: str = ""
+    test_hash: str = ""
+    result: Dict[str, Any] = field(default_factory=dict)      # the pytest run of the approved test
+    evaluation: Dict[str, Any] = field(default_factory=dict)  # the RED gate's verdict
+    attempts: List[Dict[str, Any]] = field(default_factory=list)
+
+
+def _sent_back(reason: str, test_code: str) -> str:
+    """What the test writer is told on its one regeneration: the verdict, and the test it was given on. Without the
+    test it writes a new one from nothing and loses what the first had right (the cases on both sides of a limit)."""
+    return (f"{reason}\n\nThe test that was refused (keep everything in it the reason above does not name):\n"
+            f"```python\n{test_code.strip()}\n```")
+
+
+def run_red_phase(spec: BusinessSpec, target: DomainTarget, workspace_dir: str, existing_tests: str,
+                  action_manifest: Optional[Dict[str, Any]] = None, other_rules: str = "") -> RedOutcome:
+    """The LLM writes a behavioural test from the BDD spec; the gate checks it fails for the RIGHT reason.
+
+    Retry policy (.claude/rules/pipeline.md): at most ONE regeneration, only because the lint or the RED gate rejected
+    the first test, and the rejection reason is fed back to the test generator."""
+    test_file_path = spec_test_path(spec, target.tests_dir)
+    with open(target.domain_file, "r", encoding="utf-8") as f:
         current_source = f.read()
-    current_class = extract_class_cst(current_source, target_class) or f"@dataclass\nclass {target_class}:\n    id: str\n"
+    current_class = extract_class_cst(current_source, target.class_name) or f"@dataclass\nclass {target.class_name}:\n    id: str\n"
 
-    # Retry policy (rule 03 section 4): at most ONE regeneration, only because the lint or the RED gate rejected
-    # the first test, and the rejection reason is fed back to the test generator.
-    existing_tests = collect_existing_tests(tests_dir, exclude=test_file_path, module_name=used_module)
     red_feedback = ""
     red_result: Dict[str, Any] = {}
     red_eval: Dict[str, Any] = {}
     red_attempts: List[Dict[str, Any]] = []
-    domain_broken = False
     test_code = ""
     for red_attempt in (1, 2):
-        test_code = generate_red_test(spec, current_class, used_module, target_class,
+        test_code = generate_red_test(spec, current_class, target.module_name, target.class_name,
                                       rejection_feedback=red_feedback, existing_tests=existing_tests,
-                                      interface_contract=format_interface_contract(action_manifest, target_class))
+                                      interface_contract=format_interface_contract(action_manifest, target.class_name),
+                                      other_rules=other_rules)
         lint_ok, lint_reason = lint_red_test(test_code, require_both_sides=bool(spec.is_mathematical_boundary))
         if not lint_ok:
             red_attempts.append({"attempt": red_attempt, "approved": False, "reason": lint_reason})
-            red_feedback = lint_reason
+            red_feedback = _sent_back(lint_reason, test_code)
             continue
 
         with open(test_file_path, "w", encoding="utf-8") as f:
             f.write(test_code)
+
         # 5-line Hash Lock: snapshot the approved test file's hash before the GREEN phase
         initial_test_hash = compute_test_file_hash(test_file_path)
+
         red_result = run_isolated_pytest(test_file_path, cwd=workspace_dir)
         red_eval = evaluate_red_gate_result(red_result["exit_code"], red_result.get("report"), red_result.get("stderr"))
+        already_satisfied = False
+        if red_eval.get("status") == "REJECTED_TAUTOLOGY":
+            # A test that passes at once either asserts nothing, or tests a rule an earlier step already implemented
+            # (the action stage writes the methods first). Run against the class with its behaviour emptied out, the
+            # second kind fails (service_layer/hollow_check.py).
+            if fails_without_behaviour(test_file_path, workspace_dir, target.domain_file, target.class_name,
+                                       run=run_isolated_pytest, judge=evaluate_red_gate_result):
+                red_eval = {"status": "ALREADY_SATISFIED", "approved": True,
+                            "reason": "The class already enforces this rule: the test passes as it is and fails once "
+                                      "the class's methods do nothing. No code was needed."}
+                already_satisfied = True
+            else:
+                red_eval["reason"] += " It also passes when the class's methods do nothing, so it asserts no behaviour."
         red_attempts.append({"attempt": red_attempt, "approved": red_eval["approved"], "reason": red_eval.get("reason")})
         if red_eval["approved"]:
-            break
+            return RedOutcome("already_satisfied" if already_satisfied else "approved", test_file_path, test_code,
+                              initial_test_hash, red_result, red_eval, red_attempts)
         if red_eval.get("status") == "REJECTED_DOMAIN_BROKEN":
             # Regenerating the test cannot help: the domain module itself does not import. Fail loudly now.
-            domain_broken = True
-            break
-        red_feedback = f"{red_eval.get('reason')}\n{summarize_pytest_failure(red_result)}"
-    else:
-        state.phase = "DEAD_END"
-        state.status = "REQUIRES_HUMAN_INTERVENTION"
-        if os.path.exists(test_file_path):  # a test rejected twice is known to be broken: do not keep it
-            os.remove(test_file_path)
-        return {
-            "success": False,
-            "status": state.status,
-            "phase": "RED_GATE",
-            "spec_id": spec.spec_id,
-            "error": red_attempts[-1]["reason"],
-            "red_attempts": red_attempts,
-            "test_source": test_code
-        }
+            return RedOutcome("domain_broken", test_file_path, test_code, initial_test_hash, red_result, red_eval, red_attempts)
+        red_feedback = _sent_back(f"{red_eval.get('reason')}\n{summarize_pytest_failure(red_result)}", test_code)
 
-    if domain_broken:
-        state.phase = "DEAD_END"
-        state.status = "REQUIRES_HUMAN_INTERVENTION"
+    if os.path.exists(test_file_path):  # a test rejected twice is known to be broken: do not keep it
+        os.remove(test_file_path)
+    return RedOutcome("rejected", test_file_path, test_code, "", red_result, red_eval, red_attempts)
+
+
+def red_dead_end(spec: BusinessSpec, red: RedOutcome, workspace_dir: str) -> Optional[Dict[str, Any]]:
+    """The spec's result when its RED phase settles it without a GREEN phase, else None."""
+    common = {"spec_id": spec.spec_id, "red_attempts": red.attempts, "test_source": red.test_code}
+    if red.verdict == "already_satisfied":
+        # Nothing to write: the test stays in tests/unit as the rule's regression guard
+        return {"success": True, "status": "FULFILLED", "phase": "COMMITTED", "test_file": red.test_file_path,
+                "red_eval": red.evaluation, "attempts": [], "already_satisfied": True, **common}
+    if red.verdict == "rejected":
+        return {"success": False, "status": "REQUIRES_HUMAN_INTERVENTION", "phase": "RED_GATE",
+                "error": red.attempts[-1]["reason"], **common}
+    if red.verdict == "domain_broken":
         # The test itself was never judged, so keep it for a human instead of letting it fail the regression suite.
-        return {
-            "success": False,
-            "status": state.status,
-            "phase": "RED_GATE",
-            "spec_id": spec.spec_id,
-            "error": red_attempts[-1]["reason"],
-            "red_attempts": red_attempts,
-            "test_source": test_code,
-            "pending_test": _quarantine_test(test_file_path, workspace_dir)
-        }
+        return {"success": False, "status": "REQUIRES_HUMAN_INTERVENTION", "phase": "RED_GATE",
+                "error": red.attempts[-1]["reason"], "pending_test": _quarantine_test(red.test_file_path, workspace_dir),
+                **common}
+    return None
+
+
+@traced("tdd.run_loop")
+def execute_spec_tdd_loop(spec: BusinessSpec, workspace_dir: str, action_manifest: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Synchronous flat TDD loop execution:
+    RED -> GREEN (with LibCST micro-context extraction) -> Hash Lock Anti-Cheat -> COMMIT.
+    """
+    state = TddExecutionState(spec=spec)
+    state.advance_to_red()
+
+    target = locate_domain_target(spec, workspace_dir)
+    target_class, domain_file, tests_dir = target.class_name, target.domain_file, target.tests_dir
+    test_file_path = spec_test_path(spec, tests_dir)
+    existing_tests = collect_existing_tests(tests_dir, exclude=test_file_path, module_name=target.module_name)
+
+    red = run_red_phase(spec, target, workspace_dir, existing_tests, action_manifest)
+    settled = red_dead_end(spec, red, workspace_dir)
+    if settled is not None:
+        state.phase = settled["phase"] if settled["success"] else "DEAD_END"
+        state.status = settled["status"]
+        return settled
+    test_code, red_result, red_eval, red_attempts, initial_test_hash = (
+        red.test_code, red.result, red.evaluation, red.attempts, red.test_hash)
 
     state.advance_to_green()
 
@@ -609,7 +689,7 @@ class {target_class}:
         with open(domain_file, "w", encoding="utf-8") as f:
             f.write(domain_before)
 
-    # Retry policy (rule 03 section 4): at most ONE retry, and only because the GREEN gate (or the merge of the
+    # Retry policy (.claude/rules/pipeline.md, retry policy): at most ONE retry, and only because the GREEN gate (or the merge of the
     # model's answer) rejected the first attempt; the verdict and the failing test output are fed back to the
     # generator. Provider errors, tampering and anything else fail loudly without a retry.
     try:
@@ -626,7 +706,8 @@ class {target_class}:
                 failure_output=failure_msg,
                 test_source=test_code,
                 module_imports=module_import_lines(domain_source),
-                existing_tests=existing_tests
+                existing_tests=existing_tests,
+                module_helpers=module_helpers_source(domain_source, target_class)
             )
 
             try:
@@ -647,7 +728,23 @@ class {target_class}:
 
                 # Regression gate: the new implementation must not break any earlier, verified spec.
                 if green_eval["approved"]:
-                    regression = run_isolated_pytest(tests_dir, cwd=workspace_dir, timeout_seconds=30)
+                    regression = run_isolated_pytest(tests_dir, cwd=workspace_dir, timeout_seconds=REGRESSION_TIMEOUT_S)
+                    if regression.get("timed_out"):
+                        # Not a verdict on the code: the suite never answered, so there is nothing to feed back
+                        rollback()
+                        return {
+                            "success": False,
+                            "status": "REQUIRES_HUMAN_INTERVENTION",
+                            "phase": "REGRESSION_GATE",
+                            "spec_id": spec.spec_id,
+                            "error": f"The regression suite (tests/unit) did not finish within {REGRESSION_TIMEOUT_S} "
+                                     f"seconds, so the change could not be verified.",
+                            "red_attempts": red_attempts,
+                            "test_source": test_code,
+                            "attempts": attempts,
+                            "rolled_back": True,
+                            "pending_test": _quarantine_test(test_file_path, workspace_dir)
+                        }
                     if regression["exit_code"] != 0:
                         broken = _failed_test_files(regression) or ["(unknown)"]
                         green_result = regression

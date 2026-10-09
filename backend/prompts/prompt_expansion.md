@@ -35,6 +35,7 @@ CRITICAL SPECIFICATION REQUIREMENTS:
 5. CONCRETE BUSINESS RULES & INVARIANTS:
    - Detail the foundational domain validation constraints and state guards directly governing this core loop.
    - State clearly how invalid operations are rejected without corrupting domain state.
+   - When the product follows an established set of rules (the official rules of a game, a standard, a legal or trade convention), list every rule of that set by name, one line each, with its special cases and exceptions as lines of their own (each special case, each exemption, and each way the thing can end: the ways the rules end it and the ways the people themselves end it, such as withdrawing or agreeing to stop). The product enforces exactly the rules listed here: a rule that is only implied by naming the rule set is not built.
 
 CRITICAL SCOPE BOUNDARY (ZERO CODE ARTIFACTS):
 - Do NOT prescribe file names (no .tsx, .py, etc.).
@@ -43,4 +44,4 @@ CRITICAL SCOPE BOUNDARY (ZERO CODE ARTIFACTS):
 - Do NOT prescribe programming language types or database schemas.
 - Focus 100% on human product requirements, persona workflows, and domain business rules.
 
-Synthesize your output as a clear, rigorous, and direct Markdown specification (under 350 words).
+Synthesize your output as a clear, rigorous, and direct Markdown specification (under 350 words, not counting the list of rules in section 5, which is as long as the rule set needs).

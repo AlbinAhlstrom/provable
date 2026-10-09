@@ -6,7 +6,6 @@ logs/
 
 # Docs, agent tooling and tests are not needed at runtime.
 vault/
-.agents/
 .claude/
 backend/tests/
 backend/scripts/

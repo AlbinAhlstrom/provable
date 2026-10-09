@@ -4,8 +4,9 @@ Action Protocol Synthesizer: designs the user-facing action contract between the
 The aggregate's domain class is owned by the skeleton (a plain dataclass) and evolved spec by spec by the TDD
 loop, and the generated API already exposes every public domain method through the deterministic
 `POST /api/<aggregates>/{id}/action` endpoint (see skeleton_builder.generate_router_module). This step therefore
-writes NO code: one LLM call names the actions the UI should offer (the domain methods the specs call for) and
-their parameters, so the presentation layer and the domain agree on names before the methods exist.
+writes NO code: one LLM call names the actions the UI should offer (the domain methods the specs call for), their
+parameters and what each changes. The methods are written from that right afterwards (`action_behaviour.py`), and
+the presentation layer is written against the same names.
 """
 
 import json
@@ -20,6 +21,36 @@ from onboarding.intent import ProductIntent, intent_block
 from onboarding.router_engine import BusinessSpec, DomainStructureSchema
 from onboarding.skeleton_builder import to_snake_case
 from pipeline_trace import traced
+
+
+_TEXT = {"type": "string"}
+MANIFEST_SCHEMA: Dict[str, Any] = {
+    "type": "object",
+    "properties": {"action_manifest": {
+        "type": "object",
+        "properties": {
+            "actions": {"type": "array", "items": {
+                "type": "object",
+                "properties": {"name": _TEXT, "aggregate": _TEXT, "performed_by": {"type": "string", "enum": ["audience", "other"]},
+                               "params": {"type": "array", "items": _TEXT}, "description": _TEXT},
+                "required": ["name", "aggregate", "performed_by", "params", "description"]}},
+            "starting_states": {"type": "array", "items": {
+                "type": "object",
+                "properties": {"aggregate": _TEXT, "description": _TEXT},
+                "required": ["aggregate", "description"]}},
+            "vocabulary": {"type": "array", "items": {
+                "type": "object",
+                "properties": {"aggregate": _TEXT, "field": _TEXT, "values": {"type": "array", "items": {
+                    "type": "object", "properties": {"value": _TEXT, "meaning": _TEXT}, "required": ["value", "meaning"]}}},
+                "required": ["aggregate", "field", "values"]}},
+            "rejections": {"type": "array", "items": {
+                "type": "object",
+                "properties": {"aggregate": _TEXT, "error": _TEXT, "raised_when": _TEXT},
+                "required": ["aggregate", "error", "raised_when"]}},
+        },
+        "required": ["actions", "starting_states", "vocabulary", "rejections"]}},
+    "required": ["action_manifest"],
+}
 
 
 def _sanitize_name(name: str) -> str:
@@ -48,7 +79,7 @@ def synthesize_action_protocol(
 ) -> Dict[str, Any]:
     """Asks the LLM for the action manifest. Writes no files. On any failure returns success False with the reason."""
     start_time = time.time()
-    master = next((e for e in structure.entities if e.is_aggregate_root), None) or (structure.entities[0] if structure.entities else None)
+    master = structure.master_entity()
     master_name = _sanitize_name(master.name) if master else _sanitize_name(structure.domain_name or "Application")
 
     classes_block = "\n\n".join(
@@ -65,7 +96,7 @@ def synthesize_action_protocol(
         "bdd_section": specs_block,
         "intent_block": intent_block(intent),
     })
-    raw = agent_orchestrator.call_gemini(prompt, stage="domain_engine_synthesis", json_mode=True)
+    raw = agent_orchestrator.call_gemini(prompt, stage="domain_engine_synthesis", json_mode=True, json_schema=MANIFEST_SCHEMA)
     elapsed = lambda: round(time.time() - start_time, 2)  # noqa: E731
     if not raw or not raw.strip():
         reason = agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response"

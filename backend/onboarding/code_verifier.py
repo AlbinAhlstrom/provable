@@ -5,13 +5,16 @@ Parses React TSX code for structural balance and syntax errors before saving to 
 If syntax errors are detected, triggers a targeted self-healing LLM repair step.
 """
 
+from pipeline_trace import traced
 import re
 import sys
 import os
-from typing import Dict, Any, Tuple, List
+from dataclasses import dataclass
+from typing import Callable, Dict, Any, Sequence, Tuple, List
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import agent_orchestrator
 from agent_orchestrator import call_gemini
+from onboarding.verification import compile_tsx
 
 
 def verify_tsx_syntax(code: str) -> Tuple[bool, str]:
@@ -82,57 +85,100 @@ def self_heal_tsx_code(code: str, error_msg: str, pitch: str) -> str:
     return code
 
 
+_FILE_MARKER = re.compile(r"^<<<([^<>\n]+)>>>[ \t]*$", re.MULTILINE)
+
+
+@dataclass(frozen=True)
+class FileFix:
+    """One repaired component: its path relative to the workspace (e.g. src/App.tsx) and its full new source."""
+    path: str
+    code: str
+
+
+@dataclass(frozen=True)
+class PresentationRepair:
+    """The healer's typed answer: a replacement for each component that needs one."""
+    fixes: List[FileFix]
+
+    @classmethod
+    def from_response(cls, raw: str) -> "PresentationRepair":
+        """Reads `<<<src/...>>>` file blocks closed by `<<<end>>>`: plain source, as the page writer answers. A whole
+        file escaped into a JSON string proved fragile (one lost escape and the file no longer compiles)."""
+        marks = list(_FILE_MARKER.finditer(raw or ""))
+        if not marks:
+            raise ValueError(f"no <<<file>>> markers in the answer; it began: {(raw or '')[:200]!r}")
+        fixes = []
+        for mark, following in zip(marks, marks[1:] + [None]):
+            path = mark.group(1).strip()
+            if path == "end":
+                break
+            code = raw[mark.end():following.start() if following else len(raw)].strip()
+            if not code:
+                raise ValueError(f"the block for {path} is empty")
+            fixes.append(FileFix(path=path, code=code))
+        return cls(fixes=fixes)
+
+
+def _component_index(workspace_dir: str, component_files: List[str]) -> Dict[str, List[str]]:
+    """Maps each generated component's workspace-relative path (src/...) to every on-disk copy of it."""
+    roots = [os.path.abspath(os.path.join(workspace_dir, "src")),
+             os.path.abspath(os.path.join(workspace_dir, "frontend", "src"))]
+    index: Dict[str, List[str]] = {}
+    for file_path in component_files:
+        absolute = os.path.abspath(file_path)
+        for root in roots:
+            if absolute.startswith(root + os.sep):
+                rel = "src/" + os.path.relpath(absolute, root).replace(os.sep, "/")
+                if absolute not in index.setdefault(rel, []):
+                    index[rel].append(absolute)
+    return index
+
+
+@traced("qa.self_heal")
 def self_heal_presentation_suite(
     workspace_dir: str,
     pitch: str,
     defects: List[str],
-    console_errors: List[str]
+    console_errors: List[str],
+    component_files: List[str],
+    contract_files: Sequence[str] = (),
+    compile_check: Callable[[str, str], Tuple[bool, str]] = compile_tsx,
 ) -> bool:
     """
-    Closed-loop LLM repair for live preview issues detected by QA Auditor.
-    Identifies the broken component from compiler/browser traces, feeds it to Gemini,
-    and writes back the repaired code.
-    Returns True if repaired and saved.
+    Closed-loop LLM repair for live preview issues detected by the QA auditor.
+    The model sees every generated component plus the defects and returns a typed
+    PresentationRepair naming the files to replace; only generated components are writable.
+    `contract_files` (the API clients, written from the domain model) are shown and stay as they are: the page is
+    changed to fit them. A fix that does not compile is not written, so the file keeps what it had.
+    One call, no retry. Returns True if at least one file was repaired.
     """
     if not defects and not console_errors:
         return False
 
+    fixed = _component_index(workspace_dir, list(contract_files))
+    index = {rel: copies for rel, copies in _component_index(workspace_dir, component_files).items() if rel not in fixed}
+    if not index:
+        return False
+
     combined_errors = "\n".join([f"- Defect: {d}" for d in defects] + [f"- Console Error: {ce}" for ce in console_errors])
-
-    # Detect if a specific component file was flagged in traceback
-    target_rel = "src/App.tsx"
-    file_match = re.search(r'src/([a-zA-Z0-9_/]+\.tsx)', combined_errors)
-    if file_match:
-        target_rel = f"src/{file_match.group(1)}"
-
-    target_paths = [
-        os.path.join(workspace_dir, target_rel),
-        os.path.join(workspace_dir, "frontend", target_rel)
-    ]
-
-    target_path = None
-    for p in target_paths:
-        if os.path.exists(p):
-            target_path = p
-            break
-
-    if not target_path:
-        # Fallback to App.tsx
-        for p in [os.path.join(workspace_dir, "src", "App.tsx"), os.path.join(workspace_dir, "frontend", "src", "App.tsx")]:
-            if os.path.exists(p):
-                target_path = p
-                target_rel = "src/App.tsx"
-                break
-
-    if not target_path or not os.path.exists(target_path):
-        return False
-
-    try:
-        with open(target_path, "r", encoding="utf-8") as f:
-            broken_code = f.read()
-    except Exception as e:
-        print(f"⚠️ [self_heal_presentation_suite] Could not read {target_path}: {e}")
-        return False
+    sources = []
+    for rel, copies in index.items():
+        try:
+            with open(copies[0], "r", encoding="utf-8") as f:
+                sources.append(f"--- FILE ({rel}) ---\n{f.read()}")
+        except OSError as e:
+            print(f"⚠️ [self_heal_presentation_suite] Could not read {copies[0]}: {e}", flush=True)
+            return False
+    contracts = []
+    for rel, copies in fixed.items():
+        try:
+            with open(copies[0], "r", encoding="utf-8") as f:
+                contracts.append(f"--- FILE ({rel}) ---\n{f.read()}")
+        except OSError:
+            continue
+    contract_block = ("\n--- THE API CLIENTS (fixed: written from the domain model; the components are changed to fit "
+                      "them, and a request the API refuses is shown to the user as it is) ---\n"
+                      + "\n".join(contracts) + "\n") if contracts else ""
 
     prompt = f"""You are Provable's Principal Lead Frontend Architect.
 The live application preview on :5174 failed runtime verification.
@@ -143,34 +189,46 @@ The live application preview on :5174 failed runtime verification.
 --- PRODUCT PITCH ---
 {pitch}
 
---- CURRENT FILE ({target_rel}) ---
-{broken_code}
-
+--- GENERATED COMPONENTS ---
+{chr(10).join(sources)}
+{contract_block}
 Task:
-1. Diagnose the exact runtime, compilation, or layout error from the logs and code above.
-2. If this is `App.tsx`, ensure it properly exports the default component (`export default App;`) and satisfies modular orchestrator contracts.
-3. Fix all syntax, JSX escaping, prop mismatches, or layout scaling issues so the component renders cleanly without errors.
-4. Keep user-facing copy natural and persona-focused (avoid internal compiler terms like Invariant, Audit Ledger, Boundary Guards).
+1. Diagnose which component(s) cause the defects above; layout defects usually carry no file name, so decide from the code.
+2. Fix syntax, JSX escaping, prop mismatches or layout scaling so the app renders cleanly without errors. `App.tsx` must keep `export default App;`.
+3. Keep user-facing copy natural and persona-focused (no internal compiler terms like Invariant, Audit Ledger, Boundary Guards).
+4. Change only the files that need it, and in them only what answers a defect: what no defect names stays exactly as it is (its colours, sizes, copy and behaviour), since it was measured and passed.
 
-Return ONLY the corrected code inside a single ```tsx code block.
+Answer with one block for each file you change: its marker alone on a line, `<<<` + one of the FILE paths above + `>>>`,
+then the complete corrected file as plain source text (no JSON, no escaping, no fences, no commentary). After the last
+file write the marker `<<<end>>>` alone on a line. For example:
+
+<<<src/App.tsx>>>
+(the complete corrected file)
+<<<end>>>
 """
     try:
-        repaired = call_gemini(prompt, stage="self_healing")
-        if repaired:
-            cleaned = repaired.strip()
-            fence_match = re.search(r'```(?:tsx|jsx|typescript|javascript)?\s*\n(.*?)```', cleaned, re.DOTALL)
-            if fence_match:
-                cleaned = fence_match.group(1).strip()
-
-            for p in target_paths:
-                if os.path.exists(os.path.dirname(p)):
-                    with open(p, "w", encoding="utf-8") as f:
-                        f.write(cleaned.strip() + "\n")
-
-            print(f"✨ [self_heal_presentation_suite] Successfully healed {target_rel} via LLM closed loop!", flush=True)
-            return True
+        raw = call_gemini(prompt, stage="self_healing", json_mode=False)
+        repair = PresentationRepair.from_response(raw)
     except Exception as e:
-        print(f"⚠️ [self_heal_presentation_suite] Self-healing LLM call failed: {e}", flush=True)
+        print(f"⚠️ [self_heal_presentation_suite] Self-healing failed: {e} ({agent_orchestrator.LAST_LLM_ERROR or 'no provider error'})", flush=True)
+        return False
 
-    return False
+    healed = []
+    for fix in repair.fixes:
+        copies = index.get(fix.path)
+        if not copies:
+            print(f"⚠️ [self_heal_presentation_suite] Refused fix for non-component path {fix.path!r}", flush=True)
+            continue
+        compiles, verdict = compile_check(workspace_dir, fix.code)
+        if not compiles:
+            print(f"⚠️ [self_heal_presentation_suite] Refused fix for {fix.path}: it does not compile ({verdict})", flush=True)
+            continue
+        for p in copies:
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(fix.code.strip() + "\n")
+        healed.append(fix.path)
+
+    if healed:
+        print(f"✨ [self_heal_presentation_suite] Healed {', '.join(healed)} via LLM closed loop!", flush=True)
+    return bool(healed)
 

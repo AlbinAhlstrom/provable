@@ -7,7 +7,7 @@ This document outlines workspace boundary rules, headless browser execution flag
 ## 🚫 Workspace Boundary Rules (`workspace/` off-limits)
 
 The `workspace/` directory contains the target application being built by autonomous developer agents:
-The authoritative rule is `.agents/rules/01-architecture-and-meta.md` (section 2, "No Bandages"): never edit or commit inside `workspace/`; fix the generator in `backend/` instead. Reading `workspace/` and running `git log/status/diff` there is fine. The `PreToolUse` hook `.claude/hooks/guard.py` enforces this for Claude Code.
+The authoritative rule is `.claude/rules/architecture.md` ("`workspace/` is off-limits"): never edit or commit inside `workspace/`; fix the generator in `backend/` instead. Reading `workspace/` and running `git log/status/diff` there is fine. The `PreToolUse` hook `.claude/hooks/guard.py` enforces this for Claude Code.
 
 ---
 
@@ -29,7 +29,7 @@ When running headless Chrome or Selenium automation in containerized remote envi
 
 ## 📁 Obsidian Vault Documentation Maintenance
 
-See rule 01 section 4. In short:
+See `.claude/rules/architecture.md`. In short:
 - Keep `vault/Home.md` up-to-date whenever adding or deleting pages.
 - Use standard double-bracket internal links (e.g. `[[System Architecture]]`) to link related concepts.
 - Document architectural changes under `vault/01-Architecture/`.

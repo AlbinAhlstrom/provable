@@ -67,7 +67,11 @@ def test_workspace_vite_build_integrity(tmp_path):
 
     ws_dir = str(tmp_path / "scaffold")
     create_default_workspace_scaffold(ws_dir)
-    os.symlink(installed, os.path.join(ws_dir, "node_modules"), target_is_directory=True)
+    link = os.path.join(ws_dir, "node_modules")
+    try:
+        os.symlink(installed, link, target_is_directory=True)
+    except OSError:  # Windows without the symlink privilege: a directory junction needs none
+        subprocess.run(["cmd", "/c", "mklink", "/J", link, installed], check=True, capture_output=True)
     npm_cmd = "npm.cmd" if os.name == "nt" else "npm"
     res = subprocess.run([npm_cmd, "run", "build"], cwd=ws_dir, capture_output=True, text=True)
     assert res.returncode == 0, f"Workspace build failed:\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}"

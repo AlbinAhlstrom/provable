@@ -8,7 +8,7 @@ import os
 import json
 import re
 from typing import List, Dict, Any, Optional, Tuple
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 import agent_orchestrator
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:  # avoid a runtime import cycle; the type is only used in a signature
@@ -37,13 +37,40 @@ class AttributeSpec(BaseModel):
     type: str = "str"
     required: bool = True
     default_value: Optional[Any] = None
+    item_name: str = ""                                         # set when the attribute is a list of an owned part
+    item_attributes: List["AttributeSpec"] = Field(default_factory=list)  # what one item of that list holds
+
+    def describe(self) -> str:
+        """The attribute as prompts state it: `name: type`, and for a list of parts what one item holds."""
+        if not self.item_attributes:
+            return f"{self.name}: {self.type}"
+        item = ", ".join(f"{a.name}: {a.type}" for a in self.item_attributes)
+        return f"{self.name}: list of {self.item_name} {{{item}}}"
+
+
+class AudienceRole(str, Enum):
+    """How an entity relates to the product's audience (decided by the decomposition from the product intent)."""
+    CREATED = "created_by_audience"   # records the audience brings into being: an inquiry, an order, a game session
+    SHOWN = "shown_to_audience"       # content the business publishes for the audience to read: offerings, credentials
+    INTERNAL = "internal"             # back-office state the audience never sees
 
 
 class EntitySpec(BaseModel):
     name: str
     is_aggregate_root: bool = True
+    audience_role: AudienceRole = AudienceRole.INTERNAL
     attributes: List[AttributeSpec] = Field(default_factory=list)
     relationships: List[Dict[str, str]] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _records_are_identified_by_id(self) -> "EntitySpec":
+        """An entity whose records are stored and served has the identity attribute `id`. The generated repository,
+        router, seed loader and clients all key records by it; a model that names its identity anything else
+        (`offering_id`) would have every record collapse into one."""
+        stored = self.is_aggregate_root or self.audience_role != AudienceRole.INTERNAL
+        if stored and not any(a.name == "id" for a in self.attributes):
+            self.attributes.insert(0, AttributeSpec(name="id", type="string", required=True))
+        return self
 
 
 class DomainStructureSchema(BaseModel):
@@ -51,6 +78,22 @@ class DomainStructureSchema(BaseModel):
     entities: List[EntitySpec] = Field(default_factory=list)
     value_objects: List[EntitySpec] = Field(default_factory=list)
     enums: List[Dict[str, Any]] = Field(default_factory=list)
+
+    def master_entity(self) -> Optional[EntitySpec]:
+        """The aggregate the interface is organised around: what the audience creates, else the first aggregate root
+        (structures without roles keep that rule), else the first entity."""
+        created = next((e for e in self.entities if e.audience_role == AudienceRole.CREATED), None)
+        root = next((e for e in self.entities if e.is_aggregate_root), None)
+        return created or root or (self.entities[0] if self.entities else None)
+
+    def shown_entities(self) -> List[EntitySpec]:
+        return [e for e in self.entities if e.audience_role == AudienceRole.SHOWN]
+
+    def presented_entities(self) -> List[EntitySpec]:
+        """Entities the audience-facing interface talks to: the master, everything else the audience creates (a
+        tool's users work with customers, jobs and invoices alike) and everything shown to the audience."""
+        master = self.master_entity()
+        return [e for e in self.entities if e is master or e.audience_role in (AudienceRole.SHOWN, AudienceRole.CREATED)]
 
 
 class BusinessSpec(BaseModel):
@@ -190,6 +233,10 @@ def decompose_pitch_into_structure_and_inbox(pitch: str, intent: "Optional[Produ
             clean_s, _ = verify_and_clean_spec_jargon(s)
             sanitized_specs.append(BusinessSpec(**clean_s))
         
+        # An entity that only exists inside another is stored inside its owner (onboarding/owned_parts.py)
+        from onboarding.owned_parts import embed_owned_parts
+        embed_owned_parts(structure, sanitized_specs)
+
         inbox = DomainBehaviorInboxSchema(
             domain_name=inbox_data.get("domain_name", structure.domain_name),
             specs=sanitized_specs
