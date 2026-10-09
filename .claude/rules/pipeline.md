@@ -20,6 +20,16 @@ What the generated product must look like (copy in the audience's own words, pla
 
 Personas, interactions and layouts are derived from the user's intent. Never sort a pitch into fixed bins (`B2B`, `B2C`, `GAME`, `CRUD`) and never key behaviour off hard-coded domain keywords.
 
+## Prompts are domain-neutral
+
+A prompt is read for every pitch, so it is written for none in particular. This matters most after debugging one pitch for a while: the fix that feels obvious then is usually written in that pitch's words.
+
+- State a rule in terms of the contract: owners, kinds, statuses, positions, parties, actions. Never in the nouns of one product (a chess term, a salon term, a glyph from one game).
+- An example names categories (a game, an order, a booking, a grid) and comes from at least two unrelated kinds of product. The pitch you are debugging is never the only example, and never the first.
+- Before adding a sentence, ask: would it be written if the failing pitch had been a different kind of product? If only one kind of product can trigger it, it is not a prompt rule. Fix the contract or the measurement instead, or flag it to the user.
+- A prompt change made while debugging one pitch is checked on a pitch of another kind before it is called done.
+- `backend/tests/unit/test_prompt_domain_neutrality.py` holds the words that have leaked before. When a new one leaks, add it there with the fix.
+
 ## Typed contracts
 
 Stages exchange dataclasses, not loose dicts. Entities carry an `audience_role` (what the audience creates, what is shown to it, what is internal); the master aggregate and the clients the presentation may import follow from it, and content the audience reads comes from validated seed records served by the API, never from literals in generated UI (`vault/01-Architecture/Audience Roles and Seed Data.md`). Behaviour changes to existing code go through `cst_isolator.py` (surgical deltas); presentation changes go through `presentation_specs.py` (one view, proved by a build). The kickstart asks the user nothing: the user is the CEO, and the pipeline makes opinionated assumptions.

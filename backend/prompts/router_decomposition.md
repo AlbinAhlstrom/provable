@@ -14,8 +14,8 @@ CRITICAL DECOMPOSITION INSTRUCTIONS:
 - SCOPE: Model only what the product intent asks for. Anything listed under "Do NOT model" must not appear as an entity, and the BDD rules must concern what this product's users and owner experience, not internal operations the intent excludes.
 - STRUCTURE:
   - Focus strictly on the primary 2 to 4 domain entities needed for the core user value loop, plus one entity for each kind of content the business publishes as a list.
-  - Identify the primary Aggregate Roots (e.g. Order, Pallet, Booking).
-  - An entity that only exists inside one aggregate root (the squares of a game's board, the lines of an order, the moves of a match) has `is_aggregate_root` false and a "many_to_one" relationship to that root. It is stored inside its owner and read and changed through it, so everything the owner's rules must look at (positions, lines, history) is such a part of it. An entity that is created, listed or chosen on its own is an aggregate root.
+  - Identify the primary Aggregate Roots (e.g. Order, Shipment, Booking).
+  - An entity that only exists inside one aggregate root (the cells of a grid, the lines of an order, the entries of a history) has `is_aggregate_root` false and a "many_to_one" relationship to that root. It is stored inside its owner and read and changed through it, so everything the owner's rules must look at (positions, lines, history) is such a part of it. An entity that is created, listed or chosen on its own is an aggregate root.
   - Give every entity an `audience_role`, derived from the product intent's audience and goal:
     - "created_by_audience": records the audience itself brings into being by using the product (a visitor's inquiry or booking request, a customer's order, a player's game session). The product's primary interaction centres on these.
     - "shown_to_audience": content the business publishes for the audience to read (offerings with their rates, credentials, testimonials, menu items). The audience never creates these; they are authored by the business and shown to the audience.
@@ -27,7 +27,7 @@ CRITICAL DECOMPOSITION INSTRUCTIONS:
 
 - BEHAVIOR INBOX:
   - Extract each distinct business rule, invariant, pricing formula, or edge case as an atomic spec item.
-  - A rule is enforced only as far as a spec states it. Where the pitch lists several rules, special cases or exceptions (each special move of a game, each way it can end, each tier of a price), every one of them is a spec of its own with its own Given/When/Then; a single spec that says "the rules are followed" covers none of them. Go through the pitch's rules line by line and leave none out: the ordinary rules (how each kind of thing may move, what each status allows) need a spec as much as the exceptions do, and the ordinary rule's spec states both what it allows and what it refuses.
+  - A rule is enforced only as far as a spec states it. Where the pitch lists several rules, special cases or exceptions (each special case of a rule set, each way a process can end, each tier of a price), every one of them is a spec of its own with its own Given/When/Then; a single spec that says "the rules are followed" covers none of them. Go through the pitch's rules line by line and leave none out: the ordinary rules (what each kind of thing may do, what each status allows) need a spec as much as the exceptions do, and the ordinary rule's spec states both what it allows and what it refuses.
   - Formulate a precise BDD specification ("Given ... When ... Then ...").
   - Target the specific Aggregate Root that owns the invariant.
   - Set `kind` to "behavior" when the rule is about what the domain allows, calculates or records, and to "presentation" when it is only about what a user sees (a section, layout or visual state). A rule that needs both is two specs: one of each kind.

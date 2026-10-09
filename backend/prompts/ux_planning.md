@@ -36,8 +36,8 @@ Reason holistically about the target personas and interaction ergonomics. Produc
 
 2. **Action Prerequisites & Guidance (Zero Mystery Disabled Buttons)**:
    - For every primary workflow (e.g. booking, ordering, starting a session), identify what prerequisites are needed.
-   - If an action cannot be performed yet (e.g. missing child profile, empty cart), how does the UI guide the user?
-   - Mandate that any gated action displays clear explanatory guidance (e.g. "Register your family profile below to request a sitting") rather than an unexplained disabled button.
+   - If an action cannot be performed yet (e.g. a missing profile, an empty selection), how does the UI guide the user?
+   - Mandate that any gated action displays clear explanatory guidance (a sentence saying what to do first, and where) rather than an unexplained disabled button.
 
 3. **Information Architecture & View Structure**:
    - What primary views or tabs should be present, in what logical sequence?
