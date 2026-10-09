@@ -157,6 +157,30 @@ def test_reasoning_effort_defaults_to_low_and_is_configurable(monkeypatch):
     assert "reasoning_effort" not in comp.kwargs
 
 
+def test_a_call_is_given_the_time_its_reasoning_effort_needs(monkeypatch):
+    """Verify raising the effort does not make calls that finished at low effort time out.
+
+    id: TST-FIX-031
+    Given: A fake provider client
+    When: call_gemini runs at the default effort, with LLM_REASONING_EFFORT=medium, and with an explicit timeout
+    Then: The request waits 60 s, longer than 60 s, and exactly the explicit time respectively
+    """
+    monkeypatch.setenv("GEMINI_API_KEY", "k" * 20)
+    comp = _FakeCompletions()
+    monkeypatch.setattr(agent_orchestrator, "OpenAI", _fake_openai(comp))
+    monkeypatch.delenv("LLM_REASONING_EFFORT", raising=False)
+    _REAL_CALL_GEMINI("p", stage="s")
+    assert comp.kwargs["timeout"] == 60.0
+    monkeypatch.setenv("LLM_REASONING_EFFORT", "medium")
+    _REAL_CALL_GEMINI("p", stage="s")
+    assert comp.kwargs["timeout"] == 180.0
+    _REAL_CALL_GEMINI("p", stage="s", timeout_s=45.0)
+    assert comp.kwargs["timeout"] == 45.0
+    monkeypatch.delenv("LLM_REASONING_EFFORT")
+    _REAL_CALL_GEMINI("p", stage="s", reasoning_effort="high")
+    assert comp.kwargs["timeout"] > 180.0
+
+
 def test_provider_that_rejects_reasoning_effort_fails_loudly_without_retry(monkeypatch):
     """Verify an unsupported parameter is reported once, with the fix, and never silently retried.
 

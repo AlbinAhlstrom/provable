@@ -168,10 +168,16 @@ def model_for_stage(stage: str) -> str:
     return llm_provider.connection(stage).model
 
 
+# Seconds one call may take. More hidden reasoning takes longer: the rule deck of a hard pitch took 49 s at low
+# effort and passed 60 s at medium.
+DEFAULT_TIMEOUT_S = 60.0
+EFFORT_TIMEOUT_S = {"medium": 180.0, "high": 300.0}
+
+
 @traced_llm
 def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, reasoning_effort: Optional[str] = None,
                 images: Optional[List[str]] = None, json_schema: Optional[Dict[str, Any]] = None,
-                timeout_s: float = 60.0) -> str:
+                timeout_s: Optional[float] = None) -> str:
     """OpenAI Python SDK wrapper for LLM calls (configured via environment variables).
 
     json_mode asks the provider for a syntactically valid JSON object (use for stages whose output
@@ -181,7 +187,8 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
 
     reasoning_effort limits hidden "thinking" tokens. Measured on the GREEN-repair prompt with
     gemini-3.8-flash: default effort = 259 s / 35,335 tokens, "low" = 5 s / 1,566 tokens. Defaults to
-    $LLM_REASONING_EFFORT, else "low"; set the variable to an empty string to send nothing.
+    $LLM_REASONING_EFFORT, else "low"; set the variable to an empty string to send nothing. A call waits as long
+    as its effort needs (EFFORT_TIMEOUT_S) unless timeout_s says otherwise.
 
     No retries happen here, by design (retries mask errors): the SDK's own automatic retries are
     disabled, and a provider that rejects reasoning_effort fails loudly with the fix in the message.
@@ -203,7 +210,7 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
         "model": model_name,
         "messages": [{"role": "user", "content": _message_content(prompt, images)}],
         **({"temperature": 0.2} if connection.accepts_temperature else {}),
-        "timeout": timeout_s,
+        "timeout": timeout_s if timeout_s is not None else EFFORT_TIMEOUT_S.get(effort, DEFAULT_TIMEOUT_S),
         **({"response_format": {"type": "json_schema", "json_schema": {"name": stage, "schema": json_schema}}}
            if json_schema else {"response_format": {"type": "json_object"}} if json_mode else {}),
     }
