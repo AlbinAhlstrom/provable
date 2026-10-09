@@ -1,0 +1,86 @@
+"""Unit tests for which provider the LLM calls go to (backend/llm_provider.py)."""
+
+import pytest
+
+import llm_provider
+
+_SETTINGS = ("LLM_PROVIDER", "LLM_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY", "OPENAI_BASE_URL", "LLM_MODEL",
+             "LLM_MODEL_RED_TEST_GENERATION")
+
+
+@pytest.fixture(autouse=True)
+def no_llm_settings(monkeypatch):
+    for name in _SETTINGS:
+        monkeypatch.delenv(name, raising=False)
+
+
+def test_a_named_provider_brings_its_own_endpoint_key_and_model(monkeypatch):
+    """Verify one setting switches the endpoint, the key and the model together.
+
+    id: TST-PROV-001
+    Given: Keys for two providers, and LLM_PROVIDER naming one of them
+    When: The connection is resolved, then the other provider is named
+    Then: Each time the endpoint, the key and the model are that provider's
+    """
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENAI_API_KEY", "openai-key")
+    for name in ("openai", "gemini"):
+        monkeypatch.setenv("LLM_PROVIDER", name)
+        provider, connection = llm_provider.PROVIDERS[name], llm_provider.connection()
+        assert (connection.base_url, connection.model) == (provider.base_url, provider.model)
+        assert connection.api_key == f"{name}-key"
+
+
+def test_a_named_provider_is_not_mixed_with_the_single_settings(monkeypatch):
+    """Verify a leftover endpoint or model of another provider cannot leak into the named one.
+
+    id: TST-PROV-002
+    Given: LLM_PROVIDER naming a provider, with OPENAI_BASE_URL, LLM_API_KEY and LLM_MODEL left from another setup
+    When: The connection is resolved
+    Then: Only the stage override is honoured; the rest is the named provider's
+    """
+    monkeypatch.setenv("LLM_PROVIDER", "openai")
+    monkeypatch.setenv("OPENAI_API_KEY", "openai-key")
+    monkeypatch.setenv("LLM_API_KEY", "other-key")
+    monkeypatch.setenv("OPENAI_BASE_URL", "https://other.example/v1")
+    monkeypatch.setenv("LLM_MODEL", "other-model")
+    monkeypatch.setenv("LLM_MODEL_RED_TEST_GENERATION", "test-writer-model")
+    connection = llm_provider.connection()
+    assert connection.api_key == "openai-key" and connection.base_url == llm_provider.PROVIDERS["openai"].base_url
+    assert connection.model == llm_provider.PROVIDERS["openai"].model
+    assert llm_provider.connection("red_test_generation").model == "test-writer-model"
+
+
+def test_without_a_named_provider_the_single_settings_decide(monkeypatch):
+    """Verify a setup that names no provider keeps working as before.
+
+    id: TST-PROV-003
+    Given: No LLM_PROVIDER; first only a Gemini key, then a custom endpoint, key and model
+    When: The connection is resolved
+    Then: It is the Gemini default, then the custom one
+    """
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
+    default = llm_provider.connection()
+    assert (default.base_url, default.model, default.api_key) == (
+        llm_provider.PROVIDERS["gemini"].base_url, llm_provider.PROVIDERS["gemini"].model, "gemini-key")
+    monkeypatch.setenv("LLM_API_KEY", "custom-key")
+    monkeypatch.setenv("OPENAI_BASE_URL", "https://custom.example/v1")
+    monkeypatch.setenv("LLM_MODEL", "custom-model")
+    custom = llm_provider.connection()
+    assert (custom.base_url, custom.model, custom.api_key) == ("https://custom.example/v1", "custom-model", "custom-key")
+
+
+def test_an_unknown_provider_fails_loudly_and_a_missing_key_is_named(monkeypatch):
+    """Verify a typo in the provider name is not answered by silently using another provider.
+
+    id: TST-PROV-004
+    Given: LLM_PROVIDER naming a provider that does not exist, then a real one whose key is not set
+    When: The connection is resolved
+    Then: The first raises naming the known providers; the second has no key and names the setting to fill
+    """
+    monkeypatch.setenv("LLM_PROVIDER", "nobody")
+    with pytest.raises(ValueError, match="gemini"):
+        llm_provider.connection()
+    monkeypatch.setenv("LLM_PROVIDER", "openai")
+    connection = llm_provider.connection()
+    assert connection.api_key == "" and "OPENAI_API_KEY" in connection.key_hint

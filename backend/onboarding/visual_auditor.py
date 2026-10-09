@@ -84,7 +84,9 @@ def audit_visual_presentation(url: str = "http://localhost:5174", pitch: str = "
         with open(mobile_path, "rb") as img_m:
             base64_mobile = base64.b64encode(img_m.read()).decode("utf-8")
 
-        api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
+        import llm_provider
+        connection = llm_provider.connection()
+        api_key = connection.api_key
         if not api_key or api_key == "mock-key":
             return {
                 "passed": True,
@@ -95,11 +97,10 @@ def audit_visual_presentation(url: str = "http://localhost:5174", pitch: str = "
             }
 
         from openai import OpenAI
-        base_url = os.environ.get("OPENAI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
-        client = OpenAI(api_key=api_key, base_url=base_url)
+        client = OpenAI(api_key=api_key, base_url=connection.base_url)
 
         response = client.chat.completions.create(
-            model=os.environ.get("LLM_MODEL", "gemini-3.8-flash"),
+            model=connection.model,
             messages=[
                 {
                     "role": "user",

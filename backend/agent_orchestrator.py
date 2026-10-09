@@ -37,6 +37,7 @@ from openai import OpenAI
 
 
 import db.store as store
+import llm_provider
 from config_loader import get_workspace_base, get_project_settings
 
 # Load environment variables from root .env file if present
@@ -163,8 +164,8 @@ def _message_content(prompt: str, images: Optional[List[str]]) -> Any:
 
 
 def model_for_stage(stage: str) -> str:
-    """The model a stage runs on: LLM_MODEL_<STAGE>, else LLM_MODEL, else the default."""
-    return os.environ.get(f"LLM_MODEL_{stage.upper()}") or os.environ.get("LLM_MODEL", "gemini-3.8-flash")
+    """The model a stage runs on: LLM_MODEL_<STAGE>, else the provider's model (llm_provider.py)."""
+    return llm_provider.connection(stage).model
 
 
 @traced_llm
@@ -186,14 +187,13 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
     disabled, and a provider that rejects reasoning_effort fails loudly with the fix in the message.
     """
     _llm_error.value = None
-    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
-    base_url = os.environ.get("OPENAI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
     # LLM_MODEL_<STAGE> (e.g. LLM_MODEL_RED_TEST_GENERATION) lets one stage use a different model, such as a
     # different model writing the tests than the one writing the code.
-    model_name = model_for_stage(stage)
+    connection = llm_provider.connection(stage)
+    api_key, base_url, model_name = connection.api_key, connection.base_url, connection.model
 
     if not api_key:
-        _llm_error.value = "No LLM API key configured (set GEMINI_API_KEY, LLM_API_KEY or OPENAI_API_KEY)."
+        _llm_error.value = f"No LLM API key configured ({connection.key_hint})."
         print(f"[Warning] {_llm_error.value}", flush=True)
         record_llm_meta(model=model_name, error=_llm_error.value)
         return ""

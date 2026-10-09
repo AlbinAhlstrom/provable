@@ -71,9 +71,10 @@ def _git_info() -> Dict[str, Any]:
 
 
 def _llm_settings() -> Dict[str, Any]:
-    import agent_orchestrator
-    base = os.environ.get("OPENAI_BASE_URL", "")
-    return {"model": agent_orchestrator.model_for_stage("general"),
+    import llm_provider
+    connection = llm_provider.connection()
+    base = connection.base_url
+    return {"model": connection.model, "provider": os.environ.get("LLM_PROVIDER") or None,
             "stage_model_overrides": {k: v for k, v in os.environ.items() if k.startswith("LLM_MODEL_")},
             "reasoning_effort": os.environ.get("LLM_REASONING_EFFORT", "low"),
             "base_url_host": re.sub(r"^https?://([^/]+).*", r"\1", base) if base else None}

@@ -928,8 +928,8 @@ def get_kickstart_state(uow: AbstractUnitOfWork) -> Dict[str, Any]:
     with uow:
         state = uow.kickstart.get()
         d = state.to_dict()
-        api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
-        d["llm_configured"] = bool(api_key)
+        import llm_provider
+        d["llm_configured"] = bool(llm_provider.connection().api_key)
         return d
 
 
