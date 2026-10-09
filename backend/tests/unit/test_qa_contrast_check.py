@@ -63,3 +63,19 @@ def test_each_pair_of_colours_is_reported_once():
     samples += [_sample(t, [20, 20, 20], [30, 30, 30]) for t in ("b", "c")]
     check = cc.verdict_from_samples("Mobile", samples)
     assert len(check.defects) == 2 and "2 text(s)" in check.defects[0] and "1 text(s)" in check.defects[1]
+
+
+def test_a_background_carrying_light_and_dark_text_is_asked_to_be_a_middle_tone():
+    """Verify the rework is told the way out when changing the text alone cannot work.
+
+    id: TST-QA-CONTRAST-005
+    Given: A pale background carrying near-white text (unreadable) and near-black text (readable)
+    When: The verdict is drawn
+    Then: The defect names the other text colour on that background and asks for a background between the two tones,
+          with the contrast to reach
+    """
+    samples = [_sample("L", [245, 245, 244], [254, 243, 199]), _sample("D", [12, 10, 9], [254, 243, 199])]
+    defect = cc.verdict_from_samples("Desktop", samples).defects[0]
+    assert "#0c0a09" in defect and "between the two" in defect and "3 to 1" in defect
+    alone = cc.verdict_from_samples("Desktop", samples[:1]).defects[0]
+    assert "between the two" not in alone and "3 to 1" in alone

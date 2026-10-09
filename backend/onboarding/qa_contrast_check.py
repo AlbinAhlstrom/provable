@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Sequence
 from pipeline_trace import traced
 
 FAINT_BELOW = 1.5
+READABLE_FROM = 3  # what the rework is asked to reach: well clear of the bar, so a small change is not enough
 SAMPLES_QUOTED = 3
 
 _CONTRAST_SCRIPT = r"""
@@ -95,10 +96,17 @@ def verdict_from_samples(device: str, samples: List[Dict[str, Any]]) -> Contrast
     for pair, _ in Counter({pair: len(found) for pair, found in texts.items()}).most_common():
         found = texts[pair]
         quoted = ", ".join(f'"{t}"' for t in list(dict.fromkeys(found))[:SAMPLES_QUOTED])
+        others = sorted({tuple(s["color"][:3]) for s in samples
+                         if tuple(s["background"][:3]) == pair[1] and tuple(s["color"][:3]) != pair[0]
+                         and contrast_ratio(s["color"], pair[1]) >= READABLE_FROM})
+        way_out = (f"The same background also carries text in {', '.join(_hex(c) for c in others)}, which it must keep "
+                   f"readable, so the background has to become a tone between the two: clearly darker than its light "
+                   f"text and clearly lighter than its dark text. " if others else "")
         check.defects.append(
             f"[{device}] Unreadable text: {len(found)} text(s) (such as {quoted}) are drawn in {_hex(pair[0])} on a "
-            f"background of {_hex(pair[1])}, a contrast of {contrast_ratio(*pair):.1f} to 1; text needs a colour "
-            f"clearly lighter or darker than every background it is shown on")
+            f"background of {_hex(pair[1])}, a contrast of {contrast_ratio(*pair):.1f} to 1. {way_out}"
+            f"Change the text colour or the background until the contrast is at least {READABLE_FROM:g} to 1 on "
+            f"every background the text is shown on")
     return check
 
 
