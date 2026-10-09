@@ -38,6 +38,12 @@ def format_action_protocol(manifest: Optional[Dict[str, Any]]) -> str:
              for line in shared_words({"vocabulary": manifest.get("vocabulary")}, aggregate)]
     if words:
         lines += ["", "Values the fields hold, exactly as the API returns them:"] + words
+    # The page is written while the methods are, so the classes it is shown do not set themselves up yet
+    owners = list(dict.fromkeys(str(e.get("aggregate")) for e in manifest.get("starting_states") or [] if isinstance(e, dict)))
+    starts = [f"- A newly created `{owner}` holds: {starting_state(manifest, owner)}"
+              for owner in owners if starting_state(manifest, owner)]
+    if starts:
+        lines += ["", "What a record holds when it has just been created, before any action:"] + starts
     return "\n".join(lines)
 
 

@@ -54,12 +54,12 @@ graph LR
 - [[Testing Strategy]]
 - [[Bug-Reproduction-and-Testing-Policy]]
 
-## Actions work before the page is written
+## Actions are made to work while the page is written
 
 The action protocol only names the actions the page offers, and the generated API runs an action by calling the method
 of that name on the aggregate. A kickstart that stops there produces a page on which every action answers "Unknown
-action". So the kickstart's `action_behaviour` stage (`backend/onboarding/action_behaviour.py`) runs between the action
-protocol and the presentation:
+action". So the kickstart's `action_behaviour` stage (`backend/onboarding/action_behaviour.py`) runs right after the
+action protocol, alongside the presentation:
 
 - One spec per aggregate states all of its actions (name, parameters, what each changes), and goes through the same
   TDD loop as every later spec: a RED test, GREEN, the regression gate.
@@ -67,9 +67,16 @@ protocol and the presentation:
   an action unnoticed.
 - The code is then compared with the manifest. An action without a method fails the stage by name and the run is
   DEGRADED; nothing is stubbed.
-- The page is written afterwards, against the class as it really is (its fields and methods).
+- The page does not wait for it. What a page needs of an action is fixed by the action protocol before any method
+  exists: its name and parameters, the values the fields take (`vocabulary`) and what a new object holds
+  (`starting_states`). The page is written from those and from the classes as the skeleton left them. It used to
+  wait for the methods, more than a minute in a recorded build.
+- Writing the methods can change what a class holds. `backend/onboarding/page_contract.py` reads the public fields
+  of the domain classes before and after the stage; a class that gained or lost a field sends the page back to be
+  written once more, for the classes as they are (stage `page_revisit`, skipped when nothing changed). A second
+  writing that fails leaves the first page and is reported. In five recorded builds two would have been revisited.
 
-While the page is written, the rule deck's behaviour specs are written together (`backend/onboarding/spec_runner.py`,
+After the actions, the rule deck's behaviour specs are written together (`backend/onboarding/spec_runner.py`,
 `backend/service_layer/tdd_batch.py`, stage `behaviour_specs`):
 
 - RED, side by side: every spec gets its test through the single loop's RED phase (lint, RED gate, hollow check, one

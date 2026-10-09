@@ -160,7 +160,8 @@ Answer with four blocks, each introduced by its marker alone on a line:
             prompt_template = f.read()
 
     # The authoritative backend model: the dataclass of the master and of every other entity the audience creates
-    # (owned by the skeleton and the TDD loop), read now so the page sees the fields and methods they really have
+    # (owned by the skeleton and the TDD loop), read now so the page sees the fields they really have. In a
+    # kickstart the methods are being written at the same time; what the page needs of them is in the manifest.
     created = [_sanitize_name(e.name) for e in structure.entities
                if getattr(e.audience_role, "value", None) == "created_by_audience" and _sanitize_name(e.name) != master_name]
     class_sources = []

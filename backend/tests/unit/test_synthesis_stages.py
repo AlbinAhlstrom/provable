@@ -102,7 +102,8 @@ def test_every_stage_that_does_not_deliver_is_reported_with_its_reason(tmp_path,
     run = next(p for p in (tmp_path / "runs").iterdir() if p.is_dir())
     stages = {s["name"]: s["status"] for s in json.loads((run / "summary.json").read_text(encoding="utf-8"))["stages"]}
     assert stages == {"spec_review": "failed", "seed_data": "failed", "ux_plan": "ok", "action_protocol": "ok",
-                      "action_behaviour": "ok", "behaviour_specs": "skipped", "presentation": "failed"}
+                      "action_behaviour": "ok", "behaviour_specs": "skipped", "presentation": "failed",
+                      "page_revisit": "skipped"}
 
 
 def test_seed_data_is_credited_with_its_file_and_the_presentation_with_its_own(tmp_path, monkeypatch):
@@ -201,26 +202,156 @@ def test_a_written_page_leaves_no_scaffold_it_does_not_reach(tmp_path):
     assert (failed / "src/views/ScaffoldView.tsx").exists() and outcome.removed_scaffold == []
 
 
-def test_the_actions_are_implemented_before_the_page_that_calls_them_is_written(tmp_path):
-    """Verify the page is written against a domain that already has its methods and fields.
+CLASS = "from dataclasses import dataclass\n\n\n@dataclass\nclass Inquiry:\n    id: str\n    status: str = 'new'\n"
+
+
+def _domain_class(workspace, source=CLASS):
+    path = workspace / "src" / "domain" / "inquiry.py"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(source, encoding="utf-8")
+    return path
+
+
+def _stage_records(tmp_path):
+    run = next(p for p in (tmp_path / "runs").iterdir() if p.is_dir())
+    return {s["name"]: s for s in json.loads((run / "summary.json").read_text(encoding="utf-8"))["stages"]}
+
+
+def test_the_page_is_written_while_its_actions_are_implemented(tmp_path):
+    """Verify the page no longer waits for the methods behind its actions.
 
     id: TST-SYN-BEHAVIOUR
-    Given: A behaviour stage that records the manifest it was given, and a presentation that checks it has run
+    Given: A behaviour stage that only finishes once the presentation has started, and a presentation that only
+           finishes once the behaviour stage has started
     When: The stages run
-    Then: Behaviour ran with the protocol's manifest before the presentation, and its result is in the outcome
+    Then: Both finish (one after the other, either would wait forever); behaviour ran with the protocol's manifest
+          and its result is in the outcome
     """
-    seen = []
+    seen, behaviour_started, page_started = [], threading.Event(), threading.Event()
 
     def behaviour(manifest, workspace_dir, rules=None):
         seen.append([a["name"] for a in manifest["actions"]])
+        behaviour_started.set()
+        assert page_started.wait(WAIT), "the page waited for its actions to be implemented"
         return ActionBehaviour(implemented=["submit"])
 
     def presentation(**kw):
-        assert seen == [["submit"]], "the page was written before its actions were implemented"
+        page_started.set()
+        assert behaviour_started.wait(WAIT), "the actions were not implemented alongside the page"
         return {"success": True, "files": ["App.tsx"]}
 
     outcome = _run(tmp_path, behaviour=behaviour, presentation=presentation)
+    assert seen == [["submit"]]
     assert outcome.behaviour.implemented == ["submit"] and outcome.failures == []
+
+
+def test_a_page_whose_classes_kept_their_fields_is_not_written_again(tmp_path, monkeypatch):
+    """Verify the usual case costs one page: the methods were written and the classes hold what they held.
+
+    id: TST-SYN-REVISIT-UNCHANGED
+    Given: A domain class to which the behaviour stage adds a method and no field, in a recorded run
+    When: The stages run
+    Then: The page is written once, and the revisit is recorded as skipped with the reason
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.delenv("PROVABLE_RECORD_RUNS", raising=False)
+    workspace = tmp_path / "ws"
+    domain_class = _domain_class(workspace)
+    pages = []
+
+    def behaviour(manifest, workspace_dir, rules=None):
+        domain_class.write_text(CLASS + "\n    def submit(self) -> None:\n        self.status = 'sent'\n", encoding="utf-8")
+        return ActionBehaviour(implemented=["submit"])
+
+    def presentation(**kw):
+        pages.append(domain_class.read_text(encoding="utf-8"))
+        return {"success": True, "files": []}
+
+    with run_recorder.recorded_run("kickstart", "p", workspace_dir=str(workspace)):
+        outcome = _run(workspace, behaviour=behaviour, presentation=presentation)
+    assert len(pages) == 1 and outcome.failures == [] and outcome.page_revisit == []
+    revisit = _stage_records(tmp_path)["page_revisit"]
+    assert revisit["status"] == "skipped" and "hold the fields the page was written for" in revisit["error"]
+
+
+def test_a_page_is_written_again_when_a_class_holds_something_new(tmp_path, monkeypatch):
+    """Verify a class that changed under the page sends the page back once, to be written for the class as it is.
+
+    id: TST-SYN-REVISIT-CHANGED
+    Given: A domain class to which the behaviour stage adds a field the page could not know of, in a recorded run
+    When: The stages run
+    Then: The page is written a second time, after the actions, against the class with the new field; the outcome
+          and the revisit's record name what changed, and the second page is the one that stands
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.delenv("PROVABLE_RECORD_RUNS", raising=False)
+    workspace = tmp_path / "ws"
+    domain_class = _domain_class(workspace)
+    pages = []
+
+    def behaviour(manifest, workspace_dir, rules=None):
+        domain_class.write_text(CLASS + "    answered_by: str = ''\n", encoding="utf-8")
+        return ActionBehaviour(implemented=["submit"])
+
+    def presentation(**kw):
+        pages.append("answered_by" in domain_class.read_text(encoding="utf-8"))
+        return {"success": True, "files": [f"Page{len(pages)}.tsx"]}
+
+    with run_recorder.recorded_run("kickstart", "p", workspace_dir=str(workspace)):
+        outcome = _run(workspace, behaviour=behaviour, presentation=presentation)
+    assert len(pages) == 2 and pages[1] is True
+    assert outcome.page_revisit == ["Inquiry now also holds answered_by"]
+    assert outcome.presentation["files"] == ["Page2.tsx"] and outcome.failures == []
+    records = _stage_records(tmp_path)
+    assert records["presentation"]["status"] == "ok" and records["page_revisit"]["status"] == "ok"
+    assert records["page_revisit"]["notes"]["changed"] == ["Inquiry now also holds answered_by"]
+
+
+def test_a_revisit_that_does_not_deliver_leaves_the_first_page(tmp_path):
+    """Verify a failed second writing is reported and costs nothing that was there.
+
+    id: TST-SYN-REVISIT-FAILED
+    Given: A class that changed under the page, and a presentation whose second call fails
+    When: The stages run
+    Then: The failure names the revisit and its reason, and the outcome still carries the first page
+    """
+    domain_class = _domain_class(tmp_path)
+    calls = []
+
+    def behaviour(manifest, workspace_dir, rules=None):
+        domain_class.write_text(CLASS + "    answered_by: str = ''\n", encoding="utf-8")
+        return ActionBehaviour(implemented=["submit"])
+
+    def presentation(**kw):
+        calls.append(1)
+        return {"success": True, "files": ["Page.tsx"]} if len(calls) == 1 else {"success": False, "error": "quota", "files": []}
+
+    outcome = _run(tmp_path, behaviour=behaviour, presentation=presentation)
+    assert outcome.failures == [{"stage": "page_revisit", "error": "quota"}]
+    assert outcome.presentation == {"success": True, "files": ["Page.tsx"]}
+
+
+def test_a_page_that_was_not_written_is_not_revisited(tmp_path):
+    """Verify the revisit is not a second chance for a page that failed: that failure stands as it is.
+
+    id: TST-SYN-REVISIT-NO-PAGE
+    Given: A class that changed while the page was being written, and a presentation that fails
+    When: The stages run
+    Then: The presentation is called once and its failure is the only one
+    """
+    domain_class = _domain_class(tmp_path)
+    calls = []
+
+    def behaviour(manifest, workspace_dir, rules=None):
+        domain_class.write_text(CLASS + "    answered_by: str = ''\n", encoding="utf-8")
+        return ActionBehaviour(implemented=["submit"])
+
+    def presentation(**kw):
+        calls.append(1)
+        return {"success": False, "error": "no App.tsx", "files": []}
+
+    outcome = _run(tmp_path, behaviour=behaviour, presentation=presentation)
+    assert len(calls) == 1 and outcome.failures == [{"stage": "presentation", "error": "no App.tsx"}]
 
 
 def test_an_action_nothing_implements_is_a_reported_failure_and_the_page_is_still_written(tmp_path):

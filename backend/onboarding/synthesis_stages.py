@@ -3,21 +3,26 @@
     spec_review      ─┐
     seed_data        ─┤
     ux_plan          ─┼─ start together (the UX plan also gives the app on screen its colours and outline)
-    action_protocol  ─┘→ action_behaviour ─┬→ presentation (needs the action protocol, the domain and the UX plan)
-                                           └→ behaviour_specs (the rule deck, alongside the presentation)
+    action_protocol  ─┘─┬→ presentation (needs the action protocol and the UX plan) ─┐
+                        └→ action_behaviour ─┬───────────────────────────────────────┴→ page_revisit
+                                             └→ behaviour_specs (the rule deck)
 
-All of them read the same decomposition and the skeleton on disk. The action protocol names the actions; the
-behaviour stage writes the methods behind them (`action_behaviour.py`), so the presentation is written against a
-domain that already does what the page will ask of it. The presentation also needs the UX plan, which carries the
-page's visual direction. While the page is written, the rule deck's behaviour specs run through the TDD loop
-(`spec_runner.py`); the stages return once both are done, so QA audits a domain that no longer changes. Seed data and the spec review used to queue in front of the presentation, the slowest step, and
-added their full duration to every kickstart.
+All of them read the same decomposition and the skeleton on disk. The action protocol names the actions and fixes
+what a page needs to know of them: their parameters, the values the fields take, what a new object holds. So the
+page is written at once, while the behaviour stage writes the methods behind the actions (`action_behaviour.py`);
+it used to wait for them, a minute or more. Writing the methods can change what a class holds, so the fields are
+compared afterwards (`page_contract.py`), and only a class that gained or lost one sends the page back to be written
+again, once, for the classes as they are. The presentation also needs the UX plan, which carries the page's visual
+direction. After the actions, the rule deck's behaviour specs run through the TDD loop (`spec_runner.py`); the
+stages return once everything is done, so QA audits a domain that no longer changes. Seed data and the spec review
+used to queue in front of the presentation, the slowest step, and added their full duration to every kickstart.
 
 The stage functions are injected so the ordering policy is testable without an LLM. Each stage keeps its own record
 (run_recorder) and its own failure reason; a stage that does not deliver is listed in `failures`, never dropped.
 """
 
 import os
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
@@ -27,11 +32,13 @@ import pipeline_trace
 from onboarding.action_behaviour import ActionBehaviour
 from onboarding.app_inventory import remove_unreachable
 from onboarding.draft_theme import THEME_FILE, DraftTheme, parse_draft_layout, parse_draft_theme, write_draft_theme
+from onboarding.page_contract import FieldChange, domain_fields, field_changes
 from onboarding.seed_data import SEED_FILE
 from onboarding.spec_runner import SpecRun
 from run_recorder import stage
 
 THEME_FILES = (THEME_FILE.replace(os.sep, "/"), "frontend/" + THEME_FILE.replace(os.sep, "/"))
+DOMAIN_FILES = ("src/domain", "tests/unit", "tests/pending")  # what the TDD loop writes, beside the page's files
 
 
 @dataclass
@@ -47,6 +54,7 @@ class SynthesisOutcome:
     removed_scaffold: List[str] = field(default_factory=list)   # skeleton files the written page no longer reaches
     behaviour: ActionBehaviour = field(default_factory=ActionBehaviour)  # the methods behind the manifest's actions
     specs: SpecRun = field(default_factory=SpecRun)             # which rule specs the kickstart fulfilled
+    page_revisit: List[str] = field(default_factory=list)       # what the classes changed under the page, if anything
 
 
 def _fail(outcome: SynthesisOutcome, stage_name: str, handle: Any, reason: Any) -> None:
@@ -90,15 +98,45 @@ def run_presentation_stage(presentation: Callable[..., Dict[str, Any]], outcome:
         if not outcome.presentation.get("success"):
             _fail(outcome, "presentation", handle, outcome.presentation.get("error") or "no files were written")
         else:
-            # The page replaced the skeleton's app; the scaffold it no longer imports would only mislead later edits
-            outcome.removed_scaffold = remove_unreachable(workspace_dir)
-            if outcome.removed_scaffold:
-                handle.note("removed_scaffold", outcome.removed_scaffold)
-                # A component the page never imports went with the scaffold: QA and the visual review are
-                # handed the files that are still there
-                outcome.presentation["files"] = [
-                    path for path in outcome.presentation.get("files", [])
-                    if os.path.exists(path if os.path.isabs(path) else os.path.join(workspace_dir, path))]
+            _clear_scaffold(outcome, handle, workspace_dir)
+
+
+def _clear_scaffold(outcome: SynthesisOutcome, handle: Any, workspace_dir: str) -> None:
+    """The page replaced the skeleton's app; the scaffold it no longer imports would only mislead later edits."""
+    removed = remove_unreachable(workspace_dir)
+    if removed:
+        outcome.removed_scaffold = outcome.removed_scaffold + [path for path in removed if path not in outcome.removed_scaffold]
+        handle.note("removed_scaffold", removed)
+        # A component the page never imports went with the scaffold: QA and the visual review are
+        # handed the files that are still there
+        outcome.presentation["files"] = [
+            path for path in outcome.presentation.get("files", [])
+            if os.path.exists(path if os.path.isabs(path) else os.path.join(workspace_dir, path))]
+
+
+def run_page_revisit_stage(presentation: Callable[..., Dict[str, Any]], outcome: SynthesisOutcome,
+                           changes: List[FieldChange], *, pitch: str, structure: Any, inbox_specs: List[Any],
+                           workspace_dir: str, intent: Optional[Any]) -> None:
+    """The page was written while its actions were. When that changed what a class holds (`changes`), the page is
+    written once more, for the classes as they are; otherwise the stage is skipped. A second writing that does not
+    deliver leaves the first page in place and is reported."""
+    with stage("page_revisit") as handle:
+        if not outcome.presentation.get("success"):
+            return handle.skip("there is no page to revisit")
+        if not changes:
+            return handle.skip("the classes hold the fields the page was written for")
+        outcome.page_revisit = [change.describe() for change in changes]
+        handle.note("changed", outcome.page_revisit)
+        started = time.time()
+        rewritten = presentation(
+            pitch=pitch, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,
+            action_manifest=outcome.engine.get("action_manifest"), router_code=outcome.engine.get("router_code"),
+            ux_blueprint=outcome.ux_blueprint, intent=intent)
+        outcome.timings["5d_page_revisit"] = round(time.time() - started, 2)
+        if not rewritten.get("success"):
+            return _fail(outcome, "page_revisit", handle, rewritten.get("error") or "no files were written")
+        outcome.presentation = rewritten
+        _clear_scaffold(outcome, handle, workspace_dir)
 
 
 def run_synthesis_stages(
@@ -174,7 +212,7 @@ def run_synthesis_stages(
     def run_rule_specs() -> None:
         # The domain's rules, on top of the methods the behaviour stage wrote. Overlaps the presentation, so it
         # declares the files it writes.
-        with stage("behaviour_specs", owns=("src/domain", "tests/unit", "tests/pending")) as handle:
+        with stage("behaviour_specs", owns=DOMAIN_FILES) as handle:
             if specs is None:
                 return handle.skip("no spec executor was given; the specs stay pending")
             if not outcome.engine.get("success") or not outcome.behaviour.success:
@@ -189,7 +227,7 @@ def run_synthesis_stages(
                 handle.note("unfulfilled", outcome.specs.unfulfilled)
                 fail("behaviour_specs", handle, outcome.specs.error)
 
-    def protocol_then_presentation(ux_plan: Any, pool: ThreadPoolExecutor) -> None:
+    def design_actions() -> None:
         # Action protocol (the domain class and the action endpoint come from the skeleton + TDD loop)
         started = time.time()
         with stage("action_protocol") as handle:
@@ -204,9 +242,10 @@ def run_synthesis_stages(
             else:
                 fail("action_protocol", handle, outcome.engine.get("error"))
 
-        # The methods behind those actions, written now so the page is built against the class as it really is
+    def implement_actions() -> None:
+        # The methods behind those actions. Overlaps the presentation, so it declares the files it writes.
         started = time.time()
-        with stage("action_behaviour") as handle:
+        with stage("action_behaviour", owns=DOMAIN_FILES) as handle:
             if not outcome.engine.get("success"):
                 handle.skip("there is no action protocol to implement")
             else:
@@ -220,18 +259,37 @@ def run_synthesis_stages(
                     handle.note("missing", outcome.behaviour.missing)
                     fail("action_behaviour", handle, outcome.behaviour.error)
 
-        alongside.append(pool.submit(pipeline_trace.bind_context(run_rule_specs)))
+    implemented = threading.Event()
+    fields: Dict[str, Dict[str, List[str]]] = {}  # what the classes hold: "before" and "after" the actions are written
 
-        # Interactive presentation projection & React shell
+    def actions_then_rules() -> None:
+        try:
+            implement_actions()
+            fields["after"] = domain_fields(workspace_dir)  # read before the rules start rewriting the classes
+        finally:
+            implemented.set()
+        run_rule_specs()
+
+    def page_alongside_the_actions(ux_plan: Any, pool: ThreadPoolExecutor) -> None:
+        design_actions()
+        fields["before"] = domain_fields(workspace_dir)
+        alongside.append(pool.submit(pipeline_trace.bind_context(actions_then_rules)))
+
+        # Interactive presentation projection & React shell, written while the actions are
         outcome.ux_blueprint = ux_plan.result()
-        run_presentation_stage(presentation, outcome, pitch=pitch, structure=structure, inbox_specs=inbox_specs,
-                               workspace_dir=workspace_dir, intent=intent)
+        page = dict(pitch=pitch, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir, intent=intent)
+        run_presentation_stage(presentation, outcome, **page)
 
-    with ThreadPoolExecutor(max_workers=4, thread_name_prefix="synthesis") as pool:
+        # One more look when writing the actions changed what a class holds
+        implemented.wait()
+        changes = field_changes(fields["before"], fields["after"]) if "after" in fields else []
+        run_page_revisit_stage(presentation, outcome, changes, **page)
+
+    with ThreadPoolExecutor(max_workers=5, thread_name_prefix="synthesis") as pool:
         alongside = [pool.submit(pipeline_trace.bind_context(task)) for task in (review_specs, seed_content)]
         ux_plan = pool.submit(pipeline_trace.bind_context(plan_ux))
         try:
-            protocol_then_presentation(ux_plan, pool)
+            page_alongside_the_actions(ux_plan, pool)
         finally:
             crashes = [f.exception() for f in alongside]  # waits for all of them
     for crash in crashes:

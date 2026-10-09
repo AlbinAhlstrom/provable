@@ -47,6 +47,22 @@ def test_protocol_without_manifest_says_so():
     assert "No action protocol" in format_action_protocol(None)
 
 
+def test_the_page_is_told_what_a_new_object_holds():
+    """Verify the page writer learns the starting state from the protocol, not from methods it has not seen.
+
+    id: TST-AUD-STARTING-STATE
+    Given: A manifest that states what a newly created object of one class holds (the page is written while the
+           class's methods are, so the class it is shown does not set itself up yet)
+    When: The protocol block is formatted for the page
+    Then: The block states it, by class
+    """
+    manifest = {**MANIFEST, "starting_states": [
+        {"aggregate": "Enquiry", "description": "status is \"new\" and replies is empty"}]}
+    block = format_action_protocol(manifest)
+    assert "A newly created `Enquiry`" in block and 'status is "new" and replies is empty' in block
+    assert "newly created" not in format_action_protocol(MANIFEST)
+
+
 def test_action_protocol_prompt_asks_who_performs_each_action(tmp_path, monkeypatch):
     """Verify the action-design prompt asks for performed_by relative to the intent's audience.
 

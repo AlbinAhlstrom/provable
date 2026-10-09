@@ -11,6 +11,8 @@ there after about 100 s; in a rule-heavy build the gap is minutes).
 - **Endpoint**: `GET /api/onboarding/progress`, answered while the kickstart request is still open.
 - **`draft_ready`**: true once the skeleton is written. From then on the workspace serves an app that can be shown.
 - **`page_ready`**: true once the `presentation` stage delivered: the draft has been replaced by the written page.
+  The page is written while its actions are implemented, so for a while its buttons answer that the action is not
+  there yet; the preview is shown as being worked on until the build is ready.
 - **`rules`**: the spec runner reports `RuleProgress` (done, total, active, the title of the rule that became
   active last, and `waiting`: the ids of the specs in the loop that are not settled yet) before the first behaviour
   spec and after each one; the `behaviour_specs` stage keeps it as its `rules` note.

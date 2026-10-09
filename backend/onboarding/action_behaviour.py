@@ -3,9 +3,10 @@ Action behaviour: the kickstart writes the methods behind the actions its page o
 
 The action protocol only names the actions (`action_protocol.py`), and the generated API runs an action by calling the
 public method of that name on the aggregate. Until that method exists every action answers "Unknown action": the page
-looks finished and nothing on it works. So, before the page is written, each aggregate's actions go through the same
+looks finished and nothing on it works. So, while the page is written, each aggregate's actions go through the same
 TDD loop every later spec uses (a RED test from the action's own description, then GREEN), and the code is checked
-against the manifest (`check_action_contract`). The page is then written against the class as it really is.
+against the manifest (`check_action_contract`). The page needs the manifest, not the methods; a class whose fields
+changed while its methods were written sends the page back once (`page_contract.py`).
 
 - One spec per aggregate, covering all of its actions: one test file, one implementation.
 - The same spec states what a newly created object holds (the manifest's `starting_states`): the application creates

@@ -42,6 +42,7 @@ STAGE_LABELS = {
     "action_protocol": "Naming what people can do",
     "action_behaviour": "Making each action work",
     "presentation": "Writing the page",
+    "page_revisit": "Matching the page to the finished actions",
     "behaviour_specs": "Writing the rules, test first",
     "qa": "Checking the page on phone, tablet and desktop",
     "visual_review": "Reviewing how the page looks",
