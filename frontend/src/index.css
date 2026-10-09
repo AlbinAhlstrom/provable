@@ -435,6 +435,7 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
 .status-light-pass { background: var(--accent-success); box-shadow: 0 0 6px var(--accent-success); }
 .status-light-broken { background: var(--accent-warning); box-shadow: 0 0 6px var(--accent-warning); }
 .status-light-fail { background: var(--accent-danger); box-shadow: 0 0 6px var(--accent-danger); }
+.status-light-testing { background: var(--accent-primary); box-shadow: 0 0 6px var(--accent-primary); animation: build-pulse 1.6s ease-in-out infinite; }
 
 /* ── Kickstart ─────────────────────────────────────────────────────────────── */
 
@@ -612,13 +613,48 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
 }
 .preview-toolbar-actions { display: flex; gap: 0.35rem; }
 .preview-pane > .status-message { margin: 0.5rem; }
-.preview-frame { flex: 1; min-height: 0; }
+.preview-frame { position: relative; flex: 1; min-height: 0; overflow: hidden; }
 .preview-frame iframe {
   display: block;
   width: 100%;
   height: 100%;
   border: none;
   background: var(--bg-primary);
+  transition: filter 0.6s ease;
+}
+
+/* While a build runs the app is held back a little (muted, a slow band of light passing over it), so that it steps
+   forward when the build ends. The app stays usable underneath: the overlay takes no clicks. */
+.preview-frame-building iframe { filter: saturate(0.65) brightness(0.93); }
+.preview-frame-building::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 42%, rgba(165, 180, 252, 0.13) 50%, transparent 58%);
+  background-size: 300% 100%;
+  animation: preview-sweep 3.6s linear infinite;
+}
+.preview-frame-finished iframe { animation: preview-pop 0.7s ease-out; }
+.preview-frame-finished::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px var(--accent-primary), inset 0 0 40px rgba(99, 102, 241, 0.35);
+  opacity: 0;
+  animation: preview-glow 0.7s ease-out;
+}
+@keyframes preview-sweep { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@keyframes preview-pop {
+  0% { transform: scale(0.985); filter: saturate(0.65) brightness(0.93); }
+  60% { transform: scale(1.006); filter: none; }
+  100% { transform: scale(1); }
+}
+@keyframes preview-glow { 0% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .preview-frame-building::after, .preview-frame-finished::after, .preview-frame-finished iframe,
+  .build-bar-step-running .build-bar-fill, .build-step-running .build-step-dot, .status-light-testing { animation: none; }
 }
 
 .specs-panel {

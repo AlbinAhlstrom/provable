@@ -13,6 +13,8 @@ const DEFAULT_CHAPTER = 'General';
 
 export interface RequirementControlPanelProps {
   onSpecsChanged?: () => void;
+  building?: boolean;      // a build is running: the specifications are still being written
+  testingIds?: string[];   // the specs the running build is working on
 }
 
 const errorOf = async (res: Response): Promise<string> => {
@@ -25,7 +27,7 @@ const errorOf = async (res: Response): Promise<string> => {
 };
 
 /** The specifications of the generated app: a tree by chapter, the selected one in detail, and add, edit, delete and run. */
-export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = ({ onSpecsChanged }) => {
+export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = ({ onSpecsChanged, building = false, testingIds }) => {
   const [cards, setCards] = useState<RuleCardDTO[]>([]);
   const [chapterOrder, setChapterOrder] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -150,11 +152,12 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
       {toast && <StatusMessage message={toast} />}
 
       <div className="specs-master-detail">
-        <SpecTree chapters={[...chapters.entries()].filter(([, list]) => list.length > 0)} selectedId={selected?.id || null} onSelect={select} />
+        <SpecTree chapters={[...chapters.entries()].filter(([, list]) => list.length > 0)} selectedId={selected?.id || null} onSelect={select} building={building} testingIds={testingIds} />
         <SpecDetail
           ref={detailRef}
           card={selected}
           running={!!selected && runningId === selected.id}
+          testing={!!selected && !!testingIds?.includes(selected.id)}
           onEdit={card => setForm({ card })}
           onDelete={remove}
           onRunTest={runTest}

@@ -11,17 +11,23 @@ there after about 100 s; in a rule-heavy build the gap is minutes).
 - **Endpoint**: `GET /api/onboarding/progress`, answered while the kickstart request is still open.
 - **`draft_ready`**: true once the skeleton is written. From then on the workspace serves an app that can be shown.
 - **`page_ready`**: true once the `presentation` stage delivered: the draft has been replaced by the written page.
-- **`rules`**: the spec runner reports `RuleProgress` (done, total, active, and the title of the rule that became
-  active last) before the first behaviour spec and after each one; the `behaviour_specs` stage keeps it as its
-  `rules` note.
+- **`rules`**: the spec runner reports `RuleProgress` (done, total, active, the title of the rule that became
+  active last, and `waiting`: the ids of the specs in the loop that are not settled yet) before the first behaviour
+  spec and after each one; the `behaviour_specs` stage keeps it as its `rules` note.
+- **`stages`, `percent`**: every stage of a build from the start, each with its usual share of a build's time and
+  how far it has come (`backend/onboarding/stage_timing.py`; see "The build progress bar" in [[Frontend Components]]).
 - **Only a kickstart is a build.** A single spec execution changes an app that already exists.
 
 ## What the Studio shows (`frontend/src/components/KickstartStudio.tsx`, `BuildProgressPanel.tsx`)
 
-1. Until the skeleton is written (about 20 s): a "Building your app" screen listing each stage with its status.
-2. From then on: the live preview, with a strip above it saying what is being worked on, how many rules are active
-   and which rule was enforced last. The strip reads "First draft" until the page is written.
-3. When the build ends: the strip goes and the preview reloads.
+1. From the moment a build starts: the live preview beside the specifications, with a banner above it: the
+   percentage, what is being worked on, the weighted progress bar and the stages by name. Until the skeleton is
+   written the preview shows the blank workspace page.
+2. The preview reloads when the first draft is written and again when the page is written.
+3. While the build runs the preview is held back a little: muted, with a slow band of light passing over it. It
+   stays usable. The specifications appear in their panel as soon as the rule deck is stored; the ones the build
+   is working on pulse, and each turns to its test light as it is settled.
+4. When the build ends: the banner goes, the preview reloads and steps forward (full colour, a short pop).
 
 The Studio polls the endpoint, so a build it did not start (a reloaded tab, a kickstart sent to the API) is picked up
 the same way. Stage labels come from the backend (`STAGE_LABELS`), so the Studio stays a projection.
@@ -41,6 +47,11 @@ draft of the product, not as an admin tool:
   on_accent=#... heading=serif`); the `ux_plan` stage reads it as a typed `DraftTheme` and rewrites the file, about
   a minute before the page is written. A direction without a complete token line leaves the neutral theme and the
   stage notes it (`draft_theme`). The written page does not depend on the file.
+- **Outline of the main view**: the same section states the form of the main view as one layout line
+  (`LAYOUT columns=7 rows=5` for a fixed grid, `rows=auto` for a view that grows with its records), read as a typed
+  `DraftLayout` and written into the same `src/theme.css`. The stand-in draws it above its records as an empty
+  outline in the plan's colours: the view's columns and rows before anything is in them. A fixed grid keeps its
+  proportions. A direction without a complete layout line draws no outline and the stage notes it (`draft_layout`).
 
 If the presentation stage fails, the draft stays as the app, so it keeps a working "Add" form.
 

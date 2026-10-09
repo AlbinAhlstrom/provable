@@ -8,14 +8,16 @@ export interface SpecTreeProps {
   chapters: [string, RuleCardDTO[]][];
   selectedId: string | null;
   onSelect: (card: RuleCardDTO) => void;
+  building?: boolean;      // a build is running: specifications are still being written
+  testingIds?: string[];   // the specs the running build is working on
 }
 
 /** The specifications grouped by chapter; each row carries the light of its last test run. */
-export const SpecTree: React.FC<SpecTreeProps> = ({ chapters, selectedId, onSelect }) => {
+export const SpecTree: React.FC<SpecTreeProps> = ({ chapters, selectedId, onSelect, building = false, testingIds }) => {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   if (chapters.length === 0) {
-    return <div className="spec-tree"><p className="spec-empty">No specifications yet.</p></div>;
+    return <div className="spec-tree"><p className="spec-empty">{building ? 'The specifications appear here as they are written.' : 'No specifications yet.'}</p></div>;
   }
 
   return (
@@ -37,7 +39,7 @@ export const SpecTree: React.FC<SpecTreeProps> = ({ chapters, selectedId, onSele
               className={`spec-row${card.id === selectedId ? ' selected' : ''}`}
               onClick={() => onSelect(card)}
             >
-              <SpecStatusLight status={card.test_status} />
+              <SpecStatusLight status={card.test_status} testing={testingIds?.includes(card.id)} />
               <span className="spec-row-title">{card.title}</span>
             </button>
           ))}

@@ -22,7 +22,7 @@ export interface BuildProgress {
   draft_ready: boolean;
   page_ready: boolean;
   stages: StageProgress[];
-  rules: { done: number; total: number; active: number; latest: string } | null;
+  rules: { done: number; total: number; active: number; latest: string; waiting: string[] } | null;  // waiting: ids of the specs being worked on
   percent: number;
 }
 

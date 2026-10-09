@@ -23,7 +23,7 @@ graph TD
 - **`App.tsx`**: the header (product name, project selector) and the studio. Switching project remounts the studio.
 - **`components/KickstartStudio.tsx`**: decides which of two views is shown. Nothing built yet: one question as the headline and a composer (text box with a Build button, Ctrl + Enter builds) (`POST /api/onboarding/kickstart`). Otherwise, and from the moment a build starts: the app preview, with the build progress banner above it while the build runs. The preview is reloaded when the build delivers the first draft and again when it delivers the written page. It also owns the workspace reset (`POST /api/onboarding/reset`).
 - **`components/BuildProgressPanel.tsx`**: the build progress banner, read from `GET /api/onboarding/progress`: how far the build has come in percent, what is being worked on, one bar, and the stages by name (collapsible, collapsed at first on a narrow screen). See "The build progress bar" below.
-- **`components/AppPreview.tsx`**: the live workspace (an iframe on the generated app's dev server, :5174) beside the specifications panel, always side by side. Its toolbar holds reset, reload and open-in-new-tab.
+- **`components/AppPreview.tsx`**: the live workspace (an iframe on the generated app's dev server, :5174) beside the specifications panel, always side by side. Its toolbar holds reset, reload and open-in-new-tab. While a build runs the app is shown as being worked on (muted, a slow band of light over it, still usable); when the build ends it steps forward with a short pop.
 - **`components/RequirementControlPanel.tsx`**: loads the Living Rule Deck (`GET /api/specs/deck`, polled) and owns add, edit, delete and Run Test (`POST /api/specs/inbox/{id}/execute`). It renders the three `specs/` components.
 - **`components/specs/SpecTree.tsx`**: the specifications grouped by chapter, collapsible.
 - **`components/specs/SpecDetail.tsx`**: the selected specification: title, behaviour (Given / When / Then / Unless), Edit, Delete and Run Test.
@@ -46,6 +46,8 @@ Every specification shows one light, in the tree and next to its title. It only 
 The backend derives the status (`backend/onboarding/spec_test_status.py`) and serves it on every deck card together with `test_reason`, one line shown under the title when the light is yellow or red. The Studio does not interpret pipeline statuses itself.
 
 Editing a spec does not clear its stored result, so the light shows the last run until Run Test is pressed again.
+
+While a build is working on a spec (its id is in the progress report's `rules.waiting`), its light pulses in the accent colour instead, and turns to one of the four above when the spec is settled.
 
 ## The build progress bar
 

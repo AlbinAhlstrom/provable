@@ -145,6 +145,8 @@ export const KickstartStudio: React.FC = () => {
         resetting={resetting}
         message={message}
         reloadToken={reloadToken}
+        building={building}
+        testingIds={building ? progress?.rules?.waiting : undefined}
         banner={building ? <BuildProgressBanner progress={progress} /> : undefined}
       />
     );

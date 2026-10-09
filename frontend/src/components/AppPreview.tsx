@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
@@ -13,11 +13,22 @@ export interface AppPreviewProps {
   message: StudioMessage | null;
   banner?: ReactNode;      // shown above the preview, e.g. what a running build is still working on
   reloadToken?: number;    // the preview reloads when this changes
+  building?: boolean;      // a build is running: the preview is shown as being worked on
+  testingIds?: string[];   // the specs the running build is working on
 }
 
 /** The generated app beside its specifications; stacked, with a square preview, on a narrow screen. */
-export function AppPreview({ onResetWorkspace, resetting, message, banner, reloadToken = 0 }: AppPreviewProps) {
+export function AppPreview({ onResetWorkspace, resetting, message, banner, reloadToken = 0, building = false, testingIds }: AppPreviewProps) {
   const [key, setKey] = useState(0);
+  const [justFinished, setJustFinished] = useState(false);  // the build ended a moment ago: the app steps forward
+  const wasBuilding = useRef(building);
+
+  useEffect(() => {
+    if (wasBuilding.current && !building) setJustFinished(true);
+    wasBuilding.current = building;
+  }, [building]);
+
+  const frameState = building ? ' preview-frame-building' : justFinished ? ' preview-frame-finished' : '';
 
   return (
     <div className="app-preview">
@@ -40,13 +51,13 @@ export function AppPreview({ onResetWorkspace, resetting, message, banner, reloa
             </div>
           </div>
           {message && <StatusMessage message={message} />}
-          <div className="preview-frame">
+          <div className={`preview-frame${frameState}`} onAnimationEnd={event => { if (event.animationName === 'preview-pop') setJustFinished(false); }}>
             <iframe key={`workspace-iframe-${key}-${reloadToken}`} src={PREVIEW_URL} title="Workspace live app" />
           </div>
         </section>
 
         <section className="specs-pane">
-          <RequirementControlPanel onSpecsChanged={() => setKey(k => k + 1)} />
+          <RequirementControlPanel onSpecsChanged={() => setKey(k => k + 1)} building={building} testingIds={testingIds} />
         </section>
       </div>
     </div>

@@ -44,6 +44,7 @@ class RuleProgress:
     total: int = 0
     active: int = 0    # of those, the ones the app now enforces
     latest: str = ""   # title of the rule that became active last
+    waiting: List[str] = field(default_factory=list)  # ids of the specs in the loop that are not settled yet
 
 
 Execute = Callable[[List[BusinessSpec], Callable[[BusinessSpec, Dict[str, Any]], None]], Any]
@@ -63,7 +64,8 @@ def run_behaviour_specs(specs: List[BusinessSpec], execute: Execute,
     def tell() -> None:
         if report is not None:
             report(RuleProgress(done=len(results), total=len(behaviour), active=len(titles),
-                                latest=titles[-1] if titles else ""))
+                                latest=titles[-1] if titles else "",
+                                waiting=[s.spec_id for s in behaviour if s.spec_id not in results]))
 
     def settled(spec: BusinessSpec, result: Dict[str, Any]) -> None:
         results[spec.spec_id] = result

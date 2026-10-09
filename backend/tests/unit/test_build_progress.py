@@ -235,3 +235,31 @@ def test_without_earlier_builds_every_stage_is_an_equal_step(tmp_path, monkeypat
     share = 1 / len(STAGE_LABELS)
     assert all(s.weight == pytest.approx(share) for s in progress.stages)
     assert progress.percent == pytest.approx(100 * share, abs=0.1)
+
+
+def test_rule_progress_names_the_specs_still_in_the_loop(tmp_path):
+    """Verify the Studio can show which rules are being worked on right now, by id.
+
+    id: TST-PROGRESS-012
+    Given: A run whose behaviour_specs stage is running three specs
+    When: The progress is asked for before the first is settled, after the first, and after the last
+    Then: The waiting ids are all three, then the two still open, then none
+    """
+    specs = [BusinessSpec(spec_id=f"SPEC-00{i}", title=f"Rule {i}", description="d", given_when_then="Given a When b Then c",
+                          target_aggregate="Match", kind=SpecKind.BEHAVIOR.value) for i in (1, 2, 3)]
+    seen = []
+
+    with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
+        handle = stage_begin("behaviour_specs", owns=())
+
+        def execute(batch, done):
+            for spec in batch:
+                seen.append(current_progress().rules.waiting)
+                done(spec, {"success": True, "status": "FULFILLED"})
+
+        run_behaviour_specs(specs, execute, report=lambda rules: handle.note("rules", asdict(rules)))
+        after = current_progress().rules.waiting
+
+    assert seen[0] == ["SPEC-001", "SPEC-002", "SPEC-003"]
+    assert seen[1] == ["SPEC-002", "SPEC-003"]
+    assert after == []

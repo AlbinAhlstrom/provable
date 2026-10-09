@@ -8,6 +8,7 @@ import { SpecStatusLight, testStatusLabel } from './SpecStatusLight';
 export interface SpecDetailProps {
   card: RuleCardDTO | null;
   running: boolean;
+  testing?: boolean;  // a running build is working on this spec
   onEdit: (card: RuleCardDTO) => void;
   onDelete: (card: RuleCardDTO) => void;
   onRunTest: (card: RuleCardDTO) => void;
@@ -21,7 +22,7 @@ const CLAUSES: { key: 'given_clause' | 'when_clause' | 'then_clause' | 'unless_c
 ];
 
 /** One specification: its test light, why the last run did not pass, its behaviour, and the actions on it. */
-export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ card, running, onEdit, onDelete, onRunTest }, ref) => {
+export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ card, running, testing = false, onEdit, onDelete, onRunTest }, ref) => {
   if (!card) {
     return <div className="spec-detail" ref={ref}><p className="spec-empty">Select a specification.</p></div>;
   }
@@ -33,7 +34,7 @@ export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ c
       <div className="spec-detail-header">
         <div className="spec-detail-heading">
           <h4 className="spec-detail-title">
-            <SpecStatusLight status={card.test_status} large />
+            <SpecStatusLight status={card.test_status} large testing={testing} />
             <span>{card.title}</span>
           </h4>
           {didNotPass && (
