@@ -1567,10 +1567,12 @@ def get_categorized_living_deck(uow: AbstractUnitOfWork) -> Dict[str, Any]:
     - chapters: { [chapter_name]: [...] }
     - logic_cards: { global: [...], entities: { [entity_name]: [...] } }
     - view_cards: { global_theme: [...], components: { [component_name]: [...] } }
+    Each card carries the outcome of its last run as `test_status` and `test_reason` (onboarding/spec_test_status.py).
     """
+    from onboarding.spec_test_status import with_test_status
     with uow:
         state = uow.kickstart.get()
-        cards = list(state.rule_cards or [])
+        cards = with_test_status(state.rule_cards or [], state.inbox_specs or [])
 
     logic_global = []
     logic_entities: Dict[str, List[Dict[str, Any]]] = {}

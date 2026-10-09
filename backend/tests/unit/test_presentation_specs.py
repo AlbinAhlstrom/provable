@@ -94,6 +94,7 @@ def test_build_failure_is_fed_back_once_then_rolled_back(workspace, monkeypatch)
     _builds(monkeypatch, [{"ok": False, "output": "error TS2304: boom"}] * 3)
     result = ps.execute_presentation_spec(SPEC, str(workspace))
     assert result["status"] == "REQUIRES_HUMAN_INTERVENTION" and result["rolled_back"] is True
+    assert result["phase"] == "DEAD_END"  # the build judged the change, so the Studio shows a fail, not a broken run
     assert len(prompts) == 2 and "error TS2304: boom" in prompts[1] and "boom" not in prompts[0]
     assert _view(workspace) == ORIGINAL
     assert len(result["attempts"]) == 2
@@ -127,6 +128,7 @@ def test_provider_and_parse_errors_are_not_retried(workspace, monkeypatch):
         builds = _builds(monkeypatch, [])
         result = ps.execute_presentation_spec(SPEC, str(workspace))
         assert result["status"] == "REQUIRES_HUMAN_INTERVENTION" and len(prompts) == 1 and not builds
+        assert result["phase"] == "presentation"  # nothing was judged
         assert _view(workspace) == ORIGINAL
 
 
