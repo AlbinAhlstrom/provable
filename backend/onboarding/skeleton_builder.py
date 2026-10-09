@@ -244,12 +244,16 @@ folder; set to an empty string (as the tests do) nothing is read or saved.
 
 import json
 import os
+import threading
 import time
 from typing import Any, Dict, List, Optional
 
 _DEFAULT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "__DATA_DIR__")
 # Seconds to wait between attempts to replace a records file another program is holding: under a second in all.
 _HELD_FILE_WAITS = (0.01, 0.02, 0.05, 0.1, 0.2, 0.4)
+# Requests are answered on several threads, and two that change records at the same moment would write the same
+# half-finished file: one save at a time.
+_saving = threading.Lock()
 
 
 def _path(collection: str) -> Optional[str]:
@@ -271,9 +275,10 @@ def save(collection: str, records: List[Dict[str, Any]], seed_mtime: Optional[fl
     if not path:
         return
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path + ".tmp", "w", encoding="utf-8") as out:
-        json.dump({"seed_mtime": seed_mtime, "records": records}, out, default=str)
-    _put_in_place(path + ".tmp", path)
+    with _saving:
+        with open(path + ".tmp", "w", encoding="utf-8") as out:
+            json.dump({"seed_mtime": seed_mtime, "records": records}, out, default=str)
+        _put_in_place(path + ".tmp", path)
 
 
 def _put_in_place(written: str, path: str) -> None:

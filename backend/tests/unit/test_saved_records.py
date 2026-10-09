@@ -204,3 +204,36 @@ def test_a_save_fails_loudly_when_the_file_stays_held(tmp_path, monkeypatch):
     with pytest.raises(PermissionError):
         store.save("bookings", [{"id": "b1"}], None)
     assert waited and sum(waited) < 1
+
+
+def test_changes_made_at_the_same_moment_are_all_saved(tmp_path, monkeypatch):
+    """Verify two requests that change records at once do not trip over each other's save.
+
+    id: TST-SAVED-009
+    Given: A records file, and several requests saving to it at the same moment (a page that opens asks twice at
+           once; the saves shared one half-written file, so one of them found it gone and the request answered 500)
+    When: They all save
+    Then: None fails, the file holds a complete set of records and no half-written file is left behind
+    """
+    import threading
+
+    store = _record_store(tmp_path, monkeypatch)
+    failures, start = [], threading.Barrier(8)
+
+    def save_repeatedly(worker):
+        start.wait()
+        for turn in range(40):
+            try:
+                store.save("bookings", [{"id": f"b{worker}-{turn}"}], None)
+            except Exception as err:
+                failures.append(repr(err))
+
+    threads = [threading.Thread(target=save_repeatedly, args=(n,)) for n in range(8)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert failures == []
+    assert len(store.load("bookings")["records"]) == 1
+    assert os.listdir(tmp_path) == ["bookings.json"]
