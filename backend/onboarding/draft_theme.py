@@ -23,7 +23,8 @@ _FAMILIES = {
     "sans": "inherit",
     "mono": "ui-monospace, SFMono-Regular, Menlo, monospace",
 }
-_TOKEN_LINE = re.compile(r"^\W*TOKENS\b(.*)$", re.MULTILINE)
+# The marker is found anywhere on its line: a planner often writes the line as a labelled bullet, inside code marks.
+_TOKEN_LINE = re.compile(r"\bTOKENS\b(.*)$", re.MULTILINE)
 _TOKEN = re.compile(r"(\w+)=(#[0-9a-fA-F]{6}\b|serif\b|sans\b|mono\b)")
 
 

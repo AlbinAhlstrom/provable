@@ -99,6 +99,22 @@ def test_the_ux_plans_tokens_become_the_theme():
     assert "--draft-bg: #faf7f2;" in css and "--draft-accent: #b45309;" in css and "serif" in css
 
 
+def test_a_token_line_written_as_a_labelled_bullet_is_still_read():
+    """Verify the token line is found when the planner writes it as the bullet the prompt lists it under.
+
+    id: TST-DRAFT-007
+    Given: A visual direction whose token line sits in a bullet, behind its label and inside code marks (the prompt
+           lists the line as the bullet "Tokens", and a planner wrote it that way: the app kept its neutral colours)
+    When: The direction is parsed
+    Then: The theme holds the colours and heading family the line states
+    """
+    direction = ("- **Shape & Rhythm:** rounded cards.\n"
+                 "- **Tokens:** `TOKENS background=#020617 surface=#0f172a text=#f8fafc accent=#2563eb "
+                 "on_accent=#ffffff heading=sans`")
+    assert parse_draft_theme(direction) == DraftTheme(background="#020617", surface="#0f172a", text="#f8fafc",
+                                                      accent="#2563eb", on_accent="#ffffff", heading="sans")
+
+
 def test_a_direction_without_complete_tokens_gives_no_theme():
     """Verify an incomplete token line is not half-applied.
 
