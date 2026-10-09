@@ -10,10 +10,11 @@ import re
 import sys
 import os
 from dataclasses import dataclass
-from typing import Dict, Any, Tuple, List
+from typing import Callable, Dict, Any, Sequence, Tuple, List
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import agent_orchestrator
 from agent_orchestrator import call_gemini
+from onboarding.verification import compile_tsx
 
 
 def verify_tsx_syntax(code: str) -> Tuple[bool, str]:
@@ -133,17 +134,22 @@ def self_heal_presentation_suite(
     defects: List[str],
     console_errors: List[str],
     component_files: List[str],
+    contract_files: Sequence[str] = (),
+    compile_check: Callable[[str, str], Tuple[bool, str]] = compile_tsx,
 ) -> bool:
     """
     Closed-loop LLM repair for live preview issues detected by the QA auditor.
     The model sees every generated component plus the defects and returns a typed
     PresentationRepair naming the files to replace; only generated components are writable.
+    `contract_files` (the API clients, written from the domain model) are shown and stay as they are: the page is
+    changed to fit them. A fix that does not compile is not written, so the file keeps what it had.
     One call, no retry. Returns True if at least one file was repaired.
     """
     if not defects and not console_errors:
         return False
 
-    index = _component_index(workspace_dir, component_files)
+    fixed = _component_index(workspace_dir, list(contract_files))
+    index = {rel: copies for rel, copies in _component_index(workspace_dir, component_files).items() if rel not in fixed}
     if not index:
         return False
 
@@ -156,6 +162,16 @@ def self_heal_presentation_suite(
         except OSError as e:
             print(f"⚠️ [self_heal_presentation_suite] Could not read {copies[0]}: {e}", flush=True)
             return False
+    contracts = []
+    for rel, copies in fixed.items():
+        try:
+            with open(copies[0], "r", encoding="utf-8") as f:
+                contracts.append(f"--- FILE ({rel}) ---\n{f.read()}")
+        except OSError:
+            continue
+    contract_block = ("\n--- THE API CLIENTS (fixed: written from the domain model; the components are changed to fit "
+                      "them, and a request the API refuses is shown to the user as it is) ---\n"
+                      + "\n".join(contracts) + "\n") if contracts else ""
 
     prompt = f"""You are Provable's Principal Lead Frontend Architect.
 The live application preview on :5174 failed runtime verification.
@@ -168,7 +184,7 @@ The live application preview on :5174 failed runtime verification.
 
 --- GENERATED COMPONENTS ---
 {chr(10).join(sources)}
-
+{contract_block}
 Task:
 1. Diagnose which component(s) cause the defects above; layout defects usually carry no file name, so decide from the code.
 2. Fix syntax, JSX escaping, prop mismatches or layout scaling so the app renders cleanly without errors. `App.tsx` must keep `export default App;`.
@@ -189,6 +205,10 @@ Return ONLY a JSON object: {{"fixes": [{{"path": "<one of the FILE paths above>"
         copies = index.get(fix.path)
         if not copies:
             print(f"⚠️ [self_heal_presentation_suite] Refused fix for non-component path {fix.path!r}", flush=True)
+            continue
+        compiles, verdict = compile_check(workspace_dir, fix.code)
+        if not compiles:
+            print(f"⚠️ [self_heal_presentation_suite] Refused fix for {fix.path}: it does not compile ({verdict})", flush=True)
             continue
         for p in copies:
             with open(p, "w", encoding="utf-8") as f:

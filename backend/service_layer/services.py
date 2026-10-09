@@ -2269,7 +2269,8 @@ def kickstart_domain_and_scaffold(
                         pitch=pitch_text,
                         defects=defects,
                         console_errors=console_errs,
-                        component_files=pres_res.get("files", [])
+                        component_files=pres_res.get("files", []),
+                        contract_files=pres_res.get("contract_files", [])
                     )
                     if healed:
                         time.sleep(1.0)
@@ -2279,7 +2280,8 @@ def kickstart_domain_and_scaffold(
 
                 def _audit() -> Dict[str, Any]:
                     last_audit["report"] = run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=True,
-                                                                  workspace_dir=workspace_dir)
+                                                                  workspace_dir=workspace_dir,
+                                                                  api_ready_url="http://localhost:8001/openapi.json")
                     return last_audit["report"]
 
                 qa_verdict = run_qa_gate(audit=_audit, rework=_rework)

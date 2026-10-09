@@ -84,6 +84,34 @@ def test_qa_auditor_fails_a_page_that_contradicts_its_own_types(mock_chrome_cls,
     assert checked == ["ws"]
 
 
+def test_the_audit_waits_for_the_api_to_answer_before_it_looks():
+    """Verify a page is not audited while the API behind it is still restarting.
+
+    id: TST-QA-READY
+    Given: An API that refuses twice and then answers, and one that never answers
+    When: The audit waits for each
+    Then: The first wait ends as soon as the API answers; the second gives up when its time is over, and says so
+    """
+    from onboarding import qa_auditor
+    answers = iter([OSError("refused"), OSError("refused"), None])
+
+    def probe(url):
+        outcome = next(answers)
+        if outcome:
+            raise outcome
+
+    naps = []
+    assert qa_auditor.wait_until_answering("http://x/openapi.json", probe=probe, sleep=naps.append) is True
+    assert len(naps) == 2
+
+    def never(url):
+        raise OSError("refused")
+
+    clock = iter(range(0, 1000, 5))
+    assert qa_auditor.wait_until_answering("http://x", timeout_s=20, probe=never, sleep=lambda s: None,
+                                           now=lambda: next(clock)) is False
+
+
 def test_qa_auditor_matrix_definitions():
     """Verifies standard multi-device matrix coverage (Mobile, Tablet, Desktop)."""
     device_names = [d["name"] for d in DEVICE_MATRIX]

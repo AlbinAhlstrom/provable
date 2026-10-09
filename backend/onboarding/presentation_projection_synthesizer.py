@@ -246,6 +246,7 @@ Answer with four blocks, each introduced by its marker alone on a line:
     from onboarding.skeleton_builder import generate_frontend_main_tsx
     resilient_main_tsx = generate_frontend_main_tsx()
 
+    contract_files: List[str] = []  # written from the domain model, not by the model: later repairs leave them alone
     for root in target_roots:
         mapping = {
             os.path.join(root, "views", f"{master_name}View.tsx"): view_code,
@@ -257,6 +258,7 @@ Answer with four blocks, each introduced by its marker alone on a line:
 
         for client_name, client_code in client_files.items():
             mapping[os.path.join(root, "api", client_name)] = client_code
+            contract_files.append(os.path.join(root, "api", client_name))
 
         for path, code in mapping.items():
             if code and code.strip():
@@ -281,6 +283,7 @@ Answer with four blocks, each introduced by its marker alone on a line:
     return {
         "success": True,
         "files": created_files,
+        "contract_files": contract_files,
         "omitted": omitted,  # the files the model had no component for
         "ux_blueprint": ux_blueprint,
         "component_lines": component_lines,

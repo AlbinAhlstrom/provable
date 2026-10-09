@@ -25,6 +25,10 @@ def _components(ws):
             str(ws / "frontend" / "src" / "App.tsx"), str(ws / "frontend" / "src" / "views" / "BoardView.tsx")]
 
 
+def _compiles(workspace_dir, code):
+    return ("BROKEN" not in code, "Unterminated regular expression. (line 61)")
+
+
 def _answer(*fixes):
     return json.dumps({"fixes": [{"path": p, "code": c} for p, c in fixes]})
 
@@ -48,7 +52,7 @@ def test_layout_defect_without_file_repairs_the_file_the_model_names(workspace, 
 
     monkeypatch.setattr(code_verifier, "call_gemini", fake)
     healed = self_heal_presentation_suite(str(workspace), "pitch", ["horizontal overflow at 375px"], [],
-                                          component_files=_components(workspace))
+                                          component_files=_components(workspace), compile_check=_compiles)
     assert healed is True
     assert seen["stage"] == "self_healing" and seen["json_mode"] is True
     assert "BOARD" in seen["prompt"] and "APP" in seen["prompt"]  # the model sees every component
@@ -60,7 +64,7 @@ def test_layout_defect_without_file_repairs_the_file_the_model_names(workspace, 
 def test_paths_outside_the_generated_components_are_refused(workspace, monkeypatch):
     monkeypatch.setattr(code_verifier, "call_gemini",
                         lambda *a, **k: _answer(("src/Evil.tsx", "x"), ("../escape.tsx", "x")))
-    assert self_heal_presentation_suite(str(workspace), "p", ["d"], [], component_files=_components(workspace)) is False
+    assert self_heal_presentation_suite(str(workspace), "p", ["d"], [], component_files=_components(workspace), compile_check=_compiles) is False
     assert not (workspace / "src" / "Evil.tsx").exists()
     assert not (workspace.parent / "escape.tsx").exists()
 
@@ -68,10 +72,53 @@ def test_paths_outside_the_generated_components_are_refused(workspace, monkeypat
 def test_unparseable_answer_fails_without_retry(workspace, monkeypatch):
     calls = []
     monkeypatch.setattr(code_verifier, "call_gemini", lambda *a, **k: calls.append(1) or "not json")
-    assert self_heal_presentation_suite(str(workspace), "p", ["d"], [], component_files=_components(workspace)) is False
+    assert self_heal_presentation_suite(str(workspace), "p", ["d"], [], component_files=_components(workspace), compile_check=_compiles) is False
     assert len(calls) == 1
 
 
 def test_nothing_to_heal_makes_no_call(workspace, monkeypatch):
     monkeypatch.setattr(code_verifier, "call_gemini", lambda *a, **k: pytest.fail("called"))
-    assert self_heal_presentation_suite(str(workspace), "p", [], [], component_files=_components(workspace)) is False
+    assert self_heal_presentation_suite(str(workspace), "p", [], [], component_files=_components(workspace), compile_check=_compiles) is False
+
+
+def test_a_fix_that_does_not_compile_is_not_written(workspace, monkeypatch):
+    """Verify the rework cannot leave the page worse than it found it.
+
+    id: TST-HEAL-COMPILE
+    Given: An answer with one fix that compiles and one that does not
+    When: The rework is applied
+    Then: The file whose fix compiles is replaced; the other keeps what it had, in every copy
+    """
+    monkeypatch.setattr(code_verifier, "call_gemini", lambda *a, **k: _answer(
+        ("src/App.tsx", "BETTER"), ("src/views/BoardView.tsx", "BROKEN <div")))
+    assert self_heal_presentation_suite(str(workspace), "p", ["d"], [], component_files=_components(workspace),
+                                        compile_check=_compiles) is True
+    assert (workspace / "src/App.tsx").read_text().strip() == "BETTER"
+    assert (workspace / "src/views/BoardView.tsx").read_text() == "BOARD"
+    assert (workspace / "frontend/src/views/BoardView.tsx").read_text() == "BOARD"
+
+
+def test_the_api_clients_are_shown_but_cannot_be_rewritten(workspace, monkeypatch):
+    """Verify the page is changed to fit the API's client, never the client to fit the page.
+
+    id: TST-HEAL-CONTRACT
+    Given: A generated API client beside the components, and an answer that rewrites it
+    When: The rework is applied
+    Then: The model saw the client, marked as fixed; the client keeps its content and nothing was repaired
+    """
+    client = workspace / "src" / "api" / "boardClient.ts"
+    client.parent.mkdir(parents=True)
+    client.write_text("CLIENT", encoding="utf-8")
+    seen = {}
+
+    def fake(prompt, **kw):
+        seen["prompt"] = prompt
+        return _answer(("src/api/boardClient.ts", "MOCK"))
+
+    monkeypatch.setattr(code_verifier, "call_gemini", fake)
+    healed = self_heal_presentation_suite(str(workspace), "p", ["d"], [], component_files=_components(workspace) + [str(client)],
+                                          contract_files=[str(client)], compile_check=_compiles)
+    assert healed is False
+    assert client.read_text() == "CLIENT"
+    fixed_part = seen["prompt"].split("--- THE API CLIENTS")[1]
+    assert "CLIENT" in fixed_part and "BOARD" not in fixed_part

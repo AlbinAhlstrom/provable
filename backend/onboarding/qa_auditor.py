@@ -25,7 +25,8 @@ from concurrent.futures import ThreadPoolExecutor
 import base64
 import os
 import time
-from typing import Dict, Any, List, Optional
+import urllib.request
+from typing import Callable, Dict, Any, List, Optional
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -57,6 +58,29 @@ DEVICE_MATRIX = [
 ]
 
 MAX_FULL_PAGE_HEIGHT = 12000  # CSS pixels; a taller page is captured up to here
+API_READY_TIMEOUT_S = 20
+
+
+def _answers(url: str) -> None:
+    with urllib.request.urlopen(url, timeout=3):
+        pass
+
+
+def wait_until_answering(url: str, timeout_s: float = API_READY_TIMEOUT_S, probe: Callable[[str], None] = _answers,
+                         sleep: Callable[[float], None] = time.sleep, now: Callable[[], float] = time.time) -> bool:
+    """Waits until the API behind the page answers. The API restarts whenever its code is written, and the audit often
+    starts the moment the last file lands; a page audited in that gap reports requests that failed for no fault of its
+    own. Returns False when the time is over: the audit then goes ahead and reports what it sees."""
+    deadline = now() + timeout_s
+    while True:
+        try:
+            probe(url)
+            return True
+        except Exception:
+            if now() >= deadline:
+                print(f"[QA Gate] {url} did not answer within {timeout_s}s; auditing anyway", flush=True)
+                return False
+            sleep(0.5)
 
 
 def _save_full_page(driver, path: str, width: int, page_height: Any, scale_factor: float) -> Optional[str]:
@@ -82,7 +106,8 @@ def run_responsive_qa_audit(
     save_screenshots: bool = True,
     output_dir: Optional[str] = None,
     check_vertical_containment: bool = False,
-    workspace_dir: Optional[str] = None
+    workspace_dir: Optional[str] = None,
+    api_ready_url: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Executes automated QA verification against the live frontend on :5174 across device viewports.
@@ -94,6 +119,8 @@ def run_responsive_qa_audit(
     
     if save_screenshots:
         os.makedirs(output_dir, exist_ok=True)
+    if api_ready_url:
+        wait_until_answering(api_ready_url)
 
     def browser_options() -> Options:
         options = Options()
