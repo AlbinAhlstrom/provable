@@ -6,12 +6,9 @@ Provable is an enterprise-grade, deterministic Domain-Driven Design (DDD) and Te
 graph TD
     subgraph Frontend [PM Studio Frontend - React / Vite]
         App[App.tsx Entrypoint] --> ProjectSelector[components/ProjectSelector.tsx]
-        App --> Kickstart[components/KickstartStudio.tsx Bounded Context Studio]
-        App --> AppPreview[components/AppPreview.tsx 3-View System: Preview / Swagger / Domain]
-        App --> BehaviorInbox[components/BehaviorInboxPanel.tsx BDD Spec CRUD]
-        App --> ReqControl[components/RequirementControlPanel.tsx Domain Aggregates]
-        App --> DomainEntities[components/DomainEntitiesPanel.tsx Dynamic Entity Data]
-        App --> CoverageHub[components/CoverageHub.tsx Allure Matrix]
+        App --> Kickstart[components/KickstartStudio.tsx Pitch, build progress, reset]
+        Kickstart --> AppPreview[components/AppPreview.tsx Live workspace beside the specifications]
+        AppPreview --> ReqControl[components/RequirementControlPanel.tsx Specifications: tree, detail, Run Test]
     end
 
     subgraph Backend [FastAPI Backend Engine]
@@ -39,7 +36,6 @@ graph TD
 
     subgraph Docker [Allure Reporting Container]
         ServiceLayer --> AllureContainer[Allure Docker Service :5050]
-        CoverageHub --> AllureContainer
     end
 
     App <-->|REST API / JSON| API
@@ -51,16 +47,12 @@ graph TD
 
 ### PM Studio Frontend (`frontend/src/`)
 Built with React, TypeScript, Vite, and custom CSS styling across modular views:
-- **`App.tsx`**: Top-level layout manager, project banner, and global navigation.
-- **`components/KickstartStudio.tsx`**: Bounded context intake studio accepting industrial domain pitches, triggering decomposition and skeleton synthesis, and managing workspace resets (`/api/onboarding/reset`).
-- **`components/AppPreview.tsx`**: 3-View Workspace System hosting:
-  1. `Preview`: Live sandboxed web preview (`http://localhost:5174/`).
-  2. `API (Swagger)`: Embedded FastAPI OpenAPI Swagger interface (`http://localhost:8000/docs`).
-  3. `Domain`: Abstract JSON-driven schema visualizer presenting Python Aggregate dataclasses (`Pallet`, `Zone`, `Operator`), attributes, types, invariants, and method signatures.
-- **`components/BehaviorInboxPanel.tsx`**: Structured BDD specification inbox for atomic business rules (`GIVEN / WHEN / THEN`), target aggregate binding, and mathematical/boundary flags (triggering Hypothesis).
-- **`components/RequirementControlPanel.tsx`**: Domain aggregate tree view with inline BDD test specs, live TDD state badges (`🟢 FULFILLED`, `⚡ TDD RUNNING`, `🔴 NEEDS REVIEW`, `⏳ PENDING`), and dynamic attribute controls.
-- **`components/DomainEntitiesPanel.tsx`**: Dynamic entity data fixture viewer and editor bound directly to active schema attributes.
-- **`components/CoverageHub.tsx`**: Aggregates requirement-to-test mapping matrices and embeds the live Allure Docker portal (`:5050`).
+- **`App.tsx`**: The header (product name, project selector) and the studio.
+- **`components/KickstartStudio.tsx`**: Takes the pitch and starts the build, shows build progress, and owns the workspace reset (`/api/onboarding/reset`).
+- **`components/AppPreview.tsx`**: The live workspace (`http://localhost:5174/`) beside the specifications panel; stacked, with a square preview, on a narrow screen.
+- **`components/RequirementControlPanel.tsx`**: The Living Rule Deck as a tree by chapter with the selected specification in detail; add, edit, delete and Run Test. Each specification shows one light for its last test run (not run, pass, broken, fail).
+
+Details: [[Frontend Components]].
 
 ### FastAPI Backend Engine (`backend/`)
 - **`main.py` / `app.py`**: FastAPI application mounting routers for specs, kickstart, onboarding, requirements, components, projects, and testing.

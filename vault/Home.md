@@ -8,13 +8,13 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 
 ### 1. 🏗️ System Architecture
 - [[Enterprise-AppGen-TDD-Engine-Architecture]]: Core Enterprise AppGen engine architecture: Schema-Driven UI (Dumb Projection), Programmatic Red-Gate TDD Validation, LibCST Code Isolation, and SHA-256 5-Line Hash Lock.
-- [[System Architecture]]: Overview of PM Studio frontend (`KickstartStudio`, `BehaviorInboxPanel`, `RequirementControlPanel`, `AppPreview`), FastAPI backend engine, SQLite DataStore, and TDD state machine.
+- [[System Architecture]]: Overview of PM Studio frontend (`KickstartStudio`, `AppPreview`, `RequirementControlPanel`), FastAPI backend engine, SQLite DataStore, and TDD state machine.
 - [[Full-LLM-Free-Form-Orchestration-Graph]]: Full-LLM synthesis pipeline featuring Domain Storming, Backend DDD/TDD, Skeleton Builder, and Verification Gates.
 - [[PM-Studio-UX-Architecture-And-Direction]]: Breakdown of PM Studio 3-Pillar UX Architecture (Pages Bar, Executable Test Specs / Behavior Inbox, Domain Entities Inspector) and Mobile-First responsive design system invariants.
 - [[Audience Roles and Seed Data]]: Which entity the interface is organised around (what the audience creates), clients for shown content, and the validated starter records that fill it.
 - [[Universal-Dynamic-Domain-AST-Generator]]: Dynamic domain generator scaffolding pure DDD domain aggregates (`Pallet`, `Zone`, `Operator`), Pydantic DTOs, Unit of Work, and FastAPI routers.
 - [[Database Schema]]: Comprehensive documentation of SQLite tables (`requirements`, `test_cases`, `agent_runs`, `kickstart_state`, `projects`), schema triggers, JSON columns, and DataStore sync mechanisms.
-- [[Frontend Components]]: Breakdown of React components (`App`, `KickstartStudio`, `AppPreview`, `BehaviorInboxPanel`, `RequirementControlPanel`, `DomainEntitiesPanel`, `CoverageHub`), state hooks, and CSS design system.
+- [[Frontend Components]]: Breakdown of React components (`App`, `KickstartStudio`, `AppPreview`, `RequirementControlPanel`, `specs/`), the four-state test light, and the stacked mobile layout.
 - [[Backend REST API]]: Detailed REST API endpoint specifications (`/api/specs/inbox`, `/api/onboarding/kickstart`, `/api/onboarding/reset`, `/api/requirements`, `/api/coverage`), request/response models, and CORS configuration.
 - [[Integrations]]: Sync clients for StrictDoc (`strictdoc_client.py`) and containerized Allure reporting (`allure_client.py`).
 - [[LLM Abstraction and Prompts]]: Env-var model configuration, the OpenAI-SDK `call_gemini` wrapper, and where each prompt lives (file-based vs inline).
