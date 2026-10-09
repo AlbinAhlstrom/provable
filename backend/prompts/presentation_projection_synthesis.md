@@ -92,7 +92,10 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
    - Compiler plumbing abstractions (`AggregateRoot`, `Invariant`, `Action Protocol`, `Audit Ledger`, `Boundary Guards`, `Session Lifecycle`, `OCC Version`) belong strictly to internal layers and are excluded from user-facing UI copy.
    - When the domain involves multiple perspectives (e.g. public client vs service operator), provide natural navigation affordances for each role.
    - Use standard React hooks (`useState`, `useEffect`), Tailwind CSS classes, and optionally icons from `lucide-react`.
-   - Lay out with Tailwind classes. Where a layout depends on a computed value (a grid of N columns), set that value with an inline style (e.g. `style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, 1fr)` }}`).
+   - Lay out with Tailwind classes. Size the main view's repeated parts the way the blueprint's visual direction states.
+     - Parts that are alike whatever each holds get their size from their container, which sets its rows as well as its columns (`grid-cols-7 grid-rows-5`), so a part that holds nothing is as large as one that holds something. What a part holds is sized to fit the part, never the other way round.
+     - Parts that are each as large as their content set columns only.
+     - Where a count is computed, set it with an inline style (e.g. `style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}` for parts that are alike).
 6. **Resilience & Non-Blank Initial State**:
    - Handle loading states, API errors, and domain violation messages gracefully.
    - While records load show a loading indicator; if loading fails show the error message.

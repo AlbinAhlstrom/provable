@@ -129,3 +129,29 @@ def test_the_plan_names_the_attribute_that_carries_a_fact_about_the_business():
     assert "`Entity.attribute`" in body
     assert "you have not seen them" in body
     assert "badge" in body  # the first screen's badges and highlights are fields of records too
+
+
+def test_the_form_of_the_main_view_is_chosen_in_the_plan_built_to_it_and_judged_against_it():
+    """Verify how the main view's parts are sized is a decision (a grid whose rows nobody sized drew the rows that
+    held nothing a fraction as tall as the rest, and the review had no stated form to hold the page to).
+
+    id: TST-UX-FORM
+    Given: The prompts of the UX plan, the page and the visual review
+    When: They are read
+    Then: The plan chooses the form inside the visual direction (the familiar form of a known kind of product, and
+          how repeated parts are sized), the page sizes its parts as the direction states, and the review judges it
+    """
+    from onboarding.ux_planner import _DIRECTION_HEADING
+    prompts = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "prompts"))
+    plan = open(os.path.join(prompts, "ux_planning.md"), encoding="utf-8").read()
+    direction = plan[plan.index("6. **Visual Direction"):plan.index("Respond STRICTLY")]
+    assert "**Form of the main view**" in direction, "the choice is part of the direction the review is given"
+    assert "know by sight" in direction and "holds nothing" in direction
+    assert _DIRECTION_HEADING in plan
+
+    page = open(os.path.join(prompts, "presentation_projection_synthesis.md"), encoding="utf-8").read()
+    assert "the way the blueprint's visual direction states" in page
+    assert "gridTemplateRows" in page, "the example of a computed grid sets its rows as well as its columns"
+
+    review = open(os.path.join(prompts, "visual_review.md"), encoding="utf-8").read()
+    assert "**Form**" in review and "know by sight" in review

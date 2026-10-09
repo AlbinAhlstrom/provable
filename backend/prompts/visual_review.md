@@ -35,6 +35,7 @@ Judge the page as a first-time visitor on each screen size would see it:
 6. **Consistency**: buttons, cards, badges and corner radii that differ from each other for no reason.
 7. **Phone**: text or controls that wrap awkwardly, are cut off, or are too small to tap.
 8. **Anything visibly broken**: an empty box, overlapping elements, a placeholder left in view.
+9. **Form**: does the main view have the form the direction states, and is that form a reasonable one for this product? Where the product is of a kind people know by sight (a game played on a grid, a month calendar, a timetable, an inbox, a price list), compare the page with that familiar form: would someone recognise it at a glance, with its usual proportions and its parts at their usual sizes? Parts the direction sizes alike that are drawn at different sizes, or a part that holds nothing drawn smaller than one that holds something, are a problem; so is a familiar form left without a reason.
 
 Report only what a visitor would notice. A page that works and follows its direction has nothing to report: answer with an empty list. Report at most {max_problems} problems, the most visible first.
 
