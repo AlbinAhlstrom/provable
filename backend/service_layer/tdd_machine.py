@@ -389,6 +389,8 @@ def collect_existing_tests(tests_dir: str, exclude: str, module_name: str, limit
 
 # A reconsidered test is traced through the implementation, which the default (low) effort gets wrong about as
 # often as the first draft did; at medium effort an answer takes up to a minute, so it is kept for this one call
+LIMIT_NOTE = ("\n- **States a limit**: yes. Rule 7 below applies to this scenario: at least two cases, one just beyond "
+              "the limit and one exactly at it.")
 CAREFUL_EFFORT = "medium"
 CAREFUL_TIMEOUT_S = 180.0
 
@@ -427,6 +429,7 @@ def generate_red_test(
         "existing_tests": existing_tests or "(none yet: this is the first verified test for this class)",
         "interface_contract": interface_contract or "(none: no interface method has been promised for this class)",
         "feedback_block": feedback_block,
+        "limit_note": LIMIT_NOTE if spec.is_mathematical_boundary else "",
         "other_rules": other_rules or "(none: this is the only rule being written for this class)",
     })
     thought = dict(reasoning_effort=CAREFUL_EFFORT, timeout_s=CAREFUL_TIMEOUT_S) if careful else {}
@@ -560,6 +563,13 @@ class RedOutcome:
     attempts: List[Dict[str, Any]] = field(default_factory=list)
 
 
+def _sent_back(reason: str, test_code: str) -> str:
+    """What the test writer is told on its one regeneration: the verdict, and the test it was given on. Without the
+    test it writes a new one from nothing and loses what the first had right (the cases on both sides of a limit)."""
+    return (f"{reason}\n\nThe test that was refused (keep everything in it the reason above does not name):\n"
+            f"```python\n{test_code.strip()}\n```")
+
+
 def run_red_phase(spec: BusinessSpec, target: DomainTarget, workspace_dir: str, existing_tests: str,
                   action_manifest: Optional[Dict[str, Any]] = None, other_rules: str = "") -> RedOutcome:
     """The LLM writes a behavioural test from the BDD spec; the gate checks it fails for the RIGHT reason.
@@ -584,7 +594,7 @@ def run_red_phase(spec: BusinessSpec, target: DomainTarget, workspace_dir: str, 
         lint_ok, lint_reason = lint_red_test(test_code, require_both_sides=bool(spec.is_mathematical_boundary))
         if not lint_ok:
             red_attempts.append({"attempt": red_attempt, "approved": False, "reason": lint_reason})
-            red_feedback = lint_reason
+            red_feedback = _sent_back(lint_reason, test_code)
             continue
 
         with open(test_file_path, "w", encoding="utf-8") as f:
@@ -615,7 +625,7 @@ def run_red_phase(spec: BusinessSpec, target: DomainTarget, workspace_dir: str, 
         if red_eval.get("status") == "REJECTED_DOMAIN_BROKEN":
             # Regenerating the test cannot help: the domain module itself does not import. Fail loudly now.
             return RedOutcome("domain_broken", test_file_path, test_code, initial_test_hash, red_result, red_eval, red_attempts)
-        red_feedback = f"{red_eval.get('reason')}\n{summarize_pytest_failure(red_result)}"
+        red_feedback = _sent_back(f"{red_eval.get('reason')}\n{summarize_pytest_failure(red_result)}", test_code)
 
     if os.path.exists(test_file_path):  # a test rejected twice is known to be broken: do not keep it
         os.remove(test_file_path)

@@ -74,7 +74,24 @@ def test_boundary_spec_with_a_one_sided_test_is_bounced_back_once(monkeypatch, t
     seen = _wire(monkeypatch, [ONE_TEST, TWO_TESTS], run)
     result = tm.execute_spec_tdd_loop(_spec(True), str(tmp_path))
     assert result["status"] == "FULFILLED" and len(seen["prompts"]) == 2 and "both sides" in seen["prompts"][1].lower()
+    assert "def test_a():" in seen["prompts"][1]  # the writer gets its refused test back, to keep what was right in it
     assert (tmp_path / "tests" / "unit" / "test_spec_b1.py").read_text() == TWO_TESTS
+
+
+def test_the_test_writer_is_told_when_a_spec_states_a_limit(monkeypatch):
+    """Verify the writer knows beforehand what the lint will ask of it.
+
+    id: TST-BND-006
+    Given: A spec marked as stating a limit, and one that is not
+    When: The test prompt is built for each
+    Then: Only the first says the spec states a limit and that both sides are required
+    """
+    import agent_orchestrator
+    prompts = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda p, stage="general", **k: prompts.append(p) or "```python\nx\n```")
+    for boundary in (True, False):
+        tm.generate_red_test(_spec(boundary), "class Booking:\n    pass\n", "booking", "Booking")
+    assert "States a limit" in prompts[0] and "States a limit" not in prompts[1]
 
 
 # ── B. Regression gate and quarantine ────────────────────────────────────────────────────────────

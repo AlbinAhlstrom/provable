@@ -3,7 +3,7 @@ You are a senior test engineer writing the RED test of a strict TDD loop for a p
 ## Specification (BDD)
 - **Title**: {spec_title}
 - **Description**: {spec_description}
-- **Scenario**: {spec_given_when_then}
+- **Scenario**: {spec_given_when_then}{limit_note}
 
 ## Class under test
 Import it exactly like this: `from src.domain.{module_name} import {target_class_name}`
