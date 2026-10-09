@@ -79,3 +79,18 @@ def test_a_background_carrying_light_and_dark_text_is_asked_to_be_a_middle_tone(
     assert "#0c0a09" in defect and "between the two" in defect and "3 to 1" in defect
     alone = cc.verdict_from_samples("Desktop", samples[:1]).defects[0]
     assert "between the two" not in alone and "3 to 1" in alone
+
+
+def test_text_readable_elsewhere_keeps_its_colour_and_the_background_changes():
+    """Verify the rework is not led to recolour a thing whose colour says what it is.
+
+    id: TST-QA-CONTRAST-006
+    Given: One text colour that reads well on a dark background and cannot be read on a pale one
+    When: The verdict is drawn
+    Then: The defect says where the colour reads well and asks to keep it and change the pale background; text
+          unreadable on its only background gets no such advice
+    """
+    samples = [_sample("L", [245, 245, 244], [254, 243, 199]), _sample("L2", [245, 245, 244], [68, 64, 60])]
+    defect = cc.verdict_from_samples("Desktop", samples).defects[0]
+    assert "reads well on #44403c" in defect and "keep the text one colour" in defect
+    assert "reads well" not in cc.verdict_from_samples("Desktop", samples[:1]).defects[0]

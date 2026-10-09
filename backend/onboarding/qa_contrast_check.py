@@ -102,6 +102,11 @@ def verdict_from_samples(device: str, samples: List[Dict[str, Any]]) -> Contrast
         way_out = (f"The same background also carries text in {', '.join(_hex(c) for c in others)}, which it must keep "
                    f"readable, so the background has to become a tone between the two: clearly darker than its light "
                    f"text and clearly lighter than its dark text. " if others else "")
+        elsewhere = sorted({tuple(s["background"][:3]) for s in samples if tuple(s["color"][:3]) == pair[0]
+                            and contrast_ratio(pair[0], s["background"]) >= READABLE_FROM})
+        if elsewhere:
+            way_out += (f"This text colour reads well on {', '.join(_hex(b) for b in elsewhere)}, so keep the text one "
+                        f"colour everywhere it is shown and change this background. ")
         check.defects.append(
             f"[{device}] Unreadable text: {len(found)} text(s) (such as {quoted}) are drawn in {_hex(pair[0])} on a "
             f"background of {_hex(pair[1])}, a contrast of {contrast_ratio(*pair):.1f} to 1. {way_out}"
