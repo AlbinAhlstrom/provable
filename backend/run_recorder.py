@@ -27,6 +27,7 @@ import subprocess
 import time
 from typing import Any, Callable, Dict, List, Optional
 
+import llm_cost
 import pipeline_trace
 
 _BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -249,31 +250,6 @@ class Run:
         print(f"[Run] recording {self.id} -> {self.dir}", flush=True)
 
     # ── finishing ────────────────────────────────────────────────────────────
-    def _llm_totals(self) -> Dict[str, Any]:
-        totals: Dict[str, Any] = {"calls": 0, "errors": 0, "prompt_tokens": 0, "completion_tokens": 0,
-                                  "reasoning_tokens": 0, "total_s": 0.0, "by_stage": {}}
-        for name in sorted(os.listdir(self.trace_dir)):
-            try:
-                with open(os.path.join(self.trace_dir, name), encoding="utf-8") as f:
-                    entry = json.load(f)
-            except Exception:
-                continue
-            if entry.get("kind") != "llm":
-                continue
-            meta = entry.get("meta") or {}
-            stage_name = (entry.get("input") or {}).get("stage", "general")
-            bucket = totals["by_stage"].setdefault(stage_name, {"calls": 0, "errors": 0, "prompt_tokens": 0,
-                                                                "completion_tokens": 0, "reasoning_tokens": 0,
-                                                                "total_s": 0.0})
-            for target in (totals, bucket):
-                target["calls"] += 1
-                target["errors"] += 1 if (meta.get("error") or entry.get("error")) else 0
-                target["prompt_tokens"] += meta.get("prompt_tokens") or 0
-                target["completion_tokens"] += meta.get("completion_tokens") or 0
-                target["reasoning_tokens"] += meta.get("reasoning_tokens") or 0
-                target["total_s"] = round(target["total_s"] + (entry.get("duration_s") or 0), 3)
-        return totals
-
     def _snapshot(self) -> None:
         if not self.workspace_dir or not os.path.isdir(self.workspace_dir):
             return
@@ -320,7 +296,7 @@ class Run:
             "finished_at": time.strftime("%Y-%m-%d %H:%M:%S"),
             "duration_s": duration_s, "timeline": self._timeline(duration_s),
             "stages": records, "failed_stages": sorted(set(failed) | {s for s in result_failures if s}),
-            "provenance": self._provenance(), "llm": self._llm_totals(), "result": self.result,
+            "provenance": self._provenance(), "llm": llm_totals(self.trace_dir), "result": self.result,
         }
         try:
             self._snapshot()
@@ -330,8 +306,66 @@ class Run:
         with open(os.path.join(runs_root(), "LATEST"), "w", encoding="utf-8") as f:
             f.write(self.id)
         _prune()
-        print(f"[Run] {status.upper()}: {self.id} ({summary['duration_s']}s, {summary['llm']['calls']} LLM calls). "
+        cost = summary["llm"]["cost_sek"]
+        print(f"[Run] {status.upper()}: {self.id} ({summary['duration_s']}s, {summary['llm']['calls']} LLM calls, "
+              f"{'cost unknown' if cost is None else f'{cost:.2f} SEK'}). "
               f"Report: python scripts/trace_report.py", flush=True)
+
+
+def llm_totals(trace_dir: str) -> Dict[str, Any]:
+    """The LLM calls of one trace folder, added up overall and per stage: calls, errors, tokens, time and what they
+    cost (llm_cost.py). A total that includes a call on a model without a price is None, and the model is named."""
+    counters = ("prompt_tokens", "cached_tokens", "completion_tokens", "reasoning_tokens")
+
+    def empty() -> Dict[str, Any]:
+        return {"calls": 0, "errors": 0, **{c: 0 for c in counters}, "total_s": 0.0, "cost_usd": 0.0}
+
+    totals, by_stage, unpriced, rate = empty(), {}, set(), llm_cost.usd_to_sek()
+    for name in sorted(os.listdir(trace_dir)):
+        try:
+            with open(os.path.join(trace_dir, name), encoding="utf-8") as f:
+                entry = json.load(f)
+        except Exception:
+            continue
+        if entry.get("kind") != "llm":
+            continue
+        meta = entry.get("meta") or {}
+        billed = bool(meta.get("prompt_tokens") or meta.get("completion_tokens"))  # a call that failed has no usage
+        cost = llm_cost.call_cost_usd(meta) if billed else 0.0
+        if cost is None:
+            unpriced.add(str(meta.get("model")))
+        stage_name = (entry.get("input") or {}).get("stage", "general")
+        for target in (totals, by_stage.setdefault(stage_name, empty())):
+            target["calls"] += 1
+            target["errors"] += 1 if (meta.get("error") or entry.get("error")) else 0
+            for counter in counters:
+                target[counter] += meta.get(counter) or 0
+            target["total_s"] = round(target["total_s"] + (entry.get("duration_s") or 0), 3)
+            target["cost_usd"] = None if cost is None or target["cost_usd"] is None else target["cost_usd"] + cost
+    for target in (totals, *by_stage.values()):
+        usd = target["cost_usd"]
+        target["cost_usd"] = None if usd is None else round(usd, 6)
+        target["cost_sek"] = None if usd is None else round(usd * rate, 4)
+    return {**totals, "usd_to_sek": rate, "prices_as_of": llm_cost.PRICES_AS_OF, "unpriced_models": sorted(unpriced),
+            "by_stage": by_stage}
+
+
+def backfill_costs() -> List[str]:
+    """Prices the finished runs whose summary holds no cost yet, from the tokens their trace recorded, at today's
+    price table and exchange rate. Returns the ids of the runs it priced."""
+    root, priced = runs_root(), []
+    for name in sorted(os.listdir(root)) if os.path.isdir(root) else []:
+        summary_path, trace_dir = os.path.join(root, name, "summary.json"), os.path.join(root, name, "trace")
+        if not (os.path.exists(summary_path) and os.path.isdir(trace_dir)):
+            continue
+        with open(summary_path, encoding="utf-8") as f:
+            summary = json.load(f)
+        if "cost_sek" in (summary.get("llm") or {}):
+            continue
+        summary["llm"] = llm_totals(trace_dir)
+        _write_json(summary_path, summary)
+        priced.append(name)
+    return priced
 
 
 def _prune() -> None:

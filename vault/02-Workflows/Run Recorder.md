@@ -10,7 +10,7 @@ in `backend/pipeline_trace.py`; read it with `scripts/trace_report.py`.
 | :--- | :--- |
 | `run.json` | The pitch, start time, git commit, branch and uncommitted files, model, per-stage model overrides, reasoning effort. Answers "was this run before or after my change?". |
 | `trace/NNN_<step>.json` | One file per traced step and per LLM call, in call order: input, output, duration, seconds since the run began (`t_offset_s`), thread, caller chain. LLM calls add the model, token counts (prompt, completion, total, hidden reasoning, cached), prompt and response size, completion tokens per second, finish reason and the provider error. The full prompt and raw answer are there. |
-| `summary.json` | Verdict (`ok`, `degraded`, `error`), a `timeline` (wall time inside stages, outside any stage, and the sum of stage times), every stage with status, start offset, duration, notes, the error that failed it and the files it changed (line count and line delta per file), a provenance map (file -> last stage that wrote it), LLM totals per stage, and the run's result (stage failures, spec conflicts, timings, QA verdict, frontend inventory). |
+| `summary.json` | Verdict (`ok`, `degraded`, `error`), a `timeline` (wall time inside stages, outside any stage, and the sum of stage times), every stage with status, start offset, duration, notes, the error that failed it and the files it changed (line count and line delta per file), a provenance map (file -> last stage that wrote it), LLM totals per stage with their cost in USD and SEK, and the run's result (stage failures, spec conflicts, timings, QA verdict, frontend inventory). |
 | `workspace/` | A copy of the generated `src/` and `tests/` and the QA screenshots, kept after the next run overwrites `workspace/`. Per device there is the first screen at device density (`qa_<device>_<w>x<h>.png`) and the whole page at one image pixel per CSS pixel (`qa_<device>_full.png`). |
 
 `logs/runs/LATEST` names the newest run. Recording is always on. `PROVABLE_RUNS_DIR` moves the folder,
@@ -58,9 +58,20 @@ offset say where the wall time went.
 
 ```
 python scripts/trace_report.py                  # latest: verdict, wall time, stages, files, visual repairs, inventory, LLM totals, call tree
-python scripts/trace_report.py --list           # every run with its verdict
+python scripts/trace_report.py --list           # every run with its verdict and its cost in SEK
 python scripts/trace_report.py --compare A B    # code version, stage status changes, frontend size, files written differently
 python scripts/trace_report.py <run> --full 12  # the whole input/output of one step (prompt and raw answer)
+python scripts/trace_report.py --backfill-costs # price the runs recorded before costs were stored
 ```
 
 Related: [[Helper Scripts]], [[Agent Execution Loop]].
+
+## Cost
+
+Every summary holds what the run's LLM calls cost: `llm.cost_usd` and `llm.cost_sek` in total and per stage, the
+exchange rate used (`usd_to_sek`), the date of the price list (`prices_as_of`) and `unpriced_models`.
+
+- Prices live in `backend/llm_cost.py`: list prices in USD per million tokens for fresh input, cached input and output. Hidden reasoning tokens are billed as output.
+- A model the table does not hold has no price. Its run shows "cost unknown" and names the model, so a missing price never reads as a cheap run. Add the model to the table and run `--backfill-costs`.
+- `PROVABLE_USD_SEK` sets the exchange rate (default 10.0).
+- The cost is computed from the trace, so `--backfill-costs` can price any older run. It only fills summaries that hold no cost; it does not reprice a run after a price change.
