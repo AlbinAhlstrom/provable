@@ -35,7 +35,7 @@ CRITICAL SPECIFICATION REQUIREMENTS:
 5. CONCRETE BUSINESS RULES & INVARIANTS:
    - Detail the foundational domain validation constraints and state guards directly governing this core loop.
    - State clearly how invalid operations are rejected without corrupting domain state.
-   - When the product follows an established set of rules (the official rules of a game, a standard, a legal or trade convention), list every rule of that set by name, one line each, with its special cases and exceptions as lines of their own (each special move, each way the thing can end, each exemption). The product enforces exactly the rules listed here: a rule that is only implied by naming the rule set is not built.
+   - When the product follows an established set of rules (the official rules of a game, a standard, a legal or trade convention), list every rule of that set by name, one line each, with its special cases and exceptions as lines of their own (each special move, each exemption, and each way the thing can end: the ways the rules end it and the ways the people themselves end it, such as giving up or agreeing to stop). The product enforces exactly the rules listed here: a rule that is only implied by naming the rule set is not built.
 
 CRITICAL SCOPE BOUNDARY (ZERO CODE ARTIFACTS):
 - Do NOT prescribe file names (no .tsx, .py, etc.).
