@@ -31,6 +31,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[Build Progress]]: The Studio shows an app while it is being built: a first draft in the plan's colours from the moment the skeleton exists, then the written page, with what is still being worked on above it (`GET /api/onboarding/progress`); records are saved across API restarts.
 - [[Page Rebuild]]: Writes a generated app's page again (UX plan, page, QA, visual review) against the domain it already has; about a tenth of a kickstart's tokens, for changes that only concern the page.
 - [[Run Recorder]]: One folder per pipeline run (`logs/runs/`): commit and model, per-stage outcome, full step and LLM trace, generated-app snapshot; `scripts/trace_report.py` reads and compares runs.
+- [[Stage Replay]]: Re-sends a recorded run's LLM calls to cheaper models stage by stage and scores each answer against the recorded one (`scripts/stage_replay.py`).
 
 
 ### 3. 🧪 Testing & Quality Assurance
