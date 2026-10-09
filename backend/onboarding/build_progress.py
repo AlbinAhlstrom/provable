@@ -43,7 +43,8 @@ STAGE_LABELS = {
     "action_behaviour": "Making each action work",
     "presentation": "Writing the page",
     "page_revisit": "Matching the page to the finished actions",
-    "behaviour_specs": "Writing the rules, test first",
+    "rule_tests": "Writing a test for every rule",
+    "behaviour_specs": "Making the app pass every rule's test",
     "qa": "Checking the page on phone, tablet and desktop",
     "visual_review": "Reviewing how the page looks",
 }

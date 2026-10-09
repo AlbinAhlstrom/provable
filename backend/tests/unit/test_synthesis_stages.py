@@ -103,7 +103,7 @@ def test_every_stage_that_does_not_deliver_is_reported_with_its_reason(tmp_path,
     stages = {s["name"]: s["status"] for s in json.loads((run / "summary.json").read_text(encoding="utf-8"))["stages"]}
     assert stages == {"spec_review": "failed", "seed_data": "failed", "ux_plan": "ok", "action_protocol": "ok",
                       "action_behaviour": "ok", "behaviour_specs": "skipped", "presentation": "failed",
-                      "page_revisit": "skipped"}
+                      "page_revisit": "skipped", "rule_tests": "skipped"}
 
 
 def test_seed_data_is_credited_with_its_file_and_the_presentation_with_its_own(tmp_path, monkeypatch):
@@ -384,7 +384,7 @@ def test_the_rule_specs_run_after_the_actions_and_while_the_page_is_written(tmp_
         order.append("behaviour")
         return ActionBehaviour(implemented=["submit"])
 
-    def specs(inbox_specs, report):
+    def specs(inbox_specs, report, drafted):
         assert order == ["behaviour"], "the specs ran before the actions were implemented"
         specs_started.set()
         return SpecRun(fulfilled=["SPEC-001"])
@@ -407,7 +407,7 @@ def test_a_spec_that_was_not_fulfilled_is_a_reported_failure(tmp_path):
     """
     unfulfilled = SpecRun(unfulfilled=[{"spec_id": "SPEC-002", "title": "No double booking", "status": "REQUIRES_HUMAN_INTERVENTION",
                                         "error": "assert raised"}])
-    outcome = _run(tmp_path, specs=lambda inbox_specs, report: unfulfilled)
+    outcome = _run(tmp_path, specs=lambda inbox_specs, report, drafted: unfulfilled)
     assert [f["stage"] for f in outcome.failures] == ["behaviour_specs"]
     assert "SPEC-002" in outcome.failures[0]["error"] and outcome.presentation["success"]
 
@@ -476,8 +476,51 @@ def test_rules_are_not_written_when_there_is_no_action_protocol(tmp_path):
     When: The stages run
     Then: The spec executor is never called; the only failure is the action protocol's
     """
-    def specs(inbox_specs, report):
+    def specs(inbox_specs, report, drafted):
         raise AssertionError("the rules ran on a class without its actions")
 
     outcome = _run(tmp_path, protocol=lambda **kw: {"success": False, "error": "not valid JSON", "files": []}, specs=specs)
+    assert [f["stage"] for f in outcome.failures] == ["action_protocol"]
+
+
+def test_the_rules_first_tests_are_written_while_the_actions_are_implemented(tmp_path):
+    """Verify the rule deck's test writing no longer waits for the actions' methods.
+
+    id: TST-SYN-DRAFTS
+    Given: A behaviour stage that only finishes once the test writer has started, and a spec stage that records the
+           drafts it is handed
+    When: The stages run
+    Then: All of them finish (after the actions, the test writer would never have started), and the spec stage was
+          given the drafted tests
+    """
+    drafting, handed = threading.Event(), []
+
+    def drafts(inbox_specs):
+        drafting.set()
+        return {"SPEC-001": "def test_rule(): ..."}
+
+    def behaviour(manifest, workspace_dir, rules=None):
+        assert drafting.wait(WAIT), "the rules' tests were not written alongside the actions"
+        return ActionBehaviour(implemented=["submit"])
+
+    def specs(inbox_specs, report, drafted):
+        handed.append(drafted)
+        return SpecRun(fulfilled=["SPEC-001"])
+
+    outcome = _run(tmp_path, drafts=drafts, behaviour=behaviour, specs=specs)
+    assert handed == [{"SPEC-001": "def test_rule(): ..."}] and outcome.failures == []
+
+
+def test_no_tests_are_drafted_without_an_action_protocol(tmp_path):
+    """Verify the test writer is not paid for rules that will not run.
+
+    id: TST-SYN-DRAFTS-NO-PROTOCOL
+    Given: An action protocol stage that fails
+    When: The stages run
+    Then: The test writer is never called
+    """
+    def drafts(inbox_specs):
+        raise AssertionError("tests were written for a class whose actions are not named")
+
+    outcome = _run(tmp_path, protocol=lambda **kw: {"success": False, "error": "not valid JSON", "files": []}, drafts=drafts)
     assert [f["stage"] for f in outcome.failures] == ["action_protocol"]

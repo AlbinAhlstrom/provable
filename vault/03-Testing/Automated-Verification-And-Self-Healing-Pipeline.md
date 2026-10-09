@@ -80,7 +80,12 @@ After the actions, the rule deck's behaviour specs are written together (`backen
 `backend/service_layer/tdd_batch.py`, stage `behaviour_specs`):
 
 - RED, side by side: every spec gets its test through the single loop's RED phase (lint, RED gate, hollow check, one
-  regeneration with the verdict fed back). The tests are written against the class as the action stage left it.
+  regeneration with the verdict fed back). The tests are judged against the class as the action stage left it.
+  In a kickstart the first test of every spec is written ahead of that, while the actions are implemented (stage
+  `rule_tests`, `tdd_batch.draft_tests`): the writer is given the hollow class and the action protocol, as the
+  actions' own test writer is. The drafts are kept as text until the loop starts, because the action loop's
+  regression run covers `tests/unit`. A draft is then the spec's first attempt; nothing about the gates changes. A
+  draft that could not be written (a provider error) fails its spec with that reason.
 - GREEN, once per class: one code answer implements every rule of the class. `tests/unit` is run and each spec is
   judged by its own test file; tests still failing are fed back for the one retry.
 - The answer kept is the one that leaves the fewest of the batch's tests failing among those that break no earlier

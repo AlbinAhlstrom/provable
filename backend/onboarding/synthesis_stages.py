@@ -4,8 +4,8 @@
     seed_data        ─┤
     ux_plan          ─┼─ start together (the UX plan also gives the app on screen its colours and outline)
     action_protocol  ─┘─┬→ presentation (needs the action protocol and the UX plan) ─┐
-                        └→ action_behaviour ─┬───────────────────────────────────────┴→ page_revisit
-                                             └→ behaviour_specs (the rule deck)
+                        ├→ action_behaviour ─┬───────────────────────────────────────┴→ page_revisit
+                        └→ rule_tests ───────┴→ behaviour_specs (the rule deck)
 
 All of them read the same decomposition and the skeleton on disk. The action protocol names the actions and fixes
 what a page needs to know of them: their parameters, the values the fields take, what a new object holds. So the
@@ -13,7 +13,9 @@ page is written at once, while the behaviour stage writes the methods behind the
 it used to wait for them, a minute or more. Writing the methods can change what a class holds, so the fields are
 compared afterwards (`page_contract.py`), and only a class that gained or lost one sends the page back to be written
 again, once, for the classes as they are. The presentation also needs the UX plan, which carries the page's visual
-direction. After the actions, the rule deck's behaviour specs run through the TDD loop (`spec_runner.py`); the
+direction. After the actions, the rule deck's behaviour specs run through the TDD loop (`spec_runner.py`). The
+first test of each is written while the actions are (`rule_tests`): it is written from the action protocol, as the
+actions' own test is, and waits as text until the loop judges it against the class the actions left. The
 stages return once everything is done, so QA audits a domain that no longer changes. Seed data and the spec review
 used to queue in front of the presentation, the slowest step, and added their full duration to every kickstart.
 
@@ -153,13 +155,15 @@ def run_synthesis_stages(
     presentation: Optional[Callable[..., Dict[str, Any]]] = None,
     ux: Optional[Callable[..., str]] = None,
     behaviour: Optional[Callable[..., ActionBehaviour]] = None,
-    specs: Optional[Callable[[List[Any], Callable[[Any], None]], SpecRun]] = None,
+    specs: Optional[Callable[[List[Any], Callable[[Any], None], Dict[str, Any]], SpecRun]] = None,
+    drafts: Optional[Callable[[List[Any]], Dict[str, Any]]] = None,
 ) -> SynthesisOutcome:
-    """Runs the four stages and returns what each delivered. `on_action_manifest` receives the manifest of a
+    """Runs the stages and returns what each delivered. `on_action_manifest` receives the manifest of a
     successful action protocol (the caller stores it). `specs` runs the rule deck's behaviour specs (the caller owns
     where a spec's status is stored) and tells its second argument how far it has come, which the stage keeps as its
-    `rules` note for the build progress; without it they stay pending. An exception in any stage propagates once all
-    have finished."""
+    `rules` note for the build progress; without it they stay pending. `drafts` writes the first test of every
+    behaviour spec ahead of that, by spec id; what it returns is handed to `specs` as its third argument. An
+    exception in any stage propagates once all have finished."""
     if review is None:
         from onboarding.spec_review import review_spec_consistency as review
     if protocol is None:
@@ -209,7 +213,20 @@ def run_synthesis_stages(
         return run_ux_plan_stage(ux, pitch=pitch, structure=structure, master_name=master_name, intent=intent,
                                  inbox_specs=inbox_specs, workspace_dir=workspace_dir)
 
-    def run_rule_specs() -> None:
+    def draft_rule_tests() -> Dict[str, Any]:
+        # The first test of every rule, written while the actions are; nothing is put in the workspace yet
+        with stage("rule_tests", owns=()) as handle:
+            if drafts is None:
+                handle.skip("no test writer was given; the rules' tests are written when the rules run")
+                return {}
+            written = drafts(inbox_specs)
+            handle.note("written", sorted(spec_id for spec_id, test in written.items() if isinstance(test, str)))
+            unwritten = {spec_id: f"{type(test).__name__}: {test}" for spec_id, test in written.items() if not isinstance(test, str)}
+            if unwritten:  # each of these fails its spec by name when the rules run
+                handle.note("not_written", unwritten)
+            return written
+
+    def run_rule_specs(drafted: Dict[str, Any]) -> None:
         # The domain's rules, on top of the methods the behaviour stage wrote. Overlaps the presentation, so it
         # declares the files it writes.
         with stage("behaviour_specs", owns=DOMAIN_FILES) as handle:
@@ -218,7 +235,7 @@ def run_synthesis_stages(
             if not outcome.engine.get("success") or not outcome.behaviour.success:
                 return handle.skip("the actions the specs build on are not implemented")
             started = time.time()
-            outcome.specs = specs(inbox_specs, lambda rules: handle.note("rules", asdict(rules)))
+            outcome.specs = specs(inbox_specs, lambda rules: handle.note("rules", asdict(rules)), drafted)
             outcome.timings["5c_behaviour_specs"] = round(time.time() - started, 2)
             handle.note("fulfilled", outcome.specs.fulfilled)
             if outcome.specs.skipped:
@@ -262,18 +279,19 @@ def run_synthesis_stages(
     implemented = threading.Event()
     fields: Dict[str, Dict[str, List[str]]] = {}  # what the classes hold: "before" and "after" the actions are written
 
-    def actions_then_rules() -> None:
+    def actions_then_rules(rule_tests: Any) -> None:
         try:
             implement_actions()
             fields["after"] = domain_fields(workspace_dir)  # read before the rules start rewriting the classes
         finally:
             implemented.set()
-        run_rule_specs()
+        run_rule_specs(rule_tests.result() if rule_tests is not None else {})
 
     def page_alongside_the_actions(ux_plan: Any, pool: ThreadPoolExecutor) -> None:
         design_actions()
         fields["before"] = domain_fields(workspace_dir)
-        alongside.append(pool.submit(pipeline_trace.bind_context(actions_then_rules)))
+        rule_tests = pool.submit(pipeline_trace.bind_context(draft_rule_tests)) if outcome.engine.get("success") else None
+        alongside.append(pool.submit(pipeline_trace.bind_context(actions_then_rules), rule_tests))
 
         # Interactive presentation projection & React shell, written while the actions are
         outcome.ux_blueprint = ux_plan.result()
@@ -285,7 +303,7 @@ def run_synthesis_stages(
         changes = field_changes(fields["before"], fields["after"]) if "after" in fields else []
         run_page_revisit_stage(presentation, outcome, changes, **page)
 
-    with ThreadPoolExecutor(max_workers=5, thread_name_prefix="synthesis") as pool:
+    with ThreadPoolExecutor(max_workers=6, thread_name_prefix="synthesis") as pool:
         alongside = [pool.submit(pipeline_trace.bind_context(task)) for task in (review_specs, seed_content)]
         ux_plan = pool.submit(pipeline_trace.bind_context(plan_ux))
         try:
