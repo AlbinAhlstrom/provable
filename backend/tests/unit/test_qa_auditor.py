@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 from onboarding.qa_auditor import run_responsive_qa_audit, DEVICE_MATRIX
 from onboarding.qa_contrast_check import ContrastCheck
 from onboarding.qa_form_check import FormCheck
+from onboarding.qa_type_check import TypeCheck
 
 
 @pytest.fixture(autouse=True)
@@ -52,6 +53,35 @@ def test_qa_auditor_fails_a_page_whose_text_cannot_be_read(mock_chrome_cls, tmp_
     assert contrast_checks["devices"] == ["Desktop"]
     assert report["passed"] is False
     assert report["defects"] == ["[Desktop] Unreadable text: 16 text(s) are drawn in #f5f5f4"]
+
+
+@patch("selenium.webdriver.Chrome")
+@pytest.mark.slow
+def test_qa_auditor_fails_a_page_that_contradicts_its_own_types(mock_chrome_cls, tmp_path, monkeypatch):
+    """Verify a page that renders on every screen still fails the audit when the compiler refuses it.
+
+    id: TST-QA-TYPES
+    Given: A page with clean layout metrics, in a workspace whose type check reports an error and a warning
+    When: The audit runs with that workspace, and again without one
+    Then: With the workspace the error is a defect that fails the audit and the warning is reported; without one the
+          types are not checked
+    """
+    mock_driver = MagicMock()
+    mock_chrome_cls.return_value = mock_driver
+    mock_driver.execute_script.return_value = {"innerWidth": 375, "maxScrollWidth": 375, "hasHorizontalOverflow": False,
+                                               "overflowDelta": 0, "hasCrashOverlay": False}
+    checked = []
+    monkeypatch.setattr("onboarding.qa_auditor.check_types", lambda ws: checked.append(ws) or TypeCheck(
+        defects=["[Types] src/App.tsx line 3: Property 'x' does not exist"], warnings=["the type check was slow"]))
+
+    report = run_responsive_qa_audit(save_screenshots=False, output_dir=str(tmp_path), workspace_dir="ws")
+    assert checked == ["ws"]
+    assert report["passed"] is False and report["overall_status"] == "FAIL"
+    assert report["defects"] == ["[Types] src/App.tsx line 3: Property 'x' does not exist"]
+    assert report["warnings"] == ["the type check was slow"]
+
+    assert run_responsive_qa_audit(save_screenshots=False, output_dir=str(tmp_path))["passed"] is True
+    assert checked == ["ws"]
 
 
 def test_qa_auditor_matrix_definitions():

@@ -15,6 +15,8 @@ Enforces Hard QA Invariants:
    (qa_form_check.py)
 5. Text can be seen: on the desktop, text drawn in nearly the colour of its background is a defect
    (qa_contrast_check.py)
+6. The page agrees with its own types: when the audit is given the workspace, each error the TypeScript compiler
+   reports is a defect (qa_type_check.py)
 """
 
 import pipeline_trace
@@ -29,6 +31,7 @@ from selenium.webdriver.chrome.options import Options
 
 from onboarding.qa_contrast_check import measure_contrast
 from onboarding.qa_form_check import exercise_forms
+from onboarding.qa_type_check import check_types
 
 DEVICE_MATRIX = [
     {
@@ -78,7 +81,8 @@ def run_responsive_qa_audit(
     timeout: int = 5,
     save_screenshots: bool = True,
     output_dir: Optional[str] = None,
-    check_vertical_containment: bool = False
+    check_vertical_containment: bool = False,
+    workspace_dir: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Executes automated QA verification against the live frontend on :5174 across device viewports.
@@ -314,7 +318,8 @@ def run_responsive_qa_audit(
                 pass
 
     try:
-        with ThreadPoolExecutor(max_workers=len(DEVICE_MATRIX)) as pool:
+        with ThreadPoolExecutor(max_workers=len(DEVICE_MATRIX) + 1) as pool:
+            types = pool.submit(pipeline_trace.bind_context(check_types), workspace_dir) if workspace_dir else None
             audited = list(pool.map(pipeline_trace.bind_context(audit_device), DEVICE_MATRIX))
     except Exception as e:
         print(f"[QA Gate] WebDriver connection or execution notice: {e}")
@@ -337,6 +342,11 @@ def run_responsive_qa_audit(
         warnings.extend(device_warnings)
         all_console_errors.extend(e for e in device_console_errors if e not in all_console_errors)
     overall_passed = all(r["passed"] for r in results)
+    if types is not None:
+        type_check = types.result()
+        defects.extend(type_check.defects)
+        warnings.extend(type_check.warnings)
+        overall_passed = overall_passed and not type_check.defects
 
     status_str = "PASS" if overall_passed else "FAIL"
     summary_text = (

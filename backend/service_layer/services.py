@@ -2278,7 +2278,8 @@ def kickstart_domain_and_scaffold(
                 last_audit: Dict[str, Any] = {}
 
                 def _audit() -> Dict[str, Any]:
-                    last_audit["report"] = run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=True)
+                    last_audit["report"] = run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=True,
+                                                                  workspace_dir=workspace_dir)
                     return last_audit["report"]
 
                 qa_verdict = run_qa_gate(audit=_audit, rework=_rework)
