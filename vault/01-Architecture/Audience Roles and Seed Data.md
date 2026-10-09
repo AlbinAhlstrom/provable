@@ -69,7 +69,7 @@ attribute on its owner (`AttributeSpec.item_name`, `item_attributes`) and remove
 no module, repository, router or client of its own, and specs that targeted it target its owner. The owner's class
 holds the parts as plain records and documents what one holds, so the methods and rules written for the owner can read
 and change them (a game can look at its board). Stored as a separate collection, the owner's behaviour could not see
-them. Only a part with exactly one owning root is embedded.
+them. Only a part with exactly one owning root is embedded. A part's own parts (the items of a parcel of an order, the cells of a board of a game) are stored inside it, so the class and the client state one nested shape; left as a collection of their own, the page read them from there while the root's methods kept them inside the root.
 
 The generated response schemas allow extra fields, so a field the domain class grows later (through a spec) is served
 by `GET` as well as by the action that set it.

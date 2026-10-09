@@ -71,12 +71,26 @@ def _ts_type(py_type: str) -> str:
             "Dict[str, Any]": "Record<string, any>"}.get(py_type, "string")
 
 
+def _part_keys(attr: Any) -> str:
+    """The keys one item of a part list holds; a part's own parts are stated inside it."""
+    return ", ".join(
+        f"{a.name} (a list of the {a.item_name} records it owns, one dict each with the keys {_part_keys(a)})"
+        if getattr(a, "item_attributes", None) else f"{a.name} ({_map_type(a.type)})" for a in attr.item_attributes)
+
+
+def _ts_part_type(attr: Any) -> str:
+    """The TypeScript type of a part list, with the lists its items hold."""
+    item = "; ".join(f"{a.name}: {_ts_part_type(a) if getattr(a, 'item_attributes', None) else _ts_type(_map_type(a.type))}"
+                     for a in attr.item_attributes)
+    return f"Array<{{ {item} }}>"
+
+
 def _parts_doc(entity: EntitySpec) -> str:
     """Docstring lines saying what one item of each part list holds (the class API shown to test and code writers)."""
     lines = []
     for attr in entity.attributes:
         if getattr(attr, "item_attributes", None):
-            keys = ", ".join(f"{a.name} ({_map_type(a.type)})" for a in attr.item_attributes)
+            keys = _part_keys(attr)
             lines.append(f"    {attr.name}: the {attr.item_name} records this {entity.name} owns, one dict each with the keys {keys}.")
     return ("\n\n" + "\n".join(lines) + "\n    ") if lines else ""
 
@@ -775,8 +789,7 @@ def _ts_interface_fields(entity: EntitySpec) -> List[str]:
     lines = []
     for attr in entity.attributes:
         if getattr(attr, "item_attributes", None):
-            item = "; ".join(f"{a.name}: {_ts_type(_map_type(a.type))}" for a in attr.item_attributes)
-            ts_t = f"Array<{{ {item} }}>"
+            ts_t = _ts_part_type(attr)
         else:
             ts_t = _ts_type(_map_type(attr.type))
         optional_marker = "?" if (not attr.required or attr.default_value is not None) else ""

@@ -103,3 +103,82 @@ def test_the_generated_aggregate_holds_serves_and_documents_its_parts(tmp_path):
     status, sessions = json.loads(out.stdout.strip().splitlines()[-1])
     assert status == 201 and sessions[0]["board_squares"] == [{"id": "a1", "coordinate": "a1", "move_count": 0}]
     assert sessions[0]["selected_square"] == "a1"  # a field the domain grew later is served, not filtered away
+
+
+def _nested():
+    return DomainStructureSchema(domain_name="Orders", entities=[
+        EntitySpec(name="Order", audience_role=AudienceRole.CREATED,
+                   attributes=[{"name": "id", "type": "string"}, {"name": "status", "type": "string"}]),
+        EntitySpec(name="Parcel", is_aggregate_root=False,
+                   attributes=[{"name": "id", "type": "string"}, {"name": "order_id", "type": "string"},
+                               {"name": "weight", "type": "float"}],
+                   relationships=[{"target": "Order", "relation_type": "many_to_one"}]),
+        EntitySpec(name="ParcelItem", is_aggregate_root=False,
+                   attributes=[{"name": "id", "type": "string"}, {"name": "parcel_id", "type": "string"},
+                               {"name": "quantity", "type": "int"}],
+                   relationships=[{"target": "Parcel", "relation_type": "many_to_one"}]),
+    ])
+
+
+def test_a_part_of_a_part_is_stored_inside_it():
+    """Verify ownership is followed all the way down: where a part's own parts live is decided, not left open.
+
+    id: TST-PART-004
+    Given: A root that owns a part, which in turn owns a part of its own (the items of a parcel of an order, the
+           cells of a board of a game), and a spec targeting the innermost
+    When: Owned parts are embedded
+    Then: Only the root remains; its part list describes one item, which holds the list of its own parts with their
+          keys (without the key back to their owner); the spec targets the root
+    """
+    structure, specs = _nested(), [_spec("ParcelItem")]
+    owners = embed_owned_parts(structure, specs)
+
+    assert owners == {"Parcel": "Order", "ParcelItem": "Order"}
+    assert [e.name for e in structure.entities] == ["Order"]
+    parcels = next(a for a in structure.entities[0].attributes if a.name == "parcels")
+    assert [a.name for a in parcels.item_attributes] == ["id", "weight", "parcel_items"]
+    assert parcels.describe() == ("parcels: list of Parcel {id: string, weight: float, "
+                                  "parcel_items: list of ParcelItem {id: string, quantity: int}}")
+    assert specs[0].target_aggregate == "Order"
+
+
+def test_a_part_whose_owner_is_stored_on_its_own_stays_a_collection():
+    """Verify a part is only nested when the chain of owners ends in an aggregate root.
+
+    id: TST-PART-005
+    Given: A non-root entity that belongs to another non-root entity, which belongs to two roots
+    When: Owned parts are embedded
+    Then: Both stay stored on their own
+    """
+    structure = DomainStructureSchema(domain_name="Salon", entities=[
+        EntitySpec(name="Stylist", attributes=[{"name": "id", "type": "string"}]),
+        EntitySpec(name="Service", attributes=[{"name": "id", "type": "string"}]),
+        EntitySpec(name="Slot", is_aggregate_root=False, attributes=[{"name": "id", "type": "string"}],
+                   relationships=[{"target": "Stylist", "relation_type": "many_to_one"}, {"target": "Service", "relation_type": "many_to_one"}]),
+        EntitySpec(name="Note", is_aggregate_root=False, attributes=[{"name": "id", "type": "string"}],
+                   relationships=[{"target": "Slot", "relation_type": "many_to_one"}]),
+    ])
+    assert embed_owned_parts(structure, []) == {}
+    assert [e.name for e in structure.entities] == ["Stylist", "Service", "Slot", "Note"]
+
+
+def test_the_generated_class_and_client_state_the_nested_parts(tmp_path):
+    """Verify everyone who writes against the class is shown the same nested shape.
+
+    id: TST-PART-006
+    Given: A structure whose parcels, with their items, were embedded in the order
+    When: The skeleton is written
+    Then: Neither part has a module of its own; the class's description and the client's type state what one parcel
+          holds, including the keys of its items
+    """
+    structure = _nested()
+    embed_owned_parts(structure, [])
+    build_and_write_skeleton(structure, target_dir=str(tmp_path))
+
+    assert not (tmp_path / "src" / "domain" / "parcel.py").exists()
+    assert not (tmp_path / "src" / "domain" / "parcel_item.py").exists()
+    domain = (tmp_path / "src" / "domain" / "order.py").read_text(encoding="utf-8")
+    assert ("parcels: the Parcel records this Order owns, one dict each with the keys id (str), weight (float), "
+            "parcel_items (a list of the ParcelItem records it owns, one dict each with the keys id (str), quantity (int)).") in domain
+    client = (tmp_path / "src" / "api" / "client.ts").read_text(encoding="utf-8")
+    assert "parcels?: Array<{ id: string; weight: number; parcel_items: Array<{ id: string; quantity: number }> }>" in client

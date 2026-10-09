@@ -44,7 +44,7 @@ class AttributeSpec(BaseModel):
         """The attribute as prompts state it: `name: type`, and for a list of parts what one item holds."""
         if not self.item_attributes:
             return f"{self.name}: {self.type}"
-        item = ", ".join(f"{a.name}: {a.type}" for a in self.item_attributes)
+        item = ", ".join(a.describe() for a in self.item_attributes)
         return f"{self.name}: list of {self.item_name} {{{item}}}"
 
 
