@@ -169,7 +169,7 @@ def run_synthesis_stages(
             if not outcome.engine.get("success"):
                 handle.skip("there is no action protocol to implement")
             else:
-                outcome.behaviour = behaviour(outcome.engine.get("action_manifest") or {}, workspace_dir)
+                outcome.behaviour = behaviour(outcome.engine.get("action_manifest") or {}, workspace_dir, rules=inbox_specs)
                 outcome.timings["5a_action_behaviour"] = round(time.time() - started, 2)
                 handle.note("implemented", outcome.behaviour.implemented)
                 handle.note("runs", outcome.behaviour.runs)

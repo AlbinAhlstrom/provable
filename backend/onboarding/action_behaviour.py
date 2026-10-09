@@ -80,15 +80,19 @@ def implement_actions(
     manifest: Optional[Dict[str, Any]],
     workspace_dir: str,
     run_spec: Optional[Callable[..., Dict[str, Any]]] = None,
+    rules: Optional[List[BusinessSpec]] = None,
 ) -> ActionBehaviour:
-    """Runs one TDD loop per aggregate that has actions, then compares the code with the manifest."""
+    """Runs one TDD loop per aggregate that has actions, then compares the code with the manifest. `rules` is the
+    product's rule deck: the writer of the actions' test is shown the rules of its class, which are implemented
+    next and must not contradict what its test expects."""
     if run_spec is None:
         # The batch loop with one spec: the same gates as the single loop, and a test that no code answer could
         # meet goes back to its writer once (a test with a slip in it must not cost the build its whole domain)
         from service_layer import tdd_batch
 
         def run_spec(spec: BusinessSpec, workspace_dir: str, action_manifest: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-            return tdd_batch.execute_specs_together([spec], workspace_dir, action_manifest=action_manifest)[spec.spec_id]
+            return tdd_batch.execute_specs_together([spec], workspace_dir, action_manifest=action_manifest,
+                                                    deck=[spec] + list(rules or []))[spec.spec_id]
 
     by_aggregate: Dict[str, List[Dict[str, Any]]] = {}
     for action in (manifest or {}).get("actions") or []:

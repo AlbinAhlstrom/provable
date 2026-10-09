@@ -7,7 +7,7 @@ import os
 
 from onboarding.action_behaviour import ActionBehaviour, action_spec, implement_actions
 from onboarding.dynamic_test_generator import write_acceptance_suites
-from onboarding.router_engine import DomainStructureSchema, EntitySpec
+from onboarding.router_engine import BusinessSpec, DomainStructureSchema, EntitySpec
 from onboarding.skeleton_builder import build_and_write_skeleton
 
 STRUCTURE = DomainStructureSchema(domain_name="Salon", entities=[
@@ -227,11 +227,16 @@ def test_the_actions_spec_goes_through_the_loop_that_can_reconsider_a_test(tmp_p
     from service_layer import tdd_batch
     seen = []
 
-    def together(specs, workspace_dir, action_manifest=None, on_result=None):
+    decks = []
+
+    def together(specs, workspace_dir, action_manifest=None, on_result=None, deck=None):
+        decks.append([s.spec_id for s in deck])
         seen.append(([s.spec_id for s in specs], action_manifest is MANIFEST))
         return {s.spec_id: {"success": True, "status": "FULFILLED", "attempts": []} for s in specs}
 
     monkeypatch.setattr(tdd_batch, "execute_specs_together", together)
-    result = implement_actions(MANIFEST, _workspace(tmp_path))
+    rule = BusinessSpec(spec_id="SPEC-001", title="t", description="d", given_when_then="g", target_aggregate="Appointment")
+    result = implement_actions(MANIFEST, _workspace(tmp_path), rules=[rule])
     assert seen == [(["SPEC-ACT-APPOINTMENT"], True), (["SPEC-ACT-STYLIST"], True)]
+    assert decks[0] == ["SPEC-ACT-APPOINTMENT", "SPEC-001"]  # the test writer is shown the rules that come next
     assert [r["status"] for r in result.runs] == ["FULFILLED", "FULFILLED"]

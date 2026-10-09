@@ -85,6 +85,14 @@ While the page is written, the rule deck's behaviour specs are written together 
   not reconsidered) and no code is written after it. This one call runs at medium reasoning effort with a longer
   timeout (`generate_red_test(careful=True)`): at the default effort the reconsidered test was wrong as often as
   the first (a mating move drawn through the mover's own king); at medium it takes up to a minute and holds.
+- Each test writer is shown the other rules of its class (title and scenario), and arranges a situation in which
+  its own rule decides the outcome alone. Written without them, a turn-order test on two kings and a knight
+  expected play to go on where another rule of the deck ends the game as a draw. The writer of the actions' test
+  is shown the deck too (`implement_actions(rules=...)`).
+- A deck's tests are peers. One that passed before any code was written (the action stage's class already met it)
+  is judged with the batch: an answer that fails it leaves that one rule unfulfilled, and its test is reconsidered
+  like any other. Treated as an earlier verified test it vetoed every answer, and one wrong test cost a build 19
+  of its 27 rules. Tests verified before the deck (the actions' test, earlier runs) still outrank every answer.
 - The hollow class also starts empty where the class computes its starting state (a `default_factory` that is its
   own function): a rule about how a new object starts is then behaviour the class has, not a tautology. Literal
   defaults are left, so a test that only reads one is still refused.

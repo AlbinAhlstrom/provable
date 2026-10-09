@@ -91,6 +91,12 @@ def rules_spec(class_name: str, specs: List[BusinessSpec]) -> BusinessSpec:
     )
 
 
+def other_rules(spec: BusinessSpec, deck: List[BusinessSpec]) -> str:
+    """The rules of the same class a test writer must keep out of its situation, one line each."""
+    return "\n".join(f"- {s.title}: {s.given_when_then}" for s in deck
+                     if s.target_aggregate == spec.target_aggregate and s.spec_id != spec.spec_id)
+
+
 def _tests_block(batch: List[Approved]) -> str:
     return "\n".join(f"# tests/unit/{os.path.basename(red.test_file_path)}\n{red.test_code.strip()}\n" for _, red in batch)
 
@@ -110,13 +116,20 @@ def _failing_spec_result(spec: BusinessSpec, red: RedOutcome, attempts: List[Dic
 
 @traced("tdd.green_together")
 def implement_together(batch: List[Approved], target: DomainTarget, workspace_dir: str, existing_tests: str,
-                       waiting: Set[str]) -> Dict[str, Dict[str, Any]]:
+                       waiting: Set[str], peers: Optional[List[Approved]] = None) -> Dict[str, Dict[str, Any]]:
     """One code answer for every approved test of one class, and one retry with the tests it left failing.
-    `waiting` holds the test files of classes not implemented yet: they fail by design and are not counted."""
+    `waiting` holds the test files of classes not implemented yet: they fail by design and are not counted.
+    `peers` are the deck's tests that passed before any code was written (the class as the action stage left it
+    already met them). They are tests of the same deck, written at the same moment as the batch's, so they are judged
+    with it: an answer that fails one leaves that rule unfulfilled, and is not thrown away for it as it is for
+    breaking a test verified before this deck."""
+    peers = peers or []
+    everyone = batch + peers
     with open(target.domain_file, "r", encoding="utf-8") as f:
         domain_before = f.read()
-    frozen, verified = list(batch), existing_tests  # on the retry: the tests still failing, and those to keep passing
-    own = {os.path.basename(red.test_file_path) for _, red in batch}
+    # On the retry: the tests still failing, and those to keep passing
+    frozen, verified = list(batch), "\n".join(part for part in (existing_tests, _tests_block(peers)) if part)
+    own = {os.path.basename(red.test_file_path) for _, red in everyone}
     attempts: List[Dict[str, Any]] = []
     kept: Optional[Tuple[str, Set[str], Dict[str, Any]]] = None   # (source, the batch's failing tests, pytest result)
     reason = ""
@@ -142,7 +155,7 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
                 reason, evidence = f"The answer could not be merged into the class: {err}", str(err)
             else:
                 restore(merged)
-                for _, red in batch:
+                for _, red in everyone:
                     tdd_machine.verify_test_file_integrity(red.test_file_path, red.test_hash)
                 run = tdd_machine.run_isolated_pytest(target.tests_dir, cwd=workspace_dir,
                                                       timeout_seconds=tdd_machine.REGRESSION_TIMEOUT_S)
@@ -169,8 +182,8 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
                         kept = (merged, still, run)
                     restore(kept[0])
                     # The retry is asked for what is still failing; what already passes is shown as tests to keep
-                    frozen = [(s, red) for s, red in batch if os.path.basename(red.test_file_path) in kept[1]]
-                    passing = [(s, red) for s, red in batch if os.path.basename(red.test_file_path) not in kept[1]]
+                    frozen = [(s, red) for s, red in everyone if os.path.basename(red.test_file_path) in kept[1]]
+                    passing = [(s, red) for s, red in everyone if os.path.basename(red.test_file_path) not in kept[1]]
                     verified = "\n".join(part for part in (existing_tests, _tests_block(passing)) if part)
             attempts.append({"attempt": attempt, "approved": not reason, "reason": reason or "All tests passed cleanly."})
             if not reason:
@@ -187,7 +200,7 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
         restore(domain_before)
         return {s.spec_id: _failing_spec_result(s, red, attempts, reason, workspace_dir) for s, red in batch}
     _, still, run = kept
-    for s, red in batch:
+    for s, red in everyone:
         name = os.path.basename(red.test_file_path)
         if name in still:
             evidence = "\n".join(str((t.get("call") or {}).get("longrepr") or "")
@@ -198,7 +211,7 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
                 s, red, attempts, f"Test assertions failed in GREEN phase{': ' + why if why else '.'}", workspace_dir)
             results[s.spec_id]["rolled_back"] = False  # the answer also carries the rules that passed, so it stays
             results[s.spec_id]["failure_evidence"] = evidence[-RECONSIDER_EVIDENCE:]
-        else:
+        elif red.verdict != "already_satisfied":
             results[s.spec_id] = {
                 "success": True, "status": "FULFILLED", "phase": "COMMITTED", "spec_id": s.spec_id,
                 "test_file": red.test_file_path, "red_eval": red.evaluation,
@@ -209,7 +222,8 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
 
 @traced("tdd.reconsider_test")
 def reconsider_test(spec: BusinessSpec, red: RedOutcome, failed: Dict[str, Any], target: DomainTarget,
-                    workspace_dir: str, existing_tests: str, action_manifest: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+                    workspace_dir: str, existing_tests: str, action_manifest: Optional[Dict[str, Any]],
+                    rules: str = "") -> Dict[str, Any]:
     """The test writer's one regeneration, spent on a test no code answer could meet. Returns the spec's result:
     fulfilled by a corrected test that the kept class passes and the hollow class fails, else `failed` with what
     the reconsideration came to."""
@@ -224,7 +238,8 @@ def reconsider_test(spec: BusinessSpec, red: RedOutcome, failed: Dict[str, Any],
         rejection_feedback=RECONSIDER.format(test=red.test_code.strip(), implementation=implementation.strip(),
                                              evidence=failed.get("failure_evidence") or failed["error"]),
         existing_tests=existing_tests,
-        interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name), careful=True)
+        interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name), careful=True,
+        other_rules=rules)
     if test_code.strip() == red.test_code.strip():
         return stays("Its writer, shown the failure, stands by the test.")
     lint_ok, lint_reason = tdd_machine.lint_red_test(test_code, require_both_sides=bool(spec.is_mathematical_boundary))
@@ -259,10 +274,13 @@ def execute_specs_together(
     workspace_dir: str,
     action_manifest: Optional[Dict[str, Any]] = None,
     on_result: Optional[Callable[[BusinessSpec, Dict[str, Any]], None]] = None,
+    deck: Optional[List[BusinessSpec]] = None,
 ) -> Dict[str, Dict[str, Any]]:
     """Runs every spec through RED side by side, then GREEN once per class. Returns each spec's result by spec id,
     in the shape the single loop returns; `on_result` is told each one, in deck order within its class, from the
-    calling thread."""
+    calling thread. `deck` is every rule the product has (default: `specs`): each test writer is shown the other
+    rules of its class, so that it arranges a situation none of them interferes with."""
+    deck = list(deck) if deck is not None else list(specs)
     targets = {s.spec_id: tdd_machine.locate_domain_target(s, workspace_dir) for s in specs}
     # What each test writer is shown: the verified tests from before this batch, read before any new one is written
     earlier_tests = {t.domain_file: tdd_machine.collect_existing_tests(t.tests_dir, exclude="", module_name=t.module_name)
@@ -271,7 +289,8 @@ def execute_specs_together(
     def red(spec: BusinessSpec) -> Any:
         target = targets[spec.spec_id]
         try:
-            return tdd_machine.run_red_phase(spec, target, workspace_dir, earlier_tests[target.domain_file], action_manifest)
+            return tdd_machine.run_red_phase(spec, target, workspace_dir, earlier_tests[target.domain_file], action_manifest,
+                                             other_rules=other_rules(spec, deck))
         except Exception as err:  # a provider or infrastructure error: reported with its reason, never retried
             return err
 
@@ -286,10 +305,14 @@ def execute_specs_together(
             on_result(spec, result)
 
     by_class: Dict[str, List[Approved]] = {}
+    satisfied: Dict[str, List[Approved]] = {}  # passed before any code: judged with their class's batch, if it has one
     for spec, outcome in zip(specs, reds):
         if isinstance(outcome, Exception):
             settle(spec, {"success": False, "status": "ERROR", "phase": "RED_GEN", "spec_id": spec.spec_id,
                           "error": f"{type(outcome).__name__}: {outcome}"})
+            continue
+        if outcome.verdict == "already_satisfied":
+            satisfied.setdefault(targets[spec.spec_id].domain_file, []).append((spec, outcome))
             continue
         settled = tdd_machine.red_dead_end(spec, outcome, workspace_dir)
         if settled is not None:
@@ -297,24 +320,38 @@ def execute_specs_together(
         else:
             by_class.setdefault(targets[spec.spec_id].domain_file, []).append((spec, outcome))
 
+    def stands(pair: Approved) -> Dict[str, Any]:
+        return tdd_machine.red_dead_end(pair[0], pair[1], workspace_dir) or {}
+
+    for domain_file, peers in satisfied.items():
+        if domain_file not in by_class:  # no code is written for this class, so nothing can change what they showed
+            for pair in peers:
+                settle(pair[0], stands(pair))
+
+    order = {s.spec_id: n for n, s in enumerate(specs)}
     waiting = {os.path.basename(red.test_file_path) for batch in by_class.values() for _, red in batch}
     for domain_file, batch in by_class.items():
         waiting -= {os.path.basename(red.test_file_path) for _, red in batch}
+        peers = satisfied.get(domain_file, [])
         try:
-            done = implement_together(batch, targets[batch[0][0].spec_id], workspace_dir, earlier_tests[domain_file], waiting)
+            done = implement_together(batch, targets[batch[0][0].spec_id], workspace_dir, earlier_tests[domain_file], waiting,
+                                      peers=peers)
         except Exception as err:  # a provider error or a tampered test: the class is back as it was, nothing is retried
             done = {s.spec_id: {"success": False, "status": "ERROR", "phase": "GREEN_GEN", "spec_id": s.spec_id,
                                 "error": f"{type(err).__name__}: {err}", "red_attempts": red.attempts,
                                 "test_source": red.test_code, "rolled_back": True} for s, red in batch}
+        for pair in peers:  # the class is as it was wherever the answer was not kept, and there they still pass
+            done.setdefault(pair[0].spec_id, stands(pair))
+        everyone = sorted(batch + peers, key=lambda pair: order[pair[0].spec_id])
         # A test neither answer could meet, and never sent back before, goes to its writer once
-        doubted = [(spec, red) for spec, red in batch
+        doubted = [(spec, red) for spec, red in everyone
                    if "failure_evidence" in done[spec.spec_id] and len(red.attempts) == 1]
 
         def reconsider(pair: Approved) -> Dict[str, Any]:
             spec, red = pair
             try:
                 return reconsider_test(spec, red, done[spec.spec_id], targets[spec.spec_id], workspace_dir,
-                                       earlier_tests[domain_file], action_manifest)
+                                       earlier_tests[domain_file], action_manifest, rules=other_rules(spec, deck))
             except Exception as err:  # a provider error: the spec stays failed, with this beside its reason
                 return {**done[spec.spec_id], "error": f"{done[spec.spec_id]['error']} Reconsidering its test failed: "
                                                        f"{type(err).__name__}: {err}"}
@@ -323,6 +360,6 @@ def execute_specs_together(
             with ThreadPoolExecutor(max_workers=RED_WORKERS, thread_name_prefix="reconsider") as pool:
                 for (spec, _), result in zip(doubted, pool.map(pipeline_trace.bind_context(reconsider), doubted)):
                     done[spec.spec_id] = result
-        for spec, _ in batch:
+        for spec, _ in everyone:
             settle(spec, done[spec.spec_id])
     return results

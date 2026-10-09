@@ -403,6 +403,7 @@ def generate_red_test(
     existing_tests: str = "",
     interface_contract: str = "",
     careful: bool = False,
+    other_rules: str = "",
 ) -> str:
     """Asks the LLM for a behavioral pytest module that encodes the spec's Given/When/Then.
 
@@ -426,6 +427,7 @@ def generate_red_test(
         "existing_tests": existing_tests or "(none yet: this is the first verified test for this class)",
         "interface_contract": interface_contract or "(none: no interface method has been promised for this class)",
         "feedback_block": feedback_block,
+        "other_rules": other_rules or "(none: this is the only rule being written for this class)",
     })
     thought = dict(reasoning_effort=CAREFUL_EFFORT, timeout_s=CAREFUL_TIMEOUT_S) if careful else {}
     raw = agent_orchestrator.call_gemini(prompt, stage="red_test_generation", **thought)
@@ -559,7 +561,7 @@ class RedOutcome:
 
 
 def run_red_phase(spec: BusinessSpec, target: DomainTarget, workspace_dir: str, existing_tests: str,
-                  action_manifest: Optional[Dict[str, Any]] = None) -> RedOutcome:
+                  action_manifest: Optional[Dict[str, Any]] = None, other_rules: str = "") -> RedOutcome:
     """The LLM writes a behavioural test from the BDD spec; the gate checks it fails for the RIGHT reason.
 
     Retry policy (.claude/rules/pipeline.md): at most ONE regeneration, only because the lint or the RED gate rejected
@@ -577,7 +579,8 @@ def run_red_phase(spec: BusinessSpec, target: DomainTarget, workspace_dir: str, 
     for red_attempt in (1, 2):
         test_code = generate_red_test(spec, current_class, target.module_name, target.class_name,
                                       rejection_feedback=red_feedback, existing_tests=existing_tests,
-                                      interface_contract=format_interface_contract(action_manifest, target.class_name))
+                                      interface_contract=format_interface_contract(action_manifest, target.class_name),
+                                      other_rules=other_rules)
         lint_ok, lint_reason = lint_red_test(test_code, require_both_sides=bool(spec.is_mathematical_boundary))
         if not lint_ok:
             red_attempts.append({"attempt": red_attempt, "approved": False, "reason": lint_reason})

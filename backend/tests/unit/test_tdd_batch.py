@@ -335,3 +335,49 @@ def test_a_test_already_regenerated_once_is_not_reconsidered(tmp_path, monkeypat
     results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
 
     assert len(asked) == 2 and not results["SPEC-003"]["success"]
+
+
+def test_each_test_writer_is_shown_the_other_rules_of_the_class(tmp_path, monkeypatch):
+    """Verify a test can be arranged so that no other rule of the deck changes its outcome: its writer knows them.
+
+    id: TST-BATCH-010
+    Given: Three specs on one class
+    When: The specs are executed together
+    Then: The writer of each test was given the other two rules, title and scenario, and not its own
+    """
+    workspace = _workspace(tmp_path)
+    _models(monkeypatch, [_fragment(PAY, ADD_LINE)])
+    shown = {}
+
+    def write_test(spec, *args, **kwargs):
+        shown[spec.spec_id] = kwargs.get("other_rules", "")
+        return TESTS[spec.spec_id]
+    monkeypatch.setattr(tdd_machine, "generate_red_test", write_test)
+
+    tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert "Rule SPEC-002: Given a When b Then c" in shown["SPEC-001"] and "Rule SPEC-003" in shown["SPEC-001"]
+    assert "Rule SPEC-001" not in shown["SPEC-001"]
+
+
+def test_a_rule_that_passed_before_the_code_was_written_does_not_outrank_the_others(tmp_path, monkeypatch):
+    """Verify a deck's tests are judged as peers: one that happened to pass on the unfinished class is not a veto.
+
+    id: TST-BATCH-011
+    Given: A class that refuses a second payment, a spec for that (already satisfied) and a spec that needs code;
+           two code answers that add the new rule and both stop refusing the second payment
+    When: The specs are executed together
+    Then: The new rule is fulfilled and its code kept; the rule the answers broke is the one reported unfulfilled,
+          with what failed; the retry was asked to satisfy its test
+    """
+    workspace = _workspace(tmp_path, INVOICE + PAY)
+    pays_twice = _fragment("\n    def pay(self) -> None:\n        self.status = 'paid'\n", ADD_LINE_OPEN)
+    calls = _models(monkeypatch, [pays_twice, pays_twice])
+
+    results = tdd_batch.execute_specs_together([_spec("SPEC-001"), _spec("SPEC-002")], workspace)
+
+    assert results["SPEC-002"]["success"] and "def add_line" in (tmp_path / "src" / "domain" / "invoice.py").read_text(encoding="utf-8")
+    broken = results["SPEC-001"]
+    assert not broken["success"] and "DID NOT RAISE" in broken["error"]
+    assert len(calls) == 2 and "test_spec_001.py" in calls[0]["existing_tests"] and "test_spec_001.py" in calls[1]["test_source"]
+    assert tdd_machine.run_isolated_pytest(str(tmp_path / "tests" / "unit"), cwd=workspace)["exit_code"] == 0

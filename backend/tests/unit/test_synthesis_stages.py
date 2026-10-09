@@ -20,7 +20,7 @@ def _stages(**overrides):
         seed=lambda **kw: {"success": True, "files": ["seed.json"]},
         presentation=lambda **kw: {"success": True, "files": ["App.tsx"]},
         ux=lambda **kw: "### 1. Plan\n### 6. Visual Direction\nwarm cream, one amber accent",
-        behaviour=lambda manifest, workspace_dir: ActionBehaviour(implemented=["submit"]),
+        behaviour=lambda manifest, workspace_dir, rules=None: ActionBehaviour(implemented=["submit"]),
     )
     stages.update(overrides)
     return stages
@@ -211,7 +211,7 @@ def test_the_actions_are_implemented_before_the_page_that_calls_them_is_written(
     """
     seen = []
 
-    def behaviour(manifest, workspace_dir):
+    def behaviour(manifest, workspace_dir, rules=None):
         seen.append([a["name"] for a in manifest["actions"]])
         return ActionBehaviour(implemented=["submit"])
 
@@ -233,7 +233,7 @@ def test_an_action_nothing_implements_is_a_reported_failure_and_the_page_is_stil
     """
     missing = ActionBehaviour(missing=[{"action": "submit", "aggregate": "Inquiry", "performed_by": "audience"}],
                               runs=[{"aggregate": "Inquiry", "status": "REQUIRES_HUMAN_INTERVENTION", "error": "assert failed"}])
-    outcome = _run(tmp_path, behaviour=lambda manifest, workspace_dir: missing)
+    outcome = _run(tmp_path, behaviour=lambda manifest, workspace_dir, rules=None: missing)
     assert [f["stage"] for f in outcome.failures] == ["action_behaviour"]
     assert "submit" in outcome.failures[0]["error"]
     assert outcome.presentation["success"]
@@ -249,7 +249,7 @@ def test_the_rule_specs_run_after_the_actions_and_while_the_page_is_written(tmp_
     """
     order, specs_started = [], threading.Event()
 
-    def behaviour(manifest, workspace_dir):
+    def behaviour(manifest, workspace_dir, rules=None):
         order.append("behaviour")
         return ActionBehaviour(implemented=["submit"])
 
