@@ -49,6 +49,56 @@ class SynthesisOutcome:
     specs: SpecRun = field(default_factory=SpecRun)             # which rule specs the kickstart fulfilled
 
 
+def _fail(outcome: SynthesisOutcome, stage_name: str, handle: Any, reason: Any) -> None:
+    outcome.failures.append({"stage": stage_name, "error": str(reason)})
+    handle.fail(str(reason))
+
+
+def run_ux_plan_stage(ux: Callable[..., str], *, pitch: str, structure: Any, master_name: str, intent: Optional[Any],
+                      inbox_specs: List[Any], workspace_dir: str) -> str:
+    """The UX plan as a recorded stage: returns the blueprint and gives the app on screen the plan's colours."""
+    with stage("ux_plan", owns=THEME_FILES) as handle:
+        blueprint = ux(pitch=pitch, structure=structure, master_name=master_name, intent=intent,
+                       inbox_specs=inbox_specs)
+        handle.note("has_visual_direction", "### 6. Visual Direction" in (blueprint or ""))
+        # The app is on screen before its page is written: it takes the plan's colours now (draft_theme.py)
+        theme = parse_draft_theme(blueprint)
+        if theme is None:
+            handle.note("draft_theme", "the visual direction has no complete token line; the draft keeps its neutral colours")
+        else:
+            write_draft_theme(workspace_dir, theme)
+            handle.note("draft_theme", asdict(theme))
+        return blueprint
+
+
+def run_presentation_stage(presentation: Callable[..., Dict[str, Any]], outcome: SynthesisOutcome, *, pitch: str,
+                           structure: Any, inbox_specs: List[Any], workspace_dir: str, intent: Optional[Any]) -> None:
+    """The page as a recorded stage, written from `outcome.engine`'s action protocol and `outcome.ux_blueprint`;
+    what it delivered (or why it did not) is left in `outcome`."""
+    started = time.time()
+    with stage("presentation") as handle:
+        outcome.presentation = presentation(
+            pitch=pitch, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,
+            action_manifest=outcome.engine.get("action_manifest"), router_code=outcome.engine.get("router_code"),
+            ux_blueprint=outcome.ux_blueprint, intent=intent)
+        outcome.timings["5b_presentation_projection"] = round(time.time() - started, 2)
+        for key in ("component_lines", "omitted"):
+            if outcome.presentation.get(key):
+                handle.note(key, outcome.presentation[key])
+        if not outcome.presentation.get("success"):
+            _fail(outcome, "presentation", handle, outcome.presentation.get("error") or "no files were written")
+        else:
+            # The page replaced the skeleton's app; the scaffold it no longer imports would only mislead later edits
+            outcome.removed_scaffold = remove_unreachable(workspace_dir)
+            if outcome.removed_scaffold:
+                handle.note("removed_scaffold", outcome.removed_scaffold)
+                # A component the page never imports went with the scaffold: QA and the visual review are
+                # handed the files that are still there
+                outcome.presentation["files"] = [
+                    path for path in outcome.presentation.get("files", [])
+                    if os.path.exists(path if os.path.isabs(path) else os.path.join(workspace_dir, path))]
+
+
 def run_synthesis_stages(
     *,
     pitch: str,
@@ -89,8 +139,7 @@ def run_synthesis_stages(
     master_name = getattr(master, "name", "") or ""
 
     def fail(stage_name: str, handle: Any, reason: Any) -> None:
-        outcome.failures.append({"stage": stage_name, "error": str(reason)})
-        handle.fail(str(reason))
+        _fail(outcome, stage_name, handle, reason)
 
     def review_specs() -> None:
         # Specs that contradict each other are reported now, not discovered as a late regression dead end
@@ -117,18 +166,8 @@ def run_synthesis_stages(
                 fail("seed_data", handle, outcome.seed.get("error"))
 
     def plan_ux() -> str:
-        with stage("ux_plan", owns=THEME_FILES) as handle:
-            blueprint = ux(pitch=pitch, structure=structure, master_name=master_name, intent=intent,
-                           inbox_specs=inbox_specs)
-            handle.note("has_visual_direction", "### 6. Visual Direction" in (blueprint or ""))
-            # The app is on screen before its page is written: it takes the plan's colours now (draft_theme.py)
-            theme = parse_draft_theme(blueprint)
-            if theme is None:
-                handle.note("draft_theme", "the visual direction has no complete token line; the draft keeps its neutral colours")
-            else:
-                write_draft_theme(workspace_dir, theme)
-                handle.note("draft_theme", asdict(theme))
-            return blueprint
+        return run_ux_plan_stage(ux, pitch=pitch, structure=structure, master_name=master_name, intent=intent,
+                                 inbox_specs=inbox_specs, workspace_dir=workspace_dir)
 
     def run_rule_specs() -> None:
         # The domain's rules, on top of the methods the behaviour stage wrote. Overlaps the presentation, so it
@@ -183,28 +222,8 @@ def run_synthesis_stages(
 
         # Interactive presentation projection & React shell
         outcome.ux_blueprint = ux_plan.result()
-        started = time.time()
-        with stage("presentation") as handle:
-            outcome.presentation = presentation(
-                pitch=pitch, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,
-                action_manifest=outcome.engine.get("action_manifest"), router_code=outcome.engine.get("router_code"),
-                ux_blueprint=outcome.ux_blueprint, intent=intent)
-            outcome.timings["5b_presentation_projection"] = round(time.time() - started, 2)
-            for key in ("component_lines", "omitted"):
-                if outcome.presentation.get(key):
-                    handle.note(key, outcome.presentation[key])
-            if not outcome.presentation.get("success"):
-                fail("presentation", handle, outcome.presentation.get("error") or "no files were written")
-            else:
-                # The page replaced the skeleton's app; the scaffold it no longer imports would only mislead later edits
-                outcome.removed_scaffold = remove_unreachable(workspace_dir)
-                if outcome.removed_scaffold:
-                    handle.note("removed_scaffold", outcome.removed_scaffold)
-                    # A component the page never imports went with the scaffold: QA and the visual review are
-                    # handed the files that are still there
-                    outcome.presentation["files"] = [
-                        path for path in outcome.presentation.get("files", [])
-                        if os.path.exists(path if os.path.isabs(path) else os.path.join(workspace_dir, path))]
+        run_presentation_stage(presentation, outcome, pitch=pitch, structure=structure, inbox_specs=inbox_specs,
+                               workspace_dir=workspace_dir, intent=intent)
 
     with ThreadPoolExecutor(max_workers=4, thread_name_prefix="synthesis") as pool:
         alongside = [pool.submit(pipeline_trace.bind_context(task)) for task in (review_specs, seed_content)]

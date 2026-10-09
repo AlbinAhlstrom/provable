@@ -38,6 +38,15 @@ def kickstart_endpoint(req: KickstartRequest):
 
 
 
+@router.post("/page")
+def rebuild_page_endpoint():
+    """Writes the current app's page again against the domain it already has (no decomposition, no TDD loop)."""
+    try:
+        return services.rebuild_page(uow=SqliteUnitOfWork())
+    except Exception as e:
+        return {"success": False, "error": str(e), "detail": str(e)}
+
+
 @router.get("/progress")
 def build_progress_endpoint():
     """What the running kickstart has delivered so far (answered while the kickstart request is still open)."""

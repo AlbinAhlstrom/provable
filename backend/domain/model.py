@@ -432,10 +432,14 @@ class KickstartState:
     intent: Dict[str, Any] = field(default_factory=dict)
     rule_cards: List[Dict[str, Any]] = field(default_factory=list)
     action_manifest: Dict[str, Any] = field(default_factory=dict)
+    # The decomposition as the kickstart made it (entities with their audience roles): what the page is written
+    # from, kept so the page can be written again without decomposing the pitch anew
+    structure: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "business_pitch": self.business_pitch,
+            "structure": self.structure,
             "intent": self.intent,
             "action_manifest": self.action_manifest,
             "blocks": self.blocks,

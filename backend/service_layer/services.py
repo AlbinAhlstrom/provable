@@ -2158,6 +2158,7 @@ def kickstart_domain_and_scaffold(
         state.entity_schemas = entity_schemas_map
         state.inbox_specs = spec_dicts
         state.intent = product_intent.to_dict()
+        state.structure = structure.model_dump(mode="json")
         state.rule_cards = living_cards
 
         uow.kickstart.save(state)
@@ -2252,90 +2253,13 @@ def kickstart_domain_and_scaffold(
                 if f not in created_files:
                     created_files.append(f)
 
-            # Node 4: Multi-Device Responsive QA Audit Gate (Mobile 375px, Tablet 768px, Desktop 1280px)
-            t6_start = time.time()
-            st = stage_begin("qa")
-            try:
-                from onboarding.qa_auditor import run_responsive_qa_audit
-                from onboarding.code_verifier import self_heal_presentation_suite
-                from onboarding.qa_gate import run_qa_gate
-                print(f"[Kickstart] [6/6] Executing Multi-Device Responsive QA Audit Gate...", flush=True)
-
-                def _rework(defects: List[str], console_errs: List[str]) -> bool:
-                    print(f"[Kickstart] [6/6] ⚠️ QA flagged defects: {defects} (Console: {len(console_errs)} errors)", flush=True)
-                    print(f"[Kickstart] [6/6] 🔄 Engaging Closed-Loop LLM Self-Healing Node...", flush=True)
-                    healed = self_heal_presentation_suite(
-                        workspace_dir=workspace_dir,
-                        pitch=pitch_text,
-                        defects=defects,
-                        console_errors=console_errs,
-                        component_files=pres_res.get("files", []),
-                        contract_files=pres_res.get("contract_files", [])
-                    )
-                    if healed:
-                        time.sleep(1.0)
-                    return bool(healed)
-
-                last_audit: Dict[str, Any] = {}
-
-                def _audit() -> Dict[str, Any]:
-                    last_audit["report"] = run_responsive_qa_audit(url="http://localhost:5174", save_screenshots=True,
-                                                                  workspace_dir=workspace_dir,
-                                                                  api_ready_url="http://localhost:8001/openapi.json")
-                    return last_audit["report"]
-
-                qa_verdict = run_qa_gate(audit=_audit, rework=_rework)
-                timings["6_qa_audit"] = round(time.time() - t6_start, 2)
-                st.note("verdict", qa_verdict["verdict"])
-                st.note("rework_attempts", qa_verdict["attempts"])
-                if qa_verdict.get("warnings"):
-                    st.note("warnings", qa_verdict["warnings"])
-                    for warning in qa_verdict["warnings"]:
-                        print(f"[Kickstart] [6/6] ⚠️ QA warning: {warning}", flush=True)
-                if qa_verdict["passed"]:
-                    st.ok()
-                else:
-                    st.fail(f"QA verdict {qa_verdict['verdict']}: {qa_verdict['defects']}")
-                if qa_verdict["passed"]:
-                    print(f"[Kickstart] [6/6] ✓ QA Audit Gate passed after {qa_verdict['attempts']} rework attempt(s) ({timings['6_qa_audit']}s).", flush=True)
-                else:
-                    print(f"[Kickstart] [6/6] ❌ QA Audit Gate FAILED ({qa_verdict['verdict']}): {qa_verdict['defects']}", flush=True)
-            except Exception as qa_err:
-                timings["6_qa_audit"] = round(time.time() - t6_start, 2)
-                qa_verdict = {"passed": False, "verdict": "audit_error", "attempts": 0,
-                              "defects": [], "console_errors": [], "error": str(qa_err)}
-                st.fail(str(qa_err))
-                print(f"[Kickstart] [6/6] QA Audit error: {qa_err}", flush=True)
-
-            # The page was written already styled, from the UX plan's visual direction. One look at the QA screenshots
-            # repairs what looks wrong with class changes (onboarding/visual_review.py); nothing is rewritten.
-            t7_start = time.time()
-            st = stage_begin("visual_review")
-            if not pres_res.get("files"):
-                st.skip("the presentation stage delivered no components to review")
-            elif not (qa_verdict and qa_verdict.get("passed")):
-                st.skip("the page did not pass QA")
-            else:
-                from onboarding.ux_planner import visual_direction
-                from onboarding.visual_review import review_and_repair, screenshots_from_audit, unresolved
-                review = review_and_repair(
-                    workspace_dir=workspace_dir, pitch=pitch_text,
-                    visual_direction=visual_direction(synthesis.ux_blueprint),
-                    component_files=pres_res.get("files", []),
-                    screenshots=screenshots_from_audit(last_audit.get("report") or {}), audit=_audit,
-                    settled=qa_verdict.get("reworked") or [])
-                for key in ("verdict", "problems", "edits", "not_repaired", "claims", "attempts"):
-                    st.note(key, review[key])
-                # A problem the review saw and could not repair is still on the page: the build says so
-                left_on_page = str(review["error"]) if review["verdict"] == "error" else unresolved(review)
-                if left_on_page:
-                    stage_failures.append({"stage": "visual_review", "error": left_on_page})
-                    st.fail(left_on_page)
-                else:
-                    st.ok()
-                print(f"[Kickstart] Visual review: {review['verdict']} ({len(review['problems'])} problem(s), "
-                      f"{sum(1 for e in review['edits'] if e['applied'])} repair(s) applied)", flush=True)
-            timings["7_visual_review"] = round(time.time() - t7_start, 2)
+            # QA with one rework, then one visual review of a page that passed (onboarding/page_gates.py)
+            from onboarding.page_gates import run_page_gates
+            gates = run_page_gates(workspace_dir=workspace_dir, pitch=pitch_text, presentation=pres_res,
+                                   ux_blueprint=synthesis.ux_blueprint)
+            qa_verdict = gates.qa
+            stage_failures.extend(gates.failures)
+            timings.update(gates.timings)
         except Exception as synth_err:
             stage_failures.append({"stage": "synthesis", "error": str(synth_err)})
             print(f"[Kickstart] ⚠️ Compiler Graph synthesis notice: {synth_err}", flush=True)
@@ -2385,6 +2309,18 @@ def kickstart_domain_and_scaffold(
         "qa": qa_verdict,
         "app_inventory": app_inventory
     }
+
+
+@recorded("page", label="label")
+def rebuild_page(uow: AbstractUnitOfWork, workspace_dir: Optional[str] = None, label: str = "page rebuild") -> Dict[str, Any]:
+    """Writes the current app's page again (UX plan, page, QA, visual review) against the domain it already has."""
+    from onboarding.page_rebuild import PageBrief, rebuild_page as rebuild
+    if workspace_dir is None:
+        from config_loader import get_workspace_base
+        workspace_dir = get_workspace_base()
+    with uow:
+        brief = PageBrief.from_state(uow.kickstart.get())
+    return rebuild(brief, workspace_dir)
 
 
 def get_active_domain_aggregates(uow: AbstractUnitOfWork) -> Dict[str, Any]:
