@@ -125,3 +125,56 @@ def test_a_test_that_passes_even_without_behaviour_is_still_a_tautology(tmp_path
     assert result["success"] is False and result["phase"] == "RED_GATE"
     assert "tautolog" in result["error"].lower() and len(result["red_attempts"]) == 2
     assert not (tmp_path / "tests" / "unit" / "test_spec_007.py").exists()
+
+
+LEDGER = """from dataclasses import dataclass, field
+from typing import Any, Dict, List
+
+
+def _opening_entries() -> List[Dict[str, Any]]:
+    return [{"account": "cash", "amount": 0}, {"account": "equity", "amount": 0}]
+
+
+@dataclass
+class Ledger:
+    id: str
+    currency: str = "EUR"
+    entries: List[Dict[str, Any]] = field(default_factory=_opening_entries)
+    notes: List[str] = field(default_factory=list)
+    totals: Dict[str, int] = field(default_factory=lambda: {"cash": 0})
+"""
+
+
+def test_hollowing_empties_a_starting_state_the_class_works_out():
+    """Verify a rule about how a new object starts is behaviour too when the class computes that state.
+
+    id: TST-HOLLOW-004
+    Given: A class whose fields start from a function, from a lambda, from an empty list and from a literal
+    When: The class is hollowed
+    Then: The computed starting states are empty containers of their kind; the literal and the empty list are as
+          they were, so a test that only reads a literal default is still a tautology
+    """
+    scope: dict = {}
+    exec(hollow_class_source(LEDGER, "Ledger"), scope)
+    ledger = scope["Ledger"](id="l1")
+
+    assert ledger.entries == [] and ledger.totals == {}
+    assert ledger.notes == [] and ledger.currency == "EUR"
+
+
+def test_the_test_writer_thinks_longer_when_asked_to_be_careful(monkeypatch):
+    """Verify a reconsidered test is written with more thought than a first draft, and given the time for it.
+
+    id: TST-RED-CAREFUL
+    Given: The test writer
+    When: It is asked for a test, and then for a careful one
+    Then: The first call leaves the effort at the default; the careful one asks for medium effort and a longer timeout
+    """
+    import agent_orchestrator
+    seen = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda p, stage="general", **k: seen.append(k) or "```python\nx\n```")
+    tdd_machine.generate_red_test(_spec(), "class Invoice:\n    pass\n", "invoice", "Invoice")
+    tdd_machine.generate_red_test(_spec(), "class Invoice:\n    pass\n", "invoice", "Invoice", careful=True)
+
+    assert not seen[0].get("reasoning_effort")
+    assert seen[1]["reasoning_effort"] == "medium" and seen[1]["timeout_s"] > 60

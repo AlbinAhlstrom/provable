@@ -82,7 +82,12 @@ While the page is written, the rule deck's behaviour specs are written together 
   found correct, two of eight tests did (each reached its position through a move sequence the writer mis-tracked).
   The writer corrects the expectation or returns the test unchanged; a corrected test must pass on the kept class
   and fail on the hollow one. It is the test writer's single regeneration (a test the RED gate already sent back is
-  not reconsidered) and no code is written after it.
+  not reconsidered) and no code is written after it. This one call runs at medium reasoning effort with a longer
+  timeout (`generate_red_test(careful=True)`): at the default effort the reconsidered test was wrong as often as
+  the first (a mating move drawn through the mover's own king); at medium it takes up to a minute and holds.
+- The hollow class also starts empty where the class computes its starting state (a `default_factory` that is its
+  own function): a rule about how a new object starts is then behaviour the class has, not a tautology. Literal
+  defaults are left, so a test that only reads one is still refused.
 - The test writer is told to arrange the scenario's state directly by setting fields, with as few items as it needs,
   and to work out each expected result in a comment above the assertion (`red_test_generation.md`). On the same
   replay that brought wrong expectations from two in eight to one in 24.

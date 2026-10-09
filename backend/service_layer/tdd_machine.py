@@ -387,6 +387,12 @@ def collect_existing_tests(tests_dir: str, exclude: str, module_name: str, limit
     return "\n".join(chunks)[:limit]
 
 
+# A reconsidered test is traced through the implementation, which the default (low) effort gets wrong about as
+# often as the first draft did; at medium effort an answer takes up to a minute, so it is kept for this one call
+CAREFUL_EFFORT = "medium"
+CAREFUL_TIMEOUT_S = 180.0
+
+
 @traced("tdd.red_generate")
 def generate_red_test(
     spec: BusinessSpec,
@@ -396,11 +402,13 @@ def generate_red_test(
     rejection_feedback: str = "",
     existing_tests: str = "",
     interface_contract: str = "",
+    careful: bool = False,
 ) -> str:
     """Asks the LLM for a behavioral pytest module that encodes the spec's Given/When/Then.
 
     The prompt shows the class's real constructor/method API so the test cannot invent arguments, and
-    on the single retry it carries the gate's or linter's rejection reason.
+    on the single retry it carries the gate's or linter's rejection reason. `careful` is for a test that has
+    to be traced through an implementation (a reconsidered test): the writer thinks longer and is given the time.
     """
     import agent_orchestrator
 
@@ -419,7 +427,8 @@ def generate_red_test(
         "interface_contract": interface_contract or "(none: no interface method has been promised for this class)",
         "feedback_block": feedback_block,
     })
-    raw = agent_orchestrator.call_gemini(prompt, stage="red_test_generation")
+    thought = dict(reasoning_effort=CAREFUL_EFFORT, timeout_s=CAREFUL_TIMEOUT_S) if careful else {}
+    raw = agent_orchestrator.call_gemini(prompt, stage="red_test_generation", **thought)
     if not raw or not raw.strip():
         reason = agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response"
         raise RuntimeError(f"RED test generation failed: {reason}")

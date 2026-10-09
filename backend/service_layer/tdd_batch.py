@@ -224,7 +224,7 @@ def reconsider_test(spec: BusinessSpec, red: RedOutcome, failed: Dict[str, Any],
         rejection_feedback=RECONSIDER.format(test=red.test_code.strip(), implementation=implementation.strip(),
                                              evidence=failed.get("failure_evidence") or failed["error"]),
         existing_tests=existing_tests,
-        interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name))
+        interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name), careful=True)
     if test_code.strip() == red.test_code.strip():
         return stays("Its writer, shown the failure, stands by the test.")
     lint_ok, lint_reason = tdd_machine.lint_red_test(test_code, require_both_sides=bool(spec.is_mathematical_boundary))

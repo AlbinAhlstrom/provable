@@ -254,14 +254,20 @@ def test_a_paid_invoice_takes_no_more_lines():
 '''
 
 
+asked_carefully = []
+
+
 def _writer(monkeypatch, first, second):
     """A test writer whose first test for SPEC-003 is `first` and whose reconsidered one is `second`."""
+    asked_carefully.clear()
     asked = []
+    careful = asked_carefully
 
     def write_test(spec, *args, rejection_feedback="", **kwargs):
         if spec.spec_id != "SPEC-003":
             return TESTS[spec.spec_id]
         asked.append(rejection_feedback)
+        careful.append(bool(kwargs.get("careful")))
         return first if len(asked) == 1 else second
     monkeypatch.setattr(tdd_machine, "generate_red_test", write_test)
     return asked
@@ -283,7 +289,7 @@ def test_a_test_no_code_answer_could_meet_is_reconsidered_once_by_its_writer(tmp
 
     results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
 
-    assert len(calls) == 2 and len(asked) == 2
+    assert len(calls) == 2 and len(asked) == 2 and asked_carefully == [False, True]
     assert "A paid invoice takes no more lines" in asked[1] and "assert invoice.total == 1" in asked[1]
     assert "def add_line(self, amount: int) -> None:" in asked[1]  # the implementation it is asked to trace
     fulfilled = results["SPEC-003"]
