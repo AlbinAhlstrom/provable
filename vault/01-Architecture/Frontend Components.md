@@ -53,6 +53,7 @@ While a build is working on a spec (its id is in the progress report's `rules.wa
 
 The bar is cut into one segment per stage of a build, all of them from the start. The Studio only draws what the backend reports (`backend/onboarding/build_progress.py`); it computes nothing itself.
 
+- **Only the stages that build the app are in the bar.** The QA audit and the visual review run on the finished app: when the report says `ready` the banner becomes one line ("Your app is ready") naming the check that is running.
 - **A segment's length** is the stage's `weight`: its usual share of a build's time. The backend learns it from the recorded runs (`backend/onboarding/stage_timing.py`): the mean duration of each stage over the kickstarts under `logs/runs/` that went well, divided by the sum over all stages. No durations are kept by hand, and since the recorder keeps a bounded number of runs the weights follow the pipeline as it changes.
 - **Shares of work, not of the clock.** Stages that run side by side each keep their own segment and fill at the same time.
 - **A segment's fill** is the stage's `fraction`: full once the stage ended (red when it failed), and while it runs the time it has spent against the time it usually takes, never more than full.

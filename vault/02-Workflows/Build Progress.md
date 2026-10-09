@@ -16,6 +16,9 @@ there after about 100 s; in a rule-heavy build the gap is minutes).
   spec and after each one; the `behaviour_specs` stage keeps it as its `rules` note.
 - **`stages`, `percent`**: every stage of a build from the start, each with its usual share of a build's time and
   how far it has come (`backend/onboarding/stage_timing.py`; see "The build progress bar" in [[Frontend Components]]).
+- **`ready`, `final_checks`**: the QA audit and the visual review (`FINAL_CHECKS`) are made on the finished app
+  and are not part of the wait. `ready` turns true once every stage that builds the app has ended; the two checks
+  are listed apart and carry no share of the bar. The kickstart request still answers only when they are done.
 - **Only a kickstart is a build.** A single spec execution changes an app that already exists.
 
 ## What the Studio shows (`frontend/src/components/KickstartStudio.tsx`, `BuildProgressPanel.tsx`)
@@ -27,7 +30,11 @@ there after about 100 s; in a rule-heavy build the gap is minutes).
 3. While the build runs the preview is held back a little: muted, with a slow band of light passing over it. It
    stays usable. The specifications appear in their panel as soon as the rule deck is stored; the ones the build
    is working on pulse, and each turns to its test light as it is settled.
-4. When the build ends: the banner goes, the preview reloads and steps forward (full colour, a short pop).
+4. When the app is ready (everything but the final checks has ended): the preview reloads and steps forward
+   (full colour, a short pop), and the banner shrinks to one line, "Your app is ready", naming the final check
+   that is running.
+5. When the checks end: the banner goes. The preview is not loaded again, since someone may be using the app;
+   what a check changed has arrived through the app's own hot reload.
 
 The Studio polls the endpoint, so a build it did not start (a reloaded tab, a kickstart sent to the API) is picked up
 the same way. Stage labels come from the backend (`STAGE_LABELS`), so the Studio stays a projection.
@@ -61,6 +68,8 @@ The generated API keeps its records in memory and restarts every time the build 
 its collection to `.data/<plural>.json` after every change and reads it back on its first request, so what a user
 adds while watching the build is still there afterwards.
 
+- One save at a time: requests are answered on several threads, and two that changed records at the same moment
+  wrote the same half-finished file, so one of them answered 500 (a page that opens asks twice at once).
 - The seed file is applied once per version (its modification time is saved with the records), so a starting record
   a user removed stays removed.
 - A saved record the class no longer accepts is reported and left out; the API stays up.

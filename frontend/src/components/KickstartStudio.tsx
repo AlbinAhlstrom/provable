@@ -22,6 +22,7 @@ export const KickstartStudio: React.FC = () => {
   const [progress, setProgress] = useState<BuildProgress | null>(null);
   const [reloadToken, setReloadToken] = useState<number>(0);
   const followedBuild = useRef<boolean>(false);  // the running build has been seen at least once
+  const shownReady = useRef<boolean>(false);     // the running build's finished app is already on screen
 
   const checkState = async () => {
     try {
@@ -57,7 +58,7 @@ export const KickstartStudio: React.FC = () => {
           followedBuild.current = false;
           setBuilding(false);
           setProgress(null);
-          setReloadToken(t => t + 1);
+          showFinishedApp();
           checkState();
         }
       } catch (err) {
@@ -70,14 +71,23 @@ export const KickstartStudio: React.FC = () => {
   }, [building]);
 
   // The live workspace is on screen from the start of a build; show what it has become each time the build
-  // delivers something to look at (the first draft, then the written page)
+  // delivers something to look at (the first draft, the written page, the finished app)
   useEffect(() => {
-    if (progress?.draft_ready || progress?.page_ready) setReloadToken(t => t + 1);
-  }, [progress?.draft_ready, progress?.page_ready]);
+    if (progress?.draft_ready || progress?.page_ready || progress?.ready) setReloadToken(t => t + 1);
+    if (progress?.ready) shownReady.current = true;
+  }, [progress?.draft_ready, progress?.page_ready, progress?.ready]);
+
+  // When the build ends the finished app is usually on screen already, and someone may be using it: it is only
+  // loaded again if it was never shown as ready. What a final check changes arrives through the app's hot reload.
+  const showFinishedApp = () => {
+    if (!shownReady.current) setReloadToken(t => t + 1);
+    shownReady.current = false;
+  };
 
   const triggerSynthesis = async () => {
     if (!pitch.trim()) return;
     followedBuild.current = false;
+    shownReady.current = false;
     setBuilding(true);
     setProgress(null);
     setMessage(null);
@@ -113,7 +123,7 @@ export const KickstartStudio: React.FC = () => {
     } finally {
       setBuilding(false);
       setProgress(null);
-      setReloadToken(t => t + 1);
+      showFinishedApp();
     }
   };
 
@@ -145,8 +155,8 @@ export const KickstartStudio: React.FC = () => {
         resetting={resetting}
         message={message}
         reloadToken={reloadToken}
-        building={building}
-        testingIds={building ? progress?.rules?.waiting : undefined}
+        building={building && !progress?.ready}
+        testingIds={building && !progress?.ready ? progress?.rules?.waiting : undefined}
         banner={building ? <BuildProgressBanner progress={progress} /> : undefined}
       />
     );

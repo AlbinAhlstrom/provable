@@ -14,6 +14,9 @@ module reads that out as a typed report.
   usual share of a build's time (`stage_timing`, learned from the recorded builds). `fraction` is how far the stage
   has come: all the way once it ended, and while it runs the time it has spent against the time it usually takes.
   `percent` is the weighted sum: how far the whole build has come.
+- The checks made on the finished app (`FINAL_CHECKS`: the QA audit and the visual review) are not part of that
+  wait. They are listed apart as `final_checks`, and `ready` turns true once every stage that builds the app has
+  ended: the app can be used while it is checked, and a check may still change the page.
 - Only a kickstart is a build. A single spec execution changes an app that already exists.
 """
 
@@ -46,6 +49,7 @@ STAGE_LABELS = {
 DRAFT_STAGE = "skeleton"
 PAGE_STAGE = "presentation"
 RULES_STAGE = "behaviour_specs"
+FINAL_CHECKS = ("qa", "visual_review")  # made on the finished app; they may still change the page
 
 
 @dataclass
@@ -68,6 +72,8 @@ class BuildProgress:
     stages: List[StageProgress] = field(default_factory=list)
     rules: Optional[RuleProgress] = None
     percent: float = 0.0          # how far the whole build has come, by the stages' weights
+    ready: bool = False           # everything that builds the app has ended; only the final checks may still run
+    final_checks: List[StageProgress] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -95,7 +101,7 @@ def current_progress(now: Optional[float] = None) -> BuildProgress:
     now = time.time() if now is None else now
     records = [handle.record for handle in list(run.stages)]  # stages open and close on the pipeline's threads while this reads
     begun = {record["name"]: record for record in records}
-    names = list(STAGE_LABELS) + [name for name in begun if name not in STAGE_LABELS]
+    names = [name for name in list(STAGE_LABELS) + [n for n in begun if n not in STAGE_LABELS] if name not in FINAL_CHECKS]
     averages = _usual_durations(run)
     weights, expected = stage_weights(names, averages), expected_durations(names, averages)
 
@@ -111,6 +117,12 @@ def current_progress(now: Optional[float] = None) -> BuildProgress:
             stage.fraction = 1.0
         progress.stages.append(stage)
     progress.percent = round(100 * sum(stage.weight * stage.fraction for stage in progress.stages), 1)
+    for name in FINAL_CHECKS:
+        record = begun.get(name)
+        progress.final_checks.append(StageProgress(name=name, label=_label(name), status=record["status"] if record else "pending",
+                                                   error=record.get("error") if record else None))
+    progress.ready = (all(stage.status not in ("pending", "running") for stage in progress.stages)
+                      or any(check.status != "pending" for check in progress.final_checks))
     progress.draft_ready = begun.get(DRAFT_STAGE, {}).get("status") == "ok"
     progress.page_ready = begun.get(PAGE_STAGE, {}).get("status") == "ok"
     rules = begun.get(RULES_STAGE, {}).get("notes", {}).get("rules")

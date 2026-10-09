@@ -10,7 +10,9 @@ from dataclasses import asdict
 
 import pytest
 
-from onboarding.build_progress import STAGE_LABELS, BuildProgress, current_progress
+from onboarding.build_progress import FINAL_CHECKS, STAGE_LABELS, BuildProgress, current_progress
+
+BUILD_STAGES = [name for name in STAGE_LABELS if name not in FINAL_CHECKS]
 from onboarding.router_engine import BusinessSpec, SpecKind
 from onboarding.spec_runner import run_behaviour_specs
 from run_recorder import recorded_run, stage_begin
@@ -148,13 +150,15 @@ def test_every_stage_of_the_build_is_listed_from_the_start(tmp_path):
     id: TST-PROGRESS-007
     Given: A kickstart that has only read the idea so far
     When: The progress is asked for
-    Then: Every stage of a build is listed in pipeline order; the ones not begun are pending
+    Then: Every stage that builds the app is listed in pipeline order, the ones not begun as pending; the checks
+          made on the finished app are listed apart
     """
     with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
         stage_begin("intent").ok()
         progress = current_progress()
 
-    assert [s.name for s in progress.stages] == list(STAGE_LABELS)
+    assert [s.name for s in progress.stages] == BUILD_STAGES
+    assert [(s.name, s.status) for s in progress.final_checks] == [(name, "pending") for name in FINAL_CHECKS]
     assert {s.status for s in progress.stages if s.name != "intent"} == {"pending"}
 
 
@@ -232,7 +236,7 @@ def test_without_earlier_builds_every_stage_is_an_equal_step(tmp_path, monkeypat
         stage_begin("expansion")
         progress = current_progress()
 
-    share = 1 / len(STAGE_LABELS)
+    share = 1 / len(BUILD_STAGES)
     assert all(s.weight == pytest.approx(share) for s in progress.stages)
     assert progress.percent == pytest.approx(100 * share, abs=0.1)
 
@@ -263,3 +267,32 @@ def test_rule_progress_names_the_specs_still_in_the_loop(tmp_path):
     assert seen[0] == ["SPEC-001", "SPEC-002", "SPEC-003"]
     assert seen[1] == ["SPEC-002", "SPEC-003"]
     assert after == []
+
+
+def test_the_app_is_ready_once_everything_that_builds_it_has_ended(tmp_path, monkeypatch):
+    """Verify the checks made on the finished app are not part of the wait: the bar is full and the app is
+    reported ready while they run.
+
+    id: TST-PROGRESS-013
+    Given: An earlier build in which the checks took as long as everything else together
+    When: A kickstart has ended every building stage but one, then that one too, then begun its first check
+    Then: It is not ready and the bar is not full; then it is ready at 100 percent with the check still pending;
+          then it is still ready, still building, and the check is listed as running
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    _finished_build(str(tmp_path / "runs"), {name: 10.0 for name in STAGE_LABELS})
+
+    with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
+        for name in BUILD_STAGES[:-1]:
+            stage_begin(name).ok()
+        last = stage_begin(BUILD_STAGES[-1])
+        before = current_progress()
+        last.fail("no answer")
+        built = current_progress()
+        stage_begin(FINAL_CHECKS[0])
+        checking = current_progress()
+
+    assert before.ready is False and before.percent < 100
+    assert built.ready is True and built.percent == 100.0 and built.building is True
+    assert checking.ready is True and checking.final_checks[0].status == "running"
+    assert sum(s.weight for s in checking.stages) == pytest.approx(1.0)

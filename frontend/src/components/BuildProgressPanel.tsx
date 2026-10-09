@@ -24,6 +24,8 @@ export interface BuildProgress {
   stages: StageProgress[];
   rules: { done: number; total: number; active: number; latest: string; waiting: string[] } | null;  // waiting: ids of the specs being worked on
   percent: number;
+  ready: boolean;                // everything that builds the app has ended; only the final checks may still run
+  final_checks: StageProgress[];
 }
 
 const elapsed = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
@@ -38,6 +40,23 @@ const StepMark: React.FC<{ status: StageProgress['status'] }> = ({ status }) => 
   return <span className="build-step-dot" />;
 };
 
+/** Shown above the live workspace once the app is built and only its final checks are running. */
+const FinalChecksBanner: React.FC<{ progress: BuildProgress }> = ({ progress }) => {
+  const running = progress.final_checks.filter(s => s.status === 'running').map(s => s.label);
+  const failed = [...progress.stages, ...progress.final_checks].filter(s => s.status === 'failed');
+  return (
+    <div className="build-progress build-progress-ready">
+      <div className="build-progress-head">
+        <strong className="build-progress-title"><CheckIcon fontSize="inherit" /> Your app is ready</strong>
+        <span className="build-progress-now build-progress-checks">
+          Final checks{running.length ? `: ${running.join(' · ')}` : ''}
+          {failed.map(stage => <span key={stage.name} className="build-progress-failed"> · {stage.label}: failed</span>)}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 /** Shown above the live workspace while a build runs: one bar for the whole build, cut into its stages, each as long
  *  as its usual share of a build, and the stages by name below it. */
 export const BuildProgressBanner: React.FC<{ progress: BuildProgress | null }> = ({ progress }) => {
@@ -47,6 +66,8 @@ export const BuildProgressBanner: React.FC<{ progress: BuildProgress | null }> =
   const failed = stages.filter(s => s.status === 'failed');
   const rules = rulesText(progress?.rules ?? null);
   const percent = Math.floor(progress?.percent ?? 0);
+
+  if (progress?.ready) return <FinalChecksBanner progress={progress} />;
 
   return (
     <div className="build-progress">

@@ -534,6 +534,10 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
 .build-progress-figures { font-variant-numeric: tabular-nums; }
 .build-progress-now { flex: 1; min-width: 0; color: var(--text-primary); }
 .build-progress-failed { color: #fca5a5; }
+.build-progress-ready { border-color: rgba(16, 185, 129, 0.4); }
+.build-progress-ready .build-progress-title { display: inline-flex; align-items: center; gap: 0.35rem; }
+.build-progress-ready .build-progress-title svg { color: var(--accent-success); font-size: 1rem; }
+.build-progress-checks { color: var(--text-secondary); }
 
 /* One segment per stage; its length (flex-grow) is the stage's usual share of a build */
 .build-bar { display: flex; gap: 2px; height: 0.5rem; margin-top: 0.55rem; }
