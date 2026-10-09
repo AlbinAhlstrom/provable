@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { AppPreview } from './AppPreview';
 import { BuildProgress, BuildProgressScreen, BuildProgressStrip } from './BuildProgressPanel';
 import { StatusMessage, StudioMessage } from './StatusMessage';
@@ -149,26 +150,37 @@ export const KickstartStudio: React.FC = () => {
   }
 
   // ── VIEW 1: NOTHING BUILT YET ──────────────────────────────────────────────────
+  const canBuild = !building && !!pitch.trim();
   return (
     <div className="kickstart">
-      <h1 className="kickstart-title">Provable</h1>
+      <div className="kickstart-hero">
+        <span className="kickstart-badge"><RocketLaunchIcon fontSize="inherit" /></span>
+        <h1 className="kickstart-title gradient-text">What do you want to build?</h1>
+      </div>
       {message && <StatusMessage message={message} />}
       {!llmConfigured && (
         <div className="status-message status-message-warning">
           No LLM API key is configured. Set <code>GEMINI_API_KEY</code>, <code>OPENAI_API_KEY</code> or <code>LLM_API_KEY</code> in <code>.env</code> to build.
         </div>
       )}
-      <textarea
-        className="kickstart-pitch"
-        value={pitch}
-        onChange={e => setPitch(e.target.value)}
-        placeholder="Describe the app you want to build"
-        aria-label="Describe the app you want to build"
-        rows={4}
-      />
-      <button className="btn btn-primary kickstart-build" onClick={triggerSynthesis} disabled={building || !pitch.trim()}>
-        Build
-      </button>
+      <div className="kickstart-composer">
+        <textarea
+          className="kickstart-pitch"
+          value={pitch}
+          onChange={e => setPitch(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && canBuild) triggerSynthesis(); }}
+          placeholder="Describe your app"
+          aria-label="Describe your app"
+          rows={5}
+          autoFocus
+        />
+        <div className="kickstart-composer-bar">
+          <span className="kickstart-hint">Ctrl + Enter</span>
+          <button className="btn btn-primary kickstart-build" onClick={triggerSynthesis} disabled={!canBuild}>
+            <RocketLaunchIcon fontSize="inherit" /> Build
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

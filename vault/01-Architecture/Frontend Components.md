@@ -21,7 +21,7 @@ graph TD
 ## Components
 
 - **`App.tsx`**: the header (product name, project selector) and the studio. Switching project remounts the studio.
-- **`components/KickstartStudio.tsx`**: decides which of three views is shown. Nothing built yet: the product name, one text box and a Build button (`POST /api/onboarding/kickstart`). A build running with no draft yet: the build progress screen. Otherwise: the app preview, with a progress strip above it while the build continues. It also owns the workspace reset (`POST /api/onboarding/reset`).
+- **`components/KickstartStudio.tsx`**: decides which of three views is shown. Nothing built yet: one question as the headline and a composer (text box with a Build button, Ctrl + Enter builds) (`POST /api/onboarding/kickstart`). A build running with no draft yet: the build progress screen. Otherwise: the app preview, with a progress strip above it while the build continues. It also owns the workspace reset (`POST /api/onboarding/reset`).
 - **`components/BuildProgressPanel.tsx`**: the stages of a running build, read from `GET /api/onboarding/progress`.
 - **`components/AppPreview.tsx`**: the live workspace (an iframe on the generated app's dev server, :5174) beside the specifications panel, always side by side. Its toolbar holds reset, reload and open-in-new-tab.
 - **`components/RequirementControlPanel.tsx`**: loads the Living Rule Deck (`GET /api/specs/deck`, polled) and owns add, edit, delete and Run Test (`POST /api/specs/inbox/{id}/execute`). It renders the three `specs/` components.
