@@ -9,9 +9,13 @@ import json
 import os
 import subprocess
 import sys
+import time
+import types
+
+import pytest
 
 from onboarding.router_engine import AudienceRole, DomainStructureSchema, EntitySpec
-from onboarding.skeleton_builder import DATA_DIR, build_and_write_skeleton
+from onboarding.skeleton_builder import DATA_DIR, build_and_write_skeleton, generate_record_store_module
 
 STRUCTURE = DomainStructureSchema(domain_name="Salon", entities=[
     EntitySpec(name="Booking", audience_role=AudienceRole.CREATED,
@@ -143,3 +147,60 @@ def test_a_new_record_starts_as_its_class_says_not_as_the_form_defaults(tmp_path
         env={**os.environ, "APP_DATA_DIR": ""})
     assert out.returncode == 0, out.stderr
     assert json.loads(out.stdout.strip().splitlines()[-1]) == [["welcome"], ["vip"], True]
+
+
+def _record_store(tmp_path, monkeypatch):
+    """The generated record store as a module, saving into `tmp_path`."""
+    monkeypatch.setenv("APP_DATA_DIR", str(tmp_path))
+    store = types.ModuleType("record_store")
+    store.__file__ = str(tmp_path / "record_store.py")
+    exec(generate_record_store_module(), store.__dict__)
+    return store
+
+
+def test_a_save_waits_for_a_file_another_program_is_holding(tmp_path, monkeypatch):
+    """Verify a change is saved when the records file is briefly held by another program.
+
+    id: TST-SAVED-007
+    Given: A records file that another program holds open for the first two attempts to put the new one in its
+           place (on Windows a file being scanned or read refuses to be replaced; a move in a board game and a
+           booking in a salon both answered 500 although the change had been made)
+    When: The records are saved
+    Then: The save succeeds, the file holds the new records and no half-written file is left behind
+    """
+    store = _record_store(tmp_path, monkeypatch)
+    store.save("bookings", [{"id": "b1"}], None)
+    replace, refusals = os.replace, []
+
+    def held_twice(source, target):
+        if len(refusals) < 2:
+            refusals.append(target)
+            raise PermissionError(13, "The file is held by another program")
+        replace(source, target)
+
+    monkeypatch.setattr(os, "replace", held_twice)
+    monkeypatch.setattr(time, "sleep", lambda seconds: None)
+    store.save("bookings", [{"id": "b1"}, {"id": "b2"}], None)
+    assert [r["id"] for r in store.load("bookings")["records"]] == ["b1", "b2"]
+    assert os.listdir(tmp_path) == ["bookings.json"]
+
+
+def test_a_save_fails_loudly_when_the_file_stays_held(tmp_path, monkeypatch):
+    """Verify a records file that is never released is an error, after a wait of under a second.
+
+    id: TST-SAVED-008
+    Given: A records file another program never lets go of
+    When: The records are saved
+    Then: The save raises the refusal it met, having waited less than a second in all
+    """
+    store = _record_store(tmp_path, monkeypatch)
+    waited = []
+
+    def held(source, target):
+        raise PermissionError(13, "The file is held by another program")
+
+    monkeypatch.setattr(os, "replace", held)
+    monkeypatch.setattr(time, "sleep", waited.append)
+    with pytest.raises(PermissionError):
+        store.save("bookings", [{"id": "b1"}], None)
+    assert waited and sum(waited) < 1
