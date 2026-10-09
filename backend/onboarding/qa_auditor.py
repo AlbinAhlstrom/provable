@@ -13,6 +13,8 @@ Enforces Hard QA Invariants:
 3. Interactive Element Visibility: key interactive widgets must be rendered and visible
 4. Forms work: on the desktop, each form is filled and submitted, and a request the API refuses is a defect
    (qa_form_check.py)
+5. Text can be seen: on the desktop, text drawn in nearly the colour of its background is a defect
+   (qa_contrast_check.py)
 """
 
 import pipeline_trace
@@ -25,6 +27,7 @@ from typing import Dict, Any, List, Optional
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+from onboarding.qa_contrast_check import measure_contrast
 from onboarding.qa_form_check import exercise_forms
 
 DEVICE_MATRIX = [
@@ -45,7 +48,8 @@ DEVICE_MATRIX = [
         "viewport": (1280, 800),
         "is_mobile": False,
         "device_scale_factor": 1,
-        "exercise_forms": True  # once is enough: whether a submission is accepted does not depend on the screen
+        "exercise_forms": True,  # once is enough: whether a submission is accepted does not depend on the screen
+        "measure_contrast": True  # once is enough: colours do not depend on the screen
     }
 ]
 
@@ -263,6 +267,15 @@ def run_responsive_qa_audit(
                 widest = "; ".join(str(sample) for sample in metrics.get("clippedSamples") or [])
                 defects.append(f"[{dev_name}] Layout defect: {delta}px horizontal overflow on {width}px screen"
                                + (f" (running past the edge: {widest})" if widest else ""))
+
+            if dev.get("measure_contrast") and not metrics.get("hasCrashOverlay") and not metrics.get("isRootEmpty"):
+                contrast = measure_contrast(driver, dev_name)
+                device_warnings.extend(contrast.warnings)
+                warnings.extend(contrast.warnings)
+                if contrast.defects:
+                    passed = False
+                    device_defects.extend(contrast.defects)
+                    defects.extend(contrast.defects)
 
             # Last, after the screenshots: submitting a form changes what the page shows
             form_check = None
