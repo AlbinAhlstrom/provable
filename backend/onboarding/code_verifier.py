@@ -196,7 +196,7 @@ Task:
 1. Diagnose which component(s) cause the defects above; layout defects usually carry no file name, so decide from the code.
 2. Fix syntax, JSX escaping, prop mismatches or layout scaling so the app renders cleanly without errors. `App.tsx` must keep `export default App;`.
 3. Keep user-facing copy natural and persona-focused (no internal compiler terms like Invariant, Audit Ledger, Boundary Guards).
-4. Change only the files that need it.
+4. Change only the files that need it, and in them only what answers a defect: what no defect names stays exactly as it is (its colours, sizes, copy and behaviour), since it was measured and passed.
 
 Answer with one block for each file you change: its marker alone on a line, `<<<` + one of the FILE paths above + `>>>`,
 then the complete corrected file as plain source text (no JSON, no escaping, no fences, no commentary). After the last

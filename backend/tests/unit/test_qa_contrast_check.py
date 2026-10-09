@@ -111,6 +111,27 @@ def test_the_defect_proposes_a_background_of_the_same_hue_that_both_texts_can_be
     rgb = [int(proposed[i:i + 2], 16) for i in (1, 3, 5)]
     assert cc.contrast_ratio(light, rgb) >= 3 and cc.contrast_ratio(dark, rgb) >= 3
     assert rgb[0] > rgb[2] and sum(rgb) < sum(pale)
-    assert "for example" not in cc.verdict_from_samples("Desktop", [_sample("a", [128, 128, 128], [130, 130, 130]),
-                                                                    _sample("b", [0, 0, 0], [130, 130, 130]),
-                                                                    _sample("c", [255, 255, 255], [130, 130, 130])]).defects[0]
+    crowded = cc.verdict_from_samples("Desktop", [_sample("a", [128, 128, 128], [130, 130, 130]),
+                                                  _sample("b", [0, 0, 0], [130, 130, 130]),
+                                                  _sample("c", [255, 255, 255], [130, 130, 130])]).defects[0]
+    assert "No one tone carries all of that text" in crowded and "text now in #ffffff is drawn in #000000" in crowded
+
+
+def test_when_no_tone_carries_all_the_text_the_defect_still_proposes_one_and_names_the_text_to_redraw():
+    """Verify the rework is handed a way out also when a muted text stands between the light and the dark one.
+
+    id: TST-QA-CONTRAST-008
+    Given: A pale background carrying near-white text (unreadable), near-black text and a muted mid-grey text, so
+           that no tone of the background lets all three be read
+    When: The verdict is drawn
+    Then: The defect proposes a background on which the near-white and the near-black text are read, and says the
+          muted text is redrawn in the near-black colour there
+    """
+    light, dark, muted, pale = [245, 245, 244], [28, 25, 23], [87, 83, 78], [214, 211, 209]
+    assert cc._between(pale, [light, dark, muted]) is None
+    defect = cc.verdict_from_samples("Desktop", [_sample("L", light, pale), _sample("D", dark, pale),
+                                                 _sample("M", muted, pale)]).defects[0]
+    proposed = defect.split("for example ")[1][:7]
+    rgb = [int(proposed[i:i + 2], 16) for i in (1, 3, 5)]
+    assert cc.contrast_ratio(light, rgb) >= 3 and cc.contrast_ratio(dark, rgb) >= 3
+    assert "text now in #57534e is drawn in #1c1917" in defect

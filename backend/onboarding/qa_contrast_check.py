@@ -120,6 +120,17 @@ def verdict_from_samples(device: str, samples: List[Dict[str, Any]]) -> Contrast
         proposed = _between(pair[1], [pair[0]] + others) if others else None
         if proposed:
             way_out += f"All of that text can be read on this background made a middle tone, for example {_hex(proposed)}. "
+        elif others:
+            # No tone carries them all (a muted text stands between the light and the dark one): the tone is chosen
+            # for this text and the one furthest from it, and the text it leaves behind takes that one's colour.
+            furthest = max(others, key=lambda other: contrast_ratio(pair[0], other))
+            tone = _between(pair[1], [pair[0], furthest])
+            if tone:
+                behind = [o for o in others if contrast_ratio(o, tone) < READABLE_FROM]
+                way_out += (f"No one tone carries all of that text: make this background a middle tone, for example "
+                            f"{_hex(tone)}, on which the text in {_hex(pair[0])} and in {_hex(furthest)} can be read"
+                            + "".join(f", and the text now in {_hex(o)} is drawn in {_hex(furthest)} there" for o in behind)
+                            + ". ")
         elsewhere = sorted({tuple(s["background"][:3]) for s in samples if tuple(s["color"][:3]) == pair[0]
                             and contrast_ratio(pair[0], s["background"]) >= READABLE_FROM})
         if elsewhere:

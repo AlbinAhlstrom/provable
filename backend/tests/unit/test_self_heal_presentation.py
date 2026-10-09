@@ -132,3 +132,17 @@ def test_the_api_clients_are_shown_but_cannot_be_rewritten(workspace, monkeypatc
     assert client.read_text() == "CLIENT"
     fixed_part = seen["prompt"].split("--- THE API CLIENTS")[1]
     assert "CLIENT" in fixed_part and "BOARD" not in fixed_part
+
+
+def test_the_rework_is_asked_to_leave_what_no_defect_names(tmp_path, monkeypatch):
+    """Verify a repair of one colour does not move the colours beside it.
+
+    id: TST-HEAL-SCOPE
+    Given: A page with a defect
+    When: The rework is asked for a fix
+    Then: The prompt says that what no defect names stays exactly as it is
+    """
+    import inspect
+    from onboarding import code_verifier
+    source = inspect.getsource(code_verifier.self_heal_presentation_suite)
+    assert "what no defect names stays exactly as it is" in source
