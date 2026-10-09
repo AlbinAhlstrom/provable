@@ -13,6 +13,7 @@ from typing import List, Dict, Any, Optional
 from onboarding.action_protocol import format_action_protocol
 from onboarding.intent import ProductIntent, intent_block
 from onboarding.router_engine import DomainStructureSchema, BusinessSpec
+from onboarding.skeleton_builder import _pluralize
 import agent_orchestrator
 from agent_orchestrator import call_gemini
 
@@ -195,6 +196,7 @@ Answer with four blocks, each introduced by its marker alone on a line:
         "{domain_name}": domain_name,
         "{master_name}": master_name,
         "{master_slug}": master_slug,
+        "{master_plural}": _pluralize(master_slug),   # the route the skeleton mounts the router on
         "{rel_workspace}": rel_ws,
         "{entities_block}": entities_block,
         "{clients_block}": _clients_block(structure.presented_entities() or ([master_entity] if master_entity else []), master_name),

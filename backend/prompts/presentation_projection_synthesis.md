@@ -28,6 +28,7 @@ The state returned by `GET /api/<plural>/{id}` and by actions directly serialize
 Every aggregate has its own action endpoint, `POST /api/<plural>/{id}/action`, reached through `sendAction` of that aggregate's client. An action is a method of one class: send it through the client of the entity it is listed on, with the id of a record of that entity (a job's action goes to the job, never to the customer it belongs to).
 Controls are built only for the actions listed above the "API-only" line (if any); for API-only actions render no controls and no mention. You MUST dispatch ONLY these recognized action types and exact parameter keys in your API client and React components:
 {action_protocol_block}
+An action's description says when it is allowed. Its control is offered while that holds for the record on screen (an action allowed only once something has ended, been confirmed or been paid appears from that point on); where the blueprint below places the control at another moment, the description decides.
 
 ## UX Blueprint & Interaction Ergonomics (Cold-Start & Navigation Guide):
 Follow this UX Blueprint for initial view defaults, navigation tabs, empty-state guidance, and labeled form inputs:
@@ -37,11 +38,12 @@ Follow this UX Blueprint for initial view defaults, navigation tabs, empty-state
 Section 6 of the blueprint above is the page's visual direction: its feel, palette, type, first screen and shape. Build the finished look from it now, in Tailwind classes; nothing restyles the page afterwards. Use its palette for every background, surface, text and accent, give the first screen the composition it describes, and keep one radius, one shadow and one button style across the page. Things that belong to different owners or kinds (each party's items, each status, each category) are told apart by a colour of their own, and that colour stays the same wherever the thing is placed: one owner's things are one colour on every background, drawn with the same solid shapes as another owner's. Choose it, with an outline or shadow where needed, so that it is clearly readable on each of the backgrounds it can land on (a marker on alternating rows or cells, a badge on a card and on a selected card, text on a row and on its highlighted state). Where things of a light colour and things of a dark colour share the same alternating backgrounds, take both background tones from the middle of the range (neither nearly as light as the light things nor nearly as dark as the dark ones), so each thing differs clearly in lightness from whichever background it lands on; a shadow cannot rescue white on near-white. A Unicode symbol used as a graphic (a star, an arrow, a card suit, a token) is written inside a JavaScript string and followed by the text variation selector escape (`'★\uFE0E'`, and in JSX `{'★\uFE0E'}`), so that it takes the colour you give it instead of the system's own colour emoji. As bare JSX text the escape would be shown letter by letter.
 
 ## Backend API Endpoints (exactly these exist; nothing else is served):
-- `GET /api/{master_slug}s`: a JSON array of every stored `{master_name}`. It is empty until something has been created; an empty list is a normal state the UI must handle (show the content and forms that make sense with no records, never invented records).
-- `POST /api/{master_slug}s`: creates one `{master_name}` from a JSON body with its fields; returns it.
-- `GET /api/{master_slug}s/{id}`: one `{master_name}` by its id; HTTP 404 if there is none.
-- `POST /api/{master_slug}s/{id}/action`: runs a domain action `{ "action_type": string, "params": { ... } }`. Returns `{ "success": boolean, "state": { ... }, "message": string }`. A rejected action returns HTTP 400 with `{ "detail": string }`.
+- `GET /api/{master_plural}`: a JSON array of every stored `{master_name}`. The records come in the order they were created, the newest last. It is empty until something has been created; an empty list is a normal state the UI must handle (show the content and forms that make sense with no records, never invented records).
+- `POST /api/{master_plural}`: creates one `{master_name}` from a JSON body with its fields; returns it.
+- `GET /api/{master_plural}/{id}`: one `{master_name}` by its id; HTTP 404 if there is none.
+- `POST /api/{master_plural}/{id}/action`: runs a domain action `{ "action_type": string, "params": { ... } }`. Returns `{ "success": boolean, "state": { ... }, "message": string }`. A rejected action returns HTTP 400 with `{ "detail": string }`.
 There is no "default" record and no reset endpoint.
+When the page works on one record at a time (a session in progress, an attempt, a draft being filled in), that record is the most recently created one, both right after the page creates it and when the page is opened again, so a visitor who comes back finds what they left.
 
 ## API clients (already written; do NOT write them)
 {clients_block}
