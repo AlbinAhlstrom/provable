@@ -95,6 +95,7 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
 6. **Resilience & Non-Blank Initial State**:
    - Handle loading states, API errors, and domain violation messages gracefully.
    - While records load show a loading indicator; if loading fails show the error message.
+   - A flag that says the page is busy (loading, saving, submitting) is switched on and off by the same function: on before its request, off in a `finally` after it, on every path. A flag left on hides the page behind its loading indicator for good.
    - Never render a completely blank screen when state is null: always provide a loading indicator or fallback message.
 
 
