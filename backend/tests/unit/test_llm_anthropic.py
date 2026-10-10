@@ -144,3 +144,34 @@ def test_a_provider_error_fails_loudly_with_its_reason(anthropic_client):
     anthropic_client.answer = RuntimeError("overloaded")
     assert _REAL_CALL_GEMINI("p", stage="s") == ""
     assert "overloaded" in agent_orchestrator.LAST_LLM_ERROR and len(anthropic_client.sent) == 1
+
+
+def test_calls_made_side_by_side_stay_under_the_providers_limit(anthropic_client, monkeypatch):
+    """Verify stages that call the provider at once wait their turn instead of being refused.
+
+    id: TST-ANTH-006
+    Given: A provider that takes time to answer, and more calls started at once than it accepts side by side
+    When: All of them run
+    Then: Every call is answered, and never more than the limit were in flight together
+    """
+    import threading
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+
+    monkeypatch.setattr(llm_anthropic, "_in_flight", threading.BoundedSemaphore(3))
+    lock, now, peak = threading.Lock(), [0], [0]
+    answer = anthropic_client.answer
+
+    def slow_create(self, **kwargs):
+        with lock:
+            now[0] += 1
+            peak[0] = max(peak[0], now[0])
+        time.sleep(0.05)
+        with lock:
+            now[0] -= 1
+        return answer
+
+    monkeypatch.setattr(anthropic_client, "_create", slow_create)
+    with ThreadPoolExecutor(max_workers=12) as pool:
+        answers = list(pool.map(lambda _: llm_anthropic.complete("k", "m", "p", None, "low", None, 5.0)[0], range(12)))
+    assert answers == ["the answer"] * 12 and peak[0] == 3

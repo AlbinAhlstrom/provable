@@ -5,12 +5,20 @@ answer schema reach the model only this way. The caller (agent_orchestrator.call
 """
 
 import base64
+import threading
 from typing import Any, Dict, List, Optional, Tuple
 
 from anthropic import Anthropic, transform_schema
 
-# The most one answer may hold, hidden thinking included. The largest answers (a page's files) are well under it.
-MAX_OUTPUT_TOKENS = 32000
+# The most one answer may hold, hidden thinking included: the model's own maximum, so a call is bounded by its
+# timeout and never cut short here (at 32,000 a page's thinking alone used the room and no page was written).
+MAX_OUTPUT_TOKENS = 128000
+
+# The provider refuses requests beyond a number in flight for the whole account (a 429; some thirty side-by-side
+# calls of one kickstart lost four that way), so calls wait their turn here. Waiting is not a retry: each call is
+# still sent once.
+MAX_CONCURRENT_REQUESTS = 12
+_in_flight = threading.BoundedSemaphore(MAX_CONCURRENT_REQUESTS)
 
 
 def _content(prompt: str, images: Optional[List[str]]) -> Any:
@@ -42,9 +50,10 @@ def complete(api_key: str, model: str, prompt: str, images: Optional[List[str]],
     if json_schema:
         output_config["format"] = {"type": "json_schema", "schema": transform_schema(json_schema)}
     client = Anthropic(api_key=api_key, max_retries=0)
-    response = client.messages.create(
-        model=model, max_tokens=MAX_OUTPUT_TOKENS, timeout=timeout_s,
-        messages=[{"role": "user", "content": _content(prompt, images)}],
-        **({"output_config": output_config} if output_config else {}))
+    with _in_flight:
+        response = client.messages.create(
+            model=model, max_tokens=MAX_OUTPUT_TOKENS, timeout=timeout_s,
+            messages=[{"role": "user", "content": _content(prompt, images)}],
+            **({"output_config": output_config} if output_config else {}))
     text = "".join(block.text for block in response.content if block.type == "text")
     return text, _usage_meta(response.usage), response.stop_reason
