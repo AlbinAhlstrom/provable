@@ -1,6 +1,7 @@
 import React from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { RuleCardDTO } from '../../types/api';
@@ -14,6 +15,7 @@ export interface SpecDetailProps {
   onDelete: (card: RuleCardDTO) => void;
   onRunTest: (card: RuleCardDTO) => void;
   onRewriteTest: (card: RuleCardDTO) => void;  // the stored test is itself wrong: write a new one and run it
+  onFix: (card: RuleCardDTO) => void;  // the test is right and the app is wrong: change the page until the test passes
 }
 
 const CLAUSES: { key: 'given_clause' | 'when_clause' | 'then_clause' | 'unless_clause'; label: string }[] = [
@@ -24,7 +26,7 @@ const CLAUSES: { key: 'given_clause' | 'when_clause' | 'then_clause' | 'unless_c
 ];
 
 /** One specification: its test light, why the last run did not pass, its behaviour, its test, and the actions on it. */
-export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ card, running, testing = false, onEdit, onDelete, onRunTest, onRewriteTest }, ref) => {
+export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ card, running, testing = false, onEdit, onDelete, onRunTest, onRewriteTest, onFix }, ref) => {
   if (!card) {
     return <div className="spec-detail" ref={ref}><p className="spec-empty">Select a specification.</p></div>;
   }
@@ -83,6 +85,11 @@ export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ c
         {card.page_test?.source && (
           <button className="tool-btn" onClick={() => onRewriteTest(card)} disabled={running} title="Write a new page test for this specification and run it">
             <ReplayIcon fontSize="inherit" /> Write test again
+          </button>
+        )}
+        {card.test_status === 'fail' && (
+          <button className="tool-btn" onClick={() => onFix(card)} disabled={running} title="Change the page until this test passes; the change is kept only if every passing specification still passes">
+            <BuildOutlinedIcon fontSize="inherit" /> Fix
           </button>
         )}
         <button className="tool-btn tool-btn-primary" onClick={() => onRunTest(card)} disabled={running}>

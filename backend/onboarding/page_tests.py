@@ -233,15 +233,19 @@ def _api_of(workspace_dir: str) -> str:
     return "\n\n".join(parts)
 
 
-def _page_of(workspace_dir: str) -> str:
-    inventory = inventory_frontend(workspace_dir)
-    parts: List[str] = []
-    for source in inventory.files:
+def page_files(workspace_dir: str) -> Dict[str, str]:
+    """The files the page is made of (the views and components it serves), by path, with their source."""
+    files: Dict[str, str] = {}
+    for source in inventory_frontend(workspace_dir).files:
         if not source.reachable or not source.path.endswith(_PAGE_FILES) or source.path.endswith("main.tsx"):
             continue
         with open(os.path.join(workspace_dir, *source.path.split("/")), encoding="utf-8") as f:
-            parts.append(f"### {source.path}\n```tsx\n{f.read().rstrip()}\n```")
-    return "\n\n".join(parts)
+            files[source.path] = f.read()
+    return files
+
+
+def _page_of(workspace_dir: str) -> str:
+    return "\n\n".join(f"### {path}\n```tsx\n{code.rstrip()}\n```" for path, code in page_files(workspace_dir).items())
 
 
 _LIKE_CONTROL = re.compile(r'^(\s*)- (\w+) "([^"]*\d[^"]*)"')

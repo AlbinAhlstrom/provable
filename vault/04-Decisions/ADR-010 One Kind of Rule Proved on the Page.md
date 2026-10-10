@@ -67,3 +67,14 @@ name every control and state first (not built yet).
    beside the `state` of the record the action was run on.
 6. The kind of a rule leaves decomposition and the kickstart; page tests are written during the kickstart.
 7. A run with and without the domain tests, then a decision.
+
+## Fixing a red rule
+`POST /api/specs/rules/{id}/fix` (`backend/onboarding/rule_fix.py`, the Fix button on a red specification).
+- It starts from a test that ran and failed. A rule that never ran, passed or has a broken test is not touched.
+- The writer is shown the rule, the test, what the test saw, the API and the page, and answers with whole page files.
+  A file outside the page is refused. Only the page is changed here; the domain class changes through the
+  test-first loop.
+- A change is kept only when the page builds, the rule's test passes and every rule that was green still is. A
+  rejected change goes back once with what the check said; after a second rejection the page is as it was.
+- The writer is told to correct the cause for every case that shares it. Told only to change as little as possible,
+  it special-cased the one action the test used and left six rules with the same cause red.

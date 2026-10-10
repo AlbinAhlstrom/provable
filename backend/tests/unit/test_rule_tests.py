@@ -128,3 +128,66 @@ def test_a_rule_whose_run_crashes_is_broken_and_the_others_still_run():
     by_id = {r["spec_id"]: r for r in result["rules"]}
     assert (by_id["SPEC-001"]["status"], by_id["SPEC-002"]["status"]) == ("broken", "pass")
     assert "no browser" in by_id["SPEC-001"]["reason"]
+
+
+# ── fixing a red rule ────────────────────────────────────────────────────────
+
+def _deck_with_lights(lights):
+    """A deck of rules whose page tests ended as given (rule id -> status)."""
+    uow = _deck(*[{**CARD, "id": spec_id} for spec_id in lights])
+    for spec_id, status in lights.items():
+        if status:
+            rule_tests.record_page_test(spec_id, {"status": status, "reason": "r", "evidence": "e", "source": f"test of {spec_id}",
+                                                  "written_for": "x"}, uow=uow)
+    return uow
+
+
+def test_fixing_a_red_rule_hands_the_fixer_the_green_tests_and_stores_the_new_light():
+    """
+    Given: A deck with one red rule, two green ones and one that never ran
+    When: The red rule is fixed and the fixer reports a kept change
+    Then: The fixer was given the red rule's stored test and the two green tests to guard, the rule's test was run
+          again and its light is stored green, and the answer names the changed files
+    """
+    uow = _deck_with_lights({"SPEC-001": "fail", "SPEC-002": "pass", "SPEC-003": "pass", "SPEC-004": None})
+    seen = {}
+
+    def fixer(rule, stored, workspace_dir, page_url, green):
+        seen.update(rule=rule, stored=stored, green=green)
+        return {"status": "fixed", "reason": None, "files": ["src/App.tsx"], "attempts": [{"number": 1, "ok": True}]}
+
+    result = rule_tests.fix_rule_test("SPEC-001", uow=uow, workspace_dir="ws", page_url="p", fixer=fixer, prove=_Prover("pass"))
+
+    assert (result["success"], result["status"], result["files"]) == (True, "fixed", ["src/App.tsx"])
+    assert seen["stored"]["status"] == "fail" and seen["rule"]["spec_id"] == "SPEC-001"
+    assert seen["green"] == {"SPEC-002": "test of SPEC-002", "SPEC-003": "test of SPEC-003"}
+    lights = {c["id"]: (c.get("page_test") or {}).get("status") for c in services.get_living_deck(uow=uow)}
+    assert lights["SPEC-001"] == "pass"
+
+
+def test_a_fix_that_was_not_kept_leaves_the_light_red():
+    """
+    Given: A red rule and a fixer whose changes were rejected
+    When: The rule is fixed
+    Then: The answer says why, and the rule's stored test and light are as they were
+    """
+    uow = _deck_with_lights({"SPEC-001": "fail"})
+    prover = _Prover("pass")
+
+    def fixer(rule, stored, workspace_dir, page_url, green):
+        return {"status": "not_fixed", "reason": "the page does not build", "files": [], "attempts": []}
+
+    result = rule_tests.fix_rule_test("SPEC-001", uow=uow, workspace_dir="ws", page_url="p", fixer=fixer, prove=prover)
+
+    assert (result["success"], result["reason"]) == (False, "the page does not build")
+    assert services.get_living_deck(uow=uow)[0]["page_test"]["status"] == "fail" and prover.calls == []
+
+
+def test_fixing_an_unknown_rule_is_reported():
+    """
+    Given: An empty deck
+    When: A fix is asked for
+    Then: The answer says the rule was not found
+    """
+    result = rule_tests.fix_rule_test("SPEC-404", uow=FakeUnitOfWork(), workspace_dir="ws", page_url="p", fixer=None)
+    assert result["status"] == "not_found"

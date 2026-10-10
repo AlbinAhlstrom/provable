@@ -139,6 +139,27 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     }
   };
 
+  // A fix changes the page and is kept only when the rule's test passes and no passing rule turned red
+  const fixRule = async (card: RuleCardDTO) => {
+    setRunningId(card.id);
+    try {
+      const res = await fetch(`/api/specs/rules/${card.id}/fix`, { method: 'POST' });
+      if (!res.ok) {
+        notify({ severity: 'error', text: `Could not fix: ${await errorOf(res)}` });
+      } else {
+        const result = await res.json();
+        notify(result.success
+          ? { severity: 'success', text: `Fixed: ${(result.files || []).join(', ')}` }
+          : { severity: 'warning', text: `Not fixed, the page is as it was: ${result.reason || 'no reason given'}` });
+      }
+      await changed();
+    } catch (err) {
+      unreachable(err);
+    } finally {
+      setRunningId(null);
+    }
+  };
+
   // Each outcome is stored as it arrives, so the lights change one by one while the deck is polled
   const runAllTests = async () => {
     setRunningAllSince(new Date().toISOString());
@@ -187,6 +208,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
           onDelete={remove}
           onRunTest={card => runTest(card)}
           onRewriteTest={card => runTest(card, true)}
+          onFix={fixRule}
         />
       </div>
 

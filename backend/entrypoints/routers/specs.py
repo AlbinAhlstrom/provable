@@ -98,6 +98,16 @@ def test_rule(spec_id: str, rewrite: bool = False):
     return result
 
 
+@router.post("/rules/{spec_id}/fix")
+def fix_rule(spec_id: str):
+    """Has the page changed so that a red rule's test turns green. The change is kept only when the rule's test
+    passes and every rule that was green still is; otherwise the page is as it was and the answer says why."""
+    result = rule_tests.fix_rule_test(spec_id, uow=SqliteUnitOfWork())
+    if result.get("status") == "not_found":
+        raise HTTPException(status_code=404, detail=result["reason"])
+    return result
+
+
 # ============================================================================
 # 🃏 THE LIVING RULE DECK ENDPOINTS (The Fluxx Paradigm)
 # ============================================================================

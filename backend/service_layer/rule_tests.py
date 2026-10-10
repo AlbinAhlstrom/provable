@@ -78,6 +78,32 @@ def run_rule_test(spec_id: str, uow: AbstractUnitOfWork, workspace_dir: Optional
     return {"success": outcome["status"] == page_tests.PASS, "spec_id": spec_id, **outcome}
 
 
+@recorded("rule_fix", label="spec_id")
+def fix_rule_test(spec_id: str, uow: AbstractUnitOfWork, workspace_dir: Optional[str] = None, page_url: Optional[str] = None,
+                  fixer: Optional[Callable[..., Dict[str, Any]]] = None, prove: Optional[Prove] = None) -> Dict[str, Any]:
+    """Has the page changed so that a red rule's test turns green (`onboarding/rule_fix.py`). The rules that are
+    green guard the change: it is kept only when they all still are. A kept change is followed by a run of the
+    rule's test, so the light that turns green is one that was seen."""
+    from onboarding import rule_fix
+    fixer = fixer or rule_fix.fix_rule
+    workspace_dir, page_url = workspace_dir or _workspace(), page_url or _page_url()
+    with uow:
+        state = uow.kickstart.get()
+        card, spec = _find(state, spec_id)
+        card, spec = (dict(card) if card else None), (dict(spec) if spec else None)
+        green = {c["id"]: c["page_test"]["source"] for c in (state.rule_cards or [])
+                 if c.get("id") != spec_id and c.get("is_active", True)
+                 and (c.get("page_test") or {}).get("status") == page_tests.PASS and c["page_test"].get("source")}
+    if card is None and spec is None:
+        return {"success": False, "status": "not_found", "reason": f"Rule {spec_id} not found."}
+    stored = (card or {}).get("page_test") or (spec or {}).get("page_test")
+    result = fixer(_rule(card, spec, spec_id), stored, workspace_dir, page_url, green)
+    fixed = result["status"] == rule_fix.FIXED
+    if fixed:
+        run_rule_test(spec_id, uow=uow, workspace_dir=workspace_dir, page_url=page_url, prove=prove)
+    return {"success": fixed, "spec_id": spec_id, **result}
+
+
 @recorded("rule_tests", label="label")
 def run_all_rule_tests(uow: AbstractUnitOfWork, workspace_dir: Optional[str] = None, page_url: Optional[str] = None,
                        prove: Optional[Prove] = None, describe: Optional[Callable[[str, str], Any]] = None,
