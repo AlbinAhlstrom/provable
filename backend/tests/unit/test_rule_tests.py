@@ -103,7 +103,7 @@ def test_running_the_deck_runs_every_active_rule_and_counts_the_outcomes():
     def prover(rule, workspace_dir, page_url, stored=None, app=None):
         return {"status": outcomes[rule["id"]], "reason": None, "evidence": "", "source": "s", "written_for": "x", "written": 1}
 
-    result = rule_tests.run_all_rule_tests(uow=uow, workspace_dir="ws", page_url="p", prove=prover, describe=lambda ws: None)
+    result = rule_tests.run_all_rule_tests(uow=uow, workspace_dir="ws", page_url="p", prove=prover, describe=lambda ws, url: None)
 
     assert result["counts"] == {"pass": 1, "fail": 1, "broken": 0}
     assert [r["spec_id"] for r in result["rules"]] == ["SPEC-001", "SPEC-002"]
@@ -124,7 +124,7 @@ def test_a_rule_whose_run_crashes_is_broken_and_the_others_still_run():
             raise OSError("no browser")
         return {"status": "pass", "reason": None, "evidence": "", "source": "s", "written_for": "x", "written": 1}
 
-    result = rule_tests.run_all_rule_tests(uow=uow, workspace_dir="ws", page_url="p", prove=prover, describe=lambda ws: None)
+    result = rule_tests.run_all_rule_tests(uow=uow, workspace_dir="ws", page_url="p", prove=prover, describe=lambda ws, url: None)
     by_id = {r["spec_id"]: r for r in result["rules"]}
     assert (by_id["SPEC-001"]["status"], by_id["SPEC-002"]["status"]) == ("broken", "pass")
     assert "no browser" in by_id["SPEC-001"]["reason"]

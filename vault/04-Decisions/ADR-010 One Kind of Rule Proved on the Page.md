@@ -24,8 +24,10 @@ every light green. In the browser, starting a new game froze the board and chang
    records it needs through the app's API, and may read a record back where the rule is about something the page
    does not show. The When is always done on the page.
 4. **Each test gets records of its own.** The harness (`tests/e2e/conftest.py`, written by the engine) starts the
-   app's API for the test with nothing saved, and sends the page's API calls there. The person's own records are
-   never touched.
+   app's API for the test with nothing saved, and gives the test's browser an address of its own where every
+   `/api/` call goes to that API and everything else to the running page. The person's own records are never
+   touched. Listening in on the page's requests and redirecting them was tried first and is not enough: a request a
+   page sends while it is being left goes past it, so no rule about leaving could be proved.
 5. **Running a test changes no code.** The run ends red, green or broken (the test could not judge). Fixing is a
    separate step that starts from a red test and its evidence, with the one retry the retry policy allows.
 6. **A test is written once.** It is stored with the rule and run again as it is. It is written again only when the
@@ -36,8 +38,10 @@ every light green. In the browser, starting a new game froze the board and chang
 
 ## How a control is found
 The test and the page are written by different calls and must agree on how a control is found. A test finds controls
-the way a person does: by role and by the name read out for it. For an app that exists, the test writer is shown the
-page's source to learn those names. For a new app, where tests and page are written side by side, the UX plan will
+the way a person does: by role and by the name read out for it. For an app that exists, the test writer is shown
+what a browser read out from the opened page (roles and names, a long run of like controls condensed to its first
+few and the forms their names take) and the page's source for what is not open yet. Names guessed from the source
+alone were the most common reason a first test was wrong. For a new app, where tests and page are written side by side, the UX plan will
 name every control and state first (not built yet).
 
 ## What a run can say
@@ -59,6 +63,7 @@ name every control and state first (not built yet).
 2. Test-writing step, run alone on rules of an existing app.
 3. Studio: Run shows red or green; Fix is a separate action on a red rule.
 4. Every rule of the reference app run; gaps traced to decomposition.
-5. An action that returns a new record of its own kind: the router stores it and answers with it.
+5. An action that returns a new record of its own kind: the router stores it and answers with it as `created`,
+   beside the `state` of the record the action was run on.
 6. The kind of a rule leaves decomposition and the kickstart; page tests are written during the kickstart.
 7. A run with and without the domain tests, then a decision.

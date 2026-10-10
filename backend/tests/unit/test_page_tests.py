@@ -3,7 +3,7 @@ what a run's report means, when a test is written or written again, and what the
 import os
 
 from onboarding import page_tests
-from onboarding.page_tests import Verdict, describe_app, ensure_harness, judge, lint, prove
+from onboarding.page_tests import Verdict, condense, describe_app, ensure_harness, judge, lint, prove
 
 RULE = {"spec_id": "SPEC-007", "title": "A sent order is locked",
         "given_when_then": "Given a sent order When the customer opens it Then its lines cannot be changed"}
@@ -268,6 +268,62 @@ def test_the_writer_is_shown_the_api_and_the_page_the_app_serves(tmp_path):
     assert "self.status = 'sent'" not in app.api
     assert "Send order" in app.page and "src/views/OrderView.tsx" in app.page
     assert "never shown" not in app.page and "purchase_orderClient" not in app.page
+    assert app.rendered == ""  # no address to open the page at: only its source is shown
+
+
+def test_the_writer_is_shown_the_page_as_a_person_meets_it(tmp_path):
+    """
+    Given: An app, and a browser that reads out what the opened page offers
+    When: The app is described with the address of its page
+    Then: The description carries what was read out, so a control's name is one that was seen and not one guessed
+    """
+    seen = []
+
+    def read_out(workspace_dir, page_url):
+        seen.append((workspace_dir, page_url))
+        return '- button "Send order"'
+
+    app = describe_app(str(tmp_path), "http://page", read_out=read_out)
+    assert app.rendered == '- button "Send order"' and seen == [(str(tmp_path), "http://page")]
+
+
+def test_a_long_run_of_like_controls_is_shown_by_its_first_and_its_kinds_of_name():
+    """
+    Given: What a page of forty seats reads out, between a heading and a button
+    When: It is condensed
+    Then: The first seats stay as they are, the rest are one line that counts them and gives each kind of name
+          they carry once, and everything around the run is unchanged
+    """
+    seats = [f'  - button "Seat {n}, {"taken" if n % 5 == 0 else "free"}"' for n in range(1, 41)]
+    lines = condense("\n".join(['- heading "Evening show"', "- main:", *seats, '  - button "Book"'])).split("\n")
+
+    assert lines[:5] == ['- heading "Evening show"', "- main:", *seats[:3]]
+    assert lines[5] == '  - … 37 more button like these, named "Seat #, free" or "Seat #, taken"'
+    assert lines[6:] == ['  - button "Book"']
+
+
+def test_a_short_list_and_differing_controls_are_left_as_they_are():
+    """
+    Given: Three menu items in a row, and controls of different roles and names
+    When: The listing is condensed
+    Then: Nothing is taken away
+    """
+    listing = "\n".join(['- button "Save"', '- button "Send"', '- link "Help"', '- menuitem "Day 1"', '- menuitem "Day 2"', '- menuitem "Day 3"'])
+    assert condense(listing) == listing
+
+
+def test_the_page_as_it_opens_is_part_of_what_the_model_is_asked(monkeypatch):
+    """
+    Given: A description of an app with what its opened page reads out
+    When: A test is written
+    Then: The prompt carries that listing
+    """
+    import agent_orchestrator
+    asked = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda prompt, stage="general", **k: asked.append(prompt) or "```python\n" + GOOD_TEST + "```")
+    app = page_tests.AppDescription(api="API", page="PAGE", rendered='- button "Send order now"')
+    page_tests.write_test({"title": "t", "given_when_then": "Given a When b Then c"}, app)
+    assert '- button "Send order now"' in asked[0]
 
 
 def test_the_harness_is_written_into_the_app_and_kept_current(tmp_path):

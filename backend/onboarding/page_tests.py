@@ -2,7 +2,7 @@
 Page tests: a rule is proved by a test that drives the running app in a browser (ADR-010).
 
 - The harness (`tests/e2e/conftest.py`, from `templates/page_test_conftest.py.tmpl`) gives each test an API of its
-  own with nothing saved, and a browser whose page talks to that API.
+  own with nothing saved, and a browser that reaches the page through an address where `/api/` is that API.
 - A run changes no code and ends in one of three ways: pass, fail (an assertion did not hold, or the page offered no
   control the test could use) or broken (the test could not judge).
 - A test is written once and stored with its rule. It is written again when the rule's text changed or the test was
@@ -48,9 +48,11 @@ class Verdict:
 
 @dataclass
 class AppDescription:
-    """What the test writer is shown of an app: how records are arranged, and what the page offers."""
+    """What the test writer is shown of an app: how records are arranged, the page's source, and what the opened
+    page reads out (roles and names as a browser found them, so that a control's name is seen and not guessed)."""
     api: str
     page: str
+    rendered: str = ""
 
 
 def rule_text(rule: Dict[str, Any]) -> str:
@@ -242,8 +244,64 @@ def _page_of(workspace_dir: str) -> str:
     return "\n\n".join(parts)
 
 
-def describe_app(workspace_dir: str) -> AppDescription:
-    return AppDescription(api=_api_of(workspace_dir), page=_page_of(workspace_dir))
+_LIKE_CONTROL = re.compile(r'^(\s*)- (\w+) "([^"]*\d[^"]*)"')
+_RUN_KEPT, _RUN_WORTH_CONDENSING, _KINDS_NAMED = 3, 8, 6
+
+
+def condense(listing: str) -> str:
+    """A long run of like controls (same place, same role, names that differ in their numbers) is shown by its first
+    few and one line that counts the rest and gives each kind of name they carry. A grid of four hundred cells
+    then costs the reader a handful of lines, and still shows every form a cell's name takes."""
+    def like(line: str):
+        found = _LIKE_CONTROL.match(line)
+        return (found.group(1), found.group(2), re.split(r"\d", found.group(3), 1)[0]) if found else None
+
+    lines, kept, at = listing.split("\n"), [], 0
+    while at < len(lines):
+        key, end = like(lines[at]), at + 1
+        while key and end < len(lines) and like(lines[end]) == key:
+            end += 1
+        if end - at <= _RUN_WORTH_CONDENSING:
+            kept.extend(lines[at:end])
+        else:
+            rest = lines[at + _RUN_KEPT:end]
+            kinds = sorted({re.sub(r"\d+", "#", _LIKE_CONTROL.match(line).group(3)) for line in rest})
+            named = " or ".join(f'"{kind}"' for kind in kinds[:_KINDS_NAMED]) + (" and others" if len(kinds) > _KINDS_NAMED else "")
+            kept.extend(lines[at:at + _RUN_KEPT])
+            kept.append(f"{key[0]}- … {len(rest)} more {key[1]} like these, named {named}")
+        at = end
+    return "\n".join(kept)
+
+
+_READ_OUT_ID = "page as it opens"
+_READ_OUT_FILE = os.path.join("tests", "e2e", ".page_as_it_opens.txt")
+_READ_OUT = '''"""Written by the engine: reads out what the page offers when it opens, for the writer of the page tests."""
+import os
+
+
+def test_the_page_opens(app):
+    page = app.open()
+    page.wait_for_load_state("networkidle")
+    with open(os.path.join(os.path.dirname(__file__), ".page_as_it_opens.txt"), "w", encoding="utf-8") as f:
+        f.write(page.locator("body").aria_snapshot())
+'''
+
+
+@traced("page_test.read_out")
+def read_out_page(workspace_dir: str, page_url: str) -> str:
+    """What the page reads out when it opens on an app that holds only what it starts with, through the same
+    harness the tests use. A page that cannot be opened is said so here; every test's run will say it too."""
+    verdict = run_test(workspace_dir, _READ_OUT_ID, _READ_OUT, page_url)
+    if verdict.status != PASS:
+        return f"(the page could not be opened: {verdict.reason})"
+    with open(os.path.join(workspace_dir, _READ_OUT_FILE), encoding="utf-8") as f:
+        return condense(f.read())
+
+
+def describe_app(workspace_dir: str, page_url: Optional[str] = None,
+                 read_out: Optional[Callable[[str, str], str]] = None) -> AppDescription:
+    rendered = (read_out or read_out_page)(workspace_dir, page_url) if page_url else ""
+    return AppDescription(api=_api_of(workspace_dir), page=_page_of(workspace_dir), rendered=rendered)
 
 
 # ── the model and the browser ────────────────────────────────────────────────
@@ -259,7 +317,7 @@ def write_test(rule: Dict[str, Any], app: AppDescription, feedback: str = "") ->
     import agent_orchestrator
     prompt = agent_orchestrator.load_prompt("page_test_generation.md", {
         "title": rule.get("title", ""), "description": rule.get("description", ""), "rule": rule_text(rule),
-        "api": app.api, "page": app.page, "feedback_block": feedback,
+        "api": app.api, "page": app.page, "rendered": app.rendered, "feedback_block": feedback,
     })
     raw = agent_orchestrator.call_gemini(prompt, stage="page_test_generation")
     if not raw or not raw.strip():
@@ -291,7 +349,7 @@ def prove_rule(rule: Dict[str, Any], workspace_dir: str, page_url: str, stored: 
 
     def write(the_rule: Dict[str, Any], feedback: str) -> str:
         if not described:  # only read when a test has to be written
-            described.append(describe_app(workspace_dir))
+            described.append(describe_app(workspace_dir, page_url))
         return write_test(the_rule, described[0], feedback)
 
     return prove(rule, write=write, run=lambda source: run_test(workspace_dir, rule_id(rule), source, page_url), stored=stored)

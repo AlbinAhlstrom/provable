@@ -80,7 +80,7 @@ def run_rule_test(spec_id: str, uow: AbstractUnitOfWork, workspace_dir: Optional
 
 @recorded("rule_tests", label="label")
 def run_all_rule_tests(uow: AbstractUnitOfWork, workspace_dir: Optional[str] = None, page_url: Optional[str] = None,
-                       prove: Optional[Prove] = None, describe: Optional[Callable[[str], Any]] = None,
+                       prove: Optional[Prove] = None, describe: Optional[Callable[[str, str], Any]] = None,
                        label: str = "deck") -> Dict[str, Any]:
     """Runs the page test of every active rule of the deck, several at a time, storing each outcome as it arrives."""
     prove, describe = prove or page_tests.prove_rule, describe or page_tests.describe_app
@@ -89,7 +89,7 @@ def run_all_rule_tests(uow: AbstractUnitOfWork, workspace_dir: Optional[str] = N
         state = uow.kickstart.get()
         cards = [dict(c) for c in (state.rule_cards or []) if c.get("is_active", True)]
         specs = {s.get("spec_id"): dict(s) for s in (state.inbox_specs or [])}
-    app = describe(workspace_dir)  # read once: every test that has to be written is shown the same app
+    app = describe(workspace_dir, page_url)  # read once: every test that has to be written is shown the same app
 
     def one(card: Dict[str, Any]) -> Dict[str, Any]:
         spec = specs.get(card["id"])

@@ -71,6 +71,10 @@ function show() {
   });
 }
 show();
+window.addEventListener('pagehide', function () {
+  fetch('/api/notes', {method: 'POST', keepalive: true, headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({id: 'left', text: 'The page was left'})});
+});
 </script></body></html>"""
 
 FINISHING = '''from playwright.sync_api import expect
@@ -89,6 +93,22 @@ def test_another_test_sees_none_of_those_records(app):
     page = app.open(width=375, height=812)
     expect(page.get_by_role("listitem")).to_have_count(0)
     assert page.viewport_size == {"width": 375, "height": 812}
+'''
+
+LEAVING = '''import time
+
+from playwright.sync_api import expect
+
+
+def test_leaving_the_page_is_recorded(app):
+    app.given("notes", id="n1", text="Water the plants")
+    page = app.open()
+    expect(page.get_by_role("listitem")).to_have_count(1)
+    page.goto("about:blank")
+    deadline = time.time() + 5
+    while time.time() < deadline and len(app.records("notes")) < 2:
+        time.sleep(0.1)
+    assert [note["id"] for note in app.records("notes")] == ["n1", "left"]
 '''
 
 
@@ -165,3 +185,14 @@ def test_a_given_the_api_refuses_is_broken(small_app):
     source = FINISHING.replace('id="n1", text="Water the plants"', 'id="n1"')
     verdict = run_test(workspace, "SPEC-001", source, page_url)
     assert verdict.status == "broken" and "422" in verdict.reason
+
+
+def test_what_the_page_sends_as_it_is_left_reaches_the_tests_own_api(small_app):
+    """
+    Given: An app whose page tells its API when it is being left
+    When: A test opens the page, leaves it and reads the records back
+    Then: The run passes: a request sent while the page goes away reached this test's API like any other
+    """
+    workspace, page_url = small_app
+    verdict = run_test(workspace, "SPEC-001", LEAVING, page_url)
+    assert (verdict.status, verdict.reason) == ("pass", None), verdict.evidence

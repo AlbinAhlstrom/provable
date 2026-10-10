@@ -91,7 +91,7 @@ def test_a_rules_page_test_is_run_through_the_api(monkeypatch):
         return {"status": "fail", "reason": "AssertionError: nothing happened", "evidence": "", "source": "s",
                 "written_for": "x", "written": 1}
     monkeypatch.setattr(rule_tests.page_tests, "prove_rule", prover)
-    monkeypatch.setattr(rule_tests.page_tests, "describe_app", lambda ws: None)
+    monkeypatch.setattr(rule_tests.page_tests, "describe_app", lambda ws, url: None)
 
     one = client.post("/api/specs/rules/SPEC-001/test")
     assert one.status_code == 200 and one.json()["status"] == "fail" and one.json()["success"] is False
