@@ -1,0 +1,195 @@
+{
+  "seq": 194,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:12",
+  "t_offset_s": 193.156,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652451.9209034,
+        "duration": 0.6291756629943848,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 4,
+          "total": 4,
+          "collected": 4
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-0]",
+                "type": "Function",
+                "lineno": 24
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-8]",
+                "type": "Function",
+                "lineno": 24
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[4-4]",
+                "type": "Function",
+                "lineno": 24
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[8-8]",
+                "type": "Function",
+                "lineno": 24
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-0]",
+            "lineno": 24,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_revealed_cell_is_never_a_mine[0-0]",
+              "parametrize",
+              "pytestmark",
+              "0-0",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011014999909093603,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.02762550000625197,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003895999980159104,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-8]",
+            "lineno": 24,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_revealed_cell_is_never_a_mine[0-8]",
+              "parametrize",
+              "pytestmark",
+              "0-8",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007324000034714118,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.027502700002514757,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005360999930417165,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[4-4]",
+            "lineno": 24,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_revealed_cell_is_never_a_mine[4-4]",
+              "parametrize",
+              "pytestmark",
+              "4-4",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0021489000064320862,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.02674680000927765,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005182000022614375,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[8-8]",
+            "lineno": 24,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_revealed_cell_is_never_a_mine[8-8]",
+              "parametrize",
+              "pytestmark",
+              "8-8",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007699999987380579,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.027692299991031177,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00041199999395757914,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

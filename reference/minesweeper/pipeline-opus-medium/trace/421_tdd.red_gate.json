@@ -1,0 +1,263 @@
+{
+  "seq": 421,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:34",
+  "t_offset_s": 405.785,
+  "thread": "red_5",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656614.362161,
+        "duration": 1.0908520221710205,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 6,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_043.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_043.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[beginner-9-9-10]",
+                "type": "Function",
+                "lineno": 94
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+                "type": "Function",
+                "lineno": 94
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[beginner-9-9-10]",
+                "type": "Function",
+                "lineno": 110
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+                "type": "Function",
+                "lineno": 110
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Won]",
+                "type": "Function",
+                "lineno": 128
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Lost]",
+                "type": "Function",
+                "lineno": 128
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[beginner-9-9-10]",
+            "lineno": 94,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_from_ready_abandons_and_deals_fresh_board[beginner-9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "beginner-9-9-10",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010869999969145283,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006951999966986477,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004278999986127019,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+            "lineno": 94,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_from_ready_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-16-16-40",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010424999927636236,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0014272000116761774,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00044430000707507133,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[beginner-9-9-10]",
+            "lineno": 110,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_from_playing_abandons_and_deals_fresh_board[beginner-9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "beginner-9-9-10",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010389000090071931,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007373000116785988,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039230000402312726,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+            "lineno": 110,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_from_playing_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-16-16-40",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00139639999542851,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012310999882174656,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00044049999269191176,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Won]",
+            "lineno": 128,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_from_finished_game_keeps_outcome[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0018531999958213419,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006621999928029254,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0007212999917101115,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Lost]",
+            "lineno": 128,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_from_finished_game_keeps_outcome[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006874000100651756,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007740000000922009,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004428999964147806,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

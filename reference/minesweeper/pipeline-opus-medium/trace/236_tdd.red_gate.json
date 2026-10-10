@@ -1,0 +1,263 @@
+{
+  "seq": 236,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:20",
+  "t_offset_s": 391.581,
+  "thread": "red_1",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656600.1099882,
+        "duration": 0.69561767578125,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 6,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_002.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_002.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-intermediate-16-16-40]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-expert-30-16-99]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-intermediate-16-16-40]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-expert-30-16-99]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_002.py::test_misspelled_beginner_is_refused_and_game_unchanged[intermediate-16-16-40]",
+                "type": "Function",
+                "lineno": 107
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_002.py::test_misspelled_beginner_is_refused_and_game_unchanged[expert-30-16-99]",
+                "type": "Function",
+                "lineno": 107
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-intermediate-16-16-40]",
+            "lineno": 43,
+            "outcome": "passed",
+            "keywords": [
+              "test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-intermediate-16-16-40]",
+              "parametrize",
+              "pytestmark",
+              "9-9-10-intermediate-16-16-40",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0017654999974183738,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008685999928275123,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00044860001071356237,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-expert-30-16-99]",
+            "lineno": 43,
+            "outcome": "passed",
+            "keywords": [
+              "test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-expert-30-16-99]",
+              "parametrize",
+              "pytestmark",
+              "9-9-10-expert-30-16-99",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010094000026583672,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013039999903412536,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00038520000816788524,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-intermediate-16-16-40]",
+            "lineno": 43,
+            "outcome": "passed",
+            "keywords": [
+              "test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-intermediate-16-16-40]",
+              "parametrize",
+              "pytestmark",
+              "10-10-11-intermediate-16-16-40",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001429900003131479,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013913000002503395,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004515000036917627,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-expert-30-16-99]",
+            "lineno": 43,
+            "outcome": "passed",
+            "keywords": [
+              "test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-expert-30-16-99]",
+              "parametrize",
+              "pytestmark",
+              "10-10-11-expert-30-16-99",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0012900000001536682,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013146999990567565,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004827000084333122,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_002.py::test_misspelled_beginner_is_refused_and_game_unchanged[intermediate-16-16-40]",
+            "lineno": 107,
+            "outcome": "passed",
+            "keywords": [
+              "test_misspelled_beginner_is_refused_and_game_unchanged[intermediate-16-16-40]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-16-16-40",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008555999957025051,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000890600000275299,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003536000003805384,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_002.py::test_misspelled_beginner_is_refused_and_game_unchanged[expert-30-16-99]",
+            "lineno": 107,
+            "outcome": "passed",
+            "keywords": [
+              "test_misspelled_beginner_is_refused_and_game_unchanged[expert-30-16-99]",
+              "parametrize",
+              "pytestmark",
+              "expert-30-16-99",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008251999970525503,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012452999944798648,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004859000036958605,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

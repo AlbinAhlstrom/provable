@@ -1,0 +1,257 @@
+{
+  "seq": 289,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.509,
+  "thread": "red_17",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656601.8068132,
+        "duration": 1.524223804473877,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 6,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_019.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_019.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Ready]",
+                "type": "Function",
+                "lineno": 109
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Playing]",
+                "type": "Function",
+                "lineno": 109
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_opened_cell_in_playing_game_changes_nothing",
+                "type": "Function",
+                "lineno": 142
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_in_finished_game_changes_nothing[Lost]",
+                "type": "Function",
+                "lineno": 157
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_in_finished_game_changes_nothing[Won]",
+                "type": "Function",
+                "lineno": 157
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_hidden_cell_in_lost_game_does_not_flag_it",
+                "type": "Function",
+                "lineno": 177
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Ready]",
+            "lineno": 109,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Ready]",
+              "parametrize",
+              "pytestmark",
+              "Ready",
+              "test_spec_019.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009763999987626448,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001407199990353547,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00045590000809170306,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Playing]",
+            "lineno": 109,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Playing]",
+              "parametrize",
+              "pytestmark",
+              "Playing",
+              "test_spec_019.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000635599993984215,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0014608999917982146,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003862000012304634,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_opened_cell_in_playing_game_changes_nothing",
+            "lineno": 142,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagging_opened_cell_in_playing_game_changes_nothing",
+              "test_spec_019.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006139000033726916,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007801999890943989,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003581000055419281,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_in_finished_game_changes_nothing[Lost]",
+            "lineno": 157,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagging_in_finished_game_changes_nothing[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_019.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007550000009359792,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010322000016458333,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0007649000035598874,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_in_finished_game_changes_nothing[Won]",
+            "lineno": 157,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagging_in_finished_game_changes_nothing[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_019.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006029000069247559,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009032999951159582,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039850000757724047,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_019.py::test_flagging_hidden_cell_in_lost_game_does_not_flag_it",
+            "lineno": 177,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagging_hidden_cell_in_lost_game_does_not_flag_it",
+              "test_spec_019.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006400999991456047,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000731500011170283,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003983999922638759,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

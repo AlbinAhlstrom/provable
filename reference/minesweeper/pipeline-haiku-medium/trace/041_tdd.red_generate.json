@@ -1,0 +1,40 @@
+{
+  "seq": 41,
+  "step": "tdd.red_generate",
+  "kind": "step",
+  "depth": 2,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "tdd.draft_tests"
+  ],
+  "started_at": "19:12:34",
+  "t_offset_s": 95.699,
+  "thread": "draft_1",
+  "input": {
+    "args": [
+      {
+        "spec_id": "SPEC-002",
+        "title": "Intermediate difficulty preset",
+        "description": "The Intermediate preset fixes the board at 16 rows by 16 columns with 40 mines.",
+        "given_when_then": "Given the difficulty presets are available When the player selects Intermediate Then the new game board has 16 rows, 16 columns and 40 mines",
+        "target_aggregate": "Difficulty",
+        "spec_type": "DOMAIN_INVARIANT",
+        "kind": "behavior",
+        "category": "INVARIANT",
+        "is_mathematical_boundary": true,
+        "priority": "High",
+        "status": "PENDING"
+      },
+      "\n\n@dataclass\nclass Difficulty:\n    \"\"\"Difficulty.\"\"\"\n    id: str\n    name: str\n    rows: int\n    columns: int\n    mine_count: int\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n",
+      "difficulty",
+      "Difficulty"
+    ],
+    "kwargs": {
+      "existing_tests": "",
+      "interface_contract": "(none: no interface method has been promised for this class)",
+      "other_rules": "- Beginner difficulty preset: Given the difficulty presets are available When the player selects Beginner Then the new game board has 9 rows, 9 columns and 10 mines\n- Expert difficulty preset: Given the difficulty presets are available When the player selects Expert Then the new game board has 16 rows, 30 columns and 99 mines"
+    }
+  },
+  "output": "import pytest\n\nfrom src.domain.difficulty import Difficulty\n\n\ndef test_selecting_intermediate_gives_16_rows_16_columns_40_mines():\n    # Given the difficulty presets are available (the preset table is built into the class).\n    # When the player selects Intermediate.\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n\n    # Then the new game board has 16 rows.\n    # The Intermediate preset fixes rows at exactly 16 (the value at the limit).\n    assert difficulty.rows == 16\n\n    # Then the new game board has 16 columns.\n    # The Intermediate preset fixes columns at exactly 16, not the Expert value of 30.\n    assert difficulty.columns == 16\n\n    # Then the new game board has 40 mines.\n    # The Intermediate preset fixes mine_count at exactly 40, not Beginner's 10 or Expert's 99.\n    assert difficulty.mine_count == 40\n\n\ndef test_intermediate_preset_is_not_one_step_beyond_its_limits():\n    # Given the difficulty presets are available.\n    # When the player selects Intermediate.\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n\n    # Then the rows are not one step beyond the limit: the value is 16, so it is not 15 or 17.\n    assert difficulty.rows not in (15, 17)\n\n    # Then the columns are not one step beyond the limit: the value is 16, so it is not 15 or 17.\n    assert difficulty.columns not in (15, 17)\n\n    # Then the mines are not one step beyond the limit: the value is 40, so it is not 39 or 41.\n    assert difficulty.mine_count not in (39, 41)\n",
+  "duration_s": 11.444
+}

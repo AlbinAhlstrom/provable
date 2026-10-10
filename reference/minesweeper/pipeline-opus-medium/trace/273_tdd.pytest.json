@@ -1,0 +1,197 @@
+{
+  "seq": 273,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.289,
+  "thread": "red_20",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_swrqpj97\\tests\\unit\\test_spec_022.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_swrqpj97"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_swrqpj97\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 3 items\n\ntests\\unit\\test_spec_022.py FFF                                          [100%]\n\n================================== FAILURES ===================================\n__ test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[9-10-0] __\n\nflags_before = 9, expected_flags = 10, expected_remaining = 0\n\n    @pytest.mark.parametrize(\n        \"flags_before, expected_flags, expected_remaining\",\n        [\n            # Exactly at the limit: F becomes M (10) -> counter 0.\n            (9, 10, 0),\n            # Just beyond the limit: F becomes M + 1 (11) -> counter -1 (negative allowed).\n            (10, 11, -1),\n        ],\n    )\n    def test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit(\n        flags_before, expected_flags, expected_remaining\n    ):\n        mine_count = 10\n        game = _make_ready_game(mine_count, flags_before)\n        # Cell (8, 8) is the last cell in row-major order; flagged_count <= 10 only\n        # covers rows 0-1, so it is Hidden. Game is Ready: flagging is allowed, no\n        # mines are laid, no cell is opened, so no win/loss rule interferes.\n        assert _cell(game, 8, 8)[\"state\"] == \"Hidden\"\n    \n        game.toggle_flag(row=8, column=8)\n    \n        # Hidden -> Flagged adds one flag: flags_before + 1.\n>       assert _cell(game, 8, 8)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_022.py:76: AssertionError\n_ test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[10-11--1] _\n\nflags_before = 10, expected_flags = 11, expected_remaining = -1\n\n    @pytest.mark.parametrize(\n        \"flags_before, expected_flags, expected_remaining\",\n        [\n            # Exactly at the limit: F becomes M (10) -> counter 0.\n            (9, 10, 0),\n            # Just beyond the limit: F becomes M + 1 (11) -> counter -1 (negative allowed).\n            (10, 11, -1),\n        ],\n    )\n    def test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit(\n        flags_before, expected_flags, expected_remaining\n    ):\n        mine_count = 10\n        game = _make_ready_game(mine_count, flags_before)\n        # Cell (8, 8) is the last cell in row-major order; flagged_count <= 10 only\n        # covers rows 0-1, so it is Hidden. Game is Ready: flagging is allowed, no\n        # mines are laid, no cell is opened, so no win/loss rule interferes.\n        assert _cell(game, 8, 8)[\"state\"] == \"Hidden\"\n    \n        game.toggle_flag(row=8, column=8)\n    \n        # Hidden -> Flagged adds one flag: flags_before + 1.\n>       assert _cell(game, 8, 8)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_022.py:76: AssertionError\n________ test_remaining_mines_returns_from_negative_when_flag_removed _________\n\n    def test_remaining_mines_returns_from_negative_when_flag_removed():\n        mine_count = 10\n        # 11 flags placed: counter starts at 10 - 11 = -1.\n        game = _make_ready_game(mine_count, 11)\n        # Cell (0, 0) is first in row-major order, so it is among the Flagged ones.\n        assert _cell(game, 0, 0)[\"state\"] == \"Flagged\"\n    \n        game.toggle_flag(row=0, column=0)\n    \n        # Flagged -> Hidden removes one flag: 11 - 1 = 10.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Hidden\"\nE       AssertionError: assert 'Flagged' == 'Hidden'\nE         \nE         - Hidden\nE         + Flagged\n\ntests\\unit\\test_spec_022.py:96: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_swrqpj97\\.pytest_report_20acb1b51d044348a7f2adc263ce81cf.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_022.py::test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[9-10-0]\nFAILED tests/unit/test_spec_022.py::test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[10-11--1]\nFAILED tests/unit/test_spec_022.py::test_remaining_mines_returns_from_negative_when_flag_removed\n============================== 3 failed in 1.97s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656607.4175413,
+      "duration": 1.4536714553833008,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_swrqpj97",
+      "environment": {},
+      "summary": {
+        "failed": 3,
+        "total": 3,
+        "collected": 3
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_022.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_022.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_022.py::test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[9-10-0]",
+              "type": "Function",
+              "lineno": 53
+            },
+            {
+              "nodeid": "tests/unit/test_spec_022.py::test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[10-11--1]",
+              "type": "Function",
+              "lineno": 53
+            },
+            {
+              "nodeid": "tests/unit/test_spec_022.py::test_remaining_mines_returns_from_negative_when_flag_removed",
+              "type": "Function",
+              "lineno": 85
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_022.py::test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[9-10-0]",
+          "lineno": 53,
+          "outcome": "failed",
+          "keywords": [
+            "test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[9-10-0]",
+            "parametrize",
+            "pytestmark",
+            "9-10-0",
+            "test_spec_022.py",
+            "unit",
+            "tests",
+            "hollow_swrqpj97",
+            ""
+          ],
+          "setup": {
+            "duration": 0.001048100006300956,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0009640000062063336,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_swrqpj97\\tests\\unit\\test_spec_022.py",
+              "lineno": 76,
+              "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_022.py",
+                "lineno": 76,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "flags_before = 9, expected_flags = 10, expected_remaining = 0\n\n    @pytest.mark.parametrize(\n        \"flags_before, expected_flags, expected_remaining\",\n        [\n            # Exactly at the limit: F becomes M (10) -> counter 0.\n            (9, 10, 0),\n            # Just beyond the limit: F becomes M + 1 (11) -> counter -1 (negative allowed).\n            (10, 11, -1),\n        ],\n    )\n    def test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit(\n        flags_before, expected_flags, expected_remaining\n    ):\n        mine_count = 10\n        game = _make_ready_game(mine_count, flags_before)\n        # Cell (8, 8) is the last cell in row-major order; flagged_count <= 10 only\n        # covers rows 0-1, so it is Hidden. Game is Ready: flagging is allowed, no\n        # mines are laid, no cell is opened, so no win/loss rule interferes.\n        assert _cell(game, 8, 8)[\"state\"] == \"Hidden\"\n    \n        game.toggle_flag(row=8, column=8)\n    \n        # Hidden -> Flagged adds one flag: flags_before + 1.\n>       assert _cell(game, 8, 8)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_022.py:76: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.000524200004292652,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_022.py::test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[10-11--1]",
+          "lineno": 53,
+          "outcome": "failed",
+          "keywords": [
+            "test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[10-11--1]",
+            "parametrize",
+            "pytestmark",
+            "10-11--1",
+            "test_spec_022.py",
+            "unit",
+            "tests",
+            "hollow_swrqpj97",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0009195000020554289,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00074819999281317,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_swrqpj97\\tests\\unit\\test_spec_022.py",
+              "lineno": 76,
+              "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_022.py",
+                "lineno": 76,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "flags_before = 10, expected_flags = 11, expected_remaining = -1\n\n    @pytest.mark.parametrize(\n        \"flags_before, expected_flags, expected_remaining\",\n        [\n            # Exactly at the limit: F becomes M (10) -> counter 0.\n            (9, 10, 0),\n            # Just beyond the limit: F becomes M + 1 (11) -> counter -1 (negative allowed).\n            (10, 11, -1),\n        ],\n    )\n    def test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit(\n        flags_before, expected_flags, expected_remaining\n    ):\n        mine_count = 10\n        game = _make_ready_game(mine_count, flags_before)\n        # Cell (8, 8) is the last cell in row-major order; flagged_count <= 10 only\n        # covers rows 0-1, so it is Hidden. Game is Ready: flagging is allowed, no\n        # mines are laid, no cell is opened, so no win/loss rule interferes.\n        assert _cell(game, 8, 8)[\"state\"] == \"Hidden\"\n    \n        game.toggle_flag(row=8, column=8)\n    \n        # Hidden -> Flagged adds one flag: flags_before + 1.\n>       assert _cell(game, 8, 8)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_022.py:76: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0006400999991456047,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_022.py::test_remaining_mines_returns_from_negative_when_flag_removed",
+          "lineno": 85,
+          "outcome": "failed",
+          "keywords": [
+            "test_remaining_mines_returns_from_negative_when_flag_removed",
+            "test_spec_022.py",
+            "unit",
+            "tests",
+            "hollow_swrqpj97",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000529499986441806,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007762000022921711,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_swrqpj97\\tests\\unit\\test_spec_022.py",
+              "lineno": 96,
+              "message": "AssertionError: assert 'Flagged' == 'Hidden'\n  \n  - Hidden\n  + Flagged"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_022.py",
+                "lineno": 96,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_remaining_mines_returns_from_negative_when_flag_removed():\n        mine_count = 10\n        # 11 flags placed: counter starts at 10 - 11 = -1.\n        game = _make_ready_game(mine_count, 11)\n        # Cell (0, 0) is first in row-major order, so it is among the Flagged ones.\n        assert _cell(game, 0, 0)[\"state\"] == \"Flagged\"\n    \n        game.toggle_flag(row=0, column=0)\n    \n        # Flagged -> Hidden removes one flag: 11 - 1 = 10.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Hidden\"\nE       AssertionError: assert 'Flagged' == 'Hidden'\nE         \nE         - Hidden\nE         + Flagged\n\ntests\\unit\\test_spec_022.py:96: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00045479999971576035,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 6.175
+}

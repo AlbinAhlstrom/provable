@@ -1,0 +1,249 @@
+{
+  "seq": 301,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.926,
+  "thread": "red_12",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4n2ozbl2\\tests\\unit\\test_spec_014.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4n2ozbl2"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4n2ozbl2\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 4 items\n\ntests\\unit\\test_spec_014.py FFFF                                         [100%]\n\n================================== FAILURES ===================================\n_______ test_interior_cell_with_all_eight_neighbours_mined_shows_eight ________\n\n    def test_interior_cell_with_all_eight_neighbours_mined_shows_eight():\n        game = _new_game()\n        # Mines on all 8 neighbours of (4,4) and also on the 16 cells just beyond\n        # them (distance 2): 24 mines on a 9x9 board.\n        _arrange_playing(game, _ring_at_distance_one(4, 4) + _ring_at_distance_two(4, 4))\n    \n        game.open_cell(row=4, column=4)\n    \n>       target = _cell(game, 4, 4)\n                 ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_014.py:84: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\ngame = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=24, remaining_mines=24, created_at='2024-01-...laced=0, elapsed_seconds=0, started_at='2024-01-01T10:00:05Z', ended_at=None, struck_cell_id=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(game, row, column):\n>       return game.cells[row * game.width + column]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       IndexError: list index out of range\n\ntests\\unit\\test_spec_014.py:21: IndexError\n__ test_interior_cell_with_mines_only_just_beyond_its_neighbours_shows_zero ___\n\n    def test_interior_cell_with_mines_only_just_beyond_its_neighbours_shows_zero():\n        game = _new_game()\n        # Mines only on the 16 cells at distance 2 from (4,4); none of its\n        # 8 neighbours holds a mine.\n        _arrange_playing(game, _ring_at_distance_two(4, 4))\n    \n        game.open_cell(row=4, column=4)\n    \n>       target = _cell(game, 4, 4)\n                 ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_014.py:102: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\ngame = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=16, remaining_mines=16, created_at='2024-01-...laced=0, elapsed_seconds=0, started_at='2024-01-01T10:00:05Z', ended_at=None, struck_cell_id=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(game, row, column):\n>       return game.cells[row * game.width + column]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       IndexError: list index out of range\n\ntests\\unit\\test_spec_014.py:21: IndexError\n_________ test_interior_cell_with_three_mined_neighbours_shows_three __________\n\n    def test_interior_cell_with_three_mined_neighbours_shows_three():\n        game = _new_game()\n        # Three of (4,4)'s neighbours hold mines; one more mine far away at (0,8).\n        _arrange_playing(game, [(3, 3), (3, 5), (5, 4), (0, 8)])\n    \n        game.open_cell(row=4, column=4)\n    \n>       target = _cell(game, 4, 4)\n                 ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_014.py:124: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\ngame = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=4, remaining_mines=4, created_at='2024-01-01...laced=0, elapsed_seconds=0, started_at='2024-01-01T10:00:05Z', ended_at=None, struck_cell_id=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(game, row, column):\n>       return game.cells[row * game.width + column]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       IndexError: list index out of range\n\ntests\\unit\\test_spec_014.py:21: IndexError\n_______ test_counts_computed_on_first_open_match_mines_among_neighbours _______\n\n    def test_counts_computed_on_first_open_match_mines_among_neighbours():\n        # Dense custom board (64 mines on 9x9, the maximum) so that interior counts\n        # span a wide range; repeated because the layout is random.\n        for attempt in range(20):\n            game = _new_game(width=9, height=9, mine_count=64)\n    \n            game.open_cell(row=4, column=4)\n    \n            # First open is safe; mines are laid and the game is Playing (or Won if\n            # the cascade happened to open every safe cell, never Lost).\n>           assert game.status in (\"Playing\", \"Won\")\nE           AssertionError: assert 'Ready' in ('Playing', 'Won')\nE            +  where 'Ready' = Game(id='game-1', difficulty_id='custom', width=9, height=9, mine_count=64, remaining_mines=64, created_at='2024-01-01...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).status\n\ntests\\unit\\test_spec_014.py:143: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4n2ozbl2\\.pytest_report_5fc823ceabfb4a818fca47bc7bbc8aa0.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_014.py::test_interior_cell_with_all_eight_neighbours_mined_shows_eight\nFAILED tests/unit/test_spec_014.py::test_interior_cell_with_mines_only_just_beyond_its_neighbours_shows_zero\nFAILED tests/unit/test_spec_014.py::test_interior_cell_with_three_mined_neighbours_shows_three\nFAILED tests/unit/test_spec_014.py::test_counts_computed_on_first_open_match_mines_among_neighbours\n============================== 4 failed in 2.28s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656607.531141,
+      "duration": 1.508678913116455,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4n2ozbl2",
+      "environment": {},
+      "summary": {
+        "failed": 4,
+        "total": 4,
+        "collected": 4
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_014.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_014.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_014.py::test_interior_cell_with_all_eight_neighbours_mined_shows_eight",
+              "type": "Function",
+              "lineno": 75
+            },
+            {
+              "nodeid": "tests/unit/test_spec_014.py::test_interior_cell_with_mines_only_just_beyond_its_neighbours_shows_zero",
+              "type": "Function",
+              "lineno": 93
+            },
+            {
+              "nodeid": "tests/unit/test_spec_014.py::test_interior_cell_with_three_mined_neighbours_shows_three",
+              "type": "Function",
+              "lineno": 116
+            },
+            {
+              "nodeid": "tests/unit/test_spec_014.py::test_counts_computed_on_first_open_match_mines_among_neighbours",
+              "type": "Function",
+              "lineno": 132
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_014.py::test_interior_cell_with_all_eight_neighbours_mined_shows_eight",
+          "lineno": 75,
+          "outcome": "failed",
+          "keywords": [
+            "test_interior_cell_with_all_eight_neighbours_mined_shows_eight",
+            "test_spec_014.py",
+            "unit",
+            "tests",
+            "hollow_4n2ozbl2",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005373999883886427,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00043590000132098794,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4n2ozbl2\\tests\\unit\\test_spec_014.py",
+              "lineno": 21,
+              "message": "IndexError: list index out of range"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_014.py",
+                "lineno": 84,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_014.py",
+                "lineno": 21,
+                "message": "IndexError"
+              }
+            ],
+            "longrepr": "def test_interior_cell_with_all_eight_neighbours_mined_shows_eight():\n        game = _new_game()\n        # Mines on all 8 neighbours of (4,4) and also on the 16 cells just beyond\n        # them (distance 2): 24 mines on a 9x9 board.\n        _arrange_playing(game, _ring_at_distance_one(4, 4) + _ring_at_distance_two(4, 4))\n    \n        game.open_cell(row=4, column=4)\n    \n>       target = _cell(game, 4, 4)\n                 ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_014.py:84: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\ngame = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=24, remaining_mines=24, created_at='2024-01-...laced=0, elapsed_seconds=0, started_at='2024-01-01T10:00:05Z', ended_at=None, struck_cell_id=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(game, row, column):\n>       return game.cells[row * game.width + column]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       IndexError: list index out of range\n\ntests\\unit\\test_spec_014.py:21: IndexError"
+          },
+          "teardown": {
+            "duration": 0.0005768000119132921,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_014.py::test_interior_cell_with_mines_only_just_beyond_its_neighbours_shows_zero",
+          "lineno": 93,
+          "outcome": "failed",
+          "keywords": [
+            "test_interior_cell_with_mines_only_just_beyond_its_neighbours_shows_zero",
+            "test_spec_014.py",
+            "unit",
+            "tests",
+            "hollow_4n2ozbl2",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004933000018354505,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000901099992915988,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4n2ozbl2\\tests\\unit\\test_spec_014.py",
+              "lineno": 21,
+              "message": "IndexError: list index out of range"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_014.py",
+                "lineno": 102,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_014.py",
+                "lineno": 21,
+                "message": "IndexError"
+              }
+            ],
+            "longrepr": "def test_interior_cell_with_mines_only_just_beyond_its_neighbours_shows_zero():\n        game = _new_game()\n        # Mines only on the 16 cells at distance 2 from (4,4); none of its\n        # 8 neighbours holds a mine.\n        _arrange_playing(game, _ring_at_distance_two(4, 4))\n    \n        game.open_cell(row=4, column=4)\n    \n>       target = _cell(game, 4, 4)\n                 ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_014.py:102: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\ngame = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=16, remaining_mines=16, created_at='2024-01-...laced=0, elapsed_seconds=0, started_at='2024-01-01T10:00:05Z', ended_at=None, struck_cell_id=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(game, row, column):\n>       return game.cells[row * game.width + column]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       IndexError: list index out of range\n\ntests\\unit\\test_spec_014.py:21: IndexError"
+          },
+          "teardown": {
+            "duration": 0.0004493000014917925,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_014.py::test_interior_cell_with_three_mined_neighbours_shows_three",
+          "lineno": 116,
+          "outcome": "failed",
+          "keywords": [
+            "test_interior_cell_with_three_mined_neighbours_shows_three",
+            "test_spec_014.py",
+            "unit",
+            "tests",
+            "hollow_4n2ozbl2",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00039169999945443124,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00036720000207424164,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4n2ozbl2\\tests\\unit\\test_spec_014.py",
+              "lineno": 21,
+              "message": "IndexError: list index out of range"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_014.py",
+                "lineno": 124,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_014.py",
+                "lineno": 21,
+                "message": "IndexError"
+              }
+            ],
+            "longrepr": "def test_interior_cell_with_three_mined_neighbours_shows_three():\n        game = _new_game()\n        # Three of (4,4)'s neighbours hold mines; one more mine far away at (0,8).\n        _arrange_playing(game, [(3, 3), (3, 5), (5, 4), (0, 8)])\n    \n        game.open_cell(row=4, column=4)\n    \n>       target = _cell(game, 4, 4)\n                 ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_014.py:124: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\ngame = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=4, remaining_mines=4, created_at='2024-01-01...laced=0, elapsed_seconds=0, started_at='2024-01-01T10:00:05Z', ended_at=None, struck_cell_id=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(game, row, column):\n>       return game.cells[row * game.width + column]\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       IndexError: list index out of range\n\ntests\\unit\\test_spec_014.py:21: IndexError"
+          },
+          "teardown": {
+            "duration": 0.0004226000019116327,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_014.py::test_counts_computed_on_first_open_match_mines_among_neighbours",
+          "lineno": 132,
+          "outcome": "failed",
+          "keywords": [
+            "test_counts_computed_on_first_open_match_mines_among_neighbours",
+            "test_spec_014.py",
+            "unit",
+            "tests",
+            "hollow_4n2ozbl2",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004278999986127019,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006280999950831756,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4n2ozbl2\\tests\\unit\\test_spec_014.py",
+              "lineno": 143,
+              "message": "AssertionError: assert 'Ready' in ('Playing', 'Won')\n +  where 'Ready' = Game(id='game-1', difficulty_id='custom', width=9, height=9, mine_count=64, remaining_mines=64, created_at='2024-01-01...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).status"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_014.py",
+                "lineno": 143,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_counts_computed_on_first_open_match_mines_among_neighbours():\n        # Dense custom board (64 mines on 9x9, the maximum) so that interior counts\n        # span a wide range; repeated because the layout is random.\n        for attempt in range(20):\n            game = _new_game(width=9, height=9, mine_count=64)\n    \n            game.open_cell(row=4, column=4)\n    \n            # First open is safe; mines are laid and the game is Playing (or Won if\n            # the cascade happened to open every safe cell, never Lost).\n>           assert game.status in (\"Playing\", \"Won\")\nE           AssertionError: assert 'Ready' in ('Playing', 'Won')\nE            +  where 'Ready' = Game(id='game-1', difficulty_id='custom', width=9, height=9, mine_count=64, remaining_mines=64, created_at='2024-01-01...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).status\n\ntests\\unit\\test_spec_014.py:143: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00040669999725650996,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 6.043
+}

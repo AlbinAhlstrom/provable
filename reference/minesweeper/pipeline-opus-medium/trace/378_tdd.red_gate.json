@@ -1,0 +1,152 @@
+{
+  "seq": 378,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:31",
+  "t_offset_s": 402.737,
+  "thread": "red_15",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656611.281314,
+        "duration": 0.6581392288208008,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_027.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_027.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_027.py::test_tick_reaches_exactly_999_from_998",
+                "type": "Function",
+                "lineno": 69
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_027.py::test_tick_beyond_999_stays_at_999",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_027.py::test_repeated_ticks_at_999_never_exceed_cap",
+                "type": "Function",
+                "lineno": 99
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_027.py::test_tick_reaches_exactly_999_from_998",
+            "lineno": 69,
+            "outcome": "passed",
+            "keywords": [
+              "test_tick_reaches_exactly_999_from_998",
+              "test_spec_027.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007945999968796968,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013017000019317493,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00035849999403581023,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_027.py::test_tick_beyond_999_stays_at_999",
+            "lineno": 84,
+            "outcome": "passed",
+            "keywords": [
+              "test_tick_beyond_999_stays_at_999",
+              "test_spec_027.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008071000047493726,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.007268599991220981,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004259999986970797,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_027.py::test_repeated_ticks_at_999_never_exceed_cap",
+            "lineno": 99,
+            "outcome": "passed",
+            "keywords": [
+              "test_repeated_ticks_at_999_never_exceed_cap",
+              "test_spec_027.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007048999977996573,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008600000001024455,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004824999923584983,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

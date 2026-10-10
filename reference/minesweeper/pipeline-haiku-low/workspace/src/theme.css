@@ -1,0 +1,19 @@
+:root {
+  --draft-bg: #d4d4d4;
+  --draft-surface: #e5e5e5;
+  --draft-text: #171717;
+  --draft-accent: #b91c1c;
+  --draft-on-accent: #ffffff;
+  --draft-heading-font: inherit;
+}
+.draft-shape {
+  margin: 1.5rem auto 0;
+  height: calc(3 * 5rem);
+  border-radius: 0.5rem;
+  background-color: color-mix(in srgb, var(--draft-text) 9%, var(--draft-surface));
+  background-image: linear-gradient(to right, var(--draft-bg) 4px, transparent 4px),
+                    linear-gradient(to bottom, var(--draft-bg) 4px, transparent 4px);
+  background-size: calc(100% / 1) calc(100% / 3);
+  animation: draft-shape-wait 1.8s ease-in-out infinite;
+}
+@keyframes draft-shape-wait { 50% { opacity: 0.55; } }

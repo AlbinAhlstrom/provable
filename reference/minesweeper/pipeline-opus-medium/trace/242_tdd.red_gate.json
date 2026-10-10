@@ -1,0 +1,229 @@
+{
+  "seq": 242,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:20",
+  "t_offset_s": 391.796,
+  "thread": "red_9",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656600.2560115,
+        "duration": 0.7018342018127441,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 5,
+          "total": 5,
+          "collected": 5
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[0-0]",
+                "type": "Function",
+                "lineno": 56
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[4-4]",
+                "type": "Function",
+                "lineno": 56
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[0-5]",
+                "type": "Function",
+                "lineno": 56
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[8-8]",
+                "type": "Function",
+                "lineno": 56
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[6-0]",
+                "type": "Function",
+                "lineno": 56
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[0-0]",
+            "lineno": 56,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_opened_cell_never_holds_a_mine[0-0]",
+              "parametrize",
+              "pytestmark",
+              "0-0",
+              "test_spec_011.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007842000050004572,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.012616399995749816,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00037009999505244195,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[4-4]",
+            "lineno": 56,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_opened_cell_never_holds_a_mine[4-4]",
+              "parametrize",
+              "pytestmark",
+              "4-4",
+              "test_spec_011.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007905999955255538,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.013136299996403977,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00036920000275131315,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[0-5]",
+            "lineno": 56,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_opened_cell_never_holds_a_mine[0-5]",
+              "parametrize",
+              "pytestmark",
+              "0-5",
+              "test_spec_011.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006734999915352091,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.013521200002287515,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003902000025846064,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[8-8]",
+            "lineno": 56,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_opened_cell_never_holds_a_mine[8-8]",
+              "parametrize",
+              "pytestmark",
+              "8-8",
+              "test_spec_011.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006772999913664535,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.013562499996623956,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00043729999742936343,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[6-0]",
+            "lineno": 56,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_opened_cell_never_holds_a_mine[6-0]",
+              "parametrize",
+              "pytestmark",
+              "6-0",
+              "test_spec_011.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006640000065090135,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.01745200000004843,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00045059999683871865,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

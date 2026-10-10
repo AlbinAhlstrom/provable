@@ -1,0 +1,221 @@
+{
+  "seq": 416,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:34",
+  "t_offset_s": 405.242,
+  "thread": "red_22",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ld186_9a\\tests\\unit\\test_spec_034.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ld186_9a"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ld186_9a\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 4 items\n\ntests\\unit\\test_spec_034.py FF..                                         [100%]\n\n================================== FAILURES ===================================\n_________ test_win_just_faster_than_stored_best_replaces_it[beginner] _________\n\ndifficulty_id = 'beginner'\n\n    @pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\n    def test_win_just_faster_than_stored_best_replaces_it(difficulty_id):\n        best = _stored_best(difficulty_id)\n    \n        best.record_win(\n            game_id=NEW_GAME_ID,\n            difficulty_id=difficulty_id,\n            elapsed_seconds=STORED_BEST - 1,\n            achieved_at=NEW_ACHIEVED_AT,\n        )\n    \n        # The record's difficulty is standard (beginner or expert), so the\n        # custom-difficulty rule does not apply. The win has the same difficulty_id\n        # as the record, and the game was won, so the lost/abandoned rule does not\n        # apply. Elapsed is 99 and the stored best is 100. Since 99 < 100, the\n        # \"slower or equal keeps best\" rule does not apply. So the best time\n        # becomes 99.\n>       assert best.best_seconds == STORED_BEST - 1\nE       AssertionError: assert 100 == (100 - 1)\nE        +  where 100 = BestTime(id='best-1', difficulty_id='beginner', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00+00:00', events=[]).best_seconds\n\ntests\\unit\\test_spec_034.py:40: AssertionError\n__________ test_win_just_faster_than_stored_best_replaces_it[expert] __________\n\ndifficulty_id = 'expert'\n\n    @pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\n    def test_win_just_faster_than_stored_best_replaces_it(difficulty_id):\n        best = _stored_best(difficulty_id)\n    \n        best.record_win(\n            game_id=NEW_GAME_ID,\n            difficulty_id=difficulty_id,\n            elapsed_seconds=STORED_BEST - 1,\n            achieved_at=NEW_ACHIEVED_AT,\n        )\n    \n        # The record's difficulty is standard (beginner or expert), so the\n        # custom-difficulty rule does not apply. The win has the same difficulty_id\n        # as the record, and the game was won, so the lost/abandoned rule does not\n        # apply. Elapsed is 99 and the stored best is 100. Since 99 < 100, the\n        # \"slower or equal keeps best\" rule does not apply. So the best time\n        # becomes 99.\n>       assert best.best_seconds == STORED_BEST - 1\nE       AssertionError: assert 100 == (100 - 1)\nE        +  where 100 = BestTime(id='best-1', difficulty_id='expert', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00+00:00', events=[]).best_seconds\n\ntests\\unit\\test_spec_034.py:40: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ld186_9a\\.pytest_report_3cced28ef3354b099de23231f9d071d8.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[beginner]\nFAILED tests/unit/test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[expert]\n========================= 2 failed, 2 passed in 1.32s =========================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656618.787324,
+      "duration": 0.8769173622131348,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ld186_9a",
+      "environment": {},
+      "summary": {
+        "failed": 2,
+        "passed": 2,
+        "total": 4,
+        "collected": 4
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_034.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_034.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[beginner]",
+              "type": "Function",
+              "lineno": 22
+            },
+            {
+              "nodeid": "tests/unit/test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[expert]",
+              "type": "Function",
+              "lineno": 22
+            },
+            {
+              "nodeid": "tests/unit/test_spec_034.py::test_win_exactly_equal_to_stored_best_does_not_replace_it[beginner]",
+              "type": "Function",
+              "lineno": 48
+            },
+            {
+              "nodeid": "tests/unit/test_spec_034.py::test_win_exactly_equal_to_stored_best_does_not_replace_it[expert]",
+              "type": "Function",
+              "lineno": 48
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[beginner]",
+          "lineno": 22,
+          "outcome": "failed",
+          "keywords": [
+            "test_win_just_faster_than_stored_best_replaces_it[beginner]",
+            "parametrize",
+            "pytestmark",
+            "beginner",
+            "test_spec_034.py",
+            "unit",
+            "tests",
+            "hollow_ld186_9a",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007160999957704917,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001058299996657297,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ld186_9a\\tests\\unit\\test_spec_034.py",
+              "lineno": 40,
+              "message": "AssertionError: assert 100 == (100 - 1)\n +  where 100 = BestTime(id='best-1', difficulty_id='beginner', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00+00:00', events=[]).best_seconds"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_034.py",
+                "lineno": 40,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "difficulty_id = 'beginner'\n\n    @pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\n    def test_win_just_faster_than_stored_best_replaces_it(difficulty_id):\n        best = _stored_best(difficulty_id)\n    \n        best.record_win(\n            game_id=NEW_GAME_ID,\n            difficulty_id=difficulty_id,\n            elapsed_seconds=STORED_BEST - 1,\n            achieved_at=NEW_ACHIEVED_AT,\n        )\n    \n        # The record's difficulty is standard (beginner or expert), so the\n        # custom-difficulty rule does not apply. The win has the same difficulty_id\n        # as the record, and the game was won, so the lost/abandoned rule does not\n        # apply. Elapsed is 99 and the stored best is 100. Since 99 < 100, the\n        # \"slower or equal keeps best\" rule does not apply. So the best time\n        # becomes 99.\n>       assert best.best_seconds == STORED_BEST - 1\nE       AssertionError: assert 100 == (100 - 1)\nE        +  where 100 = BestTime(id='best-1', difficulty_id='beginner', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00+00:00', events=[]).best_seconds\n\ntests\\unit\\test_spec_034.py:40: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0009565000073052943,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[expert]",
+          "lineno": 22,
+          "outcome": "failed",
+          "keywords": [
+            "test_win_just_faster_than_stored_best_replaces_it[expert]",
+            "parametrize",
+            "pytestmark",
+            "expert",
+            "test_spec_034.py",
+            "unit",
+            "tests",
+            "hollow_ld186_9a",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0010206000006292015,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008866999996826053,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ld186_9a\\tests\\unit\\test_spec_034.py",
+              "lineno": 40,
+              "message": "AssertionError: assert 100 == (100 - 1)\n +  where 100 = BestTime(id='best-1', difficulty_id='expert', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00+00:00', events=[]).best_seconds"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_034.py",
+                "lineno": 40,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "difficulty_id = 'expert'\n\n    @pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\n    def test_win_just_faster_than_stored_best_replaces_it(difficulty_id):\n        best = _stored_best(difficulty_id)\n    \n        best.record_win(\n            game_id=NEW_GAME_ID,\n            difficulty_id=difficulty_id,\n            elapsed_seconds=STORED_BEST - 1,\n            achieved_at=NEW_ACHIEVED_AT,\n        )\n    \n        # The record's difficulty is standard (beginner or expert), so the\n        # custom-difficulty rule does not apply. The win has the same difficulty_id\n        # as the record, and the game was won, so the lost/abandoned rule does not\n        # apply. Elapsed is 99 and the stored best is 100. Since 99 < 100, the\n        # \"slower or equal keeps best\" rule does not apply. So the best time\n        # becomes 99.\n>       assert best.best_seconds == STORED_BEST - 1\nE       AssertionError: assert 100 == (100 - 1)\nE        +  where 100 = BestTime(id='best-1', difficulty_id='expert', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00+00:00', events=[]).best_seconds\n\ntests\\unit\\test_spec_034.py:40: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0006297999934758991,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_034.py::test_win_exactly_equal_to_stored_best_does_not_replace_it[beginner]",
+          "lineno": 48,
+          "outcome": "passed",
+          "keywords": [
+            "test_win_exactly_equal_to_stored_best_does_not_replace_it[beginner]",
+            "parametrize",
+            "pytestmark",
+            "beginner",
+            "test_spec_034.py",
+            "unit",
+            "tests",
+            "hollow_ld186_9a",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0011304999934509397,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0013935000024503097,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0006745999999111518,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_034.py::test_win_exactly_equal_to_stored_best_does_not_replace_it[expert]",
+          "lineno": 48,
+          "outcome": "passed",
+          "keywords": [
+            "test_win_exactly_equal_to_stored_best_does_not_replace_it[expert]",
+            "parametrize",
+            "pytestmark",
+            "expert",
+            "test_spec_034.py",
+            "unit",
+            "tests",
+            "hollow_ld186_9a",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0026837000041268766,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.004121400008443743,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0018095999985234812,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.364
+}

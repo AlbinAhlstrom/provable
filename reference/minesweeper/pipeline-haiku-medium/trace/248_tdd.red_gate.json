@@ -1,0 +1,103 @@
+{
+  "seq": 248,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:14",
+  "t_offset_s": 194.903,
+  "thread": "red_23",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652453.564182,
+        "duration": 1.2546279430389404,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_025.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_025.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_025.py::test_loss_exposes_every_mine_when_board_is_finalised",
+                "type": "Function",
+                "lineno": 34
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_025.py::test_loss_exposes_every_mine_when_board_is_finalised",
+            "lineno": 34,
+            "outcome": "failed",
+            "keywords": [
+              "test_loss_exposes_every_mine_when_board_is_finalised",
+              "test_spec_025.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006710999878123403,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00046710000606253743,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_025.py",
+                "lineno": 43,
+                "message": "AttributeError: 'GameSession' object has no attribute 'finalise_board'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_025.py",
+                  "lineno": 43,
+                  "message": "in test_loss_exposes_every_mine_when_board_is_finalised"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_025.py:43: in test_loss_exposes_every_mine_when_board_is_finalised\n    session.finalise_board()\n    ^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'finalise_board'"
+            },
+            "teardown": {
+              "duration": 0.0006341999978758395,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,21 @@
+{
+  "id": "20261010-192718_page_run",
+  "kind": "page",
+  "label": "",
+  "started_at": "2026-10-10 19:27:18",
+  "git": {
+    "commit": "010d77f4d4dd11134d7a20d6309c3c9286bc5409",
+    "branch": "claude/pipeline-speed-gates-observability",
+    "dirty": false,
+    "dirty_files": []
+  },
+  "llm": {
+    "model": "claude-haiku-5-5",
+    "provider": "anthropic",
+    "stage_model_overrides": {},
+    "reasoning_effort": "low",
+    "base_url_host": "api.anthropic.com"
+  },
+  "python": "3.11.9",
+  "workspace_dir": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+}

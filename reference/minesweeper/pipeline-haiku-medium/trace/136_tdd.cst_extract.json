@@ -1,0 +1,23 @@
+{
+  "seq": 136,
+  "step": "tdd.cst_extract",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:08",
+  "t_offset_s": 189.283,
+  "thread": "red_2",
+  "input": {
+    "args": [
+      "\"\"\"\nDomain Model: Difficulty (Aggregate Root)\nSingle Responsibility Principle (SRP) compliant domain model.\n\"\"\"\n\nfrom __future__ import annotations\nimport math\nfrom dataclasses import dataclass, field\nfrom datetime import datetime, date, timezone, timedelta\nfrom typing import Optional, List, Dict, Any, Union, Set, Tuple, Callable\n\n\ntry:\n    from src.domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n    from src.domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\nexcept ImportError:\n    try:\n        from domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n        from domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\n    except ImportError:\n        pass\n\n\n@dataclass\nclass Difficulty:\n    \"\"\"Difficulty.\"\"\"\n    id: str\n    name: str\n    rows: int\n    columns: int\n    mine_count: int\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n",
+      "Difficulty"
+    ],
+    "kwargs": {}
+  },
+  "output": "\n\n@dataclass\nclass Difficulty:\n    \"\"\"Difficulty.\"\"\"\n    id: str\n    name: str\n    rows: int\n    columns: int\n    mine_count: int\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n",
+  "duration_s": 0.004
+}

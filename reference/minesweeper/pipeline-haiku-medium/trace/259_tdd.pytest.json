@@ -1,0 +1,149 @@
+{
+  "seq": 259,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:16",
+  "t_offset_s": 197.245,
+  "thread": "red_3",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_033.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 2 items\n\ntests\\unit\\test_spec_033.py::test_flagged_cell_reveal_is_refused_and_cell_stays_flagged FAILED [ 50%]\ntests\\unit\\test_spec_033.py::test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed FAILED [100%]\n\n================================== FAILURES ===================================\n_________ test_flagged_cell_reveal_is_refused_and_cell_stays_flagged __________\ntests\\unit\\test_spec_033.py:71: in test_flagged_cell_reveal_is_refused_and_cell_stays_flagged\n    with pytest.raises(Exception) as exc_info:\n         ^^^^^^\nE   NameError: name 'pytest' is not defined\n______ test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed ______\ntests\\unit\\test_spec_033.py:92: in test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed\n    with pytest.raises(Exception) as exc_info:\n         ^^^^^^\nE   NameError: name 'pytest' is not defined\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_99b2b0a57cfa4333b80198b8de8b35ae.json\n=========================== short test summary info ===========================\nFAILED tests\\unit\\test_spec_033.py::test_flagged_cell_reveal_is_refused_and_cell_stays_flagged\nFAILED tests\\unit\\test_spec_033.py::test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed\n============================== 2 failed in 0.47s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652459.0470278,
+      "duration": 0.4697229862213135,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "failed": 2,
+        "total": 2,
+        "collected": 2
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_033.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_033.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_033.py::test_flagged_cell_reveal_is_refused_and_cell_stays_flagged",
+              "type": "Function",
+              "lineno": 62
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_033.py::test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed",
+              "type": "Function",
+              "lineno": 83
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_033.py::test_flagged_cell_reveal_is_refused_and_cell_stays_flagged",
+          "lineno": 62,
+          "outcome": "failed",
+          "keywords": [
+            "test_flagged_cell_reveal_is_refused_and_cell_stays_flagged",
+            "test_spec_033.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005662000039592385,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007254999945871532,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_033.py",
+              "lineno": 71,
+              "message": "NameError: name 'pytest' is not defined"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_033.py",
+                "lineno": 71,
+                "message": "in test_flagged_cell_reveal_is_refused_and_cell_stays_flagged"
+              }
+            ],
+            "longrepr": "tests\\unit\\test_spec_033.py:71: in test_flagged_cell_reveal_is_refused_and_cell_stays_flagged\n    with pytest.raises(Exception) as exc_info:\n         ^^^^^^\nE   NameError: name 'pytest' is not defined"
+          },
+          "teardown": {
+            "duration": 0.00025689999165479094,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_033.py::test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed",
+          "lineno": 83,
+          "outcome": "failed",
+          "keywords": [
+            "test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed",
+            "test_spec_033.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002466000005370006,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004290000069886446,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_033.py",
+              "lineno": 92,
+              "message": "NameError: name 'pytest' is not defined"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_033.py",
+                "lineno": 92,
+                "message": "in test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed"
+              }
+            ],
+            "longrepr": "tests\\unit\\test_spec_033.py:92: in test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed\n    with pytest.raises(Exception) as exc_info:\n         ^^^^^^\nE   NameError: name 'pytest' is not defined"
+          },
+          "teardown": {
+            "duration": 0.0005449000018415973,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 2.955
+}

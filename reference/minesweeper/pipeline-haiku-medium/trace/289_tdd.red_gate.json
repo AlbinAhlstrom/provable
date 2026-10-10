@@ -1,0 +1,103 @@
+{
+  "seq": 289,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:18",
+  "t_offset_s": 199.164,
+  "thread": "red_21",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652457.3225653,
+        "duration": 1.1571071147918701,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_62ytz9wr",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_023.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_023.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_023.py::test_revealing_last_hidden_safe_cell_wins_game",
+                "type": "Function",
+                "lineno": 39
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_023.py::test_revealing_last_hidden_safe_cell_wins_game",
+            "lineno": 39,
+            "outcome": "failed",
+            "keywords": [
+              "test_revealing_last_hidden_safe_cell_wins_game",
+              "test_spec_023.py",
+              "unit",
+              "tests",
+              "hollow_62ytz9wr",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005994999955873936,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006791999912820756,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_62ytz9wr\\tests\\unit\\test_spec_023.py",
+                "lineno": 47,
+                "message": "AssertionError: assert 'in_progress' == 'won'\n  \n  - won\n  + in_progress"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_023.py",
+                  "lineno": 47,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_revealing_last_hidden_safe_cell_wins_game():\n        session = build_session_one_safe_cell_left()\n    \n        session.reveal_cell(row=1, column=0)\n    \n        # Only safe cell (1, 0) was hidden; revealing it leaves no safe cell hidden,\n        # so the game is won. Its count is 1 and it is not zero, so no spread occurs.\n>       assert session.status == \"won\"\nE       AssertionError: assert 'in_progress' == 'won'\nE         \nE         - won\nE         + in_progress\n\ntests\\unit\\test_spec_023.py:47: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00043059999006800354,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

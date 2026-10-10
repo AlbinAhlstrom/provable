@@ -1,0 +1,205 @@
+{
+  "seq": 447,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:39",
+  "t_offset_s": 410.044,
+  "thread": "red_17",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656618.1934996,
+        "duration": 1.0914080142974854,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_31lozwm3",
+        "environment": {},
+        "summary": {
+          "failed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_044.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_044.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_044.py::test_smiley_on_finished_game_keeps_outcome_and_creates_new_ready_game[Won]",
+                "type": "Function",
+                "lineno": 118
+              },
+              {
+                "nodeid": "tests/unit/test_spec_044.py::test_smiley_on_finished_game_keeps_outcome_and_creates_new_ready_game[Lost]",
+                "type": "Function",
+                "lineno": 118
+              },
+              {
+                "nodeid": "tests/unit/test_spec_044.py::test_smiley_on_playing_game_abandons_it_unlike_finished_game",
+                "type": "Function",
+                "lineno": 147
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_044.py::test_smiley_on_finished_game_keeps_outcome_and_creates_new_ready_game[Won]",
+            "lineno": 118,
+            "outcome": "failed",
+            "keywords": [
+              "test_smiley_on_finished_game_keeps_outcome_and_creates_new_ready_game[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_044.py",
+              "unit",
+              "tests",
+              "hollow_31lozwm3",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008602000016253442,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001700000007986091,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_31lozwm3\\tests\\unit\\test_spec_044.py",
+                "lineno": 93,
+                "message": "assert False\n +  where False = isinstance(None, Game)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_044.py",
+                  "lineno": 145,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_044.py",
+                  "lineno": 93,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "finished_status = 'Won'\n\n    @pytest.mark.parametrize(\"finished_status\", [\"Won\", \"Lost\"])\n    def test_smiley_on_finished_game_keeps_outcome_and_creates_new_ready_game(finished_status):\n        game = _make_game(finished_status)\n        cells_before = copy.deepcopy(game.cells)\n    \n        new_game = game.restart_game()\n    \n        # Won/Lost is final: restart keeps the outcome (Won/Lost -> Abandoned is not allowed).\n        assert game.status == finished_status\n        # The finished game's end time, timer, counters and struck cell are untouched.\n        assert game.ended_at == \"2024-01-01T10:00:47Z\"\n        assert game.elapsed_seconds == 42\n        assert game.started_at == \"2024-01-01T10:00:05Z\"\n        if finished_status == \"Won\":\n            assert game.flags_placed == 10\n            assert game.remaining_mines == 0\n            assert game.struck_cell_id is None\n        else:\n            assert game.flags_placed == 0\n            assert game.remaining_mines == 10\n            assert game.struck_cell_id == \"0-0\"\n        # The finished board is not altered in any cell.\n        assert game.cells == cells_before\n        assert game.id == \"game-1\"\n    \n        # A brand-new Ready game of the same difficulty is returned.\n>       _assert_fresh_ready_game(new_game, game)\n\ntests\\unit\\test_spec_044.py:145: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nnew_game = None\nold_game = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=0, created_at='2024-01-0...ed'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Opened'}], events=[])\n\n    def _assert_fresh_ready_game(new_game, old_game):\n>       assert isinstance(new_game, Game)\nE       assert False\nE        +  where False = isinstance(None, Game)\n\ntests\\unit\\test_spec_044.py:93: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006162000063341111,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_044.py::test_smiley_on_finished_game_keeps_outcome_and_creates_new_ready_game[Lost]",
+            "lineno": 118,
+            "outcome": "failed",
+            "keywords": [
+              "test_smiley_on_finished_game_keeps_outcome_and_creates_new_ready_game[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_044.py",
+              "unit",
+              "tests",
+              "hollow_31lozwm3",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007464000082109123,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0014709000097354874,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_31lozwm3\\tests\\unit\\test_spec_044.py",
+                "lineno": 93,
+                "message": "assert False\n +  where False = isinstance(None, Game)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_044.py",
+                  "lineno": 145,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_044.py",
+                  "lineno": 93,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "finished_status = 'Lost'\n\n    @pytest.mark.parametrize(\"finished_status\", [\"Won\", \"Lost\"])\n    def test_smiley_on_finished_game_keeps_outcome_and_creates_new_ready_game(finished_status):\n        game = _make_game(finished_status)\n        cells_before = copy.deepcopy(game.cells)\n    \n        new_game = game.restart_game()\n    \n        # Won/Lost is final: restart keeps the outcome (Won/Lost -> Abandoned is not allowed).\n        assert game.status == finished_status\n        # The finished game's end time, timer, counters and struck cell are untouched.\n        assert game.ended_at == \"2024-01-01T10:00:47Z\"\n        assert game.elapsed_seconds == 42\n        assert game.started_at == \"2024-01-01T10:00:05Z\"\n        if finished_status == \"Won\":\n            assert game.flags_placed == 10\n            assert game.remaining_mines == 0\n            assert game.struck_cell_id is None\n        else:\n            assert game.flags_placed == 0\n            assert game.remaining_mines == 10\n            assert game.struck_cell_id == \"0-0\"\n        # The finished board is not altered in any cell.\n        assert game.cells == cells_before\n        assert game.id == \"game-1\"\n    \n        # A brand-new Ready game of the same difficulty is returned.\n>       _assert_fresh_ready_game(new_game, game)\n\ntests\\unit\\test_spec_044.py:145: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nnew_game = None\nold_game = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Opened'}], events=[])\n\n    def _assert_fresh_ready_game(new_game, old_game):\n>       assert isinstance(new_game, Game)\nE       assert False\nE        +  where False = isinstance(None, Game)\n\ntests\\unit\\test_spec_044.py:93: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0003949000092688948,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_044.py::test_smiley_on_playing_game_abandons_it_unlike_finished_game",
+            "lineno": 147,
+            "outcome": "failed",
+            "keywords": [
+              "test_smiley_on_playing_game_abandons_it_unlike_finished_game",
+              "test_spec_044.py",
+              "unit",
+              "tests",
+              "hollow_31lozwm3",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003913999971700832,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0024243000079877675,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_31lozwm3\\tests\\unit\\test_spec_044.py",
+                "lineno": 156,
+                "message": "AssertionError: assert 'Playing' == 'Abandoned'\n  \n  - Abandoned\n  + Playing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_044.py",
+                  "lineno": 156,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_smiley_on_playing_game_abandons_it_unlike_finished_game():\n        # Same board shape and history as the finished cases, but the game is still Playing.\n        game = _make_game(\"Playing\")\n        cells_before = copy.deepcopy(game.cells)\n    \n        new_game = game.restart_game()\n    \n        # Playing -> Abandoned is allowed, so a non-finished game does not keep its status.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Playing' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Playing\n\ntests\\unit\\test_spec_044.py:156: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005254000134300441,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.001
+}

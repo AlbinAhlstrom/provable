@@ -1,0 +1,246 @@
+{
+  "seq": 269,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.201,
+  "thread": "red_5",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_pm1be4ro\\tests\\unit\\test_spec_006.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_pm1be4ro"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_pm1be4ro\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 4 items\n\ntests\\unit\\test_spec_006.py FFFF                                         [100%]\n\n================================== FAILURES ===================================\n_________________ test_custom_height_at_limits_is_accepted[9] _________________\n\nheight = 9\n\n    @pytest.mark.parametrize(\"height\", [9, 24])\n    def test_custom_height_at_limits_is_accepted(height):\n        game = _ready_beginner_game()\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=9, height=height, mine_count=10\n        )\n    \n        # Width 9 is within 9-30; mine_count 10 is within 10..(9-1)*(height-1)\n        # (64 for height 9, 184 for height 24); height is exactly at a limit of 9-24,\n        # so the configuration is valid and a new custom game is returned.\n>       assert new_game.difficulty_id == \"custom\"\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'difficulty_id'\n\ntests\\unit\\test_spec_006.py:54: AttributeError\n________________ test_custom_height_at_limits_is_accepted[24] _________________\n\nheight = 24\n\n    @pytest.mark.parametrize(\"height\", [9, 24])\n    def test_custom_height_at_limits_is_accepted(height):\n        game = _ready_beginner_game()\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=9, height=height, mine_count=10\n        )\n    \n        # Width 9 is within 9-30; mine_count 10 is within 10..(9-1)*(height-1)\n        # (64 for height 9, 184 for height 24); height is exactly at a limit of 9-24,\n        # so the configuration is valid and a new custom game is returned.\n>       assert new_game.difficulty_id == \"custom\"\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'difficulty_id'\n\ntests\\unit\\test_spec_006.py:54: AttributeError\n_____________ test_custom_height_just_beyond_limits_is_refused[8] _____________\n\nheight = 8\n\n    @pytest.mark.parametrize(\"height\", [8, 25])\n    def test_custom_height_just_beyond_limits_is_refused(height):\n        game = _ready_beginner_game()\n        before = game.to_dict()\n    \n        # Same width 9 and mine_count 10 as the accepted cases; mine_count 10 stays\n        # within 10..(9-1)*(height-1) (56 for height 8, 192 for height 25), so only\n        # the height (just outside 9-24) makes the configuration invalid.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_006.py:76: Failed\n____________ test_custom_height_just_beyond_limits_is_refused[25] _____________\n\nheight = 25\n\n    @pytest.mark.parametrize(\"height\", [8, 25])\n    def test_custom_height_just_beyond_limits_is_refused(height):\n        game = _ready_beginner_game()\n        before = game.to_dict()\n    \n        # Same width 9 and mine_count 10 as the accepted cases; mine_count 10 stays\n        # within 10..(9-1)*(height-1) (56 for height 8, 192 for height 25), so only\n        # the height (just outside 9-24) makes the configuration invalid.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_006.py:76: Failed\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_pm1be4ro\\.pytest_report_859df51981164fcea7080f27863014f6.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_006.py::test_custom_height_at_limits_is_accepted[9]\nFAILED tests/unit/test_spec_006.py::test_custom_height_at_limits_is_accepted[24]\nFAILED tests/unit/test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[8]\nFAILED tests/unit/test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[25]\n============================== 4 failed in 2.25s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656607.3878,
+      "duration": 1.5000824928283691,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_pm1be4ro",
+      "environment": {},
+      "summary": {
+        "failed": 4,
+        "total": 4,
+        "collected": 4
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_006.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_006.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_006.py::test_custom_height_at_limits_is_accepted[9]",
+              "type": "Function",
+              "lineno": 42
+            },
+            {
+              "nodeid": "tests/unit/test_spec_006.py::test_custom_height_at_limits_is_accepted[24]",
+              "type": "Function",
+              "lineno": 42
+            },
+            {
+              "nodeid": "tests/unit/test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[8]",
+              "type": "Function",
+              "lineno": 67
+            },
+            {
+              "nodeid": "tests/unit/test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[25]",
+              "type": "Function",
+              "lineno": 67
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_006.py::test_custom_height_at_limits_is_accepted[9]",
+          "lineno": 42,
+          "outcome": "failed",
+          "keywords": [
+            "test_custom_height_at_limits_is_accepted[9]",
+            "parametrize",
+            "pytestmark",
+            "9",
+            "test_spec_006.py",
+            "unit",
+            "tests",
+            "hollow_pm1be4ro",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0012709000002359971,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000778000001446344,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_pm1be4ro\\tests\\unit\\test_spec_006.py",
+              "lineno": 54,
+              "message": "AttributeError: 'NoneType' object has no attribute 'difficulty_id'"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_006.py",
+                "lineno": 54,
+                "message": "AttributeError"
+              }
+            ],
+            "longrepr": "height = 9\n\n    @pytest.mark.parametrize(\"height\", [9, 24])\n    def test_custom_height_at_limits_is_accepted(height):\n        game = _ready_beginner_game()\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=9, height=height, mine_count=10\n        )\n    \n        # Width 9 is within 9-30; mine_count 10 is within 10..(9-1)*(height-1)\n        # (64 for height 9, 184 for height 24); height is exactly at a limit of 9-24,\n        # so the configuration is valid and a new custom game is returned.\n>       assert new_game.difficulty_id == \"custom\"\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'difficulty_id'\n\ntests\\unit\\test_spec_006.py:54: AttributeError"
+          },
+          "teardown": {
+            "duration": 0.00046869998914189637,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_006.py::test_custom_height_at_limits_is_accepted[24]",
+          "lineno": 42,
+          "outcome": "failed",
+          "keywords": [
+            "test_custom_height_at_limits_is_accepted[24]",
+            "parametrize",
+            "pytestmark",
+            "24",
+            "test_spec_006.py",
+            "unit",
+            "tests",
+            "hollow_pm1be4ro",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006417999975383282,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005304000078467652,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_pm1be4ro\\tests\\unit\\test_spec_006.py",
+              "lineno": 54,
+              "message": "AttributeError: 'NoneType' object has no attribute 'difficulty_id'"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_006.py",
+                "lineno": 54,
+                "message": "AttributeError"
+              }
+            ],
+            "longrepr": "height = 24\n\n    @pytest.mark.parametrize(\"height\", [9, 24])\n    def test_custom_height_at_limits_is_accepted(height):\n        game = _ready_beginner_game()\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=9, height=height, mine_count=10\n        )\n    \n        # Width 9 is within 9-30; mine_count 10 is within 10..(9-1)*(height-1)\n        # (64 for height 9, 184 for height 24); height is exactly at a limit of 9-24,\n        # so the configuration is valid and a new custom game is returned.\n>       assert new_game.difficulty_id == \"custom\"\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'difficulty_id'\n\ntests\\unit\\test_spec_006.py:54: AttributeError"
+          },
+          "teardown": {
+            "duration": 0.0005638999864459038,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[8]",
+          "lineno": 67,
+          "outcome": "failed",
+          "keywords": [
+            "test_custom_height_just_beyond_limits_is_refused[8]",
+            "parametrize",
+            "pytestmark",
+            "8",
+            "test_spec_006.py",
+            "unit",
+            "tests",
+            "hollow_pm1be4ro",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006935999990673736,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005308999971020967,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_pm1be4ro\\tests\\unit\\test_spec_006.py",
+              "lineno": 76,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_006.py",
+                "lineno": 76,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "height = 8\n\n    @pytest.mark.parametrize(\"height\", [8, 25])\n    def test_custom_height_just_beyond_limits_is_refused(height):\n        game = _ready_beginner_game()\n        before = game.to_dict()\n    \n        # Same width 9 and mine_count 10 as the accepted cases; mine_count 10 stays\n        # within 10..(9-1)*(height-1) (56 for height 8, 192 for height 25), so only\n        # the height (just outside 9-24) makes the configuration invalid.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_006.py:76: Failed"
+          },
+          "teardown": {
+            "duration": 0.0008277999877464026,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[25]",
+          "lineno": 67,
+          "outcome": "failed",
+          "keywords": [
+            "test_custom_height_just_beyond_limits_is_refused[25]",
+            "parametrize",
+            "pytestmark",
+            "25",
+            "test_spec_006.py",
+            "unit",
+            "tests",
+            "hollow_pm1be4ro",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005956000095466152,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005554000090342015,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_pm1be4ro\\tests\\unit\\test_spec_006.py",
+              "lineno": 76,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_006.py",
+                "lineno": 76,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "height = 25\n\n    @pytest.mark.parametrize(\"height\", [8, 25])\n    def test_custom_height_just_beyond_limits_is_refused(height):\n        game = _ready_beginner_game()\n        before = game.to_dict()\n    \n        # Same width 9 and mine_count 10 as the accepted cases; mine_count 10 stays\n        # within 10..(9-1)*(height-1) (56 for height 8, 192 for height 25), so only\n        # the height (just outside 9-24) makes the configuration invalid.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_006.py:76: Failed"
+          },
+          "teardown": {
+            "duration": 0.0005398000066634268,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 6.602
+}

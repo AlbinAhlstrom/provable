@@ -1,0 +1,1050 @@
+{
+  "id": "20261010-191059_kickstart_a-minesweeper-game",
+  "kind": "kickstart",
+  "label": "A minesweeper game",
+  "status": "degraded",
+  "error": null,
+  "finished_at": "2026-10-10 19:15:17",
+  "duration_s": 258.31,
+  "timeline": {
+    "in_stages_s": 257.83,
+    "outside_stages_s": 0.48,
+    "stage_time_sum_s": 462.09
+  },
+  "stages": [
+    {
+      "name": "intent",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:10:59",
+      "t_offset_s": 0.073,
+      "files_changed": [],
+      "duration_s": 2.594
+    },
+    {
+      "name": "expansion",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:11:01",
+      "t_offset_s": 2.668,
+      "files_changed": [],
+      "duration_s": 16.146
+    },
+    {
+      "name": "decomposition",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:11:17",
+      "t_offset_s": 18.814,
+      "files_changed": [],
+      "duration_s": 53.492
+    },
+    {
+      "name": "skeleton",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:12:11",
+      "t_offset_s": 72.307,
+      "files_changed": [
+        {
+          "path": "src/App.tsx",
+          "change": "modified",
+          "lines": 43
+        },
+        {
+          "path": "src/adapters/__init__.py",
+          "change": "added",
+          "lines": 1
+        },
+        {
+          "path": "src/adapters/record_store.py",
+          "change": "added",
+          "lines": 61
+        },
+        {
+          "path": "src/adapters/repository.py",
+          "change": "added",
+          "lines": 78
+        },
+        {
+          "path": "src/api/client.ts",
+          "change": "added",
+          "lines": 78
+        },
+        {
+          "path": "src/app.py",
+          "change": "modified",
+          "lines": 29
+        },
+        {
+          "path": "src/domain/__init__.py",
+          "change": "added",
+          "lines": 1
+        },
+        {
+          "path": "src/domain/difficulty.py",
+          "change": "added",
+          "lines": 37
+        },
+        {
+          "path": "src/domain/events.py",
+          "change": "added",
+          "lines": 37
+        },
+        {
+          "path": "src/domain/exceptions.py",
+          "change": "added",
+          "lines": 32
+        },
+        {
+          "path": "src/domain/game_session.py",
+          "change": "added",
+          "lines": 46
+        },
+        {
+          "path": "src/entrypoints/__init__.py",
+          "change": "added",
+          "lines": 1
+        },
+        {
+          "path": "src/entrypoints/routers/__init__.py",
+          "change": "added",
+          "lines": 1
+        },
+        {
+          "path": "src/entrypoints/routers/difficulty.py",
+          "change": "added",
+          "lines": 152
+        },
+        {
+          "path": "src/entrypoints/routers/game_session.py",
+          "change": "added",
+          "lines": 152
+        },
+        {
+          "path": "src/entrypoints/schemas.py",
+          "change": "added",
+          "lines": 70
+        },
+        {
+          "path": "src/main.tsx",
+          "change": "modified",
+          "lines": 13
+        },
+        {
+          "path": "src/service_layer/__init__.py",
+          "change": "added",
+          "lines": 1
+        },
+        {
+          "path": "src/service_layer/unit_of_work.py",
+          "change": "added",
+          "lines": 40
+        },
+        {
+          "path": "src/theme.css",
+          "change": "added",
+          "lines": 9
+        },
+        {
+          "path": "src/views/DifficultyView.tsx",
+          "change": "added",
+          "lines": 110
+        },
+        {
+          "path": "src/views/GameSessionView.tsx",
+          "change": "added",
+          "lines": 110
+        },
+        {
+          "path": "tests/conftest.py",
+          "change": "added",
+          "lines": 4
+        },
+        {
+          "path": "tests/unit/test_skeleton.py",
+          "change": "added",
+          "lines": 25
+        }
+      ],
+      "duration_s": 0.024
+    },
+    {
+      "name": "persistence",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:12:11",
+      "t_offset_s": 72.448,
+      "files_changed": [],
+      "duration_s": 0.01
+    },
+    {
+      "name": "shell_and_acceptance",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:12:11",
+      "t_offset_s": 72.46,
+      "files_changed": [
+        {
+          "path": "tests/acceptance/test_minesweeper_frontend_acceptance.py",
+          "change": "added",
+          "lines": 40
+        },
+        {
+          "path": "tests/unit/test_minesweeper_acceptance.py",
+          "change": "added",
+          "lines": 638
+        }
+      ],
+      "duration_s": 0.004
+    },
+    {
+      "name": "ux_plan",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "has_visual_direction": true,
+        "draft_theme": {
+          "background": "#c0c0c0",
+          "surface": "#bdbdbd",
+          "text": "#111111",
+          "accent": "#facc15",
+          "on_accent": "#111111",
+          "heading": "sans"
+        },
+        "draft_layout": {
+          "columns": 1,
+          "rows": null
+        }
+      },
+      "started_at": "19:12:11",
+      "t_offset_s": 72.682,
+      "files_changed": [
+        {
+          "path": "src/theme.css",
+          "change": "modified",
+          "lines": 19,
+          "delta": 10
+        }
+      ],
+      "duration_s": 13.858
+    },
+    {
+      "name": "seed_data",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "attempts": 1
+      },
+      "started_at": "19:12:11",
+      "t_offset_s": 72.682,
+      "files_changed": [
+        {
+          "path": "src/seed_data.json",
+          "change": "added",
+          "lines": 25
+        }
+      ],
+      "duration_s": 2.409
+    },
+    {
+      "name": "action_protocol",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "actions": [
+          "start_new_game",
+          "reveal_cell",
+          "toggle_flag",
+          "abandon_game"
+        ]
+      },
+      "started_at": "19:12:11",
+      "t_offset_s": 72.682,
+      "files_changed": [],
+      "duration_s": 22.988
+    },
+    {
+      "name": "spec_review",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "conflicts": 2
+      },
+      "started_at": "19:12:11",
+      "t_offset_s": 72.681,
+      "files_changed": [],
+      "duration_s": 7.862
+    },
+    {
+      "name": "action_behaviour",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "implemented": [
+          "start_new_game",
+          "reveal_cell",
+          "toggle_flag",
+          "abandon_game"
+        ],
+        "runs": [
+          {
+            "aggregate": "GameSession",
+            "spec_id": "SPEC-ACT-GAMESESSION",
+            "status": "FULFILLED",
+            "error": "",
+            "attempts": 1
+          }
+        ]
+      },
+      "started_at": "19:12:34",
+      "t_offset_s": 95.682,
+      "files_changed": [
+        {
+          "path": "src/domain/game_session.py",
+          "change": "modified",
+          "lines": 350,
+          "delta": 304
+        },
+        {
+          "path": "tests/unit/test_spec_act_gamesession.py",
+          "change": "added",
+          "lines": 265
+        }
+      ],
+      "duration_s": 93.637
+    },
+    {
+      "name": "rule_tests",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "written": [
+          "SPEC-001",
+          "SPEC-002",
+          "SPEC-003",
+          "SPEC-004",
+          "SPEC-005",
+          "SPEC-006",
+          "SPEC-007",
+          "SPEC-008",
+          "SPEC-009",
+          "SPEC-010",
+          "SPEC-012",
+          "SPEC-013",
+          "SPEC-014",
+          "SPEC-015",
+          "SPEC-016",
+          "SPEC-017",
+          "SPEC-018",
+          "SPEC-019",
+          "SPEC-020",
+          "SPEC-021",
+          "SPEC-022",
+          "SPEC-023",
+          "SPEC-024",
+          "SPEC-025",
+          "SPEC-027",
+          "SPEC-028",
+          "SPEC-030",
+          "SPEC-031",
+          "SPEC-032",
+          "SPEC-033",
+          "SPEC-034",
+          "SPEC-035",
+          "SPEC-036"
+        ]
+      },
+      "started_at": "19:12:34",
+      "t_offset_s": 95.682,
+      "files_changed": [],
+      "duration_s": 63.551
+    },
+    {
+      "name": "presentation",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "component_lines": {
+          "src/views/GameSessionView.tsx": 205,
+          "src/components/Controls/GameSessionControls.tsx": 44,
+          "src/App.tsx": 122
+        },
+        "omitted": [
+          "history_tsx"
+        ],
+        "removed_scaffold": [
+          "src/api/client.ts",
+          "src/views/DifficultyView.tsx"
+        ]
+      },
+      "started_at": "19:12:34",
+      "t_offset_s": 95.682,
+      "files_changed": [
+        {
+          "path": "src/App.tsx",
+          "change": "modified",
+          "lines": 122,
+          "delta": 79
+        },
+        {
+          "path": "src/api/client.ts",
+          "change": "deleted"
+        },
+        {
+          "path": "src/api/difficultyClient.ts",
+          "change": "added",
+          "lines": 59
+        },
+        {
+          "path": "src/api/game_sessionClient.ts",
+          "change": "added",
+          "lines": 65
+        },
+        {
+          "path": "src/components/Controls/GameSessionControls.tsx",
+          "change": "added",
+          "lines": 44
+        },
+        {
+          "path": "src/main.tsx",
+          "change": "modified",
+          "lines": 13,
+          "delta": 0
+        },
+        {
+          "path": "src/views/DifficultyView.tsx",
+          "change": "deleted"
+        },
+        {
+          "path": "src/views/GameSessionView.tsx",
+          "change": "modified",
+          "lines": 205,
+          "delta": 95
+        }
+      ],
+      "duration_s": 116.573
+    },
+    {
+      "name": "behaviour_specs",
+      "status": "failed",
+      "error": "SPEC-009 (Adjacency count of a safe cell): RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession; SPEC-025 (Loss exposes all mines): RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession; SPEC-030 (Timer stops on win or loss): RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession; SPEC-034 (Mine counter equals mines minus flags): RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession; SPEC-035 (Mine counter may go negative): RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession",
+      "notes": {
+        "rules": {
+          "done": 33,
+          "total": 33,
+          "active": 28,
+          "latest": "Board actions after game end are ignored",
+          "waiting": []
+        },
+        "fulfilled": [
+          "SPEC-001",
+          "SPEC-002",
+          "SPEC-003",
+          "SPEC-004",
+          "SPEC-005",
+          "SPEC-006",
+          "SPEC-007",
+          "SPEC-008",
+          "SPEC-010",
+          "SPEC-012",
+          "SPEC-013",
+          "SPEC-014",
+          "SPEC-015",
+          "SPEC-016",
+          "SPEC-017",
+          "SPEC-018",
+          "SPEC-019",
+          "SPEC-020",
+          "SPEC-021",
+          "SPEC-022",
+          "SPEC-023",
+          "SPEC-024",
+          "SPEC-027",
+          "SPEC-028",
+          "SPEC-031",
+          "SPEC-032",
+          "SPEC-033",
+          "SPEC-036"
+        ],
+        "unfulfilled": [
+          {
+            "spec_id": "SPEC-009",
+            "title": "Adjacency count of a safe cell",
+            "status": "ERROR",
+            "error": "RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession"
+          },
+          {
+            "spec_id": "SPEC-025",
+            "title": "Loss exposes all mines",
+            "status": "ERROR",
+            "error": "RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession"
+          },
+          {
+            "spec_id": "SPEC-030",
+            "title": "Timer stops on win or loss",
+            "status": "ERROR",
+            "error": "RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession"
+          },
+          {
+            "spec_id": "SPEC-034",
+            "title": "Mine counter equals mines minus flags",
+            "status": "ERROR",
+            "error": "RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession"
+          },
+          {
+            "spec_id": "SPEC-035",
+            "title": "Mine counter may go negative",
+            "status": "ERROR",
+            "error": "RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession"
+          }
+        ]
+      },
+      "started_at": "19:14:08",
+      "t_offset_s": 189.324,
+      "files_changed": [
+        {
+          "path": "src/domain/difficulty.py",
+          "change": "modified",
+          "lines": 66,
+          "delta": 29
+        },
+        {
+          "path": "src/domain/game_session.py",
+          "change": "modified",
+          "lines": 350,
+          "delta": 0
+        },
+        {
+          "path": "tests/pending/test_spec_009.py",
+          "change": "added",
+          "lines": 82
+        },
+        {
+          "path": "tests/pending/test_spec_025.py",
+          "change": "added",
+          "lines": 51
+        },
+        {
+          "path": "tests/pending/test_spec_030.py",
+          "change": "added",
+          "lines": 65
+        },
+        {
+          "path": "tests/pending/test_spec_034.py",
+          "change": "added",
+          "lines": 48
+        },
+        {
+          "path": "tests/pending/test_spec_035.py",
+          "change": "added",
+          "lines": 51
+        },
+        {
+          "path": "tests/unit/test_spec_001.py",
+          "change": "added",
+          "lines": 43
+        },
+        {
+          "path": "tests/unit/test_spec_002.py",
+          "change": "added",
+          "lines": 36
+        },
+        {
+          "path": "tests/unit/test_spec_003.py",
+          "change": "added",
+          "lines": 41
+        },
+        {
+          "path": "tests/unit/test_spec_004.py",
+          "change": "added",
+          "lines": 135
+        },
+        {
+          "path": "tests/unit/test_spec_005.py",
+          "change": "added",
+          "lines": 37
+        },
+        {
+          "path": "tests/unit/test_spec_006.py",
+          "change": "added",
+          "lines": 40
+        },
+        {
+          "path": "tests/unit/test_spec_007.py",
+          "change": "added",
+          "lines": 41
+        },
+        {
+          "path": "tests/unit/test_spec_008.py",
+          "change": "added",
+          "lines": 97
+        },
+        {
+          "path": "tests/unit/test_spec_010.py",
+          "change": "added",
+          "lines": 69
+        },
+        {
+          "path": "tests/unit/test_spec_012.py",
+          "change": "added",
+          "lines": 62
+        },
+        {
+          "path": "tests/unit/test_spec_013.py",
+          "change": "added",
+          "lines": 65
+        },
+        {
+          "path": "tests/unit/test_spec_014.py",
+          "change": "added",
+          "lines": 81
+        },
+        {
+          "path": "tests/unit/test_spec_015.py",
+          "change": "added",
+          "lines": 64
+        },
+        {
+          "path": "tests/unit/test_spec_016.py",
+          "change": "added",
+          "lines": 121
+        },
+        {
+          "path": "tests/unit/test_spec_017.py",
+          "change": "added",
+          "lines": 85
+        },
+        {
+          "path": "tests/unit/test_spec_018.py",
+          "change": "added",
+          "lines": 79
+        },
+        {
+          "path": "tests/unit/test_spec_019.py",
+          "change": "added",
+          "lines": 64
+        },
+        {
+          "path": "tests/unit/test_spec_020.py",
+          "change": "added",
+          "lines": 71
+        },
+        {
+          "path": "tests/unit/test_spec_021.py",
+          "change": "added",
+          "lines": 55
+        },
+        {
+          "path": "tests/unit/test_spec_022.py",
+          "change": "added",
+          "lines": 57
+        },
+        {
+          "path": "tests/unit/test_spec_023.py",
+          "change": "added",
+          "lines": 54
+        },
+        {
+          "path": "tests/unit/test_spec_024.py",
+          "change": "added",
+          "lines": 59
+        },
+        {
+          "path": "tests/unit/test_spec_027.py",
+          "change": "added",
+          "lines": 112
+        },
+        {
+          "path": "tests/unit/test_spec_028.py",
+          "change": "added",
+          "lines": 79
+        },
+        {
+          "path": "tests/unit/test_spec_031.py",
+          "change": "added",
+          "lines": 95
+        },
+        {
+          "path": "tests/unit/test_spec_032.py",
+          "change": "added",
+          "lines": 129
+        },
+        {
+          "path": "tests/unit/test_spec_033.py",
+          "change": "added",
+          "lines": 105
+        },
+        {
+          "path": "tests/unit/test_spec_036.py",
+          "change": "added",
+          "lines": 123
+        }
+      ],
+      "duration_s": 43.233
+    },
+    {
+      "name": "page_revisit",
+      "status": "skipped",
+      "error": "the classes hold the fields the page was written for",
+      "notes": {},
+      "started_at": "19:14:31",
+      "t_offset_s": 212.26,
+      "files_changed": [],
+      "duration_s": 0.004
+    },
+    {
+      "name": "qa",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "verdict": "passed",
+        "rework_attempts": 0
+      },
+      "started_at": "19:14:51",
+      "t_offset_s": 232.576,
+      "files_changed": [],
+      "duration_s": 8.444
+    },
+    {
+      "name": "visual_review",
+      "status": "failed",
+      "error": "On desktop the frame is stretched wide by the difficulty row, while the board stays small (cells capped at 2 rem) and sits in the middle. The mine counter and timer are pushed to the far edges, leaving large empty gaps. The main view reads as loose parts, not one compact unit fitted to the frame.: no class change can fix it",
+      "notes": {
+        "verdict": "repaired",
+        "problems": [
+          "On desktop the frame is stretched wide by the difficulty row, while the board stays small (cells capped at 2 rem) and sits in the middle. The mine counter and timer are pushed to the far edges, leaving large empty gaps. The main view reads as loose parts, not one compact unit fitted to the frame.",
+          "The yellow accent is applied to the selected difficulty button. The direction reserves yellow for the face button as the game's main control, so the difficulty row competes with it.",
+          "The 'Mines left' and 'Time' captions under the LCD readouts are set at 10px, which is too small to read comfortably."
+        ],
+        "edits": [
+          {
+            "problem": "The yellow accent is applied to the selected difficulty button. The direction reserves yellow for the face button as the game's main control, so the difficulty row competes with it.",
+            "file": "src/components/Controls/GameSessionControls.tsx",
+            "find": "bg-[#facc15]",
+            "replace": "bg-[#d6d6d6]",
+            "applied": true,
+            "occurrences": 1,
+            "reason": ""
+          },
+          {
+            "problem": "The 'Mines left' and 'Time' captions under the LCD readouts are set at 10px, which is too small to read comfortably.",
+            "file": "src/views/GameSessionView.tsx",
+            "find": "text-[10px] leading-tight text-[#111111]",
+            "replace": "text-xs leading-tight text-[#111111]",
+            "applied": true,
+            "occurrences": 1,
+            "reason": ""
+          }
+        ],
+        "not_repaired": [
+          "On desktop the frame is stretched wide by the difficulty row, while the board stays small (cells capped at 2 rem) and sits in the middle. The mine counter and timer are pushed to the far edges, leaving large empty gaps. The main view reads as loose parts, not one compact unit fitted to the frame.: no class change can fix it"
+        ],
+        "claims": [],
+        "attempts": 1
+      },
+      "started_at": "19:15:00",
+      "t_offset_s": 241.024,
+      "files_changed": [
+        {
+          "path": "src/components/Controls/GameSessionControls.tsx",
+          "change": "modified",
+          "lines": 44,
+          "delta": 0
+        },
+        {
+          "path": "src/views/GameSessionView.tsx",
+          "change": "modified",
+          "lines": 205,
+          "delta": 0
+        }
+      ],
+      "duration_s": 17.257
+    }
+  ],
+  "failed_stages": [
+    "behaviour_specs",
+    "visual_review"
+  ],
+  "provenance": {
+    "src/App.tsx": "presentation",
+    "src/adapters/__init__.py": "skeleton",
+    "src/adapters/record_store.py": "skeleton",
+    "src/adapters/repository.py": "skeleton",
+    "src/app.py": "skeleton",
+    "src/domain/__init__.py": "skeleton",
+    "src/domain/difficulty.py": "behaviour_specs",
+    "src/domain/events.py": "skeleton",
+    "src/domain/exceptions.py": "skeleton",
+    "src/domain/game_session.py": "behaviour_specs",
+    "src/entrypoints/__init__.py": "skeleton",
+    "src/entrypoints/routers/__init__.py": "skeleton",
+    "src/entrypoints/routers/difficulty.py": "skeleton",
+    "src/entrypoints/routers/game_session.py": "skeleton",
+    "src/entrypoints/schemas.py": "skeleton",
+    "src/main.tsx": "presentation",
+    "src/service_layer/__init__.py": "skeleton",
+    "src/service_layer/unit_of_work.py": "skeleton",
+    "src/theme.css": "ux_plan",
+    "src/views/GameSessionView.tsx": "visual_review",
+    "tests/conftest.py": "skeleton",
+    "tests/unit/test_skeleton.py": "skeleton",
+    "tests/acceptance/test_minesweeper_frontend_acceptance.py": "shell_and_acceptance",
+    "tests/unit/test_minesweeper_acceptance.py": "shell_and_acceptance",
+    "src/seed_data.json": "seed_data",
+    "tests/unit/test_spec_act_gamesession.py": "action_behaviour",
+    "src/api/difficultyClient.ts": "presentation",
+    "src/api/game_sessionClient.ts": "presentation",
+    "src/components/Controls/GameSessionControls.tsx": "visual_review",
+    "tests/pending/test_spec_009.py": "behaviour_specs",
+    "tests/pending/test_spec_025.py": "behaviour_specs",
+    "tests/pending/test_spec_030.py": "behaviour_specs",
+    "tests/pending/test_spec_034.py": "behaviour_specs",
+    "tests/pending/test_spec_035.py": "behaviour_specs",
+    "tests/unit/test_spec_001.py": "behaviour_specs",
+    "tests/unit/test_spec_002.py": "behaviour_specs",
+    "tests/unit/test_spec_003.py": "behaviour_specs",
+    "tests/unit/test_spec_004.py": "behaviour_specs",
+    "tests/unit/test_spec_005.py": "behaviour_specs",
+    "tests/unit/test_spec_006.py": "behaviour_specs",
+    "tests/unit/test_spec_007.py": "behaviour_specs",
+    "tests/unit/test_spec_008.py": "behaviour_specs",
+    "tests/unit/test_spec_010.py": "behaviour_specs",
+    "tests/unit/test_spec_012.py": "behaviour_specs",
+    "tests/unit/test_spec_013.py": "behaviour_specs",
+    "tests/unit/test_spec_014.py": "behaviour_specs",
+    "tests/unit/test_spec_015.py": "behaviour_specs",
+    "tests/unit/test_spec_016.py": "behaviour_specs",
+    "tests/unit/test_spec_017.py": "behaviour_specs",
+    "tests/unit/test_spec_018.py": "behaviour_specs",
+    "tests/unit/test_spec_019.py": "behaviour_specs",
+    "tests/unit/test_spec_020.py": "behaviour_specs",
+    "tests/unit/test_spec_021.py": "behaviour_specs",
+    "tests/unit/test_spec_022.py": "behaviour_specs",
+    "tests/unit/test_spec_023.py": "behaviour_specs",
+    "tests/unit/test_spec_024.py": "behaviour_specs",
+    "tests/unit/test_spec_027.py": "behaviour_specs",
+    "tests/unit/test_spec_028.py": "behaviour_specs",
+    "tests/unit/test_spec_031.py": "behaviour_specs",
+    "tests/unit/test_spec_032.py": "behaviour_specs",
+    "tests/unit/test_spec_033.py": "behaviour_specs",
+    "tests/unit/test_spec_036.py": "behaviour_specs"
+  },
+  "llm": {
+    "calls": 50,
+    "errors": 0,
+    "prompt_tokens": 311190,
+    "cached_tokens": 0,
+    "completion_tokens": 213024,
+    "reasoning_tokens": 0,
+    "total_s": 1369.274,
+    "cost_usd": 0.137631,
+    "cost_sek": 1.3763,
+    "usd_to_sek": 10.0,
+    "prices_as_of": "2026-10-09",
+    "unpriced_models": [],
+    "by_stage": {
+      "intent_classification": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 632,
+        "cached_tokens": 0,
+        "completion_tokens": 336,
+        "reasoning_tokens": 0,
+        "total_s": 2.591,
+        "cost_usd": 0.000231,
+        "cost_sek": 0.0023
+      },
+      "prompt_expansion": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 1805,
+        "cached_tokens": 0,
+        "completion_tokens": 3280,
+        "reasoning_tokens": 0,
+        "total_s": 16.143,
+        "cost_usd": 0.001821,
+        "cost_sek": 0.0182
+      },
+      "router_decomposition": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 3467,
+        "cached_tokens": 0,
+        "completion_tokens": 14340,
+        "reasoning_tokens": 0,
+        "total_s": 53.48,
+        "cost_usd": 0.007517,
+        "cost_sek": 0.0752
+      },
+      "ux_planning": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 7088,
+        "cached_tokens": 0,
+        "completion_tokens": 2660,
+        "reasoning_tokens": 0,
+        "total_s": 13.848,
+        "cost_usd": 0.002039,
+        "cost_sek": 0.0204
+      },
+      "seed_data": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 2194,
+        "cached_tokens": 0,
+        "completion_tokens": 402,
+        "reasoning_tokens": 0,
+        "total_s": 2.129,
+        "cost_usd": 0.00042,
+        "cost_sek": 0.0042
+      },
+      "spec_consistency_review": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 3526,
+        "cached_tokens": 0,
+        "completion_tokens": 1721,
+        "reasoning_tokens": 0,
+        "total_s": 7.847,
+        "cost_usd": 0.001213,
+        "cost_sek": 0.0121
+      },
+      "domain_engine_synthesis": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 7951,
+        "cached_tokens": 0,
+        "completion_tokens": 5346,
+        "reasoning_tokens": 0,
+        "total_s": 22.971,
+        "cost_usd": 0.003468,
+        "cost_sek": 0.0347
+      },
+      "presentation_projection_synthesis": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 13618,
+        "cached_tokens": 0,
+        "completion_tokens": 29763,
+        "reasoning_tokens": 0,
+        "total_s": 116.499,
+        "cost_usd": 0.016243,
+        "cost_sek": 0.1624
+      },
+      "red_test_generation": {
+        "calls": 38,
+        "errors": 0,
+        "prompt_tokens": 206412,
+        "cached_tokens": 0,
+        "completion_tokens": 139290,
+        "reasoning_tokens": 0,
+        "total_s": 1071.115,
+        "cost_usd": 0.090286,
+        "cost_sek": 0.9029
+      },
+      "green_code_repair": {
+        "calls": 3,
+        "errors": 0,
+        "prompt_tokens": 53905,
+        "cached_tokens": 0,
+        "completion_tokens": 14090,
+        "reasoning_tokens": 0,
+        "total_s": 53.559,
+        "cost_usd": 0.012436,
+        "cost_sek": 0.1244
+      },
+      "visual_review": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 10592,
+        "cached_tokens": 0,
+        "completion_tokens": 1796,
+        "reasoning_tokens": 0,
+        "total_s": 9.092,
+        "cost_usd": 0.001957,
+        "cost_sek": 0.0196
+      }
+    }
+  },
+  "result": {
+    "success": true,
+    "stage_failures": [
+      {
+        "stage": "behaviour_specs",
+        "error": "SPEC-009 (Adjacency count of a safe cell): RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession; SPEC-025 (Loss exposes all mines): RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession; SPEC-030 (Timer stops on win or loss): RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession; SPEC-034 (Mine counter equals mines minus flags): RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession; SPEC-035 (Mine counter may go negative): RuntimeError: GREEN synthesis failed: the response did not contain a definition of class GameSession"
+      },
+      {
+        "stage": "visual_review",
+        "error": "On desktop the frame is stretched wide by the difficulty row, while the board stays small (cells capped at 2 rem) and sits in the middle. The mine counter and timer are pushed to the far edges, leaving large empty gaps. The main view reads as loose parts, not one compact unit fitted to the frame.: no class change can fix it"
+      }
+    ],
+    "spec_conflicts": [
+      {
+        "specs": [
+          "SPEC-016",
+          "SPEC-018"
+        ],
+        "reason": "SPEC-016 requires every existing neighbour of a revealed zero-count cell to become revealed, while SPEC-018 requires a flagged neighbour to remain flagged when such a cell is revealed."
+      },
+      {
+        "specs": [
+          "SPEC-017",
+          "SPEC-018"
+        ],
+        "reason": "SPEC-017 requires every cell in the zero region and its bordering numbered cells to be revealed, while SPEC-018 requires a flagged bordering cell to remain flagged."
+      }
+    ],
+    "timing_breakdown": {
+      "0_intent_grounding": 16.15,
+      "1_decomposition": 53.49,
+      "2_skeleton_scaffold": 0.14,
+      "3_persistence_deck": 0.01,
+      "4_shell_and_acceptance": 0.01,
+      "5a_domain_engine": 22.99,
+      "5b_presentation_projection": 116.52,
+      "5a_action_behaviour": 93.64,
+      "5c_behaviour_specs": 43.23,
+      "6_qa_audit": 8.45,
+      "7_visual_review": 17.28,
+      "total": 258.24
+    },
+    "qa": {
+      "passed": true,
+      "verdict": "passed",
+      "attempts": 0,
+      "defects": [],
+      "console_errors": [],
+      "warnings": [],
+      "reworked": []
+    },
+    "verification_models": {
+      "test": "claude-haiku-5-5",
+      "code": "claude-haiku-5-5",
+      "independent": false
+    },
+    "app_inventory": {
+      "entry": "src/main.tsx",
+      "entry_found": true,
+      "files": {
+        "src/App.tsx": 122,
+        "src/api/difficultyClient.ts": 59,
+        "src/api/game_sessionClient.ts": 65,
+        "src/components/Controls/GameSessionControls.tsx": 44,
+        "src/index.css": 6,
+        "src/main.tsx": 13,
+        "src/theme.css": 19,
+        "src/views/GameSessionView.tsx": 205
+      },
+      "unreachable": [],
+      "reachable_lines": 533,
+      "unreachable_lines": 0
+    }
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "seq": 217,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:13",
+  "t_offset_s": 193.962,
+  "thread": "red_5",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_odvx3xhj\\tests\\unit\\test_spec_006.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_odvx3xhj"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_odvx3xhj\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 1 item\n\ntests\\unit\\test_spec_006.py F                                            [100%]\n\n================================== FAILURES ===================================\n____ test_mines_placed_at_random_and_status_in_progress_after_first_reveal ____\n\n    def test_mines_placed_at_random_and_status_in_progress_after_first_reveal():\n        # Given a session in Ready state with no mines placed.\n        session = make_expert_ready_session()\n        assert session.status == \"ready\"\n        # Before the first reveal, no cell holds a mine (constructor state).\n        assert sum(1 for cell in session.cells if cell[\"has_mine\"]) == 0\n    \n        # When the player reveals a hidden cell for the first time.\n        session.reveal_cell(row=8, column=15)\n    \n        # Then the session status becomes in_progress.\n        # Working: the session is in ready, the cell (8, 15) is hidden and unflagged,\n        # so the reveal is allowed. It is the first reveal, so mines are placed and\n        # the status moves to in_progress. Only 1 cell was revealed among 1381 safe\n        # cells, so the game is not won and not lost (the cell is safe, a first\n        # reveal never hits a mine).\n>       assert session.status == \"in_progress\"\nE       AssertionError: assert 'ready' == 'in_progress'\nE         \nE         - in_progress\nE         + ready\n\ntests\\unit\\test_spec_006.py:34: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_odvx3xhj\\.pytest_report_0475acb220a3464cbe155993829ff03a.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_006.py::test_mines_placed_at_random_and_status_in_progress_after_first_reveal\n============================== 1 failed in 1.66s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652457.3546197,
+      "duration": 1.2462379932403564,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_odvx3xhj",
+      "environment": {},
+      "summary": {
+        "failed": 1,
+        "total": 1,
+        "collected": 1
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_006.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_006.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_006.py::test_mines_placed_at_random_and_status_in_progress_after_first_reveal",
+              "type": "Function",
+              "lineno": 17
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_006.py::test_mines_placed_at_random_and_status_in_progress_after_first_reveal",
+          "lineno": 17,
+          "outcome": "failed",
+          "keywords": [
+            "test_mines_placed_at_random_and_status_in_progress_after_first_reveal",
+            "test_spec_006.py",
+            "unit",
+            "tests",
+            "hollow_odvx3xhj",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006433999951696023,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008643000037409365,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_odvx3xhj\\tests\\unit\\test_spec_006.py",
+              "lineno": 34,
+              "message": "AssertionError: assert 'ready' == 'in_progress'\n  \n  - in_progress\n  + ready"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_006.py",
+                "lineno": 34,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_mines_placed_at_random_and_status_in_progress_after_first_reveal():\n        # Given a session in Ready state with no mines placed.\n        session = make_expert_ready_session()\n        assert session.status == \"ready\"\n        # Before the first reveal, no cell holds a mine (constructor state).\n        assert sum(1 for cell in session.cells if cell[\"has_mine\"]) == 0\n    \n        # When the player reveals a hidden cell for the first time.\n        session.reveal_cell(row=8, column=15)\n    \n        # Then the session status becomes in_progress.\n        # Working: the session is in ready, the cell (8, 15) is hidden and unflagged,\n        # so the reveal is allowed. It is the first reveal, so mines are placed and\n        # the status moves to in_progress. Only 1 cell was revealed among 1381 safe\n        # cells, so the game is not won and not lost (the cell is safe, a first\n        # reveal never hits a mine).\n>       assert session.status == \"in_progress\"\nE       AssertionError: assert 'ready' == 'in_progress'\nE         \nE         - in_progress\nE         + ready\n\ntests\\unit\\test_spec_006.py:34: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00041140000394079834,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.179
+}

@@ -1,0 +1,25 @@
+{
+  "seq": 15,
+  "step": "qa.text_check",
+  "kind": "step",
+  "depth": 2,
+  "caller_chain": [
+    "visual.review",
+    "qa.responsive_audit"
+  ],
+  "started_at": "19:29:04",
+  "t_offset_s": 105.704,
+  "thread": "ThreadPoolExecutor-1_3",
+  "input": {
+    "args": [
+      "<selenium.webdriver.chrome.webdriver.WebDriver (session=\"1db2e43731d2c16e9008bfa60d08c940\")>",
+      "Desktop"
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "defects": [],
+    "warnings": []
+  },
+  "duration_s": 0.004
+}

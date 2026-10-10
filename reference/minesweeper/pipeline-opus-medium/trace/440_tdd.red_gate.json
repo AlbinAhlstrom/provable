@@ -1,0 +1,164 @@
+{
+  "seq": 440,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:37",
+  "t_offset_s": 408.883,
+  "thread": "red_15",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656617.0905726,
+        "duration": 0.792877197265625,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_z92v0yes",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "passed": 2,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_027.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_027.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_027.py::test_tick_reaches_exactly_999_from_998",
+                "type": "Function",
+                "lineno": 69
+              },
+              {
+                "nodeid": "tests/unit/test_spec_027.py::test_tick_beyond_999_stays_at_999",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "tests/unit/test_spec_027.py::test_repeated_ticks_at_999_never_exceed_cap",
+                "type": "Function",
+                "lineno": 99
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_027.py::test_tick_reaches_exactly_999_from_998",
+            "lineno": 69,
+            "outcome": "failed",
+            "keywords": [
+              "test_tick_reaches_exactly_999_from_998",
+              "test_spec_027.py",
+              "unit",
+              "tests",
+              "hollow_z92v0yes",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005978999979561195,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0017311999981757253,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_z92v0yes\\tests\\unit\\test_spec_027.py",
+                "lineno": 78,
+                "message": "AssertionError: assert 998 == 999\n +  where 998 = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Opened'}], events=[]).elapsed_seconds"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_027.py",
+                  "lineno": 78,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_tick_reaches_exactly_999_from_998():\n        game = _playing_game(998)\n        cells_before = _cell_snapshot(game)\n    \n        game.tick()\n    \n        # Status Playing, elapsed 998: tick adds 1 -> 999, which equals the cap,\n        # so the increment is allowed in full.\n>       assert game.elapsed_seconds == 999\nE       AssertionError: assert 998 == 999\nE        +  where 998 = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Opened'}], events=[]).elapsed_seconds\n\ntests\\unit\\test_spec_027.py:78: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004276000108802691,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_027.py::test_tick_beyond_999_stays_at_999",
+            "lineno": 84,
+            "outcome": "passed",
+            "keywords": [
+              "test_tick_beyond_999_stays_at_999",
+              "test_spec_027.py",
+              "unit",
+              "tests",
+              "hollow_z92v0yes",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00043790000199805945,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010678999969968572,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00036700000055134296,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_027.py::test_repeated_ticks_at_999_never_exceed_cap",
+            "lineno": 99,
+            "outcome": "passed",
+            "keywords": [
+              "test_repeated_ticks_at_999_never_exceed_cap",
+              "test_spec_027.py",
+              "unit",
+              "tests",
+              "hollow_z92v0yes",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00039570000080857426,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007806000066921115,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00045649999810848385,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

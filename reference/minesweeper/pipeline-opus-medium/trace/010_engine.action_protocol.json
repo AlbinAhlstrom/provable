@@ -1,0 +1,1476 @@
+{
+  "seq": 10,
+  "step": "engine.action_protocol",
+  "kind": "step",
+  "depth": 1,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold"
+  ],
+  "started_at": "20:18:59",
+  "t_offset_s": 130.721,
+  "thread": "AnyIO worker thread",
+  "input": {
+    "args": [],
+    "kwargs": {
+      "pitch": "# Minesweeper\n\n## 1. Persona & Value Journey\n**Casual Player**: the only role. They want a quick, fair puzzle.\n- **Sees:** the grid, the remaining-mines counter, the timer and the game's outcome.\n- **Decides:** which cell to open, where to plant flags, and which difficulty to play.\n- **Accomplishes:** clearing the board safely, as fast as possible.\n\n**Journey:** choose a difficulty, open a first cell, read the numbers, flag suspected mines, open safe cells, then win or lose, and start a new game.\n\n## 2. Presentation & Interaction\nThe game looks like classic Windows Minesweeper:\n- **Frame:** a grey, bevelled, raised window.\n- **Header strip, left:** a red-on-black digital counter for remaining mines.\n- **Header strip, centre:** a yellow smiley button.\n- **Header strip, right:** a red-on-black digital timer.\n- **Hidden cells:** raised grey tiles.\n- **Opened cells:** flat, lighter grey, with thin grid lines.\n- **Number colours:** 1 blue, 2 green, 3 red, 4 navy, 5 maroon, 6 teal, 7 black, 8 grey.\n- **Flags and mines:** a flag is a small red pennant; a mine is a black spiked ball.\n- **Smiley faces:** a surprised \"O\" while a cell is pressed, sunglasses on a win, crossed-out eyes on a loss.\n\n**Controls:**\n- **Left-click (tap):** opens a cell.\n- **Right-click (long-press):** toggles a flag.\n- **Clicking an opened number:** opens its neighbours (\"chording\").\n- **Smiley:** starts a new game.\n- **Difficulty menu:** offers Beginner, Intermediate, Expert and Custom.\n\n## 3. MVP Scope\nThe scope covers a single-player board, opening and flagging cells, cascades, chording, win and loss, the timer, the mine counter, and the best time per standard difficulty kept on this device. It includes no accounts, online play, purchases or administration.\n\n## 4. Core Concepts\n- **Difficulty:** the width, height and mine count.\n- **Board:** a grid of cells plus the mine layout.\n- **Cell:** has a mine or not, a neighbour count, and a state of *Hidden*, *Flagged* or *Opened* (or *Detonated*).\n- **Game:** moves through *Ready* (not yet started), then *Playing*, then either *Won* or *Lost*. A game can also be *Abandoned* from Ready or Playing.\n- **Best Time:** the fastest win for each standard difficulty.\n\n## 5. Rules\n1. **Grid:** the board is a rectangle of cells holding a fixed number of mines.\n2. **Beginner:** 9×9 cells with 10 mines.\n3. **Intermediate:** 16×16 cells with 40 mines.\n4. **Expert:** 30 wide × 16 high with 99 mines.\n5. **Custom size:** width 9–30, height 9–24, mines from 10 to (width−1)×(height−1).\n6. **Custom validation:** values outside those limits are refused with a message, and the current game is unchanged.\n7. **Mine placement:** mines are laid only when the first cell is opened.\n8. **First click is safe:** the first opened cell is never a mine.\n9. **Open:** opening a hidden, unflagged cell reveals it.\n10. **Numbers:** an opened safe cell shows how many of its up to 8 neighbours hold mines.\n11. **Edge cells:** cells on edges and corners count only the neighbours that exist.\n12. **Cascade:** opening a cell with zero adjacent mines automatically opens all its neighbours, repeating for any further zeros.\n13. **Cascade limits:** a cascade stops at numbered cells and skips flagged cells.\n14. **Flag:** right-clicking toggles a hidden cell between Hidden and Flagged.\n15. **Protected flags:** a flagged cell cannot be opened until it is unflagged.\n16. **Unlimited flags:** flags are not limited by the mine count.\n17. **Mine counter:** shows total mines minus flags placed, and may go negative.\n18. **Chord:** clicking an opened number whose adjacent flags equal its number opens all its other hidden, unflagged neighbours.\n19. **Chord without matching flags:** if the flag count does not match the number, chording does nothing.\n20. **Chord with a wrong flag:** if a chord opens a mine because a flag was misplaced, the player loses.\n21. **Timer start:** the timer starts at the first open and counts in seconds.\n22. **Timer cap:** the timer stops at 999.\n23. **Timer stop:** the timer freezes when the game is won or lost.\n24. **Loss:** opening a mine ends the game.\n25. **Loss display:** the struck mine shows on red, all other mines are shown, and wrong flags show a crossed mine.\n26. **Win:** the game is won when every non-mine cell is opened, whether or not mines are flagged.\n27. **Win display:** on a win, all mines are auto-flagged and the counter shows 0.\n28. **Best time:** a win faster than the stored best for that standard difficulty becomes the new best.\n29. **Custom scores:** Custom games record no best time.\n30. **Board lock:** after a win or loss the board is locked, and only a new game is accepted.\n31. **Ignored actions:** these change nothing and are silently ignored:\n    - opening an opened cell\n    - flagging an opened cell\n    - chording a hidden cell\n32. **Restart:** pressing the smiley abandons the current game with no score and deals a fresh board.\n33. **Changing difficulty:** abandons the current game and starts a new one.\n34. **Leaving:** closing the game abandons any game in progress, and nothing is recorded.",
+      "structure": {
+        "domain_name": "Minesweeper",
+        "entities": [
+          {
+            "name": "Game",
+            "is_aggregate_root": true,
+            "audience_role": "created_by_audience",
+            "attributes": [
+              {
+                "name": "id",
+                "type": "string",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "difficulty_id",
+                "type": "string",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "width",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "height",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "mine_count",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "required": true,
+                "default_value": "Ready",
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "mines_laid",
+                "type": "boolean",
+                "required": true,
+                "default_value": "false",
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "flags_placed",
+                "type": "int",
+                "required": true,
+                "default_value": "0",
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "remaining_mines",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "elapsed_seconds",
+                "type": "int",
+                "required": true,
+                "default_value": "0",
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "started_at",
+                "type": "datetime",
+                "required": false,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "ended_at",
+                "type": "datetime",
+                "required": false,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "struck_cell_id",
+                "type": "string",
+                "required": false,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "created_at",
+                "type": "datetime",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "cells",
+                "type": "list",
+                "required": false,
+                "default_value": [],
+                "item_name": "Cell",
+                "item_attributes": [
+                  {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "default_value": null,
+                    "item_name": "",
+                    "item_attributes": []
+                  },
+                  {
+                    "name": "row",
+                    "type": "int",
+                    "required": true,
+                    "default_value": null,
+                    "item_name": "",
+                    "item_attributes": []
+                  },
+                  {
+                    "name": "column",
+                    "type": "int",
+                    "required": true,
+                    "default_value": null,
+                    "item_name": "",
+                    "item_attributes": []
+                  },
+                  {
+                    "name": "has_mine",
+                    "type": "boolean",
+                    "required": true,
+                    "default_value": "false",
+                    "item_name": "",
+                    "item_attributes": []
+                  },
+                  {
+                    "name": "adjacent_mine_count",
+                    "type": "int",
+                    "required": true,
+                    "default_value": "0",
+                    "item_name": "",
+                    "item_attributes": []
+                  },
+                  {
+                    "name": "state",
+                    "type": "string",
+                    "required": true,
+                    "default_value": "Hidden",
+                    "item_name": "",
+                    "item_attributes": []
+                  }
+                ]
+              }
+            ],
+            "relationships": [
+              {
+                "target": "Difficulty",
+                "relation_type": "many_to_one"
+              }
+            ]
+          },
+          {
+            "name": "Difficulty",
+            "is_aggregate_root": true,
+            "audience_role": "shown_to_audience",
+            "attributes": [
+              {
+                "name": "id",
+                "type": "string",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "width",
+                "type": "int",
+                "required": false,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "height",
+                "type": "int",
+                "required": false,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "mine_count",
+                "type": "int",
+                "required": false,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "is_standard",
+                "type": "boolean",
+                "required": true,
+                "default_value": "true",
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "display_order",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              }
+            ],
+            "relationships": [
+              {
+                "target": "Game",
+                "relation_type": "one_to_many"
+              },
+              {
+                "target": "BestTime",
+                "relation_type": "one_to_many"
+              }
+            ]
+          },
+          {
+            "name": "BestTime",
+            "is_aggregate_root": true,
+            "audience_role": "created_by_audience",
+            "attributes": [
+              {
+                "name": "id",
+                "type": "string",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "difficulty_id",
+                "type": "string",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "game_id",
+                "type": "string",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "best_seconds",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "achieved_at",
+                "type": "datetime",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              }
+            ],
+            "relationships": [
+              {
+                "target": "Difficulty",
+                "relation_type": "many_to_one"
+              },
+              {
+                "target": "Game",
+                "relation_type": "many_to_one"
+              }
+            ]
+          }
+        ],
+        "value_objects": [
+          {
+            "name": "BoardConfiguration",
+            "is_aggregate_root": false,
+            "audience_role": "internal",
+            "attributes": [
+              {
+                "name": "width",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "height",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "mine_count",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              }
+            ],
+            "relationships": []
+          },
+          {
+            "name": "GridPosition",
+            "is_aggregate_root": false,
+            "audience_role": "internal",
+            "attributes": [
+              {
+                "name": "row",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "column",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              }
+            ],
+            "relationships": []
+          }
+        ],
+        "enums": []
+      },
+      "inbox_specs": [
+        {
+          "spec_id": "SPEC-001",
+          "title": "Rectangular grid with fixed mine count",
+          "description": "A board is a width×height rectangle of cells and holds exactly the game's mine_count mines once laid.",
+          "given_when_then": "Given a game configured with width W, height H and mine count M When the mines are laid Then the board has exactly W×H cells and exactly M cells hold a mine",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-002",
+          "title": "Beginner preset",
+          "description": "Beginner is 9×9 with 10 mines.",
+          "given_when_then": "Given the player chooses Beginner When the new game is created Then its width is 9, height is 9 and mine count is 10",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-003",
+          "title": "Intermediate preset",
+          "description": "Intermediate is 16×16 with 40 mines.",
+          "given_when_then": "Given the player chooses Intermediate When the new game is created Then its width is 16, height is 16 and mine count is 40",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-004",
+          "title": "Expert preset",
+          "description": "Expert is 30 wide × 16 high with 99 mines.",
+          "given_when_then": "Given the player chooses Expert When the new game is created Then its width is 30, height is 16 and mine count is 99",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-005",
+          "title": "Custom width range",
+          "description": "Custom width must be between 9 and 30 inclusive.",
+          "given_when_then": "Given the player enters a Custom configuration When the width is between 9 and 30 inclusive Then the width is accepted, and When the width is below 9 or above 30 Then the configuration is refused",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-006",
+          "title": "Custom height range",
+          "description": "Custom height must be between 9 and 24 inclusive.",
+          "given_when_then": "Given the player enters a Custom configuration When the height is between 9 and 24 inclusive Then the height is accepted, and When the height is below 9 or above 24 Then the configuration is refused",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-007",
+          "title": "Custom mine count range",
+          "description": "Custom mine count must be between 10 and (width−1)×(height−1) inclusive.",
+          "given_when_then": "Given a Custom configuration with valid width W and height H When the mine count is between 10 and (W−1)×(H−1) inclusive Then it is accepted, and When it is below 10 or above (W−1)×(H−1) Then the configuration is refused",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-008",
+          "title": "Invalid custom leaves current game unchanged",
+          "description": "A refused Custom configuration shows a message and does not alter or abandon the current game.",
+          "given_when_then": "Given a game in any status When the player submits a Custom configuration outside the limits Then a validation message is shown and the current game, its board, timer and counter remain unchanged",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-009",
+          "title": "Custom validation message display",
+          "description": "The refusal is communicated to the player with a visible message.",
+          "given_when_then": "Given the Custom difficulty dialog When the player submits out-of-range values Then a message explaining the allowed limits is displayed",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-010",
+          "title": "Mines laid on first open",
+          "description": "No mines exist on the board until the first cell is opened.",
+          "given_when_then": "Given a game in Ready status with no mines laid When the player opens the first cell Then the mines are laid at that moment, and before that moment no cell holds a mine",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-011",
+          "title": "First click is safe",
+          "description": "The first opened cell never holds a mine.",
+          "given_when_then": "Given a game in Ready status When the player opens any cell as the first open Then that cell holds no mine and the game does not end in a loss",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-012",
+          "title": "Ready to Playing transition",
+          "description": "The first open moves the game from Ready to Playing.",
+          "given_when_then": "Given a game in Ready status When the player opens a hidden unflagged cell Then the game status becomes Playing",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-013",
+          "title": "Open a hidden unflagged cell",
+          "description": "Opening a Hidden cell sets its state to Opened.",
+          "given_when_then": "Given a game in Ready or Playing status and a cell in Hidden state When the player opens it Then the cell state becomes Opened (or Detonated if it holds a mine)",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-014",
+          "title": "Neighbour mine count",
+          "description": "An opened safe cell's number equals the count of mines among its up to 8 neighbours.",
+          "given_when_then": "Given an interior safe cell with K mines among its 8 neighbours When it is opened Then its adjacent mine count is K (0 to 8)",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-015",
+          "title": "Edge and corner neighbours",
+          "description": "Edge cells have 5 neighbours and corner cells 3; only existing neighbours are counted.",
+          "given_when_then": "Given a safe cell on an edge (5 neighbours) or a corner (3 neighbours) When its adjacent mine count is computed Then only the neighbours that exist within the grid are counted",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-016",
+          "title": "Cascade on zero",
+          "description": "Opening a zero cell automatically opens all its neighbours, repeating for further zeros.",
+          "given_when_then": "Given a hidden safe cell with adjacent mine count 0 When it is opened Then all its hidden neighbours are opened, and any opened neighbour with count 0 opens its neighbours in turn",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-017",
+          "title": "Cascade stops at numbered cells",
+          "description": "Numbered cells are opened by a cascade but do not propagate it.",
+          "given_when_then": "Given a cascade in progress When it opens a cell with adjacent mine count of 1 or more Then that cell is opened and its own neighbours are not opened by the cascade",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-018",
+          "title": "Cascade skips flagged cells",
+          "description": "A cascade never opens a flagged cell.",
+          "given_when_then": "Given a cascade in progress and a neighbouring cell in Flagged state When the cascade reaches it Then the cell remains Flagged and is not opened",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-019",
+          "title": "Toggle flag",
+          "description": "Flagging toggles a hidden cell between Hidden and Flagged.",
+          "given_when_then": "Given a game in Ready or Playing status When the player flags a Hidden cell Then it becomes Flagged, and When the player flags a Flagged cell Then it becomes Hidden",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-020",
+          "title": "Flagged cell cannot be opened",
+          "description": "Opening a flagged cell is refused until it is unflagged.",
+          "given_when_then": "Given a cell in Flagged state When the player tries to open it Then the cell stays Flagged and nothing is revealed, and When the player unflags it and opens it Then it is opened",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-021",
+          "title": "Unlimited flags",
+          "description": "The number of flags is not limited by the mine count.",
+          "given_when_then": "Given a game whose flags placed already equals its mine count When the player flags another Hidden cell Then the flag is placed",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-022",
+          "title": "Remaining mines counter",
+          "description": "Remaining mines = total mines − flags placed, which may be negative.",
+          "given_when_then": "Given a game with M mines and F flags placed When the counter is calculated Then it equals M − F, including negative values when F > M",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-023",
+          "title": "Chord with matching flags",
+          "description": "Chording an opened number whose adjacent flags equal its number opens all other hidden unflagged neighbours.",
+          "given_when_then": "Given a game in Playing status and an Opened cell with number N and exactly N flagged neighbours When the player chords it Then all its Hidden unflagged neighbours are opened (with cascades as applicable)",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-024",
+          "title": "Chord with mismatched flags does nothing",
+          "description": "If adjacent flags do not equal the number, chording has no effect.",
+          "given_when_then": "Given an Opened cell with number N and a number of flagged neighbours different from N When the player chords it Then no cell changes state",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-025",
+          "title": "Chord with wrong flag loses",
+          "description": "If a misplaced flag makes a chord open a mine, the game is lost.",
+          "given_when_then": "Given an Opened cell with number N and N flagged neighbours, one of which is not a mine When the player chords it Then the unflagged mine neighbour is opened, becomes Detonated and the game status becomes Lost",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-026",
+          "title": "Timer starts at first open",
+          "description": "The timer starts at the first open and counts whole seconds; it reads 0 before that.",
+          "given_when_then": "Given a game in Ready status with elapsed seconds 0 When the player opens the first cell Then the timer starts and elapsed seconds increases by 1 each second",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-027",
+          "title": "Timer cap at 999",
+          "description": "Elapsed seconds never exceeds 999.",
+          "given_when_then": "Given a game in Playing status with elapsed seconds 999 When further time passes Then elapsed seconds stays at 999",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-028",
+          "title": "Timer freezes on end",
+          "description": "The timer stops when the game is won or lost.",
+          "given_when_then": "Given a game in Playing status When the game becomes Won or Lost Then elapsed seconds is frozen at its current value",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-029",
+          "title": "Opening a mine loses",
+          "description": "Opening a mine ends the game in a loss and records the struck cell.",
+          "given_when_then": "Given a game in Playing status When the player opens a Hidden cell holding a mine Then the cell becomes Detonated, it is recorded as the struck cell and the game status becomes Lost",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-030",
+          "title": "Loss display",
+          "description": "On loss the struck mine shows on red, all other mines are shown, wrong flags show a crossed mine.",
+          "given_when_then": "Given a game that has just become Lost When the board is displayed Then the struck mine is drawn on a red background, every other mine is revealed, and each flag on a non-mine cell is drawn as a crossed-out mine",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-031",
+          "title": "Win condition",
+          "description": "The game is won when every non-mine cell is opened, regardless of flags.",
+          "given_when_then": "Given a game in Playing status When the last non-mine cell is opened Then the game status becomes Won whether or not the mines are flagged, and while any non-mine cell is unopened the game is not Won",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-032",
+          "title": "Auto-flag on win",
+          "description": "On a win all mines become flagged and the remaining-mines counter becomes 0.",
+          "given_when_then": "Given a game that has just become Won When the win is recorded Then every mine cell is set to Flagged, flags placed equals the mine count and the remaining-mines counter is 0",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-033",
+          "title": "Win display",
+          "description": "On a win every mine is shown with a flag and the counter displays 000.",
+          "given_when_then": "Given a game that is Won When the board is displayed Then every mine shows a red pennant flag and the mine counter displays 0",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-034",
+          "title": "New best time",
+          "description": "A win on a standard difficulty faster than the stored best replaces it.",
+          "given_when_then": "Given a stored best time of B seconds for a standard difficulty When the player wins a game of that difficulty in T seconds with T < B Then the best time becomes T for that difficulty on this device",
+          "target_aggregate": "BestTime",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-035",
+          "title": "First win sets best time",
+          "description": "With no stored best, a standard win becomes the best time.",
+          "given_when_then": "Given no best time stored for a standard difficulty When the player wins a game of that difficulty in T seconds Then a best time of T is recorded for that difficulty",
+          "target_aggregate": "BestTime",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-036",
+          "title": "Slower or equal win keeps best",
+          "description": "A win not faster than the stored best does not change it.",
+          "given_when_then": "Given a stored best time of B seconds for a standard difficulty When the player wins in T seconds with T >= B Then the best time remains B",
+          "target_aggregate": "BestTime",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-037",
+          "title": "Custom games record no best time",
+          "description": "Wins on Custom difficulty never create or update a best time.",
+          "given_when_then": "Given a game on Custom difficulty When the player wins it Then no best time is created or changed",
+          "target_aggregate": "BestTime",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-038",
+          "title": "Lost or abandoned games record no best time",
+          "description": "Only wins can produce a best time.",
+          "given_when_then": "Given a game that ends Lost or Abandoned When it ends Then no best time is created or changed",
+          "target_aggregate": "BestTime",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-039",
+          "title": "Board lock after end",
+          "description": "After a win or loss only a new game is accepted.",
+          "given_when_then": "Given a game in Won or Lost status When the player opens, flags or chords any cell Then no cell, counter or timer changes, and When the player starts a new game Then it is accepted",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-040",
+          "title": "Opening an opened cell is ignored",
+          "description": "Opening an already opened cell changes nothing silently.",
+          "given_when_then": "Given a cell in Opened state When the player opens it Then nothing changes and no message is shown",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-041",
+          "title": "Flagging an opened cell is ignored",
+          "description": "Flagging an opened cell changes nothing silently.",
+          "given_when_then": "Given a cell in Opened state When the player toggles a flag on it Then the cell stays Opened, flags placed is unchanged and no message is shown",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-042",
+          "title": "Chording a hidden cell is ignored",
+          "description": "Chording a hidden cell changes nothing silently.",
+          "given_when_then": "Given a cell in Hidden state When the player chords it Then no cell changes state and no message is shown",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-043",
+          "title": "Restart via smiley",
+          "description": "Pressing the smiley abandons the current game without score and deals a fresh board of the same difficulty.",
+          "given_when_then": "Given a game in Ready or Playing status When the player presses the smiley Then that game becomes Abandoned with no best time recorded and a new Ready game of the same difficulty with all cells Hidden, timer 0 and counter equal to its mine count is created",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-044",
+          "title": "Smiley after end starts new game",
+          "description": "Pressing the smiley on a Won or Lost game starts a fresh game without altering the finished one.",
+          "given_when_then": "Given a game in Won or Lost status When the player presses the smiley Then the finished game keeps its outcome and a new Ready game of the same difficulty is created",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-045",
+          "title": "Changing difficulty",
+          "description": "Choosing a difficulty abandons the current game and starts a new one with the chosen settings.",
+          "given_when_then": "Given a game in Ready or Playing status When the player chooses a valid difficulty Then the current game becomes Abandoned with no score and a new Ready game with the chosen width, height and mine count is created",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-046",
+          "title": "Leaving abandons the game",
+          "description": "Closing the game abandons any game in progress and records nothing.",
+          "given_when_then": "Given a game in Ready or Playing status When the player closes the game Then it becomes Abandoned and no best time is recorded",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-047",
+          "title": "Abandon only from Ready or Playing",
+          "description": "Only Ready or Playing games can become Abandoned; Won and Lost are final.",
+          "given_when_then": "Given a game in Ready or Playing status When it is abandoned Then its status becomes Abandoned, and Given a game in Won or Lost status When an abandon is triggered Then its status remains Won or Lost",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-048",
+          "title": "Game status transitions",
+          "description": "Allowed transitions: Ready→Playing, Playing→Won, Playing→Lost, Ready/Playing→Abandoned; no others.",
+          "given_when_then": "Given a game in any status When a transition is requested Then only Ready→Playing, Playing→Won, Playing→Lost and Ready or Playing→Abandoned are allowed and all other transitions are refused",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-049",
+          "title": "Cell state transitions",
+          "description": "Cell states: Hidden↔Flagged, Hidden→Opened, Hidden→Detonated; Opened and Detonated are final (except auto-flag on win).",
+          "given_when_then": "Given a cell When its state changes Then only Hidden↔Flagged, Hidden→Opened (safe) and Hidden→Detonated (mine) are allowed, and an Opened or Detonated cell never returns to Hidden or Flagged",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-050",
+          "title": "Classic window frame",
+          "description": "The game is framed in a grey bevelled raised window.",
+          "given_when_then": "Given the game is displayed When the player views it Then it is shown inside a grey, bevelled, raised window frame",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Low",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-051",
+          "title": "Header mine counter",
+          "description": "Left of the header shows remaining mines as a red-on-black digital counter.",
+          "given_when_then": "Given a game is displayed When the player views the header strip Then the remaining-mines value appears on the left as red digits on black, including a minus sign when negative",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-052",
+          "title": "Header timer",
+          "description": "Right of the header shows elapsed seconds as a red-on-black digital timer.",
+          "given_when_then": "Given a game is displayed When the player views the header strip Then elapsed seconds appear on the right as red digits on black",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-053",
+          "title": "Smiley button placement",
+          "description": "A yellow smiley button sits in the centre of the header.",
+          "given_when_then": "Given a game is displayed When the player views the header strip Then a yellow smiley button is centred between the counter and the timer",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-054",
+          "title": "Smiley faces",
+          "description": "Surprised O while pressing a cell, sunglasses on win, crossed-out eyes on loss, normal smile otherwise.",
+          "given_when_then": "Given a game is displayed When a cell is being pressed Then the smiley shows a surprised O, When the game is Won Then it wears sunglasses, When the game is Lost Then it shows crossed-out eyes, and otherwise it shows a normal smile",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-055",
+          "title": "Hidden and opened cell appearance",
+          "description": "Hidden cells are raised grey tiles; opened cells are flat lighter grey with thin grid lines.",
+          "given_when_then": "Given the board is displayed When a cell is Hidden or Flagged Then it is drawn as a raised grey tile, and When it is Opened Then it is drawn flat in lighter grey with thin grid lines",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-056",
+          "title": "Number colours",
+          "description": "1 blue, 2 green, 3 red, 4 navy, 5 maroon, 6 teal, 7 black, 8 grey; zero shows no number.",
+          "given_when_then": "Given an Opened safe cell with adjacent count N When it is displayed Then N=1 is blue, 2 green, 3 red, 4 navy, 5 maroon, 6 teal, 7 black, 8 grey, and N=0 shows no number",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-057",
+          "title": "Flag and mine icons",
+          "description": "A flag is a small red pennant; a mine is a black spiked ball.",
+          "given_when_then": "Given the board is displayed When a cell is Flagged Then it shows a small red pennant, and When a mine is revealed Then it shows a black spiked ball",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Low",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-058",
+          "title": "Open control",
+          "description": "Left-click or tap opens a cell.",
+          "given_when_then": "Given a game is displayed When the player left-clicks or taps a cell Then an open action is issued for that cell",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-059",
+          "title": "Flag control",
+          "description": "Right-click or long-press toggles a flag.",
+          "given_when_then": "Given a game is displayed When the player right-clicks or long-presses a cell Then a flag toggle action is issued for that cell",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-060",
+          "title": "Chord control",
+          "description": "Clicking an opened number issues a chord.",
+          "given_when_then": "Given a game is displayed When the player clicks an Opened numbered cell Then a chord action is issued for that cell",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-061",
+          "title": "Difficulty menu",
+          "description": "The menu offers Beginner, Intermediate, Expert and Custom.",
+          "given_when_then": "Given the game is displayed When the player opens the difficulty menu Then it lists Beginner, Intermediate, Expert and Custom, and choosing Custom asks for width, height and mine count",
+          "target_aggregate": "Difficulty",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-062",
+          "title": "Best time shown per standard difficulty",
+          "description": "The player can see the best time kept on this device for each standard difficulty.",
+          "given_when_then": "Given best times stored on this device When the player views best times Then the fastest win for Beginner, Intermediate and Expert is shown, and Custom has no entry",
+          "target_aggregate": "BestTime",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Low",
+          "status": "PENDING"
+        }
+      ],
+      "workspace_dir": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace",
+      "intent": {
+        "product_type": "game",
+        "audience": "casual players",
+        "primary_goal": "Let a player clear a grid of hidden cells without detonating any mines, using numeric clues about adjacent mines.",
+        "scope_summary": "A single-player minesweeper game consisting of a mine grid, cell reveal and flag interactions, win/loss detection, and basic scoring such as elapsed time.",
+        "model_focus": [
+          "game board with grid dimensions, mine placement and per-cell state (hidden, revealed, flagged)",
+          "adjacent mine counts and cascade reveal of empty regions",
+          "game session lifecycle including start, win and loss conditions",
+          "difficulty settings controlling grid size and mine count",
+          "scoring via elapsed time and remaining flag counter"
+        ],
+        "out_of_scope": [
+          "user accounts and authentication",
+          "multiplayer or online matchmaking",
+          "monetization, in-app purchases or advertising",
+          "administrative back-office or content management"
+        ],
+        "assumptions": [
+          "The game is single-player and runs locally without a server.",
+          "Standard classic minesweeper rules apply, including a safe first click.",
+          "Preset difficulty levels (e.g., beginner, intermediate, expert) are sufficient."
+        ]
+      }
+    }
+  },
+  "output": {
+    "success": true,
+    "files": [],
+    "elapsed_seconds": 47.47,
+    "master_name": "Game",
+    "master_slug": "game",
+    "action_manifest": {
+      "actions": [
+        {
+          "name": "open_cell",
+          "aggregate": "Game",
+          "performed_by": "audience",
+          "params": [
+            "row",
+            "column"
+          ],
+          "description": "Opens the cell at zero-based (row, column), and is allowed only while status is Ready or Playing. On the first open of a Ready game, mines_laid becomes True and exactly mine_count mines are placed at random on cells other than the opened one. Every cell's adjacent_mine_count is then set to its mines among the existing up-to-8 neighbours, status becomes Playing and started_at is set. A Hidden safe cell becomes Opened; if its count is 0 the cascade opens Hidden neighbours, repeating through zeros, stopping at numbered cells and skipping Flagged cells. If the cell holds a mine it becomes Detonated, struck_cell_id holds its id, status becomes Lost, ended_at is set and elapsed_seconds freezes. When the last non-mine cell is opened, status becomes Won, ended_at is set, every mine cell is set to Flagged, flags_placed equals mine_count and remaining_mines is 0. Opening an Opened, Detonated or Flagged cell, or opening any cell in a Won, Lost or Abandoned game, changes nothing and raises no error."
+        },
+        {
+          "name": "toggle_flag",
+          "aggregate": "Game",
+          "performed_by": "audience",
+          "params": [
+            "row",
+            "column"
+          ],
+          "description": "Switches a Hidden cell to Flagged (flags_placed +1) or a Flagged cell back to Hidden (flags_placed −1), and is allowed only while status is Ready or Playing. Afterwards remaining_mines = mine_count − flags_placed, which may go negative; flags are unlimited. Toggling an Opened or Detonated cell, or any cell in a Won, Lost or Abandoned game, changes nothing and raises no error."
+        },
+        {
+          "name": "chord_cell",
+          "aggregate": "Game",
+          "performed_by": "audience",
+          "params": [
+            "row",
+            "column"
+          ],
+          "description": "Applies only to an Opened cell with adjacent_mine_count N ≥ 1 while status is Playing. If exactly N of its neighbours are Flagged, every Hidden neighbour is opened exactly as open_cell would, including cascades, a win, or a loss if a neighbour is a mine (that cell becomes Detonated, struck_cell_id is set and status becomes Lost). If the flag count differs from N, the cell is Hidden, Flagged or a zero cell, or the game is not Playing, nothing changes and no error is raised."
+        },
+        {
+          "name": "tick",
+          "aggregate": "Game",
+          "performed_by": "other",
+          "params": [],
+          "description": "The clock advancing one second: while status is Playing, elapsed_seconds increases by 1, capped at 999. In any other status nothing changes."
+        },
+        {
+          "name": "restart_game",
+          "aggregate": "Game",
+          "performed_by": "audience",
+          "params": [],
+          "description": "Pressing the smiley. If status is Ready or Playing it becomes Abandoned and ended_at is set; if Won or Lost the outcome is kept. Returns a new Game with a new id and the same difficulty_id, width, height and mine_count, in its starting state."
+        },
+        {
+          "name": "change_difficulty",
+          "aggregate": "Game",
+          "performed_by": "audience",
+          "params": [
+            "difficulty_id",
+            "width",
+            "height",
+            "mine_count"
+          ],
+          "description": "Choosing a difficulty from the menu: beginner gives 9×9 with 10 mines, intermediate 16×16 with 40, expert 30×16 with 99. Custom uses the given width (9–30), height (9–24) and mine_count (10 to (width−1)×(height−1)); out-of-range or unknown values raise InvalidConfigurationError and leave this game completely unchanged. When the choice is valid, a Ready or Playing game becomes Abandoned (Won or Lost keep their outcome), and a new Game with a new id and the chosen difficulty_id, width, height and mine_count is returned in its starting state."
+        },
+        {
+          "name": "abandon_game",
+          "aggregate": "Game",
+          "performed_by": "audience",
+          "params": [],
+          "description": "Closing or leaving the game: if status is Ready or Playing it becomes Abandoned, ended_at is set and elapsed_seconds freezes. A Won, Lost or Abandoned game is left unchanged with no error; nothing is ever scored."
+        },
+        {
+          "name": "record_win",
+          "aggregate": "BestTime",
+          "performed_by": "other",
+          "params": [
+            "game_id",
+            "difficulty_id",
+            "elapsed_seconds",
+            "achieved_at"
+          ],
+          "description": "Applied automatically when a game is Won. For a standard difficulty (beginner, intermediate, expert) where elapsed_seconds < best_seconds, best_seconds becomes elapsed_seconds and game_id and achieved_at are updated; a slower or equal time keeps the stored best. A custom difficulty, or a difficulty_id differing from this record's, changes nothing."
+        }
+      ],
+      "starting_states": [
+        {
+          "aggregate": "Game",
+          "description": "Constructed with id, difficulty_id, width, height, mine_count, remaining_mines and created_at: status 'Ready', mines_laid False, flags_placed 0, elapsed_seconds 0, remaining_mines equal to mine_count, started_at, ended_at and struck_cell_id None, events empty. cells holds width×height dicts in row-major order, with zero-based row and column and id f\"{row}-{column}\" (e.g. '0-0'). Each cell has has_mine False, adjacent_mine_count 0 and state 'Hidden'."
+        },
+        {
+          "aggregate": "BestTime",
+          "description": "Constructed with id, difficulty_id (beginner, intermediate or expert), game_id, best_seconds and achieved_at from the first win of that difficulty; it holds exactly those values, with events empty."
+        }
+      ],
+      "vocabulary": [
+        {
+          "aggregate": "Game",
+          "field": "status",
+          "values": [
+            {
+              "value": "Ready",
+              "meaning": "New game, no cell opened yet, no mines laid, timer at 0"
+            },
+            {
+              "value": "Playing",
+              "meaning": "First cell opened; mines laid and timer running"
+            },
+            {
+              "value": "Won",
+              "meaning": "Every non-mine cell is opened; board locked"
+            },
+            {
+              "value": "Lost",
+              "meaning": "A mine was opened (directly or by a chord); board locked"
+            },
+            {
+              "value": "Abandoned",
+              "meaning": "Left from Ready or Playing via restart, difficulty change or closing; no score"
+            }
+          ]
+        },
+        {
+          "aggregate": "Game",
+          "field": "cells[].state",
+          "values": [
+            {
+              "value": "Hidden",
+              "meaning": "Not opened and not flagged"
+            },
+            {
+              "value": "Flagged",
+              "meaning": "Marked by the player (or auto-flagged mine on a win); cannot be opened"
+            },
+            {
+              "value": "Opened",
+              "meaning": "Safe cell revealed, showing adjacent_mine_count"
+            },
+            {
+              "value": "Detonated",
+              "meaning": "The mine cell the player opened, causing the loss"
+            }
+          ]
+        },
+        {
+          "aggregate": "Game",
+          "field": "difficulty_id",
+          "values": [
+            {
+              "value": "beginner",
+              "meaning": "9×9, 10 mines"
+            },
+            {
+              "value": "intermediate",
+              "meaning": "16×16, 40 mines"
+            },
+            {
+              "value": "expert",
+              "meaning": "30 wide × 16 high, 99 mines"
+            },
+            {
+              "value": "custom",
+              "meaning": "Player-chosen width 9–30, height 9–24, mines 10 to (width−1)×(height−1); no best time"
+            }
+          ]
+        },
+        {
+          "aggregate": "Difficulty",
+          "field": "id",
+          "values": [
+            {
+              "value": "beginner",
+              "meaning": "Standard, display_order 1, 9×9, 10 mines"
+            },
+            {
+              "value": "intermediate",
+              "meaning": "Standard, display_order 2, 16×16, 40 mines"
+            },
+            {
+              "value": "expert",
+              "meaning": "Standard, display_order 3, 30×16, 99 mines"
+            },
+            {
+              "value": "custom",
+              "meaning": "is_standard False, display_order 4, dimensions entered by the player"
+            }
+          ]
+        },
+        {
+          "aggregate": "Difficulty",
+          "field": "name",
+          "values": [
+            {
+              "value": "Beginner",
+              "meaning": "Menu label for beginner"
+            },
+            {
+              "value": "Intermediate",
+              "meaning": "Menu label for intermediate"
+            },
+            {
+              "value": "Expert",
+              "meaning": "Menu label for expert"
+            },
+            {
+              "value": "Custom",
+              "meaning": "Menu label for custom"
+            }
+          ]
+        },
+        {
+          "aggregate": "BestTime",
+          "field": "difficulty_id",
+          "values": [
+            {
+              "value": "beginner",
+              "meaning": "Best time for Beginner"
+            },
+            {
+              "value": "intermediate",
+              "meaning": "Best time for Intermediate"
+            },
+            {
+              "value": "expert",
+              "meaning": "Best time for Expert"
+            }
+          ]
+        }
+      ],
+      "rejections": [
+        {
+          "aggregate": "Game",
+          "error": "InvalidConfigurationError",
+          "raised_when": "change_difficulty receives an unknown difficulty_id, or Custom width, height or mine_count outside the allowed limits; the message states the limits and the game is unchanged"
+        },
+        {
+          "aggregate": "Game",
+          "error": "CellNotFoundError",
+          "raised_when": "open_cell, toggle_flag or chord_cell names a row or column outside the grid"
+        },
+        {
+          "aggregate": "Game",
+          "error": "InvalidTransitionError",
+          "raised_when": "an internal status or cell-state change outside the allowed set is attempted. Allowed status changes are Ready→Playing, Playing→Won, Playing→Lost and Ready/Playing→Abandoned. Allowed cell changes are Hidden↔Flagged, Hidden→Opened and Hidden→Detonated. Ignored player actions never raise it."
+        }
+      ]
+    },
+    "router_code": null
+  },
+  "duration_s": 47.468
+}

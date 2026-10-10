@@ -1,0 +1,292 @@
+{
+  "seq": 244,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:20",
+  "t_offset_s": 391.867,
+  "thread": "red_9",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uruzhm38\\tests\\unit\\test_spec_011.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uruzhm38"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uruzhm38\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 5 items\n\ntests\\unit\\test_spec_011.py FFFFF                                        [100%]\n\n================================== FAILURES ===================================\n_______________ test_first_opened_cell_never_holds_a_mine[0-0] ________________\n\nrow = 0, column = 0\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (0, 0),  # corner\n            (4, 4),  # interior\n            (0, 5),  # top edge\n            (8, 8),  # opposite corner\n            (6, 0),  # left edge\n        ],\n    )\n    def test_first_opened_cell_never_holds_a_mine(row, column):\n        for i in range(REPEATS):\n            game = _ready_game(i)\n    \n            game.open_cell(row=row, column=column)\n    \n            opened = _cell(game, row, column)\n            # First open of a Ready game: mines are placed only on cells other than\n            # the opened one, so the opened cell holds no mine.\n            assert opened[\"has_mine\"] is False\n            # It is a safe Hidden cell, so it becomes Opened (not Detonated).\n>           assert opened[\"state\"] == \"Opened\"\nE           AssertionError: assert 'Hidden' == 'Opened'\nE             \nE             - Opened\nE             + Hidden\n\ntests\\unit\\test_spec_011.py:78: AssertionError\n_______________ test_first_opened_cell_never_holds_a_mine[4-4] ________________\n\nrow = 4, column = 4\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (0, 0),  # corner\n            (4, 4),  # interior\n            (0, 5),  # top edge\n            (8, 8),  # opposite corner\n            (6, 0),  # left edge\n        ],\n    )\n    def test_first_opened_cell_never_holds_a_mine(row, column):\n        for i in range(REPEATS):\n            game = _ready_game(i)\n    \n            game.open_cell(row=row, column=column)\n    \n            opened = _cell(game, row, column)\n            # First open of a Ready game: mines are placed only on cells other than\n            # the opened one, so the opened cell holds no mine.\n            assert opened[\"has_mine\"] is False\n            # It is a safe Hidden cell, so it becomes Opened (not Detonated).\n>           assert opened[\"state\"] == \"Opened\"\nE           AssertionError: assert 'Hidden' == 'Opened'\nE             \nE             - Opened\nE             + Hidden\n\ntests\\unit\\test_spec_011.py:78: AssertionError\n_______________ test_first_opened_cell_never_holds_a_mine[0-5] ________________\n\nrow = 0, column = 5\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (0, 0),  # corner\n            (4, 4),  # interior\n            (0, 5),  # top edge\n            (8, 8),  # opposite corner\n            (6, 0),  # left edge\n        ],\n    )\n    def test_first_opened_cell_never_holds_a_mine(row, column):\n        for i in range(REPEATS):\n            game = _ready_game(i)\n    \n            game.open_cell(row=row, column=column)\n    \n            opened = _cell(game, row, column)\n            # First open of a Ready game: mines are placed only on cells other than\n            # the opened one, so the opened cell holds no mine.\n            assert opened[\"has_mine\"] is False\n            # It is a safe Hidden cell, so it becomes Opened (not Detonated).\n>           assert opened[\"state\"] == \"Opened\"\nE           AssertionError: assert 'Hidden' == 'Opened'\nE             \nE             - Opened\nE             + Hidden\n\ntests\\unit\\test_spec_011.py:78: AssertionError\n_______________ test_first_opened_cell_never_holds_a_mine[8-8] ________________\n\nrow = 8, column = 8\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (0, 0),  # corner\n            (4, 4),  # interior\n            (0, 5),  # top edge\n            (8, 8),  # opposite corner\n            (6, 0),  # left edge\n        ],\n    )\n    def test_first_opened_cell_never_holds_a_mine(row, column):\n        for i in range(REPEATS):\n            game = _ready_game(i)\n    \n            game.open_cell(row=row, column=column)\n    \n            opened = _cell(game, row, column)\n            # First open of a Ready game: mines are placed only on cells other than\n            # the opened one, so the opened cell holds no mine.\n            assert opened[\"has_mine\"] is False\n            # It is a safe Hidden cell, so it becomes Opened (not Detonated).\n>           assert opened[\"state\"] == \"Opened\"\nE           AssertionError: assert 'Hidden' == 'Opened'\nE             \nE             - Opened\nE             + Hidden\n\ntests\\unit\\test_spec_011.py:78: AssertionError\n_______________ test_first_opened_cell_never_holds_a_mine[6-0] ________________\n\nrow = 6, column = 0\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (0, 0),  # corner\n            (4, 4),  # interior\n            (0, 5),  # top edge\n            (8, 8),  # opposite corner\n            (6, 0),  # left edge\n        ],\n    )\n    def test_first_opened_cell_never_holds_a_mine(row, column):\n        for i in range(REPEATS):\n            game = _ready_game(i)\n    \n            game.open_cell(row=row, column=column)\n    \n            opened = _cell(game, row, column)\n            # First open of a Ready game: mines are placed only on cells other than\n            # the opened one, so the opened cell holds no mine.\n            assert opened[\"has_mine\"] is False\n            # It is a safe Hidden cell, so it becomes Opened (not Detonated).\n>           assert opened[\"state\"] == \"Opened\"\nE           AssertionError: assert 'Hidden' == 'Opened'\nE             \nE             - Opened\nE             + Hidden\n\ntests\\unit\\test_spec_011.py:78: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uruzhm38\\.pytest_report_c0f7d2d7600a4302a56355969934ef16.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[0-0]\nFAILED tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[4-4]\nFAILED tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[0-5]\nFAILED tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[8-8]\nFAILED tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[6-0]\n============================== 5 failed in 1.59s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656606.37158,
+      "duration": 1.261063814163208,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uruzhm38",
+      "environment": {},
+      "summary": {
+        "failed": 5,
+        "total": 5,
+        "collected": 5
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_011.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_011.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[0-0]",
+              "type": "Function",
+              "lineno": 56
+            },
+            {
+              "nodeid": "tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[4-4]",
+              "type": "Function",
+              "lineno": 56
+            },
+            {
+              "nodeid": "tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[0-5]",
+              "type": "Function",
+              "lineno": 56
+            },
+            {
+              "nodeid": "tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[8-8]",
+              "type": "Function",
+              "lineno": 56
+            },
+            {
+              "nodeid": "tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[6-0]",
+              "type": "Function",
+              "lineno": 56
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[0-0]",
+          "lineno": 56,
+          "outcome": "failed",
+          "keywords": [
+            "test_first_opened_cell_never_holds_a_mine[0-0]",
+            "parametrize",
+            "pytestmark",
+            "0-0",
+            "test_spec_011.py",
+            "unit",
+            "tests",
+            "hollow_uruzhm38",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0009601999918231741,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000949699999182485,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uruzhm38\\tests\\unit\\test_spec_011.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_011.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 0, column = 0\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (0, 0),  # corner\n            (4, 4),  # interior\n            (0, 5),  # top edge\n            (8, 8),  # opposite corner\n            (6, 0),  # left edge\n        ],\n    )\n    def test_first_opened_cell_never_holds_a_mine(row, column):\n        for i in range(REPEATS):\n            game = _ready_game(i)\n    \n            game.open_cell(row=row, column=column)\n    \n            opened = _cell(game, row, column)\n            # First open of a Ready game: mines are placed only on cells other than\n            # the opened one, so the opened cell holds no mine.\n            assert opened[\"has_mine\"] is False\n            # It is a safe Hidden cell, so it becomes Opened (not Detonated).\n>           assert opened[\"state\"] == \"Opened\"\nE           AssertionError: assert 'Hidden' == 'Opened'\nE             \nE             - Opened\nE             + Hidden\n\ntests\\unit\\test_spec_011.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.000487600002088584,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[4-4]",
+          "lineno": 56,
+          "outcome": "failed",
+          "keywords": [
+            "test_first_opened_cell_never_holds_a_mine[4-4]",
+            "parametrize",
+            "pytestmark",
+            "4-4",
+            "test_spec_011.py",
+            "unit",
+            "tests",
+            "hollow_uruzhm38",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008131000067805871,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007905999955255538,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uruzhm38\\tests\\unit\\test_spec_011.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_011.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 4, column = 4\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (0, 0),  # corner\n            (4, 4),  # interior\n            (0, 5),  # top edge\n            (8, 8),  # opposite corner\n            (6, 0),  # left edge\n        ],\n    )\n    def test_first_opened_cell_never_holds_a_mine(row, column):\n        for i in range(REPEATS):\n            game = _ready_game(i)\n    \n            game.open_cell(row=row, column=column)\n    \n            opened = _cell(game, row, column)\n            # First open of a Ready game: mines are placed only on cells other than\n            # the opened one, so the opened cell holds no mine.\n            assert opened[\"has_mine\"] is False\n            # It is a safe Hidden cell, so it becomes Opened (not Detonated).\n>           assert opened[\"state\"] == \"Opened\"\nE           AssertionError: assert 'Hidden' == 'Opened'\nE             \nE             - Opened\nE             + Hidden\n\ntests\\unit\\test_spec_011.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004317999992053956,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[0-5]",
+          "lineno": 56,
+          "outcome": "failed",
+          "keywords": [
+            "test_first_opened_cell_never_holds_a_mine[0-5]",
+            "parametrize",
+            "pytestmark",
+            "0-5",
+            "test_spec_011.py",
+            "unit",
+            "tests",
+            "hollow_uruzhm38",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006774999928893521,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006385000015143305,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uruzhm38\\tests\\unit\\test_spec_011.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_011.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 0, column = 5\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (0, 0),  # corner\n            (4, 4),  # interior\n            (0, 5),  # top edge\n            (8, 8),  # opposite corner\n            (6, 0),  # left edge\n        ],\n    )\n    def test_first_opened_cell_never_holds_a_mine(row, column):\n        for i in range(REPEATS):\n            game = _ready_game(i)\n    \n            game.open_cell(row=row, column=column)\n    \n            opened = _cell(game, row, column)\n            # First open of a Ready game: mines are placed only on cells other than\n            # the opened one, so the opened cell holds no mine.\n            assert opened[\"has_mine\"] is False\n            # It is a safe Hidden cell, so it becomes Opened (not Detonated).\n>           assert opened[\"state\"] == \"Opened\"\nE           AssertionError: assert 'Hidden' == 'Opened'\nE             \nE             - Opened\nE             + Hidden\n\ntests\\unit\\test_spec_011.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0005020000098738819,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[8-8]",
+          "lineno": 56,
+          "outcome": "failed",
+          "keywords": [
+            "test_first_opened_cell_never_holds_a_mine[8-8]",
+            "parametrize",
+            "pytestmark",
+            "8-8",
+            "test_spec_011.py",
+            "unit",
+            "tests",
+            "hollow_uruzhm38",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007125999982235953,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007233999931486323,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uruzhm38\\tests\\unit\\test_spec_011.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_011.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 8, column = 8\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (0, 0),  # corner\n            (4, 4),  # interior\n            (0, 5),  # top edge\n            (8, 8),  # opposite corner\n            (6, 0),  # left edge\n        ],\n    )\n    def test_first_opened_cell_never_holds_a_mine(row, column):\n        for i in range(REPEATS):\n            game = _ready_game(i)\n    \n            game.open_cell(row=row, column=column)\n    \n            opened = _cell(game, row, column)\n            # First open of a Ready game: mines are placed only on cells other than\n            # the opened one, so the opened cell holds no mine.\n            assert opened[\"has_mine\"] is False\n            # It is a safe Hidden cell, so it becomes Opened (not Detonated).\n>           assert opened[\"state\"] == \"Opened\"\nE           AssertionError: assert 'Hidden' == 'Opened'\nE             \nE             - Opened\nE             + Hidden\n\ntests\\unit\\test_spec_011.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004160999960731715,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_011.py::test_first_opened_cell_never_holds_a_mine[6-0]",
+          "lineno": 56,
+          "outcome": "failed",
+          "keywords": [
+            "test_first_opened_cell_never_holds_a_mine[6-0]",
+            "parametrize",
+            "pytestmark",
+            "6-0",
+            "test_spec_011.py",
+            "unit",
+            "tests",
+            "hollow_uruzhm38",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006229999999050051,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006272000027820468,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uruzhm38\\tests\\unit\\test_spec_011.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_011.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 6, column = 0\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (0, 0),  # corner\n            (4, 4),  # interior\n            (0, 5),  # top edge\n            (8, 8),  # opposite corner\n            (6, 0),  # left edge\n        ],\n    )\n    def test_first_opened_cell_never_holds_a_mine(row, column):\n        for i in range(REPEATS):\n            game = _ready_game(i)\n    \n            game.open_cell(row=row, column=column)\n    \n            opened = _cell(game, row, column)\n            # First open of a Ready game: mines are placed only on cells other than\n            # the opened one, so the opened cell holds no mine.\n            assert opened[\"has_mine\"] is False\n            # It is a safe Hidden cell, so it becomes Opened (not Detonated).\n>           assert opened[\"state\"] == \"Opened\"\nE           AssertionError: assert 'Hidden' == 'Opened'\nE             \nE             - Opened\nE             + Hidden\n\ntests\\unit\\test_spec_011.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0005362000083550811,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 6.216
+}

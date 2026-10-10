@@ -1,0 +1,367 @@
+{
+  "seq": 353,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:29",
+  "t_offset_s": 400.014,
+  "thread": "red_19",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656607.6029005,
+        "duration": 1.6470417976379395,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7lolc0ln",
+        "environment": {},
+        "summary": {
+          "failed": 6,
+          "passed": 1,
+          "total": 7,
+          "collected": 7
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_021.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_021.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Ready]",
+                "type": "Function",
+                "lineno": 72
+              },
+              {
+                "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Playing]",
+                "type": "Function",
+                "lineno": 72
+              },
+              {
+                "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Ready]",
+                "type": "Function",
+                "lineno": 72
+              },
+              {
+                "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Playing]",
+                "type": "Function",
+                "lineno": 72
+              },
+              {
+                "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Ready]",
+                "type": "Function",
+                "lineno": 72
+              },
+              {
+                "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Playing]",
+                "type": "Function",
+                "lineno": 72
+              },
+              {
+                "nodeid": "tests/unit/test_spec_021.py::test_flagging_opened_cell_at_mine_count_is_ignored",
+                "type": "Function",
+                "lineno": 95
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Ready]",
+            "lineno": 72,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Ready]",
+              "parametrize",
+              "pytestmark",
+              "9-Ready",
+              "test_spec_021.py",
+              "unit",
+              "tests",
+              "hollow_7lolc0ln",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009506000060355291,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007360000017797574,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7lolc0ln\\tests\\unit\\test_spec_021.py",
+                "lineno": 83,
+                "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_021.py",
+                  "lineno": 83,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Ready', flags_already = 9\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\"flags_already\", [MINE_COUNT - 1, MINE_COUNT, MINE_COUNT + 1])\n    def test_flagging_hidden_cell_is_not_limited_by_mine_count(status, flags_already):\n        game = _build_game(status, flags_already)\n        before = {c[\"id\"]: c[\"state\"] for c in game.cells}\n    \n        game.toggle_flag(row=TARGET[0], column=TARGET[1])\n    \n        # Target (8, 8) was Hidden, status Ready/Playing allows flagging, and flags\n        # are unlimited, so it becomes Flagged even when flags_placed >= mine_count.\n>       assert _cell(game, *TARGET)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_021.py:83: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004361000028438866,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Playing]",
+            "lineno": 72,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Playing]",
+              "parametrize",
+              "pytestmark",
+              "9-Playing",
+              "test_spec_021.py",
+              "unit",
+              "tests",
+              "hollow_7lolc0ln",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007522000087192282,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010678999969968572,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7lolc0ln\\tests\\unit\\test_spec_021.py",
+                "lineno": 83,
+                "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_021.py",
+                  "lineno": 83,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Playing', flags_already = 9\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\"flags_already\", [MINE_COUNT - 1, MINE_COUNT, MINE_COUNT + 1])\n    def test_flagging_hidden_cell_is_not_limited_by_mine_count(status, flags_already):\n        game = _build_game(status, flags_already)\n        before = {c[\"id\"]: c[\"state\"] for c in game.cells}\n    \n        game.toggle_flag(row=TARGET[0], column=TARGET[1])\n    \n        # Target (8, 8) was Hidden, status Ready/Playing allows flagging, and flags\n        # are unlimited, so it becomes Flagged even when flags_placed >= mine_count.\n>       assert _cell(game, *TARGET)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_021.py:83: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004697999975178391,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Ready]",
+            "lineno": 72,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Ready]",
+              "parametrize",
+              "pytestmark",
+              "10-Ready",
+              "test_spec_021.py",
+              "unit",
+              "tests",
+              "hollow_7lolc0ln",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011900000099558383,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008364000095752999,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7lolc0ln\\tests\\unit\\test_spec_021.py",
+                "lineno": 83,
+                "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_021.py",
+                  "lineno": 83,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Ready', flags_already = 10\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\"flags_already\", [MINE_COUNT - 1, MINE_COUNT, MINE_COUNT + 1])\n    def test_flagging_hidden_cell_is_not_limited_by_mine_count(status, flags_already):\n        game = _build_game(status, flags_already)\n        before = {c[\"id\"]: c[\"state\"] for c in game.cells}\n    \n        game.toggle_flag(row=TARGET[0], column=TARGET[1])\n    \n        # Target (8, 8) was Hidden, status Ready/Playing allows flagging, and flags\n        # are unlimited, so it becomes Flagged even when flags_placed >= mine_count.\n>       assert _cell(game, *TARGET)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_021.py:83: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00043420000292826444,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Playing]",
+            "lineno": 72,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Playing]",
+              "parametrize",
+              "pytestmark",
+              "10-Playing",
+              "test_spec_021.py",
+              "unit",
+              "tests",
+              "hollow_7lolc0ln",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008438000077148899,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011306999949738383,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7lolc0ln\\tests\\unit\\test_spec_021.py",
+                "lineno": 83,
+                "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_021.py",
+                  "lineno": 83,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Playing', flags_already = 10\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\"flags_already\", [MINE_COUNT - 1, MINE_COUNT, MINE_COUNT + 1])\n    def test_flagging_hidden_cell_is_not_limited_by_mine_count(status, flags_already):\n        game = _build_game(status, flags_already)\n        before = {c[\"id\"]: c[\"state\"] for c in game.cells}\n    \n        game.toggle_flag(row=TARGET[0], column=TARGET[1])\n    \n        # Target (8, 8) was Hidden, status Ready/Playing allows flagging, and flags\n        # are unlimited, so it becomes Flagged even when flags_placed >= mine_count.\n>       assert _cell(game, *TARGET)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_021.py:83: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004389000096125528,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Ready]",
+            "lineno": 72,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Ready]",
+              "parametrize",
+              "pytestmark",
+              "11-Ready",
+              "test_spec_021.py",
+              "unit",
+              "tests",
+              "hollow_7lolc0ln",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007132000027922913,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009073999972315505,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7lolc0ln\\tests\\unit\\test_spec_021.py",
+                "lineno": 83,
+                "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_021.py",
+                  "lineno": 83,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Ready', flags_already = 11\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\"flags_already\", [MINE_COUNT - 1, MINE_COUNT, MINE_COUNT + 1])\n    def test_flagging_hidden_cell_is_not_limited_by_mine_count(status, flags_already):\n        game = _build_game(status, flags_already)\n        before = {c[\"id\"]: c[\"state\"] for c in game.cells}\n    \n        game.toggle_flag(row=TARGET[0], column=TARGET[1])\n    \n        # Target (8, 8) was Hidden, status Ready/Playing allows flagging, and flags\n        # are unlimited, so it becomes Flagged even when flags_placed >= mine_count.\n>       assert _cell(game, *TARGET)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_021.py:83: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00044499999785330147,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Playing]",
+            "lineno": 72,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Playing]",
+              "parametrize",
+              "pytestmark",
+              "11-Playing",
+              "test_spec_021.py",
+              "unit",
+              "tests",
+              "hollow_7lolc0ln",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006699999939883128,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009740000095916912,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7lolc0ln\\tests\\unit\\test_spec_021.py",
+                "lineno": 83,
+                "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_021.py",
+                  "lineno": 83,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Playing', flags_already = 11\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\"flags_already\", [MINE_COUNT - 1, MINE_COUNT, MINE_COUNT + 1])\n    def test_flagging_hidden_cell_is_not_limited_by_mine_count(status, flags_already):\n        game = _build_game(status, flags_already)\n        before = {c[\"id\"]: c[\"state\"] for c in game.cells}\n    \n        game.toggle_flag(row=TARGET[0], column=TARGET[1])\n    \n        # Target (8, 8) was Hidden, status Ready/Playing allows flagging, and flags\n        # are unlimited, so it becomes Flagged even when flags_placed >= mine_count.\n>       assert _cell(game, *TARGET)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_021.py:83: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00041870000131893903,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_021.py::test_flagging_opened_cell_at_mine_count_is_ignored",
+            "lineno": 95,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagging_opened_cell_at_mine_count_is_ignored",
+              "test_spec_021.py",
+              "unit",
+              "tests",
+              "hollow_7lolc0ln",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00044129999878350645,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007157000072766095,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005949000042164698,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,121 @@
+{
+  "seq": 148,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.395,
+  "thread": "red_11",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652644.7462444,
+        "duration": 0.42298412322998047,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_012.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_012.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_012.py::test_first_reveal_starts_timer",
+                "type": "Function",
+                "lineno": 25
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_012.py::test_flag_does_not_start_timer",
+                "type": "Function",
+                "lineno": 53
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_012.py::test_first_reveal_starts_timer",
+            "lineno": 25,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_reveal_starts_timer",
+              "test_spec_012.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005945999873802066,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001523099999758415,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003496999997878447,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_012.py::test_flag_does_not_start_timer",
+            "lineno": 53,
+            "outcome": "passed",
+            "keywords": [
+              "test_flag_does_not_start_timer",
+              "test_spec_012.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000375300005543977,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004518999921856448,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003595000016503036,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

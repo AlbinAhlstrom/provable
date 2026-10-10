@@ -1,0 +1,166 @@
+{
+  "seq": 282,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:17",
+  "t_offset_s": 198.544,
+  "thread": "red_10",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652457.0174727,
+        "duration": 1.0934100151062012,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_210zkkrz",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_012.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_012.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_012.py::test_revealing_hidden_unflagged_cell_makes_it_revealed",
+                "type": "Function",
+                "lineno": 38
+              },
+              {
+                "nodeid": "tests/unit/test_spec_012.py::test_revealing_hidden_cell_keeps_session_in_progress_and_other_cells_hidden",
+                "type": "Function",
+                "lineno": 48
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_012.py::test_revealing_hidden_unflagged_cell_makes_it_revealed",
+            "lineno": 38,
+            "outcome": "failed",
+            "keywords": [
+              "test_revealing_hidden_unflagged_cell_makes_it_revealed",
+              "test_spec_012.py",
+              "unit",
+              "tests",
+              "hollow_210zkkrz",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006055999983800575,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00041880000208038837,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_210zkkrz\\tests\\unit\\test_spec_012.py",
+                "lineno": 15,
+                "message": "AssertionError: no cell at (0, 1)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_012.py",
+                  "lineno": 40,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_012.py",
+                  "lineno": 32,
+                  "message": "in _in_progress_beginner_session"
+                },
+                {
+                  "path": "tests\\unit\\test_spec_012.py",
+                  "lineno": 15,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_revealing_hidden_unflagged_cell_makes_it_revealed():\n>       session = _in_progress_beginner_session()\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_012.py:40: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_012.py:32: in _in_progress_beginner_session\n    _cell(session, row, column)[\"has_mine\"] = True\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=5, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 0, column = 1\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (0, 1)\n\ntests\\unit\\test_spec_012.py:15: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006818000110797584,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_012.py::test_revealing_hidden_cell_keeps_session_in_progress_and_other_cells_hidden",
+            "lineno": 48,
+            "outcome": "failed",
+            "keywords": [
+              "test_revealing_hidden_cell_keeps_session_in_progress_and_other_cells_hidden",
+              "test_spec_012.py",
+              "unit",
+              "tests",
+              "hollow_210zkkrz",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004385000065667555,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00044260000868234783,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_210zkkrz\\tests\\unit\\test_spec_012.py",
+                "lineno": 15,
+                "message": "AssertionError: no cell at (0, 1)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_012.py",
+                  "lineno": 50,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_012.py",
+                  "lineno": 32,
+                  "message": "in _in_progress_beginner_session"
+                },
+                {
+                  "path": "tests\\unit\\test_spec_012.py",
+                  "lineno": 15,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_revealing_hidden_cell_keeps_session_in_progress_and_other_cells_hidden():\n>       session = _in_progress_beginner_session()\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_012.py:50: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_012.py:32: in _in_progress_beginner_session\n    _cell(session, row, column)[\"has_mine\"] = True\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=5, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 0, column = 1\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (0, 1)\n\ntests\\unit\\test_spec_012.py:15: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005262999911792576,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

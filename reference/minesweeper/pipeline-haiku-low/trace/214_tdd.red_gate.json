@@ -1,0 +1,153 @@
+{
+  "seq": 214,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 5,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.reconsider_test",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:18:41",
+  "t_offset_s": 165.345,
+  "thread": "reconsider_0",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652720.6889498,
+        "duration": 0.1802046298980713,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_oh_gbgkq",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_001.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_001.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[exactly_at_eight_neighbour_limit]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[just_beyond_limit_outside_mine_ignored]",
+                "type": "Function",
+                "lineno": 84
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[exactly_at_eight_neighbour_limit]",
+            "lineno": 84,
+            "outcome": "failed",
+            "keywords": [
+              "test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[exactly_at_eight_neighbour_limit]",
+              "parametrize",
+              "pytestmark",
+              "exactly_at_eight_neighbour_limit",
+              "test_spec_001.py",
+              "unit",
+              "tests",
+              "hollow_oh_gbgkq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000509400008013472,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006915999983903021,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_oh_gbgkq\\tests\\unit\\test_spec_001.py",
+                "lineno": 121,
+                "message": "AssertionError: assert 'hidden' == 'revealed'\n  \n  - revealed\n  + hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_001.py",
+                  "lineno": 121,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "mine_positions = {(3, 3), (3, 4), (3, 5), (4, 3), (4, 5), (5, 3), ...}\nexpected_count = 8\n\n    @pytest.mark.parametrize(\n        \"mine_positions, expected_count\",\n        [\n            pytest.param(AT_LIMIT_MINES, 8, id=\"exactly_at_eight_neighbour_limit\"),\n            pytest.param(BEYOND_LIMIT_MINES, 7, id=\"just_beyond_limit_outside_mine_ignored\"),\n        ],\n    )\n    def test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours(mine_positions, expected_count):\n        # Given: a fixed mine layout on a 9x9 board with an in-progress game.\n        # Every cell's adjacent_mine_count is set from that layout.\n        game = make_in_progress_game(mine_positions)\n        target_row, target_column = TARGET\n    \n        # The target (4,4) is hidden and holds no mine, so it is a safe cell.\n        assert cell_at(game, target_row, target_column)[\"has_mine\"] is False\n        assert cell_at(game, target_row, target_column)[\"state\"] == \"hidden\"\n    \n        # Expected count from the layout: mines among the on-board neighbours of (4,4).\n        # Walk-through: at the limit all 8 neighbours are mines -> 8.\n        # Beyond the limit, (3,3) is clear -> 7; (2,4) is not a neighbour -> not counted.\n        expected_from_layout = sum(\n            1 for (r, c) in neighbours_of(target_row, target_column) if (r, c) in mine_positions\n        )\n        assert expected_from_layout == expected_count\n    \n        # When: the safe target cell is revealed.\n        # Walk-through: the target is hidden, unflagged and not a mine, and the game\n        # is in_progress, so the reveal is accepted. Its count is nonzero, so no\n        # region expands. Many safe cells stay hidden, so the game is not won, and\n        # no mine is hit, so it is not lost.\n        game.reveal_cell(row=target_row, column=target_column)\n    \n        # Then: the revealed cell shows the number of mines among its neighbours.\n        revealed = cell_at(game, target_row, target_column)\n        # Walk-through: the target went hidden -> revealed; its count stays at the\n        # layout value (8 or 7).\n>       assert revealed[\"state\"] == \"revealed\"\nE       AssertionError: assert 'hidden' == 'revealed'\nE         \nE         - revealed\nE         + hidden\n\ntests\\unit\\test_spec_001.py:121: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00029660000291187316,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[just_beyond_limit_outside_mine_ignored]",
+            "lineno": 84,
+            "outcome": "failed",
+            "keywords": [
+              "test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[just_beyond_limit_outside_mine_ignored]",
+              "parametrize",
+              "pytestmark",
+              "just_beyond_limit_outside_mine_ignored",
+              "test_spec_001.py",
+              "unit",
+              "tests",
+              "hollow_oh_gbgkq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00038889999268576503,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006262999959290028,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_oh_gbgkq\\tests\\unit\\test_spec_001.py",
+                "lineno": 121,
+                "message": "AssertionError: assert 'hidden' == 'revealed'\n  \n  - revealed\n  + hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_001.py",
+                  "lineno": 121,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "mine_positions = {(2, 4), (3, 4), (3, 5), (4, 3), (4, 5), (5, 3), ...}\nexpected_count = 7\n\n    @pytest.mark.parametrize(\n        \"mine_positions, expected_count\",\n        [\n            pytest.param(AT_LIMIT_MINES, 8, id=\"exactly_at_eight_neighbour_limit\"),\n            pytest.param(BEYOND_LIMIT_MINES, 7, id=\"just_beyond_limit_outside_mine_ignored\"),\n        ],\n    )\n    def test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours(mine_positions, expected_count):\n        # Given: a fixed mine layout on a 9x9 board with an in-progress game.\n        # Every cell's adjacent_mine_count is set from that layout.\n        game = make_in_progress_game(mine_positions)\n        target_row, target_column = TARGET\n    \n        # The target (4,4) is hidden and holds no mine, so it is a safe cell.\n        assert cell_at(game, target_row, target_column)[\"has_mine\"] is False\n        assert cell_at(game, target_row, target_column)[\"state\"] == \"hidden\"\n    \n        # Expected count from the layout: mines among the on-board neighbours of (4,4).\n        # Walk-through: at the limit all 8 neighbours are mines -> 8.\n        # Beyond the limit, (3,3) is clear -> 7; (2,4) is not a neighbour -> not counted.\n        expected_from_layout = sum(\n            1 for (r, c) in neighbours_of(target_row, target_column) if (r, c) in mine_positions\n        )\n        assert expected_from_layout == expected_count\n    \n        # When: the safe target cell is revealed.\n        # Walk-through: the target is hidden, unflagged and not a mine, and the game\n        # is in_progress, so the reveal is accepted. Its count is nonzero, so no\n        # region expands. Many safe cells stay hidden, so the game is not won, and\n        # no mine is hit, so it is not lost.\n        game.reveal_cell(row=target_row, column=target_column)\n    \n        # Then: the revealed cell shows the number of mines among its neighbours.\n        revealed = cell_at(game, target_row, target_column)\n        # Walk-through: the target went hidden -> revealed; its count stays at the\n        # layout value (8 or 7).\n>       assert revealed[\"state\"] == \"revealed\"\nE       AssertionError: assert 'hidden' == 'revealed'\nE         \nE         - revealed\nE         + hidden\n\ntests\\unit\\test_spec_001.py:121: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0002871999895432964,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

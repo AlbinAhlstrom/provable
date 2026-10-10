@@ -1,0 +1,154 @@
+{
+  "seq": 312,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:26",
+  "t_offset_s": 397.776,
+  "thread": "red_15",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_027.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 3 items\n\ntests\\unit\\test_spec_027.py::test_tick_reaches_exactly_999_from_998 PASSED [ 33%]\ntests\\unit\\test_spec_027.py::test_tick_beyond_999_stays_at_999 PASSED    [ 66%]\ntests\\unit\\test_spec_027.py::test_repeated_ticks_at_999_never_exceed_cap PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_07d70993acd042c79c04f291271c7939.json\n============================== 3 passed in 0.67s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656611.281314,
+      "duration": 0.6581392288208008,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 3,
+        "total": 3,
+        "collected": 3
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_027.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_027.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_027.py::test_tick_reaches_exactly_999_from_998",
+              "type": "Function",
+              "lineno": 69
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_027.py::test_tick_beyond_999_stays_at_999",
+              "type": "Function",
+              "lineno": 84
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_027.py::test_repeated_ticks_at_999_never_exceed_cap",
+              "type": "Function",
+              "lineno": 99
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_027.py::test_tick_reaches_exactly_999_from_998",
+          "lineno": 69,
+          "outcome": "passed",
+          "keywords": [
+            "test_tick_reaches_exactly_999_from_998",
+            "test_spec_027.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007945999968796968,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0013017000019317493,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00035849999403581023,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_027.py::test_tick_beyond_999_stays_at_999",
+          "lineno": 84,
+          "outcome": "passed",
+          "keywords": [
+            "test_tick_beyond_999_stays_at_999",
+            "test_spec_027.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008071000047493726,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.007268599991220981,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004259999986970797,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_027.py::test_repeated_ticks_at_999_never_exceed_cap",
+          "lineno": 99,
+          "outcome": "passed",
+          "keywords": [
+            "test_repeated_ticks_at_999_never_exceed_cap",
+            "test_spec_027.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007048999977996573,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008600000001024455,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004824999923584983,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 4.959
+}

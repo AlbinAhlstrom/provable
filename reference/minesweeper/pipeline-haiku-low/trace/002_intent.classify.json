@@ -1,0 +1,41 @@
+{
+  "seq": 2,
+  "step": "intent.classify",
+  "kind": "step",
+  "depth": 1,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold"
+  ],
+  "started_at": "19:15:55",
+  "t_offset_s": 0.002,
+  "thread": "AnyIO worker thread",
+  "input": {
+    "args": [
+      "A minesweeper game"
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "product_type": "game",
+    "audience": "players who want to play a single-player minesweeper puzzle",
+    "primary_goal": "Let players clear a minefield by revealing safe cells and flagging mines, with a clear win or loss outcome.",
+    "scope_summary": "A playable minesweeper game consisting of a grid board, mine placement, cell reveal and flag interaction, and win/loss detection with a game timer and mine counter.",
+    "model_focus": [
+      "Board grid and cell states (hidden, revealed, flagged)",
+      "Mine layout and adjacency counts",
+      "Game session state (in progress, won, lost) and elapsed time",
+      "Difficulty settings (grid size and mine count)"
+    ],
+    "out_of_scope": [
+      "User accounts and login",
+      "Online leaderboards or cross-player multiplayer",
+      "Payments or monetization",
+      "Server-side back-office administration"
+    ],
+    "assumptions": [
+      "The game is single-player and runs locally or in a browser without a backend.",
+      "Standard minesweeper rules apply, with the first reveal guaranteed safe unless the pitch specifies otherwise."
+    ]
+  },
+  "duration_s": 2.521
+}

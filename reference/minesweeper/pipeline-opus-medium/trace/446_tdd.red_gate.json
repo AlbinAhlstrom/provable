@@ -1,0 +1,134 @@
+{
+  "seq": 446,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:39",
+  "t_offset_s": 410.04,
+  "thread": "red_4",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656618.1524165,
+        "duration": 1.0733642578125,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_f0ei8fqp",
+        "environment": {},
+        "summary": {
+          "passed": 1,
+          "failed": 1,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_042.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_042.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_042.py::test_chording_a_hidden_cell_changes_nothing",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "tests/unit/test_spec_042.py::test_chording_the_same_cell_when_opened_does_open_neighbours",
+                "type": "Function",
+                "lineno": 115
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_042.py::test_chording_a_hidden_cell_changes_nothing",
+            "lineno": 87,
+            "outcome": "passed",
+            "keywords": [
+              "test_chording_a_hidden_cell_changes_nothing",
+              "test_spec_042.py",
+              "unit",
+              "tests",
+              "hollow_f0ei8fqp",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006544999923789874,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0020878000068478286,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004175000067334622,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_042.py::test_chording_the_same_cell_when_opened_does_open_neighbours",
+            "lineno": 115,
+            "outcome": "failed",
+            "keywords": [
+              "test_chording_the_same_cell_when_opened_does_open_neighbours",
+              "test_spec_042.py",
+              "unit",
+              "tests",
+              "hollow_f0ei8fqp",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004023999936180189,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001042299991240725,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_f0ei8fqp\\tests\\unit\\test_spec_042.py",
+                "lineno": 132,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_042.py",
+                  "lineno": 132,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_chording_the_same_cell_when_opened_does_open_neighbours():\n        # Same arrangement, only the target's state differs (Opened instead of\n        # Hidden): now the chord applies.\n        game = _build_playing_game(\"Opened\")\n    \n        game.chord_cell(row=TARGET[0], column=TARGET[1])\n    \n        # Target (4,4) is Opened with number 1 and exactly 1 Flagged neighbour\n        # (3,3), so every Hidden neighbour is opened. Those neighbours, (3,4),\n        # (3,5), (4,3), (4,5), (5,3), (5,4), (5,5), hold no mine, so each becomes\n        # Opened. The flagged mine (3,3) stays Flagged and no mine is opened, so the\n        # game is not Lost.\n        for n in _neighbours(*TARGET):\n            if n == (3, 3):\n                assert _cell(game, *n)[\"state\"] == \"Flagged\"\n            else:\n>               assert _cell(game, *n)[\"state\"] == \"Opened\"\nE               AssertionError: assert 'Hidden' == 'Opened'\nE                 \nE                 - Opened\nE                 + Hidden\n\ntests\\unit\\test_spec_042.py:132: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005080999981146306,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

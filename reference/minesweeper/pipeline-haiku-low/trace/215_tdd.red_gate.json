@@ -1,0 +1,320 @@
+{
+  "seq": 215,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 5,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.reconsider_test",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:18:42",
+  "t_offset_s": 166.72,
+  "thread": "reconsider_3",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652722.132453,
+        "duration": 0.2050762176513672,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ohs9c_k7",
+        "environment": {},
+        "summary": {
+          "passed": 4,
+          "failed": 3,
+          "total": 7,
+          "collected": 7
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_015.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_of_revealed_cell_is_ignored",
+                "type": "Function",
+                "lineno": 53
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell",
+                "type": "Function",
+                "lineno": 63
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[9-8]",
+                "type": "Function",
+                "lineno": 81
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[8-9]",
+                "type": "Function",
+                "lineno": 81
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[-1-0]",
+                "type": "Function",
+                "lineno": 81
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_after_loss_is_refused_and_state_unchanged",
+                "type": "Function",
+                "lineno": 94
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_toggle_flag_after_win_is_refused_and_state_unchanged",
+                "type": "Function",
+                "lineno": 112
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_of_revealed_cell_is_ignored",
+            "lineno": 53,
+            "outcome": "passed",
+            "keywords": [
+              "test_reveal_of_revealed_cell_is_ignored",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_ohs9c_k7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00047230000200215727,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006876999977976084,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0001934000028995797,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell",
+            "lineno": 63,
+            "outcome": "failed",
+            "keywords": [
+              "test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_ohs9c_k7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000262100002146326,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005474999925354496,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ohs9c_k7\\tests\\unit\\test_spec_015.py",
+                "lineno": 73,
+                "message": "AssertionError: assert 'hidden' == 'revealed'\n  \n  - revealed\n  + hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_015.py",
+                  "lineno": 73,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell():\n        game = in_progress_game(revealed=((4, 4),))\n    \n        # (8,8) is the last row and last column inside the 9x9 board. It is hidden,\n        # unflagged, and touches the mine at (7,7), so its count is 1 and no expansion occurs.\n        game.reveal_cell(row=8, column=8)\n    \n        target = next(c for c in game.cells if c[\"row\"] == 8 and c[\"column\"] == 8)\n        # The target was hidden and unflagged, so it is now revealed.\n>       assert target[\"state\"] == \"revealed\"\nE       AssertionError: assert 'hidden' == 'revealed'\nE         \nE         - revealed\nE         + hidden\n\ntests\\unit\\test_spec_015.py:73: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00029760001052636653,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[9-8]",
+            "lineno": 81,
+            "outcome": "passed",
+            "keywords": [
+              "test_reveal_outside_board_is_ignored[9-8]",
+              "parametrize",
+              "pytestmark",
+              "9-8",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_ohs9c_k7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004027999966638163,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006607000104850158,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00017510000907350332,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[8-9]",
+            "lineno": 81,
+            "outcome": "passed",
+            "keywords": [
+              "test_reveal_outside_board_is_ignored[8-9]",
+              "parametrize",
+              "pytestmark",
+              "8-9",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_ohs9c_k7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004022000066470355,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000684200000250712,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00018689999706111848,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[-1-0]",
+            "lineno": 81,
+            "outcome": "passed",
+            "keywords": [
+              "test_reveal_outside_board_is_ignored[-1-0]",
+              "parametrize",
+              "pytestmark",
+              "-1-0",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_ohs9c_k7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00032800000917632133,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000676800002111122,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0002010000025620684,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_after_loss_is_refused_and_state_unchanged",
+            "lineno": 94,
+            "outcome": "failed",
+            "keywords": [
+              "test_reveal_after_loss_is_refused_and_state_unchanged",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_ohs9c_k7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00020620001305360347,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006720999954268336,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ohs9c_k7\\tests\\unit\\test_spec_015.py",
+                "lineno": 104,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_015.py",
+                  "lineno": 104,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "def test_reveal_after_loss_is_refused_and_state_unchanged():\n        # Lost game: the mine at (7,7) has been revealed; (0,0) is a hidden safe cell with count 0.\n        game = in_progress_game(revealed=((7, 7),))\n        game.status = \"lost\"\n        game.ended_at = \"2024-01-01T10:05:00\"\n        game.elapsed_seconds = 300\n        before = copy.deepcopy(game.to_dict())\n    \n        # The game has ended, so the reveal is refused and must not expand the zero-count cell (0,0).\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_015.py:104: Failed"
+            },
+            "teardown": {
+              "duration": 0.00022220000391826034,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_toggle_flag_after_win_is_refused_and_state_unchanged",
+            "lineno": 112,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_after_win_is_refused_and_state_unchanged",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_ohs9c_k7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00020429999858606607,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008815999899525195,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ohs9c_k7\\tests\\unit\\test_spec_015.py",
+                "lineno": 125,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_015.py",
+                  "lineno": 125,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "def test_toggle_flag_after_win_is_refused_and_state_unchanged():\n        # Won game: every safe cell is revealed; the mine at (7,7) is flagged as the win rule requires.\n        all_safe = {(r, c) for r in range(9) for c in range(9)} - {MINE}\n        game = in_progress_game()\n        game.status = \"won\"\n        game.ended_at = \"2024-01-01T10:08:00\"\n        game.elapsed_seconds = 480\n        game.flag_count = 1\n        game.cells = make_cells({MINE}, revealed=all_safe, flagged={MINE})\n        before = copy.deepcopy(game.to_dict())\n    \n        # The game has ended, so removing the flag is refused.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_015.py:125: Failed"
+            },
+            "teardown": {
+              "duration": 0.00024190000840462744,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

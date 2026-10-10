@@ -1,0 +1,103 @@
+{
+  "seq": 242,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:13",
+  "t_offset_s": 194.606,
+  "thread": "red_11",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652453.3923504,
+        "duration": 1.4794485569000244,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_013.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_013.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_013.py::test_flagged_cell_cannot_be_revealed",
+                "type": "Function",
+                "lineno": 22
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_013.py::test_flagged_cell_cannot_be_revealed",
+            "lineno": 22,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagged_cell_cannot_be_revealed",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006737999938195571,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010393999982625246,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_013.py",
+                "lineno": 37,
+                "message": "NameError: name 'pytest' is not defined"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_013.py",
+                  "lineno": 37,
+                  "message": "in test_flagged_cell_cannot_be_revealed"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_013.py:37: in test_flagged_cell_cannot_be_revealed\n    with pytest.raises(Exception) as exc_info:\n         ^^^^^^\nE   NameError: name 'pytest' is not defined"
+            },
+            "teardown": {
+              "duration": 0.0005043999990448356,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_SYNTAX_OR_EXEC",
+    "approved": false,
+    "reason": "Broken test, not a valid RED: NameError: name 'pytest' is not defined"
+  },
+  "duration_s": 0.0
+}

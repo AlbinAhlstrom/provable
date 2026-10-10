@@ -1,0 +1,195 @@
+{
+  "seq": 317,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:27",
+  "t_offset_s": 398.375,
+  "thread": "red_2",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656606.5740578,
+        "duration": 1.2803370952606201,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yb86xxfz",
+        "environment": {},
+        "summary": {
+          "failed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_003.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_003.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_003.py::test_choosing_intermediate_creates_16_by_16_game_with_40_mines[beginner-9-9-10]",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "tests/unit/test_spec_003.py::test_choosing_intermediate_creates_16_by_16_game_with_40_mines[expert-30-16-99]",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "tests/unit/test_spec_003.py::test_choosing_a_difficulty_just_beyond_intermediate_name_is_refused",
+                "type": "Function",
+                "lineno": 72
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_003.py::test_choosing_intermediate_creates_16_by_16_game_with_40_mines[beginner-9-9-10]",
+            "lineno": 19,
+            "outcome": "failed",
+            "keywords": [
+              "test_choosing_intermediate_creates_16_by_16_game_with_40_mines[beginner-9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "beginner-9-9-10",
+              "test_spec_003.py",
+              "unit",
+              "tests",
+              "hollow_yb86xxfz",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0012292999890632927,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000570999996853061,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yb86xxfz\\tests\\unit\\test_spec_003.py",
+                "lineno": 41,
+                "message": "assert False\n +  where False = isinstance(None, Game)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_003.py",
+                  "lineno": 41,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "start_difficulty = 'beginner', start_width = 9, start_height = 9\nstart_mines = 10\n\n    @pytest.mark.parametrize(\n        \"start_difficulty, start_width, start_height, start_mines\",\n        [\n            (\"beginner\", 9, 9, 10),\n            (\"expert\", 30, 16, 99),\n        ],\n    )\n    def test_choosing_intermediate_creates_16_by_16_game_with_40_mines(\n        start_difficulty, start_width, start_height, start_mines\n    ):\n        # Given a Ready game of another difficulty (no cell opened, nothing ended)\n        game = _make_game(\"game-1\", start_difficulty, start_width, start_height, start_mines)\n    \n        # When the player chooses Intermediate from the menu. Width, height and\n        # mine count are not given: a preset decides them itself.\n        new_game = game.change_difficulty(\n            difficulty_id=\"intermediate\", width=None, height=None, mine_count=None\n        )\n    \n        # Then: intermediate is a known preset, so no InvalidConfigurationError is\n        # raised and a new Game is returned with difficulty_id \"intermediate\".\n>       assert isinstance(new_game, Game)\nE       assert False\nE        +  where False = isinstance(None, Game)\n\ntests\\unit\\test_spec_003.py:41: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00047280000580940396,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_003.py::test_choosing_intermediate_creates_16_by_16_game_with_40_mines[expert-30-16-99]",
+            "lineno": 19,
+            "outcome": "failed",
+            "keywords": [
+              "test_choosing_intermediate_creates_16_by_16_game_with_40_mines[expert-30-16-99]",
+              "parametrize",
+              "pytestmark",
+              "expert-30-16-99",
+              "test_spec_003.py",
+              "unit",
+              "tests",
+              "hollow_yb86xxfz",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009949999948730692,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005379999929573387,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yb86xxfz\\tests\\unit\\test_spec_003.py",
+                "lineno": 41,
+                "message": "assert False\n +  where False = isinstance(None, Game)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_003.py",
+                  "lineno": 41,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "start_difficulty = 'expert', start_width = 30, start_height = 16\nstart_mines = 99\n\n    @pytest.mark.parametrize(\n        \"start_difficulty, start_width, start_height, start_mines\",\n        [\n            (\"beginner\", 9, 9, 10),\n            (\"expert\", 30, 16, 99),\n        ],\n    )\n    def test_choosing_intermediate_creates_16_by_16_game_with_40_mines(\n        start_difficulty, start_width, start_height, start_mines\n    ):\n        # Given a Ready game of another difficulty (no cell opened, nothing ended)\n        game = _make_game(\"game-1\", start_difficulty, start_width, start_height, start_mines)\n    \n        # When the player chooses Intermediate from the menu. Width, height and\n        # mine count are not given: a preset decides them itself.\n        new_game = game.change_difficulty(\n            difficulty_id=\"intermediate\", width=None, height=None, mine_count=None\n        )\n    \n        # Then: intermediate is a known preset, so no InvalidConfigurationError is\n        # raised and a new Game is returned with difficulty_id \"intermediate\".\n>       assert isinstance(new_game, Game)\nE       assert False\nE        +  where False = isinstance(None, Game)\n\ntests\\unit\\test_spec_003.py:41: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.000486999997519888,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_003.py::test_choosing_a_difficulty_just_beyond_intermediate_name_is_refused",
+            "lineno": 72,
+            "outcome": "failed",
+            "keywords": [
+              "test_choosing_a_difficulty_just_beyond_intermediate_name_is_refused",
+              "test_spec_003.py",
+              "unit",
+              "tests",
+              "hollow_yb86xxfz",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003741999971680343,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004422999918460846,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yb86xxfz\\tests\\unit\\test_spec_003.py",
+                "lineno": 79,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_003.py",
+                  "lineno": 79,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "def test_choosing_a_difficulty_just_beyond_intermediate_name_is_refused():\n        # Given the same Ready beginner game as in the accepted case\n        game = _make_game(\"game-1\", \"beginner\", 9, 9, 10)\n    \n        # When the player submits an unknown difficulty id, one letter short of\n        # \"intermediate\", with the same other arguments as the accepted case\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_003.py:79: Failed"
+            },
+            "teardown": {
+              "duration": 0.00038889999268576503,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

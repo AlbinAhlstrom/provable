@@ -1,0 +1,197 @@
+{
+  "seq": 210,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:16",
+  "t_offset_s": 387.321,
+  "thread": "red_5",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_006.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 4 items\n\ntests\\unit\\test_spec_006.py::test_custom_height_at_limits_is_accepted[9] PASSED [ 25%]\ntests\\unit\\test_spec_006.py::test_custom_height_at_limits_is_accepted[24] PASSED [ 50%]\ntests\\unit\\test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[8] PASSED [ 75%]\ntests\\unit\\test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[25] PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_5c49cf1bc60a4ae38959f8233dcad833.json\n============================== 4 passed in 1.04s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656601.3055134,
+      "duration": 1.0359747409820557,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 4,
+        "total": 4,
+        "collected": 4
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_006.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_006.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_006.py::test_custom_height_at_limits_is_accepted[9]",
+              "type": "Function",
+              "lineno": 42
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_006.py::test_custom_height_at_limits_is_accepted[24]",
+              "type": "Function",
+              "lineno": 42
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[8]",
+              "type": "Function",
+              "lineno": 67
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[25]",
+              "type": "Function",
+              "lineno": 67
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_006.py::test_custom_height_at_limits_is_accepted[9]",
+          "lineno": 42,
+          "outcome": "passed",
+          "keywords": [
+            "test_custom_height_at_limits_is_accepted[9]",
+            "parametrize",
+            "pytestmark",
+            "9",
+            "test_spec_006.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0011333000002196059,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008913999918149784,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00035099999513477087,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_006.py::test_custom_height_at_limits_is_accepted[24]",
+          "lineno": 42,
+          "outcome": "passed",
+          "keywords": [
+            "test_custom_height_at_limits_is_accepted[24]",
+            "parametrize",
+            "pytestmark",
+            "24",
+            "test_spec_006.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0009259999933419749,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.03767109999898821,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00043069999082945287,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[8]",
+          "lineno": 67,
+          "outcome": "passed",
+          "keywords": [
+            "test_custom_height_just_beyond_limits_is_refused[8]",
+            "parametrize",
+            "pytestmark",
+            "8",
+            "test_spec_006.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007117999921320006,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006509000086225569,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003726000140886754,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_006.py::test_custom_height_just_beyond_limits_is_refused[25]",
+          "lineno": 67,
+          "outcome": "passed",
+          "keywords": [
+            "test_custom_height_just_beyond_limits_is_refused[25]",
+            "parametrize",
+            "pytestmark",
+            "25",
+            "test_spec_006.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000741700001526624,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006494999979622662,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000599599996348843,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.654
+}

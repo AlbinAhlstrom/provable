@@ -1,0 +1,293 @@
+{
+  "seq": 166,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:17:27",
+  "t_offset_s": 91.642,
+  "thread": "red_14",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652646.9511201,
+        "duration": 0.2592124938964844,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_stlcjxn7",
+        "environment": {},
+        "summary": {
+          "passed": 6,
+          "failed": 1,
+          "total": 7,
+          "collected": 7
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_015.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_of_revealed_cell_is_ignored",
+                "type": "Function",
+                "lineno": 53
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell",
+                "type": "Function",
+                "lineno": 63
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[9-8]",
+                "type": "Function",
+                "lineno": 77
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[8-9]",
+                "type": "Function",
+                "lineno": 77
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[-1-0]",
+                "type": "Function",
+                "lineno": 77
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_reveal_after_loss_is_ignored",
+                "type": "Function",
+                "lineno": 88
+              },
+              {
+                "nodeid": "tests/unit/test_spec_015.py::test_toggle_flag_after_win_is_ignored",
+                "type": "Function",
+                "lineno": 102
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_of_revealed_cell_is_ignored",
+            "lineno": 53,
+            "outcome": "passed",
+            "keywords": [
+              "test_reveal_of_revealed_cell_is_ignored",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_stlcjxn7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005628000071737915,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007639999967068434,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00019789999350905418,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell",
+            "lineno": 63,
+            "outcome": "failed",
+            "keywords": [
+              "test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_stlcjxn7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00037200000951997936,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006529999955091625,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_stlcjxn7\\tests\\unit\\test_spec_015.py",
+                "lineno": 72,
+                "message": "AssertionError: assert 'hidden' == 'revealed'\n  \n  - revealed\n  + hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_015.py",
+                  "lineno": 72,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell():\n        game = in_progress_game(revealed=((4, 4),))\n    \n        # (8,8) is the last row and last column inside the 9x9 board. It is hidden,\n        # unflagged, and touches the mine at (7,7), so its count is 1 and no expansion occurs.\n        game.reveal_cell(row=8, column=8)\n    \n        target = next(c for c in game.cells if c[\"row\"] == 8 and c[\"column\"] == 8)\n>       assert target[\"state\"] == \"revealed\"\nE       AssertionError: assert 'hidden' == 'revealed'\nE         \nE         - revealed\nE         + hidden\n\ntests\\unit\\test_spec_015.py:72: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0003867999912472442,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[9-8]",
+            "lineno": 77,
+            "outcome": "passed",
+            "keywords": [
+              "test_reveal_outside_board_is_ignored[9-8]",
+              "parametrize",
+              "pytestmark",
+              "9-8",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_stlcjxn7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005885999999009073,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011288000096101314,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003156000020680949,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[8-9]",
+            "lineno": 77,
+            "outcome": "passed",
+            "keywords": [
+              "test_reveal_outside_board_is_ignored[8-9]",
+              "parametrize",
+              "pytestmark",
+              "8-9",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_stlcjxn7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003954000130761415,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006862000009277835,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00019799999427050352,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[-1-0]",
+            "lineno": 77,
+            "outcome": "passed",
+            "keywords": [
+              "test_reveal_outside_board_is_ignored[-1-0]",
+              "parametrize",
+              "pytestmark",
+              "-1-0",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_stlcjxn7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005113000079290941,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007667000027140602,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00021899999410379678,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_reveal_after_loss_is_ignored",
+            "lineno": 88,
+            "outcome": "passed",
+            "keywords": [
+              "test_reveal_after_loss_is_ignored",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_stlcjxn7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00033999999868683517,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012832000065827742,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003127999952994287,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_015.py::test_toggle_flag_after_win_is_ignored",
+            "lineno": 102,
+            "outcome": "passed",
+            "keywords": [
+              "test_toggle_flag_after_win_is_ignored",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "hollow_stlcjxn7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00026449999131727964,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009025000035762787,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00020819999917875975,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,103 @@
+{
+  "seq": 293,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:18",
+  "t_offset_s": 199.242,
+  "thread": "red_20",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652457.3775086,
+        "duration": 1.0688831806182861,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ym4w8_5n",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_022.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_022.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_022.py::test_flagging_hidden_cell_before_first_reveal_keeps_session_ready",
+                "type": "Function",
+                "lineno": 26
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_022.py::test_flagging_hidden_cell_before_first_reveal_keeps_session_ready",
+            "lineno": 26,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagging_hidden_cell_before_first_reveal_keeps_session_ready",
+              "test_spec_022.py",
+              "unit",
+              "tests",
+              "hollow_ym4w8_5n",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006144999933894724,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008106000022962689,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ym4w8_5n\\tests\\unit\\test_spec_022.py",
+                "lineno": 54,
+                "message": "AssertionError: assert 'hidden' == 'flagged'\n  \n  - flagged\n  + hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_022.py",
+                  "lineno": 54,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_flagging_hidden_cell_before_first_reveal_keeps_session_ready():\n        # Given a session in Ready state (beginner-sized board, 9 x 9, 10 mines).\n        session = GameSession(\n            id=\"session-1\",\n            difficulty_id=\"beginner\",\n            rows=9,\n            columns=9,\n            mine_count=10,\n        )\n        # Shape of a newly created session: one hidden record per position, no mines placed.\n        session.cells = build_hidden_board(9, 9)\n        # Status is ready, elapsed_seconds is 0, started_at is None (newly created state).\n    \n        # When the player flags the hidden cell at (4, 4).\n        session.toggle_flag(row=4, column=4)\n    \n        # Then the session status remains ready.\n        # Working: the cell was hidden and unflagged, so the flag is allowed in Ready;\n        # a flag neither reveals (no reveal, so no first-reveal transition) nor starts the timer.\n        assert session.status == \"ready\"\n    \n        # And elapsed_seconds stays 0.\n        # Working: the timer only starts at the first reveal; a flag does not start it.\n        assert session.elapsed_seconds == 0\n    \n        # Supporting checks that the flag actually happened on the hidden cell:\n        # the cell at (4, 4) was hidden, so toggling makes it flagged and raises flag_count from 0 to 1.\n>       assert find_cell(session, 4, 4)[\"state\"] == \"flagged\"\nE       AssertionError: assert 'hidden' == 'flagged'\nE         \nE         - flagged\nE         + hidden\n\ntests\\unit\\test_spec_022.py:54: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00041640001290943474,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

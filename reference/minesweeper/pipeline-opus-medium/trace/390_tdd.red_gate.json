@@ -1,0 +1,146 @@
+{
+  "seq": 390,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:32",
+  "t_offset_s": 403.968,
+  "thread": "red_3",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656606.8460486,
+        "duration": 1.3141798973083496,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_vvsoh7ai",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_004.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_004.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_004.py::test_choosing_expert_creates_30_by_16_game_with_99_mines",
+                "type": "Function",
+                "lineno": 41
+              },
+              {
+                "nodeid": "tests/unit/test_spec_004.py::test_unknown_difficulty_next_to_expert_is_refused_and_game_unchanged",
+                "type": "Function",
+                "lineno": 83
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_004.py::test_choosing_expert_creates_30_by_16_game_with_99_mines",
+            "lineno": 41,
+            "outcome": "failed",
+            "keywords": [
+              "test_choosing_expert_creates_30_by_16_game_with_99_mines",
+              "test_spec_004.py",
+              "unit",
+              "tests",
+              "hollow_vvsoh7ai",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000592500000493601,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000494399995659478,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_vvsoh7ai\\tests\\unit\\test_spec_004.py",
+                "lineno": 51,
+                "message": "AttributeError: 'NoneType' object has no attribute 'difficulty_id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_004.py",
+                  "lineno": 51,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "def test_choosing_expert_creates_30_by_16_game_with_99_mines():\n        game = _make_ready_beginner_game()\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"expert\", width=None, height=None, mine_count=None\n        )\n    \n        # \"expert\" is a known preset: its size comes from the preset (30 wide x 16 high,\n        # 99 mines), not from the custom arguments, which are all None here.\n>       assert new_game.difficulty_id == \"expert\"\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'difficulty_id'\n\ntests\\unit\\test_spec_004.py:51: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00037789999623782933,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_004.py::test_unknown_difficulty_next_to_expert_is_refused_and_game_unchanged",
+            "lineno": 83,
+            "outcome": "failed",
+            "keywords": [
+              "test_unknown_difficulty_next_to_expert_is_refused_and_game_unchanged",
+              "test_spec_004.py",
+              "unit",
+              "tests",
+              "hollow_vvsoh7ai",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005377000052249059,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001205300010042265,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_vvsoh7ai\\tests\\unit\\test_spec_004.py",
+                "lineno": 90,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_004.py",
+                  "lineno": 90,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "def test_unknown_difficulty_next_to_expert_is_refused_and_game_unchanged():\n        game = _make_ready_beginner_game()\n        before = copy.deepcopy(game.to_dict())\n    \n        # \"Expert\" (capitalised) is not one of the known ids\n        # beginner / intermediate / expert / custom, so it is refused.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_004.py:90: Failed"
+            },
+            "teardown": {
+              "duration": 0.0004208000027574599,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

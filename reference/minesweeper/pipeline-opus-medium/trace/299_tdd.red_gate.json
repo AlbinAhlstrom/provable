@@ -1,0 +1,183 @@
+{
+  "seq": 299,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.864,
+  "thread": "red_12",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656602.3267732,
+        "duration": 1.3425145149230957,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 4,
+          "total": 4,
+          "collected": 4
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_014.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_014.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_014.py::test_interior_cell_with_all_eight_neighbours_mined_shows_eight",
+                "type": "Function",
+                "lineno": 75
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_014.py::test_interior_cell_with_mines_only_just_beyond_its_neighbours_shows_zero",
+                "type": "Function",
+                "lineno": 93
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_014.py::test_interior_cell_with_three_mined_neighbours_shows_three",
+                "type": "Function",
+                "lineno": 116
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_014.py::test_counts_computed_on_first_open_match_mines_among_neighbours",
+                "type": "Function",
+                "lineno": 132
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_014.py::test_interior_cell_with_all_eight_neighbours_mined_shows_eight",
+            "lineno": 75,
+            "outcome": "passed",
+            "keywords": [
+              "test_interior_cell_with_all_eight_neighbours_mined_shows_eight",
+              "test_spec_014.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001304399993387051,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001063200004864484,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0006327000010060146,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_014.py::test_interior_cell_with_mines_only_just_beyond_its_neighbours_shows_zero",
+            "lineno": 93,
+            "outcome": "passed",
+            "keywords": [
+              "test_interior_cell_with_mines_only_just_beyond_its_neighbours_shows_zero",
+              "test_spec_014.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005130000063218176,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0019746999896597117,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0006514999986393377,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_014.py::test_interior_cell_with_three_mined_neighbours_shows_three",
+            "lineno": 116,
+            "outcome": "passed",
+            "keywords": [
+              "test_interior_cell_with_three_mined_neighbours_shows_three",
+              "test_spec_014.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005387000128393993,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008773000008659437,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00040580000495538116,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_014.py::test_counts_computed_on_first_open_match_mines_among_neighbours",
+            "lineno": 132,
+            "outcome": "passed",
+            "keywords": [
+              "test_counts_computed_on_first_open_match_mines_among_neighbours",
+              "test_spec_014.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006972999981371686,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.017705199992633425,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000665700004901737,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

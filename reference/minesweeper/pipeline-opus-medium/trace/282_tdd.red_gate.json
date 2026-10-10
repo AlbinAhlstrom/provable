@@ -1,0 +1,158 @@
+{
+  "seq": 282,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.467,
+  "thread": "red_14",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656601.2563689,
+        "duration": 0.875028133392334,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_016.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_016.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_016.py::test_arranged_counts_are_as_expected",
+                "type": "Function",
+                "lineno": 53
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_016.py::test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[0]",
+                "type": "Function",
+                "lineno": 67
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_016.py::test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[4]",
+                "type": "Function",
+                "lineno": 67
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_016.py::test_arranged_counts_are_as_expected",
+            "lineno": 53,
+            "outcome": "passed",
+            "keywords": [
+              "test_arranged_counts_are_as_expected",
+              "test_spec_016.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006245000113267452,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008479999960400164,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003738000086741522,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_016.py::test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[0]",
+            "lineno": 67,
+            "outcome": "passed",
+            "keywords": [
+              "test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[0]",
+              "parametrize",
+              "pytestmark",
+              "0",
+              "test_spec_016.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000930900001549162,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010904000082518905,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039229998947121203,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_016.py::test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[4]",
+            "lineno": 67,
+            "outcome": "passed",
+            "keywords": [
+              "test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[4]",
+              "parametrize",
+              "pytestmark",
+              "4",
+              "test_spec_016.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006056999991415069,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012104000052204356,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005088000034447759,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

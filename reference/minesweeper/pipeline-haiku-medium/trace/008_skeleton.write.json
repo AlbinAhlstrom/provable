@@ -1,0 +1,271 @@
+{
+  "seq": 8,
+  "step": "skeleton.write",
+  "kind": "step",
+  "depth": 1,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold"
+  ],
+  "started_at": "19:12:11",
+  "t_offset_s": 72.236,
+  "thread": "AnyIO worker thread",
+  "input": {
+    "args": [
+      {
+        "domain_name": "Minesweeper",
+        "entities": [
+          {
+            "name": "Difficulty",
+            "is_aggregate_root": true,
+            "audience_role": "shown_to_audience",
+            "attributes": [
+              {
+                "name": "id",
+                "type": "string",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "rows",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "columns",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "mine_count",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              }
+            ],
+            "relationships": [
+              {
+                "target": "GameSession",
+                "relation_type": "one_to_many"
+              }
+            ]
+          },
+          {
+            "name": "GameSession",
+            "is_aggregate_root": true,
+            "audience_role": "created_by_audience",
+            "attributes": [
+              {
+                "name": "id",
+                "type": "string",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "difficulty_id",
+                "type": "string",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "required": true,
+                "default_value": "ready",
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "rows",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "columns",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "mine_count",
+                "type": "int",
+                "required": true,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "flag_count",
+                "type": "int",
+                "required": true,
+                "default_value": 0,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "elapsed_seconds",
+                "type": "int",
+                "required": true,
+                "default_value": 0,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "started_at",
+                "type": "datetime",
+                "required": false,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "ended_at",
+                "type": "datetime",
+                "required": false,
+                "default_value": null,
+                "item_name": "",
+                "item_attributes": []
+              },
+              {
+                "name": "cells",
+                "type": "list",
+                "required": false,
+                "default_value": [],
+                "item_name": "Cell",
+                "item_attributes": [
+                  {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "default_value": null,
+                    "item_name": "",
+                    "item_attributes": []
+                  },
+                  {
+                    "name": "row",
+                    "type": "int",
+                    "required": true,
+                    "default_value": null,
+                    "item_name": "",
+                    "item_attributes": []
+                  },
+                  {
+                    "name": "column",
+                    "type": "int",
+                    "required": true,
+                    "default_value": null,
+                    "item_name": "",
+                    "item_attributes": []
+                  },
+                  {
+                    "name": "has_mine",
+                    "type": "boolean",
+                    "required": true,
+                    "default_value": false,
+                    "item_name": "",
+                    "item_attributes": []
+                  },
+                  {
+                    "name": "adjacent_mine_count",
+                    "type": "int",
+                    "required": true,
+                    "default_value": 0,
+                    "item_name": "",
+                    "item_attributes": []
+                  },
+                  {
+                    "name": "state",
+                    "type": "string",
+                    "required": true,
+                    "default_value": "hidden",
+                    "item_name": "",
+                    "item_attributes": []
+                  }
+                ]
+              }
+            ],
+            "relationships": [
+              {
+                "target": "Difficulty",
+                "relation_type": "many_to_one"
+              }
+            ]
+          }
+        ],
+        "value_objects": [],
+        "enums": []
+      }
+    ],
+    "kwargs": {
+      "target_dir": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": [
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\difficulty.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\game_session.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\__init__.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\exceptions.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\events.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\adapters\\__init__.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\adapters\\repository.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\service_layer\\__init__.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\service_layer\\unit_of_work.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\adapters\\record_store.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\conftest.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\entrypoints\\__init__.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\entrypoints\\schemas.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\entrypoints\\routers\\__init__.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\entrypoints\\routers\\difficulty.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\entrypoints\\routers\\game_session.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\app.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_skeleton.py",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\package.json",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\vite.config.ts",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\vite.config.ts",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\tsconfig.json",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\tailwind.config.js",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\postcss.config.js",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\index.html",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\index.html",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\index.css",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\main.tsx",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\main.tsx",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\api\\client.ts",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\App.tsx",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\theme.css",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\theme.css",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\api\\client.ts",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\App.tsx",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\views\\DifficultyView.tsx",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\views\\DifficultyView.tsx",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\views\\GameSessionView.tsx",
+    "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\views\\GameSessionView.tsx"
+  ],
+  "duration_s": 0.023
+}

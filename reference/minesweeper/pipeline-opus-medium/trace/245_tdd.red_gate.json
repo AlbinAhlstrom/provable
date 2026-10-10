@@ -1,0 +1,189 @@
+{
+  "seq": 245,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:20",
+  "t_offset_s": 391.996,
+  "thread": "red_8",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656600.564833,
+        "duration": 0.6443073749542236,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 4,
+          "total": 4,
+          "collected": 4
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_010.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_010.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_010.py::test_newly_created_game_has_no_mines_laid",
+                "type": "Function",
+                "lineno": 53
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_010.py::test_flagging_before_first_open_does_not_lay_mines",
+                "type": "Function",
+                "lineno": 73
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_010.py::test_mines_are_laid_when_first_cell_is_opened[0-0]",
+                "type": "Function",
+                "lineno": 86
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_010.py::test_mines_are_laid_when_first_cell_is_opened[4-4]",
+                "type": "Function",
+                "lineno": 86
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_010.py::test_newly_created_game_has_no_mines_laid",
+            "lineno": 53,
+            "outcome": "passed",
+            "keywords": [
+              "test_newly_created_game_has_no_mines_laid",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0014651999954367056,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008665999921504408,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000673100003041327,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_010.py::test_flagging_before_first_open_does_not_lay_mines",
+            "lineno": 73,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagging_before_first_open_does_not_lay_mines",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006354000070132315,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007762000022921711,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0008667999936733395,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_010.py::test_mines_are_laid_when_first_cell_is_opened[0-0]",
+            "lineno": 86,
+            "outcome": "passed",
+            "keywords": [
+              "test_mines_are_laid_when_first_cell_is_opened[0-0]",
+              "parametrize",
+              "pytestmark",
+              "0-0",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0035232000082032755,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.003076000008150004,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0006745999999111518,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_010.py::test_mines_are_laid_when_first_cell_is_opened[4-4]",
+            "lineno": 86,
+            "outcome": "passed",
+            "keywords": [
+              "test_mines_are_laid_when_first_cell_is_opened[4-4]",
+              "parametrize",
+              "pytestmark",
+              "4-4",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000789700003224425,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011976999958278611,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039510001079179347,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.001
+}

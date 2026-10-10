@@ -1,0 +1,153 @@
+{
+  "seq": 285,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:17",
+  "t_offset_s": 198.854,
+  "thread": "red_2",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652457.5646684,
+        "duration": 1.4602971076965332,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_030.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_030.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_030.py::test_timer_stops_on_win_or_loss[won]",
+                "type": "Function",
+                "lineno": 51
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_030.py::test_timer_stops_on_win_or_loss[lost]",
+                "type": "Function",
+                "lineno": 51
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_030.py::test_timer_stops_on_win_or_loss[won]",
+            "lineno": 51,
+            "outcome": "failed",
+            "keywords": [
+              "test_timer_stops_on_win_or_loss[won]",
+              "parametrize",
+              "pytestmark",
+              "won",
+              "test_spec_030.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008615999977337196,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005433000042103231,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_030.py",
+                "lineno": 60,
+                "message": "AttributeError: 'GameSession' object has no attribute 'advance_time'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_030.py",
+                  "lineno": 60,
+                  "message": "in test_timer_stops_on_win_or_loss"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_030.py:60: in test_timer_stops_on_win_or_loss\n    session.advance_time(seconds=60)\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'advance_time'"
+            },
+            "teardown": {
+              "duration": 0.0004459000047063455,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_030.py::test_timer_stops_on_win_or_loss[lost]",
+            "lineno": 51,
+            "outcome": "failed",
+            "keywords": [
+              "test_timer_stops_on_win_or_loss[lost]",
+              "parametrize",
+              "pytestmark",
+              "lost",
+              "test_spec_030.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007579000084660947,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00045249999675434083,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_030.py",
+                "lineno": 60,
+                "message": "AttributeError: 'GameSession' object has no attribute 'advance_time'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_030.py",
+                  "lineno": 60,
+                  "message": "in test_timer_stops_on_win_or_loss"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_030.py:60: in test_timer_stops_on_win_or_loss\n    session.advance_time(seconds=60)\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'advance_time'"
+            },
+            "teardown": {
+              "duration": 0.000490399994305335,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

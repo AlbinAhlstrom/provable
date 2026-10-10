@@ -1,0 +1,406 @@
+{
+  "seq": 18,
+  "step": "behaviour.implement_actions",
+  "kind": "step",
+  "depth": 1,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold"
+  ],
+  "started_at": "19:16:24",
+  "t_offset_s": 28.984,
+  "thread": "synthesis_3",
+  "input": {
+    "args": [
+      {
+        "actions": [
+          {
+            "name": "start_game",
+            "aggregate": "Game",
+            "performed_by": "audience",
+            "params": [
+              "difficulty"
+            ],
+            "description": "Discards any current board and timer and sets up a new board for the chosen difficulty (Beginner, Intermediate or Expert) with rows, columns and mine_count taken from that difficulty, status ready, elapsed_seconds 0, flag_count 0, no started_at or ended_at, and no mine layout fixed yet; allowed in any status."
+          },
+          {
+            "name": "reveal_cell",
+            "aggregate": "Game",
+            "performed_by": "audience",
+            "params": [
+              "row",
+              "column"
+            ],
+            "description": "On the first reveal of a ready game, places mines avoiding the target cell and its neighbours, sets started_at, and moves the game to in_progress; then reveals the hidden, unflagged target cell, expanding zero-count regions, and may end the game as lost (on a mine) or won (when all safe cells are revealed); ignored if the game is won or lost, the position is outside the board, or the cell is already revealed or flagged."
+          },
+          {
+            "name": "toggle_flag",
+            "aggregate": "Game",
+            "performed_by": "audience",
+            "params": [
+              "row",
+              "column"
+            ],
+            "description": "Cycles a hidden cell to flagged (flag_count increases by one) or a flagged cell back to hidden (flag_count decreases by one), without starting the timer; allowed only while the game is ready or in_progress, and ignored for revealed cells or positions outside the board."
+          }
+        ],
+        "starting_states": [
+          {
+            "aggregate": "Game",
+            "description": "id set to the given identifier; difficulty \"Beginner\"; status \"ready\"; started_at null; ended_at null; elapsed_seconds 0; mine_count 10; flag_count 0; cells is an empty list until the first reveal lays out the board; events empty."
+          }
+        ],
+        "vocabulary": [
+          {
+            "aggregate": "Game",
+            "field": "status",
+            "values": [
+              {
+                "value": "ready",
+                "meaning": "New game, no cell revealed yet, timer not started, mine layout not fixed."
+              },
+              {
+                "value": "in_progress",
+                "meaning": "First reveal has happened and the session has not ended."
+              },
+              {
+                "value": "won",
+                "meaning": "Every non-mine cell has been revealed; terminal."
+              },
+              {
+                "value": "lost",
+                "meaning": "A mine was revealed; terminal."
+              }
+            ]
+          },
+          {
+            "aggregate": "Game",
+            "field": "difficulty",
+            "values": [
+              {
+                "value": "Beginner",
+                "meaning": "9 rows by 9 columns with 10 mines."
+              },
+              {
+                "value": "Intermediate",
+                "meaning": "16 rows by 16 columns with 40 mines."
+              },
+              {
+                "value": "Expert",
+                "meaning": "16 rows by 30 columns with 99 mines."
+              }
+            ]
+          },
+          {
+            "aggregate": "Game",
+            "field": "cells[].state",
+            "values": [
+              {
+                "value": "hidden",
+                "meaning": "Cell not yet revealed and not flagged; default state."
+              },
+              {
+                "value": "revealed",
+                "meaning": "Cell has been opened; shows a mine or an adjacency count."
+              },
+              {
+                "value": "flagged",
+                "meaning": "Player marked the hidden cell as a suspected mine."
+              }
+            ]
+          }
+        ],
+        "rejections": [
+          {
+            "aggregate": "Game",
+            "error": "InvalidActionError",
+            "raised_when": "An action is attempted that the rules do not allow, such as flagging or revealing after the game has been won or lost, revealing a flagged or revealed cell, or a position outside the board; the board and session are left unchanged."
+          }
+        ]
+      },
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    ],
+    "kwargs": {
+      "rules": [
+        {
+          "spec_id": "SPEC-001",
+          "title": "Adjacency count",
+          "description": "Each safe cell shows the number of mines among its up to eight neighbours.",
+          "given_when_then": "Given a game with mines placed and a safe cell at a position When the mine layout is fixed Then the cell's adjacent_mine_count equals the number of mines in its up to eight neighbouring cells.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-002",
+          "title": "Zero expansion",
+          "description": "A revealed cell with count 0 reveals all neighbours, recursively.",
+          "given_when_then": "Given a hidden cell with adjacent_mine_count 0 in an in-progress game When the player reveals it Then all its neighbouring hidden cells are revealed and any neighbour with count 0 continues the expansion recursively.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-003",
+          "title": "Zero expansion stops at numbered cells",
+          "description": "Expansion does not reveal past cells with a non-zero count, and does not reveal flagged cells.",
+          "given_when_then": "Given a zero-count reveal that reaches a neighbour with count greater than 0 or a flagged neighbour When expansion runs Then that neighbour is revealed only if hidden and not flagged, and expansion does not continue beyond it.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-004",
+          "title": "First-click safety",
+          "description": "The first reveal is never a mine, and its neighbours are mine-free; the layout is fixed at that moment.",
+          "given_when_then": "Given a game in ready status When the first cell is revealed Then mines are placed so that the revealed cell and all its neighbours have has_mine false, and the layout is fixed.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-005",
+          "title": "Flag placement on hidden cells",
+          "description": "Flags may be placed only on hidden cells.",
+          "given_when_then": "Given an in-progress game and a hidden cell When the player flags it Then the cell state becomes flagged and flag_count increases by one; Given a revealed cell When the player flags it Then the board is unchanged.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-006",
+          "title": "Flag removal",
+          "description": "Flags may be removed at any time while in progress; flagged cells cannot be revealed.",
+          "given_when_then": "Given a flagged cell in an in-progress game When the player removes the flag Then the cell returns to hidden and flag_count decreases by one; Given a flagged cell When the player attempts to reveal it Then the cell remains flagged and is not revealed.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-007",
+          "title": "Right-click cycle",
+          "description": "Right-click cycles hidden to flagged to hidden; question marks are not included.",
+          "given_when_then": "Given a hidden cell When the player right-clicks it Then it becomes flagged; Given a flagged cell When the player right-clicks it Then it becomes hidden; Given a revealed cell When right-clicked Then it is unchanged.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-008",
+          "title": "Mine counter may go negative",
+          "description": "Mine counter shows total mines minus flags placed and may be negative.",
+          "given_when_then": "Given a game with mine_count M and flag_count F When the counter is displayed Then it shows M minus F, including negative values when F exceeds M.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-009",
+          "title": "Loss on mine reveal",
+          "description": "Revealing a mine ends the session as lost; all mines are shown and wrong flags are marked.",
+          "given_when_then": "Given an in-progress game When the player reveals a mine Then status becomes lost, ended_at is set, all mine cells are shown as revealed, and flagged cells without mines are marked as wrong.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-010",
+          "title": "Win on all safe cells revealed",
+          "description": "Session is won when every non-mine cell is revealed; remaining unrevealed mines are auto-flagged.",
+          "given_when_then": "Given an in-progress game When the last non-mine cell is revealed Then status becomes won, ended_at is set, and every unrevealed mine cell becomes flagged.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-011",
+          "title": "Terminal state rejects changes",
+          "description": "No reveal or flag changes are accepted after won or lost; only restart is allowed.",
+          "given_when_then": "Given a game in won or lost status When the player reveals or flags any cell Then the board and status are unchanged; When the player restarts Then a new game is created.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-012",
+          "title": "Timer starts on first reveal",
+          "description": "Timer starts on first reveal, not before.",
+          "given_when_then": "Given a game in ready status When the first cell is revealed Then started_at is set and elapsed time begins; Given a game in ready status When a flag is placed Then the timer does not start.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-013",
+          "title": "Timer stops at session end",
+          "description": "Timer stops at win or loss.",
+          "given_when_then": "Given an in-progress game When the session is won or lost Then elapsed_seconds is fixed at the value at that moment and no longer increases.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-014",
+          "title": "Timer display cap",
+          "description": "Timer is capped at 999 seconds for display.",
+          "given_when_then": "Given elapsed time greater than 999 seconds When the timer is displayed Then it shows 999.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-015",
+          "title": "Invalid operations ignored",
+          "description": "Acting on revealed cells, after game end, or outside the board is ignored without changing state.",
+          "given_when_then": "Given any game state When the player reveals a revealed cell, acts after game end, or targets a position outside the board Then the board and session state are unchanged.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-016",
+          "title": "Restart resets session",
+          "description": "Starting a new game discards the current board and timer and returns to ready.",
+          "given_when_then": "Given a game in any status When the player starts a new game at a chosen difficulty Then a new board is created with status ready, elapsed time zero, and no mine layout fixed.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-017",
+          "title": "Difficulty grid and mine count",
+          "description": "Three difficulties define board size and mine count.",
+          "given_when_then": "Given a player starting a game When Beginner is chosen Then the board is 9x9 with 10 mines; Intermediate yields 16x16 with 40 mines; Expert yields 30x16 with 99 mines.",
+          "target_aggregate": "DifficultySetting",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "High",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-018",
+          "title": "Board edge boundaries",
+          "description": "Neighbour computation at board edges and corners counts only in-board cells.",
+          "given_when_then": "Given a cell on the board edge or corner When adjacency is computed Then only neighbours inside the board are counted, giving fewer than eight neighbours.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "behavior",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": true,
+          "priority": "Medium",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-019",
+          "title": "Grid cell presentation",
+          "description": "Board looks like classic Minesweeper: raised grey hidden tiles, flat light grey revealed tiles, numbers coloured as original (1 blue, 2 green, 3 red).",
+          "given_when_then": "Given a revealed cell with count 1 When the board is rendered Then the tile is flat light grey and the number is blue.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Low",
+          "status": "PENDING"
+        },
+        {
+          "spec_id": "SPEC-020",
+          "title": "Flag and header presentation",
+          "description": "Flags render red; the header shows mine counter, timer, and a restart control.",
+          "given_when_then": "Given a flagged cell When rendered Then a red flag is shown; Given a game in progress When the header is rendered Then mine counter, timer and restart button are visible above the grid.",
+          "target_aggregate": "Game",
+          "spec_type": "DOMAIN_INVARIANT",
+          "kind": "presentation",
+          "category": "INVARIANT",
+          "is_mathematical_boundary": false,
+          "priority": "Low",
+          "status": "PENDING"
+        }
+      ]
+    }
+  },
+  "output": {
+    "implemented": [
+      "start_game",
+      "reveal_cell",
+      "toggle_flag"
+    ],
+    "missing": [],
+    "runs": [
+      {
+        "aggregate": "Game",
+        "spec_id": "SPEC-ACT-GAME",
+        "status": "FULFILLED",
+        "error": "",
+        "attempts": 1
+      }
+    ],
+    "skipped": ""
+  },
+  "duration_s": 56.811
+}

@@ -1,0 +1,40 @@
+{
+  "seq": 116,
+  "step": "tdd.red_generate",
+  "kind": "step",
+  "depth": 2,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "tdd.draft_tests"
+  ],
+  "started_at": "20:20:10",
+  "t_offset_s": 201.855,
+  "thread": "draft_2",
+  "input": {
+    "args": [
+      {
+        "spec_id": "SPEC-034",
+        "title": "New best time",
+        "description": "A win on a standard difficulty faster than the stored best replaces it.",
+        "given_when_then": "Given a stored best time of B seconds for a standard difficulty When the player wins a game of that difficulty in T seconds with T < B Then the best time becomes T for that difficulty on this device",
+        "target_aggregate": "BestTime",
+        "spec_type": "DOMAIN_INVARIANT",
+        "kind": "behavior",
+        "category": "INVARIANT",
+        "is_mathematical_boundary": true,
+        "priority": "High",
+        "status": "PENDING"
+      },
+      "\n\n@dataclass\nclass BestTime:\n    \"\"\"BestTime.\"\"\"\n    id: str\n    difficulty_id: str\n    game_id: str\n    best_seconds: int\n    achieved_at: str\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n",
+      "best_time",
+      "BestTime"
+    ],
+    "kwargs": {
+      "existing_tests": "",
+      "interface_contract": "- Action `record_win`: params [`game_id`, `difficulty_id`, `elapsed_seconds`, `achieved_at`] — Applied automatically when a game is Won. For a standard difficulty (beginner, intermediate, expert) where elapsed_seconds < best_seconds, best_seconds becomes elapsed_seconds and game_id and achieved_at are updated; a slower or equal time keeps the stored best. A custom difficulty, or a difficulty_id differing from this record's, changes nothing.\n- A newly created `BestTime` (constructed with only its required fields) holds: Constructed with id, difficulty_id (beginner, intermediate or expert), game_id, best_seconds and achieved_at from the first win of that difficulty; it holds exactly those values, with events empty.\n- Field `difficulty_id` holds exactly one of: \"beginner\" (Best time for Beginner); \"intermediate\" (Best time for Intermediate); \"expert\" (Best time for Expert)",
+      "other_rules": "- First win sets best time: Given no best time stored for a standard difficulty When the player wins a game of that difficulty in T seconds Then a best time of T is recorded for that difficulty\n- Slower or equal win keeps best: Given a stored best time of B seconds for a standard difficulty When the player wins in T seconds with T >= B Then the best time remains B\n- Custom games record no best time: Given a game on Custom difficulty When the player wins it Then no best time is created or changed\n- Lost or abandoned games record no best time: Given a game that ends Lost or Abandoned When it ends Then no best time is created or changed"
+    }
+  },
+  "output": "import pytest\n\nfrom src.domain.best_time import BestTime\n\n\nSTORED_BEST = 100\nSTORED_GAME_ID = \"game-old\"\nSTORED_ACHIEVED_AT = \"2024-01-01T10:00:00+00:00\"\nNEW_GAME_ID = \"game-new\"\nNEW_ACHIEVED_AT = \"2024-02-01T12:30:00+00:00\"\n\n\ndef _stored_best(difficulty_id: str) -> BestTime:\n    return BestTime(\n        id=\"best-1\",\n        difficulty_id=difficulty_id,\n        game_id=STORED_GAME_ID,\n        best_seconds=STORED_BEST,\n        achieved_at=STORED_ACHIEVED_AT,\n    )\n\n\n@pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\ndef test_win_just_faster_than_stored_best_replaces_it(difficulty_id):\n    best = _stored_best(difficulty_id)\n\n    best.record_win(\n        game_id=NEW_GAME_ID,\n        difficulty_id=difficulty_id,\n        elapsed_seconds=STORED_BEST - 1,\n        achieved_at=NEW_ACHIEVED_AT,\n    )\n\n    # The record's difficulty is standard (beginner or expert), so the\n    # custom-difficulty rule does not apply. The win has the same difficulty_id\n    # as the record, and the game was won, so the lost/abandoned rule does not\n    # apply. Elapsed is 99 and the stored best is 100. Since 99 < 100, the\n    # \"slower or equal keeps best\" rule does not apply. So the best time\n    # becomes 99.\n    assert best.best_seconds == STORED_BEST - 1\n    # When the best time is replaced, the game_id is taken from the new win.\n    assert best.game_id == NEW_GAME_ID\n    # When the best time is replaced, achieved_at is taken from the new win.\n    assert best.achieved_at == NEW_ACHIEVED_AT\n    # The difficulty of the record is unchanged.\n    assert best.difficulty_id == difficulty_id\n\n\n@pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\ndef test_win_exactly_equal_to_stored_best_does_not_replace_it(difficulty_id):\n    best = _stored_best(difficulty_id)\n\n    best.record_win(\n        game_id=NEW_GAME_ID,\n        difficulty_id=difficulty_id,\n        elapsed_seconds=STORED_BEST,\n        achieved_at=NEW_ACHIEVED_AT,\n    )\n\n    # This case uses the same standard difficulty, the same matching\n    # difficulty_id and the same won game as the accepted case. Only the\n    # elapsed time differs. Elapsed is 100 and the stored best is 100. The\n    # replacement needs elapsed < 100, which does not hold. The \"slower or\n    # equal keeps best\" rule applies, so the best time stays 100.\n    assert best.best_seconds == STORED_BEST\n    # The stored best is kept, so game_id still refers to the old game.\n    assert best.game_id == STORED_GAME_ID\n    # The stored best is kept, so achieved_at keeps its old value.\n    assert best.achieved_at == STORED_ACHIEVED_AT\n    # The difficulty of the record is unchanged.\n    assert best.difficulty_id == difficulty_id\n",
+  "duration_s": 56.031
+}

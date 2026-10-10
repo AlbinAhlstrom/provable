@@ -1,0 +1,108 @@
+{
+  "seq": 284,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:17",
+  "t_offset_s": 198.795,
+  "thread": "red_22",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652457.1828642,
+        "duration": 1.0990166664123535,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_h3h2klnx",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_024.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_024.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_024.py::test_win_does_not_require_flags",
+                "type": "Function",
+                "lineno": 10
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_024.py::test_win_does_not_require_flags",
+            "lineno": 10,
+            "outcome": "failed",
+            "keywords": [
+              "test_win_does_not_require_flags",
+              "test_spec_024.py",
+              "unit",
+              "tests",
+              "hollow_h3h2klnx",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005832000024383888,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00039829999150242656,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_h3h2klnx\\tests\\unit\\test_spec_024.py",
+                "lineno": 8,
+                "message": "AssertionError: no cell at (1, 1)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_024.py",
+                  "lineno": 29,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_024.py",
+                  "lineno": 8,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_win_does_not_require_flags():\n        # Given a 2x2 board at \"beginner\" difficulty (the 2x2 size is set on the\n        # instance, the constructor does not validate presets).\n        # The constructor creates 4 hidden cells with has_mine false and count 0.\n        session = GameSession(\n            id=\"session-win-flags\",\n            difficulty_id=\"beginner\",\n            rows=2,\n            columns=2,\n            mine_count=1,\n        )\n    \n        # The session is already in progress, so no random placement happens on reveal.\n        session.status = \"in_progress\"\n        session.started_at = \"2024-01-01T10:00:00\"\n        session.elapsed_seconds = 0\n    \n        # Mine at (1, 1), still hidden and not flagged.\n>       mine = _cell_at(session, 1, 1)\n               ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_024.py:29: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='session-win-flags', difficulty_id='beginner', rows=2, columns=2, mine_count=1, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 1, column = 1\n\n    def _cell_at(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (1, 1)\n\ntests\\unit\\test_spec_024.py:8: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004922999942209572,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

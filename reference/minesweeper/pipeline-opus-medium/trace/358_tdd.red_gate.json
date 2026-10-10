@@ -1,0 +1,299 @@
+{
+  "seq": 358,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:29",
+  "t_offset_s": 400.107,
+  "thread": "red_11",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656607.8318276,
+        "duration": 1.5957047939300537,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7bkpwkxx",
+        "environment": {},
+        "summary": {
+          "failed": 4,
+          "passed": 2,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_013.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_013.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_013.py::test_open_hidden_safe_numbered_cell_in_playing_game_becomes_opened",
+                "type": "Function",
+                "lineno": 85
+              },
+              {
+                "nodeid": "tests/unit/test_spec_013.py::test_open_hidden_mine_cell_in_playing_game_becomes_detonated",
+                "type": "Function",
+                "lineno": 104
+              },
+              {
+                "nodeid": "tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[4-4]",
+                "type": "Function",
+                "lineno": 115
+              },
+              {
+                "nodeid": "tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[0-0]",
+                "type": "Function",
+                "lineno": 115
+              },
+              {
+                "nodeid": "tests/unit/test_spec_013.py::test_open_flagged_cell_is_not_opened",
+                "type": "Function",
+                "lineno": 129
+              },
+              {
+                "nodeid": "tests/unit/test_spec_013.py::test_open_hidden_cell_in_lost_game_changes_nothing",
+                "type": "Function",
+                "lineno": 144
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_013.py::test_open_hidden_safe_numbered_cell_in_playing_game_becomes_opened",
+            "lineno": 85,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_hidden_safe_numbered_cell_in_playing_game_becomes_opened",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "hollow_7bkpwkxx",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006010000070091337,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012885000032838434,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7bkpwkxx\\tests\\unit\\test_spec_013.py",
+                "lineno": 94,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_013.py",
+                  "lineno": 94,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_open_hidden_safe_numbered_cell_in_playing_game_becomes_opened():\n        game = _playing_game()\n        before = {cell[\"id\"]: cell[\"state\"] for cell in game.cells}\n    \n        game.open_cell(row=7, column=4)\n    \n        # (7,4) is safe; its neighbours (8,3), (8,4), (8,5) are mines -> count 3,\n        # so it is a numbered cell: it becomes Opened and no cascade happens.\n>       assert _cell(game, 7, 4)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_013.py:94: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00038409999979194254,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_013.py::test_open_hidden_mine_cell_in_playing_game_becomes_detonated",
+            "lineno": 104,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_hidden_mine_cell_in_playing_game_becomes_detonated",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "hollow_7bkpwkxx",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004023999936180189,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008679000020492822,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7bkpwkxx\\tests\\unit\\test_spec_013.py",
+                "lineno": 111,
+                "message": "AssertionError: assert 'Hidden' == 'Detonated'\n  \n  - Detonated\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_013.py",
+                  "lineno": 111,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_open_hidden_mine_cell_in_playing_game_becomes_detonated():\n        game = _playing_game()\n    \n        game.open_cell(row=8, column=4)\n    \n        # (8,4) holds a mine: it becomes Detonated, is the struck cell and the game is Lost.\n>       assert _cell(game, 8, 4)[\"state\"] == \"Detonated\"\nE       AssertionError: assert 'Hidden' == 'Detonated'\nE         \nE         - Detonated\nE         + Hidden\n\ntests\\unit\\test_spec_013.py:111: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0003893999964930117,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[4-4]",
+            "lineno": 115,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_hidden_cell_in_ready_game_becomes_opened[4-4]",
+              "parametrize",
+              "pytestmark",
+              "4-4",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "hollow_7bkpwkxx",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007715999963693321,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000821399997221306,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7bkpwkxx\\tests\\unit\\test_spec_013.py",
+                "lineno": 126,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_013.py",
+                  "lineno": 126,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "row = 4, column = 4\n\n    @pytest.mark.parametrize(\"row,column\", [(4, 4), (0, 0)])\n    def test_open_hidden_cell_in_ready_game_becomes_opened(row, column):\n        game = _ready_game()\n    \n        game.open_cell(row=row, column=column)\n    \n        # First open is always safe (mines are placed elsewhere), so the cell becomes Opened,\n        # never Detonated, and the game moves from Ready to Playing.\n        cell = _cell(game, row, column)\n        assert cell[\"has_mine\"] is False\n>       assert cell[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_013.py:126: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004155999922659248,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[0-0]",
+            "lineno": 115,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_hidden_cell_in_ready_game_becomes_opened[0-0]",
+              "parametrize",
+              "pytestmark",
+              "0-0",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "hollow_7bkpwkxx",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008012000034796074,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006962000043131411,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_7bkpwkxx\\tests\\unit\\test_spec_013.py",
+                "lineno": 126,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_013.py",
+                  "lineno": 126,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "row = 0, column = 0\n\n    @pytest.mark.parametrize(\"row,column\", [(4, 4), (0, 0)])\n    def test_open_hidden_cell_in_ready_game_becomes_opened(row, column):\n        game = _ready_game()\n    \n        game.open_cell(row=row, column=column)\n    \n        # First open is always safe (mines are placed elsewhere), so the cell becomes Opened,\n        # never Detonated, and the game moves from Ready to Playing.\n        cell = _cell(game, row, column)\n        assert cell[\"has_mine\"] is False\n>       assert cell[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_013.py:126: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00041769999370444566,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_013.py::test_open_flagged_cell_is_not_opened",
+            "lineno": 129,
+            "outcome": "passed",
+            "keywords": [
+              "test_open_flagged_cell_is_not_opened",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "hollow_7bkpwkxx",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006309000018518418,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007706000033067539,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00034749999758787453,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_013.py::test_open_hidden_cell_in_lost_game_changes_nothing",
+            "lineno": 144,
+            "outcome": "passed",
+            "keywords": [
+              "test_open_hidden_cell_in_lost_game_changes_nothing",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "hollow_7bkpwkxx",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00043200000072829425,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005829000001540408,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00033170000824611634,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

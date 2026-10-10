@@ -1,0 +1,147 @@
+{
+  "seq": 236,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:13",
+  "t_offset_s": 194.316,
+  "thread": "red_2",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652452.9509993,
+        "duration": 1.1838712692260742,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_003.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_003.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_003.py::test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines",
+                "type": "Function",
+                "lineno": 3
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_003.py::test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond",
+                "type": "Function",
+                "lineno": 21
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_003.py::test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines",
+            "lineno": 3,
+            "outcome": "failed",
+            "keywords": [
+              "test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines",
+              "test_spec_003.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00060450000455603,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005479999963426962,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_003.py",
+                "lineno": 7,
+                "message": "AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_003.py",
+                  "lineno": 7,
+                  "message": "in test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_003.py:7: in test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines\n    selected = Difficulty.select_preset(name=\"Expert\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+            },
+            "teardown": {
+              "duration": 0.0004177000082563609,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_003.py::test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond",
+            "lineno": 21,
+            "outcome": "failed",
+            "keywords": [
+              "test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond",
+              "test_spec_003.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.004473900000448339,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00045819999650120735,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_003.py",
+                "lineno": 25,
+                "message": "AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_003.py",
+                  "lineno": 25,
+                  "message": "in test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_003.py:25: in test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond\n    selected = Difficulty.select_preset(name=\"Expert\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+            },
+            "teardown": {
+              "duration": 0.0004741000011563301,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,553 @@
+{
+  "seq": 281,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.455,
+  "thread": "red_13",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\tests\\unit\\test_spec_015.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 11 items\n\ntests\\unit\\test_spec_015.py FFFFFFFFFF.                                  [100%]\n\n================================== FAILURES ===================================\n______ test_adjacent_count_only_counts_neighbours_inside_the_grid[0-0-3] ______\n\nrow = 0, column = 0, neighbour_total = 3\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError\n_____ test_adjacent_count_only_counts_neighbours_inside_the_grid[0-11-3] ______\n\nrow = 0, column = 11, neighbour_total = 3\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError\n______ test_adjacent_count_only_counts_neighbours_inside_the_grid[8-0-3] ______\n\nrow = 8, column = 0, neighbour_total = 3\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError\n_____ test_adjacent_count_only_counts_neighbours_inside_the_grid[8-11-3] ______\n\nrow = 8, column = 11, neighbour_total = 3\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError\n______ test_adjacent_count_only_counts_neighbours_inside_the_grid[0-5-5] ______\n\nrow = 0, column = 5, neighbour_total = 5\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError\n______ test_adjacent_count_only_counts_neighbours_inside_the_grid[8-5-5] ______\n\nrow = 8, column = 5, neighbour_total = 5\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError\n______ test_adjacent_count_only_counts_neighbours_inside_the_grid[4-0-5] ______\n\nrow = 4, column = 0, neighbour_total = 5\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError\n_____ test_adjacent_count_only_counts_neighbours_inside_the_grid[4-11-5] ______\n\nrow = 4, column = 11, neighbour_total = 5\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError\n______ test_adjacent_count_only_counts_neighbours_inside_the_grid[1-1-8] ______\n\nrow = 1, column = 1, neighbour_total = 8\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError\n______ test_adjacent_count_only_counts_neighbours_inside_the_grid[1-5-8] ______\n\nrow = 1, column = 5, neighbour_total = 8\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\.pytest_report_16fc551cb7c94fdfb4beeef9f6768e80.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-0-3]\nFAILED tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-11-3]\nFAILED tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-0-3]\nFAILED tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-11-3]\nFAILED tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-5-5]\nFAILED tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-5-5]\nFAILED tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[4-0-5]\nFAILED tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[4-11-5]\nFAILED tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[1-1-8]\nFAILED tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[1-5-8]\n======================== 10 failed, 1 passed in 2.53s =========================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656608.1419249,
+      "duration": 1.817000389099121,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4",
+      "environment": {},
+      "summary": {
+        "failed": 10,
+        "passed": 1,
+        "total": 11,
+        "collected": 11
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_015.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_015.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-0-3]",
+              "type": "Function",
+              "lineno": 47
+            },
+            {
+              "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-11-3]",
+              "type": "Function",
+              "lineno": 47
+            },
+            {
+              "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-0-3]",
+              "type": "Function",
+              "lineno": 47
+            },
+            {
+              "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-11-3]",
+              "type": "Function",
+              "lineno": 47
+            },
+            {
+              "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-5-5]",
+              "type": "Function",
+              "lineno": 47
+            },
+            {
+              "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-5-5]",
+              "type": "Function",
+              "lineno": 47
+            },
+            {
+              "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[4-0-5]",
+              "type": "Function",
+              "lineno": 47
+            },
+            {
+              "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[4-11-5]",
+              "type": "Function",
+              "lineno": 47
+            },
+            {
+              "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[1-1-8]",
+              "type": "Function",
+              "lineno": 47
+            },
+            {
+              "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[1-5-8]",
+              "type": "Function",
+              "lineno": 47
+            },
+            {
+              "nodeid": "tests/unit/test_spec_015.py::test_every_cell_count_matches_mines_among_existing_neighbours",
+              "type": "Function",
+              "lineno": 90
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-0-3]",
+          "lineno": 47,
+          "outcome": "failed",
+          "keywords": [
+            "test_adjacent_count_only_counts_neighbours_inside_the_grid[0-0-3]",
+            "parametrize",
+            "pytestmark",
+            "0-0-3",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "hollow_2_jcrpz4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.001175199999124743,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008440999954473227,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\tests\\unit\\test_spec_015.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 0 == (12 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_015.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 0, column = 0, neighbour_total = 3\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0005550000059884042,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-11-3]",
+          "lineno": 47,
+          "outcome": "failed",
+          "keywords": [
+            "test_adjacent_count_only_counts_neighbours_inside_the_grid[0-11-3]",
+            "parametrize",
+            "pytestmark",
+            "0-11-3",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "hollow_2_jcrpz4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007651999912923202,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00064820000261534,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\tests\\unit\\test_spec_015.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 0 == (12 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_015.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 0, column = 11, neighbour_total = 3\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.000541799992788583,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-0-3]",
+          "lineno": 47,
+          "outcome": "failed",
+          "keywords": [
+            "test_adjacent_count_only_counts_neighbours_inside_the_grid[8-0-3]",
+            "parametrize",
+            "pytestmark",
+            "8-0-3",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "hollow_2_jcrpz4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008127000037347898,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007002999918768182,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\tests\\unit\\test_spec_015.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 0 == (12 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_015.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 8, column = 0, neighbour_total = 3\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004675999953178689,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-11-3]",
+          "lineno": 47,
+          "outcome": "failed",
+          "keywords": [
+            "test_adjacent_count_only_counts_neighbours_inside_the_grid[8-11-3]",
+            "parametrize",
+            "pytestmark",
+            "8-11-3",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "hollow_2_jcrpz4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0011375000030966476,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006542000046465546,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\tests\\unit\\test_spec_015.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 0 == (12 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_015.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 8, column = 11, neighbour_total = 3\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0005180000007385388,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-5-5]",
+          "lineno": 47,
+          "outcome": "failed",
+          "keywords": [
+            "test_adjacent_count_only_counts_neighbours_inside_the_grid[0-5-5]",
+            "parametrize",
+            "pytestmark",
+            "0-5-5",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "hollow_2_jcrpz4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008802999946055934,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008559999987483025,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\tests\\unit\\test_spec_015.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 0 == (12 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_015.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 0, column = 5, neighbour_total = 5\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0005937999958405271,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-5-5]",
+          "lineno": 47,
+          "outcome": "failed",
+          "keywords": [
+            "test_adjacent_count_only_counts_neighbours_inside_the_grid[8-5-5]",
+            "parametrize",
+            "pytestmark",
+            "8-5-5",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "hollow_2_jcrpz4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.001086899996153079,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000722699987818487,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\tests\\unit\\test_spec_015.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 0 == (12 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_015.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 8, column = 5, neighbour_total = 5\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004948999994667247,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[4-0-5]",
+          "lineno": 47,
+          "outcome": "failed",
+          "keywords": [
+            "test_adjacent_count_only_counts_neighbours_inside_the_grid[4-0-5]",
+            "parametrize",
+            "pytestmark",
+            "4-0-5",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "hollow_2_jcrpz4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008162999874912202,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000643899998976849,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\tests\\unit\\test_spec_015.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 0 == (12 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_015.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 4, column = 0, neighbour_total = 5\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00047030000132508576,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[4-11-5]",
+          "lineno": 47,
+          "outcome": "failed",
+          "keywords": [
+            "test_adjacent_count_only_counts_neighbours_inside_the_grid[4-11-5]",
+            "parametrize",
+            "pytestmark",
+            "4-11-5",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "hollow_2_jcrpz4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0022001000033924356,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007693999941693619,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\tests\\unit\\test_spec_015.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 0 == (12 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_015.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 4, column = 11, neighbour_total = 5\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004714999959105626,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[1-1-8]",
+          "lineno": 47,
+          "outcome": "failed",
+          "keywords": [
+            "test_adjacent_count_only_counts_neighbours_inside_the_grid[1-1-8]",
+            "parametrize",
+            "pytestmark",
+            "1-1-8",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "hollow_2_jcrpz4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00131639999744948,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006404000014299527,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\tests\\unit\\test_spec_015.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 0 == (12 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_015.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 1, column = 1, neighbour_total = 8\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0006013999955030158,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[1-5-8]",
+          "lineno": 47,
+          "outcome": "failed",
+          "keywords": [
+            "test_adjacent_count_only_counts_neighbours_inside_the_grid[1-5-8]",
+            "parametrize",
+            "pytestmark",
+            "1-5-8",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "hollow_2_jcrpz4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008559999987483025,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006037999992258847,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_2_jcrpz4\\tests\\unit\\test_spec_015.py",
+              "lineno": 78,
+              "message": "AssertionError: assert 0 == (12 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_015.py",
+                "lineno": 78,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 1, column = 5, neighbour_total = 8\n\n    @pytest.mark.parametrize(\n        \"row, column, neighbour_total\",\n        [\n            # corners: exactly 3 existing neighbours\n            (0, 0, 3),\n            (0, WIDTH - 1, 3),\n            (HEIGHT - 1, 0, 3),\n            (HEIGHT - 1, WIDTH - 1, 3),\n            # edges (one per side): exactly 5 existing neighbours\n            (0, 5, 5),\n            (HEIGHT - 1, 5, 5),\n            (4, 0, 5),\n            (4, WIDTH - 1, 5),\n            # one step in from the corner / edge: all 8 neighbours exist\n            (1, 1, 8),\n            (1, 5, 8),\n        ],\n    )\n    def test_adjacent_count_only_counts_neighbours_inside_the_grid(row, column, neighbour_total):\n        # The neighbour-geometry itself: corners have 3, edges 5, the next cell in has 8.\n        assert len(_existing_neighbours(row, column)) == neighbour_total\n    \n        for index in range(RUNS):\n            game = _new_game(index)\n    \n            # Ready game, no mines yet; the first open lays 60 mines at random on\n            # the 107 other cells and then sets every cell's adjacent_mine_count.\n            game.open_cell(row=FIRST_OPEN[0], column=FIRST_OPEN[1])\n    \n            # Mines were laid: exactly MINE_COUNT cells hold a mine, the opened one is safe.\n>           assert len(game.cells) == WIDTH * HEIGHT\nE           AssertionError: assert 0 == (12 * 9)\nE            +  where 0 = len([])\nE            +    where [] = Game(id='game-0', difficulty_id='custom', width=12, height=9, mine_count=60, remaining_mines=60, created_at='2024-01-0...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_015.py:78: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00048129999777302146,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_015.py::test_every_cell_count_matches_mines_among_existing_neighbours",
+          "lineno": 90,
+          "outcome": "passed",
+          "keywords": [
+            "test_every_cell_count_matches_mines_among_existing_neighbours",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "hollow_2_jcrpz4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0011135999957332388,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004899000050500035,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00036469999758992344,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 6.873
+}

@@ -1,0 +1,1283 @@
+{
+  "seq": 302,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:23",
+  "t_offset_s": 394.034,
+  "thread": "red_7",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656602.4899104,
+        "duration": 2.390970230102539,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 36,
+          "total": 36,
+          "collected": 36
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[width-exactly-9]",
+                "type": "Function",
+                "lineno": 210
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[width-exactly-30]",
+                "type": "Function",
+                "lineno": 210
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[height-exactly-9]",
+                "type": "Function",
+                "lineno": 210
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[height-exactly-24]",
+                "type": "Function",
+                "lineno": 210
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[mines-exactly-10]",
+                "type": "Function",
+                "lineno": 210
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[mines-exactly-64]",
+                "type": "Function",
+                "lineno": 210
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Ready]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Ready]",
+              "parametrize",
+              "pytestmark",
+              "width-below-9-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0013000000035390258,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0017688000079942867,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00046329999167937785,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Playing]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Playing]",
+              "parametrize",
+              "pytestmark",
+              "width-below-9-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010655000078259036,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0019464999932097271,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005810000002384186,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Won]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Won]",
+              "parametrize",
+              "pytestmark",
+              "width-below-9-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011713000130839646,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0025105000095209107,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0007318999996641651,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Lost]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Lost]",
+              "parametrize",
+              "pytestmark",
+              "width-below-9-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001087500000721775,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0034577000042190775,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.002236200001789257,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Abandoned]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "width-below-9-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010000999900512397,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0022133000020403415,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00045980000868439674,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Ready]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Ready]",
+              "parametrize",
+              "pytestmark",
+              "width-above-30-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001026600002660416,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0021815999934915453,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00043069999082945287,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Playing]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Playing]",
+              "parametrize",
+              "pytestmark",
+              "width-above-30-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009174000006169081,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.002973000009660609,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039030000334605575,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Won]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Won]",
+              "parametrize",
+              "pytestmark",
+              "width-above-30-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00094600000011269,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001962199996341951,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039259999175556004,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Lost]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Lost]",
+              "parametrize",
+              "pytestmark",
+              "width-above-30-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010426999942865223,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0035786000080406666,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00046710000606253743,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Abandoned]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "width-above-30-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000796499996795319,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0018975999992107973,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00036130000080447644,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Ready]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Ready]",
+              "parametrize",
+              "pytestmark",
+              "height-below-9-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009881000005407259,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0028055999864591286,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004115999909117818,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Playing]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Playing]",
+              "parametrize",
+              "pytestmark",
+              "height-below-9-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008748000109335408,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0019668000022647902,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004317999992053956,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Won]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Won]",
+              "parametrize",
+              "pytestmark",
+              "height-below-9-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011482999980216846,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.002307899994775653,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00037760000850539654,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Lost]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Lost]",
+              "parametrize",
+              "pytestmark",
+              "height-below-9-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0013225000002421439,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0022597999923164025,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004495000030146912,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Abandoned]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "height-below-9-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001015200003166683,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.002179299990530126,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005938999966019765,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Ready]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Ready]",
+              "parametrize",
+              "pytestmark",
+              "height-above-24-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001101999994716607,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0022647000005235896,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00038500000664498657,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Playing]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Playing]",
+              "parametrize",
+              "pytestmark",
+              "height-above-24-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0023302999907173216,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.002195599998231046,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00041199999395757914,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Won]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Won]",
+              "parametrize",
+              "pytestmark",
+              "height-above-24-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008721000049263239,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.002478299997164868,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005976999964332208,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Lost]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Lost]",
+              "parametrize",
+              "pytestmark",
+              "height-above-24-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011492999910842627,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.002693400005227886,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004031999997096136,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Abandoned]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "height-above-24-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0014169000060064718,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0022293999936664477,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005732999998144805,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Ready]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Ready]",
+              "parametrize",
+              "pytestmark",
+              "mines-below-10-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0015638999902876094,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.003160699998261407,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00040780000563245267,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Playing]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Playing]",
+              "parametrize",
+              "pytestmark",
+              "mines-below-10-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009695000044303015,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.002744800003711134,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0018297999922651798,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Won]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Won]",
+              "parametrize",
+              "pytestmark",
+              "mines-below-10-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001827999993111007,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.005210400006035343,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000451600004453212,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Lost]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Lost]",
+              "parametrize",
+              "pytestmark",
+              "mines-below-10-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0027371999894967303,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0044039999920642,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0006252000021049753,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Abandoned]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "mines-below-10-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0020760999905178323,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0022603999968850985,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005506000015884638,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Ready]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Ready]",
+              "parametrize",
+              "pytestmark",
+              "mines-above-(9-1)x(9-1)=64-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001624900003662333,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00315509999927599,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.001296999995247461,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Playing]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Playing]",
+              "parametrize",
+              "pytestmark",
+              "mines-above-(9-1)x(9-1)=64-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011741999915102497,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.003952600003685802,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004403999919304624,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Won]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Won]",
+              "parametrize",
+              "pytestmark",
+              "mines-above-(9-1)x(9-1)=64-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011116999958176166,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0020087000011699274,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00041280000004917383,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Lost]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Lost]",
+              "parametrize",
+              "pytestmark",
+              "mines-above-(9-1)x(9-1)=64-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009072000102605671,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0025492000131634995,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004199999966658652,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Abandoned]",
+            "lineno": 176,
+            "outcome": "passed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "mines-above-(9-1)x(9-1)=64-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009753999911481515,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0020332999993115664,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003858999989461154,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[width-exactly-9]",
+            "lineno": 210,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[width-exactly-9]",
+              "parametrize",
+              "pytestmark",
+              "width-exactly-9",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008665999921504408,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010094000026583672,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004995999915990978,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[width-exactly-30]",
+            "lineno": 210,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[width-exactly-30]",
+              "parametrize",
+              "pytestmark",
+              "width-exactly-30",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008557999972254038,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009177000029012561,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003986999945482239,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[height-exactly-9]",
+            "lineno": 210,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[height-exactly-9]",
+              "parametrize",
+              "pytestmark",
+              "height-exactly-9",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008664999913889915,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011895999923581257,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00038300000596791506,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[height-exactly-24]",
+            "lineno": 210,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[height-exactly-24]",
+              "parametrize",
+              "pytestmark",
+              "height-exactly-24",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007626000005984679,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007846000080462545,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00044550000166054815,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[mines-exactly-10]",
+            "lineno": 210,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[mines-exactly-10]",
+              "parametrize",
+              "pytestmark",
+              "mines-exactly-10",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000865399997564964,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009148999961325899,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0008511000050930306,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[mines-exactly-64]",
+            "lineno": 210,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[mines-exactly-64]",
+              "parametrize",
+              "pytestmark",
+              "mines-exactly-64",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008022999973036349,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007093000021995977,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00037989999691490084,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

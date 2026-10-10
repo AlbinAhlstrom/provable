@@ -1,0 +1,200 @@
+{
+  "seq": 159,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.955,
+  "thread": "red_17",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652645.262586,
+        "duration": 0.9318137168884277,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_018.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_018.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_018.py::test_adjacency_counts_only_in_board_neighbours[target0-in_board_neighbours0-3]",
+                "type": "Function",
+                "lineno": 42
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_018.py::test_adjacency_counts_only_in_board_neighbours[target1-in_board_neighbours1-5]",
+                "type": "Function",
+                "lineno": 42
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_018.py::test_adjacency_counts_only_in_board_neighbours[target2-in_board_neighbours2-8]",
+                "type": "Function",
+                "lineno": 42
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_018.py::test_adjacency_counts_only_in_board_neighbours[target0-in_board_neighbours0-3]",
+            "lineno": 42,
+            "outcome": "failed",
+            "keywords": [
+              "test_adjacency_counts_only_in_board_neighbours[target0-in_board_neighbours0-3]",
+              "parametrize",
+              "pytestmark",
+              "target0-in_board_neighbours0-3",
+              "test_spec_018.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009516999998595566,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009483999892836437,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_018.py",
+                "lineno": 82,
+                "message": "assert 0 == 3"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_018.py",
+                  "lineno": 82,
+                  "message": "in test_adjacency_counts_only_in_board_neighbours"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_018.py:82: in test_adjacency_counts_only_in_board_neighbours\n    assert revealed[\"adjacent_mine_count\"] == expected_count\nE   assert 0 == 3"
+            },
+            "teardown": {
+              "duration": 0.0004633999924408272,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_018.py::test_adjacency_counts_only_in_board_neighbours[target1-in_board_neighbours1-5]",
+            "lineno": 42,
+            "outcome": "failed",
+            "keywords": [
+              "test_adjacency_counts_only_in_board_neighbours[target1-in_board_neighbours1-5]",
+              "parametrize",
+              "pytestmark",
+              "target1-in_board_neighbours1-5",
+              "test_spec_018.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001153399993199855,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006985999934840947,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_018.py",
+                "lineno": 82,
+                "message": "assert 0 == 5"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_018.py",
+                  "lineno": 82,
+                  "message": "in test_adjacency_counts_only_in_board_neighbours"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_018.py:82: in test_adjacency_counts_only_in_board_neighbours\n    assert revealed[\"adjacent_mine_count\"] == expected_count\nE   assert 0 == 5"
+            },
+            "teardown": {
+              "duration": 0.0004938000056426972,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_018.py::test_adjacency_counts_only_in_board_neighbours[target2-in_board_neighbours2-8]",
+            "lineno": 42,
+            "outcome": "failed",
+            "keywords": [
+              "test_adjacency_counts_only_in_board_neighbours[target2-in_board_neighbours2-8]",
+              "parametrize",
+              "pytestmark",
+              "target2-in_board_neighbours2-8",
+              "test_spec_018.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007916999893495813,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008753999863984063,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_018.py",
+                "lineno": 82,
+                "message": "assert 0 == 8"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_018.py",
+                  "lineno": 82,
+                  "message": "in test_adjacency_counts_only_in_board_neighbours"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_018.py:82: in test_adjacency_counts_only_in_board_neighbours\n    assert revealed[\"adjacent_mine_count\"] == expected_count\nE   assert 0 == 8"
+            },
+            "teardown": {
+              "duration": 0.000709400002961047,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,336 @@
+{
+  "seq": 319,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:27",
+  "t_offset_s": 398.535,
+  "thread": "red_1",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656606.6157053,
+        "duration": 1.3315269947052002,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ucpn8brt",
+        "environment": {},
+        "summary": {
+          "failed": 6,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_002.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_002.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-intermediate-16-16-40]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-expert-30-16-99]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-intermediate-16-16-40]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-expert-30-16-99]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "tests/unit/test_spec_002.py::test_misspelled_beginner_is_refused_and_game_unchanged[intermediate-16-16-40]",
+                "type": "Function",
+                "lineno": 107
+              },
+              {
+                "nodeid": "tests/unit/test_spec_002.py::test_misspelled_beginner_is_refused_and_game_unchanged[expert-30-16-99]",
+                "type": "Function",
+                "lineno": 107
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-intermediate-16-16-40]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-intermediate-16-16-40]",
+              "parametrize",
+              "pytestmark",
+              "9-9-10-intermediate-16-16-40",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "hollow_ucpn8brt",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0015684999962104484,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006319000094663352,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ucpn8brt\\tests\\unit\\test_spec_002.py",
+                "lineno": 80,
+                "message": "AttributeError: 'NoneType' object has no attribute 'difficulty_id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_002.py",
+                  "lineno": 80,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "start_difficulty = 'intermediate', start_width = 16, start_height = 16\nstart_mines = 40, given_width = 9, given_height = 9, given_mines = 10\n\n    @pytest.mark.parametrize(\n        \"start_difficulty, start_width, start_height, start_mines\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n        ],\n    )\n    @pytest.mark.parametrize(\n        \"given_width, given_height, given_mines\",\n        [\n            # exactly the Beginner values\n            (9, 9, 10),\n            # one beyond each Beginner value: the preset ignores them and stays 9x9 with 10\n            (10, 10, 11),\n        ],\n    )\n    def test_choosing_beginner_creates_9_by_9_game_with_10_mines(\n        start_difficulty,\n        start_width,\n        start_height,\n        start_mines,\n        given_width,\n        given_height,\n        given_mines,\n    ):\n        game = _make_ready_game(\"game-1\", start_difficulty, start_width, start_height, start_mines)\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"beginner\",\n            width=given_width,\n            height=given_height,\n            mine_count=given_mines,\n        )\n    \n        # Beginner preset: difficulty_id 'beginner', 9 wide, 9 high, 10 mines, whatever\n        # width/height/mine_count were passed (those are used only for Custom).\n>       assert new_game.difficulty_id == \"beginner\"\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'difficulty_id'\n\ntests\\unit\\test_spec_002.py:80: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.000509400008013472,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-expert-30-16-99]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_choosing_beginner_creates_9_by_9_game_with_10_mines[9-9-10-expert-30-16-99]",
+              "parametrize",
+              "pytestmark",
+              "9-9-10-expert-30-16-99",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "hollow_ucpn8brt",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010624000133248046,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008210000087274238,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ucpn8brt\\tests\\unit\\test_spec_002.py",
+                "lineno": 80,
+                "message": "AttributeError: 'NoneType' object has no attribute 'difficulty_id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_002.py",
+                  "lineno": 80,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "start_difficulty = 'expert', start_width = 30, start_height = 16\nstart_mines = 99, given_width = 9, given_height = 9, given_mines = 10\n\n    @pytest.mark.parametrize(\n        \"start_difficulty, start_width, start_height, start_mines\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n        ],\n    )\n    @pytest.mark.parametrize(\n        \"given_width, given_height, given_mines\",\n        [\n            # exactly the Beginner values\n            (9, 9, 10),\n            # one beyond each Beginner value: the preset ignores them and stays 9x9 with 10\n            (10, 10, 11),\n        ],\n    )\n    def test_choosing_beginner_creates_9_by_9_game_with_10_mines(\n        start_difficulty,\n        start_width,\n        start_height,\n        start_mines,\n        given_width,\n        given_height,\n        given_mines,\n    ):\n        game = _make_ready_game(\"game-1\", start_difficulty, start_width, start_height, start_mines)\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"beginner\",\n            width=given_width,\n            height=given_height,\n            mine_count=given_mines,\n        )\n    \n        # Beginner preset: difficulty_id 'beginner', 9 wide, 9 high, 10 mines, whatever\n        # width/height/mine_count were passed (those are used only for Custom).\n>       assert new_game.difficulty_id == \"beginner\"\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'difficulty_id'\n\ntests\\unit\\test_spec_002.py:80: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0005136999971000478,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-intermediate-16-16-40]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-intermediate-16-16-40]",
+              "parametrize",
+              "pytestmark",
+              "10-10-11-intermediate-16-16-40",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "hollow_ucpn8brt",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011372000008122995,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005601000011665747,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ucpn8brt\\tests\\unit\\test_spec_002.py",
+                "lineno": 80,
+                "message": "AttributeError: 'NoneType' object has no attribute 'difficulty_id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_002.py",
+                  "lineno": 80,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "start_difficulty = 'intermediate', start_width = 16, start_height = 16\nstart_mines = 40, given_width = 10, given_height = 10, given_mines = 11\n\n    @pytest.mark.parametrize(\n        \"start_difficulty, start_width, start_height, start_mines\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n        ],\n    )\n    @pytest.mark.parametrize(\n        \"given_width, given_height, given_mines\",\n        [\n            # exactly the Beginner values\n            (9, 9, 10),\n            # one beyond each Beginner value: the preset ignores them and stays 9x9 with 10\n            (10, 10, 11),\n        ],\n    )\n    def test_choosing_beginner_creates_9_by_9_game_with_10_mines(\n        start_difficulty,\n        start_width,\n        start_height,\n        start_mines,\n        given_width,\n        given_height,\n        given_mines,\n    ):\n        game = _make_ready_game(\"game-1\", start_difficulty, start_width, start_height, start_mines)\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"beginner\",\n            width=given_width,\n            height=given_height,\n            mine_count=given_mines,\n        )\n    \n        # Beginner preset: difficulty_id 'beginner', 9 wide, 9 high, 10 mines, whatever\n        # width/height/mine_count were passed (those are used only for Custom).\n>       assert new_game.difficulty_id == \"beginner\"\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'difficulty_id'\n\ntests\\unit\\test_spec_002.py:80: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0005115999956615269,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_002.py::test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-expert-30-16-99]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_choosing_beginner_creates_9_by_9_game_with_10_mines[10-10-11-expert-30-16-99]",
+              "parametrize",
+              "pytestmark",
+              "10-10-11-expert-30-16-99",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "hollow_ucpn8brt",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001112799989641644,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007407999946735799,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ucpn8brt\\tests\\unit\\test_spec_002.py",
+                "lineno": 80,
+                "message": "AttributeError: 'NoneType' object has no attribute 'difficulty_id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_002.py",
+                  "lineno": 80,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "start_difficulty = 'expert', start_width = 30, start_height = 16\nstart_mines = 99, given_width = 10, given_height = 10, given_mines = 11\n\n    @pytest.mark.parametrize(\n        \"start_difficulty, start_width, start_height, start_mines\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n        ],\n    )\n    @pytest.mark.parametrize(\n        \"given_width, given_height, given_mines\",\n        [\n            # exactly the Beginner values\n            (9, 9, 10),\n            # one beyond each Beginner value: the preset ignores them and stays 9x9 with 10\n            (10, 10, 11),\n        ],\n    )\n    def test_choosing_beginner_creates_9_by_9_game_with_10_mines(\n        start_difficulty,\n        start_width,\n        start_height,\n        start_mines,\n        given_width,\n        given_height,\n        given_mines,\n    ):\n        game = _make_ready_game(\"game-1\", start_difficulty, start_width, start_height, start_mines)\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"beginner\",\n            width=given_width,\n            height=given_height,\n            mine_count=given_mines,\n        )\n    \n        # Beginner preset: difficulty_id 'beginner', 9 wide, 9 high, 10 mines, whatever\n        # width/height/mine_count were passed (those are used only for Custom).\n>       assert new_game.difficulty_id == \"beginner\"\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'difficulty_id'\n\ntests\\unit\\test_spec_002.py:80: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0005310999986249954,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_002.py::test_misspelled_beginner_is_refused_and_game_unchanged[intermediate-16-16-40]",
+            "lineno": 107,
+            "outcome": "failed",
+            "keywords": [
+              "test_misspelled_beginner_is_refused_and_game_unchanged[intermediate-16-16-40]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-16-16-40",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "hollow_ucpn8brt",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008244000055128708,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00061860001005698,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ucpn8brt\\tests\\unit\\test_spec_002.py",
+                "lineno": 123,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_002.py",
+                  "lineno": 123,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "start_difficulty = 'intermediate', start_width = 16, start_height = 16\nstart_mines = 40\n\n    @pytest.mark.parametrize(\n        \"start_difficulty, start_width, start_height, start_mines\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n        ],\n    )\n    def test_misspelled_beginner_is_refused_and_game_unchanged(\n        start_difficulty, start_width, start_height, start_mines\n    ):\n        game = _make_ready_game(\"game-1\", start_difficulty, start_width, start_height, start_mines)\n        before = game.to_dict()\n    \n        # 'beginners' is not one of beginner/intermediate/expert/custom: an unknown\n        # difficulty_id is refused with InvalidConfigurationError, same values otherwise.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_002.py:123: Failed"
+            },
+            "teardown": {
+              "duration": 0.0005674999993061647,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_002.py::test_misspelled_beginner_is_refused_and_game_unchanged[expert-30-16-99]",
+            "lineno": 107,
+            "outcome": "failed",
+            "keywords": [
+              "test_misspelled_beginner_is_refused_and_game_unchanged[expert-30-16-99]",
+              "parametrize",
+              "pytestmark",
+              "expert-30-16-99",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "hollow_ucpn8brt",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008271999977296218,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007658999966224656,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ucpn8brt\\tests\\unit\\test_spec_002.py",
+                "lineno": 123,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_002.py",
+                  "lineno": 123,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "start_difficulty = 'expert', start_width = 30, start_height = 16\nstart_mines = 99\n\n    @pytest.mark.parametrize(\n        \"start_difficulty, start_width, start_height, start_mines\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n        ],\n    )\n    def test_misspelled_beginner_is_refused_and_game_unchanged(\n        start_difficulty, start_width, start_height, start_mines\n    ):\n        game = _make_ready_game(\"game-1\", start_difficulty, start_width, start_height, start_mines)\n        before = game.to_dict()\n    \n        # 'beginners' is not one of beginner/intermediate/expert/custom: an unknown\n        # difficulty_id is refused with InvalidConfigurationError, same values otherwise.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_002.py:123: Failed"
+            },
+            "teardown": {
+              "duration": 0.00046710000606253743,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,948 @@
+{
+  "seq": 431,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:35",
+  "t_offset_s": 406.888,
+  "thread": "red_11",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656615.364778,
+        "duration": 1.636542797088623,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 16,
+          "passed": 4,
+          "total": 20,
+          "collected": 20
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_allowed_status_transitions_are_applied[Ready-Playing]",
+                "type": "Function",
+                "lineno": 22
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_allowed_status_transitions_are_applied[Playing-Won]",
+                "type": "Function",
+                "lineno": 22
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_allowed_status_transitions_are_applied[Playing-Lost]",
+                "type": "Function",
+                "lineno": 22
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_allowed_status_transitions_are_applied[Ready-Abandoned]",
+                "type": "Function",
+                "lineno": 22
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_allowed_status_transitions_are_applied[Playing-Abandoned]",
+                "type": "Function",
+                "lineno": 22
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Ready-Won]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Ready-Lost]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Playing-Ready]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Won-Abandoned]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Lost-Abandoned]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Won-Lost]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Lost-Won]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Won-Playing]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Lost-Playing]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Abandoned-Playing]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Abandoned-Ready]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_abandon_game_from_ready_or_playing_becomes_abandoned[Ready]",
+                "type": "Function",
+                "lineno": 78
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_abandon_game_from_ready_or_playing_becomes_abandoned[Playing]",
+                "type": "Function",
+                "lineno": 78
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_abandon_game_from_finished_game_keeps_outcome_without_error[Won]",
+                "type": "Function",
+                "lineno": 89
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_048.py::test_abandon_game_from_finished_game_keeps_outcome_without_error[Lost]",
+                "type": "Function",
+                "lineno": 89
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_allowed_status_transitions_are_applied[Ready-Playing]",
+            "lineno": 22,
+            "outcome": "failed",
+            "keywords": [
+              "test_allowed_status_transitions_are_applied[Ready-Playing]",
+              "parametrize",
+              "pytestmark",
+              "Ready-Playing",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008921999979065731,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005431999888969585,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 36,
+                "message": "AttributeError: 'Game' object has no attribute 'transition_to'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 36,
+                  "message": "in test_allowed_status_transitions_are_applied"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:36: in test_allowed_status_transitions_are_applied\n    game.transition_to(status=to_status)\n    ^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'transition_to'"
+            },
+            "teardown": {
+              "duration": 0.0004199999966658652,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_allowed_status_transitions_are_applied[Playing-Won]",
+            "lineno": 22,
+            "outcome": "failed",
+            "keywords": [
+              "test_allowed_status_transitions_are_applied[Playing-Won]",
+              "parametrize",
+              "pytestmark",
+              "Playing-Won",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008094999939203262,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005011000030208379,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 36,
+                "message": "AttributeError: 'Game' object has no attribute 'transition_to'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 36,
+                  "message": "in test_allowed_status_transitions_are_applied"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:36: in test_allowed_status_transitions_are_applied\n    game.transition_to(status=to_status)\n    ^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'transition_to'"
+            },
+            "teardown": {
+              "duration": 0.00040859999717213213,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_allowed_status_transitions_are_applied[Playing-Lost]",
+            "lineno": 22,
+            "outcome": "failed",
+            "keywords": [
+              "test_allowed_status_transitions_are_applied[Playing-Lost]",
+              "parametrize",
+              "pytestmark",
+              "Playing-Lost",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006592999998247251,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00045059999683871865,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 36,
+                "message": "AttributeError: 'Game' object has no attribute 'transition_to'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 36,
+                  "message": "in test_allowed_status_transitions_are_applied"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:36: in test_allowed_status_transitions_are_applied\n    game.transition_to(status=to_status)\n    ^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'transition_to'"
+            },
+            "teardown": {
+              "duration": 0.00037980001070536673,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_allowed_status_transitions_are_applied[Ready-Abandoned]",
+            "lineno": 22,
+            "outcome": "failed",
+            "keywords": [
+              "test_allowed_status_transitions_are_applied[Ready-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "Ready-Abandoned",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000750000006519258,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004602999979397282,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 36,
+                "message": "AttributeError: 'Game' object has no attribute 'transition_to'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 36,
+                  "message": "in test_allowed_status_transitions_are_applied"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:36: in test_allowed_status_transitions_are_applied\n    game.transition_to(status=to_status)\n    ^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'transition_to'"
+            },
+            "teardown": {
+              "duration": 0.00043310000910423696,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_allowed_status_transitions_are_applied[Playing-Abandoned]",
+            "lineno": 22,
+            "outcome": "failed",
+            "keywords": [
+              "test_allowed_status_transitions_are_applied[Playing-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "Playing-Abandoned",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008553999941796064,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000487600002088584,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 36,
+                "message": "AttributeError: 'Game' object has no attribute 'transition_to'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 36,
+                  "message": "in test_allowed_status_transitions_are_applied"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:36: in test_allowed_status_transitions_are_applied\n    game.transition_to(status=to_status)\n    ^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'transition_to'"
+            },
+            "teardown": {
+              "duration": 0.0003934999986086041,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Ready-Won]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_other_status_transitions_are_refused[Ready-Won]",
+              "parametrize",
+              "pytestmark",
+              "Ready-Won",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007407999946735799,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009267999994335696,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 74,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\n  \n  - InvalidTransitionError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 74,
+                  "message": "in test_other_status_transitions_are_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:74: in test_other_status_transitions_are_refused\n    assert type(exc_info.value).__name__ == \"InvalidTransitionError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\nE     \nE     - InvalidTransitionError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00047879999328870326,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Ready-Lost]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_other_status_transitions_are_refused[Ready-Lost]",
+              "parametrize",
+              "pytestmark",
+              "Ready-Lost",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001149600007920526,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008372000011149794,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 74,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\n  \n  - InvalidTransitionError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 74,
+                  "message": "in test_other_status_transitions_are_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:74: in test_other_status_transitions_are_refused\n    assert type(exc_info.value).__name__ == \"InvalidTransitionError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\nE     \nE     - InvalidTransitionError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00039459999243263155,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Playing-Ready]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_other_status_transitions_are_refused[Playing-Ready]",
+              "parametrize",
+              "pytestmark",
+              "Playing-Ready",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005713999998988584,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007272000075317919,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 74,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\n  \n  - InvalidTransitionError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 74,
+                  "message": "in test_other_status_transitions_are_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:74: in test_other_status_transitions_are_refused\n    assert type(exc_info.value).__name__ == \"InvalidTransitionError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\nE     \nE     - InvalidTransitionError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0003704999980982393,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Won-Abandoned]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_other_status_transitions_are_refused[Won-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "Won-Abandoned",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006889999931445345,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008384999964619055,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 74,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\n  \n  - InvalidTransitionError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 74,
+                  "message": "in test_other_status_transitions_are_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:74: in test_other_status_transitions_are_refused\n    assert type(exc_info.value).__name__ == \"InvalidTransitionError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\nE     \nE     - InvalidTransitionError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00038750001112930477,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Lost-Abandoned]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_other_status_transitions_are_refused[Lost-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "Lost-Abandoned",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006630999996559694,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007953000022098422,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 74,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\n  \n  - InvalidTransitionError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 74,
+                  "message": "in test_other_status_transitions_are_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:74: in test_other_status_transitions_are_refused\n    assert type(exc_info.value).__name__ == \"InvalidTransitionError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\nE     \nE     - InvalidTransitionError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00039149999793153256,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Won-Lost]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_other_status_transitions_are_refused[Won-Lost]",
+              "parametrize",
+              "pytestmark",
+              "Won-Lost",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006256000051507726,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006970000104047358,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 74,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\n  \n  - InvalidTransitionError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 74,
+                  "message": "in test_other_status_transitions_are_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:74: in test_other_status_transitions_are_refused\n    assert type(exc_info.value).__name__ == \"InvalidTransitionError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\nE     \nE     - InvalidTransitionError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00038219999987632036,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Lost-Won]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_other_status_transitions_are_refused[Lost-Won]",
+              "parametrize",
+              "pytestmark",
+              "Lost-Won",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006269000004976988,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009723999974085018,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 74,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\n  \n  - InvalidTransitionError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 74,
+                  "message": "in test_other_status_transitions_are_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:74: in test_other_status_transitions_are_refused\n    assert type(exc_info.value).__name__ == \"InvalidTransitionError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\nE     \nE     - InvalidTransitionError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0003667999990284443,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Won-Playing]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_other_status_transitions_are_refused[Won-Playing]",
+              "parametrize",
+              "pytestmark",
+              "Won-Playing",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006453000096371397,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007650999905308709,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 74,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\n  \n  - InvalidTransitionError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 74,
+                  "message": "in test_other_status_transitions_are_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:74: in test_other_status_transitions_are_refused\n    assert type(exc_info.value).__name__ == \"InvalidTransitionError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\nE     \nE     - InvalidTransitionError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0006522000039694831,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Lost-Playing]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_other_status_transitions_are_refused[Lost-Playing]",
+              "parametrize",
+              "pytestmark",
+              "Lost-Playing",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009011000074679032,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006972000119276345,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 74,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\n  \n  - InvalidTransitionError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 74,
+                  "message": "in test_other_status_transitions_are_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:74: in test_other_status_transitions_are_refused\n    assert type(exc_info.value).__name__ == \"InvalidTransitionError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\nE     \nE     - InvalidTransitionError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0005455000064102933,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Abandoned-Playing]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_other_status_transitions_are_refused[Abandoned-Playing]",
+              "parametrize",
+              "pytestmark",
+              "Abandoned-Playing",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011990999919362366,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012966999929631129,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 74,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\n  \n  - InvalidTransitionError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 74,
+                  "message": "in test_other_status_transitions_are_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:74: in test_other_status_transitions_are_refused\n    assert type(exc_info.value).__name__ == \"InvalidTransitionError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\nE     \nE     - InvalidTransitionError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.000490099992020987,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_other_status_transitions_are_refused[Abandoned-Ready]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_other_status_transitions_are_refused[Abandoned-Ready]",
+              "parametrize",
+              "pytestmark",
+              "Abandoned-Ready",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007247000030474737,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009932999964803457,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_048.py",
+                "lineno": 74,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\n  \n  - InvalidTransitionError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_048.py",
+                  "lineno": 74,
+                  "message": "in test_other_status_transitions_are_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_048.py:74: in test_other_status_transitions_are_refused\n    assert type(exc_info.value).__name__ == \"InvalidTransitionError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidTransitionError'\nE     \nE     - InvalidTransitionError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00036980000732000917,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_abandon_game_from_ready_or_playing_becomes_abandoned[Ready]",
+            "lineno": 78,
+            "outcome": "passed",
+            "keywords": [
+              "test_abandon_game_from_ready_or_playing_becomes_abandoned[Ready]",
+              "parametrize",
+              "pytestmark",
+              "Ready",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005075000080978498,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00046300000394694507,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00032449999707750976,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_abandon_game_from_ready_or_playing_becomes_abandoned[Playing]",
+            "lineno": 78,
+            "outcome": "passed",
+            "keywords": [
+              "test_abandon_game_from_ready_or_playing_becomes_abandoned[Playing]",
+              "parametrize",
+              "pytestmark",
+              "Playing",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005258999881334603,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005190999945625663,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00033120000443886966,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_abandon_game_from_finished_game_keeps_outcome_without_error[Won]",
+            "lineno": 89,
+            "outcome": "passed",
+            "keywords": [
+              "test_abandon_game_from_finished_game_keeps_outcome_without_error[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007492000004276633,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00044439999328460544,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003169999981764704,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_048.py::test_abandon_game_from_finished_game_keeps_outcome_without_error[Lost]",
+            "lineno": 89,
+            "outcome": "passed",
+            "keywords": [
+              "test_abandon_game_from_finished_game_keeps_outcome_without_error[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_048.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000857999999425374,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001181600004201755,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004172000044491142,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

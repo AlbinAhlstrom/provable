@@ -1,0 +1,121 @@
+{
+  "seq": 248,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:21",
+  "t_offset_s": 392.201,
+  "thread": "red_3",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656600.7472103,
+        "duration": 0.6928691864013672,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_004.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_004.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_004.py::test_choosing_expert_creates_30_by_16_game_with_99_mines",
+                "type": "Function",
+                "lineno": 41
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_004.py::test_unknown_difficulty_next_to_expert_is_refused_and_game_unchanged",
+                "type": "Function",
+                "lineno": 83
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_004.py::test_choosing_expert_creates_30_by_16_game_with_99_mines",
+            "lineno": 41,
+            "outcome": "passed",
+            "keywords": [
+              "test_choosing_expert_creates_30_by_16_game_with_99_mines",
+              "test_spec_004.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007622999983141199,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0023123999999370426,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005725999944843352,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_004.py::test_unknown_difficulty_next_to_expert_is_refused_and_game_unchanged",
+            "lineno": 83,
+            "outcome": "passed",
+            "keywords": [
+              "test_unknown_difficulty_next_to_expert_is_refused_and_game_unchanged",
+              "test_spec_004.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00045590000809170306,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011835999903269112,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003710999881150201,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

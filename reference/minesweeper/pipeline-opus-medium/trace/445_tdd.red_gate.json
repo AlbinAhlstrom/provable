@@ -1,0 +1,219 @@
+{
+  "seq": 445,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:39",
+  "t_offset_s": 410.028,
+  "thread": "red_18",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656618.1824808,
+        "duration": 1.1240382194519043,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ttf52xcd",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "failed": 2,
+          "total": 4,
+          "collected": 4
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_037.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_037.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[beginner]",
+                "type": "Function",
+                "lineno": 17
+              },
+              {
+                "nodeid": "tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[expert]",
+                "type": "Function",
+                "lineno": 17
+              },
+              {
+                "nodeid": "tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+                "type": "Function",
+                "lineno": 45
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[beginner]",
+            "lineno": 17,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_win_does_not_change_best_time[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_037.py",
+              "unit",
+              "tests",
+              "hollow_ttf52xcd",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009484000038355589,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004597000079229474,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00040360000275541097,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[expert]",
+            "lineno": 17,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_win_does_not_change_best_time[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_037.py",
+              "unit",
+              "tests",
+              "hollow_ttf52xcd",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005779999919468537,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003802999999606982,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000335000004270114,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+            "lineno": 45,
+            "outcome": "failed",
+            "keywords": [
+              "test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_037.py",
+              "unit",
+              "tests",
+              "hollow_ttf52xcd",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006890999939059839,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008863999973982573,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ttf52xcd\\tests\\unit\\test_spec_037.py",
+                "lineno": 60,
+                "message": "AssertionError: assert 100 == 50\n +  where 100 = BestTime(id='bt-1', difficulty_id='beginner', game_id='game-first', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_037.py",
+                  "lineno": 60,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "stored_difficulty = 'beginner'\n\n    @pytest.mark.parametrize(\"stored_difficulty\", [\"beginner\", \"expert\"])\n    def test_same_faster_win_on_standard_difficulty_does_update_best_time(stored_difficulty):\n        best = _stored_best(stored_difficulty)\n    \n        # When: the identical win (same game, same time, same moment) is played on\n        # the record's own standard difficulty instead of custom.\n        best.record_win(\n            game_id=\"game-custom\",\n            difficulty_id=stored_difficulty,\n            elapsed_seconds=50,\n            achieved_at=\"2024-01-02T12:00:00Z\",\n        )\n    \n        # Then: standard difficulty and 50 < 100, so the new best is 50.\n>       assert best.best_seconds == 50\nE       AssertionError: assert 100 == 50\nE        +  where 100 = BestTime(id='bt-1', difficulty_id='beginner', game_id='game-first', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds\n\ntests\\unit\\test_spec_037.py:60: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004453000001376495,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+            "lineno": 45,
+            "outcome": "failed",
+            "keywords": [
+              "test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_037.py",
+              "unit",
+              "tests",
+              "hollow_ttf52xcd",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007033000001683831,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005946000019321218,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ttf52xcd\\tests\\unit\\test_spec_037.py",
+                "lineno": 60,
+                "message": "AssertionError: assert 100 == 50\n +  where 100 = BestTime(id='bt-1', difficulty_id='expert', game_id='game-first', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_037.py",
+                  "lineno": 60,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "stored_difficulty = 'expert'\n\n    @pytest.mark.parametrize(\"stored_difficulty\", [\"beginner\", \"expert\"])\n    def test_same_faster_win_on_standard_difficulty_does_update_best_time(stored_difficulty):\n        best = _stored_best(stored_difficulty)\n    \n        # When: the identical win (same game, same time, same moment) is played on\n        # the record's own standard difficulty instead of custom.\n        best.record_win(\n            game_id=\"game-custom\",\n            difficulty_id=stored_difficulty,\n            elapsed_seconds=50,\n            achieved_at=\"2024-01-02T12:00:00Z\",\n        )\n    \n        # Then: standard difficulty and 50 < 100, so the new best is 50.\n>       assert best.best_seconds == 50\nE       AssertionError: assert 100 == 50\nE        +  where 100 = BestTime(id='bt-1', difficulty_id='expert', game_id='game-first', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds\n\ntests\\unit\\test_spec_037.py:60: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0007344000041484833,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,169 @@
+{
+  "seq": 17,
+  "step": "llm.domain_engine_synthesis",
+  "kind": "llm",
+  "depth": 2,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "engine.action_protocol"
+  ],
+  "started_at": "19:16:19",
+  "t_offset_s": 23.589,
+  "thread": "AnyIO worker thread",
+  "input": {
+    "stage": "domain_engine_synthesis",
+    "prompt": "You are Provable's Principal Domain Architect. Design the ACTION PROTOCOL: the user-facing actions the interface will offer and the domain methods that will implement them.\n\n## Product\n- **Pitch**: \"# Minesweeper\n\n## 1. Personas & Value Journey\n**Player (single persona).** Wants a quick, fair, single-player puzzle session. Needs to:\n- See the board, mine counter, and timer at a glance.\n- Start a game at a chosen difficulty, reveal cells, flag suspected mines, and learn the outcome clearly.\n- Start a new game at any time.\n\nNo other personas are implied.\n\n## 2. Presentation & Interaction\nLooks like classic Minesweeper: a rectangular grid of uniform grey square tiles with raised bevels; revealed tiles flatten to light grey, with numbers coloured as in the original (1 blue, 2 green, 3 red, and so on). A red flag marks suspected mines. A mine counter and timer sit in a header bar above the grid, with a face or status button to restart.\n- **Left-click (tap)** reveals a hidden cell.\n- **Right-click (long-press)** cycles hidden → flagged → hidden (question marks not included).\n- Revealing a zero-count cell opens its connected empty region automatically.\n- Mine counter shows total mines minus flags placed, and may go negative.\n\n## 3. MVP Scope\nIn scope: one board, three difficulty levels, reveal, flag, win/loss detection, timer, mine counter, restart.\nOut of scope: accounts, leaderboards, multiplayer, payments, administration.\n\n## 4. Core Concepts & States\n- **Board:** a grid of cells with a fixed size and mine count set by difficulty.\n- **Cell:** state is *hidden*, *revealed*, or *flagged*. Revealed cells hold either a mine or an adjacency count (0–8).\n- **Mine layout:** fixed when the first cell is revealed, guaranteeing that cell and its neighbours are mine-free.\n- **Game session:** *ready* → *in progress* → *won* or *lost*. Elapsed time runs from the first reveal until the session ends.\n- **Difficulty:** Beginner (9×9, 10 mines), Intermediate (16×16, 40 mines), Expert (30×16, 99 mines).\n\n## 5. Business Rules & Invariants\n- **R1 Adjacency:** each safe cell shows the number of mines among its up to eight neighbours.\n- **R2 Zero expansion:** a revealed cell with count 0 reveals all neighbours, recursively.\n- **R3 First-click safety:** the first reveal is never a mine, and its neighbours are mine-free.\n- **R4 Flagging:** flags may be placed only on hidden cells; flags cannot be revealed and may be removed at any time.\n- **R5 Loss:** revealing a mine ends the session as lost; all mines are shown, and wrong flags are marked.\n- **R6 Win:** the session is won when every non-mine cell is revealed. Remaining unrevealed mines are auto-flagged.\n- **R7 Terminal state:** no reveal or flag changes are accepted after won or lost; only restart is allowed.\n- **R8 Timer:** starts on first reveal, stops at win or loss, and is capped at 999 seconds for display.\n- **R9 Invalid operations** (acting on revealed cells, after game end, or outside the board) are ignored without changing board or session state.\n- **R10 Restart:** starting a new game discards the current board and timer and returns to *ready*.\"\n- **Master aggregate**: `Game`\n\n## Product intent (decided earlier; stay inside it)\n- Product type: game\n- Audience: players who want to play a single-player minesweeper puzzle\n- Goal: Let players clear a minefield by revealing safe cells and flagging mines, with a clear win or loss outcome.\n- Scope: A playable minesweeper game consisting of a grid board, mine placement, cell reveal and flag interaction, and win/loss detection with a game timer and mine counter.\n- The model must cover: Board grid and cell states (hidden, revealed, flagged); Mine layout and adjacency counts; Game session state (in progress, won, lost) and elapsed time; Difficulty settings (grid size and mine count)\n- Do NOT model: User accounts and login; Online leaderboards or cross-player multiplayer; Payments or monetization; Server-side back-office administration\n\n## Domain classes (plain dataclasses that already exist; the methods you name are written next, test first, from your descriptions)\n# Game\n```python\n\"\"\"\nDomain Model: Game (Aggregate Root)\nSingle Responsibility Principle (SRP) compliant domain model.\n\"\"\"\n\nfrom __future__ import annotations\nimport math\nfrom dataclasses import dataclass, field\nfrom datetime import datetime, date, timezone, timedelta\nfrom typing import Optional, List, Dict, Any, Union, Set, Tuple, Callable\n\n\ntry:\n    from src.domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n    from src.domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\nexcept ImportError:\n    try:\n        from domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n        from domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\n    except ImportError:\n        pass\n\n\n@dataclass\nclass Game:\n    \"\"\"Game.\n\n    cells: the Cell records this Game owns, one dict each with the keys id (str), row (int), column (int), has_mine (bool), adjacent_mine_count (int), state (str).\n    \"\"\"\n    id: str\n    difficulty: str = \"Beginner\"\n    status: str = \"ready\"\n    started_at: Optional[str] = None\n    ended_at: Optional[str] = None\n    elapsed_seconds: int = 0\n    mine_count: int = 10\n    flag_count: int = 0\n    cells: List[Dict[str, Any]] = field(default_factory=list)\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n```\n\n# DifficultySetting\n```python\n\"\"\"\nDomain Model: DifficultySetting (Aggregate Root)\nSingle Responsibility Principle (SRP) compliant domain model.\n\"\"\"\n\nfrom __future__ import annotations\nimport math\nfrom dataclasses import dataclass, field\nfrom datetime import datetime, date, timezone, timedelta\nfrom typing import Optional, List, Dict, Any, Union, Set, Tuple, Callable\n\n\ntry:\n    from src.domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n    from src.domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\nexcept ImportError:\n    try:\n        from domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n        from domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\n    except ImportError:\n        pass\n\n\n@dataclass\nclass DifficultySetting:\n    \"\"\"DifficultySetting.\"\"\"\n    id: str\n    name: str\n    rows: int\n    columns: int\n    mine_count: int\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n```\n\n## Behavioral specifications the domain must satisfy\n- [Adjacency count] (Game): Given a game with mines placed and a safe cell at a position When the mine layout is fixed Then the cell's adjacent_mine_count equals the number of mines in its up to eight neighbouring cells.\n- [Zero expansion] (Game): Given a hidden cell with adjacent_mine_count 0 in an in-progress game When the player reveals it Then all its neighbouring hidden cells are revealed and any neighbour with count 0 continues the expansion recursively.\n- [Zero expansion stops at numbered cells] (Game): Given a zero-count reveal that reaches a neighbour with count greater than 0 or a flagged neighbour When expansion runs Then that neighbour is revealed only if hidden and not flagged, and expansion does not continue beyond it.\n- [First-click safety] (Game): Given a game in ready status When the first cell is revealed Then mines are placed so that the revealed cell and all its neighbours have has_mine false, and the layout is fixed.\n- [Flag placement on hidden cells] (Game): Given an in-progress game and a hidden cell When the player flags it Then the cell state becomes flagged and flag_count increases by one; Given a revealed cell When the player flags it Then the board is unchanged.\n- [Flag removal] (Game): Given a flagged cell in an in-progress game When the player removes the flag Then the cell returns to hidden and flag_count decreases by one; Given a flagged cell When the player attempts to reveal it Then the cell remains flagged and is not revealed.\n- [Right-click cycle] (Game): Given a hidden cell When the player right-clicks it Then it becomes flagged; Given a flagged cell When the player right-clicks it Then it becomes hidden; Given a revealed cell When right-clicked Then it is unchanged.\n- [Mine counter may go negative] (Game): Given a game with mine_count M and flag_count F When the counter is displayed Then it shows M minus F, including negative values when F exceeds M.\n- [Loss on mine reveal] (Game): Given an in-progress game When the player reveals a mine Then status becomes lost, ended_at is set, all mine cells are shown as revealed, and flagged cells without mines are marked as wrong.\n- [Win on all safe cells revealed] (Game): Given an in-progress game When the last non-mine cell is revealed Then status becomes won, ended_at is set, and every unrevealed mine cell becomes flagged.\n- [Terminal state rejects changes] (Game): Given a game in won or lost status When the player reveals or flags any cell Then the board and status are unchanged; When the player restarts Then a new game is created.\n- [Timer starts on first reveal] (Game): Given a game in ready status When the first cell is revealed Then started_at is set and elapsed time begins; Given a game in ready status When a flag is placed Then the timer does not start.\n- [Timer stops at session end] (Game): Given an in-progress game When the session is won or lost Then elapsed_seconds is fixed at the value at that moment and no longer increases.\n- [Timer display cap] (Game): Given elapsed time greater than 999 seconds When the timer is displayed Then it shows 999.\n- [Invalid operations ignored] (Game): Given any game state When the player reveals a revealed cell, acts after game end, or targets a position outside the board Then the board and session state are unchanged.\n- [Restart resets session] (Game): Given a game in any status When the player starts a new game at a chosen difficulty Then a new board is created with status ready, elapsed time zero, and no mine layout fixed.\n- [Difficulty grid and mine count] (DifficultySetting): Given a player starting a game When Beginner is chosen Then the board is 9x9 with 10 mines; Intermediate yields 16x16 with 40 mines; Expert yields 30x16 with 99 mines.\n- [Board edge boundaries] (Game): Given a cell on the board edge or corner When adjacency is computed Then only neighbours inside the board are counted, giving fewer than eight neighbours.\n- [Grid cell presentation] (Game): Given a revealed cell with count 1 When the board is rendered Then the tile is flat light grey and the number is blue.\n- [Flag and header presentation] (Game): Given a flagged cell When rendered Then a red flag is shown; Given a game in progress When the header is rendered Then mine counter, timer and restart button are visible above the grid.\n\n## How actions are executed\nThe generated API runs an action by calling the public method of the same name on the aggregate: `POST /api/<aggregates>/{id}/action` with `{\"action_type\": \"<method_name>\", \"params\": {...}}`. Parameters are passed as keyword arguments. The domain method alone decides whether the action is allowed; a rejection becomes a clear error message to the user. The methods are written right after this from what you say here, so choose names a developer would give those methods and describe each action by what it changes on the object: which fields hold what afterwards, and the state the object must be in for the action to be allowed.\n\n## Your task\nList only actions a user of THIS product would actually perform, drawn from the specifications and the classes above (not from a generic template). Do not invent actions for behavior the specifications do not describe, and offer nothing the product intent rules out (for example no staff or back-office actions on a public website). For every action say who performs it (`performed_by`). \"audience\" is for what the people who USE the product do with it (a visitor sending an inquiry, a customer placing an order, a player making a move). \"other\" is for whoever RUNS the product: its owner, staff or an automated process, for example setting rates, publishing or hiding content, and reviewing, answering or archiving what the audience submitted. Decide by who performs the action, not by who the pitch is written for. Actions performed by anyone other than the audience are still part of the domain, but the interface will not offer them. Use snake_case verb names, and parameter names that are fields of the classes or values the specification mentions.\n\n## What a new object holds\nThe application creates an object by constructing its class with only its required fields (often just the id), and the interface shows it right away, before any action. For every class that owns an action, say in `starting_states` what such a newly created object holds: the values its fields start with so that it is ready for its first action and looks right on screen (a game is set up for its first turn with everything in its starting place, a request starts in its first status with nothing decided yet). The class is written to start that way by itself, so no action is needed to set it up, and you list no action whose only purpose is to prepare a new object.\n\n## The words everyone shares\nAfter this step, the test for every specification above is written by a different person at the same time, and one implementation must then satisfy all of those tests. Whatever two of them could spell differently is therefore fixed here, once:\n- `vocabulary`: for every field of these classes whose value is one of a fixed set (a status, a colour, a kind, an outcome), every value it can take, spelled exactly as it is stored, and when it holds. Include every value the specifications' rules need: go through them and give each state they mention (each way a thing can end, each stage it passes through) its value.\n- `rejections`: every kind of refusal the specifications describe: the name of the exception class raised (CamelCase, ending in `Error`) and when. Use as few as the rules need to be told apart; one name for \"this is not allowed by the rules\" is better than one per rule.\n\nRespond STRICTLY with a JSON object, no commentary:\n{\n  \"action_manifest\": {\n    \"actions\": [\n      {\n        \"name\": \"<snake_case_method_name>\",\n        \"aggregate\": \"<class that owns the method>\",\n        \"performed_by\": \"<\\\"audience\\\" if the people who use this product perform it, \\\"other\\\" if its owner, staff or an automated process does>\",\n        \"params\": [\"<keyword_argument>\"],\n        \"description\": \"<one or two sentences in the product's own language: what the object's fields hold afterwards, and when the action is allowed>\"\n      }\n    ],\n    \"starting_states\": [\n      {\n        \"aggregate\": \"<class that owns at least one action>\",\n        \"description\": \"<what a newly created object's fields hold, concretely enough to test: which field holds what>\"\n      }\n    ],\n    \"vocabulary\": [\n      {\n        \"aggregate\": \"<class>\",\n        \"field\": \"<field whose value is one of a fixed set>\",\n        \"values\": [{\"value\": \"<exactly as stored>\", \"meaning\": \"<when the field holds it>\"}]\n      }\n    ],\n    \"rejections\": [\n      {\n        \"aggregate\": \"<class>\",\n        \"error\": \"<ExceptionClassName>\",\n        \"raised_when\": \"<the kind of request it refuses>\"\n      }\n    ]\n  }\n}\n",
+    "options": {
+      "json_mode": true,
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "action_manifest": {
+            "type": "object",
+            "properties": {
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "aggregate": {
+                      "type": "string"
+                    },
+                    "performed_by": {
+                      "type": "string",
+                      "enum": [
+                        "audience",
+                        "other"
+                      ]
+                    },
+                    "params": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "aggregate",
+                    "performed_by",
+                    "params",
+                    "description"
+                  ]
+                }
+              },
+              "starting_states": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "aggregate": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "aggregate",
+                    "description"
+                  ]
+                }
+              },
+              "vocabulary": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "aggregate": {
+                      "type": "string"
+                    },
+                    "field": {
+                      "type": "string"
+                    },
+                    "values": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "type": "string"
+                          },
+                          "meaning": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "value",
+                          "meaning"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "aggregate",
+                    "field",
+                    "values"
+                  ]
+                }
+              },
+              "rejections": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "aggregate": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "raised_when": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "aggregate",
+                    "error",
+                    "raised_when"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "actions",
+              "starting_states",
+              "vocabulary",
+              "rejections"
+            ]
+          }
+        },
+        "required": [
+          "action_manifest"
+        ]
+      }
+    }
+  },
+  "output": "{\"action_manifest\":{\"actions\":[{\"name\":\"start_game\",\"aggregate\":\"Game\",\"performed_by\":\"audience\",\"params\":[\"difficulty\"],\"description\":\"Discards any current board and timer and sets up a new board for the chosen difficulty (Beginner, Intermediate or Expert) with rows, columns and mine_count taken from that difficulty, status ready, elapsed_seconds 0, flag_count 0, no started_at or ended_at, and no mine layout fixed yet; allowed in any status.\"},{\"name\":\"reveal_cell\",\"aggregate\":\"Game\",\"performed_by\":\"audience\",\"params\":[\"row\",\"column\"],\"description\":\"On the first reveal of a ready game, places mines avoiding the target cell and its neighbours, sets started_at, and moves the game to in_progress; then reveals the hidden, unflagged target cell, expanding zero-count regions, and may end the game as lost (on a mine) or won (when all safe cells are revealed); ignored if the game is won or lost, the position is outside the board, or the cell is already revealed or flagged.\"},{\"name\":\"toggle_flag\",\"aggregate\":\"Game\",\"performed_by\":\"audience\",\"params\":[\"row\",\"column\"],\"description\":\"Cycles a hidden cell to flagged (flag_count increases by one) or a flagged cell back to hidden (flag_count decreases by one), without starting the timer; allowed only while the game is ready or in_progress, and ignored for revealed cells or positions outside the board.\"}],\"starting_states\":[{\"aggregate\":\"Game\",\"description\":\"id set to the given identifier; difficulty \\\"Beginner\\\"; status \\\"ready\\\"; started_at null; ended_at null; elapsed_seconds 0; mine_count 10; flag_count 0; cells is an empty list until the first reveal lays out the board; events empty.\"}],\"vocabulary\":[{\"aggregate\":\"Game\",\"field\":\"status\",\"values\":[{\"value\":\"ready\",\"meaning\":\"New game, no cell revealed yet, timer not started, mine layout not fixed.\"},{\"value\":\"in_progress\",\"meaning\":\"First reveal has happened and the session has not ended.\"},{\"value\":\"won\",\"meaning\":\"Every non-mine cell has been revealed; terminal.\"},{\"value\":\"lost\",\"meaning\":\"A mine was revealed; terminal.\"}]},{\"aggregate\":\"Game\",\"field\":\"difficulty\",\"values\":[{\"value\":\"Beginner\",\"meaning\":\"9 rows by 9 columns with 10 mines.\"},{\"value\":\"Intermediate\",\"meaning\":\"16 rows by 16 columns with 40 mines.\"},{\"value\":\"Expert\",\"meaning\":\"16 rows by 30 columns with 99 mines.\"}]},{\"aggregate\":\"Game\",\"field\":\"cells[].state\",\"values\":[{\"value\":\"hidden\",\"meaning\":\"Cell not yet revealed and not flagged; default state.\"},{\"value\":\"revealed\",\"meaning\":\"Cell has been opened; shows a mine or an adjacency count.\"},{\"value\":\"flagged\",\"meaning\":\"Player marked the hidden cell as a suspected mine.\"}]}],\"rejections\":[{\"aggregate\":\"Game\",\"error\":\"InvalidActionError\",\"raised_when\":\"An action is attempted that the rules do not allow, such as flagging or revealing after the game has been won or lost, revealing a flagged or revealed cell, or a position outside the board; the board and session are left unchanged.\"}]}}",
+  "duration_s": 5.377,
+  "meta": {
+    "model": "claude-haiku-5-5",
+    "json_mode": true,
+    "reasoning_effort": "low",
+    "prompt_tokens": 6611,
+    "completion_tokens": 1105,
+    "total_tokens": 7716,
+    "reasoning_tokens": null,
+    "cached_tokens": 0,
+    "finish_reason": "end_turn",
+    "prompt_chars": 15984,
+    "response_chars": 2946,
+    "completion_tok_per_s": 205.5
+  }
+}

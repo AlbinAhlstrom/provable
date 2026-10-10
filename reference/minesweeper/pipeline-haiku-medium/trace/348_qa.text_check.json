@@ -1,0 +1,26 @@
+{
+  "seq": 348,
+  "step": "qa.text_check",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "visual.review",
+    "qa.responsive_audit"
+  ],
+  "started_at": "19:15:15",
+  "t_offset_s": 256.071,
+  "thread": "ThreadPoolExecutor-1_3",
+  "input": {
+    "args": [
+      "<selenium.webdriver.chrome.webdriver.WebDriver (session=\"51ba35f74a41e3062c5f285bf6589867\")>",
+      "Desktop"
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "defects": [],
+    "warnings": []
+  },
+  "duration_s": 0.004
+}

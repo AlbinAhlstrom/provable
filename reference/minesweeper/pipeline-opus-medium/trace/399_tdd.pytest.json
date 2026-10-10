@@ -1,0 +1,264 @@
+{
+  "seq": 399,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:33",
+  "t_offset_s": 404.75,
+  "thread": "red_20",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zdnd26wr\\tests\\unit\\test_spec_039.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zdnd26wr"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zdnd26wr\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 5 items\n\ntests\\unit\\test_spec_039.py ..FFF                                        [100%]\n\n================================== FAILURES ===================================\n___________ test_finished_board_accepts_new_game[_arrange_won-Won] ____________\n\narrange = <function _arrange_won at 0x000001F15B4C8360>, status = 'Won'\n\n    @pytest.mark.parametrize(\n        \"arrange, status\",\n        [(_arrange_won, \"Won\"), (_arrange_lost, \"Lost\")],\n    )\n    def test_finished_board_accepts_new_game(arrange, status):\n        game = _new_game()\n        arrange(game)\n    \n        new_game = game.restart_game()\n    \n        # The finished game keeps its outcome.\n        assert game.status == status\n        # The new game is accepted: a fresh Ready game of the same configuration.\n>       assert new_game.id != \"g1\"\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_039.py:160: AttributeError\n__________ test_finished_board_accepts_new_game[_arrange_lost-Lost] ___________\n\narrange = <function _arrange_lost at 0x000001F15B4C82C0>, status = 'Lost'\n\n    @pytest.mark.parametrize(\n        \"arrange, status\",\n        [(_arrange_won, \"Won\"), (_arrange_lost, \"Lost\")],\n    )\n    def test_finished_board_accepts_new_game(arrange, status):\n        game = _new_game()\n        arrange(game)\n    \n        new_game = game.restart_game()\n    \n        # The finished game keeps its outcome.\n        assert game.status == status\n        # The new game is accepted: a fresh Ready game of the same configuration.\n>       assert new_game.id != \"g1\"\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_039.py:160: AttributeError\n_________________ test_same_board_while_playing_accepts_flag __________________\n\n    def test_same_board_while_playing_accepts_flag():\n        # Contrast: identical board to the Lost case but (8,8) still Hidden and\n        # status Playing, so only the status differs from the locked case.\n        game = _new_game()\n        _arrange_lost_like(game)\n        game.status = \"Playing\"\n    \n        game.toggle_flag(row=4, column=4)\n    \n        # (4,4) Hidden -> Flagged; flags 2 -> 3; remaining 10 - 3 = 7.\n>       assert _cell(game, 4, 4)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_039.py:192: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zdnd26wr\\.pytest_report_e278e2a0127b42dbb6420b5a77147485.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_039.py::test_finished_board_accepts_new_game[_arrange_won-Won]\nFAILED tests/unit/test_spec_039.py::test_finished_board_accepts_new_game[_arrange_lost-Lost]\nFAILED tests/unit/test_spec_039.py::test_same_board_while_playing_accepts_flag\n========================= 3 failed, 2 passed in 1.48s =========================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656618.2505794,
+      "duration": 1.0781190395355225,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zdnd26wr",
+      "environment": {},
+      "summary": {
+        "passed": 2,
+        "failed": 3,
+        "total": 5,
+        "collected": 5
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_039.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_039.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_039.py::test_finished_board_ignores_open_flag_chord_and_tick[_arrange_won-Won]",
+              "type": "Function",
+              "lineno": 112
+            },
+            {
+              "nodeid": "tests/unit/test_spec_039.py::test_finished_board_ignores_open_flag_chord_and_tick[_arrange_lost-Lost]",
+              "type": "Function",
+              "lineno": 112
+            },
+            {
+              "nodeid": "tests/unit/test_spec_039.py::test_finished_board_accepts_new_game[_arrange_won-Won]",
+              "type": "Function",
+              "lineno": 146
+            },
+            {
+              "nodeid": "tests/unit/test_spec_039.py::test_finished_board_accepts_new_game[_arrange_lost-Lost]",
+              "type": "Function",
+              "lineno": 146
+            },
+            {
+              "nodeid": "tests/unit/test_spec_039.py::test_same_board_while_playing_accepts_flag",
+              "type": "Function",
+              "lineno": 181
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_039.py::test_finished_board_ignores_open_flag_chord_and_tick[_arrange_won-Won]",
+          "lineno": 112,
+          "outcome": "passed",
+          "keywords": [
+            "test_finished_board_ignores_open_flag_chord_and_tick[_arrange_won-Won]",
+            "parametrize",
+            "pytestmark",
+            "_arrange_won-Won",
+            "test_spec_039.py",
+            "unit",
+            "tests",
+            "hollow_zdnd26wr",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00090230000205338,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00207349999982398,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00038610000046901405,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_039.py::test_finished_board_ignores_open_flag_chord_and_tick[_arrange_lost-Lost]",
+          "lineno": 112,
+          "outcome": "passed",
+          "keywords": [
+            "test_finished_board_ignores_open_flag_chord_and_tick[_arrange_lost-Lost]",
+            "parametrize",
+            "pytestmark",
+            "_arrange_lost-Lost",
+            "test_spec_039.py",
+            "unit",
+            "tests",
+            "hollow_zdnd26wr",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0012093999976059422,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.002733700006501749,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0005054000066593289,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_039.py::test_finished_board_accepts_new_game[_arrange_won-Won]",
+          "lineno": 146,
+          "outcome": "failed",
+          "keywords": [
+            "test_finished_board_accepts_new_game[_arrange_won-Won]",
+            "parametrize",
+            "pytestmark",
+            "_arrange_won-Won",
+            "test_spec_039.py",
+            "unit",
+            "tests",
+            "hollow_zdnd26wr",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008931000047596171,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0014693999983137473,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zdnd26wr\\tests\\unit\\test_spec_039.py",
+              "lineno": 160,
+              "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_039.py",
+                "lineno": 160,
+                "message": "AttributeError"
+              }
+            ],
+            "longrepr": "arrange = <function _arrange_won at 0x000001F15B4C8360>, status = 'Won'\n\n    @pytest.mark.parametrize(\n        \"arrange, status\",\n        [(_arrange_won, \"Won\"), (_arrange_lost, \"Lost\")],\n    )\n    def test_finished_board_accepts_new_game(arrange, status):\n        game = _new_game()\n        arrange(game)\n    \n        new_game = game.restart_game()\n    \n        # The finished game keeps its outcome.\n        assert game.status == status\n        # The new game is accepted: a fresh Ready game of the same configuration.\n>       assert new_game.id != \"g1\"\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_039.py:160: AttributeError"
+          },
+          "teardown": {
+            "duration": 0.000418099996750243,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_039.py::test_finished_board_accepts_new_game[_arrange_lost-Lost]",
+          "lineno": 146,
+          "outcome": "failed",
+          "keywords": [
+            "test_finished_board_accepts_new_game[_arrange_lost-Lost]",
+            "parametrize",
+            "pytestmark",
+            "_arrange_lost-Lost",
+            "test_spec_039.py",
+            "unit",
+            "tests",
+            "hollow_zdnd26wr",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0009796000085771084,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000803599992650561,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zdnd26wr\\tests\\unit\\test_spec_039.py",
+              "lineno": 160,
+              "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_039.py",
+                "lineno": 160,
+                "message": "AttributeError"
+              }
+            ],
+            "longrepr": "arrange = <function _arrange_lost at 0x000001F15B4C82C0>, status = 'Lost'\n\n    @pytest.mark.parametrize(\n        \"arrange, status\",\n        [(_arrange_won, \"Won\"), (_arrange_lost, \"Lost\")],\n    )\n    def test_finished_board_accepts_new_game(arrange, status):\n        game = _new_game()\n        arrange(game)\n    \n        new_game = game.restart_game()\n    \n        # The finished game keeps its outcome.\n        assert game.status == status\n        # The new game is accepted: a fresh Ready game of the same configuration.\n>       assert new_game.id != \"g1\"\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_039.py:160: AttributeError"
+          },
+          "teardown": {
+            "duration": 0.0005586000042967498,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_039.py::test_same_board_while_playing_accepts_flag",
+          "lineno": 181,
+          "outcome": "failed",
+          "keywords": [
+            "test_same_board_while_playing_accepts_flag",
+            "test_spec_039.py",
+            "unit",
+            "tests",
+            "hollow_zdnd26wr",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004293999954825267,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010528000129852444,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zdnd26wr\\tests\\unit\\test_spec_039.py",
+              "lineno": 192,
+              "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_039.py",
+                "lineno": 192,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_same_board_while_playing_accepts_flag():\n        # Contrast: identical board to the Lost case but (8,8) still Hidden and\n        # status Playing, so only the status differs from the locked case.\n        game = _new_game()\n        _arrange_lost_like(game)\n        game.status = \"Playing\"\n    \n        game.toggle_flag(row=4, column=4)\n    \n        # (4,4) Hidden -> Flagged; flags 2 -> 3; remaining 10 - 3 = 7.\n>       assert _cell(game, 4, 4)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_039.py:192: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00043339999683666974,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.399
+}

@@ -1,0 +1,316 @@
+{
+  "seq": 160,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.977,
+  "thread": "red_10",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652645.3155057,
+        "duration": 1.0944316387176514,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 4,
+          "passed": 2,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py::test_reveal_after_end_is_refused_and_board_unchanged[won]",
+                "type": "Function",
+                "lineno": 40
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py::test_reveal_after_end_is_refused_and_board_unchanged[lost]",
+                "type": "Function",
+                "lineno": 40
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py::test_flag_after_end_is_refused_and_board_unchanged[won]",
+                "type": "Function",
+                "lineno": 59
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py::test_flag_after_end_is_refused_and_board_unchanged[lost]",
+                "type": "Function",
+                "lineno": 59
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py::test_restart_after_end_creates_new_game[won]",
+                "type": "Function",
+                "lineno": 79
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_011.py::test_restart_after_end_creates_new_game[lost]",
+                "type": "Function",
+                "lineno": 79
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py::test_reveal_after_end_is_refused_and_board_unchanged[won]",
+            "lineno": 40,
+            "outcome": "failed",
+            "keywords": [
+              "test_reveal_after_end_is_refused_and_board_unchanged[won]",
+              "parametrize",
+              "pytestmark",
+              "won",
+              "test_spec_011.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011642000026768073,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001010299994959496,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_011.py",
+                "lineno": 49,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_011.py",
+                  "lineno": 49,
+                  "message": "in test_reveal_after_end_is_refused_and_board_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_011.py:49: in test_reveal_after_end_is_refused_and_board_unchanged\n    with pytest.raises(Exception) as exc_info:\nE   Failed: DID NOT RAISE Exception"
+            },
+            "teardown": {
+              "duration": 0.00041930000588763505,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py::test_reveal_after_end_is_refused_and_board_unchanged[lost]",
+            "lineno": 40,
+            "outcome": "failed",
+            "keywords": [
+              "test_reveal_after_end_is_refused_and_board_unchanged[lost]",
+              "parametrize",
+              "pytestmark",
+              "lost",
+              "test_spec_011.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005829000001540408,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011132999934488907,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_011.py",
+                "lineno": 49,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_011.py",
+                  "lineno": 49,
+                  "message": "in test_reveal_after_end_is_refused_and_board_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_011.py:49: in test_reveal_after_end_is_refused_and_board_unchanged\n    with pytest.raises(Exception) as exc_info:\nE   Failed: DID NOT RAISE Exception"
+            },
+            "teardown": {
+              "duration": 0.0005262999911792576,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py::test_flag_after_end_is_refused_and_board_unchanged[won]",
+            "lineno": 59,
+            "outcome": "failed",
+            "keywords": [
+              "test_flag_after_end_is_refused_and_board_unchanged[won]",
+              "parametrize",
+              "pytestmark",
+              "won",
+              "test_spec_011.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006233000021893531,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0016900000046007335,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_011.py",
+                "lineno": 68,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_011.py",
+                  "lineno": 68,
+                  "message": "in test_flag_after_end_is_refused_and_board_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_011.py:68: in test_flag_after_end_is_refused_and_board_unchanged\n    with pytest.raises(Exception) as exc_info:\nE   Failed: DID NOT RAISE Exception"
+            },
+            "teardown": {
+              "duration": 0.00045680000039283186,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py::test_flag_after_end_is_refused_and_board_unchanged[lost]",
+            "lineno": 59,
+            "outcome": "failed",
+            "keywords": [
+              "test_flag_after_end_is_refused_and_board_unchanged[lost]",
+              "parametrize",
+              "pytestmark",
+              "lost",
+              "test_spec_011.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006451000081142411,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011282999912509695,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_011.py",
+                "lineno": 68,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_011.py",
+                  "lineno": 68,
+                  "message": "in test_flag_after_end_is_refused_and_board_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_011.py:68: in test_flag_after_end_is_refused_and_board_unchanged\n    with pytest.raises(Exception) as exc_info:\nE   Failed: DID NOT RAISE Exception"
+            },
+            "teardown": {
+              "duration": 0.0005592000088654459,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py::test_restart_after_end_creates_new_game[won]",
+            "lineno": 79,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_after_end_creates_new_game[won]",
+              "parametrize",
+              "pytestmark",
+              "won",
+              "test_spec_011.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007609000022057444,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006869000062579289,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00038729999505449086,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_011.py::test_restart_after_end_creates_new_game[lost]",
+            "lineno": 79,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_after_end_creates_new_game[lost]",
+              "parametrize",
+              "pytestmark",
+              "lost",
+              "test_spec_011.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001000100004603155,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006740999961039051,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00040469999657943845,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,123 @@
+{
+  "seq": 117,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:22",
+  "t_offset_s": 86.275,
+  "thread": "red_11",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_012.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 2 items\n\ntests\\unit\\test_spec_012.py::test_first_reveal_starts_timer PASSED       [ 50%]\ntests\\unit\\test_spec_012.py::test_flag_does_not_start_timer PASSED       [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_7e29d69036c24ef282792ab4673b9e9e.json\n============================== 2 passed in 0.44s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652644.7462444,
+      "duration": 0.42298412322998047,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 2,
+        "total": 2,
+        "collected": 2
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_012.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_012.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_012.py::test_first_reveal_starts_timer",
+              "type": "Function",
+              "lineno": 25
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_012.py::test_flag_does_not_start_timer",
+              "type": "Function",
+              "lineno": 53
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_012.py::test_first_reveal_starts_timer",
+          "lineno": 25,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_reveal_starts_timer",
+            "test_spec_012.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005945999873802066,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001523099999758415,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003496999997878447,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_012.py::test_flag_does_not_start_timer",
+          "lineno": 53,
+          "outcome": "passed",
+          "keywords": [
+            "test_flag_does_not_start_timer",
+            "test_spec_012.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000375300005543977,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004518999921856448,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003595000016503036,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 3.118
+}

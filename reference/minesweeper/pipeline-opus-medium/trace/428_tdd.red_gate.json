@@ -1,0 +1,294 @@
+{
+  "seq": 428,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:34",
+  "t_offset_s": 405.985,
+  "thread": "red_19",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656614.559402,
+        "duration": 0.854135274887085,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 7,
+          "total": 7,
+          "collected": 7
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_046.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_046.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_046.py::test_closing_a_game_in_progress_abandons_it_and_records_nothing[Ready]",
+                "type": "Function",
+                "lineno": 125
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_046.py::test_closing_a_game_in_progress_abandons_it_and_records_nothing[Playing]",
+                "type": "Function",
+                "lineno": 125
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_046.py::test_abandoned_game_timer_stays_frozen[Ready]",
+                "type": "Function",
+                "lineno": 149
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_046.py::test_abandoned_game_timer_stays_frozen[Playing]",
+                "type": "Function",
+                "lineno": 149
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_046.py::test_closing_a_finished_game_keeps_its_outcome[Won]",
+                "type": "Function",
+                "lineno": 163
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_046.py::test_closing_a_finished_game_keeps_its_outcome[Lost]",
+                "type": "Function",
+                "lineno": 163
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_046.py::test_closing_an_already_abandoned_game_changes_nothing",
+                "type": "Function",
+                "lineno": 189
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_046.py::test_closing_a_game_in_progress_abandons_it_and_records_nothing[Ready]",
+            "lineno": 125,
+            "outcome": "passed",
+            "keywords": [
+              "test_closing_a_game_in_progress_abandons_it_and_records_nothing[Ready]",
+              "parametrize",
+              "pytestmark",
+              "Ready",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008929000032367185,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012743000115733594,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004532000020844862,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_046.py::test_closing_a_game_in_progress_abandons_it_and_records_nothing[Playing]",
+            "lineno": 125,
+            "outcome": "passed",
+            "keywords": [
+              "test_closing_a_game_in_progress_abandons_it_and_records_nothing[Playing]",
+              "parametrize",
+              "pytestmark",
+              "Playing",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006120000034570694,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001345900003798306,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003620999923441559,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_046.py::test_abandoned_game_timer_stays_frozen[Ready]",
+            "lineno": 149,
+            "outcome": "passed",
+            "keywords": [
+              "test_abandoned_game_timer_stays_frozen[Ready]",
+              "parametrize",
+              "pytestmark",
+              "Ready",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008071999909589067,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006649999995715916,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00033099998836405575,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_046.py::test_abandoned_game_timer_stays_frozen[Playing]",
+            "lineno": 149,
+            "outcome": "passed",
+            "keywords": [
+              "test_abandoned_game_timer_stays_frozen[Playing]",
+              "parametrize",
+              "pytestmark",
+              "Playing",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005633000109810382,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008111999923130497,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000509100005729124,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_046.py::test_closing_a_finished_game_keeps_its_outcome[Won]",
+            "lineno": 163,
+            "outcome": "passed",
+            "keywords": [
+              "test_closing_a_finished_game_keeps_its_outcome[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011040999961551279,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013709000049857423,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005746000097133219,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_046.py::test_closing_a_finished_game_keeps_its_outcome[Lost]",
+            "lineno": 163,
+            "outcome": "passed",
+            "keywords": [
+              "test_closing_a_finished_game_keeps_its_outcome[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007965999975567684,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001312699998379685,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004030999989481643,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_046.py::test_closing_an_already_abandoned_game_changes_nothing",
+            "lineno": 189,
+            "outcome": "passed",
+            "keywords": [
+              "test_closing_an_already_abandoned_game_changes_nothing",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003896999987773597,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013312000082805753,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004141999961575493,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

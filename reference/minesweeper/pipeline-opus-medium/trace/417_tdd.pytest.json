@@ -1,0 +1,136 @@
+{
+  "seq": 417,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:34",
+  "t_offset_s": 405.424,
+  "thread": "red_16",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_40ut0e43\\tests\\unit\\test_spec_041.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_40ut0e43"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_40ut0e43\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 2 items\n\ntests\\unit\\test_spec_041.py .F                                           [100%]\n\n================================== FAILURES ===================================\n_________ test_toggling_flag_on_hidden_cell_in_same_game_does_flag_it _________\n\n    def test_toggling_flag_on_hidden_cell_in_same_game_does_flag_it():\n        # Contrast case: same arrangement, only the target cell differs (Hidden instead of Opened).\n        game = _playing_game_with_opened_cell()\n    \n        # (0,1) is Hidden and safe; toggling flags it: flags_placed 1 -> 2,\n        # remaining_mines = 10 - 2 = 8.\n        game.toggle_flag(row=0, column=1)\n    \n>       assert _cell(game, 0, 1)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_041.py:100: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_40ut0e43\\.pytest_report_6780b2caa40b40ceb45e16ad36e514e3.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_041.py::test_toggling_flag_on_hidden_cell_in_same_game_does_flag_it\n========================= 1 failed, 1 passed in 1.29s =========================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656618.654663,
+      "duration": 0.8498094081878662,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_40ut0e43",
+      "environment": {},
+      "summary": {
+        "passed": 1,
+        "failed": 1,
+        "total": 2,
+        "collected": 2
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_041.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_041.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_041.py::test_toggling_flag_on_opened_cell_changes_nothing",
+              "type": "Function",
+              "lineno": 67
+            },
+            {
+              "nodeid": "tests/unit/test_spec_041.py::test_toggling_flag_on_hidden_cell_in_same_game_does_flag_it",
+              "type": "Function",
+              "lineno": 91
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_041.py::test_toggling_flag_on_opened_cell_changes_nothing",
+          "lineno": 67,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggling_flag_on_opened_cell_changes_nothing",
+            "test_spec_041.py",
+            "unit",
+            "tests",
+            "hollow_40ut0e43",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005975000094622374,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007951000006869435,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00034050000249408185,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_041.py::test_toggling_flag_on_hidden_cell_in_same_game_does_flag_it",
+          "lineno": 91,
+          "outcome": "failed",
+          "keywords": [
+            "test_toggling_flag_on_hidden_cell_in_same_game_does_flag_it",
+            "test_spec_041.py",
+            "unit",
+            "tests",
+            "hollow_40ut0e43",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00042039999971166253,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0011031000030925497,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_40ut0e43\\tests\\unit\\test_spec_041.py",
+              "lineno": 100,
+              "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_041.py",
+                "lineno": 100,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_toggling_flag_on_hidden_cell_in_same_game_does_flag_it():\n        # Contrast case: same arrangement, only the target cell differs (Hidden instead of Opened).\n        game = _playing_game_with_opened_cell()\n    \n        # (0,1) is Hidden and safe; toggling flags it: flags_placed 1 -> 2,\n        # remaining_mines = 10 - 2 = 8.\n        game.toggle_flag(row=0, column=1)\n    \n>       assert _cell(game, 0, 1)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_041.py:100: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0006138000026112422,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.085
+}

@@ -1,0 +1,123 @@
+{
+  "seq": 310,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:20",
+  "t_offset_s": 201.427,
+  "thread": "red_16",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_018.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 2 items\n\ntests\\unit\\test_spec_018.py::test_spread_leaves_flagged_neighbour_flagged_and_hidden PASSED [ 50%]\ntests\\unit\\test_spec_018.py::test_reveal_of_flagged_cell_next_to_zero_is_refused PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_d5cc52fca1b046a9a1d7f430f64d1065.json\n============================== 2 passed in 0.21s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652461.6859415,
+      "duration": 0.20680546760559082,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 2,
+        "total": 2,
+        "collected": 2
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_018.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_018.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_018.py::test_spread_leaves_flagged_neighbour_flagged_and_hidden",
+              "type": "Function",
+              "lineno": 47
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_018.py::test_reveal_of_flagged_cell_next_to_zero_is_refused",
+              "type": "Function",
+              "lineno": 69
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_018.py::test_spread_leaves_flagged_neighbour_flagged_and_hidden",
+          "lineno": 47,
+          "outcome": "passed",
+          "keywords": [
+            "test_spread_leaves_flagged_neighbour_flagged_and_hidden",
+            "test_spec_018.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003257000062149018,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002646999928401783,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00017249998927582055,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_018.py::test_reveal_of_flagged_cell_next_to_zero_is_refused",
+          "lineno": 69,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_of_flagged_cell_next_to_zero_is_refused",
+            "test_spec_018.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00019269999756943434,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00023079999664332718,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018899999849963933,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 1.299
+}

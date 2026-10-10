@@ -1,0 +1,287 @@
+{
+  "seq": 311,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:21",
+  "t_offset_s": 201.908,
+  "thread": "red_9",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652460.6775627,
+        "duration": 0.19192218780517578,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_nwxry_qm",
+        "environment": {},
+        "summary": {
+          "failed": 5,
+          "total": 5,
+          "collected": 5
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_036.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-won]",
+                "type": "Function",
+                "lineno": 63
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-lost]",
+                "type": "Function",
+                "lineno": 63
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-won]",
+                "type": "Function",
+                "lineno": 63
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-lost]",
+                "type": "Function",
+                "lineno": 63
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_same_board_flag_is_accepted_while_in_progress",
+                "type": "Function",
+                "lineno": 96
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-won]",
+            "lineno": 63,
+            "outcome": "failed",
+            "keywords": [
+              "test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-won]",
+              "parametrize",
+              "pytestmark",
+              "reveal_cell-won",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_nwxry_qm",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004665999877033755,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00039009998727124184,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_nwxry_qm\\tests\\unit\\test_spec_036.py",
+                "lineno": 80,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_036.py",
+                  "lineno": 80,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'won', action = <function _reveal at 0x000001944019B560>\n\n    @pytest.mark.parametrize(\"status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\n        \"action\",\n        [_reveal, _toggle_flag],\n        ids=[\"reveal_cell\", \"toggle_flag\"],\n    )\n    def test_board_action_after_game_end_is_refused_and_changes_nothing(status, action):\n        # Given a finished game (won or lost) on a 9x9 board with 10 mines.\n        # The target cell (4, 4) is hidden and holds a mine, so it is a legal\n        # target for both reveal and flag if the status did not block it.\n        # Every other cell is revealed and safe; flag_count is 0; the timer\n        # stands at 120 seconds; ended_at is recorded.\n        session = _make_finished_board(status)\n        cells_before = _cell_snapshot(session)\n    \n        # When the player reveals or flags the target cell.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_036.py:80: Failed"
+            },
+            "teardown": {
+              "duration": 0.0002604000037536025,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-lost]",
+            "lineno": 63,
+            "outcome": "failed",
+            "keywords": [
+              "test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-lost]",
+              "parametrize",
+              "pytestmark",
+              "reveal_cell-lost",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_nwxry_qm",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00041569999302737415,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002876999933505431,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_nwxry_qm\\tests\\unit\\test_spec_036.py",
+                "lineno": 80,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_036.py",
+                  "lineno": 80,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'lost', action = <function _reveal at 0x000001944019B560>\n\n    @pytest.mark.parametrize(\"status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\n        \"action\",\n        [_reveal, _toggle_flag],\n        ids=[\"reveal_cell\", \"toggle_flag\"],\n    )\n    def test_board_action_after_game_end_is_refused_and_changes_nothing(status, action):\n        # Given a finished game (won or lost) on a 9x9 board with 10 mines.\n        # The target cell (4, 4) is hidden and holds a mine, so it is a legal\n        # target for both reveal and flag if the status did not block it.\n        # Every other cell is revealed and safe; flag_count is 0; the timer\n        # stands at 120 seconds; ended_at is recorded.\n        session = _make_finished_board(status)\n        cells_before = _cell_snapshot(session)\n    \n        # When the player reveals or flags the target cell.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_036.py:80: Failed"
+            },
+            "teardown": {
+              "duration": 0.0002575999969849363,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-won]",
+            "lineno": 63,
+            "outcome": "failed",
+            "keywords": [
+              "test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-won]",
+              "parametrize",
+              "pytestmark",
+              "toggle_flag-won",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_nwxry_qm",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004920000064885244,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002865000133169815,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_nwxry_qm\\tests\\unit\\test_spec_036.py",
+                "lineno": 80,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_036.py",
+                  "lineno": 80,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'won', action = <function _toggle_flag at 0x00000194401E0360>\n\n    @pytest.mark.parametrize(\"status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\n        \"action\",\n        [_reveal, _toggle_flag],\n        ids=[\"reveal_cell\", \"toggle_flag\"],\n    )\n    def test_board_action_after_game_end_is_refused_and_changes_nothing(status, action):\n        # Given a finished game (won or lost) on a 9x9 board with 10 mines.\n        # The target cell (4, 4) is hidden and holds a mine, so it is a legal\n        # target for both reveal and flag if the status did not block it.\n        # Every other cell is revealed and safe; flag_count is 0; the timer\n        # stands at 120 seconds; ended_at is recorded.\n        session = _make_finished_board(status)\n        cells_before = _cell_snapshot(session)\n    \n        # When the player reveals or flags the target cell.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_036.py:80: Failed"
+            },
+            "teardown": {
+              "duration": 0.00026020000223070383,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-lost]",
+            "lineno": 63,
+            "outcome": "failed",
+            "keywords": [
+              "test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-lost]",
+              "parametrize",
+              "pytestmark",
+              "toggle_flag-lost",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_nwxry_qm",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004073999880347401,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002808999997796491,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_nwxry_qm\\tests\\unit\\test_spec_036.py",
+                "lineno": 80,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_036.py",
+                  "lineno": 80,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'lost', action = <function _toggle_flag at 0x00000194401E0360>\n\n    @pytest.mark.parametrize(\"status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\n        \"action\",\n        [_reveal, _toggle_flag],\n        ids=[\"reveal_cell\", \"toggle_flag\"],\n    )\n    def test_board_action_after_game_end_is_refused_and_changes_nothing(status, action):\n        # Given a finished game (won or lost) on a 9x9 board with 10 mines.\n        # The target cell (4, 4) is hidden and holds a mine, so it is a legal\n        # target for both reveal and flag if the status did not block it.\n        # Every other cell is revealed and safe; flag_count is 0; the timer\n        # stands at 120 seconds; ended_at is recorded.\n        session = _make_finished_board(status)\n        cells_before = _cell_snapshot(session)\n    \n        # When the player reveals or flags the target cell.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_036.py:80: Failed"
+            },
+            "teardown": {
+              "duration": 0.000255300008575432,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_same_board_flag_is_accepted_while_in_progress",
+            "lineno": 96,
+            "outcome": "failed",
+            "keywords": [
+              "test_same_board_flag_is_accepted_while_in_progress",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_nwxry_qm",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00030679999326821417,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006022000015946105,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_nwxry_qm\\tests\\unit\\test_spec_036.py",
+                "lineno": 116,
+                "message": "AssertionError: assert 'hidden' == 'flagged'\n  \n  - flagged\n  + hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_036.py",
+                  "lineno": 116,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_same_board_flag_is_accepted_while_in_progress():\n        # Given the same 9x9 board, arranged as in progress instead of finished.\n        # The target cell (4, 4) is hidden and unflagged, and flag_count is 0.\n        # Nothing else blocks a flag: the status is in_progress and the cell is\n        # hidden, which are the rules for toggling a flag.\n        session = _make_finished_board(\"in_progress\")\n        session.ended_at = None\n        session.elapsed_seconds = ELAPSED_AT_END\n    \n        # When the player flags the target cell.\n        _toggle_flag(session)\n    \n        # Then the target cell becomes flagged, because a hidden cell in an\n        # in-progress game can be flagged.\n        target = next(\n            cell\n            for cell in session.cells\n            if cell[\"row\"] == TARGET_ROW and cell[\"column\"] == TARGET_COLUMN\n        )\n>       assert target[\"state\"] == \"flagged\"\nE       AssertionError: assert 'hidden' == 'flagged'\nE         \nE         - flagged\nE         + hidden\n\ntests\\unit\\test_spec_036.py:116: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0002686000079847872,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

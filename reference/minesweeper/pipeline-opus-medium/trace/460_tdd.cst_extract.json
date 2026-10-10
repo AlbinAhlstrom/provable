@@ -1,0 +1,24 @@
+{
+  "seq": 460,
+  "step": "tdd.cst_extract",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.green_together"
+  ],
+  "started_at": "20:23:55",
+  "t_offset_s": 426.895,
+  "thread": "synthesis_0",
+  "input": {
+    "args": [
+      "\"\"\"\nDomain Model: BestTime (Aggregate Root)\nSingle Responsibility Principle (SRP) compliant domain model.\n\"\"\"\n\nfrom __future__ import annotations\nimport math\nfrom dataclasses import dataclass, field\nfrom datetime import datetime, date, timezone, timedelta\nfrom typing import Optional, List, Dict, Any, Union, Set, Tuple, Callable\n\n\ntry:\n    from src.domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n    from src.domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\nexcept ImportError:\n    try:\n        from domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n        from domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\n    except ImportError:\n        pass\nSTANDARD_DIFFICULTIES: Tuple[str, ...] = (\"beginner\", \"intermediate\", \"expert\")\n\n\n@dataclass\nclass BestTime:\n    \"\"\"BestTime.\"\"\"\n    id: str\n    difficulty_id: str\n    game_id: str\n    best_seconds: int\n    achieved_at: str\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n\n    def record_win(\n        self,\n        game_id: str,\n        difficulty_id: str,\n        elapsed_seconds: int,\n        achieved_at: str,\n    ) -> bool:\n        \"\"\"Record a won game and keep the fastest time for this difficulty.\n\n        Args:\n            game_id: Identifier of the won game.\n            difficulty_id: Difficulty the game was played on.\n            elapsed_seconds: Seconds taken to win the game.\n            achieved_at: Timestamp when the win was achieved.\n\n        Returns:\n            True if the stored best time was replaced, otherwise False.\n        \"\"\"\n        if difficulty_id not in STANDARD_DIFFICULTIES:\n            return False\n        if difficulty_id != self.difficulty_id:\n            return False\n        if not elapsed_seconds < self.best_seconds:\n            return False\n        self.best_seconds = elapsed_seconds\n        self.game_id = game_id\n        self.achieved_at = achieved_at\n        return True\n",
+      "BestTime"
+    ],
+    "kwargs": {}
+  },
+  "output": "\n\n@dataclass\nclass BestTime:\n    \"\"\"BestTime.\"\"\"\n    id: str\n    difficulty_id: str\n    game_id: str\n    best_seconds: int\n    achieved_at: str\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n\n    def record_win(\n        self,\n        game_id: str,\n        difficulty_id: str,\n        elapsed_seconds: int,\n        achieved_at: str,\n    ) -> bool:\n        \"\"\"Record a won game and keep the fastest time for this difficulty.\n\n        Args:\n            game_id: Identifier of the won game.\n            difficulty_id: Difficulty the game was played on.\n            elapsed_seconds: Seconds taken to win the game.\n            achieved_at: Timestamp when the win was achieved.\n\n        Returns:\n            True if the stored best time was replaced, otherwise False.\n        \"\"\"\n        if difficulty_id not in STANDARD_DIFFICULTIES:\n            return False\n        if difficulty_id != self.difficulty_id:\n            return False\n        if not elapsed_seconds < self.best_seconds:\n            return False\n        self.best_seconds = elapsed_seconds\n        self.game_id = game_id\n        self.achieved_at = achieved_at\n        return True\n",
+  "duration_s": 0.006
+}

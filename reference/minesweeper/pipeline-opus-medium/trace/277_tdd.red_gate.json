@@ -1,0 +1,430 @@
+{
+  "seq": 277,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.355,
+  "thread": "red_13",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656601.5245438,
+        "duration": 1.4631667137145996,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 11,
+          "total": 11,
+          "collected": 11
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-0-3]",
+                "type": "Function",
+                "lineno": 47
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-11-3]",
+                "type": "Function",
+                "lineno": 47
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-0-3]",
+                "type": "Function",
+                "lineno": 47
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-11-3]",
+                "type": "Function",
+                "lineno": 47
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-5-5]",
+                "type": "Function",
+                "lineno": 47
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-5-5]",
+                "type": "Function",
+                "lineno": 47
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[4-0-5]",
+                "type": "Function",
+                "lineno": 47
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[4-11-5]",
+                "type": "Function",
+                "lineno": 47
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[1-1-8]",
+                "type": "Function",
+                "lineno": 47
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[1-5-8]",
+                "type": "Function",
+                "lineno": 47
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_015.py::test_every_cell_count_matches_mines_among_existing_neighbours",
+                "type": "Function",
+                "lineno": 90
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-0-3]",
+            "lineno": 47,
+            "outcome": "passed",
+            "keywords": [
+              "test_adjacent_count_only_counts_neighbours_inside_the_grid[0-0-3]",
+              "parametrize",
+              "pytestmark",
+              "0-0-3",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.003328999999212101,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.009109799997531809,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004248000041116029,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-11-3]",
+            "lineno": 47,
+            "outcome": "passed",
+            "keywords": [
+              "test_adjacent_count_only_counts_neighbours_inside_the_grid[0-11-3]",
+              "parametrize",
+              "pytestmark",
+              "0-11-3",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00139639999542851,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.011217200008104555,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004560999950626865,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-0-3]",
+            "lineno": 47,
+            "outcome": "passed",
+            "keywords": [
+              "test_adjacent_count_only_counts_neighbours_inside_the_grid[8-0-3]",
+              "parametrize",
+              "pytestmark",
+              "8-0-3",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007877999887568876,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.008843100004014559,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004200000112177804,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-11-3]",
+            "lineno": 47,
+            "outcome": "passed",
+            "keywords": [
+              "test_adjacent_count_only_counts_neighbours_inside_the_grid[8-11-3]",
+              "parametrize",
+              "pytestmark",
+              "8-11-3",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011189999931957573,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.008731199995963834,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00040699999954085797,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[0-5-5]",
+            "lineno": 47,
+            "outcome": "passed",
+            "keywords": [
+              "test_adjacent_count_only_counts_neighbours_inside_the_grid[0-5-5]",
+              "parametrize",
+              "pytestmark",
+              "0-5-5",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008570999925723299,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.009174499995424412,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00043990000267513096,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[8-5-5]",
+            "lineno": 47,
+            "outcome": "passed",
+            "keywords": [
+              "test_adjacent_count_only_counts_neighbours_inside_the_grid[8-5-5]",
+              "parametrize",
+              "pytestmark",
+              "8-5-5",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008928000024752691,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.009950799998478033,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000440500007243827,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[4-0-5]",
+            "lineno": 47,
+            "outcome": "passed",
+            "keywords": [
+              "test_adjacent_count_only_counts_neighbours_inside_the_grid[4-0-5]",
+              "parametrize",
+              "pytestmark",
+              "4-0-5",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009275999909732491,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.010493199995835312,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039500001003034413,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[4-11-5]",
+            "lineno": 47,
+            "outcome": "passed",
+            "keywords": [
+              "test_adjacent_count_only_counts_neighbours_inside_the_grid[4-11-5]",
+              "parametrize",
+              "pytestmark",
+              "4-11-5",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007681999995838851,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.058170599993900396,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00045039999531582,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[1-1-8]",
+            "lineno": 47,
+            "outcome": "passed",
+            "keywords": [
+              "test_adjacent_count_only_counts_neighbours_inside_the_grid[1-1-8]",
+              "parametrize",
+              "pytestmark",
+              "1-1-8",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010928999981842935,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00910880000446923,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00041029999556485564,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py::test_adjacent_count_only_counts_neighbours_inside_the_grid[1-5-8]",
+            "lineno": 47,
+            "outcome": "passed",
+            "keywords": [
+              "test_adjacent_count_only_counts_neighbours_inside_the_grid[1-5-8]",
+              "parametrize",
+              "pytestmark",
+              "1-5-8",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008022999973036349,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00960520000080578,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003770000039367005,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_015.py::test_every_cell_count_matches_mines_among_existing_neighbours",
+            "lineno": 90,
+            "outcome": "passed",
+            "keywords": [
+              "test_every_cell_count_matches_mines_among_existing_neighbours",
+              "test_spec_015.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004167000006418675,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.12970879999920726,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004268999909982085,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

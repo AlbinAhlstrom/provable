@@ -1,0 +1,135 @@
+{
+  "seq": 251,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:14",
+  "t_offset_s": 195.081,
+  "thread": "red_16",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652453.6813753,
+        "duration": 1.4744107723236084,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 1,
+          "failed": 1,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_018.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_018.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_018.py::test_spread_leaves_flagged_neighbour_flagged_and_hidden",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_018.py::test_reveal_of_flagged_cell_next_to_zero_is_refused",
+                "type": "Function",
+                "lineno": 67
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_018.py::test_spread_leaves_flagged_neighbour_flagged_and_hidden",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_spread_leaves_flagged_neighbour_flagged_and_hidden",
+              "test_spec_018.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006380999984685332,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00047640000411774963,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0006043000030331314,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_018.py::test_reveal_of_flagged_cell_next_to_zero_is_refused",
+            "lineno": 67,
+            "outcome": "failed",
+            "keywords": [
+              "test_reveal_of_flagged_cell_next_to_zero_is_refused",
+              "test_spec_018.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00044630000775214285,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005043999990448356,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_018.py",
+                "lineno": 74,
+                "message": "NameError: name 'pytest' is not defined"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_018.py",
+                  "lineno": 74,
+                  "message": "in test_reveal_of_flagged_cell_next_to_zero_is_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_018.py:74: in test_reveal_of_flagged_cell_next_to_zero_is_refused\n    with pytest.raises(Exception) as exc_info:\n         ^^^^^^\nE   NameError: name 'pytest' is not defined"
+            },
+            "teardown": {
+              "duration": 0.00042910000775009394,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_SYNTAX_OR_EXEC",
+    "approved": false,
+    "reason": "Broken test, not a valid RED: NameError: name 'pytest' is not defined"
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,90 @@
+{
+  "seq": 125,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:24",
+  "t_offset_s": 88.764,
+  "thread": "red_2",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652644.2348175,
+        "duration": 0.3866093158721924,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_003.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_003.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_003.py::test_zero_expansion_stops_at_numbered_cells_and_respects_flags",
+                "type": "Function",
+                "lineno": 60
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_003.py::test_zero_expansion_stops_at_numbered_cells_and_respects_flags",
+            "lineno": 60,
+            "outcome": "passed",
+            "keywords": [
+              "test_zero_expansion_stops_at_numbered_cells_and_respects_flags",
+              "test_spec_003.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009602999925846234,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0014306000084616244,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000411600005463697,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,226 @@
+{
+  "seq": 301,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:19",
+  "t_offset_s": 200.376,
+  "thread": "red_9",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652459.2596931,
+        "duration": 0.31372833251953125,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 5,
+          "total": 5,
+          "collected": 5
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-won]",
+                "type": "Function",
+                "lineno": 63
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-lost]",
+                "type": "Function",
+                "lineno": 63
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-won]",
+                "type": "Function",
+                "lineno": 63
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-lost]",
+                "type": "Function",
+                "lineno": 63
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_same_board_flag_is_accepted_while_in_progress",
+                "type": "Function",
+                "lineno": 96
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-won]",
+            "lineno": 63,
+            "outcome": "passed",
+            "keywords": [
+              "test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-won]",
+              "parametrize",
+              "pytestmark",
+              "reveal_cell-won",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010667000024113804,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006312000041361898,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00034329999471083283,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-lost]",
+            "lineno": 63,
+            "outcome": "passed",
+            "keywords": [
+              "test_board_action_after_game_end_is_refused_and_changes_nothing[reveal_cell-lost]",
+              "parametrize",
+              "pytestmark",
+              "reveal_cell-lost",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006950999959371984,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006312000041361898,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003845000028377399,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-won]",
+            "lineno": 63,
+            "outcome": "passed",
+            "keywords": [
+              "test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-won]",
+              "parametrize",
+              "pytestmark",
+              "toggle_flag-won",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005233000119915232,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006793000065954402,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00030339999648276716,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-lost]",
+            "lineno": 63,
+            "outcome": "passed",
+            "keywords": [
+              "test_board_action_after_game_end_is_refused_and_changes_nothing[toggle_flag-lost]",
+              "parametrize",
+              "pytestmark",
+              "toggle_flag-lost",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004163999983575195,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003951999970013276,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00021800000104121864,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_same_board_flag_is_accepted_while_in_progress",
+            "lineno": 96,
+            "outcome": "passed",
+            "keywords": [
+              "test_same_board_flag_is_accepted_while_in_progress",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003318000090075657,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005317000031936914,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000331300005200319,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

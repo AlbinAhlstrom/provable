@@ -1,0 +1,284 @@
+{
+  "seq": 458,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:55",
+  "t_offset_s": 426.892,
+  "thread": "red_23",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656635.71146,
+        "duration": 0.458984375,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 3,
+          "passed": 2,
+          "total": 5,
+          "collected": 5
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+                "type": "Function",
+                "lineno": 21
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+                "type": "Function",
+                "lineno": 21
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+                "type": "Function",
+                "lineno": 21
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_of_other_difficulty_sets_no_best_time[beginner-custom]",
+                "type": "Function",
+                "lineno": 60
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_of_other_difficulty_sets_no_best_time[beginner-intermediate]",
+                "type": "Function",
+                "lineno": 60
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+            "lineno": 21,
+            "outcome": "failed",
+            "keywords": [
+              "test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+              "parametrize",
+              "pytestmark",
+              "beginner-game-b-1-42-2024-03-01T10:15:00Z",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006320999964373186,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00033399999665562063,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\best_time.py",
+                "lineno": 62,
+                "message": "TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_035.py",
+                  "lineno": 35,
+                  "message": "in test_first_win_sets_best_time"
+                },
+                {
+                  "path": "src\\domain\\best_time.py",
+                  "lineno": 62,
+                  "message": "in record_win"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_035.py:35: in test_first_win_sets_best_time\n    best.record_win(\nsrc\\domain\\best_time.py:62: in record_win\n    if not elapsed_seconds < self.best_seconds:\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+            },
+            "teardown": {
+              "duration": 0.0002690999972401187,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+            "lineno": 21,
+            "outcome": "failed",
+            "keywords": [
+              "test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-game-i-1-137-2024-03-02T11:20:00Z",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004641000123228878,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002153999957954511,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\best_time.py",
+                "lineno": 62,
+                "message": "TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_035.py",
+                  "lineno": 35,
+                  "message": "in test_first_win_sets_best_time"
+                },
+                {
+                  "path": "src\\domain\\best_time.py",
+                  "lineno": 62,
+                  "message": "in record_win"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_035.py:35: in test_first_win_sets_best_time\n    best.record_win(\nsrc\\domain\\best_time.py:62: in record_win\n    if not elapsed_seconds < self.best_seconds:\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+            },
+            "teardown": {
+              "duration": 0.00025710000772960484,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+            "lineno": 21,
+            "outcome": "failed",
+            "keywords": [
+              "test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+              "parametrize",
+              "pytestmark",
+              "expert-game-e-1-389-2024-03-03T12:25:00Z",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004360000020824373,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002125999890267849,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\best_time.py",
+                "lineno": 62,
+                "message": "TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_035.py",
+                  "lineno": 35,
+                  "message": "in test_first_win_sets_best_time"
+                },
+                {
+                  "path": "src\\domain\\best_time.py",
+                  "lineno": 62,
+                  "message": "in record_win"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_035.py:35: in test_first_win_sets_best_time\n    best.record_win(\nsrc\\domain\\best_time.py:62: in record_win\n    if not elapsed_seconds < self.best_seconds:\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+            },
+            "teardown": {
+              "duration": 0.00024920000578276813,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_of_other_difficulty_sets_no_best_time[beginner-custom]",
+            "lineno": 60,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_win_of_other_difficulty_sets_no_best_time[beginner-custom]",
+              "parametrize",
+              "pytestmark",
+              "beginner-custom",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003352999920025468,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0001990000018849969,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00017220000154338777,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_of_other_difficulty_sets_no_best_time[beginner-intermediate]",
+            "lineno": 60,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_win_of_other_difficulty_sets_no_best_time[beginner-intermediate]",
+              "parametrize",
+              "pytestmark",
+              "beginner-intermediate",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00031829999352339655,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00018400000408291817,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00018710001313593239,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}
