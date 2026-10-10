@@ -8,7 +8,7 @@ import llm_provider
 _REAL_CALL_GEMINI = agent_orchestrator.call_gemini  # conftest replaces the attribute with an offline double
 
 _SETTINGS = ("LLM_PROVIDER", "LLM_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY", "OPENAI_BASE_URL", "LLM_MODEL",
-             "LLM_MODEL_RED_TEST_GENERATION")
+             "LLM_MODEL_RED_TEST_GENERATION", "LLM_MODEL_PROMPT_EXPANSION")
 
 
 @pytest.fixture(autouse=True)
@@ -120,3 +120,25 @@ def test_an_unknown_provider_fails_loudly_and_a_missing_key_is_named(monkeypatch
     monkeypatch.setenv("LLM_PROVIDER", "openai")
     connection = llm_provider.connection()
     assert connection.api_key == "" and "OPENAI_API_KEY" in connection.key_hint
+
+
+def test_a_provider_may_give_one_stage_a_model_of_its_own(monkeypatch):
+    """Verify the pitch expansion runs on the provider's steadier model unless a setting says otherwise.
+
+    id: TST-PROV-006
+    Given: The anthropic provider, whose expansion was measured on three models (reference/expansion-models)
+    When: The connection of the expansion, of another stage and of the comparison provider is resolved
+    Then: The expansion uses the middle model, every other stage the provider's own, a stage setting still wins,
+          and the provider a build is compared against keeps its one model for every stage
+    """
+    monkeypatch.setenv("LLM_PROVIDER", "anthropic")
+    assert llm_provider.connection("prompt_expansion").model == "claude-sonnet-5-5"
+    assert llm_provider.connection("ux_planning").model == "claude-haiku-5-5"
+    assert llm_provider.connection().model == "claude-haiku-5-5"
+
+    monkeypatch.setenv("LLM_MODEL_PROMPT_EXPANSION", "claude-haiku-5-5")
+    assert llm_provider.connection("prompt_expansion").model == "claude-haiku-5-5"
+
+    monkeypatch.delenv("LLM_MODEL_PROMPT_EXPANSION")
+    monkeypatch.setenv("LLM_PROVIDER", "anthropic-opus")
+    assert llm_provider.connection("prompt_expansion").model == "claude-opus-5-5"
