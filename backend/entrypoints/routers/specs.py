@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks, status
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from service_layer.unit_of_work import SqliteUnitOfWork
-from service_layer import services
+from service_layer import rule_tests, services
 
 router = APIRouter(prefix="/api/specs", tags=["Behavior Inbox Specs"])
 
@@ -80,6 +80,22 @@ def execute_inbox_spec(spec_id: str):
     uow = SqliteUnitOfWork()
     tdd_result = services.execute_inbox_spec_tdd(spec_id, uow=uow)
     return {"success": tdd_result.get("success", False), "tdd_result": tdd_result}
+
+
+@router.post("/rules/test")
+def test_every_rule():
+    """Runs the page test of every active rule (ADR-010). Changes no code; each rule's light is stored as it arrives."""
+    return rule_tests.run_all_rule_tests(uow=SqliteUnitOfWork())
+
+
+@router.post("/rules/{spec_id}/test")
+def test_rule(spec_id: str, rewrite: bool = False):
+    """Runs one rule's page test. Changes no code: the answer is pass, fail or broken, with the reason.
+    `rewrite=true` has the test written again first."""
+    result = rule_tests.run_rule_test(spec_id, uow=SqliteUnitOfWork(), rewrite=rewrite)
+    if result.get("status") == "not_found":
+        raise HTTPException(status_code=404, detail=result["reason"])
+    return result
 
 
 # ============================================================================

@@ -2,6 +2,7 @@ import React from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import ReplayIcon from '@mui/icons-material/Replay';
 import { RuleCardDTO } from '../../types/api';
 import { SpecStatusLight, testStatusLabel } from './SpecStatusLight';
 
@@ -12,6 +13,7 @@ export interface SpecDetailProps {
   onEdit: (card: RuleCardDTO) => void;
   onDelete: (card: RuleCardDTO) => void;
   onRunTest: (card: RuleCardDTO) => void;
+  onRewriteTest: (card: RuleCardDTO) => void;  // the stored test is itself wrong: write a new one and run it
 }
 
 const CLAUSES: { key: 'given_clause' | 'when_clause' | 'then_clause' | 'unless_clause'; label: string }[] = [
@@ -21,8 +23,8 @@ const CLAUSES: { key: 'given_clause' | 'when_clause' | 'then_clause' | 'unless_c
   { key: 'unless_clause', label: 'Unless' },
 ];
 
-/** One specification: its test light, why the last run did not pass, its behaviour, and the actions on it. */
-export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ card, running, testing = false, onEdit, onDelete, onRunTest }, ref) => {
+/** One specification: its test light, why the last run did not pass, its behaviour, its test, and the actions on it. */
+export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ card, running, testing = false, onEdit, onDelete, onRunTest, onRewriteTest }, ref) => {
   if (!card) {
     return <div className="spec-detail" ref={ref}><p className="spec-empty">Select a specification.</p></div>;
   }
@@ -69,7 +71,20 @@ export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ c
         <p className="spec-empty">No behaviour written yet. Use Edit to add it.</p>
       )}
 
+      {card.page_test?.source && (
+        <details className="spec-test">
+          <summary className="spec-section-label">Page test</summary>
+          {didNotPass && card.page_test.evidence && <pre className="spec-test-evidence">{card.page_test.evidence}</pre>}
+          <pre className="spec-test-source">{card.page_test.source}</pre>
+        </details>
+      )}
+
       <div className="spec-detail-footer">
+        {card.page_test?.source && (
+          <button className="tool-btn" onClick={() => onRewriteTest(card)} disabled={running} title="Write a new page test for this specification and run it">
+            <ReplayIcon fontSize="inherit" /> Write test again
+          </button>
+        )}
         <button className="tool-btn tool-btn-primary" onClick={() => onRunTest(card)} disabled={running}>
           {running ? <span className="spinner" /> : <PlayArrowIcon fontSize="inherit" />}
           {running ? 'Running…' : 'Run Test'}

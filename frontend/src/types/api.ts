@@ -19,9 +19,17 @@ export interface RuleCardDTO {
   derived_from_id?: string | null;
   test_status: SpecTestStatus;
   test_reason?: string | null;  // one line saying why the last run did not pass
+  page_test?: PageTestDTO | null;
 }
 
-/** The outcome of a spec's last test run: never run, proved, stopped before it could be judged, or judged and rejected. */
+/** The last run of a rule's page test: the test itself, what it showed when it did not pass, and when it ran. */
+export interface PageTestDTO {
+  source?: string | null;
+  evidence?: string | null;
+  ran_at?: string | null;
+}
+
+/** The outcome of a rule's page test: never run, every assertion held, the test could not judge, or one did not hold. */
 export type SpecTestStatus = 'not_run' | 'pass' | 'broken' | 'fail';
 
 export interface LivingDeckDTO {

@@ -213,11 +213,12 @@ class TddExecutionState:
 def run_isolated_pytest(
     test_path: str,
     cwd: str,
-    timeout_seconds: int = 5
+    timeout_seconds: int = 5,
+    extra_env: Optional[Dict[str, str]] = None
 ) -> Dict[str, Any]:
     """
     Executes Pytest with pytest-json-report and hard timeout.
-    Returns exit code, parsed report, and stdout/stderr.
+    Returns exit code, parsed report, and stdout/stderr. `extra_env` is added to the run's environment.
     """
     # One report file per run: specs' tests are run side by side (service_layer/tdd_batch.py)
     report_file = os.path.join(cwd, f".pytest_report_{uuid.uuid4().hex}.json")
@@ -225,6 +226,7 @@ def run_isolated_pytest(
     env = os.environ.copy()
     current_pythonpath = env.get("PYTHONPATH", "")
     env["PYTHONPATH"] = f"{cwd}{os.pathsep}{current_pythonpath}"
+    env.update(extra_env or {})
 
     cmd = [
         sys.executable, "-m", "pytest",

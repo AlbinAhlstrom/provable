@@ -1,0 +1,130 @@
+"""Running a rule's page test from the Studio: one rule, or every rule of the deck (ADR-010). A run changes no code."""
+from service_layer import rule_tests
+from service_layer.unit_of_work import FakeUnitOfWork
+from service_layer import services
+
+CARD = {"id": "SPEC-001", "title": "A sent order is locked", "card_type": "LOGIC", "target": "Order", "is_active": True,
+        "given_clause": "a sent order", "when_clause": "the customer opens it", "then_clause": "its lines cannot be changed"}
+
+
+def _deck(*cards):
+    uow = FakeUnitOfWork()
+    for card in cards:
+        services.add_rule_card(dict(card), uow=uow)
+    return uow
+
+
+class _Prover:
+    def __init__(self, status="pass", reason=None):
+        self.calls, self.status, self.reason = [], status, reason
+
+    def __call__(self, rule, workspace_dir, page_url, stored=None, app=None):
+        self.calls.append({"rule": rule, "stored": stored, "page_url": page_url})
+        return {"status": self.status, "reason": self.reason, "evidence": "", "source": "def test_x(app): ...",
+                "written_for": "x", "written": 0 if stored else 1}
+
+
+def test_running_a_rule_stores_what_its_page_test_said():
+    """
+    Given: A deck with one rule and a page test that fails
+    When: The rule's test is run
+    Then: The outcome is returned and stored on the rule with the time it ran, and the rule itself is unchanged
+    """
+    uow, prover = _deck(CARD), _Prover("fail", "AssertionError: still enabled")
+    result = rule_tests.run_rule_test("SPEC-001", uow=uow, workspace_dir="ws", page_url="http://page", prove=prover)
+
+    assert (result["status"], result["reason"]) == ("fail", "AssertionError: still enabled")
+    card = services.get_living_deck(uow=uow)[0]
+    assert card["page_test"]["status"] == "fail" and card["page_test"]["ran_at"]
+    assert card["status"] == "ACTIVE" or card["status"] == "PENDING"
+    assert prover.calls[0]["rule"]["then_clause"] == "its lines cannot be changed"
+    assert prover.calls[0]["page_url"] == "http://page"
+
+
+def test_a_second_run_hands_the_stored_test_back():
+    """
+    Given: A rule whose page test ran before
+    When: It is run again
+    Then: The prover is given the stored test, so it is run again and not written again
+    """
+    uow, prover = _deck(CARD), _Prover()
+    rule_tests.run_rule_test("SPEC-001", uow=uow, workspace_dir="ws", page_url="p", prove=prover)
+    rule_tests.run_rule_test("SPEC-001", uow=uow, workspace_dir="ws", page_url="p", prove=prover)
+    assert prover.calls[0]["stored"] is None
+    assert prover.calls[1]["stored"]["source"] == "def test_x(app): ..."
+
+
+def test_a_test_that_is_itself_wrong_can_be_written_again():
+    """
+    Given: A rule whose page test ran before
+    When: It is run with a rewrite asked for
+    Then: The prover is given no stored test, so a new one is written
+    """
+    uow, prover = _deck(CARD), _Prover()
+    rule_tests.run_rule_test("SPEC-001", uow=uow, workspace_dir="ws", page_url="p", prove=prover)
+    rule_tests.run_rule_test("SPEC-001", uow=uow, workspace_dir="ws", page_url="p", prove=prover, rewrite=True)
+    assert prover.calls[1]["stored"] is None
+
+
+def test_a_rule_known_only_to_the_inbox_is_run_and_stored_there():
+    """
+    Given: A spec added to the inbox that has no card in the deck
+    When: Its test is run
+    Then: The outcome is stored with the spec
+    """
+    uow, prover = FakeUnitOfWork(), _Prover()
+    services.add_inbox_spec({"spec_id": "SPEC-900", "title": "t", "given_when_then": "Given a When b Then c", "status": "PENDING"}, uow=uow)
+    rule_tests.run_rule_test("SPEC-900", uow=uow, workspace_dir="ws", page_url="p", prove=prover)
+    assert services.get_inbox_specs(uow=uow)[0]["page_test"]["status"] == "pass"
+    assert prover.calls[0]["rule"]["given_when_then"] == "Given a When b Then c"
+
+
+def test_an_unknown_rule_is_reported_and_nothing_runs():
+    """
+    Given: An empty deck
+    When: A rule's test is run
+    Then: The answer says the rule was not found
+    """
+    prover = _Prover()
+    result = rule_tests.run_rule_test("SPEC-404", uow=FakeUnitOfWork(), workspace_dir="ws", page_url="p", prove=prover)
+    assert (result["status"], prover.calls) == ("not_found", [])
+
+
+def test_running_the_deck_runs_every_active_rule_and_counts_the_outcomes():
+    """
+    Given: A deck with three rules, one of them paused
+    When: Every rule's test is run
+    Then: The two active rules are run and stored, and the counts say how they ended
+    """
+    paused = {**CARD, "id": "SPEC-003", "is_active": False}
+    uow = _deck(CARD, {**CARD, "id": "SPEC-002"}, paused)
+    outcomes = {"SPEC-001": "pass", "SPEC-002": "fail"}
+
+    def prover(rule, workspace_dir, page_url, stored=None, app=None):
+        return {"status": outcomes[rule["id"]], "reason": None, "evidence": "", "source": "s", "written_for": "x", "written": 1}
+
+    result = rule_tests.run_all_rule_tests(uow=uow, workspace_dir="ws", page_url="p", prove=prover, describe=lambda ws: None)
+
+    assert result["counts"] == {"pass": 1, "fail": 1, "broken": 0}
+    assert [r["spec_id"] for r in result["rules"]] == ["SPEC-001", "SPEC-002"]
+    stored = {c["id"]: (c.get("page_test") or {}).get("status") for c in services.get_living_deck(uow=uow)}
+    assert stored == {"SPEC-001": "pass", "SPEC-002": "fail", "SPEC-003": None}
+
+
+def test_a_rule_whose_run_crashes_is_broken_and_the_others_still_run():
+    """
+    Given: A deck with two rules and a prover that raises on the first
+    When: Every rule's test is run
+    Then: The first is stored as broken with the error, the second with its own outcome
+    """
+    uow = _deck(CARD, {**CARD, "id": "SPEC-002"})
+
+    def prover(rule, workspace_dir, page_url, stored=None, app=None):
+        if rule["id"] == "SPEC-001":
+            raise OSError("no browser")
+        return {"status": "pass", "reason": None, "evidence": "", "source": "s", "written_for": "x", "written": 1}
+
+    result = rule_tests.run_all_rule_tests(uow=uow, workspace_dir="ws", page_url="p", prove=prover, describe=lambda ws: None)
+    by_id = {r["spec_id"]: r for r in result["rules"]}
+    assert (by_id["SPEC-001"]["status"], by_id["SPEC-002"]["status"]) == ("broken", "pass")
+    assert "no browser" in by_id["SPEC-001"]["reason"]

@@ -1,0 +1,136 @@
+"""Page tests: each test drives the running app in a browser, with records of its own.
+
+Written by the engine (onboarding/page_tests.py); a change made here is overwritten.
+
+A test asks for `app`. It arranges what the rule starts from through the API (`app.given`, `app.act`), opens the page
+(`app.open`) and does there what a person would do. The API is started for the one test with nothing saved, and the
+page's API calls are sent to it, so nothing a person did in the running app is read or changed.
+"""
+import json
+import os
+import socket
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+from urllib.parse import urlsplit
+
+import pytest
+from playwright.sync_api import expect, sync_playwright
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PAGE_URL = os.environ.get("PAGE_URL", "http://localhost:5174")
+API_START_TIMEOUT_S = 30
+WAIT_MS = 5000  # how long the page gets to show what a test expects, or to offer a control it uses
+
+expect.set_options(timeout=WAIT_MS)
+
+
+class Refused(RuntimeError):
+    """The API refused something a test asked for while arranging its Given."""
+
+
+class App:
+    def __init__(self, api_url: str, context):
+        self._api_url = api_url
+        self._context = context
+
+    def _call(self, method: str, path: str, body=None):
+        request = urllib.request.Request(
+            self._api_url + path, method=method, headers={"Content-Type": "application/json"},
+            data=json.dumps(body).encode() if body is not None else None)
+        try:
+            with urllib.request.urlopen(request, timeout=20) as answer:
+                text = answer.read().decode()
+        except urllib.error.HTTPError as err:
+            raise Refused(f"{method} {path} answered {err.code}: {err.read().decode()[:400]}") from None
+        return json.loads(text) if text else None
+
+    def given(self, collection: str, **fields) -> dict:
+        """Creates a record with exactly these fields and returns it as the app stores it."""
+        return self._call("POST", f"/api/{collection}", fields)
+
+    def act(self, collection: str, record_id: str, action: str, **params) -> dict:
+        """Performs an action on a record through the API and returns the record afterwards."""
+        self._call("POST", f"/api/{collection}/{record_id}/action", {"action_type": action, "params": params})
+        return self.record(collection, record_id)
+
+    def records(self, collection: str) -> list:
+        return self._call("GET", f"/api/{collection}")
+
+    def record(self, collection: str, record_id: str) -> dict:
+        return self._call("GET", f"/api/{collection}/{record_id}")
+
+    def open(self, width: int = 1280, height: int = 800):
+        """Opens the app in a browser window of this size and returns the page."""
+        page = self._context.new_page()
+        page.set_viewport_size({"width": width, "height": height})
+        page.goto(PAGE_URL, wait_until="load")
+        return page
+
+
+def _free_port() -> int:
+    with socket.socket() as probe:
+        probe.bind(("127.0.0.1", 0))
+        return probe.getsockname()[1]
+
+
+@pytest.fixture
+def api_url(tmp_path):
+    """The app's API, started for this one test: it reads no saved records and saves none."""
+    port = _free_port()
+    log = open(tmp_path / "api.log", "w", encoding="utf-8")
+    server = subprocess.Popen(
+        [sys.executable, "-m", "uvicorn", "src.app:app", "--host", "127.0.0.1", "--port", str(port), "--log-level", "warning"],
+        cwd=ROOT, env={**os.environ, "APP_DATA_DIR": ""}, stdout=log, stderr=subprocess.STDOUT)
+    url = f"http://127.0.0.1:{port}"
+    deadline = time.time() + API_START_TIMEOUT_S
+    try:
+        while True:
+            try:
+                with urllib.request.urlopen(url + "/openapi.json", timeout=2):
+                    break
+            except Exception:
+                if server.poll() is not None or time.time() > deadline:
+                    log.flush()
+                    raise RuntimeError("the app's API did not start:\n" + (tmp_path / "api.log").read_text(encoding="utf-8")[-1500:])
+                time.sleep(0.2)
+        yield url
+    finally:
+        server.terminate()
+        try:
+            server.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            server.kill()
+        log.close()
+
+
+@pytest.fixture(scope="session")
+def browser():
+    with sync_playwright() as playwright:
+        started = playwright.chromium.launch()
+        yield started
+        started.close()
+
+
+@pytest.fixture
+def app(api_url, browser):
+    context = browser.new_context()
+    context.set_default_timeout(WAIT_MS)
+
+    def to_this_tests_api(route):
+        asked = urlsplit(route.request.url)
+        route.continue_(url=api_url + asked.path + (f"?{asked.query}" if asked.query else ""))
+
+    context.route(lambda url: urlsplit(url).path.startswith("/api/"), to_this_tests_api)
+    yield App(api_url, context)
+    context.close()
+
+
+def pytest_json_runtest_metadata(item, call):
+    """Says in the run's report what kind of error ended a test, so the engine can tell "the rule does not hold"
+    from "the test could not judge"."""
+    if call.excinfo is None:
+        return {}
+    return {"raised": f"{call.when}:{call.excinfo.typename}"}

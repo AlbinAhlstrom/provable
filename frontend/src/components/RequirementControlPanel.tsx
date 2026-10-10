@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
+import PlaylistPlayIcon from '@mui/icons-material/PlaylistPlay';
 import { LivingDeckDTO, RuleCardDTO } from '../types/api';
 import { StatusMessage, StudioMessage } from './StatusMessage';
 import { SpecDetail } from './specs/SpecDetail';
@@ -35,6 +36,7 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
   const [form, setForm] = useState<{ card: RuleCardDTO | null } | null>(null);  // open when set
   const [saving, setSaving] = useState<boolean>(false);
   const [runningId, setRunningId] = useState<string | null>(null);
+  const [runningAllSince, setRunningAllSince] = useState<string | null>(null);  // set while every test is running
   const detailRef = useRef<HTMLDivElement>(null);
 
   const notify = (message: StudioMessage) => {
@@ -123,15 +125,12 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     }
   };
 
-  // The outcome is not announced here: the deck is read again and the spec's light and reason show it
-  const runTest = async (card: RuleCardDTO) => {
+  // A run changes no code. Its outcome is not announced here: the deck is read again and the light and reason show it
+  const runTest = async (card: RuleCardDTO, rewrite = false) => {
     setRunningId(card.id);
     try {
-      const res = await fetch(`/api/specs/inbox/${card.id}/execute`, { method: 'POST' });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok && !data.tdd_result) {
-        notify({ severity: 'error', text: `Could not run the test: ${data.error || data.detail || `HTTP ${res.status}`}` });
-      }
+      const res = await fetch(`/api/specs/rules/${card.id}/test${rewrite ? '?rewrite=true' : ''}`, { method: 'POST' });
+      if (!res.ok) notify({ severity: 'error', text: `Could not run the test: ${await errorOf(res)}` });
       await changed();
     } catch (err) {
       unreachable(err);
@@ -140,27 +139,54 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     }
   };
 
+  // Each outcome is stored as it arrives, so the lights change one by one while the deck is polled
+  const runAllTests = async () => {
+    setRunningAllSince(new Date().toISOString());
+    try {
+      const res = await fetch('/api/specs/rules/test', { method: 'POST' });
+      if (!res.ok) notify({ severity: 'error', text: `Could not run the tests: ${await errorOf(res)}` });
+      await changed();
+    } catch (err) {
+      unreachable(err);
+    } finally {
+      setRunningAllSince(null);
+    }
+  };
+
+  // While every test runs, a rule is being worked on until its test has run since the start
+  const waiting = runningAllSince
+    ? cards.filter(c => c.is_active !== false && !(c.page_test?.ran_at && c.page_test.ran_at >= runningAllSince.slice(0, 19))).map(c => c.id)
+    : [];
+  const busyIds = [...(testingIds || []), ...waiting];
+
   return (
     <div className="specs-panel">
       <div className="specs-panel-header">
         <h3 className="panel-title">Specifications</h3>
-        <button className="tool-btn tool-btn-primary" onClick={() => setForm({ card: null })}>
-          <AddIcon fontSize="inherit" /> Add
-        </button>
+        <div className="specs-panel-actions">
+          <button className="tool-btn" onClick={runAllTests} disabled={!!runningAllSince || building || cards.length === 0}>
+            {runningAllSince ? <span className="spinner" /> : <PlaylistPlayIcon fontSize="inherit" />}
+            {runningAllSince ? 'Running…' : 'Run all tests'}
+          </button>
+          <button className="tool-btn tool-btn-primary" onClick={() => setForm({ card: null })}>
+            <AddIcon fontSize="inherit" /> Add
+          </button>
+        </div>
       </div>
 
       {toast && <StatusMessage message={toast} />}
 
       <div className="specs-master-detail">
-        <SpecTree chapters={[...chapters.entries()].filter(([, list]) => list.length > 0)} selectedId={selected?.id || null} onSelect={select} building={building} testingIds={testingIds} />
+        <SpecTree chapters={[...chapters.entries()].filter(([, list]) => list.length > 0)} selectedId={selected?.id || null} onSelect={select} building={building} testingIds={busyIds} />
         <SpecDetail
           ref={detailRef}
           card={selected}
           running={!!selected && runningId === selected.id}
-          testing={!!selected && !!testingIds?.includes(selected.id)}
+          testing={!!selected && busyIds.includes(selected.id)}
           onEdit={card => setForm({ card })}
           onDelete={remove}
-          onRunTest={runTest}
+          onRunTest={card => runTest(card)}
+          onRewriteTest={card => runTest(card, true)}
         />
       </div>
 

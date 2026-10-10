@@ -5,7 +5,6 @@ import { RuleCardDTO } from '../../types/api';
 export interface SpecFormValues {
   title: string;
   chapter: string;
-  card_type: 'LOGIC' | 'VIEW';
   target: string;
   given_clause: string;
   when_clause: string;
@@ -29,14 +28,13 @@ export const SpecFormModal: React.FC<SpecFormModalProps> = ({ card, chapters, sa
   const [values, setValues] = useState<SpecFormValues>({
     title: card?.title || '',
     chapter: card?.chapter || DEFAULT_CHAPTER,
-    card_type: card?.card_type === 'VIEW' ? 'VIEW' : 'LOGIC',
     target: card?.target || DEFAULT_TARGET,
     given_clause: card?.given_clause || '',
     when_clause: card?.when_clause || '',
     then_clause: card?.then_clause || '',
     unless_clause: card?.unless_clause || '',
   });
-  const set = (key: keyof SpecFormValues) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+  const set = (key: keyof SpecFormValues) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setValues(prev => ({ ...prev, [key]: e.target.value }));
 
   const submit = (e: React.FormEvent) => {
@@ -72,16 +70,7 @@ export const SpecFormModal: React.FC<SpecFormModalProps> = ({ card, chapters, sa
         </div>
 
         {field('title', 'Title', { autoFocus: true })}
-        <div className="spec-form-row">
-          <label className="spec-form-field">
-            <span>Type</span>
-            <select className="modal-input" value={values.card_type} onChange={set('card_type')}>
-              <option value="LOGIC">Logic</option>
-              <option value="VIEW">View</option>
-            </select>
-          </label>
-          {field('target', 'Applies to')}
-        </div>
+        {field('target', 'Applies to')}
         {field('chapter', 'Chapter', { list: 'spec-chapter-suggestions' })}
         <datalist id="spec-chapter-suggestions">
           {chapters.map(ch => <option key={ch} value={ch} />)}

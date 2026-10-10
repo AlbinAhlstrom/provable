@@ -1,68 +1,52 @@
-import pytest
-
+"""A rule's light comes from its page test and from nothing else (ADR-010)."""
 from onboarding.spec_test_status import SpecTestStatus, derive_test_status, with_test_status
-from service_layer import services
+from service_layer import rule_tests, services
 from service_layer.unit_of_work import FakeUnitOfWork
 
 CARD = {"id": "S1", "title": "A rule", "card_type": "LOGIC", "target": "global", "status": "PENDING"}
 
 
-def _stored(status, phase=None, error=None):
-    return {"spec_id": "S1", "status": status, "tdd": {"phase": phase, "error": error}}
+def _ran(status, reason=None):
+    return {"status": status, "reason": reason, "evidence": reason or "", "source": "def test_x(app): ..."}
 
 
-def test_a_spec_nobody_ran_is_not_run():
-    """Verify a spec without a stored result, or one only waiting, reports no test outcome.
+def test_a_rule_whose_page_test_never_ran_is_not_run():
+    """Verify a rule without a page test reports no outcome, whatever else is stored about it.
 
     id: TST-STATUS-001
-    Given: No stored spec, a pending one and a paused one
+    Given: A rule with nothing stored, one waiting, and one whose domain test passed in the kickstart
     When: The test status is derived
-    Then: Each is not_run and carries no reason
+    Then: Each is not_run: a test of the domain class is no proof of a rule
     """
-    for stored in (None, {"spec_id": "S1", "status": "PENDING"}, {"spec_id": "S1", "status": "PAUSED"},
-                   {"spec_id": "S1", "status": "IN_PROGRESS"}):
+    for stored in (None, {"status": "PENDING"}, {"status": "FULFILLED", "tdd": {"phase": "COMMITTED"}},
+                   {"status": "REQUIRES_HUMAN_INTERVENTION", "tdd": {"phase": "DEAD_END", "error": "not met"}}):
         assert derive_test_status(stored) == (SpecTestStatus.NOT_RUN, None)
 
 
-def test_a_fulfilled_spec_passes():
-    """Verify a fulfilled spec is a pass whichever loop proved it.
+def test_the_light_is_what_the_page_test_said():
+    """Verify each outcome of a page test is shown as it is.
 
     id: TST-STATUS-002
-    Given: A behaviour spec committed by the TDD loop and a presentation spec whose view built
+    Given: Rules whose page test passed, failed and was broken
     When: The test status is derived
-    Then: Both pass, with no reason
+    Then: Pass carries no reason; fail and broken carry theirs
     """
-    for phase in ("COMMITTED", "presentation"):
-        assert derive_test_status(_stored("FULFILLED", phase)) == (SpecTestStatus.PASS, None)
+    assert derive_test_status({"page_test": _ran("pass")}) == (SpecTestStatus.PASS, None)
+    assert derive_test_status({"page_test": _ran("fail", "AssertionError: still enabled")}) == (
+        SpecTestStatus.FAIL, "AssertionError: still enabled")
+    assert derive_test_status({"page_test": _ran("broken", "Refused: 422")}) == (SpecTestStatus.BROKEN, "Refused: 422")
 
 
-def test_a_rejected_change_fails_with_the_verdict_as_reason():
-    """Verify a spec whose test ran and was not met is a fail.
+def test_a_domain_test_that_passed_does_not_turn_a_red_rule_green():
+    """Verify the page test decides even when the kickstart fulfilled the rule.
 
     id: TST-STATUS-003
-    Given: A spec the verifying step rejected after its one retry (phase DEAD_END)
+    Given: A rule fulfilled by the TDD loop whose page test failed
     When: The test status is derived
-    Then: It fails and the reason is the verdict
+    Then: It fails
     """
-    stored = _stored("REQUIRES_HUMAN_INTERVENTION", "DEAD_END", "Test assertions failed in GREEN phase: 1 failed")
-    assert derive_test_status(stored) == (SpecTestStatus.FAIL, "Test assertions failed in GREEN phase: 1 failed")
-
-
-@pytest.mark.parametrize("status, phase", [
-    ("REQUIRES_HUMAN_INTERVENTION", "RED_GATE"),         # the test itself was rejected, or the domain does not import
-    ("REQUIRES_HUMAN_INTERVENTION", "REGRESSION_GATE"),  # the regression suite did not finish
-    ("REQUIRES_HUMAN_INTERVENTION", "presentation"),     # no view to change, provider or parse error
-    ("ERROR", "RED_GEN"), ("ERROR", "GREEN_GEN"), ("ERROR", None),
-])
-def test_a_run_that_could_not_judge_the_spec_is_broken(status, phase):
-    """Verify a run that never reached a verdict on the behaviour is broken, not a fail.
-
-    id: TST-STATUS-004
-    Given: Runs that ended before the change was judged
-    When: The test status is derived
-    Then: Each is broken and keeps its reason
-    """
-    assert derive_test_status(_stored(status, phase, "why")) == (SpecTestStatus.BROKEN, "why")
+    stored = {"status": "FULFILLED", "tdd": {"phase": "COMMITTED"}, "page_test": _ran("fail", "AssertionError: nothing happened")}
+    assert derive_test_status(stored)[0] is SpecTestStatus.FAIL
 
 
 def test_the_reason_is_one_line():
@@ -73,37 +57,41 @@ def test_the_reason_is_one_line():
     When: The test status is derived
     Then: The reason is its first non-empty line
     """
-    stored = _stored("REQUIRES_HUMAN_INTERVENTION", "DEAD_END", "\n  AssertionError: expected 3  \nTraceback ...")
+    stored = {"page_test": _ran("fail", "\n  AssertionError: expected 3  \nCall log ...")}
     assert derive_test_status(stored)[1] == "AssertionError: expected 3"
 
 
 def test_cards_get_their_status_without_changing_the_stored_card():
-    """Verify cards are joined with stored results by id and returned as copies.
+    """Verify a card's own page test, or the one stored with a spec of its id, becomes its status on a copy.
 
     id: TST-STATUS-006
-    Given: Two cards, one with a stored failing result
+    Given: A card carrying a failed page test, a card whose spec carries a passed one, and a card with neither
     When: with_test_status is applied
     Then: Each returned card carries test_status and test_reason; the input cards are untouched
     """
-    other = {**CARD, "id": "S2"}
-    out = with_test_status([CARD, other], [_stored("REQUIRES_HUMAN_INTERVENTION", "DEAD_END", "not met")])
-    assert [(c["id"], c["test_status"], c["test_reason"]) for c in out] == [("S1", "fail", "not met"), ("S2", "not_run", None)]
-    assert "test_status" not in CARD and "test_status" not in other
+    failed = {**CARD, "page_test": _ran("fail", "not met")}
+    by_spec, bare = {**CARD, "id": "S2"}, {**CARD, "id": "S3"}
+    out = with_test_status([failed, by_spec, bare], [{"spec_id": "S2", "page_test": _ran("pass")}])
+    assert [(c["id"], c["test_status"], c["test_reason"]) for c in out] == [
+        ("S1", "fail", "not met"), ("S2", "pass", None), ("S3", "not_run", None)]
+    assert "test_status" not in failed and "test_status" not in bare
 
 
 def test_the_deck_serves_each_card_with_its_test_status():
-    """Verify the Living Deck use case reports the outcome of a recorded run on the card.
+    """Verify the Living Deck use case reports the outcome of a recorded page test on the card.
 
     id: TST-STATUS-007
-    Given: A rule card and a recorded run that passed
-    When: The categorized deck is read
-    Then: The card carries test_status pass in every grouping, and the stored card is unchanged
+    Given: A rule card, first with a domain test that passed, then with a recorded page test that passed
+    When: The categorized deck is read each time
+    Then: The card is not_run, then pass in every grouping
     """
     uow = FakeUnitOfWork()
     services.add_rule_card(dict(CARD), uow=uow)
     services.record_tdd_result("S1", {"success": True, "status": "FULFILLED", "phase": "COMMITTED"}, uow=uow)
+    assert services.get_categorized_living_deck(uow=uow)["all_cards"][0]["test_status"] == "not_run"
+
+    rule_tests.record_page_test("S1", _ran("pass"), uow=uow)
     deck = services.get_categorized_living_deck(uow=uow)
     assert deck["all_cards"][0]["test_status"] == "pass"
     assert deck["chapters"]["General"][0]["test_status"] == "pass"
     assert deck["logic_cards"]["global"][0]["test_status"] == "pass"
-    assert "test_status" not in services.get_living_deck(uow=uow)[0]
