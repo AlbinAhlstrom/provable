@@ -13,7 +13,7 @@ There is no model YAML; configuration is environment-only (see `.env.example`):
 | `LLM_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY` | API key (first one set wins) | none (calls return empty and the pipeline fails loudly) |
 | `OPENAI_BASE_URL` | Provider endpoint | Gemini's OpenAI-compatible endpoint |
 | `LLM_MODEL` | Model name | `gemini-3.8-flash` |
-| `LLM_PROVIDER` | Names a provider in `backend/llm_provider.py` (`gemini`, `openai`), which then supplies the endpoint, the default model and the setting its key is read from (`GEMINI_API_KEY`, `OPENAI_API_KEY`). The three rows above are ignored while it is set; `LLM_MODEL_<STAGE>` still applies. An unknown name fails loudly. | unset (the rows above decide) |
+| `LLM_PROVIDER` | Names a provider in `backend/llm_provider.py` (`gemini`, `openai`, `anthropic`), which then supplies the endpoint, the default model and the setting its key is read from (`GEMINI_API_KEY`, `OPENAI_API_KEY`, `CLAUDE_API_KEY`). `anthropic` is called through its own Messages API (`backend/llm_anthropic.py`), because its OpenAI-compatible endpoint ignores the effort setting and answer schemas. The three rows above are ignored while it is set; `LLM_MODEL_<STAGE>` still applies. An unknown name fails loudly. | unset (the rows above decide) |
 
 The test suite never needs a key: `backend/tests/conftest.py` mocks `call_gemini` per `stage` name.
 

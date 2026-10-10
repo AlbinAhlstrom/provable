@@ -37,6 +37,7 @@ from openai import OpenAI
 
 
 import db.store as store
+import llm_anthropic
 import llm_provider
 from config_loader import get_workspace_base, get_project_settings
 
@@ -206,24 +207,30 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
         return ""
 
     effort = reasoning_effort if reasoning_effort is not None else os.environ.get("LLM_REASONING_EFFORT", "low")
-    request = {
-        "model": model_name,
-        "messages": [{"role": "user", "content": _message_content(prompt, images)}],
-        **({"temperature": 0.2} if connection.accepts_temperature else {}),
-        "timeout": timeout_s if timeout_s is not None else EFFORT_TIMEOUT_S.get(effort, DEFAULT_TIMEOUT_S),
-        **({"response_format": {"type": "json_schema", "json_schema": {"name": stage, "schema": json_schema}}}
-           if json_schema else {"response_format": {"type": "json_object"}} if json_mode else {}),
-    }
-    client = OpenAI(api_key=api_key, base_url=base_url, max_retries=0)
+    timeout = timeout_s if timeout_s is not None else EFFORT_TIMEOUT_S.get(effort, DEFAULT_TIMEOUT_S)
     t0 = time.time()
     try:
         print(f"[LLM] Dispatching request for stage '{stage}' (model: {model_name})...", flush=True)
-        response = client.chat.completions.create(**request, **({"reasoning_effort": effort} if effort else {}))
+        if connection.api == "anthropic":
+            text, usage, finish_reason = llm_anthropic.complete(api_key, model_name, prompt, images, effort,
+                                                                json_schema, timeout)
+        else:
+            request = {
+                "model": model_name,
+                "messages": [{"role": "user", "content": _message_content(prompt, images)}],
+                **({"temperature": 0.2} if connection.accepts_temperature else {}),
+                "timeout": timeout,
+                **({"response_format": {"type": "json_schema", "json_schema": {"name": stage, "schema": json_schema}}}
+                   if json_schema else {"response_format": {"type": "json_object"}} if json_mode else {}),
+            }
+            client = OpenAI(api_key=api_key, base_url=base_url, max_retries=0)
+            response = client.chat.completions.create(**request, **({"reasoning_effort": effort} if effort else {}))
+            text, usage = response.choices[0].message.content or "", _usage_meta(getattr(response, "usage", None))
+            finish_reason = response.choices[0].finish_reason
         print(f"[LLM] Received response for stage '{stage}' in {round(time.time() - t0, 2)}s", flush=True)
-        record_llm_meta(model=model_name, json_mode=json_mode, reasoning_effort=effort or None,
-                        **_usage_meta(getattr(response, "usage", None)),
-                        finish_reason=response.choices[0].finish_reason)
-        return response.choices[0].message.content or ""
+        record_llm_meta(model=model_name, json_mode=json_mode, reasoning_effort=effort or None, **usage,
+                        finish_reason=finish_reason)
+        return text
     except Exception as e:
         reason = f"{type(e).__name__}: {e}"
         if effort and "reasoning" in str(e).lower():
