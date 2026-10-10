@@ -28,6 +28,7 @@ PRICES: Dict[str, ModelPrice] = {
     "gpt-6-luna": ModelPrice(input=0.10, output=0.50, cached_input=0.01),
     "gpt-6.1-sol": ModelPrice(input=2.00, output=10.00, cached_input=0.10),
     "claude-haiku-5-5": ModelPrice(input=0.10, output=0.50, cached_input=0.01),
+    "claude-sonnet-5-5": ModelPrice(input=2.00, output=10.00, cached_input=0.20),
     "claude-opus-5-5": ModelPrice(input=4.00, output=20.00, cached_input=0.40),
     "mimo-v2.6-flash": ModelPrice(input=0.14, output=0.28, cached_input=0.0028),
     "mimo-v2.6-pro": ModelPrice(input=0.43, output=0.87, cached_input=0.0043),
