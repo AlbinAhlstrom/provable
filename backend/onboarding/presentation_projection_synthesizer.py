@@ -30,8 +30,9 @@ def _sanitize_name(name: str) -> str:
 # The model answers with the four files as marker-delimited blocks, not as JSON string values: ~25k characters of
 # escaped TSX inside one JSON object proved fragile (an object closed early and the remaining files were lost).
 # Seconds the page call may take. It is the largest single answer of a build: 35 s on one model at low effort, past
-# the 60 s of an ordinary call on another that thinks longer before it writes.
-PAGE_TIMEOUT_S = 180.0
+# the 60 s of an ordinary call on another that thinks longer before it writes, and some 15,000 tokens at the 75 a
+# second of a larger model is past 180 s.
+PAGE_TIMEOUT_S = 300.0
 
 SECTIONS = ("view_tsx", "controls_tsx", "history_tsx", "app_tsx")
 END = "end"  # closes the answer: without a way to say "done" the model invents one, and it lands in the last file
