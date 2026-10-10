@@ -56,6 +56,19 @@ Nine calls of a planning step cost about 3 SEK; say so before a step with a much
   that happens half the time.
 - Stop when a remaining gap survives two drafts aimed at it. Report it as left.
 
+## Steps that feed each other are run as a chain
+A step tuned on one fixed input cannot show a fault that starts in the step before it. When the step's input is
+another prompt's answer, benchmark the two together and score only the last answer, with the best model on both as
+the reference:
+```
+python .claude/skills/step-analysis/scripts/chain_bench.py --pitches <scratch>/pitches.json --out <scratch>/out \
+    --tag before --chains opus-opus,sonnet-haiku --repeat 2
+```
+It runs the pitch expansion, the engine's decomposition and the UX plan (`--expansion` and `--plan` take drafts;
+`--reuse <tag>` reruns only the plan on an earlier tag's expansions). Where the last answers differ, read the first
+step's answers before touching the second prompt: a later step that is told to keep what the earlier one states
+cannot repair it. Worked example: `reference/expansion-plan-chain/`.
+
 ## 5. Land it
 - Test first: a unit test that pins the sentences carrying the new contract, failing on the old prompt. Then
   replace the prompt and run the fast tier.

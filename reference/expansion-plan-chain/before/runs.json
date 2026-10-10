@@ -1,0 +1,80 @@
+[
+ {
+  "file": "minesweeper_sonnet-haiku_1.md",
+  "case": "minesweeper",
+  "model": "sonnet-haiku",
+  "expansion_seconds": 15.6,
+  "expansion_sek": 0.2318,
+  "plan_seconds": 10.4,
+  "plan_sek": 0.0177,
+  "seconds": 26.0,
+  "sek": 0.2495,
+  "words": 910,
+  "expansion_words": 946
+ },
+ {
+  "file": "minesweeper_sonnet-haiku_2.md",
+  "case": "minesweeper",
+  "model": "sonnet-haiku",
+  "expansion_seconds": 15.2,
+  "expansion_sek": 0.2219,
+  "plan_seconds": 19.1,
+  "plan_sek": 0.0277,
+  "seconds": 34.3,
+  "sek": 0.2496,
+  "words": 853,
+  "expansion_words": 886
+ },
+ {
+  "file": "kanban_sonnet-haiku_1.md",
+  "case": "kanban",
+  "model": "sonnet-haiku",
+  "expansion_seconds": 14.0,
+  "expansion_sek": 0.1927,
+  "plan_seconds": 24.4,
+  "plan_sek": 0.0324,
+  "seconds": 38.4,
+  "sek": 0.2251,
+  "words": 1250,
+  "expansion_words": 840
+ },
+ {
+  "file": "kanban_sonnet-haiku_2.md",
+  "case": "kanban",
+  "model": "sonnet-haiku",
+  "expansion_seconds": 14.8,
+  "expansion_sek": 0.2047,
+  "plan_seconds": 31.1,
+  "plan_sek": 0.0392,
+  "seconds": 45.9,
+  "sek": 0.2439,
+  "words": 1192,
+  "expansion_words": 864
+ },
+ {
+  "file": "salon_sonnet-haiku_1.md",
+  "case": "salon",
+  "model": "sonnet-haiku",
+  "expansion_seconds": 15.4,
+  "expansion_sek": 0.2071,
+  "plan_seconds": 14.9,
+  "plan_sek": 0.0238,
+  "seconds": 30.3,
+  "sek": 0.2309,
+  "words": 984,
+  "expansion_words": 820
+ },
+ {
+  "file": "salon_sonnet-haiku_2.md",
+  "case": "salon",
+  "model": "sonnet-haiku",
+  "expansion_seconds": 16.1,
+  "expansion_sek": 0.2164,
+  "plan_seconds": 19.4,
+  "plan_sek": 0.0282,
+  "seconds": 35.5,
+  "sek": 0.2446,
+  "words": 1219,
+  "expansion_words": 895
+ }
+]

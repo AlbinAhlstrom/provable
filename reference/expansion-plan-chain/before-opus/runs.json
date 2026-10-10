@@ -1,0 +1,41 @@
+[
+ {
+  "file": "minesweeper_opus-opus.md",
+  "case": "minesweeper",
+  "model": "opus-opus",
+  "expansion_seconds": 36.1,
+  "expansion_sek": 0.8212,
+  "plan_seconds": 32.0,
+  "plan_sek": 1.0166,
+  "seconds": 68.1,
+  "sek": 1.8378,
+  "words": 1228,
+  "expansion_words": 1561
+ },
+ {
+  "file": "kanban_opus-opus.md",
+  "case": "kanban",
+  "model": "opus-opus",
+  "expansion_seconds": 32.6,
+  "expansion_sek": 0.6935,
+  "plan_seconds": 31.2,
+  "plan_sek": 0.9655,
+  "seconds": 63.8,
+  "sek": 1.659,
+  "words": 1273,
+  "expansion_words": 1499
+ },
+ {
+  "file": "salon_opus-opus.md",
+  "case": "salon",
+  "model": "opus-opus",
+  "expansion_seconds": 30.2,
+  "expansion_sek": 0.6343,
+  "plan_seconds": 31.7,
+  "plan_sek": 0.9968,
+  "seconds": 61.9,
+  "sek": 1.6311,
+  "words": 1243,
+  "expansion_words": 1487
+ }
+]

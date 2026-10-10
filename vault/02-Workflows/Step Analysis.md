@@ -27,6 +27,15 @@ skill (`.claude/skills/step-analysis/`); this page says why the method is what i
   draft that had cut a feature, because the word appeared in the list of things left out.
 - **Repeats.** One sample hid a layout line that was wrong half the time.
 
+## Steps that feed each other
+
+A step benchmarked on one fixed input cannot show a fault that starts in the step before it. The UX plan was tuned
+on a single expansion and scored well; the built game was still far from Opus's, because the expansion had drawn a
+page made after the game (a grey page, a row of buttons) and the plan is told to keep what the specification
+states. So steps whose input is another prompt's answer are run as a chain (`chain_bench.py`: expansion, the
+engine's decomposition, plan), each on its own model, with the best model on both as the reference. Only the last
+answer is scored, and a difference is traced back to the first step before the second prompt is touched.
+
 ## What it does not show
 
 What the pipeline builds from the step's output. A richer plan is only better if the page is. The smallest run that
@@ -37,3 +46,4 @@ shows it (a page rebuild or a kickstart) is a separate, approved step.
 - Pitch expansion: `reference/expansion-models/`. It now runs on Sonnet under the `anthropic` provider
   ([[LLM Abstraction and Prompts]]).
 - UX plan: `reference/ux-plan-models/`.
+- Expansion and UX plan as a chain: `reference/expansion-plan-chain/`.

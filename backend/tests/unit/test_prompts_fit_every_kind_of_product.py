@@ -141,3 +141,27 @@ def test_the_plan_builds_on_the_specification_and_adds_no_words_to_a_product_tha
     assert "Section 1 opens with one line for each entity marked" in plan
     assert "as they stand on the first visit" in plan and "`columns` is always a number" in plan
     assert "under 500 words" not in plan and "at most 25 words a line" in plan
+
+
+def test_a_known_product_keeps_its_surroundings_and_the_plan_owns_width_and_placement():
+    """Verify the expansion describes the known thing itself and the plan says how wide it is and where it sits
+    (run as a chain, the expansion drew a page made after a game: a grey page and a row of buttons where the game
+    has a desktop and a menu; the plan then let that row make the window wider than its grid, pinned to the top).
+
+    id: TST-KINDS-009
+    Given: The prompts of the pitch expansion and the UX plan
+    When: They are read
+    Then: The expansion keeps what the thing is seen in and against, offers each choice where the thing offers it
+          and leaves out what acts on the machine around a page; the plan says where the main thing sits across
+          and down, and gives the unit's width as a sum set by the main view
+    """
+    expansion = _prompt("prompt_expansion.md")
+    assert "the thing itself, the one people picture, and not as a page made after it" in expansion
+    assert "what it is seen in and against" in expansion
+    assert "where and how the thing itself offers it" in expansion
+    assert "It runs here as one page in a browser" in expansion
+    direction = _direction()
+    assert "where the main thing sits on the screen, across and down" in direction
+    assert "One part sets that width: the main view" in direction
+    assert "as a sum you work out" in direction
+    assert "the frame is never wider than what the main view fills" in direction

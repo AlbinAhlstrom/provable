@@ -1,0 +1,77 @@
+{
+ "minesweeper": {
+  "pitch": "A minesweeper game",
+  "intent": {
+   "product_type": "game",
+   "audience": "players who want to play minesweeper for fun",
+   "primary_goal": "Let a player play a classic minesweeper round with clear rules, reveal and flag mechanics, and a win or loss outcome.",
+   "scope_summary": "A single-player minesweeper game consisting of a grid board, mine placement, cell reveal and flag interactions, and game state tracking through win or loss.",
+   "model_focus": [
+    "board grid and cell state (hidden, revealed, flagged)",
+    "mine layout and adjacency counts",
+    "game session state and outcome (in progress, won, lost)",
+    "player moves (reveal, flag)"
+   ],
+   "out_of_scope": [
+    "user accounts and login",
+    "leaderboards or online multiplayer",
+    "payments or monetisation",
+    "admin or back-office management of games"
+   ],
+   "assumptions": [
+    "Single-player, played locally or in a browser session without persistence across devices",
+    "Standard board difficulty presets are acceptable; custom rules are not required"
+   ]
+  }
+ },
+ "kanban": {
+  "pitch": "A kanban board for a small team",
+  "intent": {
+   "product_type": "internal_tool",
+   "audience": "members of a small team tracking their shared work",
+   "primary_goal": "Let the team see what work exists, what stage each item is in, and who is doing it, by moving cards across columns on a board.",
+   "scope_summary": "A single kanban board per team, made of ordered columns containing cards that team members create, edit, assign, and move between columns.",
+   "model_focus": [
+    "boards and their ordered columns (workflow stages)",
+    "cards representing work items, with title and description",
+    "team members and card assignment",
+    "card position and movement between columns"
+   ],
+   "out_of_scope": [
+    "customer or external user access",
+    "billing or subscription management",
+    "reporting or analytics dashboards",
+    "integrations with other tools"
+   ],
+   "assumptions": [
+    "Each board belongs to one team and is used only by its members.",
+    "Column names are set by the team rather than fixed by the system."
+   ]
+  }
+ },
+ "salon": {
+  "pitch": "A booking page for a hair salon",
+  "intent": {
+   "product_type": "customer_app",
+   "audience": "Hair salon clients booking appointments",
+   "primary_goal": "Let clients see available appointment times and book a hair salon service without phoning the salon.",
+   "scope_summary": "A single booking page where clients choose a service and time slot and submit their contact details to create a booking.",
+   "model_focus": [
+    "Services offered and their durations",
+    "Available appointment time slots",
+    "Client booking requests with contact details",
+    "Booking status (requested or confirmed)"
+   ],
+   "out_of_scope": [
+    "Staff rosters and stylist assignment",
+    "Online payments and deposits",
+    "Inventory and product sales",
+    "Client loyalty programmes"
+   ],
+   "assumptions": [
+    "The salon owner manages the service list and availability outside this page, and the page only reads them.",
+    "Clients do not need accounts; booking requires only name and contact details."
+   ]
+  }
+ }
+}

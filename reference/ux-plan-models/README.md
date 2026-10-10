@@ -81,6 +81,9 @@ Two drafts between these rounds were worse and were dropped: counting "outer" re
 grid of one row, and naming each text's part "as the specification names it" raised the title bar to 3 of 5.
 
 ## What is left
+- Correction, same day: the title bar counted below was a wrong reading. The known game has one, and this
+  benchmark could not see that the look came from the one expansion it was fed. See
+  `reference/expansion-plan-chain/`; the checklist here no longer counts a title bar as unwanted.
 - Haiku gives the game a title bar in some runs (0 of 5, 1 of 5, 3 of 5 and 2 of 5 over four drafts). No wording
   tried here moved it reliably; five runs cannot tell 1 in 5 from 2 in 5.
 - The game's touch gesture is left to the specification in about half the plans; the page's writer reads both.
