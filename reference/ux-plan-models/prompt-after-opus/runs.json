@@ -1,0 +1,35 @@
+[
+ {
+  "file": "minesweeper_opus.md",
+  "case": "minesweeper",
+  "model": "opus",
+  "seconds": 30.5,
+  "in": 7419,
+  "out": 3239,
+  "sek": 0.9446,
+  "words": 1069,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_opus.md",
+  "case": "kanban",
+  "model": "opus",
+  "seconds": 29.0,
+  "in": 6471,
+  "out": 2967,
+  "sek": 0.8522,
+  "words": 1064,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_opus.md",
+  "case": "salon",
+  "model": "opus",
+  "seconds": 31.3,
+  "in": 7267,
+  "out": 3330,
+  "sek": 0.9567,
+  "words": 1167,
+  "stop": "end_turn"
+ }
+]

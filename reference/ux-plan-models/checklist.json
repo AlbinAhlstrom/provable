@@ -1,0 +1,73 @@
+{
+ "minesweeper": {
+  "wanted": {
+   "six sections": "### 1\\..*### 2\\..*### 3\\..*### 4\\..*### 5\\..*### 6\\.",
+   "layout line as the page opens": "layout columns=9 rows=9",
+   "token line complete": "tokens background=#[0-9a-f]{6} surface=#[0-9a-f]{6} text=#[0-9a-f]{6} accent=#[0-9a-f]{6} on_accent=#[0-9a-f]{6} heading=(serif|sans|mono)",
+   "first screen stated": "first screen",
+   "form of the main view stated": "form of the main view",
+   "page colour exact": "(page|background)[^\\n]{0,60}(#[0-9a-f]{6}|\\b[a-z]+-\\d{2,3}\\b)",
+   "every number colour": "maroon.{0,200}teal|teal.{0,200}maroon|#800000.{0,200}#008080",
+   "counter red on black": "red[^\\n]{0,40}on[^\\n]{0,10}black|#000000[^\n]{0,40}#ff0000",
+   "cell size in pixels": "\\d\\d ?px",
+   "no rounding": "no (corner )?radius|rounded-none|0 radius|square corners|radius: (0|none)|radius 0|sharp corners|zero (corner )?radius|no rounded corners|0px",
+   "narrow screens": "scroll|narrow",
+   "touch gesture": "long[- ]press",
+   "difficulty names from records": "difficulty\\w*\\.name|level\\.name",
+   "loading or failed load planned": "load"
+  },
+  "unwanted": {
+   "a line of text added to the game": "(status|result|hint|message) line|footer strip|line (beneath|under|below) the (grid|difficulty)",
+   "a written hint": "click any (square|cell)|to start\\.|place flags around|good luck",
+   "tooltips or hover text": "tooltip|on hover",
+   "a written result a person reads": "(result|status)[^\\n]{0,40}(reads|says|shows)[^\\n]{0,10}[\"“]",
+   "a title or heading above the game": "(title|heading|headline)[^\\n]{0,40}(above|over) the (window|game|grid)|window title|title bar",
+   "colour left to a phrase": "(?<!\\()(mid-grey|light grey|near-black)(?![^\n]{0,12}#)|classic (blue|colours)|usual colours"
+  }
+ },
+ "kanban": {
+  "wanted": {
+   "six sections": "### 1\\..*### 2\\..*### 3\\..*### 4\\..*### 5\\..*### 6\\.",
+   "layout line readable": "layout columns=\\d+ rows=auto",
+   "token line complete": "tokens background=#[0-9a-f]{6} surface=#[0-9a-f]{6} text=#[0-9a-f]{6} accent=#[0-9a-f]{6} on_accent=#[0-9a-f]{6} heading=(serif|sans|mono)",
+   "first screen stated": "first screen",
+   "form of the main view stated": "form of the main view",
+   "column width in pixels": "\\d\\d\\d ?px",
+   "empty column": "empty column|column with no cards|no cards",
+   "no columns yet": "no columns",
+   "refused empty title": "title[^\\n]{0,80}[\"“][^\"”\\n]{5,60}[\"”]",
+   "delete is confirmed": "delete[^\\n]{0,60}\\?",
+   "loading and failed load": "load",
+   "names from records": "\\w+\\.name",
+   "narrow screens": "scroll|narrow|phone"
+  },
+  "unwanted": {
+   "a welcome or tip": "[\"“]welcome|tip:|get started|drag cards to",
+   "colour left to a phrase": "(?<!\\()(light grey|dark grey|near-black)(?![^\n]{0,12}#)|usual colours",
+   "accounts or settings": "sign in|log in|settings page"
+  }
+ },
+ "salon": {
+  "wanted": {
+   "six sections": "### 1\\..*### 2\\..*### 3\\..*### 4\\..*### 5\\..*### 6\\.",
+   "layout line readable": "layout columns=1 rows=auto",
+   "token line complete": "tokens background=#[0-9a-f]{6} surface=#[0-9a-f]{6} text=#[0-9a-f]{6} accent=#[0-9a-f]{6} on_accent=#[0-9a-f]{6} heading=(serif|sans|mono)",
+   "first screen stated": "first screen",
+   "form of the main view stated": "form of the main view",
+   "what to do first is said": "choose a service|pick a service|select a service|not (shown|offered)|hidden until|appears? (once|after|when)",
+   "main button named": "[\"“]request booking[\"”]",
+   "phone input": "tel",
+   "each field's refusal worded": "phone[^\\n]{0,80}[\"“][^\"”\\n]{8,80}[\"”]",
+   "after submitting": "confirm|request (sent|received)",
+   "loading, none and failed load": "load.*(no services|couldn.t load)",
+   "names from records": "service\\.name",
+   "day with nothing free": "no (free |open )?times|fully booked",
+   "phone layout": "phone|narrow|full width"
+  },
+  "unwanted": {
+   "staff or account surfaces": "[\"“](sign in|log in)[\"”]|staff console",
+   "colour left to a phrase": "(?<!\\()(light grey|off-white)(?![^\n]{0,12}#)|usual colours",
+   "a headline to persuade": "(?<!no )hero"
+  }
+ }
+}

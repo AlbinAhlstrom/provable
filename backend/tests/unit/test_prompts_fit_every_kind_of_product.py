@@ -117,3 +117,24 @@ def test_the_expansion_lists_what_is_seen_and_what_is_done_apart():
     assert "### 2. How it looks" in expansion and "### 3. How it is used" in expansion
     assert "one line for each part a person sees" in expansion
     assert "One line for each thing a person can do" in expansion
+
+
+def test_the_plan_builds_on_the_specification_and_adds_no_words_to_a_product_that_needs_none():
+    """Verify the plan decides what the specification left open (planning everything afresh, it gave a game a
+    status line and hints it never had, and left colours to phrases).
+
+    id: TST-KINDS-008
+    Given: The prompt of the UX plan
+    When: It is read
+    Then: It says the page's writer reads the specification and the plan both, a signal without words is not said
+          again in a sentence, the wording a person reads is listed apart from what only a screen reader speaks,
+          published content is not only a business's, the layout line is the view as the page opens, and the
+          length is set a line at a time
+    """
+    plan = _prompt("ux_planning.md")
+    assert "reads the specification above and this blueprint, both" in plan
+    assert "does not say again in a sentence" in plan
+    assert "**Seen**" in plan and "**Spoken only**" in plan
+    assert "the presets a tool offers" in plan
+    assert "as they stand on the first visit" in plan and "`columns` is always a number" in plan
+    assert "under 500 words" not in plan and "at most 25 words a line" in plan

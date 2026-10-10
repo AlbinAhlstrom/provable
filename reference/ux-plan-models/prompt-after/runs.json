@@ -1,0 +1,134 @@
+[
+ {
+  "file": "minesweeper_haiku_1.md",
+  "case": "minesweeper",
+  "model": "haiku",
+  "seconds": 10.7,
+  "in": 7419,
+  "out": 2196,
+  "sek": 0.0184,
+  "words": 942,
+  "stop": "end_turn"
+ },
+ {
+  "file": "minesweeper_haiku_2.md",
+  "case": "minesweeper",
+  "model": "haiku",
+  "seconds": 10.2,
+  "in": 7419,
+  "out": 2021,
+  "sek": 0.0175,
+  "words": 873,
+  "stop": "end_turn"
+ },
+ {
+  "file": "minesweeper_sonnet_1.md",
+  "case": "minesweeper",
+  "model": "sonnet",
+  "seconds": 14.4,
+  "in": 7419,
+  "out": 1946,
+  "sek": 0.343,
+  "words": 803,
+  "stop": "end_turn"
+ },
+ {
+  "file": "minesweeper_sonnet_2.md",
+  "case": "minesweeper",
+  "model": "sonnet",
+  "seconds": 14.8,
+  "in": 7419,
+  "out": 2005,
+  "sek": 0.3489,
+  "words": 840,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_haiku_1.md",
+  "case": "kanban",
+  "model": "haiku",
+  "seconds": 11.2,
+  "in": 6471,
+  "out": 2270,
+  "sek": 0.0178,
+  "words": 1017,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_haiku_2.md",
+  "case": "kanban",
+  "model": "haiku",
+  "seconds": 12.4,
+  "in": 6471,
+  "out": 2409,
+  "sek": 0.0185,
+  "words": 1098,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_sonnet_1.md",
+  "case": "kanban",
+  "model": "sonnet",
+  "seconds": 16.5,
+  "in": 6471,
+  "out": 2197,
+  "sek": 0.3491,
+  "words": 972,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_sonnet_2.md",
+  "case": "kanban",
+  "model": "sonnet",
+  "seconds": 15.9,
+  "in": 6471,
+  "out": 2222,
+  "sek": 0.3516,
+  "words": 1006,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_haiku_1.md",
+  "case": "salon",
+  "model": "haiku",
+  "seconds": 11.7,
+  "in": 7267,
+  "out": 2409,
+  "sek": 0.0193,
+  "words": 1110,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_haiku_2.md",
+  "case": "salon",
+  "model": "haiku",
+  "seconds": 11.4,
+  "in": 7267,
+  "out": 2348,
+  "sek": 0.019,
+  "words": 1088,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_sonnet_1.md",
+  "case": "salon",
+  "model": "sonnet",
+  "seconds": 16.9,
+  "in": 7267,
+  "out": 2367,
+  "sek": 0.382,
+  "words": 1012,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_sonnet_2.md",
+  "case": "salon",
+  "model": "sonnet",
+  "seconds": 17.9,
+  "in": 7267,
+  "out": 2468,
+  "sek": 0.3921,
+  "words": 1134,
+  "stop": "end_turn"
+ }
+]
