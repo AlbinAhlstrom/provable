@@ -72,6 +72,24 @@ def test_the_anthropic_provider_brings_its_own_key_model_and_api(monkeypatch):
     assert llm_provider.connection().api == "openai"
 
 
+def test_the_larger_anthropic_model_is_a_provider_of_its_own_with_the_same_key(monkeypatch):
+    """Verify the larger model of the family is chosen by name, with the key and the API of the smaller one.
+
+    id: TST-ANTH-007
+    Given: CLAUDE_API_KEY, and LLM_PROVIDER naming anthropic-opus
+    When: The connection is resolved
+    Then: The model is the larger one and differs from the anthropic provider's, the key and the API are the same,
+          and the model has a price
+    """
+    import llm_cost
+    monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
+    monkeypatch.setenv("LLM_PROVIDER", "anthropic-opus")
+    connection = llm_provider.connection()
+    assert connection.model != llm_provider.PROVIDERS["anthropic"].model
+    assert (connection.api_key, connection.api, connection.accepts_temperature) == ("claude-key", "anthropic", False)
+    assert llm_cost.price_for(connection.model).output > llm_cost.price_for(llm_provider.PROVIDERS["anthropic"].model).output
+
+
 def test_a_call_carries_the_effort_and_returns_the_text_and_its_tokens(anthropic_client, monkeypatch):
     """Verify the effort setting reaches the provider (the OpenAI-compatible endpoint ignores it) and the answer and
     its tokens come back in the form the trace prices.

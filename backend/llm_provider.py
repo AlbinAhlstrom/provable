@@ -26,6 +26,9 @@ PROVIDERS: Dict[str, Provider] = {
     # base_url is its OpenAI-compatible endpoint, for the callers that only speak that API.
     "anthropic": Provider("https://api.anthropic.com/v1/", "claude-haiku-5-5", "CLAUDE_API_KEY",
                           accepts_temperature=False, api="anthropic"),
+    # The larger model of the same family, on the same key: what a build is compared against.
+    "anthropic-opus": Provider("https://api.anthropic.com/v1/", "claude-opus-5-5", "CLAUDE_API_KEY",
+                               accepts_temperature=False, api="anthropic"),
 }
 
 
