@@ -45,11 +45,12 @@ Ordered by how many kinds a phase helps per unit of work. Each phase names what 
 - The look follows the familiar thing: for a product known by sight, its usual look (colours, surfaces, its parts built as one unit) is the direction; a feel is invented only where there is none.
 - Every text on a page has a job: a label, a state, an instruction needed to act, or a record. A header, a footer and a first-screen headline are written when they have something to carry.
 - A product keeps the name its pitch gave it.
-- Rules about "the business" are stated for whoever publishes the records.
+- Left as they are: the rules about what "the business" publishes. They apply only to a product that has published content, so they already follow a property.
 - A wide thing (a table, a grid, a timeline) scrolls inside its own container; the page itself does not.
 - Starting records: as many as such a product would really hold; entities: as many as the value loop needs.
 - Where: `backend/prompts/prompt_expansion.md`, `backend/prompts/router_decomposition.md`, `backend/prompts/ux_planning.md`, `backend/prompts/presentation_projection_synthesis.md`, `backend/prompts/seed_data.md`, `backend/prompts/visual_review.md`.
-- Proof: page rebuilds of a grid game and a personal firm's website.
+- Proof: kickstarts of a grid game and a personal firm's website (a page rebuild reuses the expanded pitch, which carries the old name and mood). Guarded by `backend/tests/unit/test_prompts_fit_every_kind_of_product.py`.
+- Seen after it, on one run of the grid game: the plan names the look people know and the product keeps its name; the page stage still wrote one piece of text with no job into the header, and the control that chooses a preset stood outside the unit. Both are the page stage not following its plan, which a prompt does not settle: phase 2's QA checks are where they are measured.
 
 ### Phase 1: the matrix and honest limits
 - One pitch per kind, kept in the repository, with a script that runs the cheap stages (intent, expansion, decomposition) for all of them and one full kickstart on request.

@@ -21,7 +21,7 @@ CRITICAL SPECIFICATION REQUIREMENTS:
 2. DOMAIN-NATURAL PRESENTATION & INTERACTION:
    - Identify the natural visual experience that users intuitively expect (whatever the product type implies: for example a content page, an interactive canvas, or a multi-stage workflow).
    - Detail the interactive direct-manipulation affordances (selection, forms, timelines, status badges, state progression).
-   - Describe the intended AESTHETIC TONE & VISUAL MOOD that fits this audience (match the audience named in the intent).
+   - Say how it should look. When the product is of a kind people know by sight (a well-known game, a month calendar, a spreadsheet, an inbox), it looks the way they know it: say so, and name what makes it recognisable (its usual colours and surfaces, how its parts sit together, what its controls look like). Only for a product with no such look, describe the tone that fits the audience named in the intent.
    - Speak 100% in the natural, human language of the domain. NEVER use developer plumbing terms like "AggregateRoot", "Invariants", "Boundary Guards", "Dispatch Canvas", "Audit Ledger", or "Immutable" in user-facing concepts.
 
 3. FOUNDATIONAL MVP SCOPE (ITERATIVE VALUE LOOP):
@@ -29,7 +29,7 @@ CRITICAL SPECIFICATION REQUIREMENTS:
    - Formulate intake and interaction flows around the genuine operational data required by domain personas (descriptive details, contact identifiers, scheduling windows, contextual notes) rather than speculative secondary administrative sub-systems.
 
 4. CORE DOMAIN CONCEPTS & ENTITIES:
-   - Identify 2 to 4 central domain entities and lifecycle states strictly needed to support the primary value loop.
+   - Identify the central domain entities and lifecycle states strictly needed to support the primary value loop: as many as it needs and no more.
    - Describe the natural states and transitions of these core concepts.
 
 5. CONCRETE BUSINESS RULES & INVARIANTS:
@@ -43,5 +43,7 @@ CRITICAL SCOPE BOUNDARY (ZERO CODE ARTIFACTS):
 - Do NOT prescribe code line counts (no LOC targets).
 - Do NOT prescribe programming language types or database schemas.
 - Focus 100% on human product requirements, persona workflows, and domain business rules.
+
+Name the product as the pitch names it (or, where the pitch gives it no name, by the plain name of what it is), in the title and throughout, with nothing added to the name.
 
 Synthesize your output as a clear, rigorous, and direct Markdown specification (under 350 words, not counting the list of rules in section 5, which is as long as the rule set needs).

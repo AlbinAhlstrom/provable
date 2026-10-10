@@ -72,7 +72,7 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
    - A collection field inside a record is the typed array its client declares: read it as that type, with `?? []` where the field may be absent, so each item keeps its fields' types.
    - Never assume nested properties exist without optional chaining or fallbacks. Zero runtime `TypeError` crashes.
 4. **Anti-Monolith Invariant & Contextual Layout Orchestration**:
-   - `App.tsx` must be STRICTLY under 100 lines of code. It orchestrates active state, top-level brand header, navigation views, and passes action dispatchers down.
+   - `App.tsx` must be STRICTLY under 100 lines of code. It orchestrates active state, the page shell, navigation views, and passes action dispatchers down.
    - **Contextual View Composition**:
      - Views, forms, and primary actions are organized contextually according to the domain's user journeys and the UX blueprint.
      - Controls and history components render when relevant to the active view and user workflow.
@@ -81,7 +81,7 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
      2. Load records through the clients above: the entities shown to the audience via their list functions; the master's records only when the audience is meant to see them (their own game, order or booking), never the records other visitors submitted.
      3. When controls are present, provide an action handler `handleAction(actionType, params)` that calls `sendAction(record.id, actionType, params)` and replaces that record with `res.state`.
      4. Pass required props cleanly to child components.
-     5. Provide a header with a domain-appropriate title derived dynamically from the application identity. `App.tsx` owns the page shell: the one header, the one footer, the page width and its outer padding. The view renders the page's sections and no shell of its own.
+     5. `App.tsx` owns the page shell: the page width, its outer padding, and one header that carries the product's name (the domain identity above, written the way people write it) together with the navigation or the primary action when the page has one. A footer is written when there is something for it to carry (a contact detail or a notice from a record, a link). The view renders the page's sections and no shell of its own.
      6. Export App as default export: `export default App;` (and named export `export const App`).
    - All other component files must be STRICTLY under 150 lines of code.
 
@@ -89,6 +89,7 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
    - Derive visual elements, layout, controls, and records dynamically from the pitch, entities, UX blueprint, and backend state schema.
    - Form inputs provide appropriate controls matched to data types (text inputs, numeric inputs, date/time pickers, textareas).
    - User-facing copy (titles, subheadings, badges, buttons, cards) must strictly reflect the natural domain language of the target personas.
+   - Every piece of text on the page has a job: it is the name of a thing, a label, the state something is in, an instruction a person needs in order to act, a message about what an action did, or a record's field. Take the wording from the blueprint and the records; a place with none of these to show (a corner of the header, the space under a heading, the foot of the page) stays without text.
    - Compiler plumbing abstractions (`AggregateRoot`, `Invariant`, `Action Protocol`, `Audit Ledger`, `Boundary Guards`, `Session Lifecycle`, `OCC Version`) belong strictly to internal layers and are excluded from user-facing UI copy.
    - When the domain involves multiple perspectives (e.g. public client vs service operator), provide natural navigation affordances for each role.
    - Use standard React hooks (`useState`, `useEffect`), Tailwind CSS classes, and optionally icons from `lucide-react`.
@@ -104,9 +105,10 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
 
 
 7. **Viewport Containment (Zero Overflow Invariant)**:
-   - Never use hardcoded pixel minimums for grid columns; use fluid sizing such as `repeat(auto-fit, minmax(0, 1fr))` and `max-w-full` containers so the page never scrolls horizontally.
+   - The page itself never scrolls horizontally: lay it out with fluid sizing such as `repeat(auto-fit, minmax(0, 1fr))` and `max-w-full` containers, without hardcoded pixel minimums for its columns.
+   - A view whose form is wider than a small screen (a table with many columns, a grid with many columns, a timeline) keeps its form: its parts stay large enough to read and to hit with a finger, and it scrolls sideways inside its own container (`max-w-full overflow-x-auto`) while the page around it stays still.
    - Wrap long text and wide content (`break-words`, `min-w-0`) instead of letting it overflow.
-   - The header fits a 375px-wide screen on one row: the brand and the primary action, with the other links appearing from `sm` up.
+   - The header fits a 375px-wide screen on one row: the product's name and, when the page has one, the primary action, with the other links appearing from `sm` up.
 
 ---
 
