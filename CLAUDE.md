@@ -52,6 +52,6 @@ Be concise and easy to scan; the reader has ADHD. Lower the effort to read, neve
 - Document architectural decisions in `vault/` (architecture page or ADR) and keep `vault/Home.md` current; `test_vault_hygiene.py` checks links and index.
 
 ## Skills and subagents (`.claude/`)
-- Skills: `/acceptance` (6-step acceptance protocol), `/take_ui_screenshot`, `/commit-task`, `/fix-pipeline-bug <problem>` (trace a defect in generated output to the responsible stage and fix it upstream).
+- Skills: `/acceptance` (6-step acceptance protocol), `/take_ui_screenshot`, `/commit-task`, `/fix-pipeline-bug <problem>` (trace a defect in generated output to the responsible stage and fix it upstream), `/step-analysis <step>` (run one step's prompt alone on Opus, Sonnet and Haiku, rewrite it to close the gap, report speed, cost and quality).
 - Read-only subagents: `architecture-verifier` (layering, airgap, department boundaries), `code-smell-verifier` (post-hoc patching, hard-coded heuristics, swallowed errors, weakened tests), `workspace-inspector` (compares generated `workspace/` output with the pitch and names the generator file to change). Pass them only the diff or the pitch.
 - For UI changes, review `logs/latest_ui_render.png` before finishing.
