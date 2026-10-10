@@ -47,6 +47,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[ADR-006 Spec-Derived RED Tests and Fragment GREEN]]: Decision record on LLM-written behavioral RED tests, the stricter RED gate, module-fragment GREEN, rollback and the evidence behind them.
 - [[ADR-007 Product Intent Step]]: Decision record on classifying what kind of product a pitch asks for before designing the domain model.
 - [[ADR-008 Aggregate Ownership and Audience-Scoped UI]]: The TDD loop owns the aggregate, the intent reaches every stage, and the UI serves only the product's audience; lists the known remaining gaps.
+- [[ADR-009 Product Kinds and Capability Roadmap]]: The kinds of product the engine is meant to build (as a review lens and test matrix, never a pipeline branch), what each lacks today, and the phased roadmap from prompt wording to rules across records, roles, time and charts.
 
 
 ### 5. 📜 Agent Rules & Governance
