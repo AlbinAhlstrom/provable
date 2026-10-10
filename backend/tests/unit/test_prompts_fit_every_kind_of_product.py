@@ -137,5 +137,7 @@ def test_the_plan_builds_on_the_specification_and_adds_no_words_to_a_product_tha
     assert "**Seen**" in plan and "**Spoken only**" in plan
     assert "the presets a tool offers" in plan
     assert "the page still reads it from them" in plan, "content the specification names is read from records too"
+    assert "the plan supplies no starting records of its own" in plan, "a view that starts empty is not filled by the plan"
+    assert "Section 1 opens with one line for each entity marked" in plan
     assert "as they stand on the first visit" in plan and "`columns` is always a number" in plan
     assert "under 500 words" not in plan and "at most 25 words a line" in plan

@@ -59,13 +59,37 @@ reads it from them. Fifteen Haiku runs on that prompt (`prompt-final-haiku-x5/`)
 | Wanted items stated | 96 % | 97 % |
 | Time, cost per call | 11.3 s, 0.018 SEK | 13.4 s, 0.021 SEK |
 
+## A last round, and five more Haiku runs per pitch
+Three changes, each from reading the fifteen runs above (`prompt-final2-haiku-x5/`, with the `cases.json` it used):
+- The entity's own line in the input now says its records are loaded from the API (`ux_planner.py`), and section 1
+  opens with a line for each such entity.
+- "Never a view that is empty" made Haiku give a new team's tool three starting columns the specification never
+  had. The prompt now says the opening view shows the control that makes the first thing, and the plan supplies no
+  records.
+- The layout line's `columns` is 1 or more.
+
+| Read by eye, Haiku | Round before | This round |
+| --- | --- | --- |
+| Game plans that load the levels from records | 4 of 5 | 5 of 5 |
+| Tool plans that make up starting records | 2 of 5 | 0 of 5 |
+| Game plans that add a title bar | 0 of 5 | 2 of 5 |
+| Game plans adding hints or status text | 0 of 5 | 0 of 5 |
+| Layout line the app can read | 15 of 15 | 15 of 15 |
+| Wanted items stated | 97 % | 98 % |
+
+Two drafts between these rounds were worse and were dropped: counting "outer" repeated parts gave the tool a fixed
+grid of one row, and naming each text's part "as the specification names it" raised the title bar to 3 of 5.
+
 ## What is left
-- Haiku still takes the game's levels as fixed in about one run in five.
-- The plans are about 40 % longer than before the rewrite, so the call costs about a quarter more and the page's
-  writer reads more.
+- Haiku gives the game a title bar in some runs (0 of 5, 1 of 5, 3 of 5 and 2 of 5 over four drafts). No wording
+  tried here moved it reliably; five runs cannot tell 1 in 5 from 2 in 5.
+- The game's touch gesture is left to the specification in about half the plans; the page's writer reads both.
+- A tool that starts empty gets `columns=1`, since nothing is there on the first visit. The outline shown while the
+  page is written is then one column.
+- The plans are about 50 % longer than before the rewrite. The call costs about 0.025 SEK on Haiku.
 - Not measured here: the page that is built from the plan.
 
 ## Folders
-- `prompt-before/`, `prompt-after/`, `prompt-after-opus/`, `prompt-final-haiku-x5/`: the prompt (`prompt.md`), every answer and `runs.json`.
+- `prompt-before/`, `prompt-after/`, `prompt-after-opus/`, `prompt-final-haiku-x5/`, `prompt-final2-haiku-x5/`: the prompt (`prompt.md`), every answer and `runs.json`.
 - Score them again: `python .claude/skills/step-analysis/scripts/step_bench.py score --checklist
   reference/ux-plan-models/checklist.json --out reference/ux-plan-models prompt-before prompt-after prompt-after-opus`

@@ -37,6 +37,10 @@ def plan_ux_blueprint(
     for ent in structure.entities:
         attr_desc = ", ".join(a.describe() for a in ent.attributes)
         role = f" ({ent.audience_role.value.replace('_', ' ')})" if ent.audience_role.value != "internal" else ""
+        # Said at the entity itself: a planner that read it only in the paragraph below took content the pitch names
+        # (a game's levels, a tool's presets) to be built into the page
+        if ent.audience_role.value == "shown_to_audience":
+            role = role[:-1] + ": its records are loaded from the API)"
         entity_summaries.append(f"- **{ent.name}**{role}: [{attr_desc}]")
     entities_block = "\n".join(entity_summaries) if entity_summaries else f"- **{master_name}**: Primary Aggregate Root"
 

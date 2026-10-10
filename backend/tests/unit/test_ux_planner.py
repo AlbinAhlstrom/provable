@@ -76,7 +76,7 @@ def test_the_ux_planner_is_told_which_content_is_served_as_records():
     with patch("onboarding.ux_planner.call_gemini", fake):
         plan_ux_blueprint(pitch="A site", structure=structure, master_name="Inquiry", master_slug="inquiry")
     prompt = prompts[0]
-    assert "**Offering** (shown to audience)" in prompt and "**Inquiry** (created by audience)" in prompt
+    assert "**Offering** (shown to audience: its records are loaded from the API)" in prompt and "**Inquiry** (created by audience)" in prompt
     assert "loaded from the API as records" in prompt
 
 

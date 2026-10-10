@@ -45,7 +45,8 @@
   "unwanted": {
    "a welcome or tip": "[\"“]welcome|tip:|get started|drag cards to",
    "colour left to a phrase": "(?<!\\()(light grey|dark grey|near-black)(?![^\n]{0,12}#)|usual colours",
-   "accounts or settings": "sign in|log in|settings page"
+   "accounts or settings": "sign in|log in|settings page",
+   "starting records the plan made up": "to do[\"”,]|seeded|default columns"
   }
  },
  "salon": {
@@ -57,7 +58,7 @@
    "form of the main view stated": "form of the main view",
    "what to do first is said": "choose a service|pick a service|select a service|not (shown|offered)|hidden until|appears? (once|after|when)",
    "main button named": "[\"“]request booking[\"”]",
-   "phone input": "tel",
+   "phone input": "tel|phone input",
    "each field's refusal worded": "phone[^\\n]{0,80}[\"“][^\"”\\n]{8,80}[\"”]",
    "after submitting": "confirm|request (sent|received)",
    "loading, none and failed load": "load.*(no services|couldn.t load)",
