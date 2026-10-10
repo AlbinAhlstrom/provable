@@ -29,6 +29,10 @@ def _sanitize_name(name: str) -> str:
 
 # The model answers with the four files as marker-delimited blocks, not as JSON string values: ~25k characters of
 # escaped TSX inside one JSON object proved fragile (an object closed early and the remaining files were lost).
+# Seconds the page call may take. It is the largest single answer of a build: 35 s on one model at low effort, past
+# the 60 s of an ordinary call on another that thinks longer before it writes.
+PAGE_TIMEOUT_S = 180.0
+
 SECTIONS = ("view_tsx", "controls_tsx", "history_tsx", "app_tsx")
 END = "end"  # closes the answer: without a way to say "done" the model invents one, and it lands in the last file
 _MARKER = re.compile(r"^<<<(\w+)>>>[ \t]*$", re.MULTILINE)
@@ -212,7 +216,7 @@ Answer with four blocks, each introduced by its marker alone on a line:
 
     print(f"[Compiler:Node3] Synthesizing interactive presentation projection and modular UI...", flush=True)
 
-    raw_response = call_gemini(prompt, stage="presentation_projection_synthesis")
+    raw_response = call_gemini(prompt, stage="presentation_projection_synthesis", timeout_s=PAGE_TIMEOUT_S)
     created_files = []
 
     if not raw_response:

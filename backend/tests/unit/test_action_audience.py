@@ -109,6 +109,28 @@ def test_presentation_prompt_forbids_controls_for_api_only_actions(tmp_path, mon
     assert "no buttons" in seen["p"].lower() or "no controls" in seen["p"].lower()
 
 
+def test_the_page_call_is_given_the_time_the_largest_answer_needs(tmp_path, monkeypatch):
+    """Verify the call that writes the whole page is not cut off by the time allowed for a short answer.
+
+    id: TST-AUD-PAGE-TIME
+    Given: A recording model
+    When: The presentation projection is synthesized
+    Then: The call carries the page's own time limit, longer than the default of a call
+    """
+    from onboarding import presentation_projection_synthesizer as pps
+    seen = {}
+
+    def fake(prompt, stage="general", **kwargs):
+        seen.update(kwargs)
+        return "{}"
+
+    monkeypatch.setattr(pps, "call_gemini", fake)
+    pps.synthesize_and_write_presentation_projection(
+        pitch="p", structure=STRUCTURE, inbox_specs=[SPEC], workspace_dir=str(tmp_path),
+        action_manifest=MANIFEST, ux_blueprint="plan", intent=INTENT)
+    assert seen["timeout_s"] == pps.PAGE_TIMEOUT_S > agent_orchestrator.DEFAULT_TIMEOUT_S
+
+
 def test_the_action_protocol_is_held_to_a_schema_and_asks_for_starting_states(tmp_path, monkeypatch):
     """Verify the protocol's answer is constrained by the provider and covers what a new object holds.
 
