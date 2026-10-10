@@ -41,7 +41,7 @@ Section 6 of the blueprint above is the page's visual direction: its feel, palet
 - `GET /api/{master_plural}`: a JSON array of every stored `{master_name}`. The records come in the order they were created, the newest last. It is empty until something has been created; an empty list is a normal state the UI must handle (show the content and forms that make sense with no records, never invented records).
 - `POST /api/{master_plural}`: creates one `{master_name}` from a JSON body with its fields; returns it.
 - `GET /api/{master_plural}/{id}`: one `{master_name}` by its id; HTTP 404 if there is none.
-- `POST /api/{master_plural}/{id}/action`: runs a domain action `{ "action_type": string, "params": { ... } }`. Returns `{ "success": boolean, "state": { ... }, "message": string }`. A rejected action returns HTTP 400 with `{ "detail": string }`.
+- `POST /api/{master_plural}/{id}/action`: runs a domain action `{ "action_type": string, "params": { ... } }`. Returns `{ "success": boolean, "state": { ... }, "created": { ... } | null, "message": string }`: `state` is the record the action was run on, and `created` is the new record of the same kind when the action made one (a copy, a next round, a rebooking), otherwise null. A rejected action returns HTTP 400 with `{ "detail": string }`.
 There is no "default" record and no reset endpoint.
 When the page works on one record at a time (a session in progress, an attempt, a draft being filled in), that record is the most recently created one, both right after the page creates it and when the page is opened again, so a visitor who comes back finds what they left.
 
@@ -60,7 +60,7 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
 ---
 
 ## Technical Constraints & Invariants:
-1. **Single Source of Truth**: The React UI is a pure presentation projection of the backend state. It never simulates domain state mutations locally. Every action is posted through the client of the entity it is listed on, and the UI replaces that record with the state the response returns.
+1. **Single Source of Truth**: The React UI is a pure presentation projection of the backend state. It never simulates domain state mutations locally. Every action is posted through the client of the entity it is listed on, and the UI replaces that record with the state the response returns. When the response carries a `created` record, the UI takes it in as well: a page that works with one record at a time moves on to the created one, and a list gains it.
 2. **Zero Contract Drift (Action & Schema Alignment)**:
    - Your API client and interactive views MUST dispatch ONLY the canonical `action_type` strings or authorized aliases defined in the Action Protocol above. DO NOT invent arbitrary action names (e.g. if the protocol defines `"reveal"`, dispatch `"reveal"`, not `"primary_reveal"`).
    - Parameter keys in `params` MUST match the expected names in the Action Protocol (e.g. if the action expects `x` and `y`, pass `{ x, y }`).

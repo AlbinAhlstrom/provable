@@ -557,11 +557,13 @@ def _public_actions(item) -> Dict[str, Any]:
 
 @router.post("/{{item_id}}/action")
 def run_{slug}_action(item_id: str, request: ActionRequest):
-    """Runs one of the aggregate's own domain methods; the domain decides whether the action is allowed."""
+    """Runs one of the aggregate's own domain methods; the domain decides whether the action is allowed.
+    A method that returns a new record of the same kind has made one: it is stored and answered as `created`."""
     _ensure_seeded()
     name = re.sub(r"[^a-z0-9]+", "_", request.action_type.strip().lower()).strip("_")
     with _uow:
-        item = getattr(_uow, "{plural_slug}").get(item_id)
+        repo = getattr(_uow, "{plural_slug}")
+        item = repo.get(item_id)
         if not item:
             raise HTTPException(status_code=404, detail="{entity.name} not found")
         actions = _public_actions(item)
@@ -576,11 +578,15 @@ def run_{slug}_action(item_id: str, request: ActionRequest):
             result = method(**request.params)
         except Exception as exc:  # the domain rejected the action; its state is left as the domain left it
             raise HTTPException(status_code=400, detail=str(exc) or type(exc).__name__)
+        created = result if isinstance(result, {entity.name}) and result is not item else None
+        if created is not None:
+            repo.add(created)
         _uow.commit()
         _save()
         return {{
             "success": True,
             "state": item.to_dict(),
+            "created": created.to_dict() if created is not None else None,
             "message": result if isinstance(result, str) else f"{{request.action_type}} completed",
         }}
 '''
@@ -812,7 +818,10 @@ export interface {name}State {{
 
 export interface ActionResponse {{
   success: boolean;
+  /** The record the action was run on. */
   state: {name}State;
+  /** The new record, when the action made one; otherwise null. */
+  created: {name}State | null;
   message?: string;
 }}
 
@@ -854,6 +863,7 @@ export async function sendAction(
     method: 'POST',
     headers: {{ 'Content-Type': 'application/json' }},
     body: JSON.stringify({{ action_type: actionType, params }}),
+    keepalive: true, // an action sent as the page is left still reaches the server
   }});
   if (!res.ok) throw await failure(res, 'The action');
   return res.json();

@@ -94,7 +94,7 @@ def _clients_block(presented: List[Any], master_name: str) -> str:
                        f"value the form works out itself for any the visitor does not enter)") if needed else " (the server assigns `id`)"
         lines.append(f"- `src/api/{_to_snake_case(n)}Client.ts` ({role}) exports exactly: `{n}State` (the type of one record), "
                      f"`list{n}(): Promise<{n}State[]>`, `get{n}(id: string)`, `create{n}(data: Partial<{n}State>)`{create_note} and "
-                     f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; message?: string }}>`.")
+                     f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; created: {n}State | null; message?: string }}>`.")
     return "\n".join(lines)
 
 

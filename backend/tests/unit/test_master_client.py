@@ -32,6 +32,19 @@ def test_client_matches_the_router_and_invents_nothing():
     assert "/action" in client
 
 
+def test_an_action_outlives_the_page_and_may_answer_with_a_new_record():
+    """
+    Given: A master aggregate
+    When: Its client is generated
+    Then: An action is sent so that it still reaches the server when the page is left while it is on its way,
+          and its answer is typed with the record the action may have made
+    """
+    client = generate_master_client(ENTITY)
+    action = client[client.index("export async function sendAction"):]
+    assert "keepalive: true" in action
+    assert "created: CareInquiryState | null;" in client
+
+
 def _blocks(**sections):
     return "".join(f"<<<{name}>>>\n{code}\n" for name, code in sections.items())
 
