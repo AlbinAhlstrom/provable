@@ -101,3 +101,19 @@ def test_no_prompt_fixes_how_many_entities_or_records_a_product_has():
     assert "2 to 4" not in _prompt("prompt_expansion.md")
     assert "2 to 4" not in _prompt("router_decomposition.md")
     assert "3 to 5" not in _prompt("seed_data.md")
+
+
+def test_the_expansion_lists_what_is_seen_and_what_is_done_apart():
+    """Verify the specification states the look and the use part by part, for readers who see nothing else.
+
+    id: TST-KINDS-007
+    Given: The prompt of the pitch expansion
+    When: It is read
+    Then: It says its readers see only the specification, and asks for the parts a person sees and the things a
+          person can do as two lists under headings of their own (a list sharing a heading was left out)
+    """
+    expansion = _prompt("prompt_expansion.md")
+    assert "read this specification and nothing else" in expansion
+    assert "### 2. How it looks" in expansion and "### 3. How it is used" in expansion
+    assert "one line for each part a person sees" in expansion
+    assert "One line for each thing a person can do" in expansion

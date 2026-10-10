@@ -1,0 +1,62 @@
+[
+ {
+  "pitch": "minesweeper",
+  "model": "haiku",
+  "seconds": 14.4,
+  "in": 1861,
+  "out": 2594,
+  "sek": 0.0148,
+  "words": 1326,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "minesweeper",
+  "model": "sonnet",
+  "seconds": 14.3,
+  "in": 1861,
+  "out": 1776,
+  "sek": 0.2148,
+  "words": 807,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "kanban",
+  "model": "haiku",
+  "seconds": 23.2,
+  "in": 1832,
+  "out": 4420,
+  "sek": 0.0239,
+  "words": 1040,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "kanban",
+  "model": "sonnet",
+  "seconds": 12.5,
+  "in": 1832,
+  "out": 1489,
+  "sek": 0.1855,
+  "words": 756,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "salon",
+  "model": "haiku",
+  "seconds": 24.1,
+  "in": 1818,
+  "out": 4490,
+  "sek": 0.0243,
+  "words": 1201,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "salon",
+  "model": "sonnet",
+  "seconds": 13.3,
+  "in": 1818,
+  "out": 1442,
+  "sek": 0.1806,
+  "words": 677,
+  "stop": "end_turn"
+ }
+]
