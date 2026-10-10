@@ -121,7 +121,8 @@ def judge(result: Dict[str, Any]) -> Verdict:
                       if (test.get(when) or {}).get("outcome") == "failed"), {})
         message = str((stage.get("crash") or {}).get("message") or "")
         # The crash message opens with what was expected; a traceback ends in whatever was printed last
-        evidence = (message or str(stage.get("longrepr") or ""))[:_EVIDENCE_LIMIT]
+        case = str(test.get("nodeid") or "").rsplit("::", 1)[-1]
+        evidence = (f"in {case}:\n" + condense(message or str(stage.get("longrepr") or "")))[:_EVIDENCE_LIMIT]
         raised = _raised(test) or ""
         if raised in (f"call:{_NOT_HELD}", f"call:{_NO_CONTROL}"):
             not_held.append(Verdict(FAIL, _one_line(message) or raised, evidence, raised.endswith(_NO_CONTROL)))

@@ -52,6 +52,21 @@ def test_an_assertion_that_did_not_hold_fails_the_rule():
     assert "Call log" in verdict.evidence
 
 
+def test_the_evidence_names_the_case_that_failed_and_condenses_what_the_page_read_out():
+    """
+    Given: A failed test whose message carries what the page read out, forty like controls long
+    When: The run is judged
+    Then: The evidence opens with the name of the test function, keeps the expectation, and shows the forty
+          controls by their first few and a line for the rest
+    """
+    seats = "\n".join(f'  - button "Seat {n}, free"' for n in range(1, 41))
+    message = f"AssertionError: Locator expected to be visible\nActual value: hidden\n- main:\n{seats}"
+    verdict = judge(_report(_test("failed", "AssertionError", message)))
+    assert verdict.evidence.startswith("in test_x:\nAssertionError: Locator expected to be visible\nActual value: hidden")
+    assert '… 37 more button like these, named "Seat #, free"' in verdict.evidence
+    assert 'Seat 20, free' not in verdict.evidence
+
+
 def test_a_control_the_page_never_offered_fails_the_rule_and_is_marked():
     """
     Given: A report whose test timed out waiting for a control
