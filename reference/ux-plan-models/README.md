@@ -45,14 +45,27 @@ Sonnet, one for Opus. Prices: Anthropic list price, 10 SEK per USD.
 5. The layout line counts the view's repeated parts as the page first opens.
 6. Published records are a business's offerings, a tool's presets or a game's levels alike.
 
+## One more fix, and five Haiku runs per pitch
+Haiku called the game's levels "fixed in the page" in every run. The specification names the three levels with their
+sizes, and the rewrite says what the specification states stands, so Haiku took them as given. The prompt now says
+what happens where the two meet: the specification's content is what the records hold at first, and the page still
+reads it from them. Fifteen Haiku runs on that prompt (`prompt-final-haiku-x5/`), read by eye:
+
+| | Before the fix | After |
+| --- | --- | --- |
+| Game plans that load the levels from records | 0 of 2 (one said both) | 4 of 5 |
+| Game plans adding text or a title | 0 of 2 | 0 of 5 |
+| Layout line right, all pitches | 6 of 6 | 14 of 15 (one tool plan gave one column for columns side by side) |
+| Wanted items stated | 96 % | 97 % |
+| Time, cost per call | 11.3 s, 0.018 SEK | 13.4 s, 0.021 SEK |
+
 ## What is left
-- Haiku still calls the game's levels "fixed in the page" in both final runs, in one of them while planning their
-  loading state in the next line.
-- Haiku gave the game a title above the window in some runs of earlier drafts; not in the final two.
-- The plans are about 40 % longer, so the call costs about a quarter more and the page's writer reads more.
+- Haiku still takes the game's levels as fixed in about one run in five.
+- The plans are about 40 % longer than before the rewrite, so the call costs about a quarter more and the page's
+  writer reads more.
 - Not measured here: the page that is built from the plan.
 
 ## Folders
-- `prompt-before/`, `prompt-after/`, `prompt-after-opus/`: the prompt (`prompt.md`), every answer and `runs.json`.
+- `prompt-before/`, `prompt-after/`, `prompt-after-opus/`, `prompt-final-haiku-x5/`: the prompt (`prompt.md`), every answer and `runs.json`.
 - Score them again: `python .claude/skills/step-analysis/scripts/step_bench.py score --checklist
   reference/ux-plan-models/checklist.json --out reference/ux-plan-models prompt-before prompt-after prompt-after-opus`

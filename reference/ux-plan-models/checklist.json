@@ -13,7 +13,7 @@
    "no rounding": "no (corner )?radius|rounded-none|0 radius|square corners|radius: (0|none)|radius 0|sharp corners|zero (corner )?radius|no rounded corners|0px",
    "narrow screens": "scroll|narrow",
    "touch gesture": "long[- ]press",
-   "difficulty names from records": "difficulty\\w*\\.name|level\\.name",
+   "difficulty names from records": "difficultylevel",
    "loading or failed load planned": "load"
   },
   "unwanted": {
@@ -22,7 +22,8 @@
    "tooltips or hover text": "tooltip|on hover",
    "a written result a person reads": "(result|status)[^\\n]{0,40}(reads|says|shows)[^\\n]{0,10}[\"“]",
    "a title or heading above the game": "(title|heading|headline)[^\\n]{0,40}(above|over) the (window|game|grid)|window title|title bar",
-   "colour left to a phrase": "(?<!\\()(mid-grey|light grey|near-black)(?![^\n]{0,12}#)|classic (blue|colours)|usual colours"
+   "colour left to a phrase": "(?<!\\()(mid-grey|light grey|near-black)(?![^\n]{0,12}#)|classic (blue|colours)|usual colours",
+   "published records taken as built in": "(fixed|built) in(to)? the page|built[- ]in|no [^.]{0,40}(is|are) loaded|not loaded from|no loading (state )?(is )?needed"
   }
  },
  "kanban": {
