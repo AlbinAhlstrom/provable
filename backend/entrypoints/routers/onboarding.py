@@ -7,7 +7,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from service_layer.unit_of_work import SqliteUnitOfWork
-from service_layer import services
+from service_layer import app_wiring, services
 
 router = APIRouter(prefix="/api/onboarding", tags=["Onboarding Kickstart"])
 
@@ -43,6 +43,15 @@ def rebuild_page_endpoint():
     """Writes the current app's page again against the domain it already has (no decomposition, no TDD loop)."""
     try:
         return services.rebuild_page(uow=SqliteUnitOfWork())
+    except Exception as e:
+        return {"success": False, "error": str(e), "detail": str(e)}
+
+
+@router.post("/wiring")
+def refresh_wiring_endpoint():
+    """Writes the current app's routers and API clients again with today's generator; nothing else is touched."""
+    try:
+        return app_wiring.refresh_app_wiring(uow=SqliteUnitOfWork())
     except Exception as e:
         return {"success": False, "error": str(e), "detail": str(e)}
 
