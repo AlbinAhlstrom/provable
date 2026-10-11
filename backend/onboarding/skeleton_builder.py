@@ -406,6 +406,7 @@ def generate_schemas_module(entities: List[EntitySpec], value_objects: List[Enti
 {fields_code}
 
 class {ent.name}CreateSchema(BaseModel):
+    model_config = ConfigDict(extra="allow")  # fields the domain class grows later can be set too
 {create_fields_code}
 
 class {ent.name}ResponseSchema(BaseModel):
@@ -515,6 +516,9 @@ def create_{slug}(payload: {entity.name}CreateSchema):
     data = payload.model_dump(exclude_unset=True)
     if "id" in type(payload).model_fields and not data.get("id"):
         data["id"] = uuid.uuid4().hex
+    unknown = sorted(set(data) - set(inspect.signature({entity.name}).parameters))
+    if unknown:  # refused by name: a field dropped without a word leaves a record that is not the one asked for
+        raise HTTPException(status_code=422, detail=f"{entity.name} has no field named {{', '.join(unknown)}}.")
     item = {entity.name}(**data)
     with _uow:
         getattr(_uow, "{plural_slug}").add(item)
