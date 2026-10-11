@@ -219,3 +219,22 @@ def test_a_record_made_on_opening_is_opened_by_the_client(tmp_path):
 
     assert "openCareInquiry" not in generate_master_client(ENTITY)
     assert "openCareInquiry" not in _clients_block([ENTITY], "CareInquiry")
+
+
+def test_the_client_sends_an_action_to_the_kind():
+    """Verify the page has a way to send an action that is done to no one record.
+
+    id: TST-CLIENT-KIND-ACTION
+    Given: An entity
+    When: Its client is generated
+    Then: It exports a function that posts to the kind's action endpoint and answers the record made and the
+          kind's records afterwards
+    """
+    from onboarding.router_engine import AttributeSpec, EntitySpec
+    from onboarding.skeleton_builder import generate_master_client
+    client = generate_master_client(EntitySpec(name="Order", is_aggregate_root=True, attributes=[
+        AttributeSpec(name="id", type="str", required=True)]))
+
+    assert "export async function sendKindAction(" in client
+    assert "fetch(`${BASE_URL}/action`" in client
+    assert "created: OrderState | null;" in client and "records: OrderState[];" in client

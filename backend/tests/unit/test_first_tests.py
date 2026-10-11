@@ -5,6 +5,7 @@ that into a test is transcription, so one writer does it for every rule of a cla
 each rule's test is then cut out of the answer and judged by the gates on its own.
 """
 import ast
+import os
 
 from onboarding import first_tests
 from onboarding.router_engine import BusinessSpec
@@ -147,3 +148,16 @@ def test_the_writers_that_transcribe_answer_without_thinking():
     provider = llm_provider.PROVIDERS["anthropic"]
 
     assert first_tests.STAGE in provider.unthinking_stages and first_tests.STAGE not in provider.stage_models
+
+
+def test_a_situation_of_several_records_is_built_as_the_lists_an_action_is_handed():
+    """Verify the writer is told what a builder returns when the action takes the stored records.
+
+    id: TST-FIRST-006
+    Given: The first_tests prompt
+    When: It is read
+    Then: A builder returns the lists by their keyword, and the test passes each list by its keyword
+    """
+    path = os.path.join(os.path.dirname(first_tests.__file__), "..", "prompts", "first_tests.md")
+    text = open(path, encoding="utf-8").read()
+    assert "a dict of those lists by their keyword" in text and "passes each list by its keyword" in text

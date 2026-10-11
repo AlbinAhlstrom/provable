@@ -445,9 +445,11 @@ def generate_router_module(entity: EntitySpec) -> str:
 FastAPI Router for {entity.name} (Auto-projected from domain model).
 """
 
+import importlib
 import inspect
 import json
 import os
+import pkgutil
 import re
 import uuid
 from fastapi import APIRouter, HTTPException, status
@@ -561,6 +563,85 @@ class ActionRequest(BaseModel):
     params: Dict[str, Any] = Field(default_factory=dict, description="Keyword arguments for that method")
 
 
+# A rule can depend on records other than the one an action is sent to (what else is booked, what is left of
+# something). A method says which it needs by taking a parameter named after a collection (`{plural_slug}`): it is
+# handed that kind's stored records as a list, and what it leaves in the list is what is stored afterwards.
+def _records() -> List[{entity.name}]:
+    _ensure_seeded()
+    return getattr(_uow, "{plural_slug}").list()
+
+
+def _keep(records: List[{entity.name}]) -> None:
+    """Stores a list a method was handed as the method left it: what it took out is gone, what it added is kept."""
+    repo = getattr(_uow, "{plural_slug}")
+    left = {{id(record) for record in records}}
+    for stored in repo.list():
+        if id(stored) not in left:
+            repo.delete(getattr(stored, "id", ""))
+    for record in records:
+        repo.add(record)
+    _save()
+
+
+def _collections() -> Dict[str, Any]:
+    """Every collection of the app, with the router that keeps it."""
+    from src.entrypoints import routers
+    modules = [importlib.import_module(f"src.entrypoints.routers.{{found.name}}") for found in pkgutil.iter_modules(routers.__path__)]
+    return {{module.router.prefix.rsplit("/", 1)[-1]: module for module in modules if hasattr(module, "router")}}
+
+
+def _hand_over(method: Any, sent: Dict[str, Any]) -> Dict[str, List[Any]]:
+    collections = _collections()
+    return {{name: collections[name]._records() for name in inspect.signature(method).parameters
+            if name in collections and name not in sent}}
+
+
+def _run(method: Any, name: str, sent: Dict[str, Any]) -> Any:
+    """Calls a domain method with what the client sent and the stored records it asks for, and stores those records
+    as it left them. A refusal stores nothing."""
+    handed = _hand_over(method, sent)
+    try:
+        inspect.signature(method).bind(**sent, **handed)
+    except TypeError as exc:
+        raise HTTPException(status_code=422, detail=f"Invalid parameters for '{{name}}': {{exc}}")
+    try:
+        result = method(**sent, **handed)
+    except Exception as exc:  # the domain rejected the action; its state is left as the domain left it
+        raise HTTPException(status_code=400, detail=str(exc) or type(exc).__name__)
+    collections = _collections()
+    for collection, records in handed.items():
+        collections[collection]._keep(records)
+    return result
+
+
+def _action_name(action_type: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", action_type.strip().lower()).strip("_")
+
+
+@router.post("/action")
+def run_{slug}_kind_action(request: ActionRequest):
+    """Runs a domain method that is sent to no one record (it makes a record, or goes through them all): a static
+    or class method of the class. The record it returns is stored and answered as `created`."""
+    _ensure_seeded()
+    name = _action_name(request.action_type)
+    if not isinstance(inspect.getattr_static({entity.name}, name, None), (staticmethod, classmethod)):
+        raise HTTPException(status_code=404, detail=f"Unknown action '{{request.action_type}}' on {plural_slug}.")
+    with _uow:
+        result = _run(getattr({entity.name}, name), name, request.params)
+        repo = getattr(_uow, "{plural_slug}")
+        created = result if isinstance(result, {entity.name}) else None
+        if created is not None:
+            repo.add(created)
+        _uow.commit()
+        _save()
+        return {{
+            "success": True,
+            "created": created.to_dict() if created is not None else None,
+            "records": [i.to_dict() for i in repo.list()],
+            "message": result if isinstance(result, str) else f"{{request.action_type}} completed",
+        }}
+
+
 def _public_actions(item) -> Dict[str, Any]:
     return {{
         name: member for name, member in inspect.getmembers(item, inspect.ismethod)
@@ -573,7 +654,7 @@ def run_{slug}_action(item_id: str, request: ActionRequest):
     """Runs one of the aggregate's own domain methods; the domain decides whether the action is allowed.
     A method that returns a new record of the same kind has made one: it is stored and answered as `created`."""
     _ensure_seeded()
-    name = re.sub(r"[^a-z0-9]+", "_", request.action_type.strip().lower()).strip("_")
+    name = _action_name(request.action_type)
     with _uow:
         repo = getattr(_uow, "{plural_slug}")
         item = repo.get(item_id)
@@ -582,15 +663,7 @@ def run_{slug}_action(item_id: str, request: ActionRequest):
         actions = _public_actions(item)
         if name not in actions:
             raise HTTPException(status_code=404, detail=f"Unknown action '{{request.action_type}}'. Available: {{sorted(actions)}}")
-        method = actions[name]
-        try:
-            inspect.signature(method).bind(**request.params)
-        except TypeError as exc:
-            raise HTTPException(status_code=422, detail=f"Invalid parameters for '{{name}}': {{exc}}")
-        try:
-            result = method(**request.params)
-        except Exception as exc:  # the domain rejected the action; its state is left as the domain left it
-            raise HTTPException(status_code=400, detail=str(exc) or type(exc).__name__)
+        result = _run(actions[name], name, request.params)
         created = result if isinstance(result, {entity.name}) and result is not item else None
         if created is not None:
             repo.add(created)
@@ -851,6 +924,15 @@ export interface ActionResponse {{
   message?: string;
 }}
 
+export interface KindActionResponse {{
+  success: boolean;
+  /** The new record, when the action made one; otherwise null. */
+  created: {name}State | null;
+  /** Every stored record of the kind after the action, in the order they were created. */
+  records: {name}State[];
+  message?: string;
+}}
+
 const BASE_URL = '/api/{plural}';
 
 async function failure(res: Response, what: string): Promise<Error> {{
@@ -890,6 +972,21 @@ export async function sendAction(
     headers: {{ 'Content-Type': 'application/json' }},
     body: JSON.stringify({{ action_type: actionType, params }}),
     keepalive: true, // an action sent as the page is left still reaches the server
+  }});
+  if (!res.ok) throw await failure(res, 'The action');
+  return res.json();
+}}
+
+/** An action sent to no one record: it makes a record, or goes through every record of the kind. */
+export async function sendKindAction(
+  actionType: string,
+  params: Record<string, unknown> = {{}}
+): Promise<KindActionResponse> {{
+  const res = await fetch(`${{BASE_URL}}/action`, {{
+    method: 'POST',
+    headers: {{ 'Content-Type': 'application/json' }},
+    body: JSON.stringify({{ action_type: actionType, params }}),
+    keepalive: true,
   }});
   if (!res.ok) throw await failure(res, 'The action');
   return res.json();

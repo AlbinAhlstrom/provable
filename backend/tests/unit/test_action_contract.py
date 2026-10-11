@@ -112,3 +112,35 @@ def test_red_prompt_promises_the_manifest_methods_of_the_target_class(monkeypatc
                          interface_contract=tm.format_interface_contract(manifest, "CareInquiry"))
     assert "submit_inquiry" in seen["p"] and "email" in seen["p"] and "calculate_estimate" not in seen["p"]
     assert "none: no interface method" in tm.format_interface_contract(manifest, "Other")
+
+
+def test_the_interface_says_which_stored_records_a_method_is_handed():
+    """Verify the writers of a class's tests and code are told the same way to reach other records.
+
+    id: TST-ACT-006
+    Given: A manifest with an action sent to no one record that works with its own kind and another, and an action
+           on one record that works with another kind
+    When: The interface of the class is written out
+    Then: The first is a static method handed both lists by their collection names, the second an ordinary method
+          handed the one list, and the other kind is shown with the fields it is built from
+    """
+    from onboarding.action_protocol import format_interface_contract
+    manifest = {"actions": [
+        {"name": "place_order", "aggregate": "Order", "params": ["dish_id"], "given": ["Order", "Dish"], "on_kind": True},
+        {"name": "cancel_order", "aggregate": "Order", "params": [], "given": ["Dish"], "on_kind": False},
+        {"name": "send_order", "aggregate": "Order", "params": []}],
+        "records": [{"aggregate": "Order", "fields": ["id", "status"]}, {"aggregate": "Dish", "fields": ["id", "price"]}]}
+
+    text = format_interface_contract(manifest, "Order")
+    place, cancel, send = (next(l for l in text.splitlines() if f"`{n}`" in l)
+                           for n in ("place_order", "cancel_order", "send_order"))
+
+    assert "`@staticmethod`" in place and "`Order.place_order(...)`" in place
+    assert "`orders`" in place and "`dishes`" in place and "uuid.uuid4().hex" in place
+    assert "`@staticmethod`" not in cancel and "`dishes`" in cancel and "`orders`" not in cancel
+    assert "removes from its list" in cancel
+    assert "by keyword" not in send
+    # every line says how its method is called: a writer shown one static method wrote the others static too
+    assert "called on that record as `order.send_order(...)`" in send and "`order.cancel_order(...)`" in cancel
+    assert "called on that record" not in place
+    assert "`Dish(id=..., price=...)`" in text and "from src.domain.dish import Dish" in text

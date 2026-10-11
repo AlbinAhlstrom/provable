@@ -204,3 +204,21 @@ def test_an_action_nobody_performs_by_hand_is_the_pages_own_to_send():
     with open(os.path.join(prompts, "presentation_projection_synthesis.md"), encoding="utf-8") as handle:
         page = handle.read()
     assert 'Actions listed under "Actions the page performs by itself"' in page
+
+
+def test_the_page_is_told_which_actions_are_sent_to_the_kind():
+    """Verify the page sends an action done to no one record without an id, and makes records through it.
+
+    id: TST-AUD-KIND-ACTION
+    Given: A manifest with an action sent to the kind and one sent to a record
+    When: The action protocol is written out for the page
+    Then: The first names `sendKindAction` and no id, the second `sendAction` with the record's id
+    """
+    from onboarding.action_protocol import format_action_protocol
+    text = format_action_protocol({"actions": [
+        {"name": "place_order", "aggregate": "Order", "params": ["dish_id"], "on_kind": True, "given": ["Order"]},
+        {"name": "cancel_order", "aggregate": "Order", "params": []}]})
+    place, cancel = (next(l for l in text.splitlines() if f"`{n}`" in l) for n in ("place_order", "cancel_order"))
+
+    assert "`sendKindAction` of `src/api/orderClient.ts`" in place and "no id" in place
+    assert "`sendAction` of `src/api/orderClient.ts`" in cancel and "with the id of that Order" in cancel

@@ -57,12 +57,13 @@ CONTRACT = {
     "fixed": "max_guests = 8; stay_minutes = 90",
     "actions": [
         {"name": "create_booking", "record": "Booking", "performed_by": "audience",
-         "params": ["table_id: text", "guests: whole_number"],
-         "trigger": "Book button, click or tap, \"Book table\"", "does": "creates a Booking with status confirmed"},
-        {"name": "expire_hold", "record": "Booking", "performed_by": "automatic", "params": [],
-         "trigger": "when the page sees the hold has run out", "does": "sets status to cancelled"},
-        {"name": "mark_no_show", "record": "Booking", "performed_by": "other", "params": [], "trigger": "",
-         "does": "sets status to cancelled"},
+         "params": "table_id: text, guests: whole_number", "sent_to": "the_kind",
+         "trigger": "Book button, click or tap, \"Book table\"", "does": "creates a Booking with status confirmed",
+         "works_with": "Booking, Table"},
+        {"name": "expire_hold", "record": "Booking", "performed_by": "automatic", "params": "", "sent_to": "one_record",
+         "trigger": "when the page sees the hold has run out", "does": "sets status to cancelled", "works_with": ""},
+        {"name": "mark_no_show", "record": "Booking", "performed_by": "other", "params": "", "trigger": "",
+         "sent_to": "one_record", "does": "deletes the Booking", "works_with": "Booking"},
     ],
     "read_out": ["Table · button · \"Table {number}, {status wording}\"", "Book button · button · \"Book table\""],
     "refusals": [{"name": "TooManyGuestsError", "action": "create_booking",
@@ -550,3 +551,32 @@ def test_a_part_reached_by_its_place_holds_that_place():
     path = os.path.join(os.path.dirname(pc.__file__), "..", "prompts", "product_contract.md")
     text = open(path, encoding="utf-8").read()
     assert "holds that place as fields of its own" in text
+
+
+def test_an_action_says_which_stored_records_it_is_handed():
+    """Verify the contract decides how an action reaches the records it depends on, so no writer invents a way.
+
+    A rule refused a booking because another booking held the table. The class under test was one booking, and
+    nothing said where the other bookings or the tables were: the code that passed the tests held the tests' own
+    tables and taken hour as constants.
+
+    id: TST-CONTRACT-WORKS-WITH
+    Given: A contract with an action sent to the kind that works with its own kind and another, an action on one
+           record that works with nothing, and one on one record that removes it and so works with its own kind
+    When: Its action manifest is read
+    Then: Each action lists the kinds it is handed and says whether it is sent to one record, its parameters are
+          read from one text, every kind's fields are listed, and the schema and the prompt ask for both
+    """
+    manifest = _contract().action_manifest()
+    by_name = {a["name"]: a for a in manifest["actions"]}
+
+    assert by_name["create_booking"]["given"] == ["Booking", "Table"] and by_name["create_booking"]["on_kind"] is True
+    assert by_name["create_booking"]["params"] == ["table_id", "guests"]
+    assert by_name["expire_hold"]["given"] == [] and by_name["expire_hold"]["on_kind"] is False
+    assert by_name["expire_hold"]["params"] == []
+    assert by_name["mark_no_show"]["given"] == ["Booking"] and by_name["mark_no_show"]["on_kind"] is False
+    assert "sent_to" in pc.CONTRACT_SCHEMA["properties"]["actions"]["items"]["properties"]
+    assert {"aggregate": "Table", "fields": ["id", "seats"]} in manifest["records"]
+    assert "works_with" in pc.CONTRACT_SCHEMA["properties"]["actions"]["items"]["properties"]
+    path = os.path.join(os.path.dirname(pc.__file__), "..", "prompts", "product_contract.md")
+    assert "`works_with`" in open(path, encoding="utf-8").read()

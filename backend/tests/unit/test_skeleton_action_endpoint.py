@@ -144,3 +144,95 @@ def test_a_record_an_action_returns_is_stored_and_answered(tmp_path):
     assert out["stored"] == ["copy of first", "first (copied)"]
     assert out["fetched"] == 200
     assert out["plain_created"] is None
+
+
+HANDED_SCRIPT = textwrap.dedent('''
+    import json, sys
+    from fastapi.testclient import TestClient
+    from src.app import app
+
+    c = TestClient(app)
+    out = {}
+    c.post("/api/dishes", json={"id": "d1", "name": "soup", "left": 1})
+    made = c.post("/api/orders/action", json={"action_type": "place_order", "params": {"dish_id": "d1"}})
+    out["made"] = [made.status_code, made.json()["created"]["dish_id"], len(made.json()["records"])]
+    out["stored"] = [o["dish_id"] for o in c.get("/api/orders").json()]
+    out["dish_left"] = c.get("/api/dishes/d1").json()["left"]
+    again = c.post("/api/orders/action", json={"action_type": "place_order", "params": {"dish_id": "d1"}})
+    out["refused"] = [again.status_code, again.json()["detail"]]
+    out["still_one"] = len(c.get("/api/orders").json())
+    order_id = made.json()["created"]["id"]
+    out["on_record_is_not_on_kind"] = c.post("/api/orders/action", json={"action_type": "cancel"}).status_code
+    out["on_kind_is_not_on_record"] = c.post(f"/api/orders/{order_id}/action", json={"action_type": "place_order", "params": {"dish_id": "d1"}}).status_code
+    out["bad_params"] = c.post("/api/orders/action", json={"action_type": "place_order", "params": {"wrong": 1}}).status_code
+    out["private"] = c.post("/api/orders/action", json={"action_type": "_secret"}).status_code
+    gone = c.post(f"/api/orders/{order_id}/action", json={"action_type": "cancel"})
+    out["cancel"] = gone.status_code
+    out["after_cancel"] = [len(c.get("/api/orders").json()), c.get("/api/dishes/d1").json()["left"]]
+    print("RESULT=" + json.dumps(out))
+''')
+
+
+def test_a_method_is_handed_the_stored_records_it_asks_for(tmp_path):
+    """Verify a rule that depends on other records is enforced by the app and not only by the class's tests.
+
+    The API ran a method on one record and gave it nothing else, and made a record by constructing the class from
+    the request. A product where a person makes records under rules (a table already taken, a dish sold out) had
+    no way to apply them: the class that passed its tests held the tests' own records as constants.
+
+    id: TST-WIRE-003
+    Given: A generated workspace of two kinds, where one class has a static method that takes both kinds' stored
+           records and a method on one record that takes them too
+    When: The static method is sent to the kind's action endpoint and the other to a record's
+    Then: Each is handed the stored records by their collection names; a record appended is stored and answered as
+          `created`, a record removed is gone, a change to a record of the other kind is kept, a refusal is 400 and
+          stores nothing, and neither endpoint runs the other's kind of method
+    """
+    structure = DomainStructureSchema(
+        domain_name="Demo",
+        entities=[
+            EntitySpec(name="Order", is_aggregate_root=True, attributes=[
+                AttributeSpec(name="id", type="str", required=True),
+                AttributeSpec(name="dish_id", type="str", required=False)]),
+            EntitySpec(name="Dish", is_aggregate_root=True, attributes=[
+                AttributeSpec(name="id", type="str", required=True),
+                AttributeSpec(name="name", type="str", required=True),
+                AttributeSpec(name="left", type="int", required=True)]),
+        ],
+        value_objects=[],
+    )
+    ws = str(tmp_path)
+    build_and_write_skeleton(structure, target_dir=ws)
+    with open(os.path.join(ws, "src", "domain", "order.py"), "a", encoding="utf-8") as f:
+        f.write(textwrap.dedent('''
+
+            def _place_order(dish_id, orders, dishes):
+                import uuid
+                dish = next(d for d in dishes if d.id == dish_id)
+                if dish.left < 1:
+                    raise ValueError("sold out")
+                dish.left -= 1
+                order = Order(id=uuid.uuid4().hex, dish_id=dish_id)
+                orders.append(order)
+                return order
+
+
+            def _cancel(self, orders, dishes):
+                next(d for d in dishes if d.id == self.dish_id).left += 1
+                orders.remove(self)
+
+            Order.place_order = staticmethod(_place_order)
+            Order._secret = staticmethod(lambda: None)
+            Order.cancel = _cancel
+        '''))
+
+    proc = subprocess.run([sys.executable, "-c", HANDED_SCRIPT], cwd=ws, capture_output=True, text=True, timeout=60)
+    assert proc.returncode == 0, proc.stderr[-1500:]
+    import json
+    out = json.loads(next(l for l in proc.stdout.splitlines() if l.startswith("RESULT="))[len("RESULT="):])
+
+    assert out["made"] == [200, "d1", 1] and out["stored"] == ["d1"] and out["dish_left"] == 0
+    assert out["refused"] == [400, "sold out"] and out["still_one"] == 1
+    assert out["on_record_is_not_on_kind"] == 404 and out["on_kind_is_not_on_record"] == 404
+    assert out["bad_params"] == 422 and out["private"] == 404
+    assert out["cancel"] == 200 and out["after_cancel"] == [0, 1]

@@ -6,6 +6,7 @@ The test is a pytest module. Each test function asks for the fixture `app`:
 ```python
 app.given(collection, **fields) -> dict            # creates a record with exactly these fields; returns it as the app stores it
 app.act(collection, record_id, action, **params) -> dict   # performs an action through the API; returns the record afterwards
+app.act_on_kind(collection, action, **params) -> dict | None   # performs an action done to no one record; returns the record it made
 app.records(collection) -> list[dict]              # every record of a collection, as the API returns them
 app.record(collection, record_id) -> dict
 page = app.open(width=1280, height=800)            # opens the app in a browser; a Playwright sync Page

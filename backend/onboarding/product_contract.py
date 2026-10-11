@@ -40,6 +40,8 @@ ORIGINS = {CREATED: "a person creates it with the page", OPENED: "the page creat
            FROM_START: "exists from the start"}
 API_RULE, PAGE_RULE = "api", "page"
 AUDIENCE, AUTOMATIC, OTHER = "audience", "automatic", "other"
+# What an action is sent to: one record of its kind, or the kind (it makes a record, or goes through them all)
+ONE_RECORD, THE_KIND = "one_record", "the_kind"
 LEFT_OUT = "(left out"
 
 _TEXT = {"type": "string"}
@@ -76,8 +78,9 @@ CONTRACT_SCHEMA: Dict[str, Any] = _object(
     records=_list(_object(name=_TEXT, origin=_one_of(CREATED, OPENED, FROM_START), fields=_list(_FIELD), shown=_TEXTS,
                           starting_records=_TEXT)),
     fixed=_TEXT,
-    actions=_list(_object(name=_TEXT, record=_TEXT, performed_by=_one_of(AUDIENCE, AUTOMATIC, OTHER), params=_TEXTS,
-                          trigger=_TEXT, does=_TEXT)),
+    actions=_list(_object(name=_TEXT, record=_TEXT, sent_to=_one_of(ONE_RECORD, THE_KIND),
+                          performed_by=_one_of(AUDIENCE, AUTOMATIC, OTHER), params=_TEXT, trigger=_TEXT, does=_TEXT,
+                          works_with=_TEXT)),
     read_out=_TEXTS,
     situations=_TEXTS,
     refusals=_list(_object(name=_TEXT, action=_TEXT, raised_when=_TEXT, sentence=_TEXT, appears=_TEXT)),
@@ -181,9 +184,15 @@ class Action:
     name: str
     record: str
     performed_by: str = AUDIENCE
-    params: List[str] = field(default_factory=list)   # each as `name: type`
+    params: List[str] = field(default_factory=list)   # each as `name: type`; the contract gives them as one text
+    sent_to: str = ONE_RECORD
     trigger: str = ""    # of the audience: the part, the gesture and the label; automatic: when the page sends it
     does: str = ""
+    works_with: str = ""  # the kinds of stored record it is handed, by record name, separated by commas
+
+    def __post_init__(self) -> None:
+        if isinstance(self.params, str):
+            self.params = [entry.strip() for entry in self.params.split(",") if entry.strip()]
 
 
 @dataclass
@@ -308,9 +317,18 @@ class ProductContract:
             moment = f" The page sends it {action.trigger}." if action.performed_by == AUTOMATIC and action.trigger else ""
             return f"{action.does}{moment}".strip()
 
+        kinds = [r.name for r in self.records]
+
+        def handed(action: Action) -> List[str]:
+            named = [name.strip() for name in action.works_with.split(",")]
+            return [kind for kind in dict.fromkeys(named) if kind in kinds]
+
         return {
             "actions": [{"name": a.name, "aggregate": a.record, "performed_by": a.performed_by,
-                         "params": [p.split(":")[0].strip() for p in a.params], "description": describe(a)} for a in self.actions],
+                         "params": [p.split(":")[0].strip() for p in a.params], "description": describe(a),
+                         "given": handed(a), "on_kind": a.sent_to == THE_KIND} for a in self.actions],
+            "records": [{"aggregate": r.name, "fields": ["id"] + [f.name for f in r.fields if f.name != "id"]}
+                        for r in self.records],
             "starting_states": [{"aggregate": r.name, "description": self._starting_state(r),
                                  "held_by_defaults": all(f.starts_by_default() for f in r.fields)} for r in self.records],
             "vocabulary": [{"aggregate": r.name, "field": f.name, "values": f.vocabulary()}

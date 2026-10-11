@@ -93,6 +93,9 @@ def _clients_block(presented: List[Any], master_name: str) -> str:
         role = _ROLE_TEXT.get(getattr(ent.audience_role, "value", ent.audience_role), "internal").replace("{n}", n)
         if n == master_name:
             role = "the master: " + role if getattr(ent.audience_role, "value", None) == "created_by_audience" else "the master"
+        kind_action = (f", and `sendKindAction(actionType: string, params?: Record<string, unknown>): Promise<{{ success: "
+                       f"boolean; created: {n}State | null; records: {n}State[]; message?: string }}>` for an action "
+                       f"done to no one `{n}`")
         needed = [a.name for a in ent.attributes if a.required and a.default_value is None and a.name != "id"]
         create_note = (f" (the server assigns `id`; the data must carry: {', '.join(f'`{a}`' for a in needed)}, with a "
                        f"value the form works out itself for any the visitor does not enter)") if needed else " (the server assigns `id`)"
@@ -104,11 +107,11 @@ def _clients_block(presented: List[Any], master_name: str) -> str:
                 f"starting state when none exists; the page calls it once when the page opens and shows what it returns, "
                 f"so the page never lists or creates a `{n}` itself to get going), `list{n}(): Promise<{n}State[]>`, "
                 f"`get{n}(id: string)`, `create{n}(data: Partial<{n}State>)` (the server assigns `id`) and "
-                f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; created: {n}State | null; message?: string }}>`.")
+                f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; created: {n}State | null; message?: string }}>`{kind_action}.")
             continue
         lines.append(f"- `src/api/{_to_snake_case(n)}Client.ts` ({role}) exports exactly: `{n}State` (the type of one record), "
                      f"`list{n}(): Promise<{n}State[]>`, `get{n}(id: string)`, `create{n}(data: Partial<{n}State>)`{create_note} and "
-                     f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; created: {n}State | null; message?: string }}>`.")
+                     f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; created: {n}State | null; message?: string }}>`{kind_action}.")
     return "\n".join(lines)
 
 

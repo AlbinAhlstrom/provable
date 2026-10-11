@@ -61,6 +61,11 @@ class App:
         self._call("POST", f"/api/{collection}/{record_id}/action", {"action_type": action, "params": params})
         return self.record(collection, record_id)
 
+    def act_on_kind(self, collection: str, action: str, **params) -> dict:
+        """Performs an action done to no one record (it makes one, or goes through them all) and returns the record
+        it made, or None."""
+        return self._call("POST", f"/api/{collection}/action", {"action_type": action, "params": params})["created"]
+
     def records(self, collection: str) -> list:
         return self._call("GET", f"/api/{collection}")
 

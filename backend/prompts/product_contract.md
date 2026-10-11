@@ -53,10 +53,12 @@ Every number or wording the rules depend on that never changes (a limit, opening
 
 ### `actions`
 An action is something the page sends to the API that creates or changes a record; picking and typing before that are not actions. One entry per action:
-- `name`, the `record` it is sent to, and its `params`, each as `name: type`.
+- `name`, the `record` it is sent to, and its `params` as one text of `name: type` entries separated by commas (empty when it has none).
+- `sent_to`: `one_record` when it is done to one record that exists (a move in a game, a line added to one order, an entry ticked off or removed); that record's id is not among its params. `the_kind` when there is no one record it is done to: it makes a record, or goes through every record of its kind (a booking made, an entry added, the finished entries cleared).
 - `performed_by`: `audience`; `automatic` when it happens by itself while the product is in use, and the page sends it when its moment comes; or `other` when it is done by whoever runs the product, with no control on the page.
 - `trigger`: for an action of the audience, the part it is done on, the gesture (both mouse and finger where they differ), and the exact label a person reads on it, in quotes, if it has one. For an automatic action, the moment the page sends it, as words that complete "the page sends it ...". Empty for `other`.
 - `does`: everything it changes, in the fields and values of `records`, including what follows from it in the same moment (a result recorded, a total brought up to date, a status that moves on). Nothing changes a record except an action listed here.
+- `works_with`: the kinds of stored record the action is handed, as record names separated by commas; empty for an action that reads and changes only the one record it is sent to. The code of an action sees the record it is sent to and the records of the kinds listed here, and nothing else, so every kind a rule of the action reads or changes is listed. An action sent to the kind lists its own kind, which it adds to or goes through (one that books a seat lists the bookings, which say what is taken, and the showings, whose seats it marks). An action that removes the record it is sent to lists its own kind as well: a record is removed by taking it out of the records of its kind.
 
 Where an action depends on the present moment (what is past, what is due, how long something took), it takes that moment from the API's clock; where it depends on chance (what is dealt, where something is placed), `does` says what must hold of the outcome whatever the chance.
 

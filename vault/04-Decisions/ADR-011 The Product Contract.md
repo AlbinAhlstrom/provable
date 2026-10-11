@@ -147,6 +147,41 @@ Measured as one domain round on recorded contracts: the minesweeper's twelve rul
 tests 8 s, one test written again 11 s, the class 43 s), all fulfilled, 0.11 SEK; a booking product's seven rules in
 25 s with two calls (6 s, 16 s), all fulfilled, 0.04 SEK. The class is now what the round waits for.
 
+## An action is handed the records it works with
+A rule can depend on records other than the one an action is done to: a table is taken because another booking
+holds it, a party is too large for the seats of a table. The generated API ran a method on one record and gave it
+nothing else, and made a record by constructing the class from the request, so no such rule could be applied.
+Tests still passed: on a restaurant contract the class that fulfilled ten of ten rules held the tests' own tables
+and taken hour as module constants.
+
+- **The contract says it.** Each action has `sent_to` (`one_record`, or `the_kind` when it makes a record or goes
+  through them all) and `works_with` (the kinds of stored record it reads or changes, its own kind included when it
+  adds to or removes from it). `params` became one text to keep the schema inside the provider's limit (65).
+- **Every writer reads the same sentence** (`action_protocol.format_interface_contract`): an action on the kind is a
+  `@staticmethod` called on the class, an action on one record an ordinary method; each takes, by keyword, the
+  list of every stored record of each kind it works with, named as the collection (`bookings`, `tables`). The lists
+  are the stored records: a record made is appended and returned, a record deleted is taken out.
+- **The API does it** (`skeleton_builder.generate_router_module`): `POST /api/<plural>/action` runs a static or
+  class method, `POST /api/<plural>/{id}/action` a method of one record. Either hands the method the stored records
+  of every collection its signature names and stores each list as the method left it; a refusal stores nothing.
+  The page reaches the first through `sendKindAction` of the kind's client, and makes a record through the action
+  and not through `create`.
+
+Measured, one live domain round per contract, no test sent back and one code answer unless said:
+
+| Product | Seconds | Calls | Rules fulfilled |
+| --- | --- | --- | --- |
+| Restaurant booking | 22 | 2 | 10 of 10 |
+| Shopping list | 15 | 2 | 8 of 8 |
+| Cinema seats | 22 | 2 | 6 of 6 |
+| Minesweeper (one record, as before) | 90 | 4 (a second code answer, one test reconsidered) | 15 of 15 |
+
+The restaurant class of that round, behind a newly generated API, refused a second booking of the same table and
+hour and a party larger than the table, and took the booking after the first was cancelled.
+
+Open: no kickstart has run with it, so the page's use of `sendKindAction` is unproved. The ids of records that
+exist from the start are still chosen by the seed step, not by the contract.
+
 ## Consequences
 - The front is one stage (`contract`) of some 25 to 40 s in place of five.
 - Later writers read the contract's brief where they read the expanded pitch. The stored specification also holds

@@ -17,8 +17,10 @@ def _line(act: Dict[str, Any], with_client: bool = False) -> str:
     owner = ""
     if with_client and act.get("aggregate"):
         from onboarding.skeleton_builder import to_snake_case
-        owner = (f" on `{act['aggregate']}` (`sendAction` of `src/api/{to_snake_case(str(act['aggregate']))}Client.ts`, "
-                 f"with the id of that {act['aggregate']})")
+        client = f"`src/api/{to_snake_case(str(act['aggregate']))}Client.ts`"
+        owner = (f" on `{act['aggregate']}` (`sendKindAction` of {client}: it is done to no one {act['aggregate']}, so "
+                 f"it takes no id)" if act.get("on_kind") else
+                 f" on `{act['aggregate']}` (`sendAction` of {client}, with the id of that {act['aggregate']})")
     return f"- Action `{act.get('name', 'action')}`{owner}: params [{params}]{desc}"
 
 
@@ -84,11 +86,46 @@ def shared_words(manifest: Optional[Dict[str, Any]], aggregate: str) -> list:
     return lines
 
 
+def collection_name(aggregate: str) -> str:
+    """The name a kind's stored records go by: the keyword a method is handed them under, and their path in the API."""
+    from onboarding.skeleton_builder import _pluralize, to_snake_case
+    return _pluralize(to_snake_case(aggregate))
+
+
+def _handed(act: Dict[str, Any], aggregate: str) -> str:
+    """How a method reaches the stored records its action works with, in the words every writer of the class reads.
+    The API hands them over by these keywords and stores what the method leaves in them (the generated router)."""
+    from onboarding.skeleton_builder import to_snake_case
+    given = [str(kind) for kind in act.get("given") or []]
+    lists = " and ".join(f"`{collection_name(kind)}` (the list of every stored `{kind}` object)" for kind in given)
+    one = (f" It is done to one `{aggregate}`: an ordinary method, called on that record as "
+           f"`{to_snake_case(aggregate)}.{act['name']}(...)`.")
+    if not given:
+        return "" if act.get("on_kind") else one
+    if act.get("on_kind"):
+        return (f" It is sent to no one `{aggregate}`: it is a `@staticmethod` of `{aggregate}`, called as "
+                f"`{aggregate}.{act['name']}(...)`. Besides its params it takes, by keyword, {lists}. These lists are "
+                f"the stored records and nothing else is: it reads them, finds in them the record a param names by its "
+                f"id, appends a record it makes (with a new `id` from `uuid.uuid4().hex`), removes a record it deletes, "
+                f"and returns the `{aggregate}` it made (None when it makes none).")
+    return (f"{one} Besides its params it takes, by keyword, {lists}: the stored records and nothing else is, which "
+            f"it reads and may change; a record it deletes it removes from its list.")
+
+
 def format_interface_contract(manifest: Optional[Dict[str, Any]], aggregate: str) -> str:
     """The methods the interface has been told an aggregate offers, for the test/code stages that write them. The
     action protocol is fixed before the specs run, so the TDD loop must give the methods these names, not its own."""
-    lines = [_line(a) for a in ((manifest or {}).get("actions") or [])
-             if isinstance(a, dict) and a.get("name") and a.get("aggregate") == aggregate]
+    own = [a for a in ((manifest or {}).get("actions") or [])
+           if isinstance(a, dict) and a.get("name") and a.get("aggregate") == aggregate]
+    lines = [_line(a) + _handed(a, aggregate) for a in own]
+    from onboarding.skeleton_builder import to_snake_case
+    others = list(dict.fromkeys(str(kind) for a in own for kind in a.get("given") or [] if kind != aggregate))
+    fields = {str(r.get("aggregate")): r.get("fields") or [] for r in (manifest or {}).get("records") or []
+              if isinstance(r, dict)}
+    for kind in others:  # the other kinds a method is handed: how a test builds one, and what the code reads of it
+        built = ", ".join(f"{name}=..." for name in fields.get(kind) or ["id"])
+        lines.append(f"- A stored `{kind}` is built as `{kind}({built})`, after `from src.domain.{to_snake_case(kind)} "
+                     f"import {kind}`.")
     start = starting_state(manifest, aggregate)
     if start:
         lines.append(f"- A newly created `{aggregate}` (constructed with only its required fields) holds: {start}")

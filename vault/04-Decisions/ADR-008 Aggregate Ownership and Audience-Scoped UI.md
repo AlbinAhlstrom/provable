@@ -10,6 +10,7 @@ Merging the one-shot UI/domain synthesizer with the spec-by-spec TDD loop expose
 
 ## Decisions
 - **The skeleton and the TDD loop own the aggregate.** `domain_engine_synthesizer.synthesize_action_protocol` writes no code; it returns an action manifest only. Every generated router exposes `POST /api/<aggregates>/{id}/action`, which calls the aggregate's own public method (deterministic WIRE step; domain errors are 400, unknown action 404, wrong parameters 422).
+- **An action done to no one record has an endpoint of its own.** `POST /api/<aggregates>/action` runs a static method of the class (it makes a record, or goes through them all), and both endpoints hand a method the stored records its signature names. See [[ADR-011 The Product Contract]].
 - **Intent reaches every stage that designs behavior or UI** (expansion, decomposition, action protocol, UX plan, presentation), not only the first.
 - **The UI serves the audience only.** Each action declares `performed_by` (`audience`, `other`, or `automatic` for what happens by itself, which the page sends without a control). `onboarding/action_protocol.format_action_protocol` lists `other` actions as API-only and the UI prompts forbid controls for them.
 - **No silent fallback in the expander:** an expansion failure raises `ExpansionError` (policy in .claude/rules/pipeline.md, retry policy).
