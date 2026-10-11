@@ -55,7 +55,7 @@ Entities marked "shown to the audience" hold content the business publishes (off
 
 ## Forms that create records
 A form reports success only after its `create...` call resolves, and shows the server's message when it fails. It never reports success on its own.
-Each label is bound to its control (`htmlFor` and `id`), and the control matches the field's type (a field that holds a date and a time gets a date-and-time picker). The payload holds what the visitor entered: an optional field left empty is left out of it.
+Each label is bound to its control (`htmlFor` and `id`), and the control matches the field's type (a field that holds a date and a time gets a date-and-time picker). The payload holds what the visitor entered: an optional field left empty is left out of it. A control is read out by its label and nothing else: a mark drawn beside the label to show a state the control already announces (a tick on the chosen entry of a menu, a dot on the open tab, a star on a favourite) is hidden from that name (`aria-hidden`), so the control is named the same in every state.
 
 ---
 

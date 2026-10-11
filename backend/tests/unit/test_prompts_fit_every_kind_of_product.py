@@ -198,3 +198,18 @@ def test_a_page_test_judges_what_the_rule_names_not_how_the_app_keeps_it():
     page_test = _prompt("page_test_generation.md")
     assert "assert the values the rule names" in page_test
     assert "How the app keeps a thing is its own choice" in page_test
+
+
+def test_a_control_is_named_the_same_in_every_state():
+    """Verify a mark that shows a control's state stays out of the name the control is read out by (the tick on the
+    chosen entry of a menu was part of its name, so the entry was "Custom" until chosen and something else after,
+    and a page test that chose it could not find it a second time).
+
+    id: TST-KINDS-012
+    Given: The prompt of the page
+    When: It is read
+    Then: A mark beside a label that shows a state the control already announces is hidden from the control's name
+    """
+    page = _prompt("presentation_projection_synthesis.md")
+    assert "is hidden from that name (`aria-hidden`)" in page
+    assert "the control is named the same in every state" in page
