@@ -5,6 +5,7 @@ UX plan), each re-reading the one before and free to name things its own way. Th
 domain structure, the rule deck, the action manifest, the intent and the page's blueprint are read out of it by
 code, so they cannot disagree.
 """
+import os
 import copy
 import json
 
@@ -73,15 +74,15 @@ CONTRACT = {
     "rules": [
         {"kind": "api", "title": "A booking holds its table", "action": "create_booking",
          "given": "two_tables_free", "when": "create_booking(table_id of Table 1, guests 2)",
-         "then": "a Booking with status confirmed", "sees": "\"Table 1, taken\"", "states_limit": False,
+         "then": "a Booking with status confirmed", "sees": "\"Table 1, taken\"",
          "plain": "Given a free table, When a guest books it for two, Then the table is theirs"},
         {"kind": "api", "title": "No more than eight guests", "action": "create_booking",
          "given": "two_tables_free", "when": "create_booking with guests 9", "then": "TooManyGuestsError, nothing changes",
-         "sees": "the sentence under the form", "states_limit": True,
+         "sees": "the sentence under the form",
          "plain": "Given a free table, When a guest asks for nine seats, Then they are told eight is the most"},
         {"kind": "page", "title": "Book button waits for a table", "action": "",
          "given": "two_tables_free, no table chosen", "when": "the page opens", "then": "",
-         "sees": "\"Book table\" is unavailable", "states_limit": False,
+         "sees": "\"Book table\" is unavailable",
          "plain": "Given no table is chosen, When a guest arrives, Then booking is not yet offered"},
     ],
 }
@@ -134,7 +135,7 @@ def test_the_rules_of_the_contract_are_the_rule_deck():
     assert first.given_when_then == ("Given two_tables_free, When create_booking(table_id of Table 1, guests 2), "
                                      "Then a Booking with status confirmed")
     assert "Table 1, taken" in first.description
-    assert limit.is_mathematical_boundary and not first.is_mathematical_boundary
+    assert not limit.is_mathematical_boundary and not first.is_mathematical_boundary
     assert page.given_when_then == ('Given two_tables_free, no table chosen, When the page opens, '
                                     'Then "Book table" is unavailable')
 
@@ -513,3 +514,39 @@ def test_a_rule_names_the_action_it_proves():
     Then: The first two carry the action's name, the page's rule carries none
     """
     assert [spec.action for spec in _contract().specs()] == ["create_booking", "create_booking", ""]
+
+
+def test_a_limit_is_two_rules_and_no_flag():
+    """Verify a rule of the contract is one call with one outcome, also where it states a limit.
+
+    A flag on the rule made the test gate ask for both sides of the limit in that one rule's test. The contract had
+    already written the two sides as two rules (or the rule refused nothing at all), so the first test was sent
+    back to a writer every time.
+
+    id: TST-CONTRACT-LIMIT
+    Given: The contract's schema and prompt
+    When: They are read
+    Then: A rule has no limit flag, and the prompt asks for the value at the limit and the value past it as two rules
+    """
+    rule = pc.CONTRACT_SCHEMA["properties"]["rules"]["items"]["properties"]
+    assert "states_limit" not in rule
+    path = os.path.join(os.path.dirname(pc.__file__), "..", "prompts", "product_contract.md")
+    text = open(path, encoding="utf-8").read()
+    assert "states_limit" not in text and "A limit is two rules" in text
+
+
+def test_a_part_reached_by_its_place_holds_that_place():
+    """Verify the contract decides how a part is found, so no writer after it has to.
+
+    A contract's rules spoke of the part at a row and a column, and its parts held no such fields. The writer of the
+    class's tests gave every part the two keys, the class was written to need them, and every test that arranged
+    the parts as the contract lists them (the page's tests) broke on the first action.
+
+    id: TST-CONTRACT-PART-PLACE
+    Given: The contract's prompt
+    When: It is read
+    Then: It asks for a part that is reached by where it is to hold that place as fields of its own
+    """
+    path = os.path.join(os.path.dirname(pc.__file__), "..", "prompts", "product_contract.md")
+    text = open(path, encoding="utf-8").read()
+    assert "holds that place as fields of its own" in text

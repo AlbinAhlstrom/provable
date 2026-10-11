@@ -82,7 +82,7 @@ CONTRACT_SCHEMA: Dict[str, Any] = _object(
     situations=_TEXTS,
     refusals=_list(_object(name=_TEXT, action=_TEXT, raised_when=_TEXT, sentence=_TEXT, appears=_TEXT)),
     rules=_list(_object(kind=_one_of(API_RULE, PAGE_RULE), title=_TEXT, action=_TEXT, given=_TEXT, when=_TEXT,
-                        then=_TEXT, sees=_TEXT, plain=_TEXT, states_limit={"type": "boolean"})),
+                        then=_TEXT, sees=_TEXT, plain=_TEXT)),
 )
 
 
@@ -205,7 +205,6 @@ class Rule:
     then: str = ""
     sees: str = ""       # which parts then read what, in the names of `read_out`
     plain: str = ""      # the rule as a person who uses the product says it: what a card shows
-    states_limit: bool = False
 
 
 @dataclass
@@ -289,8 +288,7 @@ class ProductContract:
                 given_when_then=f"Given {rule.given}, When {rule.when}, Then {outcome}",
                 plain=rule.plain, situation=self._situation_of(rule.given), action=rule.action,
                 target_aggregate=self._record_of(rule.action) if rule.action else self._worked_on().name,
-                kind=(SpecKind.PRESENTATION if page_only else SpecKind.BEHAVIOR).value,
-                is_mathematical_boundary=rule.states_limit))
+                kind=(SpecKind.PRESENTATION if page_only else SpecKind.BEHAVIOR).value))
         return specs
 
     def _situation_of(self, given: str) -> str:
