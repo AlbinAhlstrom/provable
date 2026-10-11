@@ -2202,8 +2202,8 @@ def kickstart_domain_and_scaffold(
         try:
             # Spec review, seed data, and action protocol -> presentation: run alongside each other (synthesis_stages.py)
             from onboarding.synthesis_stages import run_synthesis_stages
-            from onboarding.spec_runner import draft_behaviour_tests, run_behaviour_specs
-            from service_layer.tdd_batch import draft_tests, execute_specs_together
+            from onboarding.domain_round import run_domain_round
+            from service_layer.tdd_batch import execute_specs_together
 
             def _store_action_manifest(manifest: Dict[str, Any]) -> None:
                 with uow:  # kept so the manifest can later be checked against the methods the TDD loop wrote
@@ -2212,18 +2212,14 @@ def kickstart_domain_and_scaffold(
                     uow.kickstart.save(manifest_state)
                     uow.commit()
 
-            def synthesis_manifest() -> Dict[str, Any]:
-                with type(uow)() as manifest_uow:
-                    return dict(manifest_uow.kickstart.get().action_manifest or {})
-
             synthesis = run_synthesis_stages(
                 pitch=pitch_text, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,
                 intent=product_intent, on_action_manifest=_store_action_manifest, **front.stage_overrides(),
-                drafts=lambda deck: draft_behaviour_tests(deck, lambda batch: draft_tests(
-                    batch, workspace_dir, action_manifest=synthesis_manifest())),
-                specs=lambda deck, report, drafted: run_behaviour_specs(deck, lambda batch, done: execute_specs_together(
-                    batch, workspace_dir, action_manifest=synthesis_manifest(), drafts=drafted, on_result=lambda spec, result: (
-                        record_tdd_result(spec.spec_id, result, uow=type(uow)()), done(spec, result))), report=report))
+                domain=lambda manifest, deck, report: run_domain_round(
+                    manifest, deck, workspace_dir, report=report,
+                    execute=lambda batch, done: execute_specs_together(batch, workspace_dir, action_manifest=manifest,
+                                                                       on_result=done),
+                    on_rule=lambda spec, result: record_tdd_result(spec.spec_id, result, uow=type(uow)())))
             spec_conflicts = synthesis.spec_conflicts
             stage_failures.extend(synthesis.failures)
             timings.update(synthesis.timings)

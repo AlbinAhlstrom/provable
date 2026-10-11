@@ -58,12 +58,12 @@ graph LR
 
 The action protocol only names the actions the page offers, and the generated API runs an action by calling the method
 of that name on the aggregate. A kickstart that stops there produces a page on which every action answers "Unknown
-action". So the kickstart's `action_behaviour` stage (`backend/onboarding/action_behaviour.py`) runs right after the
-action protocol, alongside the presentation:
+action". So the kickstart's domain round (`backend/onboarding/domain_round.py`, stage `behaviour_specs`) runs right after the
+action protocol, alongside the presentation, and takes the actions and the rule deck through the test loop as one batch:
 
-- One spec per aggregate states all of its actions (name, parameters, what each changes), and goes through the same
-  TDD loop as every later spec: a RED test, GREEN, the regression gate.
-- Its test is kept as `tests/unit/test_spec_act_<aggregate>.py`, so later specs are written knowing it and cannot break
+- One spec per action (name, parameters, what it changes), and one for what a new object holds, go through the same
+  TDD loop as every rule: a RED test, GREEN, the regression gate.
+- Each test is kept as `tests/unit/test_spec_act_<aggregate>_<action>.py`, so later specs are written knowing it and cannot break
   an action unnoticed.
 - The code is then compared with the manifest. An action without a method fails the stage by name and the run is
   DEGRADED; nothing is stubbed.
@@ -80,12 +80,8 @@ After the actions, the rule deck's behaviour specs are written together (`backen
 `backend/service_layer/tdd_batch.py`, stage `behaviour_specs`):
 
 - RED, side by side: every spec gets its test through the single loop's RED phase (lint, RED gate, hollow check, one
-  regeneration with the verdict fed back). The tests are judged against the class as the action stage left it.
-  In a kickstart the first test of every spec is written ahead of that, while the actions are implemented (stage
-  `rule_tests`, `tdd_batch.draft_tests`): the writer is given the hollow class and the action protocol, as the
-  actions' own test writer is. The drafts are kept as text until the loop starts, because the action loop's
-  regression run covers `tests/unit`. A draft is then the spec's first attempt; nothing about the gates changes. A
-  draft that could not be written (a provider error) fails its spec with that reason.
+  regeneration with the verdict fed back). In a kickstart the tests are judged against the class as the skeleton left it: the actions' specs are in the
+  same batch, so no rule waits for an action to be implemented.
 - GREEN, once per class: one code answer implements every rule of the class. `tests/unit` is run and each spec is
   judged by its own test file; tests still failing are fed back for the one retry.
 - The answer kept is the one that leaves the fewest of the batch's tests failing among those that break no earlier
@@ -104,8 +100,8 @@ After the actions, the rule deck's behaviour specs are written together (`backen
   the first (a mating move drawn through the mover's own king); at medium it takes up to a minute and holds.
 - Each test writer is shown the other rules of its class (title and scenario), and arranges a situation in which
   its own rule decides the outcome alone. Written without them, a turn-order test on two kings and a knight
-  expected play to go on where another rule of the deck ends the game as a draw. The writer of the actions' test
-  is shown the deck too (`implement_actions(rules=...)`).
+  expected play to go on where another rule of the deck ends the game as a draw. The writers of the actions' tests
+  are shown the deck too: they are in the same batch.
 - A deck's tests are peers. One that passed before any code was written (the action stage's class already met it)
   is judged with the batch: an answer that fails it leaves that one rule unfulfilled, and its test is reconsidered
   like any other. Treated as an earlier verified test it vetoed every answer, and one wrong test cost a build 19

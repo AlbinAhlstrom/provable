@@ -70,25 +70,3 @@ def test_a_deck_without_behaviour_specs_is_skipped():
     """
     result = run_behaviour_specs([_spec("SPEC-001", SpecKind.PRESENTATION.value)], lambda batch, done: 1 / 0)
     assert result.success and result.skipped
-
-
-def test_only_behaviour_specs_get_a_drafted_test():
-    """Verify the tests written ahead are for the same specs the loop will run.
-
-    id: TST-SPECRUN-DRAFT
-    Given: Two behaviour specs with a presentation spec between them; and a deck with no behaviour spec
-    When: Their tests are drafted
-    Then: The writer is given the two behaviour specs and its answer is returned; for the other deck it is not called
-    """
-    from onboarding.spec_runner import draft_behaviour_tests
-
-    seen = []
-
-    def write(batch):
-        seen.append([spec.spec_id for spec in batch])
-        return {spec.spec_id: "test" for spec in batch}
-
-    deck = [_spec("SPEC-001"), _spec("SPEC-002", SpecKind.PRESENTATION.value), _spec("SPEC-003")]
-    assert draft_behaviour_tests(deck, write) == {"SPEC-001": "test", "SPEC-003": "test"}
-    assert seen == [["SPEC-001", "SPEC-003"]]
-    assert draft_behaviour_tests([_spec("SPEC-002", SpecKind.PRESENTATION.value)], lambda batch: 1 / 0) == {}

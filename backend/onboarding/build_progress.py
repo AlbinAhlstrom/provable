@@ -41,11 +41,9 @@ STAGE_LABELS = {
     "seed_data": "Writing starting content",
     "ux_plan": "Planning the page and its look",
     "action_protocol": "Naming what people can do",
-    "action_behaviour": "Making each action work",
     "presentation": "Writing the page",
     "page_revisit": "Matching the page to the finished actions",
-    "rule_tests": "Writing a test for every rule",
-    "behaviour_specs": "Making the app pass every rule's test",
+    "behaviour_specs": "Writing a test for every action and rule, and making the app pass them",
     "qa": "Checking the page on phone, tablet and desktop",
     "visual_review": "Reviewing how the page looks",
 }

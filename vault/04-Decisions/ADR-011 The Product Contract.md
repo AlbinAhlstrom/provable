@@ -1,6 +1,7 @@
 # ADR-011: The product contract, one answer everything is built from
 
-Status: accepted, first step implemented (the front of a kickstart). The later steps are listed under "Order of work".
+Status: accepted, first two steps implemented (the front of a kickstart, and the domain in one round). The later
+steps are listed under "Order of work".
 Replaces, for a live kickstart, the separate steps of [[ADR-007 Product Intent Step]] and the expansion,
 decomposition, action protocol and UX plan that followed it. Builds on
 [[ADR-010 One Kind of Rule Proved on the Page]].
@@ -38,7 +39,13 @@ comparable product elsewhere. The timeline of that run:
    page as ADR-010 says. The spec kinds `behavior` and `presentation` carry this distinction and nothing else.
 6. **No contract, no build.** A provider error or an answer that is no contract fails the kickstart with the reason.
    Nothing is retried and nothing falls back to the earlier front.
-7. **The earlier front stays for comparison.** An offline or mock kickstart runs it (no model is called), and a live
+7. **The domain is written in one round.** The actions' methods and the deck's rules used to be two passes of the
+   test loop, the second waiting for the first (61 s, then 52 s). Both are named before either starts, so they are
+   one batch (`backend/onboarding/domain_round.py`): every first test side by side (one per action, one per rule,
+   one for what a new object holds), then one code answer per class. Measured alone on the same contract: 57 s,
+   every action and all 15 rules fulfilled. Writing first tests ahead of the loop, which only existed to fill the
+   wait, is gone.
+8. **The earlier front stays for comparison.** An offline or mock kickstart runs it (no model is called), and a live
    one does with `KICKSTART_FRONT=stages`, so the two can be measured on the same pitch
    (`backend/onboarding/kickstart_front.py`).
 
@@ -52,8 +59,7 @@ comparable product elsewhere. The timeline of that run:
 
 ## Order of work
 1. Done: the contract as the front of a live kickstart.
-2. The test writers start from the contract: domain tests from the rules, page tests from the read-out names,
-   both before the code they test exists.
-3. Backend and page are written once, side by side, from the contract; the page is not sent back when a class
-   gains a field, because the contract already names every field.
-4. One test run at the end, and a fix-up that is an emergency exit, not a stage to rely on.
+2. Done: the domain's tests are written from the contract's actions and rules in one round, before the code.
+3. Page tests are written from the read-out names while the page is written, before it exists.
+4. The page is not sent back when a class gains a field, because the contract already names every field.
+5. One test run at the end, and a fix-up that is an emergency exit, not a stage to rely on.

@@ -32,11 +32,6 @@ What is kept afterwards:
 
 Classes are implemented one after another (the regression run covers the whole folder); the tests of classes still
 waiting are ignored in that run.
-
-The first tests can be written ahead of the loop (`draft_tests`): a kickstart writes them while the actions' methods
-are being written, from the same action protocol. They are kept as text until the loop starts, because a test that
-cannot pass yet must not sit in `tests/unit` while another loop's regression run covers that folder. A draft then
-passes the RED phase as any first test does, judged against the class as the action stage left it.
 """
 
 import os
@@ -81,7 +76,6 @@ testing this rule in a situation where it applies and no other rule interferes. 
 exactly as it is."""
 
 Approved = Tuple[BusinessSpec, RedOutcome]
-Drafts = Dict[str, Any]  # by spec id: the first test's code, or the error that kept it from being written
 
 
 def rules_spec(class_name: str, specs: List[BusinessSpec]) -> BusinessSpec:
@@ -274,34 +268,6 @@ def reconsider_test(spec: BusinessSpec, red: RedOutcome, failed: Dict[str, Any],
                           "reason": f"{reason} {tdd_machine._headline(tdd_machine.summarize_pytest_failure(run))}".strip()})
 
 
-@traced("tdd.draft_tests")
-def draft_tests(specs: List[BusinessSpec], workspace_dir: str, action_manifest: Optional[Dict[str, Any]] = None,
-                deck: Optional[List[BusinessSpec]] = None) -> Drafts:
-    """Writes every spec's first test side by side, from the class as it is now, and returns them by spec id
-    without putting any in the workspace. A provider or infrastructure error is kept in the spec's place: its spec
-    fails with that reason when the drafts are executed, and nothing is retried."""
-    deck = list(deck) if deck is not None else list(specs)
-    targets = {s.spec_id: tdd_machine.locate_domain_target(s, workspace_dir) for s in specs}
-    earlier_tests = {t.domain_file: tdd_machine.collect_existing_tests(t.tests_dir, exclude="", module_name=t.module_name)
-                     for t in targets.values()}
-
-    def draft(spec: BusinessSpec) -> Any:
-        target = targets[spec.spec_id]
-        try:
-            with open(target.domain_file, "r", encoding="utf-8") as f:
-                current_class = extract_class_cst(f.read(), target.class_name) or ""
-            return tdd_machine.generate_red_test(
-                spec, current_class, target.module_name, target.class_name,
-                existing_tests=earlier_tests[target.domain_file],
-                interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name),
-                other_rules=other_rules(spec, deck))
-        except Exception as err:
-            return err
-
-    with ThreadPoolExecutor(max_workers=RED_WORKERS, thread_name_prefix="draft") as pool:
-        return dict(zip((s.spec_id for s in specs), pool.map(pipeline_trace.bind_context(draft), specs)))
-
-
 @traced("tdd.execute_together")
 def execute_specs_together(
     specs: List[BusinessSpec],
@@ -309,15 +275,12 @@ def execute_specs_together(
     action_manifest: Optional[Dict[str, Any]] = None,
     on_result: Optional[Callable[[BusinessSpec, Dict[str, Any]], None]] = None,
     deck: Optional[List[BusinessSpec]] = None,
-    drafts: Optional[Drafts] = None,
 ) -> Dict[str, Dict[str, Any]]:
     """Runs every spec through RED side by side, then GREEN once per class. Returns each spec's result by spec id,
     in the shape the single loop returns; `on_result` is told each one, in deck order within its class, from the
     calling thread. `deck` is every rule the product has (default: `specs`): each test writer is shown the other
-    rules of its class, so that it arranges a situation none of them interferes with. `drafts` are first tests
-    written ahead (`draft_tests`): a spec that has one is not given a first test call."""
+    rules of its class, so that it arranges a situation none of them interferes with."""
     deck = list(deck) if deck is not None else list(specs)
-    drafts = drafts or {}
     targets = {s.spec_id: tdd_machine.locate_domain_target(s, workspace_dir) for s in specs}
     # What each test writer is shown: the verified tests from before this batch, read before any new one is written
     earlier_tests = {t.domain_file: tdd_machine.collect_existing_tests(t.tests_dir, exclude="", module_name=t.module_name)
@@ -325,12 +288,9 @@ def execute_specs_together(
 
     def red(spec: BusinessSpec) -> Any:
         target = targets[spec.spec_id]
-        draft = drafts.get(spec.spec_id)
-        if isinstance(draft, Exception):
-            return draft
         try:
             return tdd_machine.run_red_phase(spec, target, workspace_dir, earlier_tests[target.domain_file], action_manifest,
-                                             other_rules=other_rules(spec, deck), draft=draft or "")
+                                             other_rules=other_rules(spec, deck))
         except Exception as err:  # a provider or infrastructure error: reported with its reason, never retried
             return err
 

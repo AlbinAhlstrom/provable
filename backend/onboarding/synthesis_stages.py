@@ -3,21 +3,19 @@
     spec_review      ─┐
     seed_data        ─┤
     ux_plan          ─┼─ start together (the UX plan also gives the app on screen its colours and outline)
-    action_protocol  ─┘─┬→ presentation (needs the action protocol and the UX plan) ─┐
-                        ├→ action_behaviour ─┬───────────────────────────────────────┴→ page_revisit
-                        └→ rule_tests ───────┴→ behaviour_specs (the rule deck)
+    action_protocol  ─┘─┬→ presentation (needs the action protocol and the UX plan) ─┬→ page_revisit
+                        └→ behaviour_specs (the actions and the rule deck, one round) ─┘
 
 All of them read the same decomposition and the skeleton on disk. The action protocol names the actions and fixes
 what a page needs to know of them: their parameters, the values the fields take, what a new object holds. So the
-page is written at once, while the behaviour stage writes the methods behind the actions (`action_behaviour.py`);
-it used to wait for them, a minute or more. Writing the methods can change what a class holds, so the fields are
-compared afterwards (`page_contract.py`), and only a class that gained or lost one sends the page back to be written
-again, once, for the classes as they are. The presentation also needs the UX plan, which carries the page's visual
-direction. After the actions, the rule deck's behaviour specs run through the TDD loop (`spec_runner.py`). The
-first test of each is written while the actions are (`rule_tests`): it is written from the action protocol, as the
-actions' own test is, and waits as text until the loop judges it against the class the actions left. The
-stages return once everything is done, so QA audits a domain that no longer changes. Seed data and the spec review
-used to queue in front of the presentation, the slowest step, and added their full duration to every kickstart.
+page is written at once, while the domain round writes the methods behind the actions and the deck's rules in one
+pass of the test loop (`domain_round.py`): every first test side by side, then one code answer per class. It used
+to be two passes, the rules waiting for the actions. Writing the methods can change what a class holds, so the
+fields are compared afterwards (`page_contract.py`), and only a class that gained or lost one sends the page back to
+be written again, once, for the classes as they are. The presentation also needs the UX plan, which carries the
+page's visual direction. The stages return once everything is done, so QA audits a domain that no longer changes.
+Seed data and the spec review used to queue in front of the presentation, the slowest step, and added their full
+duration to every kickstart.
 
 The stage functions are injected so the ordering policy is testable without an LLM. Each stage keeps its own record
 (run_recorder) and its own failure reason; a stage that does not deliver is listed in `failures`, never dropped.
@@ -32,6 +30,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 import pipeline_trace
 from onboarding.action_behaviour import ActionBehaviour
+from onboarding.domain_round import DomainRound
 from onboarding.app_inventory import remove_unreachable
 from onboarding.draft_theme import THEME_FILE, DraftTheme, parse_draft_layout, parse_draft_theme, write_draft_theme
 from onboarding.page_contract import FieldChange, domain_fields, field_changes
@@ -154,16 +153,14 @@ def run_synthesis_stages(
     seed: Optional[Callable[..., Dict[str, Any]]] = None,
     presentation: Optional[Callable[..., Dict[str, Any]]] = None,
     ux: Optional[Callable[..., str]] = None,
-    behaviour: Optional[Callable[..., ActionBehaviour]] = None,
-    specs: Optional[Callable[[List[Any], Callable[[Any], None], Dict[str, Any]], SpecRun]] = None,
-    drafts: Optional[Callable[[List[Any]], Dict[str, Any]]] = None,
+    domain: Optional[Callable[[Dict[str, Any], List[Any], Callable[[Any], None]], DomainRound]] = None,
 ) -> SynthesisOutcome:
     """Runs the stages and returns what each delivered. `on_action_manifest` receives the manifest of a
-    successful action protocol (the caller stores it). `specs` runs the rule deck's behaviour specs (the caller owns
-    where a spec's status is stored) and tells its second argument how far it has come, which the stage keeps as its
-    `rules` note for the build progress; without it they stay pending. `drafts` writes the first test of every
-    behaviour spec ahead of that, by spec id; what it returns is handed to `specs` as its third argument. An
-    exception in any stage propagates once all have finished."""
+    successful action protocol (the caller stores it). `domain` runs the domain round on that manifest and the rule
+    deck (the caller owns how specs are executed and where a rule's status is stored) and tells its third argument
+    how far the rules have come, which the stage keeps as its `rules` note for the build progress; without it the
+    actions have no methods and the rules stay pending. An exception in any stage propagates once all have
+    finished."""
     if review is None:
         from onboarding.spec_review import review_spec_consistency as review
     if protocol is None:
@@ -175,8 +172,6 @@ def run_synthesis_stages(
 
     if ux is None:
         from onboarding.ux_planner import plan_ux_blueprint as ux
-    if behaviour is None:
-        from onboarding.action_behaviour import implement_actions as behaviour
 
     outcome = SynthesisOutcome()
     master = structure.master_entity() if hasattr(structure, "master_entity") else None
@@ -213,36 +208,33 @@ def run_synthesis_stages(
         return run_ux_plan_stage(ux, pitch=pitch, structure=structure, master_name=master_name, intent=intent,
                                  inbox_specs=inbox_specs, workspace_dir=workspace_dir)
 
-    def draft_rule_tests() -> Dict[str, Any]:
-        # The first test of every rule, written while the actions are; nothing is put in the workspace yet
-        with stage("rule_tests", owns=()) as handle:
-            if drafts is None:
-                handle.skip("no test writer was given; the rules' tests are written when the rules run")
-                return {}
-            written = drafts(inbox_specs)
-            handle.note("written", sorted(spec_id for spec_id, test in written.items() if isinstance(test, str)))
-            unwritten = {spec_id: f"{type(test).__name__}: {test}" for spec_id, test in written.items() if not isinstance(test, str)}
-            if unwritten:  # each of these fails its spec by name when the rules run
-                handle.note("not_written", unwritten)
-            return written
-
-    def run_rule_specs(drafted: Dict[str, Any]) -> None:
-        # The domain's rules, on top of the methods the behaviour stage wrote. Overlaps the presentation, so it
+    def write_domain() -> None:
+        # The methods behind the actions and the deck's rules, in one round. Overlaps the presentation, so it
         # declares the files it writes.
         with stage("behaviour_specs", owns=DOMAIN_FILES) as handle:
-            if specs is None:
-                return handle.skip("no spec executor was given; the specs stay pending")
-            if not outcome.engine.get("success") or not outcome.behaviour.success:
-                return handle.skip("the actions the specs build on are not implemented")
+            if not outcome.engine.get("success"):
+                return handle.skip("there is no action protocol to implement")
+            if domain is None:
+                return handle.skip("no executor was given; the actions have no methods and the rules stay pending")
             started = time.time()
-            outcome.specs = specs(inbox_specs, lambda rules: handle.note("rules", asdict(rules)), drafted)
-            outcome.timings["5c_behaviour_specs"] = round(time.time() - started, 2)
+            done = domain(outcome.engine.get("action_manifest") or {}, inbox_specs,
+                          lambda rules: handle.note("rules", asdict(rules)))
+            outcome.behaviour, outcome.specs = done.behaviour, done.specs
+            outcome.timings["5c_domain_round"] = round(time.time() - started, 2)
+            handle.note("implemented", outcome.behaviour.implemented)
+            handle.note("runs", outcome.behaviour.runs)
             handle.note("fulfilled", outcome.specs.fulfilled)
-            if outcome.specs.skipped:
-                handle.skip(outcome.specs.skipped)
-            elif not outcome.specs.success:
+            reasons = []
+            if not outcome.behaviour.success:
+                handle.note("missing", outcome.behaviour.missing)
+                outcome.failures.append({"stage": "action_behaviour", "error": outcome.behaviour.error})
+                reasons.append(outcome.behaviour.error)
+            if not outcome.specs.success:
                 handle.note("unfulfilled", outcome.specs.unfulfilled)
-                fail("behaviour_specs", handle, outcome.specs.error)
+                outcome.failures.append({"stage": "behaviour_specs", "error": outcome.specs.error})
+                reasons.append(outcome.specs.error)
+            if reasons:
+                handle.fail("; ".join(reasons))
 
     def design_actions() -> None:
         # Action protocol (the domain class and the action endpoint come from the skeleton + TDD loop)
@@ -259,46 +251,27 @@ def run_synthesis_stages(
             else:
                 fail("action_protocol", handle, outcome.engine.get("error"))
 
-    def implement_actions() -> None:
-        # The methods behind those actions. Overlaps the presentation, so it declares the files it writes.
-        started = time.time()
-        with stage("action_behaviour", owns=DOMAIN_FILES) as handle:
-            if not outcome.engine.get("success"):
-                handle.skip("there is no action protocol to implement")
-            else:
-                outcome.behaviour = behaviour(outcome.engine.get("action_manifest") or {}, workspace_dir, rules=inbox_specs)
-                outcome.timings["5a_action_behaviour"] = round(time.time() - started, 2)
-                handle.note("implemented", outcome.behaviour.implemented)
-                handle.note("runs", outcome.behaviour.runs)
-                if outcome.behaviour.skipped:
-                    handle.skip(outcome.behaviour.skipped)
-                elif not outcome.behaviour.success:
-                    handle.note("missing", outcome.behaviour.missing)
-                    fail("action_behaviour", handle, outcome.behaviour.error)
-
     implemented = threading.Event()
-    fields: Dict[str, Dict[str, List[str]]] = {}  # what the classes hold: "before" and "after" the actions are written
+    fields: Dict[str, Dict[str, List[str]]] = {}  # what the classes hold: "before" and "after" the round
 
-    def actions_then_rules(rule_tests: Any) -> None:
+    def domain_round() -> None:
         try:
-            implement_actions()
-            fields["after"] = domain_fields(workspace_dir)  # read before the rules start rewriting the classes
+            write_domain()
+            fields["after"] = domain_fields(workspace_dir)
         finally:
             implemented.set()
-        run_rule_specs(rule_tests.result() if rule_tests is not None else {})
 
     def page_alongside_the_actions(ux_plan: Any, pool: ThreadPoolExecutor) -> None:
         design_actions()
         fields["before"] = domain_fields(workspace_dir)
-        rule_tests = pool.submit(pipeline_trace.bind_context(draft_rule_tests)) if outcome.engine.get("success") else None
-        alongside.append(pool.submit(pipeline_trace.bind_context(actions_then_rules), rule_tests))
+        alongside.append(pool.submit(pipeline_trace.bind_context(domain_round)))
 
         # Interactive presentation projection & React shell, written while the actions are
         outcome.ux_blueprint = ux_plan.result()
         page = dict(pitch=pitch, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir, intent=intent)
         run_presentation_stage(presentation, outcome, **page)
 
-        # One more look when writing the actions changed what a class holds
+        # One more look when the round changed what a class holds
         implemented.wait()
         changes = field_changes(fields["before"], fields["after"]) if "after" in fields else []
         run_page_revisit_stage(presentation, outcome, changes, **page)
