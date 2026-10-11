@@ -1,0 +1,59 @@
+# ADR-011: The product contract, one answer everything is built from
+
+Status: accepted, first step implemented (the front of a kickstart). The later steps are listed under "Order of work".
+Replaces, for a live kickstart, the separate steps of [[ADR-007 Product Intent Step]] and the expansion,
+decomposition, action protocol and UX plan that followed it. Builds on
+[[ADR-010 One Kind of Rule Proved on the Page]].
+
+## Problem
+One pitch ("a minesweeper game") took 280 s to build and another 210 s to test, against under three minutes for a
+comparable product elsewhere. The timeline of that run:
+
+- The front was five model calls in a row before anything was built: intent, expansion, decomposition, then the
+  action protocol and the UX plan (some 60 s). Each re-read the one before and was free to name things its own way.
+- Nothing fixed the fields a class holds before the page was written against them. The test loop added fields, so
+  the page was written twice (91 s, then 108 s).
+- The names a page test finds a part by were decided by the page writer and guessed by the test writer.
+
+## Decisions
+1. **One call says what is built.** The product contract (`backend/onboarding/product_contract.py`, prompt
+   `backend/prompts/product_contract.md`) names the product and what it has, the look, what a person meets on
+   arrival, the records and their fields, the fixed values, the actions with where each is done, the names parts are
+   read out by, the refusals with their exact sentences, and the rules.
+2. **Everything later is read out of it by code.** The domain structure, the rule deck, the action manifest, the
+   intent and the page's blueprint (with the draft theme's `TOKENS` and `LAYOUT` lines) are methods of the contract.
+   The action protocol and UX plan stages are answered from it without a call of their own
+   (`kickstart_front.Front.stage_overrides`), so builders that start side by side cannot disagree.
+3. **It runs on the middle model at low effort.** Measured alone on three kinds of product: the middle model answers
+   in 24 to 37 s; the small one took 30 to 141 s and wrote up to ten times the hidden thinking, and more effort made
+   neither better. The dilemmas are spelled out in the prompt instead (an inventory of what the product has, each
+   entry kept or left out with the reason).
+4. **The schema holds what code reads.** The answer is a structured one. Who performs an action, the kind of a rule
+   and the type of a field are fixed sets, and every key is required, so an action "by user" or a rule without its
+   action cannot be written. The provider refuses a schema whose properties and lists together count more than 66
+   (measured; `SCHEMA_WEIGHT_LIMIT`, guarded by a test), so what is read as words is a text or a list of texts, and
+   what one part of a list holds is a field of the same list (`part_of`) rather than an object nested inside it.
+5. **A rule is of the records or of the page.** A rule the records obey names exactly one action and goes through
+   the domain's test loop; a rule of the page alone (no action is sent) does not. Both are proved on the running
+   page as ADR-010 says. The spec kinds `behavior` and `presentation` carry this distinction and nothing else.
+6. **No contract, no build.** A provider error or an answer that is no contract fails the kickstart with the reason.
+   Nothing is retried and nothing falls back to the earlier front.
+7. **The earlier front stays for comparison.** An offline or mock kickstart runs it (no model is called), and a live
+   one does with `KICKSTART_FRONT=stages`, so the two can be measured on the same pitch
+   (`backend/onboarding/kickstart_front.py`).
+
+## Consequences
+- The front is one stage (`contract`) of some 25 to 40 s in place of five.
+- Later writers read the contract's brief where they read the expanded pitch. The stored specification also holds
+  the page's plan, so a page rebuild plans from the same look.
+- The contract is not stored as a record of its own; a page rebuild still calls the UX planner. Storing it is part
+  of the next step.
+- A structured answer costs more tokens than free text. Not yet measured against the earlier front on a whole run.
+
+## Order of work
+1. Done: the contract as the front of a live kickstart.
+2. The test writers start from the contract: domain tests from the rules, page tests from the read-out names,
+   both before the code they test exists.
+3. Backend and page are written once, side by side, from the contract; the page is not sent back when a class
+   gains a field, because the contract already names every field.
+4. One test run at the end, and a fix-up that is an emergency exit, not a stage to rely on.

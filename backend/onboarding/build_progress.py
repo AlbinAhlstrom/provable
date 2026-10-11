@@ -30,6 +30,7 @@ from onboarding.stage_timing import average_durations, expected_durations, stage
 
 # What each stage is doing, in the words of someone waiting for their app
 STAGE_LABELS = {
+    "contract": "Deciding what the product is and how it looks",
     "intent": "Reading the idea",
     "expansion": "Working out what the product needs",
     "decomposition": "Naming the things the product keeps track of",

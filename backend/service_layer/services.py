@@ -2077,40 +2077,15 @@ def kickstart_domain_and_scaffold(
     timings: Dict[str, float] = {}
     print(f"\n[Kickstart] ════════════════════════════════════════════════════════", flush=True)
 
-    from onboarding import intent as intent_step
-    # Decide what kind of product the user asked for from their own words, before any expansion can inflate the scope.
-    st = stage_begin("intent")
-    product_intent = intent_step.classify_pitch_intent(pitch_text)
-    st.ok()
-
-    # 0. Autonomous Intent Grounding (Expand concise pitch into explicit interactive full-stack spec)
+    # The front: a live kickstart writes the product contract, from which the structure, the rule deck and the
+    # intent are read (onboarding/kickstart_front.py); an offline or mock one runs the earlier stages.
     is_offline_test = "PYTEST_CURRENT_TEST" in os.environ or type(uow).__name__ == "FakeUnitOfWork"
-    from onboarding.prompt_expander import expand_pitch_into_interactive_specification
-    t0_start = time.time()
-    st = stage_begin("expansion")
-    if not is_offline_test and mode != "mock":
-        print(f"[Kickstart] [0/5] Grounding intent: expanding pitch into interactive full-stack specification...", flush=True)
-        pitch_text = expand_pitch_into_interactive_specification(pitch_text, intent=product_intent)
-        t0_elapsed = round(time.time() - t0_start, 2)
-        timings["0_intent_grounding"] = t0_elapsed
-        print(f"[Kickstart] [0/5] ✓ Specification expanded ({len(pitch_text.split())} words) in {t0_elapsed}s", flush=True)
-    else:
-        timings["0_intent_grounding"] = 0.0
-    st.ok()
-
-    from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
+    from onboarding.kickstart_front import build_front
     from onboarding.skeleton_builder import build_and_write_skeleton
-
-    t1_start = time.time()
-    print(f"[Kickstart] [1/5] Decomposing pitch into domain aggregates and inbox specs...", flush=True)
-    st = stage_begin("decomposition")
-    decomp = decompose_pitch_into_structure_and_inbox(pitch_text, intent=product_intent)
-    st.ok()
-    structure = decomp.structure
-    inbox_specs = decomp.inbox.specs if hasattr(decomp, "inbox") and hasattr(decomp.inbox, "specs") else []
-    t1_elapsed = round(time.time() - t1_start, 2)
-    timings["1_decomposition"] = t1_elapsed
-    print(f"[Kickstart] [1/5] ✓ Decomposed in {t1_elapsed}s: Domain '{structure.domain_name}' ({len(structure.entities)} entities: {[e.name for e in structure.entities]})", flush=True)
+    front = build_front(pitch_text, live=not is_offline_test and mode != "mock")
+    product_intent, pitch_text, structure, inbox_specs = front.intent, front.pitch_text, front.structure, front.inbox_specs
+    timings.update(front.timings)
+    print(f"[Kickstart] [1/5] ✓ Domain '{structure.domain_name}' ({len(structure.entities)} entities: {[e.name for e in structure.entities]})", flush=True)
 
     # Build and write skeleton files
     t2_start = time.time()
@@ -2155,7 +2130,7 @@ def kickstart_domain_and_scaffold(
 
     with uow:
         state = uow.kickstart.get()
-        state.business_pitch = pitch_text
+        state.business_pitch = front.stored_pitch or pitch_text
         state.synthesized = True
         state.entity_schemas = entity_schemas_map
         state.inbox_specs = spec_dicts
@@ -2243,7 +2218,7 @@ def kickstart_domain_and_scaffold(
 
             synthesis = run_synthesis_stages(
                 pitch=pitch_text, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,
-                intent=product_intent, on_action_manifest=_store_action_manifest,
+                intent=product_intent, on_action_manifest=_store_action_manifest, **front.stage_overrides(),
                 drafts=lambda deck: draft_behaviour_tests(deck, lambda batch: draft_tests(
                     batch, workspace_dir, action_manifest=synthesis_manifest())),
                 specs=lambda deck, report, drafted: run_behaviour_specs(deck, lambda batch, done: execute_specs_together(

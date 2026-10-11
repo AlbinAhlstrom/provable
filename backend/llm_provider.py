@@ -29,7 +29,10 @@ PROVIDERS: Dict[str, Provider] = {
     # steadiest specification and added nothing the product never had (reference/expansion-models).
     "anthropic": Provider("https://api.anthropic.com/v1/", "claude-haiku-5-5", "CLAUDE_API_KEY",
                           accepts_temperature=False, api="anthropic",
-                          stage_models={"prompt_expansion": "claude-sonnet-5-5"}),
+                          stage_models={"prompt_expansion": "claude-sonnet-5-5",
+                                        # The contract every later stage is derived from: measured alone, the middle
+                                        # model answered in a third of the small one's time (ADR-011).
+                                        "product_contract": "claude-sonnet-5-5"}),
     # The larger model of the same family, on the same key: what a build is compared against.
     "anthropic-opus": Provider("https://api.anthropic.com/v1/", "claude-opus-5-5", "CLAUDE_API_KEY",
                                accepts_temperature=False, api="anthropic"),
