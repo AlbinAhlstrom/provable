@@ -111,8 +111,6 @@ def show_run(folder, trace_dir):
             for warning in (st.get("notes") or {}).get("warnings") or []:
                 print(f"          warning: {str(warning)[:300]}")
         result = summary.get("result") or {}
-        for flag in summary.get("flags") or []:
-            print(f"  flag from {flag['step']} on {flag['about']}: {flag['says'][:300]}")
         for conflict in result.get("spec_conflicts") or []:
             print(f"  spec conflict: {conflict}")
         show_inventory(result.get("app_inventory"))

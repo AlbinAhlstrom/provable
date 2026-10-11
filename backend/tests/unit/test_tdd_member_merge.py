@@ -108,15 +108,3 @@ def test_green_prompt_asks_only_for_added_or_changed_members():
     """
     text = open(os.path.join(os.path.dirname(tm.__file__), "..", "prompts", "green_class_repair.md"), encoding="utf-8").read().lower()
     assert "only the fields and methods you add or change" in text and "kept exactly as they are" in text
-
-
-def test_the_code_writer_is_told_the_rules_decide_and_how_to_flag_a_test():
-    """Verify the prompt gives the code writer one task and one channel for a doubt about its input.
-
-    id: TST-MERGE-FLAG-PROMPT
-    Given: The green_class_repair prompt
-    When: It is read
-    Then: It says the rules decide and the tests check, and gives the flag line's form
-    """
-    text = open(os.path.join(os.path.dirname(tm.__file__), "..", "prompts", "green_class_repair.md"), encoding="utf-8").read()
-    assert "# FLAG <test file name>: " in text and "The rules decide" in text
