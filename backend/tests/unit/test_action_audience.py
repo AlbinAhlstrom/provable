@@ -176,3 +176,31 @@ def test_the_action_protocol_fixes_the_shared_words(tmp_path, monkeypatch):
     manifest_schema = seen["json_schema"]["properties"]["action_manifest"]
     assert {"vocabulary", "rejections"} <= set(manifest_schema["required"])
     assert "vocabulary" in seen["prompt"] and "rejections" in seen["prompt"]
+
+
+def test_an_action_nobody_performs_by_hand_is_the_pages_own_to_send():
+    """Verify an action that happens by itself is handed to the page to perform, with no control.
+
+    id: TST-AUD-AUTOMATIC
+    Given: A manifest with an action marked automatic (a game's clock was marked as someone else's, the page was
+           told to leave it alone, and nothing in the running product ever performed it: the time stood still)
+    When: The protocol block is formatted, and the prompts of the action protocol and the page are read
+    Then: The action is listed apart from the controls and from the API-only actions, with the client that sends
+          it; the protocol's prompt offers that performer and the page's prompt says the page sends such actions
+    """
+    manifest = {"actions": MANIFEST["actions"] + [
+        {"name": "advance_clock", "aggregate": "Enquiry", "performed_by": "automatic", "params": ["seconds"],
+         "description": "Counts the time on"}]}
+    block = format_action_protocol(manifest)
+    controls, _, rest = block.partition("Actions the page performs by itself")
+    by_itself, _, api_only = rest.partition("API-only")
+    assert "advance_clock" not in controls and "advance_clock" not in api_only
+    assert "advance_clock" in by_itself and "enquiryClient.ts" in by_itself
+    assert "acknowledge_inquiry" in api_only
+    prompts = os.path.join(os.path.dirname(__file__), "..", "..", "prompts")
+    with open(os.path.join(prompts, "domain_engine_synthesis.md"), encoding="utf-8") as handle:
+        protocol = handle.read()
+    assert '"automatic"' in protocol and "Nothing runs beside the page and the API" in protocol
+    with open(os.path.join(prompts, "presentation_projection_synthesis.md"), encoding="utf-8") as handle:
+        page = handle.read()
+    assert 'Actions listed under "Actions the page performs by itself"' in page

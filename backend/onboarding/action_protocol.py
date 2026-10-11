@@ -1,7 +1,8 @@
 """Renders the action manifest for the UI-facing stages (UX planning and presentation) and checks it against the code.
 
 The interface serves the product's audience only. Actions performed by anyone else (for example staff
-handling what the audience submitted) stay reachable through the API but must get no controls in the UI.
+handling what the audience submitted) stay reachable through the API but must get no controls in the UI. An action
+that happens by itself (time passing, a hold running out) is the page's own to send: nothing else runs.
 """
 
 import ast
@@ -24,9 +25,15 @@ def _line(act: Dict[str, Any], with_client: bool = False) -> str:
 def format_action_protocol(manifest: Optional[Dict[str, Any]]) -> str:
     if not manifest or not isinstance(manifest.get("actions"), list):
         return "- (No action protocol available: build the read-only views and the creation form only.)"
-    ui = [a for a in manifest["actions"] if a.get("performed_by", "audience") != "other"]
+    ui = [a for a in manifest["actions"] if a.get("performed_by", "audience") not in ("other", "automatic")]
+    by_itself = [a for a in manifest["actions"] if a.get("performed_by") == "automatic"]
     api_only = [a for a in manifest["actions"] if a.get("performed_by") == "other"]
     lines = [_line(a, with_client=True) for a in ui] or ["- (No audience-facing actions.)"]
+    if by_itself:
+        lines.append("")
+        lines.append("Actions the page performs by itself (nobody presses anything: the page sends each one when its moment "
+                     "comes, as its description says; render no control for them):")
+        lines.extend(_line(a, with_client=True) for a in by_itself)
     if api_only:
         lines.append("")
         lines.append("API-only actions (performed by someone other than this product's audience; render NO buttons, forms, "

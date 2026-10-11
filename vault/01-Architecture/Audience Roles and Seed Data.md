@@ -26,7 +26,7 @@ The generated routers read the seed file on the first request after it appears o
 
 ## Who performs an action
 
-`performed_by` in the action manifest is `audience` for what the product's users do and `other` for whoever runs it (owner, staff, automation). Only `audience` actions get controls in the interface.
+`performed_by` in the action manifest is `audience` for what the product's users do and `automatic` for what happens by itself while the product is in use (time counting on, a hold running out), and `other` for whoever runs it (owner, staff). Only `audience` actions get controls in the interface. Nothing runs beside the page and the API, so the page sends an `automatic` action itself when its moment comes; marked `other`, a game's clock was performed by nobody and stood still.
 
 Related: [[Run Recorder]], [[ADR-008 Aggregate Ownership and Audience-Scoped UI]].
 

@@ -26,7 +26,7 @@ The state returned by `GET /api/<plural>/{id}` and by actions directly serialize
 
 ## Authoritative Backend Action Protocol (CRITICAL CONTRACT - ZERO DRIFT):
 Every aggregate has its own action endpoint, `POST /api/<plural>/{id}/action`, reached through `sendAction` of that aggregate's client. An action is a method of one class: send it through the client of the entity it is listed on, with the id of a record of that entity (a job's action goes to the job, never to the customer it belongs to).
-Controls are built only for the actions listed above the "API-only" line (if any); for API-only actions render no controls and no mention. You MUST dispatch ONLY these recognized action types and exact parameter keys in your API client and React components:
+Controls are built only for the actions listed first; for API-only actions (if any) render no controls and no mention. Actions listed under "Actions the page performs by itself" (if any) have no control either: the page sends each one with `sendAction` when its description says its moment has come (from a timer in an effect that is cleared when the state it needs ends, or when the page sees the condition hold), and shows the record the answer returns. You MUST dispatch ONLY these recognized action types and exact parameter keys in your API client and React components:
 {action_protocol_block}
 An action's description says when it is allowed. Its control is offered while that holds for the record on screen (an action allowed only once something has ended, been confirmed or been paid appears from that point on); where the blueprint below places the control at another moment, the description decides.
 

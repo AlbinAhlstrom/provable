@@ -16,7 +16,7 @@ Its CURRENT public API (fields and methods that already exist):
 ## Interface promised to the application layer
 The application calls these public methods on this class by exactly these names and keyword arguments (they do not exist yet unless the API above shows them):
 {interface_contract}
-If the scenario describes what one of these methods does, your test MUST call that method with those parameter names; do not invent a different name for it. If the scenario is not about any of them, name the method you need as the scenario implies.
+If the scenario describes what one of these methods does, your test MUST call that method with those parameter names; do not invent a different name for it. The application calls no other method of this class: one that only a test calls never runs in the product. So where the scenario's When is not one of these methods but something that follows from them (a result is recorded, a total is brought up to date, a status moves on), act it out through the listed method that brings it about, from a Given one step before it, and assert the Then after that call. Only where no method is listed, or none of them can bring the scenario about, name the method you need as the scenario implies.
 
 ## Existing verified tests for this class
 Your test must be consistent with these (same meaning of states, same method names and signatures, same behavior); never contradict them. If the scenario seems to conflict with one, test the part of the scenario that does not conflict and keep the same vocabulary.
