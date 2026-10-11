@@ -289,8 +289,8 @@ def test_no_second_call_when_no_repair_was_refused(tmp_path):
     assert len(calls) == 1 and result["attempts"] == 1
 
 
-def test_what_the_review_saw_and_could_not_repair_is_a_reported_failure():
-    """Verify a visible problem left on the page is not a silent note in the log.
+def test_what_the_review_saw_and_could_not_repair_is_put_in_words():
+    """Verify a visible problem left on the page can be named by whoever reports the review.
 
     id: TST-VR-UNRESOLVED
     Given: A clean review, a review that repaired everything, one that left a problem, and one whose repairs were taken back

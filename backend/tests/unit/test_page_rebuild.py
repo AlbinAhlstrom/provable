@@ -168,15 +168,30 @@ def test_a_page_that_failed_qa_is_not_reviewed(tmp_path):
     assert seen == {} and outcome.qa["verdict"] == "defects_remain"
 
 
-def test_a_problem_the_review_could_not_repair_fails_the_build(tmp_path):
-    """
+def test_a_remark_the_review_could_not_repair_is_a_note_not_a_failed_build(tmp_path):
+    """Verify a matter of looks on a page that passed QA does not mark the build as one with problems.
+
     id: TST-PAGE-009
-    Given: A visual review that saw a problem and could not repair it
+    Given: A visual review that saw a problem and could not repair it, on a page that passed QA
     When: The gates run
-    Then: The visual review is listed as failed with that problem
+    Then: Nothing is reported as failed, and the remark is kept with the review for whoever reads the run
     """
     outcome, _ = _gates(tmp_path, {"passed": True, "verdict": "passed", "attempts": 0, "defects": []},
                         review={"verdict": "unrepaired", "problems": ["labels overlap"], "edits": [],
                                 "not_repaired": ["labels overlap: no such class"], "claims": [], "attempts": 1, "error": None})
-    assert outcome.failures and outcome.failures[0]["stage"] == "visual_review"
-    assert "labels overlap" in outcome.failures[0]["error"]
+    assert outcome.failures == []
+    assert outcome.remarks == ["labels overlap: no such class"]
+
+
+def test_a_review_that_could_not_look_fails_the_build(tmp_path):
+    """Verify a review that never happened is not read as a page that looks fine.
+
+    id: TST-PAGE-010
+    Given: A visual review that ended in a provider error
+    When: The gates run
+    Then: The visual review is listed as failed with the reason
+    """
+    outcome, _ = _gates(tmp_path, {"passed": True, "verdict": "passed", "attempts": 0, "defects": []},
+                        review={"verdict": "error", "problems": [], "edits": [], "not_repaired": [], "claims": [],
+                                "attempts": 1, "error": "quota exceeded"})
+    assert outcome.failures == [{"stage": "visual_review", "error": "quota exceeded"}]

@@ -27,6 +27,7 @@ class PageGates:
     """What the gates decided about a page."""
     qa: Optional[Dict[str, Any]] = None                            # the QA gate's verdict (qa_gate.run_qa_gate)
     failures: List[Dict[str, str]] = field(default_factory=list)   # gates that left something wrong on the page
+    remarks: List[str] = field(default_factory=list)               # what the visual review saw and did not repair
     timings: Dict[str, float] = field(default_factory=dict)
 
 
@@ -130,12 +131,17 @@ def run_page_gates(
             settled=outcome.qa.get("reworked") or [])
         for key in ("verdict", "problems", "edits", "not_repaired", "claims", "attempts"):
             st.note(key, looked[key])
-        # A problem the review saw and could not repair is still on the page: the build says so
-        left_on_page = str(looked["error"]) if looked["verdict"] == "error" else unresolved(looked)
-        if left_on_page:
-            outcome.failures.append({"stage": "visual_review", "error": left_on_page})
-            st.fail(left_on_page)
+        # The page passed QA: it works and can be read on every device. What the review saw beyond that and
+        # could not repair is a matter of looks, kept as a remark on the stage and not held against the build.
+        # A review that could not look at all is a failure: it is never read as "the page is fine".
+        if looked["verdict"] == "error":
+            outcome.failures.append({"stage": "visual_review", "error": str(looked["error"])})
+            st.fail(str(looked["error"]))
         else:
+            left_on_page = unresolved(looked)
+            if left_on_page:
+                outcome.remarks = list(looked.get("not_repaired") or []) or [left_on_page]
+                st.note("remarks", outcome.remarks)
             st.ok()
         print(f"[Visual review] {looked['verdict']} ({len(looked['problems'])} problem(s), "
               f"{sum(1 for e in looked['edits'] if e['applied'])} repair(s) applied)", flush=True)
