@@ -66,6 +66,9 @@ name every control and state first (not built yet).
 5. An action that returns a new record of its own kind: the router stores it and answers with it as `created`,
    beside the `state` of the record the action was run on.
 6. The kind of a rule leaves decomposition and the kickstart; page tests are written during the kickstart.
+   - A kickstart that built a page starts one run of every rule's page test when it has answered
+     (`entrypoints/routers/onboarding.py`), so the lights fill in while the app is used. The first run writes the
+     tests: about 2.5 minutes and 1.2 SEK for 41 rules, which is why the answer does not wait for it.
 7. A run with and without the domain tests, then a decision.
 
 ## Fixing a red rule
