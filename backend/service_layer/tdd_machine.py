@@ -24,10 +24,10 @@ from onboarding.cst_isolator import (
 
 
 # Failures that mean the TEST is broken (not that the behavior is missing): never a valid RED.
-_BROKEN_TEST_MARKERS = (
-    "syntaxerror", "indentationerror", "importerror", "modulenotfounderror", "nameerror", "timed out",
-    "fixture '", "module 'src.",
-)
+_BROKEN_TEST_MARKERS = ("timed out", "fixture '", "module 'src.")
+# Read as whole names: a product's own refusal may end in one of them (`EmptyNameError`, expected by a valid test).
+_BROKEN_TEST_ERRORS = re.compile(
+    r"(?<![a-z])(?:syntaxerror|indentationerror|importerror|modulenotfounderror|nameerror)(?![a-z])")
 
 
 GIVEN_FAILED = "AssertionError: Given:"  # how a failed check of a test's own arrangement reads (red_test_generation.md)
@@ -109,7 +109,7 @@ def evaluate_red_gate_result(
                 "approved": False,
                 "reason": f"Broken test, not a valid RED: the test constructs the class with arguments it does not accept ({_headline(text)}). Use only the fields listed in the class API."
             }
-        if any(marker in low for marker in _BROKEN_TEST_MARKERS):
+        if any(marker in low for marker in _BROKEN_TEST_MARKERS) or _BROKEN_TEST_ERRORS.search(low):
             return {
                 "status": "REJECTED_SYNTAX_OR_EXEC",
                 "approved": False,

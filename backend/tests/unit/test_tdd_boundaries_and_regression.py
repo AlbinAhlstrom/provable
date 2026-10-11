@@ -161,3 +161,23 @@ def test_red_dead_end_deletes_the_broken_test(monkeypatch, tmp_path):
     monkeypatch.setattr(tm, "evaluate_red_gate_result", lambda *a, **k: {"approved": False, "status": "REJECTED_SYNTAX_OR_EXEC", "reason": "broken"})
     result = tm.execute_spec_tdd_loop(_spec(False), str(tmp_path))
     assert result["phase"] == "RED_GATE" and not (tmp_path / "tests" / "unit" / "test_spec_b1.py").exists()
+
+
+def test_a_refusal_named_like_a_python_error_is_not_a_broken_test():
+    """Verify the RED gate reads an error's name whole: a product's refusal may end in the name of a Python error.
+
+    id: TST-RED-GATE-ERROR-NAME
+    Given: A test that expects the refusal `EmptyNameError` and fails because the method does not exist yet, and a
+           test that uses a name it never defined
+    When: The RED gate judges each
+    Then: The first is a valid RED, the second a broken test
+    """
+    from service_layer.tdd_machine import evaluate_red_gate_result
+
+    def judged(message):
+        return evaluate_red_gate_result(exit_code=1, report_json={
+            "summary": {"failed": 1}, "tests": [{"call": {"crash": {"message": message}}}]})
+
+    assert judged("AssertionError: assert 'AttributeError' == 'EmptyNameError'")["approved"] is True
+    broken = judged("NameError: name 'build_two_items' is not defined")
+    assert broken["approved"] is False and broken["status"] == "REJECTED_SYNTAX_OR_EXEC"
