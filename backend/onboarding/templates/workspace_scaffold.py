@@ -138,7 +138,7 @@ export default defineConfig({
     <title>Provable Clean Workspace</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body style="margin: 0; background: #0f172a; color: #f8fafc; font-family: 'Outfit', sans-serif;">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
@@ -166,7 +166,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 @tailwind components;
 @tailwind utilities;
 
-body { margin: 0; background: #0f172a; color: #f8fafc; font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }''')
+body { margin: 0; background: var(--draft-bg, #f8fafc); color: var(--draft-text, #0f172a); font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }''')
 
     app_tsx = os.path.join(src_dir, 'App.tsx')
     with open(app_tsx, 'w', encoding='utf-8') as f:

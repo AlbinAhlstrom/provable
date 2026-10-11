@@ -78,3 +78,26 @@ def test_skeleton_index_html_does_not_load_tailwind_from_a_cdn():
     """
     from onboarding.skeleton_builder import generate_frontend_index_html
     assert "cdn.tailwindcss.com" not in generate_frontend_index_html("Any App")
+
+
+def test_the_body_is_coloured_by_the_theme_and_by_nothing_else(tmp_path):
+    """Verify text that names no colour of its own is read in the theme's text colour, on the theme's background.
+
+    The shell around the page was dark with near-white text whatever the plan chose. On a page planned light, every
+    label without a colour class inherited the white: a title and a menu label nobody could read, which the visual
+    review saw and could not repair with a class change.
+
+    id: TST-WSDEP-BODY-THEME
+    Given: The skeleton's index.html and index.css, and the default scaffold
+    When: They are written
+    Then: The body takes its background and text colour from the theme's variables, and holds no colour of its own
+    """
+    from onboarding.skeleton_builder import generate_frontend_index_css, generate_frontend_index_html
+    create_default_workspace_scaffold(str(tmp_path))
+    scaffold_css = open(os.path.join(str(tmp_path), "src", "index.css"), encoding="utf-8").read()
+    scaffold_html = open(os.path.join(str(tmp_path), "index.html"), encoding="utf-8").read()
+    for css in (generate_frontend_index_css(), scaffold_css):
+        assert "background: var(--draft-bg" in css and "color: var(--draft-text" in css
+    for html in (generate_frontend_index_html("Any App"), scaffold_html):
+        body = html[html.index("<body"):html.index(">", html.index("<body"))]
+        assert "slate" not in body and "#" not in body

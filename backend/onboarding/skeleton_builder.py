@@ -764,7 +764,7 @@ def generate_frontend_index_html(app_title: str) -> str:
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{app_title}</title>
   </head>
-  <body class="bg-slate-950 text-slate-100 antialiased min-h-screen">
+  <body class="antialiased min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
@@ -777,11 +777,12 @@ def generate_frontend_index_css() -> str:
 @tailwind components;
 @tailwind utilities;
 
+/* The page's colours are the plan's (src/theme.css): text that names no colour of its own is read in them. */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #090d16;
-  color: #f1f5f9;
+  background: var(--draft-bg, #f8fafc);
+  color: var(--draft-text, #0f172a);
 }
 '''
 
