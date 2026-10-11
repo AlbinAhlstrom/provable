@@ -30,6 +30,7 @@ _BROKEN_TEST_MARKERS = (
 )
 
 
+GIVEN_FAILED = "AssertionError: Given:"  # how a failed check of a test's own arrangement reads (red_test_generation.md)
 REGRESSION_TIMEOUT_S = 30  # the domain tests in tests/unit; the page's browser checks live in tests/acceptance
 
 
@@ -66,6 +67,9 @@ def evaluate_red_gate_result(
     BEHAVIOR is missing or wrong, never because the test itself is broken.
     - Exit Code 0: tautology (REJECTED).
     - Constructor misuse (TypeError in __init__), ImportError, NameError, SyntaxError, timeouts: broken test (REJECTED).
+    - An assertion whose message begins "Given:": the test's arrangement is not the one it states (REJECTED). The
+      writer asserts the facts its expectation rests on before it acts, so a state typed otherwise than planned is
+      caught here, by this run, and not by whoever implements against it.
     - AssertionError, "DID NOT RAISE", missing attribute/method, method signature mismatch: valid RED (APPROVED).
     """
     if exit_code == 0:
@@ -87,6 +91,16 @@ def evaluate_red_gate_result(
             }
 
     messages = _failure_texts(report_json)
+    for text in messages:
+        if GIVEN_FAILED in text:
+            fact = text.split(GIVEN_FAILED, 1)[1].splitlines()[0].strip()
+            return {
+                "status": "REJECTED_GIVEN",
+                "approved": False,
+                "reason": f"The test does not arrange the state it says it does, so what it expects rests on a state "
+                          f"it never built. This did not hold after the arrangement: \"{fact}\". Correct the "
+                          f"arrangement so that it does."
+            }
     for text in messages + ([stderr] if stderr else []):
         low = text.lower()
         if "typeerror" in low and "__init__" in low:
