@@ -67,7 +67,11 @@ Measured by replaying recorded prompts and by whole domain rounds in a scratch f
   the settled dilemmas (decision 8, the action's one call, the starting state) was work, not a choice: a Given
   whose counts agree with where its pieces are, and one class that passes twenty tests.
 
-Nothing is switched off yet. Thinking off for the tests alone saves little: the code answer is the long call.
+So the page is written without thinking (`llm_provider.Provider.unthinking_stages`; a call made so is marked
+`thinking: off` in the trace), and the test and code writers keep it. Thinking off for the tests alone saves
+little: the code answer is the long call. A stage moved to another model by `LLM_MODEL_<STAGE>` keeps that
+model's default. A first page rebuild so written took 12 s and passed QA; its page tests could not judge it,
+because a rebuild plans the page anew and the stored tests were written for the earlier plan's wording.
 
 ## Consequences
 - The front is one stage (`contract`) of some 25 to 40 s in place of five.

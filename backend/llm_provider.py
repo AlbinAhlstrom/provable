@@ -8,7 +8,7 @@ OPENAI_API_KEY / GEMINI_API_KEY, OPENAI_BASE_URL and LLM_MODEL, defaulting to Ge
 
 import os
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, Tuple
 
 
 @dataclass(frozen=True)
@@ -19,6 +19,7 @@ class Provider:
     accepts_temperature: bool = True  # False when its models run only at their own fixed temperature
     api: str = "openai"  # which API a call speaks: "openai" (chat completions) or "anthropic" (llm_anthropic.py)
     stage_models: Dict[str, str] = field(default_factory=dict)  # a stage that runs on another model than `model`
+    unthinking_stages: Tuple[str, ...] = ()  # stages whose model answers without its hidden thinking
 
 
 PROVIDERS: Dict[str, Provider] = {
@@ -32,7 +33,11 @@ PROVIDERS: Dict[str, Provider] = {
                           stage_models={"prompt_expansion": "claude-sonnet-5-5",
                                         # The contract every later stage is derived from: measured alone, the middle
                                         # model answered in a third of the small one's time (ADR-011).
-                                        "product_contract": "claude-sonnet-5-5"}),
+                                        "product_contract": "claude-sonnet-5-5"},
+                          # The small model thinks by default. Writing the page from the contract and the plan, that
+                          # was four fifths of the answer's tokens and of its time (67 s against 12 s, ADR-011). The
+                          # test and code writers keep it: without, they left rules unfulfilled.
+                          unthinking_stages=("presentation_projection_synthesis",)),
     # The larger model of the same family, on the same key: what a build is compared against.
     "anthropic-opus": Provider("https://api.anthropic.com/v1/", "claude-opus-5-5", "CLAUDE_API_KEY",
                                accepts_temperature=False, api="anthropic"),
@@ -47,6 +52,7 @@ class Connection:
     key_hint: str  # which setting to fill when api_key is empty
     accepts_temperature: bool = True
     api: str = "openai"
+    thinking: bool = True  # False: the call asks the model to answer without its hidden thinking
 
 
 def connection(stage: str = "general") -> Connection:
@@ -58,8 +64,10 @@ def connection(stage: str = "general") -> Connection:
             raise ValueError(f"LLM_PROVIDER={name!r} is not a known provider (known: {', '.join(sorted(PROVIDERS))}).")
         provider = PROVIDERS[name]
         model = stage_model or provider.stage_models.get(stage) or provider.model
+        # A stage moved to another model by a setting was not measured there, so that model is left as it is.
+        thinking = bool(stage_model) or stage not in provider.unthinking_stages
         return Connection(provider.base_url, os.environ.get(provider.key_env) or "", model,
-                          f"set {provider.key_env}", provider.accepts_temperature, provider.api)
+                          f"set {provider.key_env}", provider.accepts_temperature, provider.api, thinking)
     default = PROVIDERS["gemini"]
     api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
     return Connection(os.environ.get("OPENAI_BASE_URL") or default.base_url, api_key or "",

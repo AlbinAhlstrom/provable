@@ -213,7 +213,7 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
         print(f"[LLM] Dispatching request for stage '{stage}' (model: {model_name})...", flush=True)
         if connection.api == "anthropic":
             text, usage, finish_reason = llm_anthropic.complete(api_key, model_name, prompt, images, effort,
-                                                                json_schema, timeout)
+                                                                json_schema, timeout, thinking=connection.thinking)
         else:
             request = {
                 "model": model_name,
@@ -229,7 +229,7 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
             finish_reason = response.choices[0].finish_reason
         print(f"[LLM] Received response for stage '{stage}' in {round(time.time() - t0, 2)}s", flush=True)
         record_llm_meta(model=model_name, json_mode=json_mode, reasoning_effort=effort or None, **usage,
-                        finish_reason=finish_reason)
+                        finish_reason=finish_reason, thinking=None if connection.thinking else "off")
         return text
     except Exception as e:
         reason = f"{type(e).__name__}: {e}"

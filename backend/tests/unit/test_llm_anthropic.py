@@ -193,3 +193,23 @@ def test_calls_made_side_by_side_stay_under_the_providers_limit(anthropic_client
     with ThreadPoolExecutor(max_workers=12) as pool:
         answers = list(pool.map(lambda _: llm_anthropic.complete("k", "m", "p", None, "low", None, 5.0)[0], range(12)))
     assert answers == ["the answer"] * 12 and peak[0] == 3
+
+
+def test_a_stage_that_answers_without_thinking_says_so_in_the_request_and_the_trace(anthropic_client, monkeypatch):
+    """Verify the setting reaches the provider, and a run's trace shows which calls were made without thinking.
+
+    id: TST-ANTH-THINKING
+    Given: The anthropic provider and a recording client
+    When: The page stage is called, and then a stage that thinks
+    Then: The page's request turns thinking off and keeps its effort, and its trace says so; the other request
+          names no thinking setting (the model's default), and its trace says nothing of it
+    """
+    seen = []
+    monkeypatch.setattr(agent_orchestrator, "record_llm_meta", lambda **meta: seen.append(meta))
+    assert _REAL_CALL_GEMINI("the prompt", stage="presentation_projection_synthesis") == "the answer"
+    assert _REAL_CALL_GEMINI("the prompt", stage="red_test_generation") == "the answer"
+
+    page, test = anthropic_client.sent
+    assert page["thinking"] == {"type": "disabled"} and page["output_config"] == {"effort": "low"}
+    assert "thinking" not in test
+    assert seen[0]["thinking"] == "off" and seen[1]["thinking"] is None

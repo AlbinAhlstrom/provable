@@ -142,3 +142,29 @@ def test_a_provider_may_give_one_stage_a_model_of_its_own(monkeypatch):
     monkeypatch.delenv("LLM_MODEL_PROMPT_EXPANSION")
     monkeypatch.setenv("LLM_PROVIDER", "anthropic-opus")
     assert llm_provider.connection("prompt_expansion").model == "claude-opus-5-5"
+
+
+def test_a_provider_may_have_one_stage_answer_without_hidden_thinking(monkeypatch):
+    """Verify the page is written without the small model's hidden thinking, and nothing else is.
+
+    id: TST-PROV-007
+    Given: The anthropic provider, whose page writer was measured with thinking on and off (ADR-011)
+    When: The connection of the page, of the test writer and of the contract is resolved
+    Then: Only the page's says no thinking; a setting that moves the page to another model leaves that model as it
+          is, and so do the comparison provider and the single settings
+    """
+    page = "presentation_projection_synthesis"
+    monkeypatch.setenv("LLM_PROVIDER", "anthropic")
+    assert llm_provider.connection(page).thinking is False
+    assert llm_provider.connection("red_test_generation").thinking is True
+    assert llm_provider.connection("green_code_repair").thinking is True
+    assert llm_provider.connection("product_contract").thinking is True
+
+    monkeypatch.setenv("LLM_MODEL_" + page.upper(), "claude-sonnet-5-5")
+    assert llm_provider.connection(page).thinking is True
+
+    monkeypatch.delenv("LLM_MODEL_" + page.upper())
+    monkeypatch.setenv("LLM_PROVIDER", "anthropic-opus")
+    assert llm_provider.connection(page).thinking is True
+    monkeypatch.delenv("LLM_PROVIDER")
+    assert llm_provider.connection(page).thinking is True

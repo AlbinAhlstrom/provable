@@ -44,8 +44,10 @@ def _usage_meta(usage: Any) -> Dict[str, Optional[int]]:
 
 
 def complete(api_key: str, model: str, prompt: str, images: Optional[List[str]], effort: str,
-             json_schema: Optional[Dict[str, Any]], timeout_s: float) -> Tuple[str, Dict[str, Optional[int]], str]:
-    """Sends one prompt and returns the answer's text, its token counts and why the model stopped."""
+             json_schema: Optional[Dict[str, Any]], timeout_s: float,
+             thinking: bool = True) -> Tuple[str, Dict[str, Optional[int]], str]:
+    """Sends one prompt and returns the answer's text, its token counts and why the model stopped. `thinking=False`
+    asks for the answer without hidden thinking; otherwise the model's own default holds."""
     output_config: Dict[str, Any] = {"effort": effort} if effort else {}
     if json_schema:
         output_config["format"] = {"type": "json_schema", "schema": transform_schema(json_schema)}
@@ -54,6 +56,7 @@ def complete(api_key: str, model: str, prompt: str, images: Optional[List[str]],
         response = client.messages.create(
             model=model, max_tokens=MAX_OUTPUT_TOKENS, timeout=timeout_s,
             messages=[{"role": "user", "content": _content(prompt, images)}],
-            **({"output_config": output_config} if output_config else {}))
+            **({"output_config": output_config} if output_config else {}),
+            **({} if thinking else {"thinking": {"type": "disabled"}}))
     text = "".join(block.text for block in response.content if block.type == "text")
     return text, _usage_meta(response.usage), response.stop_reason
