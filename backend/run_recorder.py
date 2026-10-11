@@ -211,6 +211,7 @@ class Run:
         self.dir = os.path.join(runs_root(), self.id)
         self.trace_dir = os.path.join(self.dir, "trace")
         self.stages: List[StageHandle] = []
+        self.flags: List[Dict[str, str]] = []  # what steps said looked wrong in their input (onboarding/step_flags.py)
         self.result: Dict[str, Any] = {}
         self.error: Optional[str] = None
         self._lines: Dict[str, int] = {}  # last known line count of each generated file
@@ -298,6 +299,7 @@ class Run:
             "duration_s": duration_s, "timeline": self._timeline(duration_s),
             "stages": records, "failed_stages": sorted(set(failed) | {s for s in result_failures if s}),
             "provenance": self._provenance(), "llm": llm_totals(self.trace_dir), "result": self.result,
+            "flags": self.flags,
         }
         try:
             self._snapshot()

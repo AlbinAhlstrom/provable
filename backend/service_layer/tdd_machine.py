@@ -16,7 +16,8 @@ import json
 import hashlib
 from typing import Dict, Any, List, Optional
 from onboarding.action_protocol import format_interface_contract
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
+from onboarding import step_flags
 from onboarding.router_engine import BusinessSpec
 from onboarding.cst_isolator import (
     FragmentError, extract_class_cst, merge_module_fragment, module_helpers_source, module_import_lines, splice_class_cst
@@ -460,6 +461,9 @@ def generate_red_test(
     return (match.group(1) if match else raw).strip() + "\n"
 
 
+GREEN_STAGE = "green_code_repair"
+
+
 @traced("tdd.green_synthesize")
 def synthesize_green_class_implementation(
     extracted_class: str,
@@ -485,7 +489,8 @@ def synthesize_green_class_implementation(
         module_imports: The import lines the target module already has.
 
     Returns:
-        A module fragment (imports + helper classes + the target class) for merge_module_fragment.
+        A module fragment (imports + helper classes + the target class) for merge_module_fragment. It may carry
+        flag lines (onboarding/step_flags.py), which the caller takes out.
 
     Raises:
         RuntimeError: If the LLM returns nothing usable. There is deliberately NO fallback stub: a fake
@@ -507,7 +512,7 @@ def synthesize_green_class_implementation(
         "target_class_name": target_class_name
     })
 
-    raw_response = agent_orchestrator.call_gemini(prompt, stage="green_code_repair")
+    raw_response = agent_orchestrator.call_gemini(prompt, stage=GREEN_STAGE)
 
     if raw_response and raw_response.strip():
         clean_code = re.sub(r"^```(?:python)?\s*", "", raw_response.strip(), flags=re.MULTILINE)
@@ -521,8 +526,8 @@ def synthesize_green_class_implementation(
 
 
 class NoClassInAnswer(RuntimeError):
-    """The code writer answered, and the answer holds no definition of the class: it wrote words in place of code
-    (typically that the frozen test expects the wrong thing). No provider error, and no code either."""
+    """The code writer answered, and the answer holds no definition of the class: flag lines alone (it holds the
+    class to be right and a frozen test wrong) or words in place of code. No provider error, and no code either."""
 
     def __init__(self, class_name: str, answer: str):
         super().__init__(f"GREEN synthesis failed: the response did not contain a definition of class {class_name}")
@@ -738,6 +743,7 @@ class {target_class}:
                 existing_tests=existing_tests,
                 module_helpers=module_helpers_source(domain_source, target_class)
             )
+            fragment, flags = step_flags.take(GREEN_STAGE, fragment)
 
             try:
                 new_domain_source = merge_module_fragment(domain_source, target_class, fragment)
@@ -782,7 +788,8 @@ class {target_class}:
                             "approved": False,
                             "reason": f"Regression: your change makes earlier tests fail again: {', '.join(broken)}. Keep every existing behavior."
                         }
-            attempts.append({"attempt": state.attempt, "approved": green_eval["approved"], "reason": green_eval.get("reason")})
+            attempts.append({"attempt": state.attempt, "approved": green_eval["approved"], "reason": green_eval.get("reason"),
+                             **({"flags": [asdict(flag) for flag in flags]} if flags else {})})
 
             if green_eval["approved"]:
                 state.phase = "COMMITTED"

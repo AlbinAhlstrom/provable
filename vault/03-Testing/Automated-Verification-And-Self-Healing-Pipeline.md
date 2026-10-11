@@ -95,7 +95,7 @@ After the actions, the rule deck's behaviour specs are written together (`backen
   code written for it stays (it is part of the answer that carries the other rules); every test left in
   `tests/unit` passes.
 
-- A test that neither answer could meet goes back to its writer once, with the failure and its own test
+- A test the kept answer does not meet goes back to its writer once, with the failure and its own test
   (`reconsider_test`). Generated tests can expect the wrong thing: replayed against a chess class a reference engine
   found correct, two of eight tests did (each reached its position through a move sequence the writer mis-tracked).
   The writer corrects the expectation or returns the test unchanged; a corrected test must pass on the kept class
@@ -117,6 +117,21 @@ After the actions, the rule deck's behaviour specs are written together (`backen
 - The test writer is told to arrange the scenario's state directly by setting fields, with as few items as it needs,
   and to work out each expected result in a comment above the assertion (`red_test_generation.md`). On the same
   replay that brought wrong expectations from two in eight to one in 24.
+- A test proves its own arrangement. Between the Given and the When the writer asserts the facts its expectation
+  rests on, read back from the object's fields, each with a message that begins `Given:`. The RED gate refuses a
+  test that fails on such a line (`REJECTED_GIVEN`) and the fact that did not hold goes back to the writer as its
+  one regeneration. On a class without behaviour every test fails, so until then nothing before the code writer
+  could tell a state typed otherwise than planned (a wall of mines meant for one column, typed into one row) from
+  a valid RED. It costs no call: the gate already runs the test. It catches a wrong arrangement, not a wrong
+  expectation for a right one; that is still what `reconsider_test` is for.
+- The rules decide, the tests check (`green_class_repair.md`). The code writer writes what the rules say, lets a
+  test that expects otherwise fail, and flags it: `# FLAG <test file>: <what it expects, what the rules give>`
+  (`backend/onboarding/step_flags.py`). A flag is the one channel a step has for a doubt about its input. Code
+  takes the line out of the answer and records it (the run's `summary.json` lists every flag under `flags`, the
+  trace has a `step.flags` entry, `trace_report.py` prints them); what it leads to is decided by the caller, never
+  by the step. Here a flagged test that fails is left out of the retry and goes to its writer with the flag's
+  words. A retry with nothing to change is answered with flag lines alone, and the first answer stands. Other
+  steps do not raise flags yet.
 
 - The retry is asked only for the tests still failing; the batch's tests that already pass are shown as tests to
   keep passing. When reconsidering, the writer is also shown the implementation, to trace which of its rules gives

@@ -22,10 +22,13 @@ What is kept afterwards:
 - A spec whose test still fails moves to `tests/pending` with the reason. Unlike the single loop, the code written
   for it cannot be taken out of an answer that also carries the other rules: it stays, and every test left in
   `tests/unit` passes.
-- A retry answered in words and no code (the writer holds that a frozen test expects the wrong thing) changes
-  nothing: the first answer stands with the rules it fulfilled, and the words are kept in the attempt.
+- The code writer writes what the rules say and may flag a test that expects otherwise (onboarding/step_flags.py).
+  A flagged test that fails is not fed back for the retry: a second answer to a test its writer holds to be wrong
+  is either bent toward it or wasted. It goes straight to the test's writer, with the flag's words.
+- A retry answered without code (flag lines alone, or words) changes nothing: the first answer stands with the
+  rules it fulfilled, and what was said is kept in the attempt.
 - The hash lock holds for every test of the batch: the code writer cannot have changed any of them.
-- A test that neither code answer could meet goes back to its writer once (`reconsider_test`), with the failure and
+- A test the kept answer does not meet goes back to its writer once (`reconsider_test`), with the failure and
   its own test: a test can expect the wrong thing (a check that is not one), and then a correct class fails it.
   The writer either corrects the expectation or returns the test unchanged. A corrected test must pass on the class
   as kept and fail on the hollow class (`hollow_check.py`); it then stands as the rule's test. This is the test
@@ -38,9 +41,11 @@ waiting are ignored in that run.
 
 import os
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import asdict
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import pipeline_trace
+from onboarding import step_flags
 from onboarding.cst_isolator import (
     FragmentError, extract_class_cst, merge_module_fragment, module_helpers_source, module_import_lines
 )
@@ -54,7 +59,7 @@ FEEDBACK_LIMIT = 6000  # characters of failing-test output shown to the code wri
 
 RECONSIDER_EVIDENCE = 2500
 WORDS_LIMIT = 1200  # characters kept of a retry that was answered in words
-RECONSIDER = """Two implementations of the class could not make this test pass, while every other test of the class passes.
+RECONSIDER = """The class as implemented does not pass this test, while it passes the other tests of the class.
 
 Your test:
 ```python
@@ -70,13 +75,18 @@ The implementation:
 ```python
 {implementation}
 ```
-
+{flag}
 Either the implementation lacks the rule or gets it wrong, or the test expects the wrong thing for the state it
 arranges (often because another rule of the product also applies to that state). Trace the implementation for exactly
 that state to see which of its rules produces the result it gives. Then decide from the product's rules, not from the
 implementation, which is right. If the test expected the wrong thing, write it again with a correct expectation, still
 testing this rule in a situation where it applies and no other rule interferes. If the test was right, return it
 exactly as it is."""
+
+FLAGGED = """
+The implementer, who was told to write what the rules say whatever the tests expect, wrote about this test:
+{says}
+"""
 
 Approved = Tuple[BusinessSpec, RedOutcome]
 
@@ -137,6 +147,12 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
     kept: Optional[Tuple[str, Set[str], Dict[str, Any]]] = None   # (source, the batch's failing tests, pytest result)
     reason = ""
     failure = _first_failures(batch)
+    doubts: Dict[str, str] = {}  # a test of the batch the code writer flagged, and what it said
+
+    def heard(flags: List[step_flags.Flag]) -> Dict[str, Any]:
+        """Keeps what was said about the batch's tests, and gives the attempt's record of it."""
+        doubts.update({os.path.basename(flag.about): flag.says for flag in flags if os.path.basename(flag.about) in own})
+        return {"flags": [asdict(flag) for flag in flags]} if flags else {}
 
     def restore(source: str) -> None:
         with open(target.domain_file, "w", encoding="utf-8") as f:
@@ -156,11 +172,14 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
             except tdd_machine.NoClassInAnswer as declined:
                 if kept is None:
                     raise  # no answer to fall back on: the class fails with this reason
-                # The retry was answered in words. The first answer stands, and the tests it left failing go to
+                # The retry was answered without code. The first answer stands, and the tests it left failing go to
                 # their writers below, which is what such an answer asks for.
                 attempts.append({"attempt": attempt, "approved": False,
-                                 "reason": f"The code writer changed nothing and said: {declined.answer.strip()[:WORDS_LIMIT]}"})
+                                 "reason": f"The code writer changed nothing and said: {declined.answer.strip()[:WORDS_LIMIT]}",
+                                 **heard(step_flags.take(tdd_machine.GREEN_STAGE, declined.answer)[1])})
                 break
+            fragment, flags = step_flags.take(tdd_machine.GREEN_STAGE, fragment)
+            said = heard(flags)
             try:
                 merged = merge_module_fragment(domain_source, target.class_name, fragment)
             except FragmentError as err:
@@ -189,15 +208,20 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
                               f"Keep every existing behavior.")
                     restore(domain_source)
                 else:
-                    reason = f"These frozen tests still fail: {', '.join(sorted(still))}." if still else ""
                     if kept is None or len(still) <= len(kept[1]):
                         kept = (merged, still, run)
                     restore(kept[0])
-                    # The retry is asked for what is still failing; what already passes is shown as tests to keep
-                    frozen = [(s, red) for s, red in everyone if os.path.basename(red.test_file_path) in kept[1]]
+                    # The retry is asked for what is still failing and nobody doubts; what already passes is shown as
+                    # tests to keep
+                    asked = sorted(kept[1] - set(doubts))
+                    reason = f"These frozen tests still fail: {', '.join(asked)}." if asked else ""
+                    frozen = [(s, red) for s, red in everyone if os.path.basename(red.test_file_path) in asked]
                     passing = [(s, red) for s, red in everyone if os.path.basename(red.test_file_path) not in kept[1]]
                     verified = "\n".join(part for part in (existing_tests, _tests_block(passing)) if part)
-            attempts.append({"attempt": attempt, "approved": not reason, "reason": reason or "All tests passed cleanly."})
+            passed = not reason and not kept[1]
+            attempts.append({"attempt": attempt, "approved": passed, **said, "reason": reason or (
+                "All tests passed cleanly." if passed else
+                f"Every test passes but those the code writer holds to expect the wrong thing: {', '.join(sorted(kept[1]))}.")})
             if not reason:
                 break
             failure = f"The previous GREEN attempt was rejected: {reason}\n{evidence}"
@@ -223,6 +247,8 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
                 s, red, attempts, f"Test assertions failed in GREEN phase{': ' + why if why else '.'}", workspace_dir)
             results[s.spec_id]["rolled_back"] = False  # the answer also carries the rules that passed, so it stays
             results[s.spec_id]["failure_evidence"] = evidence[-RECONSIDER_EVIDENCE:]
+            if name in doubts:
+                results[s.spec_id]["flag"] = doubts[name]
         elif red.verdict != "already_satisfied":
             results[s.spec_id] = {
                 "success": True, "status": "FULFILLED", "phase": "COMMITTED", "spec_id": s.spec_id,
@@ -236,7 +262,7 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
 def reconsider_test(spec: BusinessSpec, red: RedOutcome, failed: Dict[str, Any], target: DomainTarget,
                     workspace_dir: str, existing_tests: str, action_manifest: Optional[Dict[str, Any]],
                     rules: str = "") -> Dict[str, Any]:
-    """The test writer's one regeneration, spent on a test no code answer could meet. Returns the spec's result:
+    """The test writer's one regeneration, spent on a test the kept code answer does not meet. Returns the spec's result:
     fulfilled by a corrected test that the kept class passes and the hollow class fails, else `failed` with what
     the reconsideration came to."""
     def stays(reason: str, attempt: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -248,7 +274,8 @@ def reconsider_test(spec: BusinessSpec, red: RedOutcome, failed: Dict[str, Any],
     test_code = tdd_machine.generate_red_test(
         spec, current_class, target.module_name, target.class_name,
         rejection_feedback=RECONSIDER.format(test=red.test_code.strip(), implementation=implementation.strip(),
-                                             evidence=failed.get("failure_evidence") or failed["error"]),
+                                             evidence=failed.get("failure_evidence") or failed["error"],
+                                             flag=FLAGGED.format(says=failed["flag"]) if failed.get("flag") else ""),
         existing_tests=existing_tests,
         interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name), careful=True,
         other_rules=rules)
@@ -355,7 +382,7 @@ def execute_specs_together(
         for pair in peers:  # the class is as it was wherever the answer was not kept, and there they still pass
             done.setdefault(pair[0].spec_id, stands(pair))
         everyone = sorted(batch + peers, key=lambda pair: order[pair[0].spec_id])
-        # A test neither answer could meet, and never sent back before, goes to its writer once
+        # A test the kept answer does not meet, and never sent back before, goes to its writer once
         doubted = [(spec, red) for spec, red in everyone
                    if "failure_evidence" in done[spec.spec_id] and len(red.attempts) == 1]
 

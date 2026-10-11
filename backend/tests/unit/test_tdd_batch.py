@@ -426,3 +426,69 @@ def test_a_rule_that_passed_before_the_code_was_written_does_not_outrank_the_oth
     assert not broken["success"] and "DID NOT RAISE" in broken["error"]
     assert len(calls) == 2 and "test_spec_001.py" in calls[0]["existing_tests"] and "test_spec_001.py" in calls[1]["test_source"]
     assert tdd_machine.run_isolated_pytest(str(tmp_path / "tests" / "unit"), cwd=workspace)["exit_code"] == 0
+
+
+FLAG_003 = "# FLAG test_spec_003.py: expects a paid invoice to take a line; the rule refuses it\n"
+
+
+def test_a_test_the_code_writer_flags_goes_to_its_writer_without_a_retry(tmp_path, monkeypatch):
+    """Verify the code writer writes what the rule says, says which test contradicts it, and that is all it decides.
+
+    id: TST-BATCH-FLAG-001
+    Given: A test for SPEC-003 with a wrong expectation, and one code answer that enforces the rule and flags that test
+    When: The specs are executed together, and the test's writer corrects it
+    Then: One code call (a second answer to a test held to be wrong would be bent toward it or wasted); the test's
+          writer was shown the flag's words; the spec is fulfilled by the corrected test; the flag is in the attempt
+    """
+    workspace = _workspace(tmp_path)
+    calls = _models(monkeypatch, [FLAG_003 + _fragment(PAY, ADD_LINE)])
+    asked = _writer(monkeypatch, WRONG_003, TESTS["SPEC-003"])
+
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert len(calls) == 1 and len(asked) == 2
+    assert "expects a paid invoice to take a line; the rule refuses it" in asked[1]
+    fulfilled = results["SPEC-003"]
+    assert fulfilled["success"] and fulfilled["reconsidered"]
+    assert fulfilled["attempts"][0]["flags"] == [{"step": "green_code_repair", "about": "test_spec_003.py",
+                                                  "says": "expects a paid invoice to take a line; the rule refuses it"}]
+    assert "FLAG" not in (tmp_path / "src" / "domain" / "invoice.py").read_text(encoding="utf-8")
+    assert results["SPEC-001"]["success"] and results["SPEC-002"]["success"]
+
+
+def test_the_retry_is_asked_only_for_the_tests_nobody_doubts(tmp_path, monkeypatch):
+    """Verify a flag takes its test out of the retry and leaves the retry for the others.
+
+    id: TST-BATCH-FLAG-002
+    Given: A first answer that leaves two tests failing and flags one of them
+    When: The specs are executed together
+    Then: The retry is given the unflagged test to satisfy and not the flagged one
+    """
+    workspace = _workspace(tmp_path)
+    calls = _models(monkeypatch, [FLAG_003 + _fragment(PAY), _fragment(ADD_LINE)])
+
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert len(calls) == 2
+    assert "test_spec_002.py" in calls[1]["test_source"] and "test_spec_003.py" not in calls[1]["test_source"]
+    assert "test_spec_003.py" not in calls[1]["failure_output"].splitlines()[0]
+    assert results["SPEC-002"]["success"]
+
+
+def test_a_retry_answered_with_flags_alone_passes_them_on(tmp_path, monkeypatch):
+    """Verify a writer with nothing to change has a form for saying so, and its words reach the test's writer.
+
+    id: TST-BATCH-FLAG-003
+    Given: A first answer that leaves the third test failing, and a retry that holds flag lines and no class
+    When: The specs are executed together
+    Then: The first answer stands, and the writer of the third test is shown the flag's words
+    """
+    workspace = _workspace(tmp_path)
+    _models(monkeypatch, [_fragment(PAY, ADD_LINE_OPEN), tdd_machine.NoClassInAnswer("Invoice", FLAG_003)])
+    asked = _writer(monkeypatch, TESTS["SPEC-003"], TESTS["SPEC-003"])
+
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert results["SPEC-001"]["success"] and results["SPEC-002"]["success"]
+    assert len(asked) == 2 and "the rule refuses it" in asked[1]
+    assert results["SPEC-003"]["attempts"][1]["flags"][0]["about"] == "test_spec_003.py"
