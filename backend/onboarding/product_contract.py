@@ -32,7 +32,11 @@ PARTS = "list_of_parts"
 FORMS = {"date": 'a date as text, like "2030-01-31"', "time": 'a time of day as text, like "09:30"',
          "moment": 'a moment as text with its UTC offset, like "2030-01-31T09:30:00+00:00"'}
 NOTHING = ("", "none", "empty", "null")   # a `starts_as` that names no starting value
-CREATED, FROM_START = "created_by_page", "exists_from_start"
+# Who makes a record: a person, with the page (an order, a booking); the page by itself when it opens and finds
+# none (a round of a game, a draft); or nobody, it is there from the start (a menu, a price list)
+CREATED, OPENED, FROM_START = "created_by_person", "created_on_opening", "exists_from_start"
+ORIGINS = {CREATED: "a person creates it with the page", OPENED: "the page creates one when it opens and none exists",
+           FROM_START: "exists from the start"}
 API_RULE, PAGE_RULE = "api", "page"
 AUDIENCE, AUTOMATIC, OTHER = "audience", "automatic", "other"
 LEFT_OUT = "(left out"
@@ -66,7 +70,7 @@ CONTRACT_SCHEMA: Dict[str, Any] = _object(
     look=_object(summary=_TEXT, tokens=_TEXT, palette=_TEXT, type=_TEXT, parts=_TEXTS, narrow=_TEXT,
                  grid_columns={"type": "integer"}, grid_rows={"type": "integer"}),
     opening=_TEXT,
-    records=_list(_object(name=_TEXT, origin=_one_of(CREATED, FROM_START), fields=_list(_FIELD), shown=_TEXTS,
+    records=_list(_object(name=_TEXT, origin=_one_of(CREATED, OPENED, FROM_START), fields=_list(_FIELD), shown=_TEXTS,
                           starting_records=_TEXT)),
     fixed=_TEXTS,
     actions=_list(_object(name=_TEXT, record=_TEXT, performed_by=_one_of(AUDIENCE, AUTOMATIC, OTHER), params=_TEXTS,
@@ -259,7 +263,8 @@ class ProductContract:
         """The classes the skeleton builds: one per record, holding every field the contract names."""
         return DomainStructureSchema(domain_name=self.product.name, entities=[
             EntitySpec(name=record.name, is_aggregate_root=True,
-                       audience_role=AudienceRole.CREATED if record.origin == CREATED else AudienceRole.SHOWN,
+                       audience_role=AudienceRole.SHOWN if record.origin == FROM_START else AudienceRole.CREATED,
+                       created_on_opening=record.origin == OPENED,
                        attributes=[f.attribute() for f in record.fields if f.name != "id"])
             for record in self.records])
 
@@ -322,8 +327,7 @@ class ProductContract:
         lines = [f"# {self.product.name}", "", "## Product", f"- Who uses it: {self.product.audience}",
                  f"- The loop: {self.product.loop}", "- It has: " + "; ".join(self.product.has), "", "## Records"]
         for record in self.records:
-            origin = "the page creates it" if record.origin == CREATED else "exists from the start"
-            lines.append(f"### {record.name}: {origin}")
+            lines.append(f"### {record.name}: {ORIGINS.get(record.origin, record.origin)}")
             for f in record.fields:
                 lines.extend(f.describe())
             lines.extend(f"- shown: {shown}" for shown in record.shown)

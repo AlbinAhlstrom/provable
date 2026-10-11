@@ -96,6 +96,16 @@ def _clients_block(presented: List[Any], master_name: str) -> str:
         needed = [a.name for a in ent.attributes if a.required and a.default_value is None and a.name != "id"]
         create_note = (f" (the server assigns `id`; the data must carry: {', '.join(f'`{a}`' for a in needed)}, with a "
                        f"value the form works out itself for any the visitor does not enter)") if needed else " (the server assigns `id`)"
+        if getattr(ent, "created_on_opening", False):
+            # The first record is the client's to make: the page asks for the record it works on and is given it
+            lines.append(
+                f"- `src/api/{_to_snake_case(n)}Client.ts` ({role}) exports exactly: `{n}State` (the type of one record), "
+                f"`open{n}(): Promise<{n}State>` (the record the page works on: the newest one, or a new one in its "
+                f"starting state when none exists; the page calls it once when the page opens and shows what it returns, "
+                f"so the page never lists or creates a `{n}` itself to get going), `list{n}(): Promise<{n}State[]>`, "
+                f"`get{n}(id: string)`, `create{n}(data: Partial<{n}State>)` (the server assigns `id`) and "
+                f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; created: {n}State | null; message?: string }}>`.")
+            continue
         lines.append(f"- `src/api/{_to_snake_case(n)}Client.ts` ({role}) exports exactly: `{n}State` (the type of one record), "
                      f"`list{n}(): Promise<{n}State[]>`, `get{n}(id: string)`, `create{n}(data: Partial<{n}State>)`{create_note} and "
                      f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; created: {n}State | null; message?: string }}>`.")

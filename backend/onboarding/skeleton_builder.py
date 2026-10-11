@@ -822,6 +822,18 @@ def generate_master_client(master: EntitySpec) -> str:
     nothing is fabricated when a request fails."""
     name, plural = master.name, _pluralize(_to_snake_case(master.name))
     fields = "\n".join(_ts_interface_fields(master)) or "  id: string;"
+    # Two callers in one tick (an effect run twice) share the request, so one opening makes one record
+    opening = f'''
+let opening: Promise<{name}State> | null = null;
+
+/** The record the page works on when it opens: the newest one, or a new one in its starting state when none exists. */
+export function open{name}(): Promise<{name}State> {{
+  opening ??= list{name}()
+    .then((all) => (all.length ? all[all.length - 1] : create{name}({{}})))
+    .finally(() => {{ opening = null; }});
+  return opening;
+}}
+''' if master.created_on_opening else ""
     return f'''/** Generated from the {name} aggregate; calls the domain API (:8001) through the Vite proxy. */
 
 export interface {name}State {{
@@ -866,7 +878,7 @@ export async function create{name}(data: Partial<{name}State>): Promise<{name}St
   if (!res.ok) throw await failure(res, 'Saving');
   return res.json();
 }}
-
+{opening}
 export async function sendAction(
   id: string,
   actionType: string,

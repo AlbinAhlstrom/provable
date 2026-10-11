@@ -28,7 +28,7 @@ CONTRACT = {
              "narrow": "The floor plan scrolls inside itself.", "grid_columns": 4, "grid_rows": 3},
     "opening": "All tables exist and no booking yet. The floor plan shows every table free. On return, taken tables are grey.",
     "records": [
-        {"name": "Booking", "origin": "created_by_page", "starting_records": "",
+        {"name": "Booking", "origin": "created_by_person", "starting_records": "",
          "shown": ["ends_at = start plus stay_minutes"],
          "fields": [
              {"name": "table_id", "part_of": "", "type": "text", "starts_as": "", "holds": "the table booked",
@@ -408,3 +408,29 @@ def test_the_contract_says_whether_a_new_record_is_whole_by_its_defaults():
     assert booking_start(filled)["held_by_defaults"] is False
     assert booking_start(worded)["held_by_defaults"] is False
     assert all("status confirmed" in booking_start(d)["description"] for d in (plain, filled, worded))
+
+
+def test_the_contract_decides_who_makes_the_first_record():
+    """Verify whether the page makes its record by itself on opening is a fact of the contract, not a sentence.
+
+    id: TST-CONTRACT-OPENING-RECORD
+    Given: A record a person creates with the page; then the same record created by the page when it opens
+    When: The domain structure and the brief are read
+    Then: Both are records the audience works with, only the second is marked as made on opening, and the brief
+          says which it is; the schema offers the three origins
+    """
+    by_person, on_opening = copy.deepcopy(CONTRACT), copy.deepcopy(CONTRACT)
+    on_opening["records"][0]["origin"] = "created_on_opening"
+
+    person = pc.ProductContract.from_dict(by_person)
+    opening = pc.ProductContract.from_dict(on_opening)
+
+    assert person.structure().entities[0].audience_role == AudienceRole.CREATED
+    assert person.structure().entities[0].created_on_opening is False
+    assert opening.structure().entities[0].audience_role == AudienceRole.CREATED
+    assert opening.structure().entities[0].created_on_opening is True
+    assert opening.structure().master_entity().name == "Booking"
+    assert "### Booking: a person creates it with the page" in person.brief()
+    assert "### Booking: the page creates one when it opens and none exists" in opening.brief()
+    origins = pc.CONTRACT_SCHEMA["properties"]["records"]["items"]["properties"]["origin"]["enum"]
+    assert origins == ["created_by_person", "created_on_opening", "exists_from_start"]

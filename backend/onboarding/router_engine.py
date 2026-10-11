@@ -60,6 +60,9 @@ class EntitySpec(BaseModel):
     name: str
     is_aggregate_root: bool = True
     audience_role: AudienceRole = AudienceRole.INTERNAL
+    # The page makes one of these by itself when it opens and none exists (a round, a draft): the generated client
+    # then opens it (`skeleton_builder.generate_master_client`), so no page writer has to remember to
+    created_on_opening: bool = False
     attributes: List[AttributeSpec] = Field(default_factory=list)
     relationships: List[Dict[str, str]] = Field(default_factory=list)
 

@@ -196,3 +196,26 @@ def test_the_prompt_tells_the_form_which_fields_a_create_needs(tmp_path, monkeyp
         pitch="p", structure=STRUCTURE, inbox_specs=[SPEC], workspace_dir=str(tmp_path), action_manifest={"actions": []}, ux_blueprint="plan")
     line = next(l for l in prompts[0].splitlines() if "care_inquiryClient.ts" in l)
     assert "the server assigns `id`" in line and "must carry: `hours`" in line and "parent_email" not in line.split("must carry:")[1]
+
+
+def test_a_record_made_on_opening_is_opened_by_the_client(tmp_path):
+    """Verify the page is handed the record it works on, so that making the first one is not left to its writer.
+
+    id: TST-CLI-OPEN
+    Given: A master the page makes by itself when it opens, and one a person creates
+    When: Their clients and the prompt's description of them are generated
+    Then: The first client exports an open function that gives the newest record or creates one in its starting
+          state, and the prompt tells the page to call it on opening; the second has neither
+    """
+    from onboarding.presentation_projection_synthesizer import _clients_block
+    session = EntitySpec(name="Session", is_aggregate_root=True, audience_role="created_by_audience",
+                         created_on_opening=True, attributes=[AttributeSpec(name="id", type="str", required=True)])
+
+    client = generate_master_client(session)
+    assert "export function openSession(): Promise<SessionState>" in client
+    assert "all.length ? all[all.length - 1] : createSession({})" in client
+    told = _clients_block([session], "Session")
+    assert "`openSession(): Promise<SessionState>`" in told and "when the page opens" in told
+
+    assert "openCareInquiry" not in generate_master_client(ENTITY)
+    assert "openCareInquiry" not in _clients_block([ENTITY], "CareInquiry")

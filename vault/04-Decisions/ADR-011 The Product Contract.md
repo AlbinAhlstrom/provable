@@ -85,6 +85,18 @@ the dialog out in one of three; with the block every part was there in four of f
 booking page, three of three (14 to 16 s). The same list is checked against the written files in QA, and a part
 that is absent is a defect for QA's one rework, which is then shown the plan.
 
+## Who makes the first record
+A page that works on one record (a round, a draft) has to have one when a person arrives. That used to be a
+clause in the opening's prose ("if none exists the page creates one with ..."), and one page in about twenty
+left it out: it listed the records, found none and showed its loading text for good. QA measured a tidy page.
+It is now a fact of the contract and code acts on it. A record's `origin` has three values: `created_by_person`
+(a form or a button: an order, a booking), `created_on_opening` (the page makes one by itself when it opens and
+finds none) and `exists_from_start`. For a record made on opening the generated client exports `open<Record>()`:
+the newest record, or a new one in its starting state. The page's writer is told to call it once and never
+writes the list-or-create itself. Measured: the contract chose the origin as meant for a grid game, a booking
+page and a board of cards, and six of six pages written from the game's contract call the open function and
+neither list nor create a record themselves.
+
 ## Consequences
 - The front is one stage (`contract`) of some 25 to 40 s in place of five.
 - Later writers read the contract's brief where they read the expanded pitch. The stored specification also holds

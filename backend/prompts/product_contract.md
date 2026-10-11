@@ -35,12 +35,12 @@ One JSON object with the keys below. Every text is short; a list is written out 
 - `grid_columns`, `grid_rows`: when the main view is a grid of equal parts (a playing field, a calendar month, a seating plan), how many columns and rows it opens with; 0 for a view that is not a grid or grows with its content.
 
 ### `opening`
-What a person meets on arrival, before doing anything, in three sentences: which records exist at that moment and which one the page shows (the newest, a chosen one, a list of all), and when none exists yet, what the page does about it (creates one with which values, or shows which empty wording); the parts visible and what each holds at that moment; and what a person sees who reloads the page in the middle of the loop.
+What a person meets on arrival, before doing anything, in three sentences: which records exist at that moment and which one the page shows (the newest, a chosen one, a list of all), and when none exists yet, what a person meets (a record of an `origin` `created_on_opening` is made at that moment and holds its `starts_as` values; otherwise which empty wording is shown); the parts visible and what each holds at that moment; and what a person sees who reloads the page in the middle of the loop.
 
 ### `records`
 A record is something the API stores. What a person has picked or typed but not yet sent (a half-filled form, an open menu, a highlighted choice) is the page's own: it is no record and has no field here.
 
-One entry per kind of record: its `name` and its `origin` (the page creates it, or it exists from the start; a kind that exists from the start gives its `starting_records`, every one with its values, separated by semicolons). Its `fields`, one entry each:
+One entry per kind of record: its `name` and its `origin`, which says who makes one: `created_by_person` when a person makes it with the page, by a form or a button (an order, a booking, a message); `created_on_opening` when the page makes one by itself as it opens and finds none, so that a person arrives at something to work on (a round of a game, a draft, a session), and such a record is whole by its `starts_as` values alone; `exists_from_start` when it is there before anyone arrives (a menu, a price list), and such a kind gives its `starting_records`, every one with its values, separated by semicolons. Its `fields`, one entry each:
 - `name`, `type`, `starts_as` (the value a new record holds, empty when it has none) and `holds` (a few words on what it is). Every record has an `id` you need not list. A date is written `YYYY-MM-DD`, a time `HH:MM`.
 - A field that points at another record holds that record's id and is named after it with `_id` at the end.
 - A field of type `one_of` lists in `values` every value it can hold, one entry each as `value: what it means; shown as "the wording or mark a person sees for it"`. Every other field has no values.
