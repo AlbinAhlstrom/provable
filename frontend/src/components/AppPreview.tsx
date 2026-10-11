@@ -3,9 +3,9 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { RequirementControlPanel } from './RequirementControlPanel';
+import { PREVIEW_URL } from '../engine';
 import { StatusMessage, StudioMessage } from './StatusMessage';
 
-const PREVIEW_URL = 'http://localhost:5174';  // the generated app's own dev server
 
 export interface AppPreviewProps {
   onResetWorkspace: () => void;

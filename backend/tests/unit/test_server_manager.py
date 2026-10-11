@@ -37,9 +37,13 @@ def _alive(pid: int) -> bool:
     try:
         import os
         os.kill(pid, 0)
-        return True
     except OSError:
         return False
+    try:  # a killed process nobody has reaped yet (container init) is a zombie: dead, not alive
+        with open(f"/proc/{pid}/stat") as stat:
+            return stat.read().rsplit(")", 1)[1].split()[0] != "Z"
+    except OSError:
+        return True
 
 
 def test_terminating_a_server_kills_its_children_not_just_the_shell(tmp_path):
