@@ -12,6 +12,7 @@ import time
 from typing import List, Dict, Any, Optional
 from onboarding.action_protocol import format_action_protocol
 from onboarding.intent import ProductIntent, intent_block
+from onboarding.page_parts import parts_block
 from onboarding.router_engine import DomainStructureSchema, BusinessSpec
 from onboarding.skeleton_builder import _pluralize
 import agent_orchestrator
@@ -35,6 +36,7 @@ def _sanitize_name(name: str) -> str:
 PAGE_TIMEOUT_S = 300.0
 
 SECTIONS = ("view_tsx", "controls_tsx", "history_tsx", "app_tsx")
+PARTS = "parts"  # opens the answer: where the writer puts each part of the page (page_parts.py); a plan, not a file
 END = "end"  # closes the answer: without a way to say "done" the model invents one, and it lands in the last file
 _MARKER = re.compile(r"^<<<(\w+)>>>[ \t]*$", re.MULTILINE)
 
@@ -57,6 +59,8 @@ def parse_file_blocks(raw: str) -> Dict[str, str]:
         name = mark.group(1)
         if name == END:
             break
+        if name == PARTS:
+            continue
         if name not in SECTIONS:
             raise ValueError(f"unknown section <<<{name}>>> (expected {', '.join(SECTIONS)})")
         if name in blocks:
@@ -210,7 +214,8 @@ Answer with four blocks, each introduced by its marker alone on a line:
         "{backend_state_model}": backend_state_model,
         "{action_protocol_block}": action_protocol_block,
         "{ux_blueprint}": ux_blueprint or "",
-        "{intent_block}": intent_block(intent)
+        "{intent_block}": intent_block(intent),
+        "{page_parts}": parts_block(ux_blueprint or ""),
     }
     for k, v in replacements.items():
         prompt = prompt.replace(k, str(v))

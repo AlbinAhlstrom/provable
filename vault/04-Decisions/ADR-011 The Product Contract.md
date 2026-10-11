@@ -73,6 +73,18 @@ little: the code answer is the long call. A stage moved to another model by `LLM
 model's default. A first page rebuild so written took 12 s and passed QA; its page tests could not judge it,
 because a rebuild plans the page anew and the stored tests were written for the earlier plan's wording.
 
+The first whole build so written showed what the check above had missed: the page compiled, used the right
+names and was a fifth of the planned size. A menu entry, the dialog it opens and two effects the plan named were
+absent in four of four replays; with thinking they were there in two of two, at 98 to 108 s. The plan was not
+unclear, only long: the parts were spread over six sections of 36,000 characters, and a writer that does not
+think first writes the part it meets first and stops. So the extent of the page is now stated once, as a list
+(`backend/onboarding/page_parts.py`): the plan's read-out lines are the page's parts, the prompt closes on them,
+and the answer opens with a `<<<parts>>>` block that says, part by part, which file it is written in and what
+brings it up. That block is the thinking the page needs, written where it can be read. The list alone left
+the dialog out in one of three; with the block every part was there in four of four (16 to 19 s) and, on a
+booking page, three of three (14 to 16 s). The same list is checked against the written files in QA, and a part
+that is absent is a defect for QA's one rework, which is then shown the plan.
+
 ## Consequences
 - The front is one stage (`contract`) of some 25 to 40 s in place of five.
 - Later writers read the contract's brief where they read the expanded pitch. The stored specification also holds

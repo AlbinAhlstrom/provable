@@ -113,11 +113,20 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
 
 ---
 
-Answer with the four complete files as four blocks, in this order. Each block starts with its marker alone on a line and
+## The parts of this page
+{page_parts}
+The page is these parts, no fewer. Each line is one part: what it is, its role, and the name it is read out by. After you answer, code looks through your files for every one of them by that role and name, and a part it does not find is a defect of the page. A part that only appears after a step (a dialog, the items of a menu, a message, a confirmation) is written all the same, together with the step that brings it up. The rules marked [page] above are acted out on these parts, so each part does what the rules and the blueprint say of it.
+
+---
+
+Answer with a parts block and then the complete files as blocks, in this order. Each block starts with its marker alone on a line and
 continues until the next marker; after the last file write the marker `<<<end>>>` alone on a line; write the code as plain source text (no JSON, no escaping, no commentary around the blocks).
+The parts block comes first and the files follow it in the same answer; `<<<end>>>` is written once, after the last file.
 Write a marker only for a file you actually write: when the audience has no actions or no history to use, leave the
 controls or history marker out of the answer altogether.
 
+<<<parts>>>
+(one line for every part listed under "The parts of this page", in the same order: `<part> -> <the file you write it in>, <what brings it up or what it does>`. It is your plan for the files, and the files then make every line of it true)
 <<<view_tsx>>>
 (complete React TSX code for src/views/{master_name}View.tsx)
 <<<controls_tsx>>>

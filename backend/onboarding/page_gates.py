@@ -1,7 +1,8 @@
 """
 The gates a written page goes through: QA, then one visual review.
 
-    QA            layout on three devices, forms, console, contrast, types; one rework with the defects as feedback
+    QA            layout on three devices, forms, console, contrast, types, and every part the plan names
+                  (page_parts.py); one rework with the defects as feedback
     visual review one look at QA's screenshots, repairs as class changes; only for a page that passed QA
 
 Both a kickstart and a page rebuild (`page_rebuild.py`) end here, so a page is judged the same way however it came to
@@ -9,10 +10,12 @@ be written. Each gate keeps its own stage record and failure reason. The collabo
 the hand-over between the gates are testable without a browser or an LLM.
 """
 
+import os
 import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
+from onboarding.page_parts import missing_parts, parts_of
 from run_recorder import stage_begin
 
 PREVIEW_URL = "http://localhost:5174"
@@ -25,6 +28,16 @@ class PageGates:
     qa: Optional[Dict[str, Any]] = None                            # the QA gate's verdict (qa_gate.run_qa_gate)
     failures: List[Dict[str, str]] = field(default_factory=list)   # gates that left something wrong on the page
     timings: Dict[str, float] = field(default_factory=dict)
+
+
+def _sources(files: List[str]) -> List[str]:
+    """The page's files as written; a page of several copies is read once per file name."""
+    read: Dict[str, str] = {}
+    for path in files:
+        if os.path.basename(path) not in read and os.path.isfile(path):
+            with open(path, "r", encoding="utf-8") as f:
+                read[os.path.basename(path)] = f.read()
+    return list(read.values())
 
 
 def run_page_gates(
@@ -55,6 +68,11 @@ def run_page_gates(
             from onboarding.qa_auditor import run_responsive_qa_audit
             last_audit["report"] = run_responsive_qa_audit(url=PREVIEW_URL, save_screenshots=True,
                                                           workspace_dir=workspace_dir, api_ready_url=API_READY_URL)
+        absent = missing_parts(parts_of(ux_blueprint), _sources(presentation.get("files", [])))
+        if absent:  # a part the plan names and the page lacks is a defect like any other the audit finds
+            report = last_audit["report"]
+            report["defects"] = list(report.get("defects") or []) + absent
+            report["passed"] = False
         return last_audit["report"]
 
     def run_rework(defects: List[str], console_errors: List[str]) -> bool:
@@ -64,7 +82,8 @@ def run_page_gates(
         from onboarding.code_verifier import self_heal_presentation_suite
         healed = self_heal_presentation_suite(
             workspace_dir=workspace_dir, pitch=pitch, defects=defects, console_errors=console_errors,
-            component_files=presentation.get("files", []), contract_files=presentation.get("contract_files", []))
+            component_files=presentation.get("files", []), contract_files=presentation.get("contract_files", []),
+            plan=ux_blueprint)
         if healed:
             time.sleep(1.0)  # the preview server picks the rewritten files up before the next audit
         return bool(healed)
