@@ -287,7 +287,7 @@ class ProductContract:
                 spec_id=f"SPEC-{number:03d}", title=rule.title,
                 description=rule.sees if page_only else f"What the person sees: {rule.sees}",
                 given_when_then=f"Given {rule.given}, When {rule.when}, Then {outcome}",
-                plain=rule.plain, situation=self._situation_of(rule.given),
+                plain=rule.plain, situation=self._situation_of(rule.given), action=rule.action,
                 target_aggregate=self._record_of(rule.action) if rule.action else self._worked_on().name,
                 kind=(SpecKind.PRESENTATION if page_only else SpecKind.BEHAVIOR).value,
                 is_mathematical_boundary=rule.states_limit))

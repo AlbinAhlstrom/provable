@@ -601,11 +601,16 @@ def _sent_back(reason: str, test_code: str) -> str:
 
 
 def run_red_phase(spec: BusinessSpec, target: DomainTarget, workspace_dir: str, existing_tests: str,
-                  action_manifest: Optional[Dict[str, Any]] = None, other_rules: str = "") -> RedOutcome:
+                  action_manifest: Optional[Dict[str, Any]] = None, other_rules: str = "",
+                  first_test: Optional[str] = None) -> RedOutcome:
     """The LLM writes a behavioural test from the BDD spec; the gate checks it fails for the RIGHT reason.
 
     Retry policy (.claude/rules/pipeline.md): at most ONE regeneration, only because the lint or the RED gate rejected
-    the first test, and the rejection reason is fed back to the test generator."""
+    the first test, and the rejection reason is fed back to the test generator.
+
+    `first_test` is the spec's first test when it is already written (a kickstart writes the first tests of a class
+    in one answer, `onboarding/first_tests.py`): it is judged as the first attempt, and only the regeneration is a
+    call of this spec's own. An empty one (the answer held no test for this spec) is refused like any other."""
     test_file_path = spec_test_path(spec, target.tests_dir)
     with open(target.domain_file, "r", encoding="utf-8") as f:
         current_source = f.read()
@@ -617,7 +622,7 @@ def run_red_phase(spec: BusinessSpec, target: DomainTarget, workspace_dir: str, 
     red_attempts: List[Dict[str, Any]] = []
     test_code = ""
     for red_attempt in (1, 2):
-        test_code = generate_red_test(
+        test_code = first_test if red_attempt == 1 and first_test is not None else generate_red_test(
             spec, current_class, target.module_name, target.class_name,
             rejection_feedback=red_feedback, existing_tests=existing_tests,
             interface_contract=format_interface_contract(action_manifest, target.class_name), other_rules=other_rules)

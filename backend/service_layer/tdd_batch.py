@@ -8,9 +8,11 @@ one had just rewritten.
 
 Here the same gates are passed in two steps:
 
-1. RED, side by side. Every spec gets its test through the RED phase the single loop uses (`run_red_phase`: lint,
-   RED gate, hollow check, one regeneration with the verdict fed back). The tests are written against the class as
-   it is before any of them is implemented, so none depends on another's code.
+1. RED, one answer per class. The first tests of every spec of a class are written by one writer in one answer
+   (`onboarding/first_tests.py`) and cut up by spec. Each then passes the RED phase the single loop uses
+   (`run_red_phase`: lint, RED gate, hollow check), side by side; a test the gate refuses goes to a writer of that
+   spec's own, with the verdict, for the one regeneration. The tests are written against the class as it is before
+   any of them is implemented, so none depends on another's code.
 2. GREEN, once per class. One code answer implements every rule of the class whose test was approved. The whole
    `tests/unit` folder is then run and each spec is judged by its own test file. Tests still failing are fed back
    for the one retry the policy allows (.claude/rules/pipeline.md).
@@ -41,6 +43,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import pipeline_trace
+from onboarding import first_tests
 from onboarding.cst_isolator import (
     FragmentError, extract_class_cst, merge_module_fragment, module_helpers_source, module_import_lines
 )
@@ -288,25 +291,47 @@ def execute_specs_together(
     on_result: Optional[Callable[[BusinessSpec, Dict[str, Any]], None]] = None,
     deck: Optional[List[BusinessSpec]] = None,
 ) -> Dict[str, Dict[str, Any]]:
-    """Runs every spec through RED side by side, then GREEN once per class. Returns each spec's result by spec id,
-    in the shape the single loop returns; `on_result` is told each one, in deck order within its class, from the
-    calling thread. `deck` is every rule the product has (default: `specs`): each test writer is shown the other
-    rules of its class, so that it arranges a situation none of them interferes with."""
+    """Writes the first tests of each class in one answer, runs every spec through RED side by side, then GREEN
+    once per class. Returns each spec's result by spec id, in the shape the single loop returns; `on_result` is told
+    each one, in deck order within its class, from the calling thread. `deck` is every rule the product has
+    (default: `specs`): a writer asked again about one test is shown the other rules of its class, so that it
+    arranges a situation none of them interferes with."""
     deck = list(deck) if deck is not None else list(specs)
     targets = {s.spec_id: tdd_machine.locate_domain_target(s, workspace_dir) for s in specs}
     # What each test writer is shown: the verified tests from before this batch, read before any new one is written
     earlier_tests = {t.domain_file: tdd_machine.collect_existing_tests(t.tests_dir, exclude="", module_name=t.module_name)
                      for t in targets.values()}
 
+    of_class: Dict[str, List[BusinessSpec]] = {}
+    for spec in specs:
+        of_class.setdefault(targets[spec.spec_id].domain_file, []).append(spec)
+
+    def write(domain_file: str) -> Any:
+        """The first test of every spec of one class, by spec id; or the error that left them unwritten."""
+        target = targets[of_class[domain_file][0].spec_id]
+        with open(domain_file, "r", encoding="utf-8") as f:
+            current_class = extract_class_cst(f.read(), target.class_name) or f"@dataclass\nclass {target.class_name}:\n    id: str\n"
+        try:
+            return first_tests.write_first_tests(
+                of_class[domain_file], current_class, target.module_name, target.class_name,
+                interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name),
+                existing_tests=earlier_tests[domain_file])
+        except Exception as err:  # a provider or infrastructure error: reported with its reason, never retried
+            return err
+
     def red(spec: BusinessSpec) -> Any:
         target = targets[spec.spec_id]
+        written = firsts[target.domain_file]
+        if isinstance(written, Exception):
+            return written
         try:
             return tdd_machine.run_red_phase(spec, target, workspace_dir, earlier_tests[target.domain_file], action_manifest,
-                                             other_rules=other_rules(spec, deck))
+                                             other_rules=other_rules(spec, deck), first_test=written.get(spec.spec_id, ""))
         except Exception as err:  # a provider or infrastructure error: reported with its reason, never retried
             return err
 
     with ThreadPoolExecutor(max_workers=RED_WORKERS, thread_name_prefix="red") as pool:
+        firsts = dict(zip(of_class, pool.map(pipeline_trace.bind_context(write), list(of_class))))
         reds = list(pool.map(pipeline_trace.bind_context(red), specs))
 
     results: Dict[str, Dict[str, Any]] = {}

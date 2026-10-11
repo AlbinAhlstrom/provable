@@ -41,8 +41,9 @@ comparable product elsewhere. The timeline of that run:
    Nothing is retried and nothing falls back to the earlier front.
 7. **The domain is written in one round.** The actions' methods and the deck's rules used to be two passes of the
    test loop, the second waiting for the first (61 s, then 52 s). Both are named before either starts, so they are
-   one batch (`backend/onboarding/domain_round.py`): every first test side by side (one per action, one per rule,
-   one for what a new object holds), then one code answer per class. Measured alone on the same contract: 57 s,
+   one batch (`backend/onboarding/domain_round.py`): every first test (one per rule, one per action no rule is
+   about, one for what a new object holds; since written in one answer per class, see below), then one code answer
+   per class. Measured alone on the same contract: 57 s,
    every action and all 15 rules fulfilled. Writing first tests ahead of the loop, which only existed to fill the
    wait, is gone.
 8. **What the contract says of a field is in the class.** The class's description is what the test writers, the
@@ -126,6 +127,25 @@ test writer each read the outcome their own way, so neither a pass nor a fail sa
 
 Measured on the minesweeper pitch, the first tests of the eleven rules written side by side: the slowest took 15 s
 (30 s before) and the mean 11 s (15 s). The contract itself grew by about 5 s (32 s to 37 s).
+
+## The first tests are transcribed, not thought out
+A rule that starts from a written situation, is one action with every value and ends in values leaves a test
+writer nothing to decide. So the first tests of a class are one answer from the small model with thinking off
+(`backend/onboarding/first_tests.py`, prompt `first_tests.md`, stage `first_tests`): one builder per situation, one
+test function per rule, named after the rule's id. The answer is cut up by rule, because the RED gate, the hash lock
+and the verdict all work rule by rule. A rule whose test the gate refuses, or that the answer left out, goes to a
+writer of its own with the refusal: the one regeneration, and that writer thinks.
+
+- **An action a rule is about gets no spec of its own.** Its spec named no value ("the simplest state in which the
+  action is allowed"), so a test written from it had to make its own up. The rule's test calls the action by name
+  and proves the method exists; the action is still checked against the code after the round. What a new object
+  holds, and an action no rule names, keep their specs.
+- **The code writer keeps thinking.** Measured on the same contract without it: one rule of twelve left unfulfilled
+  and three more test calls, against twelve of twelve with it.
+
+Measured as one domain round on recorded contracts: the minesweeper's twelve rules in 72 s with three calls (first
+tests 8 s, one test written again 11 s, the class 43 s), all fulfilled, 0.11 SEK; a booking product's seven rules in
+25 s with two calls (6 s, 16 s), all fulfilled, 0.04 SEK. The class is now what the round waits for.
 
 ## Consequences
 - The front is one stage (`contract`) of some 25 to 40 s in place of five.

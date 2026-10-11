@@ -502,3 +502,14 @@ def test_a_rule_is_about_the_record_its_action_is_sent_to():
 
     assert first.target_aggregate == "Booking" and page.target_aggregate == "Booking"
     assert "record" not in pc.CONTRACT_SCHEMA["properties"]["rules"]["items"]["properties"]
+
+
+def test_a_rule_names_the_action_it_proves():
+    """Verify the round can tell which actions the deck's rules already prove.
+
+    id: TST-CONTRACT-RULE-ACTION
+    Given: A contract with two rules on one action and a rule of the page alone
+    When: Its specs are read
+    Then: The first two carry the action's name, the page's rule carries none
+    """
+    assert [spec.action for spec in _contract().specs()] == ["create_booking", "create_booking", ""]

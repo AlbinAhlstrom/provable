@@ -36,8 +36,10 @@ PROVIDERS: Dict[str, Provider] = {
                                         "product_contract": "claude-sonnet-5-5"},
                           # The small model thinks by default. Writing the page from the contract and the plan, that
                           # was four fifths of the answer's tokens and of its time (67 s against 12 s, ADR-011). The
-                          # test and code writers keep it: without, they left rules unfulfilled.
-                          unthinking_stages=("presentation_projection_synthesis",)),
+                          # first tests of a class are transcribed from the contract's rules, which state every value
+                          # (onboarding/first_tests.py): 8 s without thinking, each test faithful to its rule. The
+                          # code writer and a test writer asked again keep it: without, they left rules unfulfilled.
+                          unthinking_stages=("presentation_projection_synthesis", "first_tests")),
     # The larger model of the same family, on the same key: what a build is compared against.
     "anthropic-opus": Provider("https://api.anthropic.com/v1/", "claude-opus-5-5", "CLAUDE_API_KEY",
                                accepts_temperature=False, api="anthropic"),

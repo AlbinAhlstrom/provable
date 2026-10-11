@@ -10,8 +10,9 @@ Nothing in the second depends on the first. The action protocol names every acti
 changes, and the deck holds every rule, before either pass starts. So they are one batch
 (`service_layer/tdd_batch.py`):
 
-- Every first test is written side by side: what a new object holds, one test per action, one per rule. Each writer
-  is shown the others of its class, so no two arrange the same situation differently.
+- The first tests of a class are written in one answer (`first_tests.py`): what a new object holds, one test per
+  rule, and one per action that no rule is about. They share one builder for each situation the contract wrote,
+  so no two arrange the same situation differently.
 - Each class gets one code answer for all of it, judged test by test, with the loop's one retry.
 - Afterwards the code is compared with the action protocol (`check_action_contract`): an action still without a
   method fails by name. Nothing is stubbed.
@@ -47,7 +48,8 @@ def run_domain_round(manifest: Optional[Dict[str, Any]], deck: List[BusinessSpec
     """Hands the actions' specs and the deck's behaviour rules to `execute` (the TDD batch) as one batch. `execute`
     tells its second argument each spec's result as it is settled. `report` is told how far the rules have come;
     `on_rule` is told each rule's result (the caller owns where it is stored)."""
-    actions, runs = specs_of_actions(manifest, workspace_dir)
+    proved = {(spec.target_aggregate, spec.action) for spec in behaviour_rules(deck) if spec.action}
+    actions, runs = specs_of_actions(manifest, workspace_dir, proved=proved)
     run_of = {run["spec_id"]: run for run in runs if run["spec_id"]}
 
     def settle_action(spec: BusinessSpec, result: Dict[str, Any]) -> None:
@@ -80,7 +82,7 @@ def run_domain_round(manifest: Optional[Dict[str, Any]], deck: List[BusinessSpec
                 together([], lambda spec, result: None)
             except Exception:
                 pass  # kept on every action's run above
-    if not runs:
+    if not runs and not proved:  # an action a rule proves has no run, and is checked against the code all the same
         done.behaviour.skipped = "the action protocol offers no action"
         return done
     contract = check_action_contract(workspace_dir, manifest)

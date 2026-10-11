@@ -16,6 +16,9 @@ methods were written sends the page back once (`page_contract.py`).
 - An action's spec is one call in the simplest state the action is allowed in. What the action refuses, ignores or
   does from another state is the rules' to prove: repeated here, each case is one more expectation that can be
   wrong, in a test the whole class has to pass.
+- An action that a rule of the deck is about has no spec here (`proved`): the rule's test calls it by name with
+  every parameter, from a state with every value, and so proves the method exists. Its spec named no value, and a
+  test written from it had to make its own up.
 - Their tests join the regression suite (`tests/unit/test_spec_act_<aggregate>_<action>.py`), so a later spec that
   refines an action is written knowing it and cannot break it unnoticed.
 - An action still without a method afterwards fails by name. Nothing is stubbed.
@@ -23,7 +26,7 @@ methods were written sends the page back once (`page_contract.py`).
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from onboarding.action_protocol import shared_words, starting_state, starts_whole
 from onboarding.router_engine import BusinessSpec
@@ -83,13 +86,17 @@ def action_specs(aggregate: str, actions: List[Dict[str, Any]], starting_state: 
     return specs
 
 
-def specs_of_actions(manifest: Optional[Dict[str, Any]], workspace_dir: str) -> Tuple[List[BusinessSpec], List[Dict[str, Any]]]:
+def specs_of_actions(manifest: Optional[Dict[str, Any]], workspace_dir: str,
+                     proved: Optional[Set[Tuple[str, str]]] = None) -> Tuple[List[BusinessSpec], List[Dict[str, Any]]]:
     """The specs of every action the manifest offers, and one run record per spec for the round to fill in. An
-    action of a class the workspace does not have gets a run that says so and no spec."""
+    action of a class the workspace does not have gets a run that says so and no spec. `proved` holds the
+    (class, action) pairs a rule of the deck is about: those get no spec."""
     by_aggregate: Dict[str, List[Dict[str, Any]]] = {}
     for action in (manifest or {}).get("actions") or []:
         if isinstance(action, dict) and action.get("name") and action.get("aggregate"):
-            by_aggregate.setdefault(str(action["aggregate"]), []).append(action)
+            waiting = by_aggregate.setdefault(str(action["aggregate"]), [])
+            if (str(action["aggregate"]), str(action["name"])) not in (proved or set()):
+                waiting.append(action)
     specs: List[BusinessSpec] = []
     runs: List[Dict[str, Any]] = []
     for aggregate, actions in by_aggregate.items():

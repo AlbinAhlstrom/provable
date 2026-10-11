@@ -115,9 +115,11 @@ class BusinessSpec(BaseModel):
     # From the product contract (ADR-011). `given_when_then` is the exact line tests are written from, in the
     # contract's field and action names; `plain` is the same rule as a person who uses the product says it, which
     # is what a card shows. `situation` is the state the Given names, as the contract wrote it once for every
-    # writer: its name and the values it holds.
+    # writer: its name and the values it holds. `action` is the one action the rule is about; a rule of the page
+    # alone has none.
     plain: str = ""
     situation: str = ""
+    action: str = ""
 
 
 class DomainBehaviorInboxSchema(BaseModel):

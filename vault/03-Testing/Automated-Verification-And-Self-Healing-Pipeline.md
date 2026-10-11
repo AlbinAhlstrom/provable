@@ -86,8 +86,10 @@ action protocol, alongside the presentation, and takes the actions and the rule 
 After the actions, the rule deck's behaviour specs are written together (`backend/onboarding/spec_runner.py`,
 `backend/service_layer/tdd_batch.py`, stage `behaviour_specs`):
 
-- RED, side by side: every spec gets its test through the single loop's RED phase (lint, RED gate, hollow check, one
-  regeneration with the verdict fed back). In a kickstart the tests are judged against the class as the skeleton left it: the actions' specs are in the
+- RED, one answer per class: the first tests of every spec of a class are written by one writer without thinking
+  (`backend/onboarding/first_tests.py`) and cut up by spec. Each then passes the single loop's RED phase (lint, RED
+  gate, hollow check); a test the gate refuses goes to a writer of that spec's own for the one regeneration with the
+  verdict fed back. In a kickstart the tests are judged against the class as the skeleton left it: the actions' specs are in the
   same batch, so no rule waits for an action to be implemented.
 - GREEN, once per class: one code answer implements every rule of the class. `tests/unit` is run and each spec is
   judged by its own test file; tests still failing are fed back for the one retry.

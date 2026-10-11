@@ -173,3 +173,45 @@ def test_an_action_of_a_class_that_does_not_exist_is_reported_and_not_sent_to_th
     assert not any("PAYMENT" in spec_id for spec_id in execute.batches[0])
     assert [r["status"] for r in done.behaviour.runs if r["aggregate"] == "Payment"] == ["NO_DOMAIN_CLASS"]
     assert [m["action"] for m in done.behaviour.missing] == ["refund"]
+
+
+def test_an_action_a_rule_proves_gets_no_spec_of_its_own(tmp_path):
+    """Verify an action is not proved twice: once by a rule with every value, and once by a spec that names none.
+
+    id: TST-ROUND-ACTION-COVERED
+    Given: A manifest with an action on each of two classes, and a deck with a rule on the first class's action
+    When: The domain round runs
+    Then: The batch holds no spec of that action, and still the one of the action no rule names; both actions are
+          checked against the code afterwards, and the action's run is not reported as one of the round's
+    """
+    execute = _loop(methods=[("Appointment", "confirm_booking"), ("Stylist", "set_availability")])
+    execute.workspace = _workspace(tmp_path)
+    rule = _rule("SPEC-001")
+    rule.action = "confirm_booking"
+
+    done = run_domain_round(MANIFEST, [rule], execute.workspace, execute)
+
+    assert execute.batches == [["SPEC-NEW-APPOINTMENT", "SPEC-ACT-STYLIST-SET_AVAILABILITY", "SPEC-001"]]
+    assert [run["spec_id"] for run in done.behaviour.runs] == ["SPEC-NEW-APPOINTMENT", "SPEC-ACT-STYLIST-SET_AVAILABILITY"]
+    assert done.behaviour.success and sorted(done.behaviour.implemented) == ["confirm_booking", "set_availability"]
+
+
+def test_actions_that_rules_prove_are_still_checked_against_the_code(tmp_path):
+    """Verify a round whose every action is proved by a rule still says which of them the code holds.
+
+    id: TST-ROUND-ALL-COVERED
+    Given: A manifest with one action and no starting state to prove, and a deck with a rule on that action
+    When: The domain round runs and the code ends up without the method
+    Then: The batch is the rule alone, the round is not skipped, and the action is reported missing
+    """
+    manifest = {"actions": [MANIFEST["actions"][0]]}
+    execute = _loop(methods=[])
+    execute.workspace = _workspace(tmp_path)
+    rule = _rule("SPEC-001")
+    rule.action = "confirm_booking"
+
+    done = run_domain_round(manifest, [rule], execute.workspace, execute)
+
+    assert execute.batches == [["SPEC-001"]]
+    assert done.behaviour.skipped == "" and [m["action"] for m in done.behaviour.missing] == ["confirm_booking"]
+    assert not done.behaviour.success
