@@ -96,6 +96,7 @@ Each label is bound to its control (`htmlFor` and `id`), and the control matches
    - Lay out with Tailwind classes. Size the main view's repeated parts the way the blueprint's visual direction states.
      - Parts that are alike whatever each holds get their size from their container, which sets its rows as well as its columns (`grid-cols-7 grid-rows-5`), so a part that holds nothing is as large as one that holds something. What a part holds is sized to fit the part, never the other way round.
      - Parts that are each as large as their content set columns only.
+     - Where the visual direction gives the repeated parts a size in pixels (a cell of a fixed grid, a column of cards, a day of a timeline), that size is written once, on the repeated part itself. Every frame around those parts (the bordered panel, the window, the strip above them) takes its width from what it holds (`w-fit`), and a part that spans the frame is stretched to it (`w-full`); a width the blueprint gives for such a frame is what that comes to, a check and not a number to write, because a border or a padding added inside a written width leaves the frame a few pixels narrower than its contents.
      - Where a count is computed, set it with an inline style (e.g. `style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}` for parts that are alike).
 6. **Resilience & Non-Blank Initial State**:
    - Handle loading states, API errors, and domain violation messages gracefully.

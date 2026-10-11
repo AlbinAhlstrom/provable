@@ -165,3 +165,20 @@ def test_a_known_product_keeps_its_surroundings_and_the_plan_owns_width_and_plac
     assert "One part sets that width: the main view" in direction
     assert "as a sum you work out" in direction
     assert "the frame is never wider than what the main view fills" in direction
+
+
+def test_a_frame_sized_by_what_it_holds_takes_its_width_from_it():
+    """Verify the page writes a pixel size once, on the repeated part, and lets the frame around it follow
+    (the plan gave a window's width as a sum; the page wrote that number on the frame and added a border and a
+    padding of its own inside it, so the frame was 4 pixels narrower than its grid and showed a scrollbar).
+
+    id: TST-KINDS-010
+    Given: The prompt of the page
+    When: It is read
+    Then: A size in pixels is written once, on the repeated part, and every frame around those parts takes its
+          width from what it holds
+    """
+    page = _prompt("presentation_projection_synthesis.md")
+    assert "is written once, on the repeated part itself" in page
+    assert "takes its width from what it holds (`w-fit`)" in page
+    assert "a width the blueprint gives for such a frame is what that comes to" in page
