@@ -395,6 +395,9 @@ LIMIT_NOTE = ("\n- **States a limit**: yes. Rule 7 below applies to this scenari
               "the limit and one exactly at it.")
 CAREFUL_EFFORT = "medium"
 CAREFUL_TIMEOUT_S = 180.0
+# Seconds a first draft may take. The one test of a whole class of actions is among the largest answers of a build:
+# 31 s for eight actions on a quick day, cut off at the 60 s of an ordinary call on a slow one.
+RED_TIMEOUT_S = 180.0
 
 
 @traced("tdd.red_generate")
@@ -434,7 +437,7 @@ def generate_red_test(
         "limit_note": LIMIT_NOTE if spec.is_mathematical_boundary else "",
         "other_rules": other_rules or "(none: this is the only rule being written for this class)",
     })
-    thought = dict(reasoning_effort=CAREFUL_EFFORT, timeout_s=CAREFUL_TIMEOUT_S) if careful else {}
+    thought = dict(reasoning_effort=CAREFUL_EFFORT, timeout_s=CAREFUL_TIMEOUT_S) if careful else dict(timeout_s=RED_TIMEOUT_S)
     raw = agent_orchestrator.call_gemini(prompt, stage="red_test_generation", **thought)
     if not raw or not raw.strip():
         reason = agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response"
