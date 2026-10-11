@@ -45,9 +45,29 @@ comparable product elsewhere. The timeline of that run:
    one for what a new object holds), then one code answer per class. Measured alone on the same contract: 57 s,
    every action and all 15 rules fulfilled. Writing first tests ahead of the loop, which only existed to fill the
    wait, is gone.
-8. **The earlier front stays for comparison.** An offline or mock kickstart runs it (no model is called), and a live
+8. **What the contract says of a field is in the class.** The class's description is what the test writers, the
+   code writer and the page writer all read, so it carries each field's `holds` (a position counted from 1), and
+   the one form a date, a time and a moment are written in (`product_contract.FORMS`; a moment always with its
+   UTC offset). Before, one writer wrote a moment without an offset and another with, and they could not be
+   compared.
+9. **The earlier front stays for comparison.** An offline or mock kickstart runs it (no model is called), and a live
    one does with `KICKSTART_FRONT=stages`, so the two can be measured on the same pitch
    (`backend/onboarding/kickstart_front.py`).
+
+## Measured: hidden thinking
+The small model thinks by default, and at low effort that was 70 to 80% of what its writers were billed for.
+Measured by replaying recorded prompts and by whole domain rounds in a scratch folder, thinking on and off:
+
+- **The page**: 67 to 70 s with thinking, 12 to 13 s without; all answers pass the type check and use the
+  contract's read-out names. Whether the page behaves the same was not measured.
+- **The domain round, a product with few rules that interact (a booking)**: 48 to 50 s with, 28 to 29 s without,
+  everything fulfilled either way once a starting state held by the defaults had no spec.
+- **The domain round, a product whose rules interact (a board game)**: 58 to 65 s with and everything
+  fulfilled; 25 to 45 s without, and every one of four runs left something unfulfilled. What remained after
+  the settled dilemmas (decision 8, the action's one call, the starting state) was work, not a choice: a Given
+  whose counts agree with where its pieces are, and one class that passes twenty tests.
+
+Nothing is switched off yet. Thinking off for the tests alone saves little: the code answer is the long call.
 
 ## Consequences
 - The front is one stage (`contract`) of some 25 to 40 s in place of five.

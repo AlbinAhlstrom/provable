@@ -75,7 +75,13 @@ def _part_keys(attr: Any) -> str:
     """The keys one item of a part list holds; a part's own parts are stated inside it."""
     return ", ".join(
         f"{a.name} (a list of the {a.item_name} records it owns, one dict each with the keys {_part_keys(a)})"
-        if getattr(a, "item_attributes", None) else f"{a.name} ({_map_type(a.type)})" for a in attr.item_attributes)
+        if getattr(a, "item_attributes", None) else f"{a.name} ({_map_type(a.type)}{_said(a)})" for a in attr.item_attributes)
+
+
+def _said(attr: Any) -> str:
+    """What an attribute is said to hold, after its type; nothing when nothing is said."""
+    words = getattr(attr, "description", "")
+    return f", {words}" if words else ""
 
 
 def _ts_part_type(attr: Any) -> str:
@@ -86,12 +92,15 @@ def _ts_part_type(attr: Any) -> str:
 
 
 def _parts_doc(entity: EntitySpec) -> str:
-    """Docstring lines saying what one item of each part list holds (the class API shown to test and code writers)."""
+    """Docstring lines saying what each described field holds and what one item of each part list holds (the class
+    API shown to the test writers, the code writer and the page writer alike)."""
     lines = []
     for attr in entity.attributes:
         if getattr(attr, "item_attributes", None):
             keys = _part_keys(attr)
             lines.append(f"    {attr.name}: the {attr.item_name} records this {entity.name} owns, one dict each with the keys {keys}.")
+        elif getattr(attr, "description", ""):
+            lines.append(f"    {attr.name}: {attr.description}")
     return ("\n\n" + "\n".join(lines) + "\n    ") if lines else ""
 
 

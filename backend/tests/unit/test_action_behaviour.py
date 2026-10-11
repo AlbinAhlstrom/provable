@@ -167,3 +167,38 @@ def test_the_page_writer_is_given_the_field_values_too():
     from onboarding.action_protocol import format_action_protocol
     text = format_action_protocol(WORDS)
     assert '"held"' in text and '"confirmed"' in text and "SlotTakenError" not in text
+
+
+def test_a_state_the_class_already_starts_in_needs_no_spec(tmp_path):
+    """Verify no test is asked for where there is nothing to write: such a test passes on the empty class.
+
+    id: TST-ACTB-START-004
+    Given: A manifest whose starting state for Appointment is held by the class's defaults
+    When: The specs of its actions are built
+    Then: There is no spec for a new Appointment, every spec has its run, and the writers are still told the state
+    """
+    from onboarding.action_protocol import format_interface_contract
+    held = {**MANIFEST, "starting_states": [
+        {"aggregate": "Appointment", "description": "status held", "held_by_defaults": True}]}
+
+    specs, runs = specs_of_actions(held, _workspace(tmp_path))
+
+    assert not [s.spec_id for s in specs if s.spec_id.startswith("SPEC-NEW-")]
+    assert [r["spec_id"] for r in runs] == [s.spec_id for s in specs]
+    assert "status held" in format_interface_contract(held, "Appointment")
+
+
+def test_an_actions_spec_is_one_call_and_its_other_cases_are_the_rules():
+    """Verify an action's test shows the action once: each further case in it is one more expectation that can be
+    wrong, and the rules already prove those cases one by one.
+
+    id: TST-ACTB-ONE-CALL
+    Given: An action of Appointment
+    When: Its spec is built
+    Then: It asks for the simplest state the action is allowed in and one call, and leaves what the action refuses,
+          ignores or does from another state to the rules' own tests
+    """
+    confirm = action_specs("Appointment", [a for a in MANIFEST["actions"] if a["aggregate"] == "Appointment"])[0]
+    assert "the simplest state in which the action is allowed" in confirm.given_when_then
+    assert "is called once with valid values" in confirm.given_when_then
+    assert "each with a test of its own" in confirm.given_when_then

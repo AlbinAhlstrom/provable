@@ -63,6 +63,11 @@ action protocol, alongside the presentation, and takes the actions and the rule 
 
 - One spec per action (name, parameters, what it changes), and one for what a new object holds, go through the same
   TDD loop as every rule: a RED test, GREEN, the regression gate.
+- An action's spec is one call in the simplest state the action is allowed in. What it refuses, ignores or does
+  from another state is proved by the rules; repeated in the action's test, each case is one more expectation
+  that can be wrong.
+- A starting state the class's defaults already give (`held_by_defaults` in the manifest, set by the product
+  contract) has no spec: its test would pass on the empty class and be refused as proving nothing.
 - Each test is kept as `tests/unit/test_spec_act_<aggregate>_<action>.py`, so later specs are written knowing it and cannot break
   an action unnoticed.
 - The code is then compared with the manifest. An action without a method fails the stage by name and the run is

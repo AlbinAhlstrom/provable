@@ -37,6 +37,7 @@ class AttributeSpec(BaseModel):
     type: str = "str"
     required: bool = True
     default_value: Optional[Any] = None
+    description: str = ""                                       # what it holds, in words, for whoever writes against the class
     item_name: str = ""                                         # set when the attribute is a list of an owned part
     item_attributes: List["AttributeSpec"] = Field(default_factory=list)  # what one item of that list holds
 

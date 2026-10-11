@@ -15,6 +15,7 @@ import llm_provider
 from onboarding import product_contract as pc
 from onboarding.draft_theme import parse_draft_layout, parse_draft_theme
 from onboarding.router_engine import AudienceRole, SpecKind
+from onboarding.skeleton_builder import build_and_write_skeleton
 
 CONTRACT = {
     "product": {"name": "Table Booking", "product_type": "customer_app", "audience": "Guests of one restaurant",
@@ -40,7 +41,7 @@ CONTRACT = {
               "holds": "where the booking stands", "part_name": "",
               "values": ['confirmed: the table is held; shown as "Confirmed"',
                          'cancelled: the table is free again; shown as "Cancelled"']},
-             {"name": "courses", "part_of": "", "type": "list_of_parts", "starts_as": "none at first",
+             {"name": "courses", "part_of": "", "type": "list_of_parts", "starts_as": "",
               "holds": "what was ordered ahead", "values": [], "part_name": "Course"},
              {"name": "dish", "part_of": "courses", "type": "text", "starts_as": "", "holds": "the dish", "values": [],
               "part_name": ""},
@@ -363,3 +364,47 @@ def test_the_contract_front_answers_the_stages_it_replaces(monkeypatch):
     assert protocol["success"] and protocol["master_name"] == "Booking"
     assert [a["name"] for a in protocol["action_manifest"]["actions"]] == ["create_booking", "expire_hold", "mark_no_show"]
     assert "TOKENS background=#faf6f1" in overrides["ux"](pitch="", structure=None)
+
+
+def test_what_a_field_holds_reaches_the_class_every_writer_reads(tmp_path):
+    """Verify the test writer, the code writer and the page read the same words about a field, from the class.
+
+    id: TST-CONTRACT-FIELD-WORDS
+    Given: A contract whose booking has described fields, a moment among them, and a list of described parts
+    When: The skeleton is written from its structure
+    Then: The class's description says what each field holds, the one form a moment is written in, and what each
+          key of a part holds
+    """
+    data = copy.deepcopy(CONTRACT)
+    data["records"][0]["fields"].append({"name": "made_at", "part_of": "", "type": "moment", "starts_as": "",
+                                         "holds": "when it was made", "values": [], "part_name": ""})
+    build_and_write_skeleton(pc.ProductContract.from_dict(data).structure(), target_dir=str(tmp_path))
+
+    domain = (tmp_path / "src" / "domain" / "booking.py").read_text(encoding="utf-8")
+    assert "    guests: how many come\n" in domain
+    assert "2030-01-31T09:30:00+00:00" in pc.FORMS["moment"]
+    assert f"    made_at: when it was made; {pc.FORMS['moment']}\n" in domain
+    assert "with the keys dish (str, the dish), price (float, its price)." in domain
+
+
+def test_the_contract_says_whether_a_new_record_is_whole_by_its_defaults():
+    """Verify nobody is asked to prove a starting state the skeleton already wrote into the class.
+
+    id: TST-CONTRACT-START-DEFAULTS
+    Given: A booking whose fields all start as plain values and whose list starts empty; then the same booking with
+           a list that holds parts from the start; then with a number whose start is said in words
+    When: The action manifest is read
+    Then: The first is held by the class's defaults, the other two are not; all three still say what a new one holds
+    """
+    def booking_start(data):
+        manifest = pc.ProductContract.from_dict(data).action_manifest()
+        return next(s for s in manifest["starting_states"] if s["aggregate"] == "Booking")
+
+    plain, filled, worded = copy.deepcopy(CONTRACT), copy.deepcopy(CONTRACT), copy.deepcopy(CONTRACT)
+    filled["records"][0]["fields"][4]["starts_as"] = "three courses, each without a dish"
+    worded["records"][0]["fields"][1]["starts_as"] = "as many as the table seats"
+
+    assert booking_start(plain)["held_by_defaults"] is True
+    assert booking_start(filled)["held_by_defaults"] is False
+    assert booking_start(worded)["held_by_defaults"] is False
+    assert all("status confirmed" in booking_start(d)["description"] for d in (plain, filled, worded))

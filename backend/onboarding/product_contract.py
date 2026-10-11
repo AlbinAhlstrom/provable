@@ -27,6 +27,11 @@ CONTRACT_TIMEOUT_S = 180.0
 FIELD_TYPES = {"text": "string", "whole_number": "int", "decimal_number": "float", "boolean": "boolean",
                "date": "string", "time": "string", "moment": "string", "one_of": "string", "list_of_text": "list"}
 PARTS = "list_of_parts"
+# The one way a point in time is written as text. Three writers meet in such a field (tests, code, page), and a
+# moment written with its offset by one and without by another cannot be compared.
+FORMS = {"date": 'a date as text, like "2030-01-31"', "time": 'a time of day as text, like "09:30"',
+         "moment": 'a moment as text with its UTC offset, like "2030-01-31T09:30:00+00:00"'}
+NOTHING = ("", "none", "empty", "null")   # a `starts_as` that names no starting value
 CREATED, FROM_START = "created_by_page", "exists_from_start"
 API_RULE, PAGE_RULE = "api", "page"
 AUDIENCE, AUTOMATIC, OTHER = "audience", "automatic", "other"
@@ -114,7 +119,7 @@ class Field:
     def starting_value(self) -> Any:
         """What a new record holds in this field, in the field's own type; None when the contract names nothing."""
         text = self.starts_as.strip()
-        if not text or text.lower() in ("none", "empty", "null"):
+        if text.lower() in NOTHING:
             return None
         try:
             if self.type == "whole_number":
@@ -132,7 +137,16 @@ class Field:
             return AttributeSpec(name=self.name, type="list", required=False, item_name=self.part_name or self.name,
                                  item_attributes=[part.attribute() for part in self.part_fields])
         start = self.starting_value()
-        return AttributeSpec(name=self.name, type=FIELD_TYPES.get(self.type, "string"), required=False, default_value=start)
+        return AttributeSpec(name=self.name, type=FIELD_TYPES.get(self.type, "string"), required=False, default_value=start,
+                             description="; ".join(words for words in (self.holds, FORMS.get(self.type, "")) if words))
+
+    def starts_by_default(self) -> bool:
+        """Whether the class's default is all a new record needs here: nothing is named, or a plain value the
+        skeleton wrote into the class. A list that holds parts from the start, or a start said in words, is the
+        class's own to build."""
+        if self.starts_as.strip().lower() in NOTHING:
+            return True
+        return self.type != PARTS and self.starting_value() is not None
 
     def describe(self, indent: str = "- ") -> List[str]:
         start = f" = {self.starts_as}" if self.starts_as else ""
@@ -273,7 +287,8 @@ class ProductContract:
         return {
             "actions": [{"name": a.name, "aggregate": a.record, "performed_by": a.performed_by,
                          "params": [p.split(":")[0].strip() for p in a.params], "description": describe(a)} for a in self.actions],
-            "starting_states": [{"aggregate": r.name, "description": self._starting_state(r)} for r in self.records],
+            "starting_states": [{"aggregate": r.name, "description": self._starting_state(r),
+                                 "held_by_defaults": all(f.starts_by_default() for f in r.fields)} for r in self.records],
             "vocabulary": [{"aggregate": r.name, "field": f.name, "values": f.vocabulary()}
                            for r in self.records for f in r.fields if f.values],
             "rejections": [{"aggregate": self._record_of(r.action), "error": r.name,

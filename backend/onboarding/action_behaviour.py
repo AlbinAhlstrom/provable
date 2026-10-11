@@ -10,7 +10,12 @@ methods were written sends the page back once (`page_contract.py`).
 
 - One spec per action, and one for what a newly created object holds (the manifest's `starting_states`): the
   application creates an object and shows it at once, so a class that needs an action to become usable shows up
-  empty. Their tests are written side by side with the rules' tests, and the class gets one code answer for all.
+  empty. A starting state the class's defaults already give has no spec: there is nothing to write, and its test
+  would pass on the empty class. Their tests are written side by side with the rules' tests, and the class gets
+  one code answer for all.
+- An action's spec is one call in the simplest state the action is allowed in. What the action refuses, ignores or
+  does from another state is the rules' to prove: repeated here, each case is one more expectation that can be
+  wrong, in a test the whole class has to pass.
 - Their tests join the regression suite (`tests/unit/test_spec_act_<aggregate>_<action>.py`), so a later spec that
   refines an action is written knowing it and cannot break it unnoticed.
 - An action still without a method afterwards fails by name. Nothing is stubbed.
@@ -20,7 +25,7 @@ import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
-from onboarding.action_protocol import shared_words, starting_state
+from onboarding.action_protocol import shared_words, starting_state, starts_whole
 from onboarding.router_engine import BusinessSpec
 from onboarding.skeleton_builder import to_snake_case
 
@@ -69,9 +74,11 @@ def action_specs(aggregate: str, actions: List[Dict[str, Any]], starting_state: 
             title=f"{aggregate} carries out {action['name']}",
             description=(f"The application calls this method on {aggregate} by exactly this name and these keyword "
                          f"arguments." + words),
-            given_when_then=(f"Given a {aggregate} in a state where the action is allowed (arrange that by setting its "
-                             f"fields), When `{action['name']}({params})` is called with valid values, Then {effect}, "
-                             f"and the object's fields show it afterwards."),
+            given_when_then=(f"Given a {aggregate} in the simplest state in which the action is allowed (arrange that "
+                             f"by setting its fields), When `{action['name']}({params})` is called once with valid "
+                             f"values, Then the object's fields show what the action does from that state. The action "
+                             f"in full: {effect}. What it refuses, ignores or does from another state is proved by the "
+                             f"other rules, each with a test of its own; this test is the one call."),
             target_aggregate=aggregate, category="ACTION"))
     return specs
 
@@ -90,7 +97,8 @@ def specs_of_actions(manifest: Optional[Dict[str, Any]], workspace_dir: str) -> 
             runs.append({"aggregate": aggregate, "spec_id": "", "status": "NO_DOMAIN_CLASS",
                          "error": "the decomposition has no such class", "attempts": 0})
             continue
-        for spec in action_specs(aggregate, actions, starting_state(manifest, aggregate), manifest=manifest):
+        start = "" if starts_whole(manifest, aggregate) else starting_state(manifest, aggregate)
+        for spec in action_specs(aggregate, actions, start, manifest=manifest):
             specs.append(spec)
             runs.append({"aggregate": aggregate, "spec_id": spec.spec_id, "status": "", "error": "", "attempts": 0})
     return specs, runs

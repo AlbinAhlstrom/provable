@@ -62,6 +62,13 @@ def starting_state(manifest: Optional[Dict[str, Any]], aggregate: str) -> str:
     return ""
 
 
+def starts_whole(manifest: Optional[Dict[str, Any]], aggregate: str) -> bool:
+    """Whether the manifest says the class's defaults already give a new object its starting state, so the class
+    has nothing to write for it (and a test of it would pass on the empty class)."""
+    return any(isinstance(entry, dict) and entry.get("aggregate") == aggregate and entry.get("held_by_defaults") is True
+               for entry in (manifest or {}).get("starting_states") or [])
+
+
 def shared_words(manifest: Optional[Dict[str, Any]], aggregate: str) -> list:
     """The words every writer of this class uses alike: the values its fixed-set fields take and the names of its
     refusals, as lines. Tests for a class's rules are written side by side; without these, each invents its own."""
