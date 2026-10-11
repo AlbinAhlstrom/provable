@@ -1,0 +1,310 @@
+{
+  "seq": 455,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:39",
+  "t_offset_s": 410.695,
+  "thread": "red_13",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656619.0542026,
+        "duration": 0.6753606796264648,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_bdrocib1",
+        "environment": {},
+        "summary": {
+          "failed": 3,
+          "passed": 4,
+          "total": 7,
+          "collected": 7
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_049.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_049.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_049.py::test_hidden_to_flagged_and_back_to_hidden",
+                "type": "Function",
+                "lineno": 58
+              },
+              {
+                "nodeid": "tests/unit/test_spec_049.py::test_hidden_safe_cell_becomes_opened",
+                "type": "Function",
+                "lineno": 74
+              },
+              {
+                "nodeid": "tests/unit/test_spec_049.py::test_hidden_mine_cell_becomes_detonated",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "tests/unit/test_spec_049.py::test_opened_cell_never_becomes_flagged_or_hidden",
+                "type": "Function",
+                "lineno": 97
+              },
+              {
+                "nodeid": "tests/unit/test_spec_049.py::test_detonated_cell_never_becomes_flagged_or_hidden",
+                "type": "Function",
+                "lineno": 113
+              },
+              {
+                "nodeid": "tests/unit/test_spec_049.py::test_flagged_cell_cannot_become_opened_directly",
+                "type": "Function",
+                "lineno": 130
+              },
+              {
+                "nodeid": "tests/unit/test_spec_049.py::test_flagged_mine_cell_cannot_become_detonated_directly",
+                "type": "Function",
+                "lineno": 143
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_049.py::test_hidden_to_flagged_and_back_to_hidden",
+            "lineno": 58,
+            "outcome": "failed",
+            "keywords": [
+              "test_hidden_to_flagged_and_back_to_hidden",
+              "test_spec_049.py",
+              "unit",
+              "tests",
+              "hollow_bdrocib1",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010164999985136092,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012553999986266717,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_bdrocib1\\tests\\unit\\test_spec_049.py",
+                "lineno": 64,
+                "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_049.py",
+                  "lineno": 64,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_hidden_to_flagged_and_back_to_hidden():\n        game = _playing_game()\n        # (0,0) is a safe Hidden cell far from the mines; game is Playing.\n        game.toggle_flag(row=0, column=0)\n        # Hidden -> Flagged is allowed; flags_placed 0 -> 1, counter 10 - 1 = 9.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_049.py:64: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.000508599987369962,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_049.py::test_hidden_safe_cell_becomes_opened",
+            "lineno": 74,
+            "outcome": "failed",
+            "keywords": [
+              "test_hidden_safe_cell_becomes_opened",
+              "test_spec_049.py",
+              "unit",
+              "tests",
+              "hollow_bdrocib1",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00046270000166259706,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001472999996622093,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_bdrocib1\\tests\\unit\\test_spec_049.py",
+                "lineno": 81,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_049.py",
+                  "lineno": 81,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_hidden_safe_cell_becomes_opened():\n        game = _playing_game()\n        # (7,4) is safe; its neighbours (8,3),(8,4),(8,5) are mines, so count 3:\n        # no cascade. Many other safe cells stay Hidden, so no win.\n        game.open_cell(row=7, column=4)\n        # Hidden -> Opened is allowed for a safe cell.\n>       assert _cell(game, 7, 4)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_049.py:81: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00045110000064596534,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_049.py::test_hidden_mine_cell_becomes_detonated",
+            "lineno": 87,
+            "outcome": "failed",
+            "keywords": [
+              "test_hidden_mine_cell_becomes_detonated",
+              "test_spec_049.py",
+              "unit",
+              "tests",
+              "hollow_bdrocib1",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011646000057226047,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011987000034423545,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_bdrocib1\\tests\\unit\\test_spec_049.py",
+                "lineno": 93,
+                "message": "AssertionError: assert 'Hidden' == 'Detonated'\n  \n  - Detonated\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_049.py",
+                  "lineno": 93,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_hidden_mine_cell_becomes_detonated():\n        game = _playing_game()\n        # (8,4) holds a mine and is Hidden; game is Playing.\n        game.open_cell(row=8, column=4)\n        # Hidden -> Detonated is allowed for a mine; game is lost on it.\n>       assert _cell(game, 8, 4)[\"state\"] == \"Detonated\"\nE       AssertionError: assert 'Hidden' == 'Detonated'\nE         \nE         - Detonated\nE         + Hidden\n\ntests\\unit\\test_spec_049.py:93: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006158000032883137,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_049.py::test_opened_cell_never_becomes_flagged_or_hidden",
+            "lineno": 97,
+            "outcome": "passed",
+            "keywords": [
+              "test_opened_cell_never_becomes_flagged_or_hidden",
+              "test_spec_049.py",
+              "unit",
+              "tests",
+              "hollow_bdrocib1",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00041980000969488174,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0022587999992538244,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005185999907553196,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_049.py::test_detonated_cell_never_becomes_flagged_or_hidden",
+            "lineno": 113,
+            "outcome": "passed",
+            "keywords": [
+              "test_detonated_cell_never_becomes_flagged_or_hidden",
+              "test_spec_049.py",
+              "unit",
+              "tests",
+              "hollow_bdrocib1",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007799000013619661,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012707999994745478,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0008388999995077029,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_049.py::test_flagged_cell_cannot_become_opened_directly",
+            "lineno": 130,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagged_cell_cannot_become_opened_directly",
+              "test_spec_049.py",
+              "unit",
+              "tests",
+              "hollow_bdrocib1",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004625000001396984,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000763599993661046,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000702300007105805,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_049.py::test_flagged_mine_cell_cannot_become_detonated_directly",
+            "lineno": 143,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagged_mine_cell_cannot_become_detonated_directly",
+              "test_spec_049.py",
+              "unit",
+              "tests",
+              "hollow_bdrocib1",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005113999941386282,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009091999963857234,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00042640000174287707,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,160 @@
+{
+  "seq": 224,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:16",
+  "t_offset_s": 387.685,
+  "thread": "red_22",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_024.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 3 items\n\ntests\\unit\\test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_fewer_than_number] PASSED [ 33%]\ntests\\unit\\test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_more_than_number] PASSED [ 66%]\ntests\\unit\\test_spec_024.py::test_chord_with_flag_count_equal_to_number_opens_hidden_neighbours PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_bc2296091e2a41a49a5c8cd31df1b86f.json\n============================== 3 passed in 1.40s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656601.7667038,
+      "duration": 1.3928844928741455,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 3,
+        "total": 3,
+        "collected": 3
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_024.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_024.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_fewer_than_number]",
+              "type": "Function",
+              "lineno": 70
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_more_than_number]",
+              "type": "Function",
+              "lineno": 70
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_flag_count_equal_to_number_opens_hidden_neighbours",
+              "type": "Function",
+              "lineno": 99
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_fewer_than_number]",
+          "lineno": 70,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_with_mismatched_flag_count_changes_nothing[one_flag_fewer_than_number]",
+            "parametrize",
+            "pytestmark",
+            "one_flag_fewer_than_number",
+            "test_spec_024.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008591000078013167,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001869200001237914,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004653999931178987,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_more_than_number]",
+          "lineno": 70,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_with_mismatched_flag_count_changes_nothing[one_flag_more_than_number]",
+            "parametrize",
+            "pytestmark",
+            "one_flag_more_than_number",
+            "test_spec_024.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007225000008475035,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001604600009159185,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003814000083366409,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_flag_count_equal_to_number_opens_hidden_neighbours",
+          "lineno": 99,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_with_flag_count_equal_to_number_opens_hidden_neighbours",
+            "test_spec_024.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0015063999890116975,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000933699993765913,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004761000018334016,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.794
+}

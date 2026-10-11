@@ -1,0 +1,260 @@
+{
+  "seq": 394,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:33",
+  "t_offset_s": 404.454,
+  "thread": "red_2",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656612.983299,
+        "duration": 0.8087046146392822,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 6,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_031.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_031.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[no_flags]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[all_mines_flagged]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[some_mines_flagged]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_031.py::test_not_won_while_a_hidden_non_mine_cell_remains[no_flags]",
+                "type": "Function",
+                "lineno": 121
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_031.py::test_not_won_while_a_hidden_non_mine_cell_remains[all_mines_flagged]",
+                "type": "Function",
+                "lineno": 121
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_031.py::test_not_won_while_a_flagged_non_mine_cell_remains_unopened",
+                "type": "Function",
+                "lineno": 147
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[no_flags]",
+            "lineno": 84,
+            "outcome": "passed",
+            "keywords": [
+              "test_opening_last_non_mine_cell_wins_regardless_of_flags[no_flags]",
+              "parametrize",
+              "pytestmark",
+              "no_flags",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0016564999968977645,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013986999983899295,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0009408000041730702,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[all_mines_flagged]",
+            "lineno": 84,
+            "outcome": "passed",
+            "keywords": [
+              "test_opening_last_non_mine_cell_wins_regardless_of_flags[all_mines_flagged]",
+              "parametrize",
+              "pytestmark",
+              "all_mines_flagged",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005742000066675246,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009066999919014052,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003476999991107732,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[some_mines_flagged]",
+            "lineno": 84,
+            "outcome": "passed",
+            "keywords": [
+              "test_opening_last_non_mine_cell_wins_regardless_of_flags[some_mines_flagged]",
+              "parametrize",
+              "pytestmark",
+              "some_mines_flagged",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005997000116622075,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008820999937597662,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00034970001433975995,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_031.py::test_not_won_while_a_hidden_non_mine_cell_remains[no_flags]",
+            "lineno": 121,
+            "outcome": "passed",
+            "keywords": [
+              "test_not_won_while_a_hidden_non_mine_cell_remains[no_flags]",
+              "parametrize",
+              "pytestmark",
+              "no_flags",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007561000093119219,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009235000034095719,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0006233999883988872,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_031.py::test_not_won_while_a_hidden_non_mine_cell_remains[all_mines_flagged]",
+            "lineno": 121,
+            "outcome": "passed",
+            "keywords": [
+              "test_not_won_while_a_hidden_non_mine_cell_remains[all_mines_flagged]",
+              "parametrize",
+              "pytestmark",
+              "all_mines_flagged",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008698000019649044,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.003659399997559376,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003797999961534515,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_031.py::test_not_won_while_a_flagged_non_mine_cell_remains_unopened",
+            "lineno": 147,
+            "outcome": "passed",
+            "keywords": [
+              "test_not_won_while_a_flagged_non_mine_cell_remains_unopened",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0016801000019768253,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008985000022221357,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00041849999979604036,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,246 @@
+{
+  "seq": 264,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.067,
+  "thread": "red_4",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1qvkj6c4\\tests\\unit\\test_spec_005.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1qvkj6c4"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1qvkj6c4\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 4 items\n\ntests\\unit\\test_spec_005.py FFFF                                         [100%]\n\n================================== FAILURES ===================================\n_________________ test_custom_width_at_limits_is_accepted[9] __________________\n\nwidth = 9\n\n    @pytest.mark.parametrize(\"width\", [9, 30])\n    def test_custom_width_at_limits_is_accepted(width):\n        game = make_ready_beginner_game()\n    \n        # Height 9 is inside 9..24. Mine count 10 is inside 10..(W-1)*(H-1):\n        # for W=9: 8*8=64, for W=30: 29*8=232, so 10 is valid in both cases.\n        # Only the width decides the outcome.\n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=width, height=9, mine_count=10\n        )\n    \n        # Width 9 and 30 are exactly at the inclusive limits -> accepted,\n        # a new game is returned with the chosen configuration.\n>       assert new_game.width == width\n               ^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'width'\n\ntests\\unit\\test_spec_005.py:35: AttributeError\n_________________ test_custom_width_at_limits_is_accepted[30] _________________\n\nwidth = 30\n\n    @pytest.mark.parametrize(\"width\", [9, 30])\n    def test_custom_width_at_limits_is_accepted(width):\n        game = make_ready_beginner_game()\n    \n        # Height 9 is inside 9..24. Mine count 10 is inside 10..(W-1)*(H-1):\n        # for W=9: 8*8=64, for W=30: 29*8=232, so 10 is valid in both cases.\n        # Only the width decides the outcome.\n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=width, height=9, mine_count=10\n        )\n    \n        # Width 9 and 30 are exactly at the inclusive limits -> accepted,\n        # a new game is returned with the chosen configuration.\n>       assert new_game.width == width\n               ^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'width'\n\ntests\\unit\\test_spec_005.py:35: AttributeError\n_____________ test_custom_width_just_outside_limits_is_refused[8] _____________\n\nwidth = 8\n\n    @pytest.mark.parametrize(\"width\", [8, 31])\n    def test_custom_width_just_outside_limits_is_refused(width):\n        game = make_ready_beginner_game()\n        before = game.to_dict()\n    \n        # Same height (9) and mine count (10) as the accepted case; only the\n        # width changes: 8 is just below 9, 31 is just above 30 -> refused.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_005.py:54: Failed\n____________ test_custom_width_just_outside_limits_is_refused[31] _____________\n\nwidth = 31\n\n    @pytest.mark.parametrize(\"width\", [8, 31])\n    def test_custom_width_just_outside_limits_is_refused(width):\n        game = make_ready_beginner_game()\n        before = game.to_dict()\n    \n        # Same height (9) and mine count (10) as the accepted case; only the\n        # width changes: 8 is just below 9, 31 is just above 30 -> refused.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_005.py:54: Failed\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1qvkj6c4\\.pytest_report_1f95e0428a1c4332aada1e2b980be2ba.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_005.py::test_custom_width_at_limits_is_accepted[9]\nFAILED tests/unit/test_spec_005.py::test_custom_width_at_limits_is_accepted[30]\nFAILED tests/unit/test_spec_005.py::test_custom_width_just_outside_limits_is_refused[8]\nFAILED tests/unit/test_spec_005.py::test_custom_width_just_outside_limits_is_refused[31]\n============================== 4 failed in 2.02s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656607.5702596,
+      "duration": 1.388786792755127,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1qvkj6c4",
+      "environment": {},
+      "summary": {
+        "failed": 4,
+        "total": 4,
+        "collected": 4
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_005.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_005.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_005.py::test_custom_width_at_limits_is_accepted[9]",
+              "type": "Function",
+              "lineno": 21
+            },
+            {
+              "nodeid": "tests/unit/test_spec_005.py::test_custom_width_at_limits_is_accepted[30]",
+              "type": "Function",
+              "lineno": 21
+            },
+            {
+              "nodeid": "tests/unit/test_spec_005.py::test_custom_width_just_outside_limits_is_refused[8]",
+              "type": "Function",
+              "lineno": 46
+            },
+            {
+              "nodeid": "tests/unit/test_spec_005.py::test_custom_width_just_outside_limits_is_refused[31]",
+              "type": "Function",
+              "lineno": 46
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_005.py::test_custom_width_at_limits_is_accepted[9]",
+          "lineno": 21,
+          "outcome": "failed",
+          "keywords": [
+            "test_custom_width_at_limits_is_accepted[9]",
+            "parametrize",
+            "pytestmark",
+            "9",
+            "test_spec_005.py",
+            "unit",
+            "tests",
+            "hollow_1qvkj6c4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008685000066179782,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004462999932002276,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1qvkj6c4\\tests\\unit\\test_spec_005.py",
+              "lineno": 35,
+              "message": "AttributeError: 'NoneType' object has no attribute 'width'"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_005.py",
+                "lineno": 35,
+                "message": "AttributeError"
+              }
+            ],
+            "longrepr": "width = 9\n\n    @pytest.mark.parametrize(\"width\", [9, 30])\n    def test_custom_width_at_limits_is_accepted(width):\n        game = make_ready_beginner_game()\n    \n        # Height 9 is inside 9..24. Mine count 10 is inside 10..(W-1)*(H-1):\n        # for W=9: 8*8=64, for W=30: 29*8=232, so 10 is valid in both cases.\n        # Only the width decides the outcome.\n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=width, height=9, mine_count=10\n        )\n    \n        # Width 9 and 30 are exactly at the inclusive limits -> accepted,\n        # a new game is returned with the chosen configuration.\n>       assert new_game.width == width\n               ^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'width'\n\ntests\\unit\\test_spec_005.py:35: AttributeError"
+          },
+          "teardown": {
+            "duration": 0.000414399997680448,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_005.py::test_custom_width_at_limits_is_accepted[30]",
+          "lineno": 21,
+          "outcome": "failed",
+          "keywords": [
+            "test_custom_width_at_limits_is_accepted[30]",
+            "parametrize",
+            "pytestmark",
+            "30",
+            "test_spec_005.py",
+            "unit",
+            "tests",
+            "hollow_1qvkj6c4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0009037999989232048,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005942999996477738,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1qvkj6c4\\tests\\unit\\test_spec_005.py",
+              "lineno": 35,
+              "message": "AttributeError: 'NoneType' object has no attribute 'width'"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_005.py",
+                "lineno": 35,
+                "message": "AttributeError"
+              }
+            ],
+            "longrepr": "width = 30\n\n    @pytest.mark.parametrize(\"width\", [9, 30])\n    def test_custom_width_at_limits_is_accepted(width):\n        game = make_ready_beginner_game()\n    \n        # Height 9 is inside 9..24. Mine count 10 is inside 10..(W-1)*(H-1):\n        # for W=9: 8*8=64, for W=30: 29*8=232, so 10 is valid in both cases.\n        # Only the width decides the outcome.\n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=width, height=9, mine_count=10\n        )\n    \n        # Width 9 and 30 are exactly at the inclusive limits -> accepted,\n        # a new game is returned with the chosen configuration.\n>       assert new_game.width == width\n               ^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'width'\n\ntests\\unit\\test_spec_005.py:35: AttributeError"
+          },
+          "teardown": {
+            "duration": 0.0005235000135144219,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_005.py::test_custom_width_just_outside_limits_is_refused[8]",
+          "lineno": 46,
+          "outcome": "failed",
+          "keywords": [
+            "test_custom_width_just_outside_limits_is_refused[8]",
+            "parametrize",
+            "pytestmark",
+            "8",
+            "test_spec_005.py",
+            "unit",
+            "tests",
+            "hollow_1qvkj6c4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006161999917821959,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005185000045457855,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1qvkj6c4\\tests\\unit\\test_spec_005.py",
+              "lineno": 54,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_005.py",
+                "lineno": 54,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "width = 8\n\n    @pytest.mark.parametrize(\"width\", [8, 31])\n    def test_custom_width_just_outside_limits_is_refused(width):\n        game = make_ready_beginner_game()\n        before = game.to_dict()\n    \n        # Same height (9) and mine count (10) as the accepted case; only the\n        # width changes: 8 is just below 9, 31 is just above 30 -> refused.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_005.py:54: Failed"
+          },
+          "teardown": {
+            "duration": 0.0009781999979168177,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_005.py::test_custom_width_just_outside_limits_is_refused[31]",
+          "lineno": 46,
+          "outcome": "failed",
+          "keywords": [
+            "test_custom_width_just_outside_limits_is_refused[31]",
+            "parametrize",
+            "pytestmark",
+            "31",
+            "test_spec_005.py",
+            "unit",
+            "tests",
+            "hollow_1qvkj6c4",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005585000035353005,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006360999977914616,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1qvkj6c4\\tests\\unit\\test_spec_005.py",
+              "lineno": 54,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_005.py",
+                "lineno": 54,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "width = 31\n\n    @pytest.mark.parametrize(\"width\", [8, 31])\n    def test_custom_width_just_outside_limits_is_refused(width):\n        game = make_ready_beginner_game()\n        before = game.to_dict()\n    \n        # Same height (9) and mine count (10) as the accepted case; only the\n        # width changes: 8 is just below 9, 31 is just above 30 -> refused.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_005.py:54: Failed"
+          },
+          "teardown": {
+            "duration": 0.000564500005566515,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 6.721
+}

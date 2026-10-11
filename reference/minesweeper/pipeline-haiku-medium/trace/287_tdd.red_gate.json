@@ -1,0 +1,103 @@
+{
+  "seq": 287,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:18",
+  "t_offset_s": 199.143,
+  "thread": "red_5",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652457.3546197,
+        "duration": 1.2462379932403564,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_odvx3xhj",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_006.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_006.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_006.py::test_mines_placed_at_random_and_status_in_progress_after_first_reveal",
+                "type": "Function",
+                "lineno": 17
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_006.py::test_mines_placed_at_random_and_status_in_progress_after_first_reveal",
+            "lineno": 17,
+            "outcome": "failed",
+            "keywords": [
+              "test_mines_placed_at_random_and_status_in_progress_after_first_reveal",
+              "test_spec_006.py",
+              "unit",
+              "tests",
+              "hollow_odvx3xhj",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006433999951696023,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008643000037409365,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_odvx3xhj\\tests\\unit\\test_spec_006.py",
+                "lineno": 34,
+                "message": "AssertionError: assert 'ready' == 'in_progress'\n  \n  - in_progress\n  + ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_006.py",
+                  "lineno": 34,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_mines_placed_at_random_and_status_in_progress_after_first_reveal():\n        # Given a session in Ready state with no mines placed.\n        session = make_expert_ready_session()\n        assert session.status == \"ready\"\n        # Before the first reveal, no cell holds a mine (constructor state).\n        assert sum(1 for cell in session.cells if cell[\"has_mine\"]) == 0\n    \n        # When the player reveals a hidden cell for the first time.\n        session.reveal_cell(row=8, column=15)\n    \n        # Then the session status becomes in_progress.\n        # Working: the session is in ready, the cell (8, 15) is hidden and unflagged,\n        # so the reveal is allowed. It is the first reveal, so mines are placed and\n        # the status moves to in_progress. Only 1 cell was revealed among 1381 safe\n        # cells, so the game is not won and not lost (the cell is safe, a first\n        # reveal never hits a mine).\n>       assert session.status == \"in_progress\"\nE       AssertionError: assert 'ready' == 'in_progress'\nE         \nE         - in_progress\nE         + ready\n\ntests\\unit\\test_spec_006.py:34: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00041140000394079834,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

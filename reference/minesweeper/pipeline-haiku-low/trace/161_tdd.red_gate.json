@@ -1,0 +1,103 @@
+{
+  "seq": 161,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:17:26",
+  "t_offset_s": 91.115,
+  "thread": "red_2",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652646.4500365,
+        "duration": 0.24206042289733887,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_8f3inzm7",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_003.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_003.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_003.py::test_zero_expansion_stops_at_numbered_cells_and_respects_flags",
+                "type": "Function",
+                "lineno": 60
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_003.py::test_zero_expansion_stops_at_numbered_cells_and_respects_flags",
+            "lineno": 60,
+            "outcome": "failed",
+            "keywords": [
+              "test_zero_expansion_stops_at_numbered_cells_and_respects_flags",
+              "test_spec_003.py",
+              "unit",
+              "tests",
+              "hollow_8f3inzm7",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000363900006050244,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008701000042492524,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_8f3inzm7\\tests\\unit\\test_spec_003.py",
+                "lineno": 78,
+                "message": "AssertionError: assert 'hidden' == 'revealed'\n  \n  - revealed\n  + hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_003.py",
+                  "lineno": 78,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_zero_expansion_stops_at_numbered_cells_and_respects_flags():\n        # Given an in-progress Beginner game where the target (4,4) has count 0,\n        # its neighbour (3,4) has count 1, its neighbour (3,5) is flagged,\n        # and (2,5) is a zero-count hidden cell reachable only through (3,4) or (3,5).\n        game = Game(id=\"game-zero-stop\")\n        game.difficulty = \"Beginner\"\n        game.status = \"in_progress\"\n        game.started_at = \"2024-01-01T10:00:00\"\n        game.mine_count = 10\n        game.flag_count = 1\n        game.cells = _build_cells(flagged={(3, 5)})\n    \n        # When the player reveals the zero-count cell (4,4).\n        game.reveal_cell(row=4, column=4)\n    \n        # Then the target itself is revealed (it was hidden, unflagged, count 0).\n        # Its count is 0: no mine among (3..5, 3..5).\n>       assert _cell(game, 4, 4)[\"state\"] == \"revealed\"\nE       AssertionError: assert 'hidden' == 'revealed'\nE         \nE         - revealed\nE         + hidden\n\ntests\\unit\\test_spec_003.py:78: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004030999989481643,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

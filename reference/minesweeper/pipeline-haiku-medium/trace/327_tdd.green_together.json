@@ -1,0 +1,652 @@
+{
+  "seq": 327,
+  "step": "tdd.green_together",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:27",
+  "t_offset_s": 208.289,
+  "thread": "synthesis_0",
+  "input": {
+    "args": [
+      [
+        [
+          {
+            "spec_id": "SPEC-001",
+            "title": "Beginner difficulty preset",
+            "description": "The Beginner preset fixes the board at 9 rows by 9 columns with 10 mines.",
+            "given_when_then": "Given the difficulty presets are available When the player selects Beginner Then the new game board has 9 rows, 9 columns and 10 mines",
+            "target_aggregate": "Difficulty",
+            "spec_type": "DOMAIN_INVARIANT",
+            "kind": "behavior",
+            "category": "INVARIANT",
+            "is_mathematical_boundary": true,
+            "priority": "High",
+            "status": "PENDING"
+          },
+          {
+            "verdict": "approved",
+            "test_file_path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_001.py",
+            "test_code": "from src.domain.difficulty import Difficulty\n\n\ndef test_selecting_beginner_gives_9_rows_9_columns_10_mines():\n    # Given: the difficulty presets are available (Beginner is one of them).\n    # When: the player selects Beginner.\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n\n    # Then: the preset's board is exactly 9 rows, 9 columns and 10 mines.\n    # Rows: the Beginner preset fixes rows at 9 (the at-limit value).\n    assert beginner.rows == 9\n    # Columns: the Beginner preset fixes columns at 9 (the at-limit value).\n    assert beginner.columns == 9\n    # Mines: the Beginner preset fixes mine_count at 10 (the at-limit value).\n    assert beginner.mine_count == 10\n\n\ndef test_beginner_rows_and_columns_stop_at_9_not_one_beyond():\n    # Given: the difficulty presets are available.\n    # When: the player selects Beginner.\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n\n    # Then: the board is not one step beyond the limit of 9 in either direction.\n    # One beyond the limit would be 10 rows, which Beginner must not use.\n    assert beginner.rows != 10\n    # One beyond the limit would be 10 columns, which Beginner must not use.\n    assert beginner.columns != 10\n    # Only the 9-row, 9-column board is Beginner, so rows is strictly below 10.\n    assert beginner.rows < 10\n    # And columns is strictly below 10.\n    assert beginner.columns < 10\n\n\ndef test_beginner_mine_count_stops_at_10_not_one_beyond():\n    # Given: the difficulty presets are available.\n    # When: the player selects Beginner.\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n\n    # Then: the mine count is not one beyond the limit of 10.\n    # One beyond the limit would be 11 mines, which Beginner must not use.\n    assert beginner.mine_count != 11\n    # Exactly 10 mines is the limit, so the count is strictly below 11.\n    assert beginner.mine_count < 11\n",
+            "test_hash": "9577c3ae31abc38c56dab21db8e5b598dc84f0521fd8931b9b67d0c053b3d5d4",
+            "result": {
+              "exit_code": 1,
+              "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 3 items\n\ntests\\unit\\test_spec_001.py::test_selecting_beginner_gives_9_rows_9_columns_10_mines FAILED [ 33%]\ntests\\unit\\test_spec_001.py::test_beginner_rows_and_columns_stop_at_9_not_one_beyond FAILED [ 66%]\ntests\\unit\\test_spec_001.py::test_beginner_mine_count_stops_at_10_not_one_beyond FAILED [100%]\n\n================================== FAILURES ===================================\n___________ test_selecting_beginner_gives_9_rows_9_columns_10_mines ___________\ntests\\unit\\test_spec_001.py:7: in test_selecting_beginner_gives_9_rows_9_columns_10_mines\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'\n___________ test_beginner_rows_and_columns_stop_at_9_not_one_beyond ___________\ntests\\unit\\test_spec_001.py:21: in test_beginner_rows_and_columns_stop_at_9_not_one_beyond\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'\n_____________ test_beginner_mine_count_stops_at_10_not_one_beyond _____________\ntests\\unit\\test_spec_001.py:37: in test_beginner_mine_count_stops_at_10_not_one_beyond\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_7f0c06092a5242e2a3f449be52a81cd4.json\n=========================== short test summary info ===========================\nFAILED tests\\unit\\test_spec_001.py::test_selecting_beginner_gives_9_rows_9_columns_10_mines\nFAILED tests\\unit\\test_spec_001.py::test_beginner_rows_and_columns_stop_at_9_not_one_beyond\nFAILED tests\\unit\\test_spec_001.py::test_beginner_mine_count_stops_at_10_not_one_beyond\n============================== 3 failed in 1.13s ==============================\n",
+              "stderr": "",
+              "report": {
+                "created": 1791652451.5072215,
+                "duration": 1.1221511363983154,
+                "exitcode": 1,
+                "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+                "environment": {},
+                "summary": {
+                  "failed": 3,
+                  "total": 3,
+                  "collected": 3
+                },
+                "collectors": [
+                  {
+                    "nodeid": "",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_001.py",
+                        "type": "Module"
+                      }
+                    ]
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_001.py",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_001.py::test_selecting_beginner_gives_9_rows_9_columns_10_mines",
+                        "type": "Function",
+                        "lineno": 3
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_001.py::test_beginner_rows_and_columns_stop_at_9_not_one_beyond",
+                        "type": "Function",
+                        "lineno": 17
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_001.py::test_beginner_mine_count_stops_at_10_not_one_beyond",
+                        "type": "Function",
+                        "lineno": 33
+                      }
+                    ]
+                  }
+                ],
+                "tests": [
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_001.py::test_selecting_beginner_gives_9_rows_9_columns_10_mines",
+                    "lineno": 3,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_selecting_beginner_gives_9_rows_9_columns_10_mines",
+                      "test_spec_001.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.000643299994408153,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0004081999941263348,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_001.py",
+                        "lineno": 7,
+                        "message": "AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_001.py",
+                          "lineno": 7,
+                          "message": "in test_selecting_beginner_gives_9_rows_9_columns_10_mines"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_001.py:7: in test_selecting_beginner_gives_9_rows_9_columns_10_mines\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                    },
+                    "teardown": {
+                      "duration": 0.0003760000108741224,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_001.py::test_beginner_rows_and_columns_stop_at_9_not_one_beyond",
+                    "lineno": 17,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_beginner_rows_and_columns_stop_at_9_not_one_beyond",
+                      "test_spec_001.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.00036809999437537044,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0003532999980961904,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_001.py",
+                        "lineno": 21,
+                        "message": "AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_001.py",
+                          "lineno": 21,
+                          "message": "in test_beginner_rows_and_columns_stop_at_9_not_one_beyond"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_001.py:21: in test_beginner_rows_and_columns_stop_at_9_not_one_beyond\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                    },
+                    "teardown": {
+                      "duration": 0.00040860001172404736,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_001.py::test_beginner_mine_count_stops_at_10_not_one_beyond",
+                    "lineno": 33,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_beginner_mine_count_stops_at_10_not_one_beyond",
+                      "test_spec_001.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0003963000053772703,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.00038100000529084355,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_001.py",
+                        "lineno": 37,
+                        "message": "AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_001.py",
+                          "lineno": 37,
+                          "message": "in test_beginner_mine_count_stops_at_10_not_one_beyond"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_001.py:37: in test_beginner_mine_count_stops_at_10_not_one_beyond\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                    },
+                    "teardown": {
+                      "duration": 0.0003583000070648268,
+                      "outcome": "passed"
+                    }
+                  }
+                ]
+              },
+              "timed_out": false
+            },
+            "evaluation": {
+              "status": "APPROVED_RED",
+              "approved": true,
+              "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+            },
+            "attempts": [
+              {
+                "attempt": 1,
+                "approved": true,
+                "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "spec_id": "SPEC-002",
+            "title": "Intermediate difficulty preset",
+            "description": "The Intermediate preset fixes the board at 16 rows by 16 columns with 40 mines.",
+            "given_when_then": "Given the difficulty presets are available When the player selects Intermediate Then the new game board has 16 rows, 16 columns and 40 mines",
+            "target_aggregate": "Difficulty",
+            "spec_type": "DOMAIN_INVARIANT",
+            "kind": "behavior",
+            "category": "INVARIANT",
+            "is_mathematical_boundary": true,
+            "priority": "High",
+            "status": "PENDING"
+          },
+          {
+            "verdict": "approved",
+            "test_file_path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_002.py",
+            "test_code": "import pytest\n\nfrom src.domain.difficulty import Difficulty\n\n\ndef test_selecting_intermediate_gives_16_rows_16_columns_40_mines():\n    # Given the difficulty presets are available (the preset table is built into the class).\n    # When the player selects Intermediate.\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n\n    # Then the new game board has 16 rows.\n    # The Intermediate preset fixes rows at exactly 16 (the value at the limit).\n    assert difficulty.rows == 16\n\n    # Then the new game board has 16 columns.\n    # The Intermediate preset fixes columns at exactly 16, not the Expert value of 30.\n    assert difficulty.columns == 16\n\n    # Then the new game board has 40 mines.\n    # The Intermediate preset fixes mine_count at exactly 40, not Beginner's 10 or Expert's 99.\n    assert difficulty.mine_count == 40\n\n\ndef test_intermediate_preset_is_not_one_step_beyond_its_limits():\n    # Given the difficulty presets are available.\n    # When the player selects Intermediate.\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n\n    # Then the rows are not one step beyond the limit: the value is 16, so it is not 15 or 17.\n    assert difficulty.rows not in (15, 17)\n\n    # Then the columns are not one step beyond the limit: the value is 16, so it is not 15 or 17.\n    assert difficulty.columns not in (15, 17)\n\n    # Then the mines are not one step beyond the limit: the value is 40, so it is not 39 or 41.\n    assert difficulty.mine_count not in (39, 41)\n",
+            "test_hash": "30f36d1894192bda60cd49c25437a5abce488e29be8cb24a7b260fd632364e83",
+            "result": {
+              "exit_code": 1,
+              "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 2 items\n\ntests\\unit\\test_spec_002.py::test_selecting_intermediate_gives_16_rows_16_columns_40_mines FAILED [ 50%]\ntests\\unit\\test_spec_002.py::test_intermediate_preset_is_not_one_step_beyond_its_limits FAILED [100%]\n\n================================== FAILURES ===================================\n________ test_selecting_intermediate_gives_16_rows_16_columns_40_mines ________\ntests\\unit\\test_spec_002.py:9: in test_selecting_intermediate_gives_16_rows_16_columns_40_mines\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n                 ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'\n_________ test_intermediate_preset_is_not_one_step_beyond_its_limits __________\ntests\\unit\\test_spec_002.py:27: in test_intermediate_preset_is_not_one_step_beyond_its_limits\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n                 ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_01e2c8b302b3486481e94fee403bf250.json\n=========================== short test summary info ===========================\nFAILED tests\\unit\\test_spec_002.py::test_selecting_intermediate_gives_16_rows_16_columns_40_mines\nFAILED tests\\unit\\test_spec_002.py::test_intermediate_preset_is_not_one_step_beyond_its_limits\n============================== 2 failed in 1.09s ==============================\n",
+              "stderr": "",
+              "report": {
+                "created": 1791652452.0515852,
+                "duration": 1.0742933750152588,
+                "exitcode": 1,
+                "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+                "environment": {},
+                "summary": {
+                  "failed": 2,
+                  "total": 2,
+                  "collected": 2
+                },
+                "collectors": [
+                  {
+                    "nodeid": "",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_002.py",
+                        "type": "Module"
+                      }
+                    ]
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_002.py",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_002.py::test_selecting_intermediate_gives_16_rows_16_columns_40_mines",
+                        "type": "Function",
+                        "lineno": 5
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_002.py::test_intermediate_preset_is_not_one_step_beyond_its_limits",
+                        "type": "Function",
+                        "lineno": 23
+                      }
+                    ]
+                  }
+                ],
+                "tests": [
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_002.py::test_selecting_intermediate_gives_16_rows_16_columns_40_mines",
+                    "lineno": 5,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_selecting_intermediate_gives_16_rows_16_columns_40_mines",
+                      "test_spec_002.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0005283999926177785,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.00042380001104902476,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_002.py",
+                        "lineno": 9,
+                        "message": "AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_002.py",
+                          "lineno": 9,
+                          "message": "in test_selecting_intermediate_gives_16_rows_16_columns_40_mines"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_002.py:9: in test_selecting_intermediate_gives_16_rows_16_columns_40_mines\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n                 ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                    },
+                    "teardown": {
+                      "duration": 0.0004264999879524112,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_002.py::test_intermediate_preset_is_not_one_step_beyond_its_limits",
+                    "lineno": 23,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_intermediate_preset_is_not_one_step_beyond_its_limits",
+                      "test_spec_002.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0003763999993680045,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.000377499993192032,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_002.py",
+                        "lineno": 27,
+                        "message": "AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_002.py",
+                          "lineno": 27,
+                          "message": "in test_intermediate_preset_is_not_one_step_beyond_its_limits"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_002.py:27: in test_intermediate_preset_is_not_one_step_beyond_its_limits\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n                 ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                    },
+                    "teardown": {
+                      "duration": 0.0003935999993700534,
+                      "outcome": "passed"
+                    }
+                  }
+                ]
+              },
+              "timed_out": false
+            },
+            "evaluation": {
+              "status": "APPROVED_RED",
+              "approved": true,
+              "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+            },
+            "attempts": [
+              {
+                "attempt": 1,
+                "approved": true,
+                "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "spec_id": "SPEC-003",
+            "title": "Expert difficulty preset",
+            "description": "The Expert preset fixes the board at 30 columns by 16 rows with 99 mines.",
+            "given_when_then": "Given the difficulty presets are available When the player selects Expert Then the new game board has 16 rows, 30 columns and 99 mines",
+            "target_aggregate": "Difficulty",
+            "spec_type": "DOMAIN_INVARIANT",
+            "kind": "behavior",
+            "category": "INVARIANT",
+            "is_mathematical_boundary": true,
+            "priority": "High",
+            "status": "PENDING"
+          },
+          {
+            "verdict": "approved",
+            "test_file_path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_003.py",
+            "test_code": "from src.domain.difficulty import Difficulty\n\n\ndef test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines():\n    # Given: the difficulty presets are available (the preset table is built into Difficulty).\n    # When: the player selects the Expert preset.\n    selected = Difficulty.select_preset(name=\"Expert\")\n\n    # Then: the Expert preset fixes the board at 16 rows.\n    # Expert is defined as 16 rows, so rows must be 16.\n    assert selected.rows == 16\n\n    # Then: the Expert preset fixes the board at 30 columns.\n    # Expert is defined as 30 columns, so columns must be 30.\n    assert selected.columns == 30\n\n    # Then: the Expert preset places 99 mines.\n    # Expert is defined as 99 mines, so mine_count must be 99.\n    assert selected.mine_count == 99\n\n\ndef test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond():\n    # Given: the difficulty presets are available.\n    # When: the player selects the Expert preset.\n    selected = Difficulty.select_preset(name=\"Expert\")\n\n    # Exactly at the limit: 30 columns is accepted and the preset keeps that exact value.\n    # The Expert preset has 30 columns, so the value equals 30.\n    assert selected.columns == 30\n\n    # Just beyond the limit: 31 columns would be a different board and must not be the Expert preset.\n    # The Expert preset has 30 columns, so it is not 31.\n    assert selected.columns != 31\n\n    # Exactly at the limit: 99 mines is accepted and the preset keeps that exact value.\n    # The Expert preset has 99 mines, so the value equals 99.\n    assert selected.mine_count == 99\n\n    # Just beyond the limit: 100 mines would be a different board and must not be the Expert preset.\n    # The Expert preset has 99 mines, so it is not 100.\n    assert selected.mine_count != 100\n",
+            "test_hash": "9476bda296712b772d514c60626783ccbc88892351b5769496e429de4444331a",
+            "result": {
+              "exit_code": 1,
+              "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 2 items\n\ntests\\unit\\test_spec_003.py::test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines FAILED [ 50%]\ntests\\unit\\test_spec_003.py::test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond FAILED [100%]\n\n================================== FAILURES ===================================\n___ test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines ____\ntests\\unit\\test_spec_003.py:7: in test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines\n    selected = Difficulty.select_preset(name=\"Expert\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'\n___ test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond ___\ntests\\unit\\test_spec_003.py:25: in test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond\n    selected = Difficulty.select_preset(name=\"Expert\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_badc6bc2e3a14c51b7e011859961a7b6.json\n=========================== short test summary info ===========================\nFAILED tests\\unit\\test_spec_003.py::test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines\nFAILED tests\\unit\\test_spec_003.py::test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond\n============================== 2 failed in 1.28s ==============================\n",
+              "stderr": "",
+              "report": {
+                "created": 1791652452.9509993,
+                "duration": 1.1838712692260742,
+                "exitcode": 1,
+                "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+                "environment": {},
+                "summary": {
+                  "failed": 2,
+                  "total": 2,
+                  "collected": 2
+                },
+                "collectors": [
+                  {
+                    "nodeid": "",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_003.py",
+                        "type": "Module"
+                      }
+                    ]
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_003.py",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_003.py::test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines",
+                        "type": "Function",
+                        "lineno": 3
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_003.py::test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond",
+                        "type": "Function",
+                        "lineno": 21
+                      }
+                    ]
+                  }
+                ],
+                "tests": [
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_003.py::test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines",
+                    "lineno": 3,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines",
+                      "test_spec_003.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.00060450000455603,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0005479999963426962,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_003.py",
+                        "lineno": 7,
+                        "message": "AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_003.py",
+                          "lineno": 7,
+                          "message": "in test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_003.py:7: in test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines\n    selected = Difficulty.select_preset(name=\"Expert\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                    },
+                    "teardown": {
+                      "duration": 0.0004177000082563609,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_003.py::test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond",
+                    "lineno": 21,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond",
+                      "test_spec_003.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.004473900000448339,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.00045819999650120735,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_003.py",
+                        "lineno": 25,
+                        "message": "AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_003.py",
+                          "lineno": 25,
+                          "message": "in test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_003.py:25: in test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond\n    selected = Difficulty.select_preset(name=\"Expert\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+                    },
+                    "teardown": {
+                      "duration": 0.0004741000011563301,
+                      "outcome": "passed"
+                    }
+                  }
+                ]
+              },
+              "timed_out": false
+            },
+            "evaluation": {
+              "status": "APPROVED_RED",
+              "approved": true,
+              "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+            },
+            "attempts": [
+              {
+                "attempt": 1,
+                "approved": true,
+                "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+              }
+            ]
+          }
+        ]
+      ],
+      {
+        "class_name": "Difficulty",
+        "module_name": "difficulty",
+        "domain_file": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\difficulty.py",
+        "tests_dir": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit"
+      },
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace",
+      "",
+      "{'test_spec_034.py', 'test_spec_035.py', 'test_spec_030.py', 'test_spec_009.py', 'test_spec_025.py'}"
+    ],
+    "kwargs": {
+      "peers": []
+    }
+  },
+  "output": {
+    "SPEC-001": {
+      "success": true,
+      "status": "FULFILLED",
+      "phase": "COMMITTED",
+      "spec_id": "SPEC-001",
+      "test_file": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_001.py",
+      "red_eval": {
+        "status": "APPROVED_RED",
+        "approved": true,
+        "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+      },
+      "green_eval": {
+        "status": "APPROVED_GREEN",
+        "approved": true,
+        "reason": "All tests passed cleanly."
+      },
+      "red_attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+        }
+      ],
+      "test_source": "from src.domain.difficulty import Difficulty\n\n\ndef test_selecting_beginner_gives_9_rows_9_columns_10_mines():\n    # Given: the difficulty presets are available (Beginner is one of them).\n    # When: the player selects Beginner.\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n\n    # Then: the preset's board is exactly 9 rows, 9 columns and 10 mines.\n    # Rows: the Beginner preset fixes rows at 9 (the at-limit value).\n    assert beginner.rows == 9\n    # Columns: the Beginner preset fixes columns at 9 (the at-limit value).\n    assert beginner.columns == 9\n    # Mines: the Beginner preset fixes mine_count at 10 (the at-limit value).\n    assert beginner.mine_count == 10\n\n\ndef test_beginner_rows_and_columns_stop_at_9_not_one_beyond():\n    # Given: the difficulty presets are available.\n    # When: the player selects Beginner.\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n\n    # Then: the board is not one step beyond the limit of 9 in either direction.\n    # One beyond the limit would be 10 rows, which Beginner must not use.\n    assert beginner.rows != 10\n    # One beyond the limit would be 10 columns, which Beginner must not use.\n    assert beginner.columns != 10\n    # Only the 9-row, 9-column board is Beginner, so rows is strictly below 10.\n    assert beginner.rows < 10\n    # And columns is strictly below 10.\n    assert beginner.columns < 10\n\n\ndef test_beginner_mine_count_stops_at_10_not_one_beyond():\n    # Given: the difficulty presets are available.\n    # When: the player selects Beginner.\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n\n    # Then: the mine count is not one beyond the limit of 10.\n    # One beyond the limit would be 11 mines, which Beginner must not use.\n    assert beginner.mine_count != 11\n    # Exactly 10 mines is the limit, so the count is strictly below 11.\n    assert beginner.mine_count < 11\n",
+      "attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "All tests passed cleanly."
+        }
+      ]
+    },
+    "SPEC-002": {
+      "success": true,
+      "status": "FULFILLED",
+      "phase": "COMMITTED",
+      "spec_id": "SPEC-002",
+      "test_file": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_002.py",
+      "red_eval": {
+        "status": "APPROVED_RED",
+        "approved": true,
+        "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+      },
+      "green_eval": {
+        "status": "APPROVED_GREEN",
+        "approved": true,
+        "reason": "All tests passed cleanly."
+      },
+      "red_attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+        }
+      ],
+      "test_source": "import pytest\n\nfrom src.domain.difficulty import Difficulty\n\n\ndef test_selecting_intermediate_gives_16_rows_16_columns_40_mines():\n    # Given the difficulty presets are available (the preset table is built into the class).\n    # When the player selects Intermediate.\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n\n    # Then the new game board has 16 rows.\n    # The Intermediate preset fixes rows at exactly 16 (the value at the limit).\n    assert difficulty.rows == 16\n\n    # Then the new game board has 16 columns.\n    # The Intermediate preset fixes columns at exactly 16, not the Expert value of 30.\n    assert difficulty.columns == 16\n\n    # Then the new game board has 40 mines.\n    # The Intermediate preset fixes mine_count at exactly 40, not Beginner's 10 or Expert's 99.\n    assert difficulty.mine_count == 40\n\n\ndef test_intermediate_preset_is_not_one_step_beyond_its_limits():\n    # Given the difficulty presets are available.\n    # When the player selects Intermediate.\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n\n    # Then the rows are not one step beyond the limit: the value is 16, so it is not 15 or 17.\n    assert difficulty.rows not in (15, 17)\n\n    # Then the columns are not one step beyond the limit: the value is 16, so it is not 15 or 17.\n    assert difficulty.columns not in (15, 17)\n\n    # Then the mines are not one step beyond the limit: the value is 40, so it is not 39 or 41.\n    assert difficulty.mine_count not in (39, 41)\n",
+      "attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "All tests passed cleanly."
+        }
+      ]
+    },
+    "SPEC-003": {
+      "success": true,
+      "status": "FULFILLED",
+      "phase": "COMMITTED",
+      "spec_id": "SPEC-003",
+      "test_file": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_003.py",
+      "red_eval": {
+        "status": "APPROVED_RED",
+        "approved": true,
+        "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+      },
+      "green_eval": {
+        "status": "APPROVED_GREEN",
+        "approved": true,
+        "reason": "All tests passed cleanly."
+      },
+      "red_attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+        }
+      ],
+      "test_source": "from src.domain.difficulty import Difficulty\n\n\ndef test_selecting_expert_gives_a_board_of_16_rows_30_columns_and_99_mines():\n    # Given: the difficulty presets are available (the preset table is built into Difficulty).\n    # When: the player selects the Expert preset.\n    selected = Difficulty.select_preset(name=\"Expert\")\n\n    # Then: the Expert preset fixes the board at 16 rows.\n    # Expert is defined as 16 rows, so rows must be 16.\n    assert selected.rows == 16\n\n    # Then: the Expert preset fixes the board at 30 columns.\n    # Expert is defined as 30 columns, so columns must be 30.\n    assert selected.columns == 30\n\n    # Then: the Expert preset places 99 mines.\n    # Expert is defined as 99 mines, so mine_count must be 99.\n    assert selected.mine_count == 99\n\n\ndef test_expert_preset_is_exactly_at_30_columns_and_99_mines_not_one_beyond():\n    # Given: the difficulty presets are available.\n    # When: the player selects the Expert preset.\n    selected = Difficulty.select_preset(name=\"Expert\")\n\n    # Exactly at the limit: 30 columns is accepted and the preset keeps that exact value.\n    # The Expert preset has 30 columns, so the value equals 30.\n    assert selected.columns == 30\n\n    # Just beyond the limit: 31 columns would be a different board and must not be the Expert preset.\n    # The Expert preset has 30 columns, so it is not 31.\n    assert selected.columns != 31\n\n    # Exactly at the limit: 99 mines is accepted and the preset keeps that exact value.\n    # The Expert preset has 99 mines, so the value equals 99.\n    assert selected.mine_count == 99\n\n    # Just beyond the limit: 100 mines would be a different board and must not be the Expert preset.\n    # The Expert preset has 99 mines, so it is not 100.\n    assert selected.mine_count != 100\n",
+      "attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "All tests passed cleanly."
+        }
+      ]
+    }
+  },
+  "duration_s": 6.35
+}

@@ -1,0 +1,3400 @@
+{
+  "seq": 164,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "behaviour.implement_actions",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:22:09",
+  "t_offset_s": 320.067,
+  "thread": "red_0",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656528.8497152,
+        "duration": 1.391899824142456,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 72,
+          "total": 72,
+          "collected": 72
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_new_game_starts_ready_with_hidden_empty_grid",
+                "type": "Function",
+                "lineno": 136
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_first_open_lays_mines_and_starts_playing",
+                "type": "Function",
+                "lineno": 152
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_numbered_cell_opens_only_itself",
+                "type": "Function",
+                "lineno": 183
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_zero_cascades_stops_at_numbers_and_skips_flags",
+                "type": "Function",
+                "lineno": 198
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_mine_loses",
+                "type": "Function",
+                "lineno": 222
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_last_safe_cell_wins_and_flags_mines",
+                "type": "Function",
+                "lineno": 235
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_opened_or_flagged_cell_is_ignored[target0]",
+                "type": "Function",
+                "lineno": 252
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_opened_or_flagged_cell_is_ignored[target1]",
+                "type": "Function",
+                "lineno": 252
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Won]",
+                "type": "Function",
+                "lineno": 264
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Lost]",
+                "type": "Function",
+                "lineno": 264
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Abandoned]",
+                "type": "Function",
+                "lineno": 264
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[8-8-True]",
+                "type": "Function",
+                "lineno": 275
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[9-0-False]",
+                "type": "Function",
+                "lineno": 275
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[0-9-False]",
+                "type": "Function",
+                "lineno": 275
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[-1-0-False]",
+                "type": "Function",
+                "lineno": 275
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_switches_hidden_and_flagged[Ready]",
+                "type": "Function",
+                "lineno": 293
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_switches_hidden_and_flagged[Playing]",
+                "type": "Function",
+                "lineno": 293
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_is_unlimited_and_counter_goes_negative",
+                "type": "Function",
+                "lineno": 314
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_on_opened_cell_is_ignored",
+                "type": "Function",
+                "lineno": 326
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Won]",
+                "type": "Function",
+                "lineno": 336
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Lost]",
+                "type": "Function",
+                "lineno": 336
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Abandoned]",
+                "type": "Function",
+                "lineno": 336
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[0-8-True]",
+                "type": "Function",
+                "lineno": 347
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[0-9-False]",
+                "type": "Function",
+                "lineno": 347
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[9-0-False]",
+                "type": "Function",
+                "lineno": 347
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_matching_flags_opens_neighbours_and_cascades",
+                "type": "Function",
+                "lineno": 365
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_mismatched_flags_changes_nothing[flags0]",
+                "type": "Function",
+                "lineno": 388
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_mismatched_flags_changes_nothing[flags1]",
+                "type": "Function",
+                "lineno": 388
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_wrong_flag_loses",
+                "type": "Function",
+                "lineno": 400
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_on_hidden_cell_is_ignored",
+                "type": "Function",
+                "lineno": 414
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_on_zero_cell_is_ignored",
+                "type": "Function",
+                "lineno": 424
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Won]",
+                "type": "Function",
+                "lineno": 434
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Lost]",
+                "type": "Function",
+                "lineno": 434
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Abandoned]",
+                "type": "Function",
+                "lineno": 434
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[8-0-True]",
+                "type": "Function",
+                "lineno": 446
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[9-0-False]",
+                "type": "Function",
+                "lineno": 446
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[0-9-False]",
+                "type": "Function",
+                "lineno": 446
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[5-6]",
+                "type": "Function",
+                "lineno": 463
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[998-999]",
+                "type": "Function",
+                "lineno": 463
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[999-999]",
+                "type": "Function",
+                "lineno": 463
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Won]",
+                "type": "Function",
+                "lineno": 474
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Lost]",
+                "type": "Function",
+                "lineno": 474
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Abandoned]",
+                "type": "Function",
+                "lineno": 474
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_ready_game_changes_nothing",
+                "type": "Function",
+                "lineno": 485
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_abandons_active_game_and_returns_new_one[Ready]",
+                "type": "Function",
+                "lineno": 498
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_abandons_active_game_and_returns_new_one[Playing]",
+                "type": "Function",
+                "lineno": 498
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_after_end_keeps_outcome[Won]",
+                "type": "Function",
+                "lineno": 516
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_after_end_keeps_outcome[Lost]",
+                "type": "Function",
+                "lineno": 516
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[beginner-9-9-10]",
+                "type": "Function",
+                "lineno": 534
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[intermediate-16-16-40]",
+                "type": "Function",
+                "lineno": 534
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[expert-30-16-99]",
+                "type": "Function",
+                "lineno": 534
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-9-10]",
+                "type": "Function",
+                "lineno": 550
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[30-9-10]",
+                "type": "Function",
+                "lineno": 550
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-24-10]",
+                "type": "Function",
+                "lineno": 550
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-9-64]",
+                "type": "Function",
+                "lineno": 550
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[30-24-667]",
+                "type": "Function",
+                "lineno": 550
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-8-9-10]",
+                "type": "Function",
+                "lineno": 566
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-31-9-10]",
+                "type": "Function",
+                "lineno": 566
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-8-10]",
+                "type": "Function",
+                "lineno": 566
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-25-10]",
+                "type": "Function",
+                "lineno": 566
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-9]",
+                "type": "Function",
+                "lineno": 566
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-65]",
+                "type": "Function",
+                "lineno": 566
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-30-24-668]",
+                "type": "Function",
+                "lineno": 566
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[master-9-9-10]",
+                "type": "Function",
+                "lineno": 566
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_refusal_message_states_width_limits",
+                "type": "Function",
+                "lineno": 595
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_after_end_keeps_outcome[Won]",
+                "type": "Function",
+                "lineno": 604
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_after_end_keeps_outcome[Lost]",
+                "type": "Function",
+                "lineno": 604
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_from_ready",
+                "type": "Function",
+                "lineno": 619
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_from_playing_freezes_timer",
+                "type": "Function",
+                "lineno": 630
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Won]",
+                "type": "Function",
+                "lineno": 642
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Lost]",
+                "type": "Function",
+                "lineno": 642
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Abandoned]",
+                "type": "Function",
+                "lineno": 642
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_new_game_starts_ready_with_hidden_empty_grid",
+            "lineno": 136,
+            "outcome": "failed",
+            "keywords": [
+              "test_new_game_starts_ready_with_hidden_empty_grid",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003361999988555908,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00033059999987017363,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 118,
+                "message": "AssertionError: assert True is False\n +  where True = Game(id='g1', difficulty_id='expert', width=30, height=16, mine_count=99, remaining_mines=99, created_at='2024-01-01T00:00:00', status='Ready', mines_laid=True, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).mines_laid"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 141,
+                  "message": "in test_new_game_starts_ready_with_hidden_empty_grid"
+                },
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 118,
+                  "message": "in assert_starting_state"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:141: in test_new_game_starts_ready_with_hidden_empty_grid\n    assert_starting_state(game, \"expert\", 30, 16, 99)\ntests\\unit\\test_spec_act_game.py:118: in assert_starting_state\n    assert new.mines_laid is False\nE   AssertionError: assert True is False\nE    +  where True = Game(id='g1', difficulty_id='expert', width=30, height=16, mine_count=99, remaining_mines=99, created_at='2024-01-01T00:00:00', status='Ready', mines_laid=True, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).mines_laid"
+            },
+            "teardown": {
+              "duration": 0.0002801999944495037,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_first_open_lays_mines_and_starts_playing",
+            "lineno": 152,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_first_open_lays_mines_and_starts_playing",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00021750001178588718,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00028560000646393746,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 158,
+                "message": "AttributeError: 'Game' object has no attribute 'open_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 158,
+                  "message": "in test_open_cell_first_open_lays_mines_and_starts_playing"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:158: in test_open_cell_first_open_lays_mines_and_starts_playing\n    game.open_cell(row=4, column=4)\n    ^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'open_cell'"
+            },
+            "teardown": {
+              "duration": 0.00023599999258294702,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_numbered_cell_opens_only_itself",
+            "lineno": 183,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_numbered_cell_opens_only_itself",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002538999979151413,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007200000109151006,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 188,
+                "message": "AttributeError: 'Game' object has no attribute 'open_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 188,
+                  "message": "in test_open_cell_numbered_cell_opens_only_itself"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:188: in test_open_cell_numbered_cell_opens_only_itself\n    game.open_cell(row=7, column=0)\n    ^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'open_cell'"
+            },
+            "teardown": {
+              "duration": 0.00022140001237858087,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_zero_cascades_stops_at_numbers_and_skips_flags",
+            "lineno": 198,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_zero_cascades_stops_at_numbers_and_skips_flags",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00020039999799337238,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00039650000690016896,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 202,
+                "message": "AttributeError: 'Game' object has no attribute 'open_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 202,
+                  "message": "in test_open_cell_zero_cascades_stops_at_numbers_and_skips_flags"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:202: in test_open_cell_zero_cascades_stops_at_numbers_and_skips_flags\n    game.open_cell(row=0, column=0)\n    ^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'open_cell'"
+            },
+            "teardown": {
+              "duration": 0.00022780000290367752,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_mine_loses",
+            "lineno": 222,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_on_mine_loses",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002010000025620684,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00039939999987836927,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 226,
+                "message": "AttributeError: 'Game' object has no attribute 'open_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 226,
+                  "message": "in test_open_cell_on_mine_loses"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:226: in test_open_cell_on_mine_loses\n    game.open_cell(row=8, column=0)\n    ^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'open_cell'"
+            },
+            "teardown": {
+              "duration": 0.00021970001398585737,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_last_safe_cell_wins_and_flags_mines",
+            "lineno": 235,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_last_safe_cell_wins_and_flags_mines",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003116000007139519,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005432000034488738,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 239,
+                "message": "AttributeError: 'Game' object has no attribute 'open_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 239,
+                  "message": "in test_open_cell_last_safe_cell_wins_and_flags_mines"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:239: in test_open_cell_last_safe_cell_wins_and_flags_mines\n    game.open_cell(row=8, column=8)\n    ^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'open_cell'"
+            },
+            "teardown": {
+              "duration": 0.00023289999808184803,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_opened_or_flagged_cell_is_ignored[target0]",
+            "lineno": 252,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_on_opened_or_flagged_cell_is_ignored[target0]",
+              "parametrize",
+              "pytestmark",
+              "target0",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00031540000054519624,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007029999978840351,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 259,
+                "message": "AttributeError: 'Game' object has no attribute 'open_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 259,
+                  "message": "in test_open_cell_on_opened_or_flagged_cell_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:259: in test_open_cell_on_opened_or_flagged_cell_is_ignored\n    game.open_cell(row=target[0], column=target[1])\n    ^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'open_cell'"
+            },
+            "teardown": {
+              "duration": 0.0002378999924985692,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_opened_or_flagged_cell_is_ignored[target1]",
+            "lineno": 252,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_on_opened_or_flagged_cell_is_ignored[target1]",
+              "parametrize",
+              "pytestmark",
+              "target1",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00028759999258909374,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007005000079516321,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 259,
+                "message": "AttributeError: 'Game' object has no attribute 'open_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 259,
+                  "message": "in test_open_cell_on_opened_or_flagged_cell_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:259: in test_open_cell_on_opened_or_flagged_cell_is_ignored\n    game.open_cell(row=target[0], column=target[1])\n    ^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'open_cell'"
+            },
+            "teardown": {
+              "duration": 0.00026000000070780516,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Won]",
+            "lineno": 264,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_in_finished_game_is_ignored[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002955999952973798,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006971999973757192,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 270,
+                "message": "AttributeError: 'Game' object has no attribute 'open_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 270,
+                  "message": "in test_open_cell_in_finished_game_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:270: in test_open_cell_in_finished_game_is_ignored\n    game.open_cell(row=0, column=0)\n    ^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'open_cell'"
+            },
+            "teardown": {
+              "duration": 0.00024819999816827476,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Lost]",
+            "lineno": 264,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_in_finished_game_is_ignored[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00028310000197961926,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000698300005751662,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 270,
+                "message": "AttributeError: 'Game' object has no attribute 'open_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 270,
+                  "message": "in test_open_cell_in_finished_game_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:270: in test_open_cell_in_finished_game_is_ignored\n    game.open_cell(row=0, column=0)\n    ^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'open_cell'"
+            },
+            "teardown": {
+              "duration": 0.00033570000960025936,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Abandoned]",
+            "lineno": 264,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_in_finished_game_is_ignored[Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "Abandoned",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003009999927598983,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007715999963693321,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 270,
+                "message": "AttributeError: 'Game' object has no attribute 'open_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 270,
+                  "message": "in test_open_cell_in_finished_game_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:270: in test_open_cell_in_finished_game_is_ignored\n    game.open_cell(row=0, column=0)\n    ^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'open_cell'"
+            },
+            "teardown": {
+              "duration": 0.00023589999182149768,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[8-8-True]",
+            "lineno": 275,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_outside_grid_is_refused[8-8-True]",
+              "parametrize",
+              "pytestmark",
+              "8-8-True",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004166000144323334,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004219999973429367,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 281,
+                "message": "AttributeError: 'Game' object has no attribute 'open_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 281,
+                  "message": "in test_open_cell_outside_grid_is_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:281: in test_open_cell_outside_grid_is_refused\n    game.open_cell(row=row, column=column)\n    ^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'open_cell'"
+            },
+            "teardown": {
+              "duration": 0.0002474000066285953,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[9-0-False]",
+            "lineno": 275,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_outside_grid_is_refused[9-0-False]",
+              "parametrize",
+              "pytestmark",
+              "9-0-False",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003944000054616481,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009362000128021464,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 288,
+                "message": "AssertionError: assert 'AttributeError' == 'CellNotFoundError'\n  \n  - CellNotFoundError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 288,
+                  "message": "in test_open_cell_outside_grid_is_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:288: in test_open_cell_outside_grid_is_refused\n    assert type(exc_info.value).__name__ == \"CellNotFoundError\"\nE   AssertionError: assert 'AttributeError' == 'CellNotFoundError'\nE     \nE     - CellNotFoundError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0002508000034140423,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[0-9-False]",
+            "lineno": 275,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_outside_grid_is_refused[0-9-False]",
+              "parametrize",
+              "pytestmark",
+              "0-9-False",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003766000008909032,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008862000104272738,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 288,
+                "message": "AssertionError: assert 'AttributeError' == 'CellNotFoundError'\n  \n  - CellNotFoundError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 288,
+                  "message": "in test_open_cell_outside_grid_is_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:288: in test_open_cell_outside_grid_is_refused\n    assert type(exc_info.value).__name__ == \"CellNotFoundError\"\nE   AssertionError: assert 'AttributeError' == 'CellNotFoundError'\nE     \nE     - CellNotFoundError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00024080000002868474,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[-1-0-False]",
+            "lineno": 275,
+            "outcome": "failed",
+            "keywords": [
+              "test_open_cell_outside_grid_is_refused[-1-0-False]",
+              "parametrize",
+              "pytestmark",
+              "-1-0-False",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00038640000275336206,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009265999979106709,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 288,
+                "message": "AssertionError: assert 'AttributeError' == 'CellNotFoundError'\n  \n  - CellNotFoundError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 288,
+                  "message": "in test_open_cell_outside_grid_is_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:288: in test_open_cell_outside_grid_is_refused\n    assert type(exc_info.value).__name__ == \"CellNotFoundError\"\nE   AssertionError: assert 'AttributeError' == 'CellNotFoundError'\nE     \nE     - CellNotFoundError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00026030000299215317,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_switches_hidden_and_flagged[Ready]",
+            "lineno": 293,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_switches_hidden_and_flagged[Ready]",
+              "parametrize",
+              "pytestmark",
+              "Ready",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002939000114565715,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00020729999232571572,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 300,
+                "message": "AttributeError: 'Game' object has no attribute 'toggle_flag'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 300,
+                  "message": "in test_toggle_flag_switches_hidden_and_flagged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:300: in test_toggle_flag_switches_hidden_and_flagged\n    game.toggle_flag(row=0, column=0)\n    ^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'toggle_flag'"
+            },
+            "teardown": {
+              "duration": 0.00026190000062342733,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_switches_hidden_and_flagged[Playing]",
+            "lineno": 293,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_switches_hidden_and_flagged[Playing]",
+              "parametrize",
+              "pytestmark",
+              "Playing",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002826999989338219,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003858999989461154,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 300,
+                "message": "AttributeError: 'Game' object has no attribute 'toggle_flag'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 300,
+                  "message": "in test_toggle_flag_switches_hidden_and_flagged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:300: in test_toggle_flag_switches_hidden_and_flagged\n    game.toggle_flag(row=0, column=0)\n    ^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'toggle_flag'"
+            },
+            "teardown": {
+              "duration": 0.00024900000425986946,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_is_unlimited_and_counter_goes_negative",
+            "lineno": 314,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_is_unlimited_and_counter_goes_negative",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00018709999858401716,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003823000006377697,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 319,
+                "message": "AttributeError: 'Game' object has no attribute 'toggle_flag'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 319,
+                  "message": "in test_toggle_flag_is_unlimited_and_counter_goes_negative"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:319: in test_toggle_flag_is_unlimited_and_counter_goes_negative\n    game.toggle_flag(row=2, column=0)\n    ^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'toggle_flag'"
+            },
+            "teardown": {
+              "duration": 0.00022149999858811498,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_on_opened_cell_is_ignored",
+            "lineno": 326,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_on_opened_cell_is_ignored",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00017970000044442713,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000687299994751811,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 331,
+                "message": "AttributeError: 'Game' object has no attribute 'toggle_flag'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 331,
+                  "message": "in test_toggle_flag_on_opened_cell_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:331: in test_toggle_flag_on_opened_cell_is_ignored\n    game.toggle_flag(row=0, column=0)\n    ^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'toggle_flag'"
+            },
+            "teardown": {
+              "duration": 0.00021490000654011965,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Won]",
+            "lineno": 336,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_in_finished_game_is_ignored[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002919999969890341,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006951999966986477,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 342,
+                "message": "AttributeError: 'Game' object has no attribute 'toggle_flag'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 342,
+                  "message": "in test_toggle_flag_in_finished_game_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:342: in test_toggle_flag_in_finished_game_is_ignored\n    game.toggle_flag(row=0, column=0)\n    ^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'toggle_flag'"
+            },
+            "teardown": {
+              "duration": 0.00022849999368190765,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Lost]",
+            "lineno": 336,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_in_finished_game_is_ignored[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00029149999318178743,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007021000055829063,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 342,
+                "message": "AttributeError: 'Game' object has no attribute 'toggle_flag'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 342,
+                  "message": "in test_toggle_flag_in_finished_game_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:342: in test_toggle_flag_in_finished_game_is_ignored\n    game.toggle_flag(row=0, column=0)\n    ^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'toggle_flag'"
+            },
+            "teardown": {
+              "duration": 0.0002589000068837777,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Abandoned]",
+            "lineno": 336,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_in_finished_game_is_ignored[Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "Abandoned",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002906000008806586,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006853999948361889,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 342,
+                "message": "AttributeError: 'Game' object has no attribute 'toggle_flag'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 342,
+                  "message": "in test_toggle_flag_in_finished_game_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:342: in test_toggle_flag_in_finished_game_is_ignored\n    game.toggle_flag(row=0, column=0)\n    ^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'toggle_flag'"
+            },
+            "teardown": {
+              "duration": 0.0002406999992672354,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[0-8-True]",
+            "lineno": 347,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_outside_grid_is_refused[0-8-True]",
+              "parametrize",
+              "pytestmark",
+              "0-8-True",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00036949999048374593,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003767999878618866,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 352,
+                "message": "AttributeError: 'Game' object has no attribute 'toggle_flag'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 352,
+                  "message": "in test_toggle_flag_outside_grid_is_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:352: in test_toggle_flag_outside_grid_is_refused\n    game.toggle_flag(row=row, column=column)\n    ^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'toggle_flag'"
+            },
+            "teardown": {
+              "duration": 0.0002472000051056966,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[0-9-False]",
+            "lineno": 347,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_outside_grid_is_refused[0-9-False]",
+              "parametrize",
+              "pytestmark",
+              "0-9-False",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003902000025846064,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005574999959208071,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 360,
+                "message": "AssertionError: assert 'AttributeError' == 'CellNotFoundError'\n  \n  - CellNotFoundError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 360,
+                  "message": "in test_toggle_flag_outside_grid_is_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:360: in test_toggle_flag_outside_grid_is_refused\n    assert type(exc_info.value).__name__ == \"CellNotFoundError\"\nE   AssertionError: assert 'AttributeError' == 'CellNotFoundError'\nE     \nE     - CellNotFoundError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0002468999882694334,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[9-0-False]",
+            "lineno": 347,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_outside_grid_is_refused[9-0-False]",
+              "parametrize",
+              "pytestmark",
+              "9-0-False",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00038770001265220344,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005551000067498535,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 360,
+                "message": "AssertionError: assert 'AttributeError' == 'CellNotFoundError'\n  \n  - CellNotFoundError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 360,
+                  "message": "in test_toggle_flag_outside_grid_is_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:360: in test_toggle_flag_outside_grid_is_refused\n    assert type(exc_info.value).__name__ == \"CellNotFoundError\"\nE   AssertionError: assert 'AttributeError' == 'CellNotFoundError'\nE     \nE     - CellNotFoundError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0002426999999443069,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_matching_flags_opens_neighbours_and_cascades",
+            "lineno": 365,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_with_matching_flags_opens_neighbours_and_cascades",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000195999993593432,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003884999896399677,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 371,
+                "message": "AttributeError: 'Game' object has no attribute 'chord_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 371,
+                  "message": "in test_chord_cell_with_matching_flags_opens_neighbours_and_cascades"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:371: in test_chord_cell_with_matching_flags_opens_neighbours_and_cascades\n    game.chord_cell(row=6, column=6)\n    ^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'chord_cell'"
+            },
+            "teardown": {
+              "duration": 0.00022690001060254872,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_mismatched_flags_changes_nothing[flags0]",
+            "lineno": 388,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_with_mismatched_flags_changes_nothing[flags0]",
+              "parametrize",
+              "pytestmark",
+              "flags0",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002800999936880544,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008280000038212165,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 395,
+                "message": "AttributeError: 'Game' object has no attribute 'chord_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 395,
+                  "message": "in test_chord_cell_with_mismatched_flags_changes_nothing"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:395: in test_chord_cell_with_mismatched_flags_changes_nothing\n    game.chord_cell(row=6, column=6)\n    ^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'chord_cell'"
+            },
+            "teardown": {
+              "duration": 0.00023130000045057386,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_mismatched_flags_changes_nothing[flags1]",
+            "lineno": 388,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_with_mismatched_flags_changes_nothing[flags1]",
+              "parametrize",
+              "pytestmark",
+              "flags1",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000288200011709705,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006915999983903021,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 395,
+                "message": "AttributeError: 'Game' object has no attribute 'chord_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 395,
+                  "message": "in test_chord_cell_with_mismatched_flags_changes_nothing"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:395: in test_chord_cell_with_mismatched_flags_changes_nothing\n    game.chord_cell(row=6, column=6)\n    ^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'chord_cell'"
+            },
+            "teardown": {
+              "duration": 0.00025519999326206744,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_wrong_flag_loses",
+            "lineno": 400,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_with_wrong_flag_loses",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00018510001245886087,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00037539999175351113,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 405,
+                "message": "AttributeError: 'Game' object has no attribute 'chord_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 405,
+                  "message": "in test_chord_cell_with_wrong_flag_loses"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:405: in test_chord_cell_with_wrong_flag_loses\n    game.chord_cell(row=6, column=6)\n    ^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'chord_cell'"
+            },
+            "teardown": {
+              "duration": 0.000215300009585917,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_on_hidden_cell_is_ignored",
+            "lineno": 414,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_on_hidden_cell_is_ignored",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0001843999925768003,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006872000085422769,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 419,
+                "message": "AttributeError: 'Game' object has no attribute 'chord_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 419,
+                  "message": "in test_chord_cell_on_hidden_cell_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:419: in test_chord_cell_on_hidden_cell_is_ignored\n    game.chord_cell(row=6, column=6)\n    ^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'chord_cell'"
+            },
+            "teardown": {
+              "duration": 0.00022069999249652028,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_on_zero_cell_is_ignored",
+            "lineno": 424,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_on_zero_cell_is_ignored",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00017980000120587647,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007230000046547502,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 429,
+                "message": "AttributeError: 'Game' object has no attribute 'chord_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 429,
+                  "message": "in test_chord_cell_on_zero_cell_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:429: in test_chord_cell_on_zero_cell_is_ignored\n    game.chord_cell(row=0, column=0)\n    ^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'chord_cell'"
+            },
+            "teardown": {
+              "duration": 0.00021290000586304814,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Won]",
+            "lineno": 434,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_when_not_playing_is_ignored[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00026980000257026404,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007049999985611066,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 441,
+                "message": "AttributeError: 'Game' object has no attribute 'chord_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 441,
+                  "message": "in test_chord_cell_when_not_playing_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:441: in test_chord_cell_when_not_playing_is_ignored\n    game.chord_cell(row=6, column=6)\n    ^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'chord_cell'"
+            },
+            "teardown": {
+              "duration": 0.0002463999990141019,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Lost]",
+            "lineno": 434,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_when_not_playing_is_ignored[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002761999930953607,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006865000032121316,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 441,
+                "message": "AttributeError: 'Game' object has no attribute 'chord_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 441,
+                  "message": "in test_chord_cell_when_not_playing_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:441: in test_chord_cell_when_not_playing_is_ignored\n    game.chord_cell(row=6, column=6)\n    ^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'chord_cell'"
+            },
+            "teardown": {
+              "duration": 0.00023180000425782055,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Abandoned]",
+            "lineno": 434,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_when_not_playing_is_ignored[Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "Abandoned",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002781999937724322,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006867000047350302,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 441,
+                "message": "AttributeError: 'Game' object has no attribute 'chord_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 441,
+                  "message": "in test_chord_cell_when_not_playing_is_ignored"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:441: in test_chord_cell_when_not_playing_is_ignored\n    game.chord_cell(row=6, column=6)\n    ^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'chord_cell'"
+            },
+            "teardown": {
+              "duration": 0.00023720000172033906,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[8-0-True]",
+            "lineno": 446,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_outside_grid_is_refused[8-0-True]",
+              "parametrize",
+              "pytestmark",
+              "8-0-True",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003904999903170392,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007279999990714714,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 453,
+                "message": "AttributeError: 'Game' object has no attribute 'chord_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 453,
+                  "message": "in test_chord_cell_outside_grid_is_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:453: in test_chord_cell_outside_grid_is_refused\n    game.chord_cell(row=row, column=column)\n    ^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'chord_cell'"
+            },
+            "teardown": {
+              "duration": 0.0002454999921610579,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[9-0-False]",
+            "lineno": 446,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_outside_grid_is_refused[9-0-False]",
+              "parametrize",
+              "pytestmark",
+              "9-0-False",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003876999981002882,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008686999935889617,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 458,
+                "message": "AssertionError: assert 'AttributeError' == 'CellNotFoundError'\n  \n  - CellNotFoundError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 458,
+                  "message": "in test_chord_cell_outside_grid_is_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:458: in test_chord_cell_outside_grid_is_refused\n    assert type(exc_info.value).__name__ == \"CellNotFoundError\"\nE   AssertionError: assert 'AttributeError' == 'CellNotFoundError'\nE     \nE     - CellNotFoundError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0002449000021442771,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[0-9-False]",
+            "lineno": 446,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_cell_outside_grid_is_refused[0-9-False]",
+              "parametrize",
+              "pytestmark",
+              "0-9-False",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00046919999294914305,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008494000067003071,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 458,
+                "message": "AssertionError: assert 'AttributeError' == 'CellNotFoundError'\n  \n  - CellNotFoundError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 458,
+                  "message": "in test_chord_cell_outside_grid_is_refused"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:458: in test_chord_cell_outside_grid_is_refused\n    assert type(exc_info.value).__name__ == \"CellNotFoundError\"\nE   AssertionError: assert 'AttributeError' == 'CellNotFoundError'\nE     \nE     - CellNotFoundError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0002707999956328422,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[5-6]",
+            "lineno": 463,
+            "outcome": "failed",
+            "keywords": [
+              "test_tick_advances_playing_timer_capped_at_999[5-6]",
+              "parametrize",
+              "pytestmark",
+              "5-6",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003395999956410378,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003880000003846362,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 468,
+                "message": "AttributeError: 'Game' object has no attribute 'tick'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 468,
+                  "message": "in test_tick_advances_playing_timer_capped_at_999"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:468: in test_tick_advances_playing_timer_capped_at_999\n    game.tick()\n    ^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'tick'"
+            },
+            "teardown": {
+              "duration": 0.0002547999902162701,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[998-999]",
+            "lineno": 463,
+            "outcome": "failed",
+            "keywords": [
+              "test_tick_advances_playing_timer_capped_at_999[998-999]",
+              "parametrize",
+              "pytestmark",
+              "998-999",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00034070000401698053,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003792999923462048,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 468,
+                "message": "AttributeError: 'Game' object has no attribute 'tick'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 468,
+                  "message": "in test_tick_advances_playing_timer_capped_at_999"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:468: in test_tick_advances_playing_timer_capped_at_999\n    game.tick()\n    ^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'tick'"
+            },
+            "teardown": {
+              "duration": 0.00024759999359957874,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[999-999]",
+            "lineno": 463,
+            "outcome": "failed",
+            "keywords": [
+              "test_tick_advances_playing_timer_capped_at_999[999-999]",
+              "parametrize",
+              "pytestmark",
+              "999-999",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00032929998997133225,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00038330000825226307,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 468,
+                "message": "AttributeError: 'Game' object has no attribute 'tick'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 468,
+                  "message": "in test_tick_advances_playing_timer_capped_at_999"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:468: in test_tick_advances_playing_timer_capped_at_999\n    game.tick()\n    ^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'tick'"
+            },
+            "teardown": {
+              "duration": 0.00024130000383593142,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Won]",
+            "lineno": 474,
+            "outcome": "failed",
+            "keywords": [
+              "test_tick_in_finished_game_changes_nothing[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00030089999199844897,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007267999899340793,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 480,
+                "message": "AttributeError: 'Game' object has no attribute 'tick'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 480,
+                  "message": "in test_tick_in_finished_game_changes_nothing"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:480: in test_tick_in_finished_game_changes_nothing\n    game.tick()\n    ^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'tick'"
+            },
+            "teardown": {
+              "duration": 0.0002558999985922128,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Lost]",
+            "lineno": 474,
+            "outcome": "failed",
+            "keywords": [
+              "test_tick_in_finished_game_changes_nothing[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00029150000773370266,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006889000069350004,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 480,
+                "message": "AttributeError: 'Game' object has no attribute 'tick'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 480,
+                  "message": "in test_tick_in_finished_game_changes_nothing"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:480: in test_tick_in_finished_game_changes_nothing\n    game.tick()\n    ^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'tick'"
+            },
+            "teardown": {
+              "duration": 0.000228899996727705,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Abandoned]",
+            "lineno": 474,
+            "outcome": "failed",
+            "keywords": [
+              "test_tick_in_finished_game_changes_nothing[Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "Abandoned",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00026300000899937004,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000717400005669333,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 480,
+                "message": "AttributeError: 'Game' object has no attribute 'tick'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 480,
+                  "message": "in test_tick_in_finished_game_changes_nothing"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:480: in test_tick_in_finished_game_changes_nothing\n    game.tick()\n    ^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'tick'"
+            },
+            "teardown": {
+              "duration": 0.0002582000015536323,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_ready_game_changes_nothing",
+            "lineno": 485,
+            "outcome": "failed",
+            "keywords": [
+              "test_tick_in_ready_game_changes_nothing",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00020460000087041408,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002077000099234283,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 490,
+                "message": "AttributeError: 'Game' object has no attribute 'tick'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 490,
+                  "message": "in test_tick_in_ready_game_changes_nothing"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:490: in test_tick_in_ready_game_changes_nothing\n    game.tick()\n    ^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'tick'"
+            },
+            "teardown": {
+              "duration": 0.0002359000063734129,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_abandons_active_game_and_returns_new_one[Ready]",
+            "lineno": 498,
+            "outcome": "failed",
+            "keywords": [
+              "test_restart_game_abandons_active_game_and_returns_new_one[Ready]",
+              "parametrize",
+              "pytestmark",
+              "Ready",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002761999930953607,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00019530000281520188,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 506,
+                "message": "AttributeError: 'Game' object has no attribute 'restart_game'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 506,
+                  "message": "in test_restart_game_abandons_active_game_and_returns_new_one"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:506: in test_restart_game_abandons_active_game_and_returns_new_one\n    new = game.restart_game()\n          ^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'restart_game'"
+            },
+            "teardown": {
+              "duration": 0.00023450001026503742,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_abandons_active_game_and_returns_new_one[Playing]",
+            "lineno": 498,
+            "outcome": "failed",
+            "keywords": [
+              "test_restart_game_abandons_active_game_and_returns_new_one[Playing]",
+              "parametrize",
+              "pytestmark",
+              "Playing",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002716000017244369,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008276000007754192,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 506,
+                "message": "AttributeError: 'Game' object has no attribute 'restart_game'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 506,
+                  "message": "in test_restart_game_abandons_active_game_and_returns_new_one"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:506: in test_restart_game_abandons_active_game_and_returns_new_one\n    new = game.restart_game()\n          ^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'restart_game'"
+            },
+            "teardown": {
+              "duration": 0.00024759999359957874,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_after_end_keeps_outcome[Won]",
+            "lineno": 516,
+            "outcome": "failed",
+            "keywords": [
+              "test_restart_game_after_end_keeps_outcome[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00031550000130664557,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007080999930622056,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 524,
+                "message": "AttributeError: 'Game' object has no attribute 'restart_game'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 524,
+                  "message": "in test_restart_game_after_end_keeps_outcome"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:524: in test_restart_game_after_end_keeps_outcome\n    new = game.restart_game()\n          ^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'restart_game'"
+            },
+            "teardown": {
+              "duration": 0.0002601000014692545,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_after_end_keeps_outcome[Lost]",
+            "lineno": 516,
+            "outcome": "failed",
+            "keywords": [
+              "test_restart_game_after_end_keeps_outcome[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00027570000384002924,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006846999895060435,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 524,
+                "message": "AttributeError: 'Game' object has no attribute 'restart_game'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 524,
+                  "message": "in test_restart_game_after_end_keeps_outcome"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:524: in test_restart_game_after_end_keeps_outcome\n    new = game.restart_game()\n          ^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'restart_game'"
+            },
+            "teardown": {
+              "duration": 0.00026869999419432133,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[beginner-9-9-10]",
+            "lineno": 534,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_presets[beginner-9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "beginner-9-9-10",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004726000042865053,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002010000025620684,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 542,
+                "message": "AttributeError: 'Game' object has no attribute 'change_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 542,
+                  "message": "in test_change_difficulty_presets"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:542: in test_change_difficulty_presets\n    new = game.change_difficulty(difficulty_id=difficulty_id, width=None, height=None,\n          ^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'change_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.00024900000425986946,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[intermediate-16-16-40]",
+            "lineno": 534,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_presets[intermediate-16-16-40]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-16-16-40",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004233999934513122,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0001962000096682459,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 542,
+                "message": "AttributeError: 'Game' object has no attribute 'change_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 542,
+                  "message": "in test_change_difficulty_presets"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:542: in test_change_difficulty_presets\n    new = game.change_difficulty(difficulty_id=difficulty_id, width=None, height=None,\n          ^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'change_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.0002558999985922128,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[expert-30-16-99]",
+            "lineno": 534,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_presets[expert-30-16-99]",
+              "parametrize",
+              "pytestmark",
+              "expert-30-16-99",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00045989999489393085,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00021320000814739615,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 542,
+                "message": "AttributeError: 'Game' object has no attribute 'change_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 542,
+                  "message": "in test_change_difficulty_presets"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:542: in test_change_difficulty_presets\n    new = game.change_difficulty(difficulty_id=difficulty_id, width=None, height=None,\n          ^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'change_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.0002810999867506325,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-9-10]",
+            "lineno": 550,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_custom_at_limits_is_accepted[9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "9-9-10",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004067999980179593,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00039620000461582094,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 558,
+                "message": "AttributeError: 'Game' object has no attribute 'change_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 558,
+                  "message": "in test_change_difficulty_custom_at_limits_is_accepted"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:558: in test_change_difficulty_custom_at_limits_is_accepted\n    new = game.change_difficulty(difficulty_id=\"custom\", width=width, height=height,\n          ^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'change_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.00024849998590070754,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[30-9-10]",
+            "lineno": 550,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_custom_at_limits_is_accepted[30-9-10]",
+              "parametrize",
+              "pytestmark",
+              "30-9-10",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004385000065667555,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00040800000715535134,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 558,
+                "message": "AttributeError: 'Game' object has no attribute 'change_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 558,
+                  "message": "in test_change_difficulty_custom_at_limits_is_accepted"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:558: in test_change_difficulty_custom_at_limits_is_accepted\n    new = game.change_difficulty(difficulty_id=\"custom\", width=width, height=height,\n          ^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'change_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.0002486000012140721,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-24-10]",
+            "lineno": 550,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_custom_at_limits_is_accepted[9-24-10]",
+              "parametrize",
+              "pytestmark",
+              "9-24-10",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004324999899836257,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004048999981023371,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 558,
+                "message": "AttributeError: 'Game' object has no attribute 'change_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 558,
+                  "message": "in test_change_difficulty_custom_at_limits_is_accepted"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:558: in test_change_difficulty_custom_at_limits_is_accepted\n    new = game.change_difficulty(difficulty_id=\"custom\", width=width, height=height,\n          ^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'change_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.0002686000079847872,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-9-64]",
+            "lineno": 550,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_custom_at_limits_is_accepted[9-9-64]",
+              "parametrize",
+              "pytestmark",
+              "9-9-64",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00038080000376794487,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003795000084210187,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 558,
+                "message": "AttributeError: 'Game' object has no attribute 'change_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 558,
+                  "message": "in test_change_difficulty_custom_at_limits_is_accepted"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:558: in test_change_difficulty_custom_at_limits_is_accepted\n    new = game.change_difficulty(difficulty_id=\"custom\", width=width, height=height,\n          ^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'change_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.00026020000223070383,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[30-24-667]",
+            "lineno": 550,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_custom_at_limits_is_accepted[30-24-667]",
+              "parametrize",
+              "pytestmark",
+              "30-24-667",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00038249998760875314,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00038740001036785543,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 558,
+                "message": "AttributeError: 'Game' object has no attribute 'change_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 558,
+                  "message": "in test_change_difficulty_custom_at_limits_is_accepted"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:558: in test_change_difficulty_custom_at_limits_is_accepted\n    new = game.change_difficulty(difficulty_id=\"custom\", width=width, height=height,\n          ^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'change_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.0002573999954620376,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-8-9-10]",
+            "lineno": 566,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-8-9-10]",
+              "parametrize",
+              "pytestmark",
+              "custom-8-9-10",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004847999953199178,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008920999971451238,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 590,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\n  \n  - InvalidConfigurationError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 590,
+                  "message": "in test_change_difficulty_invalid_is_refused_and_game_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:590: in test_change_difficulty_invalid_is_refused_and_game_unchanged\n    assert type(exc_info.value).__name__ == \"InvalidConfigurationError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\nE     \nE     - InvalidConfigurationError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0002671999973244965,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-31-9-10]",
+            "lineno": 566,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-31-9-10]",
+              "parametrize",
+              "pytestmark",
+              "custom-31-9-10",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004327000060584396,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000891200004843995,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 590,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\n  \n  - InvalidConfigurationError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 590,
+                  "message": "in test_change_difficulty_invalid_is_refused_and_game_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:590: in test_change_difficulty_invalid_is_refused_and_game_unchanged\n    assert type(exc_info.value).__name__ == \"InvalidConfigurationError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\nE     \nE     - InvalidConfigurationError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0002744000084931031,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-8-10]",
+            "lineno": 566,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-8-10]",
+              "parametrize",
+              "pytestmark",
+              "custom-9-8-10",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00046019999717827886,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008493999921483919,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 590,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\n  \n  - InvalidConfigurationError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 590,
+                  "message": "in test_change_difficulty_invalid_is_refused_and_game_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:590: in test_change_difficulty_invalid_is_refused_and_game_unchanged\n    assert type(exc_info.value).__name__ == \"InvalidConfigurationError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\nE     \nE     - InvalidConfigurationError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00024950000806711614,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-25-10]",
+            "lineno": 566,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-25-10]",
+              "parametrize",
+              "pytestmark",
+              "custom-9-25-10",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004457000031834468,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008728000102564692,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 590,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\n  \n  - InvalidConfigurationError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 590,
+                  "message": "in test_change_difficulty_invalid_is_refused_and_game_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:590: in test_change_difficulty_invalid_is_refused_and_game_unchanged\n    assert type(exc_info.value).__name__ == \"InvalidConfigurationError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\nE     \nE     - InvalidConfigurationError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00027629999385681003,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-9]",
+            "lineno": 566,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-9]",
+              "parametrize",
+              "pytestmark",
+              "custom-9-9-9",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004428999964147806,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008465999999316409,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 590,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\n  \n  - InvalidConfigurationError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 590,
+                  "message": "in test_change_difficulty_invalid_is_refused_and_game_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:590: in test_change_difficulty_invalid_is_refused_and_game_unchanged\n    assert type(exc_info.value).__name__ == \"InvalidConfigurationError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\nE     \nE     - InvalidConfigurationError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00028419999580364674,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-65]",
+            "lineno": 566,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-65]",
+              "parametrize",
+              "pytestmark",
+              "custom-9-9-65",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005403999966802076,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009431000071344897,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 590,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\n  \n  - InvalidConfigurationError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 590,
+                  "message": "in test_change_difficulty_invalid_is_refused_and_game_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:590: in test_change_difficulty_invalid_is_refused_and_game_unchanged\n    assert type(exc_info.value).__name__ == \"InvalidConfigurationError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\nE     \nE     - InvalidConfigurationError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0002564000023994595,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-30-24-668]",
+            "lineno": 566,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-30-24-668]",
+              "parametrize",
+              "pytestmark",
+              "custom-30-24-668",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00043680000817403197,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008700999896973372,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 590,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\n  \n  - InvalidConfigurationError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 590,
+                  "message": "in test_change_difficulty_invalid_is_refused_and_game_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:590: in test_change_difficulty_invalid_is_refused_and_game_unchanged\n    assert type(exc_info.value).__name__ == \"InvalidConfigurationError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\nE     \nE     - InvalidConfigurationError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00028670000028796494,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[master-9-9-10]",
+            "lineno": 566,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_invalid_is_refused_and_game_unchanged[master-9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "master-9-9-10",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00044380000326782465,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008632999961264431,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 590,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\n  \n  - InvalidConfigurationError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 590,
+                  "message": "in test_change_difficulty_invalid_is_refused_and_game_unchanged"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:590: in test_change_difficulty_invalid_is_refused_and_game_unchanged\n    assert type(exc_info.value).__name__ == \"InvalidConfigurationError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\nE     \nE     - InvalidConfigurationError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00024649999977555126,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_refusal_message_states_width_limits",
+            "lineno": 595,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_refusal_message_states_width_limits",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00035030000435654074,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00040630000876262784,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 601,
+                "message": "AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\n  \n  - InvalidConfigurationError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 601,
+                  "message": "in test_change_difficulty_refusal_message_states_width_limits"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:601: in test_change_difficulty_refusal_message_states_width_limits\n    assert type(exc_info.value).__name__ == \"InvalidConfigurationError\"\nE   AssertionError: assert 'AttributeError' == 'InvalidConfigurationError'\nE     \nE     - InvalidConfigurationError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00023499999952036887,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_after_end_keeps_outcome[Won]",
+            "lineno": 604,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_after_end_keeps_outcome[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00028199999360367656,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006945000059204176,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 610,
+                "message": "AttributeError: 'Game' object has no attribute 'change_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 610,
+                  "message": "in test_change_difficulty_after_end_keeps_outcome"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:610: in test_change_difficulty_after_end_keeps_outcome\n    new = game.change_difficulty(difficulty_id=\"expert\", width=None, height=None,\n          ^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'change_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.000228599994443357,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_after_end_keeps_outcome[Lost]",
+            "lineno": 604,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_after_end_keeps_outcome[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002758000046014786,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007240999984787777,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 610,
+                "message": "AttributeError: 'Game' object has no attribute 'change_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 610,
+                  "message": "in test_change_difficulty_after_end_keeps_outcome"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:610: in test_change_difficulty_after_end_keeps_outcome\n    new = game.change_difficulty(difficulty_id=\"expert\", width=None, height=None,\n          ^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'change_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.0003552999987732619,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_from_ready",
+            "lineno": 619,
+            "outcome": "failed",
+            "keywords": [
+              "test_abandon_game_from_ready",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002072000061161816,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00020249999943189323,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 623,
+                "message": "AttributeError: 'Game' object has no attribute 'abandon_game'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 623,
+                  "message": "in test_abandon_game_from_ready"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:623: in test_abandon_game_from_ready\n    game.abandon_game()\n    ^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'abandon_game'"
+            },
+            "teardown": {
+              "duration": 0.00022139999782666564,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_from_playing_freezes_timer",
+            "lineno": 630,
+            "outcome": "failed",
+            "keywords": [
+              "test_abandon_game_from_playing_freezes_timer",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00019329998758621514,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00038359999598469585,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 634,
+                "message": "AttributeError: 'Game' object has no attribute 'abandon_game'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 634,
+                  "message": "in test_abandon_game_from_playing_freezes_timer"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:634: in test_abandon_game_from_playing_freezes_timer\n    game.abandon_game()\n    ^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'abandon_game'"
+            },
+            "teardown": {
+              "duration": 0.00021489999198820442,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Won]",
+            "lineno": 642,
+            "outcome": "failed",
+            "keywords": [
+              "test_abandon_game_when_finished_changes_nothing[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002773999876808375,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000719599993317388,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 648,
+                "message": "AttributeError: 'Game' object has no attribute 'abandon_game'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 648,
+                  "message": "in test_abandon_game_when_finished_changes_nothing"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:648: in test_abandon_game_when_finished_changes_nothing\n    game.abandon_game()\n    ^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'abandon_game'"
+            },
+            "teardown": {
+              "duration": 0.00025549999554641545,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Lost]",
+            "lineno": 642,
+            "outcome": "failed",
+            "keywords": [
+              "test_abandon_game_when_finished_changes_nothing[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004135999915888533,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007122999959392473,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 648,
+                "message": "AttributeError: 'Game' object has no attribute 'abandon_game'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 648,
+                  "message": "in test_abandon_game_when_finished_changes_nothing"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:648: in test_abandon_game_when_finished_changes_nothing\n    game.abandon_game()\n    ^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'abandon_game'"
+            },
+            "teardown": {
+              "duration": 0.0002575999969849363,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Abandoned]",
+            "lineno": 642,
+            "outcome": "failed",
+            "keywords": [
+              "test_abandon_game_when_finished_changes_nothing[Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "Abandoned",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002815000043483451,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006970000104047358,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 648,
+                "message": "AttributeError: 'Game' object has no attribute 'abandon_game'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 648,
+                  "message": "in test_abandon_game_when_finished_changes_nothing"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:648: in test_abandon_game_when_finished_changes_nothing\n    game.abandon_game()\n    ^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'abandon_game'"
+            },
+            "teardown": {
+              "duration": 0.00025749999622348696,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.001
+}

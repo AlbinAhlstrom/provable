@@ -1,0 +1,362 @@
+{
+  "seq": 423,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:34",
+  "t_offset_s": 405.81,
+  "thread": "red_12",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656614.3281019,
+        "duration": 1.2517247200012207,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 9,
+          "total": 9,
+          "collected": 9
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_045.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_045.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Ready]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Playing]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Ready]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Playing]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Ready]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Playing]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Ready]",
+                "type": "Function",
+                "lineno": 116
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Playing]",
+                "type": "Function",
+                "lineno": 116
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_with_unknown_difficulty_is_refused_and_game_unchanged",
+                "type": "Function",
+                "lineno": 131
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Ready]",
+            "lineno": 87,
+            "outcome": "passed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Ready]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-16-16-40-Ready",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0013736000109929591,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001072099999873899,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.001981199995498173,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Playing]",
+            "lineno": 87,
+            "outcome": "passed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Playing]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-16-16-40-Playing",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0014532000059261918,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013276000099722296,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00047530001029372215,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Ready]",
+            "lineno": 87,
+            "outcome": "passed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Ready]",
+              "parametrize",
+              "pytestmark",
+              "expert-30-16-99-Ready",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.002081200000247918,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0016315999964717776,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00041790000977925956,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Playing]",
+            "lineno": 87,
+            "outcome": "passed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Playing]",
+              "parametrize",
+              "pytestmark",
+              "expert-30-16-99-Playing",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010763999889604747,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0018844000005628914,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00045199999294709414,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Ready]",
+            "lineno": 87,
+            "outcome": "passed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Ready]",
+              "parametrize",
+              "pytestmark",
+              "custom-9-9-10-Ready",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0012011000071652234,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007914000016171485,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003839999990304932,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Playing]",
+            "lineno": 87,
+            "outcome": "passed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Playing]",
+              "parametrize",
+              "pytestmark",
+              "custom-9-9-10-Playing",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0012684000103035942,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008483999990858138,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00038389999826904386,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Ready]",
+            "lineno": 116,
+            "outcome": "passed",
+            "keywords": [
+              "test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Ready]",
+              "parametrize",
+              "pytestmark",
+              "Ready",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006403000006685033,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011326999956509098,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003392999933566898,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Playing]",
+            "lineno": 116,
+            "outcome": "passed",
+            "keywords": [
+              "test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Playing]",
+              "parametrize",
+              "pytestmark",
+              "Playing",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008531000057701021,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0014823999954387546,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00038660000427626073,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_045.py::test_change_difficulty_with_unknown_difficulty_is_refused_and_game_unchanged",
+            "lineno": 131,
+            "outcome": "passed",
+            "keywords": [
+              "test_change_difficulty_with_unknown_difficulty_is_refused_and_game_unchanged",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003637000045273453,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010424999927636236,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003372999926796183,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

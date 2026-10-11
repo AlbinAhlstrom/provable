@@ -1,0 +1,152 @@
+{
+  "seq": 139,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.328,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652644.6916292,
+        "duration": 0.4498467445373535,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_right_click_hidden_cell_becomes_flagged",
+                "type": "Function",
+                "lineno": 40
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_right_click_flagged_cell_becomes_hidden",
+                "type": "Function",
+                "lineno": 53
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_right_click_revealed_cell_is_unchanged",
+                "type": "Function",
+                "lineno": 65
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_right_click_hidden_cell_becomes_flagged",
+            "lineno": 40,
+            "outcome": "passed",
+            "keywords": [
+              "test_right_click_hidden_cell_becomes_flagged",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005577999982051551,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00043450000521261245,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00030139999580569565,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_right_click_flagged_cell_becomes_hidden",
+            "lineno": 53,
+            "outcome": "passed",
+            "keywords": [
+              "test_right_click_flagged_cell_becomes_hidden",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00038189999759197235,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004447000101208687,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00031779998971614987,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_right_click_revealed_cell_is_unchanged",
+            "lineno": 65,
+            "outcome": "passed",
+            "keywords": [
+              "test_right_click_revealed_cell_is_unchanged",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00037599999632220715,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006421999860322103,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00037120000342838466,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

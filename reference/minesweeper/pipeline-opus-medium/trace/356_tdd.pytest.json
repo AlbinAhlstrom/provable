@@ -1,0 +1,265 @@
+{
+  "seq": 356,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:29",
+  "t_offset_s": 400.069,
+  "thread": "red_5",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_043.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 6 items\n\ntests\\unit\\test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[beginner-9-9-10] PASSED [ 16%]\ntests\\unit\\test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[intermediate-16-16-40] PASSED [ 33%]\ntests\\unit\\test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[beginner-9-9-10] PASSED [ 50%]\ntests\\unit\\test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[intermediate-16-16-40] PASSED [ 66%]\ntests\\unit\\test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Won] PASSED [ 83%]\ntests\\unit\\test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Lost] PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_49a1c760bce54afd86f85175db430a22.json\n============================== 6 passed in 1.09s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656614.362161,
+      "duration": 1.0908520221710205,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 6,
+        "total": 6,
+        "collected": 6
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_043.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_043.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[beginner-9-9-10]",
+              "type": "Function",
+              "lineno": 94
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+              "type": "Function",
+              "lineno": 94
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[beginner-9-9-10]",
+              "type": "Function",
+              "lineno": 110
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+              "type": "Function",
+              "lineno": 110
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Won]",
+              "type": "Function",
+              "lineno": 128
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Lost]",
+              "type": "Function",
+              "lineno": 128
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[beginner-9-9-10]",
+          "lineno": 94,
+          "outcome": "passed",
+          "keywords": [
+            "test_restart_from_ready_abandons_and_deals_fresh_board[beginner-9-9-10]",
+            "parametrize",
+            "pytestmark",
+            "beginner-9-9-10",
+            "test_spec_043.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0010869999969145283,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006951999966986477,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004278999986127019,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+          "lineno": 94,
+          "outcome": "passed",
+          "keywords": [
+            "test_restart_from_ready_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+            "parametrize",
+            "pytestmark",
+            "intermediate-16-16-40",
+            "test_spec_043.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0010424999927636236,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0014272000116761774,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00044430000707507133,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[beginner-9-9-10]",
+          "lineno": 110,
+          "outcome": "passed",
+          "keywords": [
+            "test_restart_from_playing_abandons_and_deals_fresh_board[beginner-9-9-10]",
+            "parametrize",
+            "pytestmark",
+            "beginner-9-9-10",
+            "test_spec_043.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0010389000090071931,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007373000116785988,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00039230000402312726,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+          "lineno": 110,
+          "outcome": "passed",
+          "keywords": [
+            "test_restart_from_playing_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+            "parametrize",
+            "pytestmark",
+            "intermediate-16-16-40",
+            "test_spec_043.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00139639999542851,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0012310999882174656,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00044049999269191176,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Won]",
+          "lineno": 128,
+          "outcome": "passed",
+          "keywords": [
+            "test_restart_from_finished_game_keeps_outcome[Won]",
+            "parametrize",
+            "pytestmark",
+            "Won",
+            "test_spec_043.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0018531999958213419,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006621999928029254,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0007212999917101115,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Lost]",
+          "lineno": 128,
+          "outcome": "passed",
+          "keywords": [
+            "test_restart_from_finished_game_keeps_outcome[Lost]",
+            "parametrize",
+            "pytestmark",
+            "Lost",
+            "test_spec_043.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006874000100651756,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007740000000922009,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004428999964147806,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.715
+}

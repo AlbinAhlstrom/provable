@@ -1,0 +1,315 @@
+{
+  "seq": 435,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:37",
+  "t_offset_s": 408.309,
+  "thread": "red_0",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656616.4771369,
+        "duration": 0.7177956104278564,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow__sempqxk",
+        "environment": {},
+        "summary": {
+          "passed": 1,
+          "failed": 5,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_026.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_026.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_026.py::test_timer_does_not_run_before_first_open",
+                "type": "Function",
+                "lineno": 58
+              },
+              {
+                "nodeid": "tests/unit/test_spec_026.py::test_first_open_starts_timer_at_zero",
+                "type": "Function",
+                "lineno": 72
+              },
+              {
+                "nodeid": "tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[1-1]",
+                "type": "Function",
+                "lineno": 86
+              },
+              {
+                "nodeid": "tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[2-2]",
+                "type": "Function",
+                "lineno": 86
+              },
+              {
+                "nodeid": "tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[5-5]",
+                "type": "Function",
+                "lineno": 86
+              },
+              {
+                "nodeid": "tests/unit/test_spec_026.py::test_same_ticks_before_and_after_first_open_differ_only_by_the_open",
+                "type": "Function",
+                "lineno": 104
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_026.py::test_timer_does_not_run_before_first_open",
+            "lineno": 58,
+            "outcome": "passed",
+            "keywords": [
+              "test_timer_does_not_run_before_first_open",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "hollow__sempqxk",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005915999936405569,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007092999876476824,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004582000110531226,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_026.py::test_first_open_starts_timer_at_zero",
+            "lineno": 72,
+            "outcome": "failed",
+            "keywords": [
+              "test_first_open_starts_timer_at_zero",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "hollow__sempqxk",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005585000035353005,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001146500013419427,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow__sempqxk\\tests\\unit\\test_spec_026.py",
+                "lineno": 81,
+                "message": "AssertionError: assert 'Ready' == 'Playing'\n  \n  - Playing\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_026.py",
+                  "lineno": 81,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_first_open_starts_timer_at_zero():\n        game = _make_ready_game()\n    \n        game.open_cell(row=0, column=0)\n    \n        # The first open of a Ready game makes status Playing and sets started_at.\n        # (0, 0) is safe on the first open. The cascade skips the 80 Flagged\n        # cells, and 70 safe cells stay unopened, so the game is not Won.\n>       assert game.status == \"Playing\"\nE       AssertionError: assert 'Ready' == 'Playing'\nE         \nE         - Playing\nE         + Ready\n\ntests\\unit\\test_spec_026.py:81: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006563999922946095,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[1-1]",
+            "lineno": 86,
+            "outcome": "failed",
+            "keywords": [
+              "test_timer_counts_one_per_second_after_first_open[1-1]",
+              "parametrize",
+              "pytestmark",
+              "1-1",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "hollow__sempqxk",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007918000046629459,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009656000038376078,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow__sempqxk\\tests\\unit\\test_spec_026.py",
+                "lineno": 92,
+                "message": "AssertionError: assert 'Ready' == 'Playing'\n  \n  - Playing\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_026.py",
+                  "lineno": 92,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "ticks = 1, expected = 1\n\n    @pytest.mark.parametrize(\"ticks, expected\", [(1, 1), (2, 2), (5, 5)])\n    def test_timer_counts_one_per_second_after_first_open(ticks, expected):\n        game = _make_ready_game()\n        game.open_cell(row=0, column=0)\n        # The game is now Playing (see the comments above), with elapsed 0.\n>       assert game.status == \"Playing\"\nE       AssertionError: assert 'Ready' == 'Playing'\nE         \nE         - Playing\nE         + Ready\n\ntests\\unit\\test_spec_026.py:92: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004106000124011189,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[2-2]",
+            "lineno": 86,
+            "outcome": "failed",
+            "keywords": [
+              "test_timer_counts_one_per_second_after_first_open[2-2]",
+              "parametrize",
+              "pytestmark",
+              "2-2",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "hollow__sempqxk",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008562000002712011,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008995999960461631,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow__sempqxk\\tests\\unit\\test_spec_026.py",
+                "lineno": 92,
+                "message": "AssertionError: assert 'Ready' == 'Playing'\n  \n  - Playing\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_026.py",
+                  "lineno": 92,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "ticks = 2, expected = 2\n\n    @pytest.mark.parametrize(\"ticks, expected\", [(1, 1), (2, 2), (5, 5)])\n    def test_timer_counts_one_per_second_after_first_open(ticks, expected):\n        game = _make_ready_game()\n        game.open_cell(row=0, column=0)\n        # The game is now Playing (see the comments above), with elapsed 0.\n>       assert game.status == \"Playing\"\nE       AssertionError: assert 'Ready' == 'Playing'\nE         \nE         - Playing\nE         + Ready\n\ntests\\unit\\test_spec_026.py:92: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0008814000029815361,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[5-5]",
+            "lineno": 86,
+            "outcome": "failed",
+            "keywords": [
+              "test_timer_counts_one_per_second_after_first_open[5-5]",
+              "parametrize",
+              "pytestmark",
+              "5-5",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "hollow__sempqxk",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006818999972892925,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001291499997023493,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow__sempqxk\\tests\\unit\\test_spec_026.py",
+                "lineno": 92,
+                "message": "AssertionError: assert 'Ready' == 'Playing'\n  \n  - Playing\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_026.py",
+                  "lineno": 92,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "ticks = 5, expected = 5\n\n    @pytest.mark.parametrize(\"ticks, expected\", [(1, 1), (2, 2), (5, 5)])\n    def test_timer_counts_one_per_second_after_first_open(ticks, expected):\n        game = _make_ready_game()\n        game.open_cell(row=0, column=0)\n        # The game is now Playing (see the comments above), with elapsed 0.\n>       assert game.status == \"Playing\"\nE       AssertionError: assert 'Ready' == 'Playing'\nE         \nE         - Playing\nE         + Ready\n\ntests\\unit\\test_spec_026.py:92: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004118999931961298,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_026.py::test_same_ticks_before_and_after_first_open_differ_only_by_the_open",
+            "lineno": 104,
+            "outcome": "failed",
+            "keywords": [
+              "test_same_ticks_before_and_after_first_open_differ_only_by_the_open",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "hollow__sempqxk",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004121999954804778,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011216999992029741,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow__sempqxk\\tests\\unit\\test_spec_026.py",
+                "lineno": 118,
+                "message": "AssertionError: assert 0 == 3\n +  where 0 = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=-70, created_at='2024-01...d'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Flagged'}], events=[]).elapsed_seconds"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_026.py",
+                  "lineno": 118,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_same_ticks_before_and_after_first_open_differ_only_by_the_open():\n        before = _make_ready_game()\n        after = _make_ready_game()\n        after.open_cell(row=0, column=0)\n    \n        for _ in range(3):\n            before.tick()\n            after.tick()\n    \n        # Both games get the same 3 ticks.\n        # The Ready game (never opened) ignores them: 0.\n        assert before.elapsed_seconds == 0\n        # The opened game is Playing, so it counts each one: 0 + 3 = 3.\n>       assert after.elapsed_seconds == 3\nE       AssertionError: assert 0 == 3\nE        +  where 0 = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=-70, created_at='2024-01...d'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Flagged'}], events=[]).elapsed_seconds\n\ntests\\unit\\test_spec_026.py:118: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0003885000041918829,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.001
+}

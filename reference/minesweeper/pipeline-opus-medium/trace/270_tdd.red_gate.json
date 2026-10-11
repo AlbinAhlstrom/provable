@@ -1,0 +1,158 @@
+{
+  "seq": 270,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.211,
+  "thread": "red_20",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656601.4023008,
+        "duration": 1.1387605667114258,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_022.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_022.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_022.py::test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[9-10-0]",
+                "type": "Function",
+                "lineno": 53
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_022.py::test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[10-11--1]",
+                "type": "Function",
+                "lineno": 53
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_022.py::test_remaining_mines_returns_from_negative_when_flag_removed",
+                "type": "Function",
+                "lineno": 85
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_022.py::test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[9-10-0]",
+            "lineno": 53,
+            "outcome": "passed",
+            "keywords": [
+              "test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[9-10-0]",
+              "parametrize",
+              "pytestmark",
+              "9-10-0",
+              "test_spec_022.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011991000064881518,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008247000077972189,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004479999915929511,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_022.py::test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[10-11--1]",
+            "lineno": 53,
+            "outcome": "passed",
+            "keywords": [
+              "test_remaining_mines_equals_mines_minus_flags_at_and_beyond_limit[10-11--1]",
+              "parametrize",
+              "pytestmark",
+              "10-11--1",
+              "test_spec_022.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008662000036565587,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007591000030515715,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004878000036114827,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_022.py::test_remaining_mines_returns_from_negative_when_flag_removed",
+            "lineno": 85,
+            "outcome": "passed",
+            "keywords": [
+              "test_remaining_mines_returns_from_negative_when_flag_removed",
+              "test_spec_022.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004735999973490834,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005870999884791672,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00037740000698249787,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

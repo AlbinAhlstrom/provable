@@ -1,0 +1,146 @@
+{
+  "seq": 299,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:19",
+  "t_offset_s": 200.211,
+  "thread": "red_1",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652458.8368993,
+        "duration": 0.21401000022888184,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kpsefpg3",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_028.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_028.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_028.py::test_first_reveal_records_start_time_and_starts_timer",
+                "type": "Function",
+                "lineno": 33
+              },
+              {
+                "nodeid": "tests/unit/test_spec_028.py::test_placing_a_flag_does_not_start_the_timer",
+                "type": "Function",
+                "lineno": 60
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_028.py::test_first_reveal_records_start_time_and_starts_timer",
+            "lineno": 33,
+            "outcome": "failed",
+            "keywords": [
+              "test_first_reveal_records_start_time_and_starts_timer",
+              "test_spec_028.py",
+              "unit",
+              "tests",
+              "hollow_kpsefpg3",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004054000019095838,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005294000002322719,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kpsefpg3\\tests\\unit\\test_spec_028.py",
+                "lineno": 49,
+                "message": "AssertionError: assert 'ready' == 'in_progress'\n  \n  - in_progress\n  + ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_028.py",
+                  "lineno": 49,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_first_reveal_records_start_time_and_starts_timer():\n        # Given a session in Ready state: status \"ready\", started_at null,\n        # elapsed_seconds 0, no mines placed, all 81 cells hidden.\n        session = make_ready_session()\n        assert session.status == \"ready\"\n        assert session.started_at is None\n        assert session.elapsed_seconds == 0\n    \n        # When the player reveals the centre cell (4, 4), which is the first reveal.\n        # Mines are placed at random avoiding (4, 4), so the centre is safe and the\n        # game cannot be lost or won by this single reveal (10 mines on 81 cells).\n        session.reveal_cell(row=4, column=4)\n    \n        # Then the session is now in progress, because the first reveal of a ready\n        # session moves it out of Ready and the timer is running.\n>       assert session.status == \"in_progress\"\nE       AssertionError: assert 'ready' == 'in_progress'\nE         \nE         - in_progress\nE         + ready\n\ntests\\unit\\test_spec_028.py:49: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0003505000058794394,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_028.py::test_placing_a_flag_does_not_start_the_timer",
+            "lineno": 60,
+            "outcome": "failed",
+            "keywords": [
+              "test_placing_a_flag_does_not_start_the_timer",
+              "test_spec_028.py",
+              "unit",
+              "tests",
+              "hollow_kpsefpg3",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003304999991087243,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006327000010060146,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kpsefpg3\\tests\\unit\\test_spec_028.py",
+                "lineno": 73,
+                "message": "assert 0 == 1\n +  where 0 = len([])"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_028.py",
+                  "lineno": 73,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_placing_a_flag_does_not_start_the_timer():\n        # Given a session in Ready state: no cell revealed, started_at null.\n        session = make_ready_session()\n        assert session.status == \"ready\"\n        assert session.started_at is None\n    \n        # When the player flags the hidden cell (0, 0). Flagging reveals nothing\n        # and must not start the timer.\n        session.toggle_flag(row=0, column=0)\n    \n        # Then the cell at (0, 0) is flagged, which is the only change.\n        flagged = [c for c in session.cells if c[\"state\"] == \"flagged\"]\n>       assert len(flagged) == 1\nE       assert 0 == 1\nE        +  where 0 = len([])\n\ntests\\unit\\test_spec_028.py:73: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0002781999937724322,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

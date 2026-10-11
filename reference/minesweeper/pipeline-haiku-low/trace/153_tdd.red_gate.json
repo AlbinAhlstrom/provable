@@ -1,0 +1,163 @@
+{
+  "seq": 153,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.542,
+  "thread": "red_0",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652644.8973553,
+        "duration": 0.9447605609893799,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_001.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_001.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[exactly_at_eight_neighbour_limit]",
+                "type": "Function",
+                "lineno": 72
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[just_beyond_limit_outside_mine_ignored]",
+                "type": "Function",
+                "lineno": 72
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[exactly_at_eight_neighbour_limit]",
+            "lineno": 72,
+            "outcome": "failed",
+            "keywords": [
+              "test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[exactly_at_eight_neighbour_limit]",
+              "parametrize",
+              "pytestmark",
+              "exactly_at_eight_neighbour_limit",
+              "test_spec_001.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007862000056775287,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009524000051897019,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_001.py",
+                "lineno": 103,
+                "message": "assert 0 == 8"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_001.py",
+                  "lineno": 103,
+                  "message": "in test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_001.py:103: in test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours\n    assert revealed[\"adjacent_mine_count\"] == expected_count\nE   assert 0 == 8"
+            },
+            "teardown": {
+              "duration": 0.0005317000031936914,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[just_beyond_limit_outside_mine_ignored]",
+            "lineno": 72,
+            "outcome": "failed",
+            "keywords": [
+              "test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[just_beyond_limit_outside_mine_ignored]",
+              "parametrize",
+              "pytestmark",
+              "just_beyond_limit_outside_mine_ignored",
+              "test_spec_001.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007658999966224656,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0024550000089220703,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\game.py",
+                "lineno": 219,
+                "message": "TypeError: can't subtract offset-naive and offset-aware datetimes"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_001.py",
+                  "lineno": 97,
+                  "message": "in test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours"
+                },
+                {
+                  "path": "src\\domain\\game.py",
+                  "lineno": 105,
+                  "message": "in reveal_cell"
+                },
+                {
+                  "path": "src\\domain\\game.py",
+                  "lineno": 219,
+                  "message": "in _finish"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_001.py:97: in test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours\n    game.reveal_cell(row=target_row, column=target_column)\nsrc\\domain\\game.py:105: in reveal_cell\n    self._finish(\"won\")\nsrc\\domain\\game.py:219: in _finish\n    self.elapsed_seconds = int((finished - started).total_seconds())\n                                ^^^^^^^^^^^^^^^^^^\nE   TypeError: can't subtract offset-naive and offset-aware datetimes"
+            },
+            "teardown": {
+              "duration": 0.0004900000058114529,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

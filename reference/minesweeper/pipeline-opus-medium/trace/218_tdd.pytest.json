@@ -1,0 +1,253 @@
+{
+  "seq": 218,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:16",
+  "t_offset_s": 387.468,
+  "thread": "red_11",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_013.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 6 items\n\ntests\\unit\\test_spec_013.py::test_open_hidden_safe_numbered_cell_in_playing_game_becomes_opened PASSED [ 16%]\ntests\\unit\\test_spec_013.py::test_open_hidden_mine_cell_in_playing_game_becomes_detonated PASSED [ 33%]\ntests\\unit\\test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[4-4] PASSED [ 50%]\ntests\\unit\\test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[0-0] PASSED [ 66%]\ntests\\unit\\test_spec_013.py::test_open_flagged_cell_is_not_opened PASSED [ 83%]\ntests\\unit\\test_spec_013.py::test_open_hidden_cell_in_lost_game_changes_nothing PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_6a317a4f2dd3454589ae713d684046f5.json\n============================== 6 passed in 1.37s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656601.4884374,
+      "duration": 1.3076446056365967,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 6,
+        "total": 6,
+        "collected": 6
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_013.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_013.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_safe_numbered_cell_in_playing_game_becomes_opened",
+              "type": "Function",
+              "lineno": 85
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_mine_cell_in_playing_game_becomes_detonated",
+              "type": "Function",
+              "lineno": 104
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[4-4]",
+              "type": "Function",
+              "lineno": 115
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[0-0]",
+              "type": "Function",
+              "lineno": 115
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_flagged_cell_is_not_opened",
+              "type": "Function",
+              "lineno": 129
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_lost_game_changes_nothing",
+              "type": "Function",
+              "lineno": 144
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_safe_numbered_cell_in_playing_game_becomes_opened",
+          "lineno": 85,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_hidden_safe_numbered_cell_in_playing_game_becomes_opened",
+            "test_spec_013.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0009763999987626448,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008227000071201473,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004518999921856448,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_mine_cell_in_playing_game_becomes_detonated",
+          "lineno": 104,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_hidden_mine_cell_in_playing_game_becomes_detonated",
+            "test_spec_013.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000673100003041327,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008154999959515408,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00033629999961704016,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[4-4]",
+          "lineno": 115,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_hidden_cell_in_ready_game_becomes_opened[4-4]",
+            "parametrize",
+            "pytestmark",
+            "4-4",
+            "test_spec_013.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000716800001100637,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0009111000108532608,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003986000083386898,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[0-0]",
+          "lineno": 115,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_hidden_cell_in_ready_game_becomes_opened[0-0]",
+            "parametrize",
+            "pytestmark",
+            "0-0",
+            "test_spec_013.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008131000067805871,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010200999968219548,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003839999990304932,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_flagged_cell_is_not_opened",
+          "lineno": 129,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_flagged_cell_is_not_opened",
+            "test_spec_013.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00045950000640004873,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006277000065892935,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003473999968264252,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_lost_game_changes_nothing",
+          "lineno": 144,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_hidden_cell_in_lost_game_changes_nothing",
+            "test_spec_013.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004498000052990392,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007285000028787181,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0005011000030208379,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 6.002
+}

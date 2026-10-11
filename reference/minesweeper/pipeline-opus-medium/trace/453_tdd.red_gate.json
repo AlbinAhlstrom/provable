@@ -1,0 +1,354 @@
+{
+  "seq": 453,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:39",
+  "t_offset_s": 410.653,
+  "thread": "red_19",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656618.9199193,
+        "duration": 0.8937168121337891,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1v96c9ws",
+        "environment": {},
+        "summary": {
+          "failed": 5,
+          "passed": 2,
+          "total": 7,
+          "collected": 7
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_046.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_046.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_046.py::test_closing_a_game_in_progress_abandons_it_and_records_nothing[Ready]",
+                "type": "Function",
+                "lineno": 125
+              },
+              {
+                "nodeid": "tests/unit/test_spec_046.py::test_closing_a_game_in_progress_abandons_it_and_records_nothing[Playing]",
+                "type": "Function",
+                "lineno": 125
+              },
+              {
+                "nodeid": "tests/unit/test_spec_046.py::test_abandoned_game_timer_stays_frozen[Ready]",
+                "type": "Function",
+                "lineno": 149
+              },
+              {
+                "nodeid": "tests/unit/test_spec_046.py::test_abandoned_game_timer_stays_frozen[Playing]",
+                "type": "Function",
+                "lineno": 149
+              },
+              {
+                "nodeid": "tests/unit/test_spec_046.py::test_closing_a_finished_game_keeps_its_outcome[Won]",
+                "type": "Function",
+                "lineno": 163
+              },
+              {
+                "nodeid": "tests/unit/test_spec_046.py::test_closing_a_finished_game_keeps_its_outcome[Lost]",
+                "type": "Function",
+                "lineno": 163
+              },
+              {
+                "nodeid": "tests/unit/test_spec_046.py::test_closing_an_already_abandoned_game_changes_nothing",
+                "type": "Function",
+                "lineno": 189
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_046.py::test_closing_a_game_in_progress_abandons_it_and_records_nothing[Ready]",
+            "lineno": 125,
+            "outcome": "failed",
+            "keywords": [
+              "test_closing_a_game_in_progress_abandons_it_and_records_nothing[Ready]",
+              "parametrize",
+              "pytestmark",
+              "Ready",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "hollow_1v96c9ws",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007706000033067539,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0014990000054240227,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1v96c9ws\\tests\\unit\\test_spec_046.py",
+                "lineno": 137,
+                "message": "AssertionError: assert 'Ready' == 'Abandoned'\n  \n  - Abandoned\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_046.py",
+                  "lineno": 137,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "make_game = <function _ready_game at 0x0000016859AE0040>\n\n    @pytest.mark.parametrize(\"make_game\", [_ready_game, _playing_game], ids=[\"Ready\", \"Playing\"])\n    def test_closing_a_game_in_progress_abandons_it_and_records_nothing(make_game):\n        game = make_game()\n        cells_before = copy.deepcopy(game.cells)\n        elapsed_before = game.elapsed_seconds\n        flags_before = game.flags_placed\n        remaining_before = game.remaining_mines\n    \n        game.abandon_game()\n    \n        # Status was Ready/Playing; Ready/Playing -> Abandoned is an allowed transition.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Ready' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Ready\n\ntests\\unit\\test_spec_046.py:137: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005442999972729012,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_046.py::test_closing_a_game_in_progress_abandons_it_and_records_nothing[Playing]",
+            "lineno": 125,
+            "outcome": "failed",
+            "keywords": [
+              "test_closing_a_game_in_progress_abandons_it_and_records_nothing[Playing]",
+              "parametrize",
+              "pytestmark",
+              "Playing",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "hollow_1v96c9ws",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006771999906050041,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0017261000029975548,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1v96c9ws\\tests\\unit\\test_spec_046.py",
+                "lineno": 137,
+                "message": "AssertionError: assert 'Playing' == 'Abandoned'\n  \n  - Abandoned\n  + Playing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_046.py",
+                  "lineno": 137,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "make_game = <function _playing_game at 0x0000016859AE00E0>\n\n    @pytest.mark.parametrize(\"make_game\", [_ready_game, _playing_game], ids=[\"Ready\", \"Playing\"])\n    def test_closing_a_game_in_progress_abandons_it_and_records_nothing(make_game):\n        game = make_game()\n        cells_before = copy.deepcopy(game.cells)\n        elapsed_before = game.elapsed_seconds\n        flags_before = game.flags_placed\n        remaining_before = game.remaining_mines\n    \n        game.abandon_game()\n    \n        # Status was Ready/Playing; Ready/Playing -> Abandoned is an allowed transition.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Playing' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Playing\n\ntests\\unit\\test_spec_046.py:137: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005062000127509236,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_046.py::test_abandoned_game_timer_stays_frozen[Ready]",
+            "lineno": 149,
+            "outcome": "failed",
+            "keywords": [
+              "test_abandoned_game_timer_stays_frozen[Ready]",
+              "parametrize",
+              "pytestmark",
+              "Ready",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "hollow_1v96c9ws",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008272999984910712,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011451000027591363,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1v96c9ws\\tests\\unit\\test_spec_046.py",
+                "lineno": 160,
+                "message": "AssertionError: assert 'Ready' == 'Abandoned'\n  \n  - Abandoned\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_046.py",
+                  "lineno": 160,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "make_game = <function _ready_game at 0x0000016859AE0040>\n\n    @pytest.mark.parametrize(\"make_game\", [_ready_game, _playing_game], ids=[\"Ready\", \"Playing\"])\n    def test_abandoned_game_timer_stays_frozen(make_game):\n        game = make_game()\n        elapsed_before = game.elapsed_seconds\n    \n        game.abandon_game()\n        game.tick()\n    \n        # tick only advances while Playing; the game is now Abandoned, so the\n        # elapsed time stays at the value it had when it was closed.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Ready' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Ready\n\ntests\\unit\\test_spec_046.py:160: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006508999940706417,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_046.py::test_abandoned_game_timer_stays_frozen[Playing]",
+            "lineno": 149,
+            "outcome": "failed",
+            "keywords": [
+              "test_abandoned_game_timer_stays_frozen[Playing]",
+              "parametrize",
+              "pytestmark",
+              "Playing",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "hollow_1v96c9ws",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009307000000262633,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.005983899987768382,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1v96c9ws\\tests\\unit\\test_spec_046.py",
+                "lineno": 160,
+                "message": "AssertionError: assert 'Playing' == 'Abandoned'\n  \n  - Abandoned\n  + Playing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_046.py",
+                  "lineno": 160,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "make_game = <function _playing_game at 0x0000016859AE00E0>\n\n    @pytest.mark.parametrize(\"make_game\", [_ready_game, _playing_game], ids=[\"Ready\", \"Playing\"])\n    def test_abandoned_game_timer_stays_frozen(make_game):\n        game = make_game()\n        elapsed_before = game.elapsed_seconds\n    \n        game.abandon_game()\n        game.tick()\n    \n        # tick only advances while Playing; the game is now Abandoned, so the\n        # elapsed time stays at the value it had when it was closed.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Playing' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Playing\n\ntests\\unit\\test_spec_046.py:160: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.000498699999297969,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_046.py::test_closing_a_finished_game_keeps_its_outcome[Won]",
+            "lineno": 163,
+            "outcome": "passed",
+            "keywords": [
+              "test_closing_a_finished_game_keeps_its_outcome[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "hollow_1v96c9ws",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0015225000097416341,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.002041200001258403,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0007464999944204465,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_046.py::test_closing_a_finished_game_keeps_its_outcome[Lost]",
+            "lineno": 163,
+            "outcome": "passed",
+            "keywords": [
+              "test_closing_a_finished_game_keeps_its_outcome[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "hollow_1v96c9ws",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009877999982563779,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0054681000037817284,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005170999938854948,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_046.py::test_closing_an_already_abandoned_game_changes_nothing",
+            "lineno": 189,
+            "outcome": "failed",
+            "keywords": [
+              "test_closing_an_already_abandoned_game_changes_nothing",
+              "test_spec_046.py",
+              "unit",
+              "tests",
+              "hollow_1v96c9ws",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011892000038642436,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.002915499993832782,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_1v96c9ws\\tests\\unit\\test_spec_046.py",
+                "lineno": 200,
+                "message": "AssertionError: assert 'Playing' == 'Abandoned'\n  \n  - Abandoned\n  + Playing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_046.py",
+                  "lineno": 200,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_closing_an_already_abandoned_game_changes_nothing():\n        game = _playing_game()\n        game.abandon_game()\n        ended_first = game.ended_at\n        elapsed_first = game.elapsed_seconds\n        cells_first = copy.deepcopy(game.cells)\n    \n        # Abandoned is terminal; closing again is ignored without error.\n        game.abandon_game()\n    \n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Playing' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Playing\n\ntests\\unit\\test_spec_046.py:200: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.000454699998954311,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

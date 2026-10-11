@@ -1,0 +1,333 @@
+{
+  "seq": 444,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:38",
+  "t_offset_s": 409.812,
+  "thread": "red_2",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656617.9931555,
+        "duration": 1.1364381313323975,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_gtkis7ek",
+        "environment": {},
+        "summary": {
+          "failed": 6,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_031.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_031.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[no_flags]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[all_mines_flagged]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[some_mines_flagged]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "tests/unit/test_spec_031.py::test_not_won_while_a_hidden_non_mine_cell_remains[no_flags]",
+                "type": "Function",
+                "lineno": 121
+              },
+              {
+                "nodeid": "tests/unit/test_spec_031.py::test_not_won_while_a_hidden_non_mine_cell_remains[all_mines_flagged]",
+                "type": "Function",
+                "lineno": 121
+              },
+              {
+                "nodeid": "tests/unit/test_spec_031.py::test_not_won_while_a_flagged_non_mine_cell_remains_unopened",
+                "type": "Function",
+                "lineno": 147
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[no_flags]",
+            "lineno": 84,
+            "outcome": "failed",
+            "keywords": [
+              "test_opening_last_non_mine_cell_wins_regardless_of_flags[no_flags]",
+              "parametrize",
+              "pytestmark",
+              "no_flags",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "hollow_gtkis7ek",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011322000063955784,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011239000014029443,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_gtkis7ek\\tests\\unit\\test_spec_031.py",
+                "lineno": 102,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_031.py",
+                  "lineno": 102,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "flag_mines = set()\n\n    @pytest.mark.parametrize(\n        \"flag_mines\",\n        [\n            set(),  # no mine flagged\n            set(MINES),  # every mine flagged\n            {(0, 0), (0, 4), (1, 0)},  # some mines flagged\n        ],\n        ids=[\"no_flags\", \"all_mines_flagged\", \"some_mines_flagged\"],\n    )\n    def test_opening_last_non_mine_cell_wins_regardless_of_flags(flag_mines):\n        # Only safe cell left unopened is (1,1). Its neighbours (0,0),(0,1),(0,2),(1,0)\n        # are mines, so its count is 4: no cascade is triggered.\n        game = _make_playing_game(hidden_safe={(1, 1)}, flag_mines=flag_mines)\n    \n        game.open_cell(row=1, column=1)\n    \n        # (1,1) is Hidden and safe -> becomes Opened.\n>       assert _cell(game, 1, 1)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_031.py:102: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005338000046322122,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[all_mines_flagged]",
+            "lineno": 84,
+            "outcome": "failed",
+            "keywords": [
+              "test_opening_last_non_mine_cell_wins_regardless_of_flags[all_mines_flagged]",
+              "parametrize",
+              "pytestmark",
+              "all_mines_flagged",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "hollow_gtkis7ek",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006384000007528812,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010708000045269728,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_gtkis7ek\\tests\\unit\\test_spec_031.py",
+                "lineno": 102,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_031.py",
+                  "lineno": 102,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "flag_mines = {(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), ...}\n\n    @pytest.mark.parametrize(\n        \"flag_mines\",\n        [\n            set(),  # no mine flagged\n            set(MINES),  # every mine flagged\n            {(0, 0), (0, 4), (1, 0)},  # some mines flagged\n        ],\n        ids=[\"no_flags\", \"all_mines_flagged\", \"some_mines_flagged\"],\n    )\n    def test_opening_last_non_mine_cell_wins_regardless_of_flags(flag_mines):\n        # Only safe cell left unopened is (1,1). Its neighbours (0,0),(0,1),(0,2),(1,0)\n        # are mines, so its count is 4: no cascade is triggered.\n        game = _make_playing_game(hidden_safe={(1, 1)}, flag_mines=flag_mines)\n    \n        game.open_cell(row=1, column=1)\n    \n        # (1,1) is Hidden and safe -> becomes Opened.\n>       assert _cell(game, 1, 1)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_031.py:102: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00043390000064391643,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_031.py::test_opening_last_non_mine_cell_wins_regardless_of_flags[some_mines_flagged]",
+            "lineno": 84,
+            "outcome": "failed",
+            "keywords": [
+              "test_opening_last_non_mine_cell_wins_regardless_of_flags[some_mines_flagged]",
+              "parametrize",
+              "pytestmark",
+              "some_mines_flagged",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "hollow_gtkis7ek",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000930599999264814,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001480600010836497,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_gtkis7ek\\tests\\unit\\test_spec_031.py",
+                "lineno": 102,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_031.py",
+                  "lineno": 102,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "flag_mines = {(0, 0), (0, 4), (1, 0)}\n\n    @pytest.mark.parametrize(\n        \"flag_mines\",\n        [\n            set(),  # no mine flagged\n            set(MINES),  # every mine flagged\n            {(0, 0), (0, 4), (1, 0)},  # some mines flagged\n        ],\n        ids=[\"no_flags\", \"all_mines_flagged\", \"some_mines_flagged\"],\n    )\n    def test_opening_last_non_mine_cell_wins_regardless_of_flags(flag_mines):\n        # Only safe cell left unopened is (1,1). Its neighbours (0,0),(0,1),(0,2),(1,0)\n        # are mines, so its count is 4: no cascade is triggered.\n        game = _make_playing_game(hidden_safe={(1, 1)}, flag_mines=flag_mines)\n    \n        game.open_cell(row=1, column=1)\n    \n        # (1,1) is Hidden and safe -> becomes Opened.\n>       assert _cell(game, 1, 1)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_031.py:102: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00047590000031050295,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_031.py::test_not_won_while_a_hidden_non_mine_cell_remains[no_flags]",
+            "lineno": 121,
+            "outcome": "failed",
+            "keywords": [
+              "test_not_won_while_a_hidden_non_mine_cell_remains[no_flags]",
+              "parametrize",
+              "pytestmark",
+              "no_flags",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "hollow_gtkis7ek",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007396000000881031,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011397999915061519,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_gtkis7ek\\tests\\unit\\test_spec_031.py",
+                "lineno": 138,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_031.py",
+                  "lineno": 138,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "flag_mines = set()\n\n    @pytest.mark.parametrize(\n        \"flag_mines\",\n        [set(), set(MINES)],\n        ids=[\"no_flags\", \"all_mines_flagged\"],\n    )\n    def test_not_won_while_a_hidden_non_mine_cell_remains(flag_mines):\n        # Two safe cells unopened: (1,1) with count 4 and (1,2) with count 3\n        # (neighbours (0,1),(0,2),(0,3)). Opening (1,1) does not cascade, so (1,2)\n        # stays Hidden.\n        game = _make_playing_game(hidden_safe={(1, 1), (1, 2)}, flag_mines=flag_mines)\n        flags_before = game.flags_placed\n        remaining_before = game.remaining_mines\n    \n        game.open_cell(row=1, column=1)\n    \n        # (1,1) opened.\n>       assert _cell(game, 1, 1)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_031.py:138: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.000454699998954311,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_031.py::test_not_won_while_a_hidden_non_mine_cell_remains[all_mines_flagged]",
+            "lineno": 121,
+            "outcome": "failed",
+            "keywords": [
+              "test_not_won_while_a_hidden_non_mine_cell_remains[all_mines_flagged]",
+              "parametrize",
+              "pytestmark",
+              "all_mines_flagged",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "hollow_gtkis7ek",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006228999991435558,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009913999965647236,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_gtkis7ek\\tests\\unit\\test_spec_031.py",
+                "lineno": 138,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_031.py",
+                  "lineno": 138,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "flag_mines = {(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), ...}\n\n    @pytest.mark.parametrize(\n        \"flag_mines\",\n        [set(), set(MINES)],\n        ids=[\"no_flags\", \"all_mines_flagged\"],\n    )\n    def test_not_won_while_a_hidden_non_mine_cell_remains(flag_mines):\n        # Two safe cells unopened: (1,1) with count 4 and (1,2) with count 3\n        # (neighbours (0,1),(0,2),(0,3)). Opening (1,1) does not cascade, so (1,2)\n        # stays Hidden.\n        game = _make_playing_game(hidden_safe={(1, 1), (1, 2)}, flag_mines=flag_mines)\n        flags_before = game.flags_placed\n        remaining_before = game.remaining_mines\n    \n        game.open_cell(row=1, column=1)\n    \n        # (1,1) opened.\n>       assert _cell(game, 1, 1)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_031.py:138: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006130999972810969,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_031.py::test_not_won_while_a_flagged_non_mine_cell_remains_unopened",
+            "lineno": 147,
+            "outcome": "failed",
+            "keywords": [
+              "test_not_won_while_a_flagged_non_mine_cell_remains_unopened",
+              "test_spec_031.py",
+              "unit",
+              "tests",
+              "hollow_gtkis7ek",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006265999982133508,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010793000110425055,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_gtkis7ek\\tests\\unit\\test_spec_031.py",
+                "lineno": 159,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_031.py",
+                  "lineno": 159,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_not_won_while_a_flagged_non_mine_cell_remains_unopened():\n        # Safe cell (1,2) is Flagged (not opened); (1,1) is the only Hidden safe cell.\n        # All mines flagged too except one, so flags placed = 9 mines + 1 safe = 10.\n        flag_mines = set(MINES) - {(0, 8)}\n        game = _make_playing_game(\n            hidden_safe={(1, 1)}, flag_mines=flag_mines, flagged_safe={(1, 2)}\n        )\n    \n        game.open_cell(row=1, column=1)\n    \n        # (1,1) opened (count 4, no cascade).\n>       assert _cell(game, 1, 1)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_031.py:159: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0003964000061387196,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

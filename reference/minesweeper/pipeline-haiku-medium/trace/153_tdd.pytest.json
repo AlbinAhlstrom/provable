@@ -1,0 +1,290 @@
+{
+  "seq": 153,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:08",
+  "t_offset_s": 189.61,
+  "thread": "red_3",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_004.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 7 items\n\ntests\\unit\\test_spec_004.py::test_reveal_on_last_cell_keeps_expert_dimensions PASSED [ 14%]\ntests\\unit\\test_spec_004.py::test_toggle_flag_on_last_cell_keeps_expert_dimensions PASSED [ 28%]\ntests\\unit\\test_spec_004.py::test_abandon_game_keeps_expert_dimensions PASSED [ 42%]\ntests\\unit\\test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[16-29] PASSED [ 57%]\ntests\\unit\\test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[15-30] PASSED [ 71%]\ntests\\unit\\test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[16-29] PASSED [ 85%]\ntests\\unit\\test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[15-30] PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_129977354c244993b7233e2fbc52f34c.json\n============================== 7 passed in 0.51s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652451.6629934,
+      "duration": 0.505042552947998,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 7,
+        "total": 7,
+        "collected": 7
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_004.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_004.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_004.py::test_reveal_on_last_cell_keeps_expert_dimensions",
+              "type": "Function",
+              "lineno": 66
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_004.py::test_toggle_flag_on_last_cell_keeps_expert_dimensions",
+              "type": "Function",
+              "lineno": 81
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_004.py::test_abandon_game_keeps_expert_dimensions",
+              "type": "Function",
+              "lineno": 95
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+              "type": "Function",
+              "lineno": 107
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+              "type": "Function",
+              "lineno": 107
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+              "type": "Function",
+              "lineno": 122
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+              "type": "Function",
+              "lineno": 122
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_004.py::test_reveal_on_last_cell_keeps_expert_dimensions",
+          "lineno": 66,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_on_last_cell_keeps_expert_dimensions",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005447000003186986,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.002387000000453554,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003466000052867457,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_004.py::test_toggle_flag_on_last_cell_keeps_expert_dimensions",
+          "lineno": 81,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_on_last_cell_keeps_expert_dimensions",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003871000080835074,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0019526999967638403,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00034330000926274806,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_004.py::test_abandon_game_keeps_expert_dimensions",
+          "lineno": 95,
+          "outcome": "passed",
+          "keywords": [
+            "test_abandon_game_keeps_expert_dimensions",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00047920001088641584,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.002048599999397993,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000302100001135841,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+          "lineno": 107,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+            "parametrize",
+            "pytestmark",
+            "16-29",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006603999936487526,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.002027399998041801,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00036589999217540026,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+          "lineno": 107,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+            "parametrize",
+            "pytestmark",
+            "15-30",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007256000099005178,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0022440000029746443,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003660000074887648,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+          "lineno": 122,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+            "parametrize",
+            "pytestmark",
+            "16-29",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007552000024588779,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00224980000348296,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003571999986888841,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+          "lineno": 122,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+            "parametrize",
+            "pytestmark",
+            "15-30",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007217000093078241,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.002590999996755272,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00040800000715535134,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 3.284
+}

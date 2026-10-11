@@ -12,7 +12,9 @@ import time
 from typing import List, Dict, Any, Optional
 from onboarding.action_protocol import format_action_protocol
 from onboarding.intent import ProductIntent, intent_block
+from onboarding.page_parts import parts_block
 from onboarding.router_engine import DomainStructureSchema, BusinessSpec
+from onboarding.skeleton_builder import _pluralize
 import agent_orchestrator
 from agent_orchestrator import call_gemini
 
@@ -28,7 +30,13 @@ def _sanitize_name(name: str) -> str:
 
 # The model answers with the four files as marker-delimited blocks, not as JSON string values: ~25k characters of
 # escaped TSX inside one JSON object proved fragile (an object closed early and the remaining files were lost).
+# Seconds the page call may take. It is the largest single answer of a build: 35 s on one model at low effort, past
+# the 60 s of an ordinary call on another that thinks longer before it writes, and some 15,000 tokens at the 75 a
+# second of a larger model is past 180 s.
+PAGE_TIMEOUT_S = 300.0
+
 SECTIONS = ("view_tsx", "controls_tsx", "history_tsx", "app_tsx")
+PARTS = "parts"  # opens the answer: where the writer puts each part of the page (page_parts.py); a plan, not a file
 END = "end"  # closes the answer: without a way to say "done" the model invents one, and it lands in the last file
 _MARKER = re.compile(r"^<<<(\w+)>>>[ \t]*$", re.MULTILINE)
 
@@ -51,6 +59,8 @@ def parse_file_blocks(raw: str) -> Dict[str, str]:
         name = mark.group(1)
         if name == END:
             break
+        if name == PARTS:
+            continue
         if name not in SECTIONS:
             raise ValueError(f"unknown section <<<{name}>>> (expected {', '.join(SECTIONS)})")
         if name in blocks:
@@ -83,12 +93,25 @@ def _clients_block(presented: List[Any], master_name: str) -> str:
         role = _ROLE_TEXT.get(getattr(ent.audience_role, "value", ent.audience_role), "internal").replace("{n}", n)
         if n == master_name:
             role = "the master: " + role if getattr(ent.audience_role, "value", None) == "created_by_audience" else "the master"
+        kind_action = (f", and `sendKindAction(actionType: string, params?: Record<string, unknown>): Promise<{{ success: "
+                       f"boolean; created: {n}State | null; records: {n}State[]; message?: string }}>` for an action "
+                       f"done to no one `{n}`")
         needed = [a.name for a in ent.attributes if a.required and a.default_value is None and a.name != "id"]
         create_note = (f" (the server assigns `id`; the data must carry: {', '.join(f'`{a}`' for a in needed)}, with a "
                        f"value the form works out itself for any the visitor does not enter)") if needed else " (the server assigns `id`)"
+        if getattr(ent, "created_on_opening", False):
+            # The first record is the client's to make: the page asks for the record it works on and is given it
+            lines.append(
+                f"- `src/api/{_to_snake_case(n)}Client.ts` ({role}) exports exactly: `{n}State` (the type of one record), "
+                f"`open{n}(): Promise<{n}State>` (the record the page works on: the newest one, or a new one in its "
+                f"starting state when none exists; the page calls it once when the page opens and shows what it returns, "
+                f"so the page never lists or creates a `{n}` itself to get going), `list{n}(): Promise<{n}State[]>`, "
+                f"`get{n}(id: string)`, `create{n}(data: Partial<{n}State>)` (the server assigns `id`) and "
+                f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; created: {n}State | null; message?: string }}>`{kind_action}.")
+            continue
         lines.append(f"- `src/api/{_to_snake_case(n)}Client.ts` ({role}) exports exactly: `{n}State` (the type of one record), "
                      f"`list{n}(): Promise<{n}State[]>`, `get{n}(id: string)`, `create{n}(data: Partial<{n}State>)`{create_note} and "
-                     f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; message?: string }}>`.")
+                     f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; created: {n}State | null; message?: string }}>`{kind_action}.")
     return "\n".join(lines)
 
 
@@ -159,7 +182,8 @@ Answer with four blocks, each introduced by its marker alone on a line:
             prompt_template = f.read()
 
     # The authoritative backend model: the dataclass of the master and of every other entity the audience creates
-    # (owned by the skeleton and the TDD loop), read now so the page sees the fields and methods they really have
+    # (owned by the skeleton and the TDD loop), read now so the page sees the fields they really have. In a
+    # kickstart the methods are being written at the same time; what the page needs of them is in the manifest.
     created = [_sanitize_name(e.name) for e in structure.entities
                if getattr(e.audience_role, "value", None) == "created_by_audience" and _sanitize_name(e.name) != master_name]
     class_sources = []
@@ -195,6 +219,7 @@ Answer with four blocks, each introduced by its marker alone on a line:
         "{domain_name}": domain_name,
         "{master_name}": master_name,
         "{master_slug}": master_slug,
+        "{master_plural}": _pluralize(master_slug),   # the route the skeleton mounts the router on
         "{rel_workspace}": rel_ws,
         "{entities_block}": entities_block,
         "{clients_block}": _clients_block(structure.presented_entities() or ([master_entity] if master_entity else []), master_name),
@@ -202,14 +227,15 @@ Answer with four blocks, each introduced by its marker alone on a line:
         "{backend_state_model}": backend_state_model,
         "{action_protocol_block}": action_protocol_block,
         "{ux_blueprint}": ux_blueprint or "",
-        "{intent_block}": intent_block(intent)
+        "{intent_block}": intent_block(intent),
+        "{page_parts}": parts_block(ux_blueprint or ""),
     }
     for k, v in replacements.items():
         prompt = prompt.replace(k, str(v))
 
     print(f"[Compiler:Node3] Synthesizing interactive presentation projection and modular UI...", flush=True)
 
-    raw_response = call_gemini(prompt, stage="presentation_projection_synthesis")
+    raw_response = call_gemini(prompt, stage="presentation_projection_synthesis", timeout_s=PAGE_TIMEOUT_S)
     created_files = []
 
     if not raw_response:

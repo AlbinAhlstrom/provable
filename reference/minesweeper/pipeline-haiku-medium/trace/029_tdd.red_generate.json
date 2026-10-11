@@ -1,0 +1,40 @@
+{
+  "seq": 29,
+  "step": "tdd.red_generate",
+  "kind": "step",
+  "depth": 2,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "tdd.draft_tests"
+  ],
+  "started_at": "19:12:34",
+  "t_offset_s": 95.664,
+  "thread": "draft_0",
+  "input": {
+    "args": [
+      {
+        "spec_id": "SPEC-001",
+        "title": "Beginner difficulty preset",
+        "description": "The Beginner preset fixes the board at 9 rows by 9 columns with 10 mines.",
+        "given_when_then": "Given the difficulty presets are available When the player selects Beginner Then the new game board has 9 rows, 9 columns and 10 mines",
+        "target_aggregate": "Difficulty",
+        "spec_type": "DOMAIN_INVARIANT",
+        "kind": "behavior",
+        "category": "INVARIANT",
+        "is_mathematical_boundary": true,
+        "priority": "High",
+        "status": "PENDING"
+      },
+      "\n\n@dataclass\nclass Difficulty:\n    \"\"\"Difficulty.\"\"\"\n    id: str\n    name: str\n    rows: int\n    columns: int\n    mine_count: int\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n",
+      "difficulty",
+      "Difficulty"
+    ],
+    "kwargs": {
+      "existing_tests": "",
+      "interface_contract": "(none: no interface method has been promised for this class)",
+      "other_rules": "- Intermediate difficulty preset: Given the difficulty presets are available When the player selects Intermediate Then the new game board has 16 rows, 16 columns and 40 mines\n- Expert difficulty preset: Given the difficulty presets are available When the player selects Expert Then the new game board has 16 rows, 30 columns and 99 mines"
+    }
+  },
+  "output": "from src.domain.difficulty import Difficulty\n\n\ndef test_selecting_beginner_gives_9_rows_9_columns_10_mines():\n    # Given: the difficulty presets are available (Beginner is one of them).\n    # When: the player selects Beginner.\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n\n    # Then: the preset's board is exactly 9 rows, 9 columns and 10 mines.\n    # Rows: the Beginner preset fixes rows at 9 (the at-limit value).\n    assert beginner.rows == 9\n    # Columns: the Beginner preset fixes columns at 9 (the at-limit value).\n    assert beginner.columns == 9\n    # Mines: the Beginner preset fixes mine_count at 10 (the at-limit value).\n    assert beginner.mine_count == 10\n\n\ndef test_beginner_rows_and_columns_stop_at_9_not_one_beyond():\n    # Given: the difficulty presets are available.\n    # When: the player selects Beginner.\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n\n    # Then: the board is not one step beyond the limit of 9 in either direction.\n    # One beyond the limit would be 10 rows, which Beginner must not use.\n    assert beginner.rows != 10\n    # One beyond the limit would be 10 columns, which Beginner must not use.\n    assert beginner.columns != 10\n    # Only the 9-row, 9-column board is Beginner, so rows is strictly below 10.\n    assert beginner.rows < 10\n    # And columns is strictly below 10.\n    assert beginner.columns < 10\n\n\ndef test_beginner_mine_count_stops_at_10_not_one_beyond():\n    # Given: the difficulty presets are available.\n    # When: the player selects Beginner.\n    beginner = Difficulty.select_preset(name=\"Beginner\")\n\n    # Then: the mine count is not one beyond the limit of 10.\n    # One beyond the limit would be 11 mines, which Beginner must not use.\n    assert beginner.mine_count != 11\n    # Exactly 10 mines is the limit, so the count is strictly below 11.\n    assert beginner.mine_count < 11\n",
+  "duration_s": 12.239
+}

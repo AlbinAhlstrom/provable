@@ -37,6 +37,8 @@ from openai import OpenAI
 
 
 import db.store as store
+import llm_anthropic
+import llm_provider
 from config_loader import get_workspace_base, get_project_settings
 
 # Load environment variables from root .env file if present
@@ -163,14 +165,20 @@ def _message_content(prompt: str, images: Optional[List[str]]) -> Any:
 
 
 def model_for_stage(stage: str) -> str:
-    """The model a stage runs on: LLM_MODEL_<STAGE>, else LLM_MODEL, else the default."""
-    return os.environ.get(f"LLM_MODEL_{stage.upper()}") or os.environ.get("LLM_MODEL", "gemini-3.8-flash")
+    """The model a stage runs on: LLM_MODEL_<STAGE>, else the provider's model (llm_provider.py)."""
+    return llm_provider.connection(stage).model
+
+
+# Seconds one call may take. More hidden reasoning takes longer: the rule deck of a hard pitch took 49 s at low
+# effort and passed 60 s at medium.
+DEFAULT_TIMEOUT_S = 60.0
+EFFORT_TIMEOUT_S = {"medium": 180.0, "high": 300.0}
 
 
 @traced_llm
 def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, reasoning_effort: Optional[str] = None,
                 images: Optional[List[str]] = None, json_schema: Optional[Dict[str, Any]] = None,
-                timeout_s: float = 60.0) -> str:
+                timeout_s: Optional[float] = None) -> str:
     """OpenAI Python SDK wrapper for LLM calls (configured via environment variables).
 
     json_mode asks the provider for a syntactically valid JSON object (use for stages whose output
@@ -180,43 +188,49 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
 
     reasoning_effort limits hidden "thinking" tokens. Measured on the GREEN-repair prompt with
     gemini-3.8-flash: default effort = 259 s / 35,335 tokens, "low" = 5 s / 1,566 tokens. Defaults to
-    $LLM_REASONING_EFFORT, else "low"; set the variable to an empty string to send nothing.
+    $LLM_REASONING_EFFORT, else "low"; set the variable to an empty string to send nothing. A call waits as long
+    as its effort needs (EFFORT_TIMEOUT_S) unless timeout_s says otherwise.
 
     No retries happen here, by design (retries mask errors): the SDK's own automatic retries are
     disabled, and a provider that rejects reasoning_effort fails loudly with the fix in the message.
     """
     _llm_error.value = None
-    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
-    base_url = os.environ.get("OPENAI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
     # LLM_MODEL_<STAGE> (e.g. LLM_MODEL_RED_TEST_GENERATION) lets one stage use a different model, such as a
     # different model writing the tests than the one writing the code.
-    model_name = model_for_stage(stage)
+    connection = llm_provider.connection(stage)
+    api_key, base_url, model_name = connection.api_key, connection.base_url, connection.model
 
     if not api_key:
-        _llm_error.value = "No LLM API key configured (set GEMINI_API_KEY, LLM_API_KEY or OPENAI_API_KEY)."
+        _llm_error.value = f"No LLM API key configured ({connection.key_hint})."
         print(f"[Warning] {_llm_error.value}", flush=True)
         record_llm_meta(model=model_name, error=_llm_error.value)
         return ""
 
     effort = reasoning_effort if reasoning_effort is not None else os.environ.get("LLM_REASONING_EFFORT", "low")
-    request = {
-        "model": model_name,
-        "messages": [{"role": "user", "content": _message_content(prompt, images)}],
-        "temperature": 0.2,
-        "timeout": timeout_s,
-        **({"response_format": {"type": "json_schema", "json_schema": {"name": stage, "schema": json_schema}}}
-           if json_schema else {"response_format": {"type": "json_object"}} if json_mode else {}),
-    }
-    client = OpenAI(api_key=api_key, base_url=base_url, max_retries=0)
+    timeout = timeout_s if timeout_s is not None else EFFORT_TIMEOUT_S.get(effort, DEFAULT_TIMEOUT_S)
     t0 = time.time()
     try:
         print(f"[LLM] Dispatching request for stage '{stage}' (model: {model_name})...", flush=True)
-        response = client.chat.completions.create(**request, **({"reasoning_effort": effort} if effort else {}))
+        if connection.api == "anthropic":
+            text, usage, finish_reason = llm_anthropic.complete(api_key, model_name, prompt, images, effort,
+                                                                json_schema, timeout, thinking=connection.thinking)
+        else:
+            request = {
+                "model": model_name,
+                "messages": [{"role": "user", "content": _message_content(prompt, images)}],
+                **({"temperature": 0.2} if connection.accepts_temperature else {}),
+                "timeout": timeout,
+                **({"response_format": {"type": "json_schema", "json_schema": {"name": stage, "schema": json_schema}}}
+                   if json_schema else {"response_format": {"type": "json_object"}} if json_mode else {}),
+            }
+            client = OpenAI(api_key=api_key, base_url=base_url, max_retries=0)
+            response = client.chat.completions.create(**request, **({"reasoning_effort": effort} if effort else {}))
+            text, usage = response.choices[0].message.content or "", _usage_meta(getattr(response, "usage", None))
+            finish_reason = response.choices[0].finish_reason
         print(f"[LLM] Received response for stage '{stage}' in {round(time.time() - t0, 2)}s", flush=True)
-        record_llm_meta(model=model_name, json_mode=json_mode, reasoning_effort=effort or None,
-                        **_usage_meta(getattr(response, "usage", None)),
-                        finish_reason=response.choices[0].finish_reason)
-        return response.choices[0].message.content or ""
+        record_llm_meta(model=model_name, json_mode=json_mode, reasoning_effort=effort or None, **usage,
+                        finish_reason=finish_reason, thinking=None if connection.thinking else "off")
+        return text
     except Exception as e:
         reason = f"{type(e).__name__}: {e}"
         if effort and "reasoning" in str(e).lower():

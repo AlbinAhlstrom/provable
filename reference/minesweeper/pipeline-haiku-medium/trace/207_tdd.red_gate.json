@@ -1,0 +1,189 @@
+{
+  "seq": 207,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:12",
+  "t_offset_s": 193.834,
+  "thread": "red_7",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652452.4760551,
+        "duration": 0.5080788135528564,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 4,
+          "total": 4,
+          "collected": 4
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_exact_mine_count_placed_after_first_reveal[beginner-9-9-10-4-4]",
+                "type": "Function",
+                "lineno": 16
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_exact_mine_count_placed_after_first_reveal[expert-16-30-99-8-15]",
+                "type": "Function",
+                "lineno": 16
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_mine_count_one_beyond_preset_is_refused",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_mine_count_exactly_at_preset_is_accepted_and_placed",
+                "type": "Function",
+                "lineno": 69
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_exact_mine_count_placed_after_first_reveal[beginner-9-9-10-4-4]",
+            "lineno": 16,
+            "outcome": "passed",
+            "keywords": [
+              "test_exact_mine_count_placed_after_first_reveal[beginner-9-9-10-4-4]",
+              "parametrize",
+              "pytestmark",
+              "beginner-9-9-10-4-4",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0014201000012690201,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009026999905472621,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004302000015741214,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_exact_mine_count_placed_after_first_reveal[expert-16-30-99-8-15]",
+            "lineno": 16,
+            "outcome": "passed",
+            "keywords": [
+              "test_exact_mine_count_placed_after_first_reveal[expert-16-30-99-8-15]",
+              "parametrize",
+              "pytestmark",
+              "expert-16-30-99-8-15",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009735000057844445,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.003727300005266443,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004141999961575493,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_mine_count_one_beyond_preset_is_refused",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_mine_count_one_beyond_preset_is_refused",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000424899990321137,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005371000006562099,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003237000055378303,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_mine_count_exactly_at_preset_is_accepted_and_placed",
+            "lineno": 69,
+            "outcome": "passed",
+            "keywords": [
+              "test_mine_count_exactly_at_preset_is_accepted_and_placed",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003863000019919127,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001097699991078116,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00038130000757519156,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

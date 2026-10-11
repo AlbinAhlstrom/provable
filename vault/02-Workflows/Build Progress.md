@@ -11,17 +11,51 @@ there after about 100 s; in a rule-heavy build the gap is minutes).
 - **Endpoint**: `GET /api/onboarding/progress`, answered while the kickstart request is still open.
 - **`draft_ready`**: true once the skeleton is written. From then on the workspace serves an app that can be shown.
 - **`page_ready`**: true once the `presentation` stage delivered: the draft has been replaced by the written page.
-- **`rules`**: the spec runner reports `RuleProgress` (done, total, active, and the title of the rule that became
-  active last) before the first behaviour spec and after each one; the `behaviour_specs` stage keeps it as its
-  `rules` note.
+  The page is written while its actions are implemented, so for a while its buttons answer that the action is not
+  there yet; the preview is shown as being worked on until the build is ready.
+- **`rules`**: the spec runner reports `RuleProgress` (done, total, active, the title of the rule that became
+  active last, and `waiting`: the ids of the specs in the loop that are not settled yet) before the first behaviour
+  spec and after each one; the `behaviour_specs` stage keeps it as its `rules` note.
+- **`opening`**: the stages before there is anything to show (the build's front and the skeleton). They are steps
+  on the pitch view and have no share of the bar.
+- **`stages`, `percent`, `since_draft_s`**: every stage after the first draft, each with its usual share of the time
+  those stages take and how far it has come (`backend/onboarding/stage_timing.py`; see "The build progress bar" in
+  [[Frontend Components]]). The bar and its timer start when the app comes on screen.
+- **One opening per build**: a build opens with the product contract, or with intent, expansion and decomposition
+  (`kickstart_front.py`). Once one has begun, the other's stages are left out of the report (`FRONTS`): they would
+  never end, and the bar would never fill.
+- **`phases`, `phase`**: the contract is one call of most of a minute that reports nothing while it runs. Its stage
+  names the parts of its work (`STAGE_PHASES`: reading the prompt, defining actions, writing rules, planning layout,
+  selecting theme, building page) and which one it is in. This is pacing for someone waiting, not a report from
+  inside the call:
+  - Each phase has a given length against the others (writing rules is the longest), varied by up to
+    `PHASE_JITTER` either way per build. The variation is drawn from the run's id, so one build always reports
+    the same pace and no two builds tick alike.
+  - Every phase but the last is over by `PHASES_DONE_BY` (0.7) of the time the stage usually takes
+    (`PHASE_SECONDS` each when no build is recorded). The last, "Building page", holds until the stage ends, so
+    the preview arrives while the page seems to be in the making, which it then is.
+- **`ready`, `final_checks`**: the QA audit and the visual review (`FINAL_CHECKS`) are made on the finished app
+  and are not part of the wait. `ready` turns true once every stage that builds the app has ended; the two checks
+  are listed apart and carry no share of the bar. The kickstart request still answers only when they are done.
 - **Only a kickstart is a build.** A single spec execution changes an app that already exists.
 
 ## What the Studio shows (`frontend/src/components/KickstartStudio.tsx`, `BuildProgressPanel.tsx`)
 
-1. Until the skeleton is written (about 20 s): a "Building your app" screen listing each stage with its status.
-2. From then on: the live preview, with a strip above it saying what is being worked on, how many rules are active
-   and which rule was enforced last. The strip reads "First draft" until the page is written.
-3. When the build ends: the strip goes and the preview reloads.
+1. From the moment a build starts until it has a first draft (`BuildOpening.tsx`): the pitch view stays, with the
+   form replaced by the pitch as it was written and the opening's steps ticking off (a stage's phases, one step
+   each). No bar, no timer, no empty preview.
+2. From `draft_ready`: the live preview beside the specifications, with a banner above it: the percentage and the
+   time since the draft, what is being worked on, the bar and its stages by name. A stage that usually takes under
+   a hundredth of that time is neither a segment nor a step, unless it failed. The preview reloads again when the
+   page is written.
+3. While the build runs the preview is held back a little: muted, with a slow band of light passing over it. It
+   stays usable. The specifications appear in their panel as soon as the rule deck is stored; the ones the build
+   is working on pulse, and each turns to its test light as it is settled.
+4. When the app is ready (everything but the final checks has ended): the preview reloads and steps forward
+   (full colour, a short pop), and the banner shrinks to one line, "Your app is ready", naming the final check
+   that is running.
+5. When the checks end: the banner goes. The preview is not loaded again, since someone may be using the app;
+   what a check changed has arrived through the app's own hot reload.
 
 The Studio polls the endpoint, so a build it did not start (a reloaded tab, a kickstart sent to the API) is picked up
 the same way. Stage labels come from the backend (`STAGE_LABELS`), so the Studio stays a projection.
@@ -41,6 +75,11 @@ draft of the product, not as an admin tool:
   on_accent=#... heading=serif`); the `ux_plan` stage reads it as a typed `DraftTheme` and rewrites the file, about
   a minute before the page is written. A direction without a complete token line leaves the neutral theme and the
   stage notes it (`draft_theme`). The written page does not depend on the file.
+- **Outline of the main view**: the same section states the form of the main view as one layout line
+  (`LAYOUT columns=7 rows=5` for a fixed grid, `rows=auto` for a view that grows with its records), read as a typed
+  `DraftLayout` and written into the same `src/theme.css`. The stand-in draws it above its records as an empty
+  outline in the plan's colours: the view's columns and rows before anything is in them. A fixed grid keeps its
+  proportions. A direction without a complete layout line draws no outline and the stage notes it (`draft_layout`).
 
 If the presentation stage fails, the draft stays as the app, so it keeps a working "Add" form.
 
@@ -50,6 +89,8 @@ The generated API keeps its records in memory and restarts every time the build 
 its collection to `.data/<plural>.json` after every change and reads it back on its first request, so what a user
 adds while watching the build is still there afterwards.
 
+- One save at a time: requests are answered on several threads, and two that changed records at the same moment
+  wrote the same half-finished file, so one of them answered 500 (a page that opens asks twice at once).
 - The seed file is applied once per version (its modification time is saved with the records), so a starting record
   a user removed stays removed.
 - A saved record the class no longer accepts is reported and left out; the API stays up.

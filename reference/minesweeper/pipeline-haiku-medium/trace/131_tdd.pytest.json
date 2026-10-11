@@ -1,0 +1,1643 @@
+{
+  "seq": 131,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "behaviour.implement_actions",
+    "tdd.execute_together",
+    "tdd.green_together"
+  ],
+  "started_at": "19:14:06",
+  "t_offset_s": 187.689,
+  "thread": "synthesis_0",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace",
+      "timeout_seconds": 30
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 30.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 50 items\n\ntests\\unit\\test_minesweeper_acceptance.py::test_beginner_difficulty_preset PASSED [  2%]\ntests\\unit\\test_minesweeper_acceptance.py::test_intermediate_difficulty_preset PASSED [  4%]\ntests\\unit\\test_minesweeper_acceptance.py::test_expert_difficulty_preset PASSED [  6%]\ntests\\unit\\test_minesweeper_acceptance.py::test_board_size_and_mine_count_fixed_for_the_session PASSED [  8%]\ntests\\unit\\test_minesweeper_acceptance.py::test_new_session_starts_in_ready_state PASSED [ 10%]\ntests\\unit\\test_minesweeper_acceptance.py::test_mines_placed_after_first_reveal PASSED [ 12%]\ntests\\unit\\test_minesweeper_acceptance.py::test_first_revealed_cell_is_never_a_mine PASSED [ 14%]\ntests\\unit\\test_minesweeper_acceptance.py::test_exact_mine_count_placed PASSED [ 16%]\ntests\\unit\\test_minesweeper_acceptance.py::test_adjacency_count_of_a_safe_cell PASSED [ 18%]\ntests\\unit\\test_minesweeper_acceptance.py::test_edge_and_corner_cells_count_only_existing_neighbours PASSED [ 20%]\ntests\\unit\\test_minesweeper_acceptance.py::test_zero_count_displays_blank PASSED [ 22%]\ntests\\unit\\test_minesweeper_acceptance.py::test_reveal_a_hidden_unflagged_cell PASSED [ 24%]\ntests\\unit\\test_minesweeper_acceptance.py::test_flagged_cell_cannot_be_revealed PASSED [ 26%]\ntests\\unit\\test_minesweeper_acceptance.py::test_revealed_cell_cannot_be_revealed_again PASSED [ 28%]\ntests\\unit\\test_minesweeper_acceptance.py::test_revealing_a_mine_loses_the_game PASSED [ 30%]\ntests\\unit\\test_minesweeper_acceptance.py::test_zerocount_reveal_spreads_to_neighbours PASSED [ 32%]\ntests\\unit\\test_minesweeper_acceptance.py::test_spread_repeats_through_connected_zeros_and_stops_at_numbers PASSED [ 34%]\ntests\\unit\\test_minesweeper_acceptance.py::test_spread_skips_flagged_cells PASSED [ 36%]\ntests\\unit\\test_minesweeper_acceptance.py::test_toggle_a_flag_on_a_hidden_cell PASSED [ 38%]\ntests\\unit\\test_minesweeper_acceptance.py::test_revealed_cell_cannot_be_flagged PASSED [ 40%]\ntests\\unit\\test_minesweeper_acceptance.py::test_flags_do_not_reveal_cells PASSED [ 42%]\ntests\\unit\\test_minesweeper_acceptance.py::test_flagging_before_first_reveal_keeps_session_in_ready PASSED [ 44%]\ntests\\unit\\test_minesweeper_acceptance.py::test_win_when_every_safe_cell_is_revealed PASSED [ 46%]\ntests\\unit\\test_minesweeper_acceptance.py::test_win_does_not_require_flags PASSED [ 48%]\ntests\\unit\\test_minesweeper_acceptance.py::test_loss_exposes_all_mines PASSED [ 50%]\ntests\\unit\\test_minesweeper_acceptance.py::test_loss_display_of_mines_and_wrong_flags PASSED [ 52%]\ntests\\unit\\test_minesweeper_acceptance.py::test_abandon_a_game_at_any_time PASSED [ 54%]\ntests\\unit\\test_minesweeper_acceptance.py::test_timer_starts_at_first_reveal PASSED [ 56%]\ntests\\unit\\test_minesweeper_acceptance.py::test_timer_shows_whole_seconds PASSED [ 58%]\ntests\\unit\\test_minesweeper_acceptance.py::test_timer_stops_on_win_or_loss PASSED [ 60%]\ntests\\unit\\test_minesweeper_acceptance.py::test_new_game_returns_to_ready PASSED [ 62%]\ntests\\unit\\test_minesweeper_acceptance.py::test_session_status_transitions PASSED [ 64%]\ntests\\unit\\test_minesweeper_acceptance.py::test_cell_state_transitions PASSED [ 66%]\ntests\\unit\\test_minesweeper_acceptance.py::test_mine_counter_equals_mines_minus_flags PASSED [ 68%]\ntests\\unit\\test_minesweeper_acceptance.py::test_mine_counter_may_go_negative PASSED [ 70%]\ntests\\unit\\test_minesweeper_acceptance.py::test_board_actions_after_game_end_are_ignored PASSED [ 72%]\ntests\\unit\\test_minesweeper_acceptance.py::test_input_controls_for_reveal_and_flag PASSED [ 74%]\ntests\\unit\\test_minesweeper_acceptance.py::test_board_tile_appearance PASSED [ 76%]\ntests\\unit\\test_minesweeper_acceptance.py::test_flag_marker_appearance PASSED [ 78%]\ntests\\unit\\test_minesweeper_acceptance.py::test_top_bar_layout PASSED    [ 80%]\ntests\\unit\\test_minesweeper_acceptance.py::test_status_button_face_reflects_game_status PASSED [ 82%]\ntests\\unit\\test_minesweeper_acceptance.py::test_single_player_persona_only PASSED [ 84%]\ntests\\unit\\test_skeleton.py::test_domain_entity_instantiation PASSED     [ 86%]\ntests\\unit\\test_skeleton.py::test_fake_repository_crud PASSED            [ 88%]\ntests\\unit\\test_skeleton.py::test_fake_uow_commit PASSED                 [ 90%]\ntests\\unit\\test_spec_act_gamesession.py::test_constructor_creates_ready_hidden_board PASSED [ 92%]\ntests\\unit\\test_spec_act_gamesession.py::test_start_new_game_replaces_board_with_fresh_hidden_expert_board PASSED [ 94%]\ntests\\unit\\test_spec_act_gamesession.py::test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal PASSED [ 96%]\ntests\\unit\\test_spec_act_gamesession.py::test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell PASSED [ 98%]\ntests\\unit\\test_spec_act_gamesession.py::test_abandon_game_refuses_won_game_then_abandons_in_progress_game PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_a2beab8fe76c4a79978c159c4ff3359f.json\n============================= 50 passed in 0.46s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652448.1438384,
+      "duration": 0.4526515007019043,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 50,
+        "total": 50,
+        "collected": 50
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit",
+              "type": "Dir"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_beginner_difficulty_preset",
+              "type": "Function",
+              "lineno": 9
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_intermediate_difficulty_preset",
+              "type": "Function",
+              "lineno": 24
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_expert_difficulty_preset",
+              "type": "Function",
+              "lineno": 39
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_board_size_and_mine_count_fixed_for_the_session",
+              "type": "Function",
+              "lineno": 54
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_new_session_starts_in_ready_state",
+              "type": "Function",
+              "lineno": 69
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_mines_placed_after_first_reveal",
+              "type": "Function",
+              "lineno": 84
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_first_revealed_cell_is_never_a_mine",
+              "type": "Function",
+              "lineno": 99
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_exact_mine_count_placed",
+              "type": "Function",
+              "lineno": 114
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_adjacency_count_of_a_safe_cell",
+              "type": "Function",
+              "lineno": 129
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_edge_and_corner_cells_count_only_existing_neighbours",
+              "type": "Function",
+              "lineno": 144
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_zero_count_displays_blank",
+              "type": "Function",
+              "lineno": 159
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_reveal_a_hidden_unflagged_cell",
+              "type": "Function",
+              "lineno": 174
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flagged_cell_cannot_be_revealed",
+              "type": "Function",
+              "lineno": 189
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_revealed_cell_cannot_be_revealed_again",
+              "type": "Function",
+              "lineno": 204
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_revealing_a_mine_loses_the_game",
+              "type": "Function",
+              "lineno": 219
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_zerocount_reveal_spreads_to_neighbours",
+              "type": "Function",
+              "lineno": 234
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_spread_repeats_through_connected_zeros_and_stops_at_numbers",
+              "type": "Function",
+              "lineno": 249
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_spread_skips_flagged_cells",
+              "type": "Function",
+              "lineno": 264
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_toggle_a_flag_on_a_hidden_cell",
+              "type": "Function",
+              "lineno": 279
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_revealed_cell_cannot_be_flagged",
+              "type": "Function",
+              "lineno": 294
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flags_do_not_reveal_cells",
+              "type": "Function",
+              "lineno": 309
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flagging_before_first_reveal_keeps_session_in_ready",
+              "type": "Function",
+              "lineno": 324
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_win_when_every_safe_cell_is_revealed",
+              "type": "Function",
+              "lineno": 339
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_win_does_not_require_flags",
+              "type": "Function",
+              "lineno": 354
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_loss_exposes_all_mines",
+              "type": "Function",
+              "lineno": 369
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_loss_display_of_mines_and_wrong_flags",
+              "type": "Function",
+              "lineno": 384
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_abandon_a_game_at_any_time",
+              "type": "Function",
+              "lineno": 399
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_starts_at_first_reveal",
+              "type": "Function",
+              "lineno": 414
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_shows_whole_seconds",
+              "type": "Function",
+              "lineno": 429
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_stops_on_win_or_loss",
+              "type": "Function",
+              "lineno": 444
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_new_game_returns_to_ready",
+              "type": "Function",
+              "lineno": 459
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_session_status_transitions",
+              "type": "Function",
+              "lineno": 474
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_cell_state_transitions",
+              "type": "Function",
+              "lineno": 489
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_mine_counter_equals_mines_minus_flags",
+              "type": "Function",
+              "lineno": 504
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_mine_counter_may_go_negative",
+              "type": "Function",
+              "lineno": 519
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_board_actions_after_game_end_are_ignored",
+              "type": "Function",
+              "lineno": 534
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_input_controls_for_reveal_and_flag",
+              "type": "Function",
+              "lineno": 549
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_board_tile_appearance",
+              "type": "Function",
+              "lineno": 564
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flag_marker_appearance",
+              "type": "Function",
+              "lineno": 579
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_top_bar_layout",
+              "type": "Function",
+              "lineno": 594
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_status_button_face_reflects_game_status",
+              "type": "Function",
+              "lineno": 609
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_single_player_persona_only",
+              "type": "Function",
+              "lineno": 624
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_skeleton.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_skeleton.py::test_domain_entity_instantiation",
+              "type": "Function",
+              "lineno": 6
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_skeleton.py::test_fake_repository_crud",
+              "type": "Function",
+              "lineno": 11
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_skeleton.py::test_fake_uow_commit",
+              "type": "Function",
+              "lineno": 18
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_constructor_creates_ready_hidden_board",
+              "type": "Function",
+              "lineno": 40
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_start_new_game_replaces_board_with_fresh_hidden_expert_board",
+              "type": "Function",
+              "lineno": 74
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal",
+              "type": "Function",
+              "lineno": 127
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell",
+              "type": "Function",
+              "lineno": 177
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_abandon_game_refuses_won_game_then_abandons_in_progress_game",
+              "type": "Function",
+              "lineno": 227
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py",
+              "type": "Module"
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_skeleton.py",
+              "type": "Module"
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py",
+              "type": "Module"
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_beginner_difficulty_preset",
+          "lineno": 9,
+          "outcome": "passed",
+          "keywords": [
+            "test_beginner_difficulty_preset",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00032500000088475645,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019320000137668103,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016789999790489674,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_intermediate_difficulty_preset",
+          "lineno": 24,
+          "outcome": "passed",
+          "keywords": [
+            "test_intermediate_difficulty_preset",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001942999952007085,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018350000027567148,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015639999764971435,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_expert_difficulty_preset",
+          "lineno": 39,
+          "outcome": "passed",
+          "keywords": [
+            "test_expert_difficulty_preset",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018969998927786946,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000179000009666197,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001512000017100945,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_board_size_and_mine_count_fixed_for_the_session",
+          "lineno": 54,
+          "outcome": "passed",
+          "keywords": [
+            "test_board_size_and_mine_count_fixed_for_the_session",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017970000044442713,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018099999579135329,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015549999079667032,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_new_session_starts_in_ready_state",
+          "lineno": 69,
+          "outcome": "passed",
+          "keywords": [
+            "test_new_session_starts_in_ready_state",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018379998800810426,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001740000006975606,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016060000052675605,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_mines_placed_after_first_reveal",
+          "lineno": 84,
+          "outcome": "passed",
+          "keywords": [
+            "test_mines_placed_after_first_reveal",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000175300010596402,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017099999240599573,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015040001017041504,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_first_revealed_cell_is_never_a_mine",
+          "lineno": 99,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_revealed_cell_is_never_a_mine",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018640000780578703,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001740000006975606,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001517000055173412,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_exact_mine_count_placed",
+          "lineno": 114,
+          "outcome": "passed",
+          "keywords": [
+            "test_exact_mine_count_placed",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001816000003600493,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001770999951986596,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015239999629557133,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_adjacency_count_of_a_safe_cell",
+          "lineno": 129,
+          "outcome": "passed",
+          "keywords": [
+            "test_adjacency_count_of_a_safe_cell",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001838000025600195,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00024610001128166914,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00017590000061318278,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_edge_and_corner_cells_count_only_existing_neighbours",
+          "lineno": 144,
+          "outcome": "passed",
+          "keywords": [
+            "test_edge_and_corner_cells_count_only_existing_neighbours",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017410000145900995,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019430000975262374,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015400000847876072,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_zero_count_displays_blank",
+          "lineno": 159,
+          "outcome": "passed",
+          "keywords": [
+            "test_zero_count_displays_blank",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018180000188294798,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001677000109339133,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000145500001963228,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_reveal_a_hidden_unflagged_cell",
+          "lineno": 174,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_a_hidden_unflagged_cell",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017169999773614109,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016969999705906957,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014899999951012433,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flagged_cell_cannot_be_revealed",
+          "lineno": 189,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagged_cell_cannot_be_revealed",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017439998919144273,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016619999951217324,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015330000314861536,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_revealed_cell_cannot_be_revealed_again",
+          "lineno": 204,
+          "outcome": "passed",
+          "keywords": [
+            "test_revealed_cell_cannot_be_revealed_again",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017519999528303742,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016849998792167753,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015049999637994915,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_revealing_a_mine_loses_the_game",
+          "lineno": 219,
+          "outcome": "passed",
+          "keywords": [
+            "test_revealing_a_mine_loses_the_game",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016850000247359276,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016989999858196825,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001497999910498038,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_zerocount_reveal_spreads_to_neighbours",
+          "lineno": 234,
+          "outcome": "passed",
+          "keywords": [
+            "test_zerocount_reveal_spreads_to_neighbours",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001640999980736524,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016490000416524708,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014930000179447234,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_spread_repeats_through_connected_zeros_and_stops_at_numbers",
+          "lineno": 249,
+          "outcome": "passed",
+          "keywords": [
+            "test_spread_repeats_through_connected_zeros_and_stops_at_numbers",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016709999181330204,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017159999697469175,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001548000000184402,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_spread_skips_flagged_cells",
+          "lineno": 264,
+          "outcome": "passed",
+          "keywords": [
+            "test_spread_skips_flagged_cells",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016239999968092889,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016590001177974045,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014619999274145812,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_toggle_a_flag_on_a_hidden_cell",
+          "lineno": 279,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_a_flag_on_a_hidden_cell",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016419999883510172,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016830000095069408,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001486000110162422,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_revealed_cell_cannot_be_flagged",
+          "lineno": 294,
+          "outcome": "passed",
+          "keywords": [
+            "test_revealed_cell_cannot_be_flagged",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016539999342057854,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001691999932518229,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014740000187885016,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flags_do_not_reveal_cells",
+          "lineno": 309,
+          "outcome": "passed",
+          "keywords": [
+            "test_flags_do_not_reveal_cells",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001669000048423186,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016710000636521727,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014970000484026968,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flagging_before_first_reveal_keeps_session_in_ready",
+          "lineno": 324,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_before_first_reveal_keeps_session_in_ready",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002182000025641173,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002572999947005883,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015320000238716602,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_win_when_every_safe_cell_is_revealed",
+          "lineno": 339,
+          "outcome": "passed",
+          "keywords": [
+            "test_win_when_every_safe_cell_is_revealed",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016959999629762024,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001736999984132126,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015029999485705048,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_win_does_not_require_flags",
+          "lineno": 354,
+          "outcome": "passed",
+          "keywords": [
+            "test_win_does_not_require_flags",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017299999308306724,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016989999858196825,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014810000720899552,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_loss_exposes_all_mines",
+          "lineno": 369,
+          "outcome": "passed",
+          "keywords": [
+            "test_loss_exposes_all_mines",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016830000095069408,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017010000010486692,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014980000560171902,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_loss_display_of_mines_and_wrong_flags",
+          "lineno": 384,
+          "outcome": "passed",
+          "keywords": [
+            "test_loss_display_of_mines_and_wrong_flags",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017220000154338777,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017309999384451658,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014680001186206937,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_abandon_a_game_at_any_time",
+          "lineno": 399,
+          "outcome": "passed",
+          "keywords": [
+            "test_abandon_a_game_at_any_time",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016740000864956528,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016670000331941992,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014829999417997897,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_starts_at_first_reveal",
+          "lineno": 414,
+          "outcome": "passed",
+          "keywords": [
+            "test_timer_starts_at_first_reveal",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016960001084953547,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016909999249037355,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014859999646432698,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_shows_whole_seconds",
+          "lineno": 429,
+          "outcome": "passed",
+          "keywords": [
+            "test_timer_shows_whole_seconds",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016889999096747488,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016419999883510172,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000145800004247576,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_stops_on_win_or_loss",
+          "lineno": 444,
+          "outcome": "passed",
+          "keywords": [
+            "test_timer_stops_on_win_or_loss",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017610000213608146,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017020000086631626,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014879999798722565,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_new_game_returns_to_ready",
+          "lineno": 459,
+          "outcome": "passed",
+          "keywords": [
+            "test_new_game_returns_to_ready",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016870000399649143,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016500000492669642,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014879999798722565,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_session_status_transitions",
+          "lineno": 474,
+          "outcome": "passed",
+          "keywords": [
+            "test_session_status_transitions",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016950001008808613,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016650000179652125,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001449999981559813,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_cell_state_transitions",
+          "lineno": 489,
+          "outcome": "passed",
+          "keywords": [
+            "test_cell_state_transitions",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001680999994277954,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001649999903747812,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020689998927991837,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_mine_counter_equals_mines_minus_flags",
+          "lineno": 504,
+          "outcome": "passed",
+          "keywords": [
+            "test_mine_counter_equals_mines_minus_flags",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017800000205170363,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00022989998979028314,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001505999971413985,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_mine_counter_may_go_negative",
+          "lineno": 519,
+          "outcome": "passed",
+          "keywords": [
+            "test_mine_counter_may_go_negative",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016850000247359276,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001697000116109848,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015039999561849982,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_board_actions_after_game_end_are_ignored",
+          "lineno": 534,
+          "outcome": "passed",
+          "keywords": [
+            "test_board_actions_after_game_end_are_ignored",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017270000535063446,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016719999257475138,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014930000179447234,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_input_controls_for_reveal_and_flag",
+          "lineno": 549,
+          "outcome": "passed",
+          "keywords": [
+            "test_input_controls_for_reveal_and_flag",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016530000721104443,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001638999965507537,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014570000348612666,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_board_tile_appearance",
+          "lineno": 564,
+          "outcome": "passed",
+          "keywords": [
+            "test_board_tile_appearance",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017379999917466193,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001677000109339133,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014540000120177865,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flag_marker_appearance",
+          "lineno": 579,
+          "outcome": "passed",
+          "keywords": [
+            "test_flag_marker_appearance",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016849998792167753,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001660999987507239,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014770000416319817,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_top_bar_layout",
+          "lineno": 594,
+          "outcome": "passed",
+          "keywords": [
+            "test_top_bar_layout",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001784999913070351,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016549999418202788,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015130000247154385,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_status_button_face_reflects_game_status",
+          "lineno": 609,
+          "outcome": "passed",
+          "keywords": [
+            "test_status_button_face_reflects_game_status",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016950001008808613,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00016710000636521727,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015069999790284783,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_single_player_persona_only",
+          "lineno": 624,
+          "outcome": "passed",
+          "keywords": [
+            "test_single_player_persona_only",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018010000349022448,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017100000695791095,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014740000187885016,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_skeleton.py::test_domain_entity_instantiation",
+          "lineno": 6,
+          "outcome": "passed",
+          "keywords": [
+            "test_domain_entity_instantiation",
+            "test_skeleton.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017169999773614109,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017240000306628644,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014779999037273228,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_skeleton.py::test_fake_repository_crud",
+          "lineno": 11,
+          "outcome": "passed",
+          "keywords": [
+            "test_fake_repository_crud",
+            "test_skeleton.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001720000000204891,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018319999799132347,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001478000049246475,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_skeleton.py::test_fake_uow_commit",
+          "lineno": 18,
+          "outcome": "passed",
+          "keywords": [
+            "test_fake_uow_commit",
+            "test_skeleton.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016659998800605536,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001753999968059361,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016209999739658087,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_constructor_creates_ready_hidden_board",
+          "lineno": 40,
+          "outcome": "passed",
+          "keywords": [
+            "test_constructor_creates_ready_hidden_board",
+            "test_spec_act_gamesession.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017129999469034374,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0003164999943692237,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014649999502580613,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_start_new_game_replaces_board_with_fresh_hidden_expert_board",
+          "lineno": 74,
+          "outcome": "passed",
+          "keywords": [
+            "test_start_new_game_replaces_board_with_fresh_hidden_expert_board",
+            "test_spec_act_gamesession.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00016959999629762024,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0035296999994898215,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001613000058569014,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal",
+          "lineno": 127,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal",
+            "test_spec_act_gamesession.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018139999883715063,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007355999987339601,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001492999872425571,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell",
+          "lineno": 177,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell",
+            "test_spec_act_gamesession.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017080000543501228,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004957000055583194,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015029999485705048,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_abandon_game_refuses_won_game_then_abandons_in_progress_game",
+          "lineno": 227,
+          "outcome": "passed",
+          "keywords": [
+            "test_abandon_game_refuses_won_game_then_abandons_in_progress_game",
+            "test_spec_act_gamesession.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001694999955361709,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000738000002456829,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001762000028975308,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 1.54
+}

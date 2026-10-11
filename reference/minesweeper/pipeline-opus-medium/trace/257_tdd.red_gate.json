@@ -1,0 +1,127 @@
+{
+  "seq": 257,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:21",
+  "t_offset_s": 392.639,
+  "thread": "red_16",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656601.02737,
+        "duration": 0.7322602272033691,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_018.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_018.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_018.py::test_cascade_skips_flagged_cell[flagged0-opened_beyond0]",
+                "type": "Function",
+                "lineno": 63
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_018.py::test_cascade_skips_flagged_cell[flagged1-opened_beyond1]",
+                "type": "Function",
+                "lineno": 63
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_018.py::test_cascade_skips_flagged_cell[flagged0-opened_beyond0]",
+            "lineno": 63,
+            "outcome": "passed",
+            "keywords": [
+              "test_cascade_skips_flagged_cell[flagged0-opened_beyond0]",
+              "parametrize",
+              "pytestmark",
+              "flagged0-opened_beyond0",
+              "test_spec_018.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0012946999922860414,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0014736999874003232,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0006336999940685928,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_018.py::test_cascade_skips_flagged_cell[flagged1-opened_beyond1]",
+            "lineno": 63,
+            "outcome": "passed",
+            "keywords": [
+              "test_cascade_skips_flagged_cell[flagged1-opened_beyond1]",
+              "parametrize",
+              "pytestmark",
+              "flagged1-opened_beyond1",
+              "test_spec_018.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009260999941034243,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012351000041235238,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00047640000411774963,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,177 @@
+{
+  "seq": 169,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:17:27",
+  "t_offset_s": 91.662,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652646.942113,
+        "duration": 0.25020527839660645,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_772j4goo",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "passed": 1,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_007.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_007.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_007.py::test_right_click_hidden_cell_becomes_flagged",
+                "type": "Function",
+                "lineno": 40
+              },
+              {
+                "nodeid": "tests/unit/test_spec_007.py::test_right_click_flagged_cell_becomes_hidden",
+                "type": "Function",
+                "lineno": 53
+              },
+              {
+                "nodeid": "tests/unit/test_spec_007.py::test_right_click_revealed_cell_is_unchanged",
+                "type": "Function",
+                "lineno": 65
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_007.py::test_right_click_hidden_cell_becomes_flagged",
+            "lineno": 40,
+            "outcome": "failed",
+            "keywords": [
+              "test_right_click_hidden_cell_becomes_flagged",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "hollow_772j4goo",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00048519999836571515,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006692000024486333,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_772j4goo\\tests\\unit\\test_spec_007.py",
+                "lineno": 50,
+                "message": "AssertionError: assert 'hidden' == 'flagged'\n  \n  - flagged\n  + hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_007.py",
+                  "lineno": 50,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_right_click_hidden_cell_becomes_flagged():\n        # Given: in-progress 9x9 board, target (4,4) is hidden, flag_count 0.\n        # No mines, no other flags, so nothing else in the rules interferes.\n        game = make_game(target_state=\"hidden\", flag_count=0)\n    \n        # When: the player right-clicks (4,4).\n        game.toggle_flag(row=4, column=4)\n    \n        # Then: hidden -> flagged, and flag_count rises from 0 to 1.\n>       assert cell_at(game, 4, 4)[\"state\"] == \"flagged\"\nE       AssertionError: assert 'hidden' == 'flagged'\nE         \nE         - flagged\nE         + hidden\n\ntests\\unit\\test_spec_007.py:50: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00027720000070985407,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_007.py::test_right_click_flagged_cell_becomes_hidden",
+            "lineno": 53,
+            "outcome": "failed",
+            "keywords": [
+              "test_right_click_flagged_cell_becomes_hidden",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "hollow_772j4goo",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00022620000527240336,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00041849999979604036,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_772j4goo\\tests\\unit\\test_spec_007.py",
+                "lineno": 62,
+                "message": "AssertionError: assert 'flagged' == 'hidden'\n  \n  - hidden\n  + flagged"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_007.py",
+                  "lineno": 62,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_right_click_flagged_cell_becomes_hidden():\n        # Given: in-progress board, target (4,4) is flagged, flag_count 1 (consistent with one flag).\n        game = make_game(target_state=\"flagged\", flag_count=1)\n    \n        # When: the player right-clicks (4,4) again.\n        game.toggle_flag(row=4, column=4)\n    \n        # Then: flagged -> hidden (no question mark state), and flag_count falls from 1 to 0.\n>       assert cell_at(game, 4, 4)[\"state\"] == \"hidden\"\nE       AssertionError: assert 'flagged' == 'hidden'\nE         \nE         - hidden\nE         + flagged\n\ntests\\unit\\test_spec_007.py:62: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00032839999767020345,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_007.py::test_right_click_revealed_cell_is_unchanged",
+            "lineno": 65,
+            "outcome": "passed",
+            "keywords": [
+              "test_right_click_revealed_cell_is_unchanged",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "hollow_772j4goo",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00034139999479521066,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003856999974232167,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00028480000037234277,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

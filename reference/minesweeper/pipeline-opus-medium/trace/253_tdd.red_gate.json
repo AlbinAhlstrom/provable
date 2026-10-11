@@ -1,0 +1,127 @@
+{
+  "seq": 253,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:21",
+  "t_offset_s": 392.374,
+  "thread": "red_15",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656600.858577,
+        "duration": 0.7225632667541504,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_017.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_017.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_017.py::test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[0-extra_mines0]",
+                "type": "Function",
+                "lineno": 60
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_017.py::test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[8-extra_mines1]",
+                "type": "Function",
+                "lineno": 60
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_017.py::test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[0-extra_mines0]",
+            "lineno": 60,
+            "outcome": "passed",
+            "keywords": [
+              "test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[0-extra_mines0]",
+              "parametrize",
+              "pytestmark",
+              "0-extra_mines0",
+              "test_spec_017.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001297599999816157,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001411100005498156,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000415000002249144,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_017.py::test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[8-extra_mines1]",
+            "lineno": 60,
+            "outcome": "passed",
+            "keywords": [
+              "test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[8-extra_mines1]",
+              "parametrize",
+              "pytestmark",
+              "8-extra_mines1",
+              "test_spec_017.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008061999978963286,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011743000068236142,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00043089999235235155,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

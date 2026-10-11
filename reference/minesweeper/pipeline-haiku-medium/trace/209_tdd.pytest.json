@@ -1,0 +1,486 @@
+{
+  "seq": 209,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:12",
+  "t_offset_s": 193.845,
+  "thread": "red_14",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7\\tests\\unit\\test_spec_016.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 8 items\n\ntests\\unit\\test_spec_016.py FFFFFFFF                                     [100%]\n\n================================== FAILURES ===================================\n_____________________ test_zero_count_centre_is_revealed ______________________\n\n    def test_zero_count_centre_is_revealed():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:68: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError\n______________ test_zero_count_reveal_leaves_outer_cells_hidden _______________\n\n    def test_zero_count_reveal_leaves_outer_cells_hidden():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:74: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError\n_______ test_spread_reveals_neighbour_of_zero_centre_at_row_3_column_3 ________\n\n    def test_spread_reveals_neighbour_of_zero_centre_at_row_3_column_3():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:82: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError\n_____________ test_spread_reveals_neighbour_directly_above_centre _____________\n\n    def test_spread_reveals_neighbour_directly_above_centre():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:89: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError\n_____________ test_spread_reveals_neighbour_directly_below_centre _____________\n\n    def test_spread_reveals_neighbour_directly_below_centre():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:96: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError\n____________ test_spread_reveals_neighbour_directly_left_of_centre ____________\n\n    def test_spread_reveals_neighbour_directly_left_of_centre():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:103: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError\n___________ test_spread_reveals_neighbour_directly_right_of_centre ____________\n\n    def test_spread_reveals_neighbour_directly_right_of_centre():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError\n___________________ test_all_eight_neighbours_are_revealed ____________________\n\n    def test_all_eight_neighbours_are_revealed():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:117: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7\\.pytest_report_ef5a224b788d4468ba070040ecd8b0c4.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_016.py::test_zero_count_centre_is_revealed - Asse...\nFAILED tests/unit/test_spec_016.py::test_zero_count_reveal_leaves_outer_cells_hidden\nFAILED tests/unit/test_spec_016.py::test_spread_reveals_neighbour_of_zero_centre_at_row_3_column_3\nFAILED tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_above_centre\nFAILED tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_below_centre\nFAILED tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_left_of_centre\nFAILED tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_right_of_centre\nFAILED tests/unit/test_spec_016.py::test_all_eight_neighbours_are_revealed - ...\n============================== 8 failed in 1.70s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652457.338082,
+      "duration": 1.2392265796661377,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7",
+      "environment": {},
+      "summary": {
+        "failed": 8,
+        "total": 8,
+        "collected": 8
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_016.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_zero_count_centre_is_revealed",
+              "type": "Function",
+              "lineno": 66
+            },
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_zero_count_reveal_leaves_outer_cells_hidden",
+              "type": "Function",
+              "lineno": 72
+            },
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_spread_reveals_neighbour_of_zero_centre_at_row_3_column_3",
+              "type": "Function",
+              "lineno": 80
+            },
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_above_centre",
+              "type": "Function",
+              "lineno": 87
+            },
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_below_centre",
+              "type": "Function",
+              "lineno": 94
+            },
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_left_of_centre",
+              "type": "Function",
+              "lineno": 101
+            },
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_right_of_centre",
+              "type": "Function",
+              "lineno": 108
+            },
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_all_eight_neighbours_are_revealed",
+              "type": "Function",
+              "lineno": 115
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_zero_count_centre_is_revealed",
+          "lineno": 66,
+          "outcome": "failed",
+          "keywords": [
+            "test_zero_count_centre_is_revealed",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_xdv26fa7",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007753000099910423,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004366999928606674,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7\\tests\\unit\\test_spec_016.py",
+              "lineno": 25,
+              "message": "AssertionError: no cell at (4, 4)"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 68,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 57,
+                "message": "in _spread_session"
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 25,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_zero_count_centre_is_revealed():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:68: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00042579999717418104,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_zero_count_reveal_leaves_outer_cells_hidden",
+          "lineno": 72,
+          "outcome": "failed",
+          "keywords": [
+            "test_zero_count_reveal_leaves_outer_cells_hidden",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_xdv26fa7",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00040550000267103314,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004400999896461144,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7\\tests\\unit\\test_spec_016.py",
+              "lineno": 25,
+              "message": "AssertionError: no cell at (4, 4)"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 74,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 57,
+                "message": "in _spread_session"
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 25,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_zero_count_reveal_leaves_outer_cells_hidden():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:74: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0003529999958118424,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_spread_reveals_neighbour_of_zero_centre_at_row_3_column_3",
+          "lineno": 80,
+          "outcome": "failed",
+          "keywords": [
+            "test_spread_reveals_neighbour_of_zero_centre_at_row_3_column_3",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_xdv26fa7",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004084999964106828,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00039180000021588057,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7\\tests\\unit\\test_spec_016.py",
+              "lineno": 25,
+              "message": "AssertionError: no cell at (4, 4)"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 82,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 57,
+                "message": "in _spread_session"
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 25,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_spread_reveals_neighbour_of_zero_centre_at_row_3_column_3():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:82: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.000352299990481697,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_above_centre",
+          "lineno": 87,
+          "outcome": "failed",
+          "keywords": [
+            "test_spread_reveals_neighbour_directly_above_centre",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_xdv26fa7",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00035319999733474106,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00042690000555012375,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7\\tests\\unit\\test_spec_016.py",
+              "lineno": 25,
+              "message": "AssertionError: no cell at (4, 4)"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 89,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 57,
+                "message": "in _spread_session"
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 25,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_spread_reveals_neighbour_directly_above_centre():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:89: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0003839999990304932,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_below_centre",
+          "lineno": 94,
+          "outcome": "failed",
+          "keywords": [
+            "test_spread_reveals_neighbour_directly_below_centre",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_xdv26fa7",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000397100011468865,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0003969000099459663,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7\\tests\\unit\\test_spec_016.py",
+              "lineno": 25,
+              "message": "AssertionError: no cell at (4, 4)"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 96,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 57,
+                "message": "in _spread_session"
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 25,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_spread_reveals_neighbour_directly_below_centre():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:96: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0003612000000430271,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_left_of_centre",
+          "lineno": 101,
+          "outcome": "failed",
+          "keywords": [
+            "test_spread_reveals_neighbour_directly_left_of_centre",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_xdv26fa7",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003974999999627471,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0003575000009732321,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7\\tests\\unit\\test_spec_016.py",
+              "lineno": 25,
+              "message": "AssertionError: no cell at (4, 4)"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 103,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 57,
+                "message": "in _spread_session"
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 25,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_spread_reveals_neighbour_directly_left_of_centre():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:103: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0003549999964889139,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_spread_reveals_neighbour_directly_right_of_centre",
+          "lineno": 108,
+          "outcome": "failed",
+          "keywords": [
+            "test_spread_reveals_neighbour_directly_right_of_centre",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_xdv26fa7",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00039739999920129776,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00040699999954085797,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7\\tests\\unit\\test_spec_016.py",
+              "lineno": 25,
+              "message": "AssertionError: no cell at (4, 4)"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 110,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 57,
+                "message": "in _spread_session"
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 25,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_spread_reveals_neighbour_directly_right_of_centre():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:110: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00033909999183379114,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_all_eight_neighbours_are_revealed",
+          "lineno": 115,
+          "outcome": "failed",
+          "keywords": [
+            "test_all_eight_neighbours_are_revealed",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_xdv26fa7",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004344999906606972,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00042050000047311187,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xdv26fa7\\tests\\unit\\test_spec_016.py",
+              "lineno": 25,
+              "message": "AssertionError: no cell at (4, 4)"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 117,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 57,
+                "message": "in _spread_session"
+              },
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 25,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_all_eight_neighbours_are_revealed():\n>       session = _spread_session()\n                  ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:117: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_016.py:57: in _spread_session\n    centre = _cell(session, *CENTRE)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (4, 4)\n\ntests\\unit\\test_spec_016.py:25: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0003980999899795279,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.355
+}

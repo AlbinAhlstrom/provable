@@ -1,0 +1,147 @@
+{
+  "seq": 158,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.954,
+  "thread": "red_13",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652645.2675872,
+        "duration": 0.9268138408660889,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_014.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_014.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_014.py::test_timer_display_shows_999_when_elapsed_is_just_beyond_cap",
+                "type": "Function",
+                "lineno": 14
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_014.py::test_timer_display_shows_999_when_elapsed_is_exactly_at_cap",
+                "type": "Function",
+                "lineno": 24
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_014.py::test_timer_display_shows_999_when_elapsed_is_just_beyond_cap",
+            "lineno": 14,
+            "outcome": "failed",
+            "keywords": [
+              "test_timer_display_shows_999_when_elapsed_is_just_beyond_cap",
+              "test_spec_014.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005967999895801768,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00039850000757724047,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_014.py",
+                "lineno": 20,
+                "message": "AttributeError: 'Game' object has no attribute 'timer_display'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_014.py",
+                  "lineno": 20,
+                  "message": "in test_timer_display_shows_999_when_elapsed_is_just_beyond_cap"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_014.py:20: in test_timer_display_shows_999_when_elapsed_is_just_beyond_cap\n    shown = game.timer_display()\n            ^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'timer_display'"
+            },
+            "teardown": {
+              "duration": 0.0005734000005759299,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_014.py::test_timer_display_shows_999_when_elapsed_is_exactly_at_cap",
+            "lineno": 24,
+            "outcome": "failed",
+            "keywords": [
+              "test_timer_display_shows_999_when_elapsed_is_exactly_at_cap",
+              "test_spec_014.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004878000036114827,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00042749999556690454,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_014.py",
+                "lineno": 30,
+                "message": "AttributeError: 'Game' object has no attribute 'timer_display'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_014.py",
+                  "lineno": 30,
+                  "message": "in test_timer_display_shows_999_when_elapsed_is_exactly_at_cap"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_014.py:30: in test_timer_display_shows_999_when_elapsed_is_exactly_at_cap\n    shown = game.timer_display()\n            ^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'timer_display'"
+            },
+            "teardown": {
+              "duration": 0.0004304000030970201,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

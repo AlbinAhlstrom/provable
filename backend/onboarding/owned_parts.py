@@ -7,7 +7,11 @@ cannot see it: a chess game then knows whose turn it is and has no board. So the
 attribute holding its parts, and the part stops being a stored entity: no module, repository, router or client of
 its own. It is read and changed through its owner, as an aggregate's parts are.
 
-Only a part with exactly one owning root is embedded. Anything else stays the collection the decomposition made it.
+Only a part with exactly one owning root is embedded. A part can have parts of its own (the items of a parcel of an
+order, the cells of a board of a game): those are stored inside it, so the whole of what a root holds is one stated
+shape. Left as a collection beside the root, such a part was put in two places: the page read it from its own
+collection while the root's methods kept it inside the root. Anything else stays the collection the decomposition
+made it.
 """
 
 from typing import Dict, List, Optional
@@ -17,7 +21,7 @@ from onboarding.skeleton_builder import _pluralize, to_snake_case
 
 
 def _owner_of(part: EntitySpec, roots: List[EntitySpec]) -> Optional[EntitySpec]:
-    """The one aggregate root this entity belongs to, by either side's relationship."""
+    """The one of `roots` this entity belongs to, by either side's relationship."""
     owners = []
     for root in roots:
         owns = any(r.get("target") == part.name and r.get("relation_type") == "one_to_many" for r in root.relationships)
@@ -31,18 +35,35 @@ def embed_owned_parts(structure: DomainStructureSchema, specs: List[BusinessSpec
     """Moves every owned part into its owner as a list attribute, and points the specs that targeted a part at its
     owner (the class that now holds it). Changes `structure` and `specs` in place; returns {part: owner}."""
     roots = [e for e in structure.entities if e.is_aggregate_root]
-    owners: Dict[str, str] = {}
-    for part in [e for e in structure.entities if not e.is_aggregate_root]:
-        owner = _owner_of(part, roots)
-        if owner is None:
-            continue
+    parts = [e for e in structure.entities if not e.is_aggregate_root]
+    # What each part is stored in: its one owning root, else the one other part it belongs to
+    holder: Dict[str, EntitySpec] = {}
+    for part in parts:
+        owner = _owner_of(part, roots) or _owner_of(part, [p for p in parts if p is not part])
+        if owner is not None:
+            holder[part.name] = owner
+
+    def root_of(part: EntitySpec) -> Optional[EntitySpec]:
+        """The aggregate root at the end of the part's chain of owners, None when the chain ends anywhere else."""
+        seen, owner = {part.name}, holder.get(part.name)
+        while owner is not None and not owner.is_aggregate_root and owner.name not in seen:
+            seen.add(owner.name)
+            owner = holder.get(owner.name)
+        return owner if owner is not None and owner.is_aggregate_root else None
+
+    owners: Dict[str, str] = {p.name: root_of(p).name for p in parts if root_of(p) is not None}
+    pending = [p for p in parts if p.name in owners]
+    while pending:
+        # Innermost first: a part is embedded once the parts it holds are inside it
+        part = next(p for p in pending if not any(holder[q.name] is p for q in pending))
+        owner = holder[part.name]
         back_reference = f"{to_snake_case(owner.name)}_id"
         owner.attributes.append(AttributeSpec(
             name=_pluralize(to_snake_case(part.name)), type="list", required=False, default_value=[],
             item_name=part.name, item_attributes=[a for a in part.attributes if a.name != back_reference]))
         owner.relationships = [r for r in owner.relationships if r.get("target") != part.name]
         structure.entities.remove(part)
-        owners[part.name] = owner.name
+        pending.remove(part)
     for spec in specs:
         if spec.target_aggregate in owners:
             spec.target_aggregate = owners[spec.target_aggregate]

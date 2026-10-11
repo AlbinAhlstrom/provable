@@ -1,0 +1,221 @@
+{
+  "seq": 404,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:33",
+  "t_offset_s": 404.931,
+  "thread": "red_18",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ttf52xcd\\tests\\unit\\test_spec_037.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ttf52xcd"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ttf52xcd\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 4 items\n\ntests\\unit\\test_spec_037.py ..FF                                         [100%]\n\n================================== FAILURES ===================================\n_ test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner] _\n\nstored_difficulty = 'beginner'\n\n    @pytest.mark.parametrize(\"stored_difficulty\", [\"beginner\", \"expert\"])\n    def test_same_faster_win_on_standard_difficulty_does_update_best_time(stored_difficulty):\n        best = _stored_best(stored_difficulty)\n    \n        # When: the identical win (same game, same time, same moment) is played on\n        # the record's own standard difficulty instead of custom.\n        best.record_win(\n            game_id=\"game-custom\",\n            difficulty_id=stored_difficulty,\n            elapsed_seconds=50,\n            achieved_at=\"2024-01-02T12:00:00Z\",\n        )\n    \n        # Then: standard difficulty and 50 < 100, so the new best is 50.\n>       assert best.best_seconds == 50\nE       AssertionError: assert 100 == 50\nE        +  where 100 = BestTime(id='bt-1', difficulty_id='beginner', game_id='game-first', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds\n\ntests\\unit\\test_spec_037.py:60: AssertionError\n__ test_same_faster_win_on_standard_difficulty_does_update_best_time[expert] __\n\nstored_difficulty = 'expert'\n\n    @pytest.mark.parametrize(\"stored_difficulty\", [\"beginner\", \"expert\"])\n    def test_same_faster_win_on_standard_difficulty_does_update_best_time(stored_difficulty):\n        best = _stored_best(stored_difficulty)\n    \n        # When: the identical win (same game, same time, same moment) is played on\n        # the record's own standard difficulty instead of custom.\n        best.record_win(\n            game_id=\"game-custom\",\n            difficulty_id=stored_difficulty,\n            elapsed_seconds=50,\n            achieved_at=\"2024-01-02T12:00:00Z\",\n        )\n    \n        # Then: standard difficulty and 50 < 100, so the new best is 50.\n>       assert best.best_seconds == 50\nE       AssertionError: assert 100 == 50\nE        +  where 100 = BestTime(id='bt-1', difficulty_id='expert', game_id='game-first', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds\n\ntests\\unit\\test_spec_037.py:60: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ttf52xcd\\.pytest_report_3076d09affd84094ab8bb1eff127a74f.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]\nFAILED tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]\n========================= 2 failed, 2 passed in 1.50s =========================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656618.1824808,
+      "duration": 1.1240382194519043,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ttf52xcd",
+      "environment": {},
+      "summary": {
+        "passed": 2,
+        "failed": 2,
+        "total": 4,
+        "collected": 4
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_037.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_037.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[beginner]",
+              "type": "Function",
+              "lineno": 17
+            },
+            {
+              "nodeid": "tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[expert]",
+              "type": "Function",
+              "lineno": 17
+            },
+            {
+              "nodeid": "tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+              "type": "Function",
+              "lineno": 45
+            },
+            {
+              "nodeid": "tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+              "type": "Function",
+              "lineno": 45
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[beginner]",
+          "lineno": 17,
+          "outcome": "passed",
+          "keywords": [
+            "test_custom_win_does_not_change_best_time[beginner]",
+            "parametrize",
+            "pytestmark",
+            "beginner",
+            "test_spec_037.py",
+            "unit",
+            "tests",
+            "hollow_ttf52xcd",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0009484000038355589,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004597000079229474,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00040360000275541097,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[expert]",
+          "lineno": 17,
+          "outcome": "passed",
+          "keywords": [
+            "test_custom_win_does_not_change_best_time[expert]",
+            "parametrize",
+            "pytestmark",
+            "expert",
+            "test_spec_037.py",
+            "unit",
+            "tests",
+            "hollow_ttf52xcd",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005779999919468537,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0003802999999606982,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000335000004270114,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+          "lineno": 45,
+          "outcome": "failed",
+          "keywords": [
+            "test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+            "parametrize",
+            "pytestmark",
+            "beginner",
+            "test_spec_037.py",
+            "unit",
+            "tests",
+            "hollow_ttf52xcd",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006890999939059839,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008863999973982573,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ttf52xcd\\tests\\unit\\test_spec_037.py",
+              "lineno": 60,
+              "message": "AssertionError: assert 100 == 50\n +  where 100 = BestTime(id='bt-1', difficulty_id='beginner', game_id='game-first', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_037.py",
+                "lineno": 60,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "stored_difficulty = 'beginner'\n\n    @pytest.mark.parametrize(\"stored_difficulty\", [\"beginner\", \"expert\"])\n    def test_same_faster_win_on_standard_difficulty_does_update_best_time(stored_difficulty):\n        best = _stored_best(stored_difficulty)\n    \n        # When: the identical win (same game, same time, same moment) is played on\n        # the record's own standard difficulty instead of custom.\n        best.record_win(\n            game_id=\"game-custom\",\n            difficulty_id=stored_difficulty,\n            elapsed_seconds=50,\n            achieved_at=\"2024-01-02T12:00:00Z\",\n        )\n    \n        # Then: standard difficulty and 50 < 100, so the new best is 50.\n>       assert best.best_seconds == 50\nE       AssertionError: assert 100 == 50\nE        +  where 100 = BestTime(id='bt-1', difficulty_id='beginner', game_id='game-first', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds\n\ntests\\unit\\test_spec_037.py:60: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004453000001376495,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+          "lineno": 45,
+          "outcome": "failed",
+          "keywords": [
+            "test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+            "parametrize",
+            "pytestmark",
+            "expert",
+            "test_spec_037.py",
+            "unit",
+            "tests",
+            "hollow_ttf52xcd",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007033000001683831,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005946000019321218,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ttf52xcd\\tests\\unit\\test_spec_037.py",
+              "lineno": 60,
+              "message": "AssertionError: assert 100 == 50\n +  where 100 = BestTime(id='bt-1', difficulty_id='expert', game_id='game-first', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_037.py",
+                "lineno": 60,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "stored_difficulty = 'expert'\n\n    @pytest.mark.parametrize(\"stored_difficulty\", [\"beginner\", \"expert\"])\n    def test_same_faster_win_on_standard_difficulty_does_update_best_time(stored_difficulty):\n        best = _stored_best(stored_difficulty)\n    \n        # When: the identical win (same game, same time, same moment) is played on\n        # the record's own standard difficulty instead of custom.\n        best.record_win(\n            game_id=\"game-custom\",\n            difficulty_id=stored_difficulty,\n            elapsed_seconds=50,\n            achieved_at=\"2024-01-02T12:00:00Z\",\n        )\n    \n        # Then: standard difficulty and 50 < 100, so the new best is 50.\n>       assert best.best_seconds == 50\nE       AssertionError: assert 100 == 50\nE        +  where 100 = BestTime(id='bt-1', difficulty_id='expert', game_id='game-first', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds\n\ntests\\unit\\test_spec_037.py:60: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0007344000041484833,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.096
+}

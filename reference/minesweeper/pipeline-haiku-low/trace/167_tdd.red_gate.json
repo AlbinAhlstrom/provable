@@ -1,0 +1,146 @@
+{
+  "seq": 167,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:17:27",
+  "t_offset_s": 91.642,
+  "thread": "red_11",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652646.9511201,
+        "duration": 0.2428731918334961,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow__rvx3za5",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_012.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_012.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_012.py::test_first_reveal_starts_timer",
+                "type": "Function",
+                "lineno": 25
+              },
+              {
+                "nodeid": "tests/unit/test_spec_012.py::test_flag_does_not_start_timer",
+                "type": "Function",
+                "lineno": 53
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_012.py::test_first_reveal_starts_timer",
+            "lineno": 25,
+            "outcome": "failed",
+            "keywords": [
+              "test_first_reveal_starts_timer",
+              "test_spec_012.py",
+              "unit",
+              "tests",
+              "hollow__rvx3za5",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004870999982813373,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00048299999616574496,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow__rvx3za5\\tests\\unit\\test_spec_012.py",
+                "lineno": 41,
+                "message": "AssertionError: assert None is not None\n +  where None = Game(id='game-1', difficulty='Beginner', status='ready', started_at=None, ended_at=None, elapsed_seconds=0, mine_count=10, flag_count=0, cells=[], events=[]).started_at"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_012.py",
+                  "lineno": 41,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_first_reveal_starts_timer():\n        # Given a newly created game in ready status with no board laid out yet.\n        # status \"ready\", started_at None, elapsed_seconds 0, cells empty.\n        game = Game(id=\"game-1\")\n        assert game.status == \"ready\"\n        assert game.started_at is None\n    \n        # When the first cell is revealed at the centre of the board.\n        # The reveal is the first reveal of a ready game, so it lays out the mines\n        # (avoiding the target and its neighbours), sets started_at, and moves the\n        # game to in_progress. Then it reveals the target cell.\n        game.reveal_cell(row=4, column=4)\n    \n        # Then started_at is set. The timer starts on the first reveal, so the\n        # field holds a timestamp string rather than None.\n>       assert game.started_at is not None\nE       AssertionError: assert None is not None\nE        +  where None = Game(id='game-1', difficulty='Beginner', status='ready', started_at=None, ended_at=None, elapsed_seconds=0, mine_count=10, flag_count=0, cells=[], events=[]).started_at\n\ntests\\unit\\test_spec_012.py:41: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00038270000368356705,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_012.py::test_flag_does_not_start_timer",
+            "lineno": 53,
+            "outcome": "failed",
+            "keywords": [
+              "test_flag_does_not_start_timer",
+              "test_spec_012.py",
+              "unit",
+              "tests",
+              "hollow__rvx3za5",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003339000104460865,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006810999911976978,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow__rvx3za5\\tests\\unit\\test_spec_012.py",
+                "lineno": 80,
+                "message": "assert 0 == 1\n +  where 0 = len([])"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_012.py",
+                  "lineno": 80,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_flag_does_not_start_timer():\n        # Given a game in ready status with a Beginner board of hidden cells.\n        # status \"ready\" and started_at None, so the timer is not running.\n        game = Game(id=\"game-2\")\n        game.cells = _beginner_hidden_board()\n        assert game.status == \"ready\"\n        assert game.started_at is None\n    \n        # When a hidden cell at (0, 0) is flagged.\n        # Flagging is allowed while the game is ready. It changes only that cell's\n        # state to flagged and raises flag_count by one. It does not reveal a cell,\n        # so it is not a first reveal and the timer must not start.\n        game.toggle_flag(row=0, column=0)\n    \n        # Then the timer has not started: started_at stays None.\n        assert game.started_at is None\n    \n        # And the game is still ready, because no cell has been revealed.\n        assert game.status == \"ready\"\n    \n        # And no time has elapsed.\n        assert game.elapsed_seconds == 0\n    \n        # And the flag itself was placed on the targeted hidden cell (the rule\n        # for flagging hidden cells), with flag_count increased by one.\n        flagged = [c for c in game.cells if c[\"state\"] == \"flagged\"]\n>       assert len(flagged) == 1\nE       assert 0 == 1\nE        +  where 0 = len([])\n\ntests\\unit\\test_spec_012.py:80: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0002725000085774809,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

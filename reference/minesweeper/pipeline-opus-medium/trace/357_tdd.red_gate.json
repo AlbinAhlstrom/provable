@@ -1,0 +1,210 @@
+{
+  "seq": 357,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:29",
+  "t_offset_s": 400.09,
+  "thread": "red_14",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656607.659466,
+        "duration": 1.4022786617279053,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uy792bg5",
+        "environment": {},
+        "summary": {
+          "failed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_016.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_016.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_016.py::test_arranged_counts_are_as_expected",
+                "type": "Function",
+                "lineno": 53
+              },
+              {
+                "nodeid": "tests/unit/test_spec_016.py::test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[0]",
+                "type": "Function",
+                "lineno": 67
+              },
+              {
+                "nodeid": "tests/unit/test_spec_016.py::test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[4]",
+                "type": "Function",
+                "lineno": 67
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_016.py::test_arranged_counts_are_as_expected",
+            "lineno": 53,
+            "outcome": "failed",
+            "keywords": [
+              "test_arranged_counts_are_as_expected",
+              "test_spec_016.py",
+              "unit",
+              "tests",
+              "hollow_uy792bg5",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000710000007529743,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004197999951429665,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uy792bg5\\tests\\unit\\test_spec_016.py",
+                "lineno": 51,
+                "message": "AssertionError: cell 0,0 missing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_016.py",
+                  "lineno": 58,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_016.py",
+                  "lineno": 51,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_arranged_counts_are_as_expected():\n        game = _make_playing_game()\n        # Column 0 never touches column 2, so every column-0 cell has count 0.\n        for r in range(ROWS):\n>           assert _cell(game, r, 0)[\"adjacent_mine_count\"] == 0\n                   ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:58: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\ngame = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...placed=0, elapsed_seconds=3, started_at='2024-01-01T10:00:05', ended_at=None, struck_cell_id=None, cells=[], events=[])\nrow = 0, column = 0\n\n    def _cell(game, row, column):\n        for cell in game.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"cell {row},{column} missing\")\nE       AssertionError: cell 0,0 missing\n\ntests\\unit\\test_spec_016.py:51: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004377000004751608,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_016.py::test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[0]",
+            "lineno": 67,
+            "outcome": "failed",
+            "keywords": [
+              "test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[0]",
+              "parametrize",
+              "pytestmark",
+              "0",
+              "test_spec_016.py",
+              "unit",
+              "tests",
+              "hollow_uy792bg5",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008632999961264431,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004721999866887927,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uy792bg5\\tests\\unit\\test_spec_016.py",
+                "lineno": 51,
+                "message": "AssertionError: cell 0,0 missing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_016.py",
+                  "lineno": 79,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_016.py",
+                  "lineno": 51,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "start_row = 0\n\n    @pytest.mark.parametrize(\"start_row\", [0, 4])\n    def test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border(start_row):\n        game = _make_playing_game()\n    \n        game.open_cell(row=start_row, column=0)\n    \n        # The opened cell (start_row, 0) is safe with count 0 -> Opened.\n        # Its hidden neighbours in column 0 (rows start_row±1) are zeros, so each\n        # opens its own neighbours in turn; the chain runs the whole length of\n        # column 0 (rows 0..8), all of which have count 0.\n        for r in range(ROWS):\n>           assert _cell(game, r, 0)[\"state\"] == \"Opened\", f\"cell {r}-0 should be opened\"\n                   ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:79: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\ngame = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...placed=0, elapsed_seconds=3, started_at='2024-01-01T10:00:05', ended_at=None, struck_cell_id=None, cells=[], events=[])\nrow = 0, column = 0\n\n    def _cell(game, row, column):\n        for cell in game.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"cell {row},{column} missing\")\nE       AssertionError: cell 0,0 missing\n\ntests\\unit\\test_spec_016.py:51: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0007579000084660947,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_016.py::test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[4]",
+            "lineno": 67,
+            "outcome": "failed",
+            "keywords": [
+              "test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border[4]",
+              "parametrize",
+              "pytestmark",
+              "4",
+              "test_spec_016.py",
+              "unit",
+              "tests",
+              "hollow_uy792bg5",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011993000080110505,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004899999912595376,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_uy792bg5\\tests\\unit\\test_spec_016.py",
+                "lineno": 51,
+                "message": "AssertionError: cell 0,0 missing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_016.py",
+                  "lineno": 79,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_016.py",
+                  "lineno": 51,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "start_row = 4\n\n    @pytest.mark.parametrize(\"start_row\", [0, 4])\n    def test_opening_a_zero_cell_cascades_through_zeros_to_numbered_border(start_row):\n        game = _make_playing_game()\n    \n        game.open_cell(row=start_row, column=0)\n    \n        # The opened cell (start_row, 0) is safe with count 0 -> Opened.\n        # Its hidden neighbours in column 0 (rows start_row±1) are zeros, so each\n        # opens its own neighbours in turn; the chain runs the whole length of\n        # column 0 (rows 0..8), all of which have count 0.\n        for r in range(ROWS):\n>           assert _cell(game, r, 0)[\"state\"] == \"Opened\", f\"cell {r}-0 should be opened\"\n                   ^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_016.py:79: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\ngame = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...placed=0, elapsed_seconds=3, started_at='2024-01-01T10:00:05', ended_at=None, struck_cell_id=None, cells=[], events=[])\nrow = 0, column = 0\n\n    def _cell(game, row, column):\n        for cell in game.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"cell {row},{column} missing\")\nE       AssertionError: cell 0,0 missing\n\ntests\\unit\\test_spec_016.py:51: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004697999975178391,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

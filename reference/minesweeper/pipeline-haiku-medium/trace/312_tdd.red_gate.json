@@ -1,0 +1,103 @@
+{
+  "seq": 312,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:21",
+  "t_offset_s": 202.686,
+  "thread": "red_11",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652461.4881396,
+        "duration": 0.15842723846435547,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_es5gp38b",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_013.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_013.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_013.py::test_flagged_cell_cannot_be_revealed",
+                "type": "Function",
+                "lineno": 24
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_013.py::test_flagged_cell_cannot_be_revealed",
+            "lineno": 24,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagged_cell_cannot_be_revealed",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "hollow_es5gp38b",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003328000020701438,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002381999947829172,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_es5gp38b\\tests\\unit\\test_spec_013.py",
+                "lineno": 39,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_013.py",
+                  "lineno": 39,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "def test_flagged_cell_cannot_be_revealed():\n        row, column = 4, 4\n        session = _beginner_session_with_flagged_cell(row, column)\n    \n        # Snapshot everything the rule must leave untouched.\n        cells_before = copy.deepcopy(session.cells)\n        status_before = session.status\n        flag_count_before = session.flag_count\n        elapsed_before = session.elapsed_seconds\n        started_before = session.started_at\n        ended_before = session.ended_at\n    \n        # When the player attempts to reveal the flagged cell.\n        # Expected: the flagged cell is refused by the rules, so ActionNotAllowedError is raised.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_013.py:39: Failed"
+            },
+            "teardown": {
+              "duration": 0.0002469000028213486,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

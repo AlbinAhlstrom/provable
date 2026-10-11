@@ -1,0 +1,152 @@
+{
+  "seq": 305,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:26",
+  "t_offset_s": 397.543,
+  "thread": "red_15",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656605.859162,
+        "duration": 0.900489091873169,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_9mhux2pv",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_017.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_017.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_017.py::test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[0-extra_mines0]",
+                "type": "Function",
+                "lineno": 60
+              },
+              {
+                "nodeid": "tests/unit/test_spec_017.py::test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[8-extra_mines1]",
+                "type": "Function",
+                "lineno": 60
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_017.py::test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[0-extra_mines0]",
+            "lineno": 60,
+            "outcome": "failed",
+            "keywords": [
+              "test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[0-extra_mines0]",
+              "parametrize",
+              "pytestmark",
+              "0-extra_mines0",
+              "test_spec_017.py",
+              "unit",
+              "tests",
+              "hollow_9mhux2pv",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009252000018022954,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010737999982666224,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_9mhux2pv\\tests\\unit\\test_spec_017.py",
+                "lineno": 84,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_017.py",
+                  "lineno": 84,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "gap_column = 0, extra_mines = [(8, 7), (8, 8)]\n\n    @pytest.mark.parametrize(\n        \"gap_column, extra_mines\",\n        [\n            (0, [(8, 7), (8, 8)]),\n            (8, [(8, 0), (8, 1)]),\n        ],\n    )\n    def test_cascade_opens_numbered_cells_but_does_not_propagate_from_them(gap_column, extra_mines):\n        # Wall of mines across row 4 except one safe \"gap\" cell, plus two far mines on row 8.\n        mines = {(4, c) for c in range(WIDTH) if c != gap_column}\n        mines.update(extra_mines)\n        assert len(mines) == MINE_COUNT\n        game = _make_playing_game(mines)\n    \n        # (0,4): no mine in rows 0-1 around it, count 0 -> starts a cascade.\n        game.open_cell(row=0, column=4)\n    \n        # Rows 0..2: no mine neighbours (nearest mines are on row 4), all count 0,\n        # so the cascade opens all of them and keeps spreading into row 3.\n        for row in range(0, 3):\n            for column in range(WIDTH):\n                cell = _cell(game, row, column)\n                assert cell[\"adjacent_mine_count\"] == 0\n>               assert cell[\"state\"] == \"Opened\"\nE               AssertionError: assert 'Hidden' == 'Opened'\nE                 \nE                 - Opened\nE                 + Hidden\n\ntests\\unit\\test_spec_017.py:84: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004017000028397888,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_017.py::test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[8-extra_mines1]",
+            "lineno": 60,
+            "outcome": "failed",
+            "keywords": [
+              "test_cascade_opens_numbered_cells_but_does_not_propagate_from_them[8-extra_mines1]",
+              "parametrize",
+              "pytestmark",
+              "8-extra_mines1",
+              "test_spec_017.py",
+              "unit",
+              "tests",
+              "hollow_9mhux2pv",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006267999997362494,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009902000019792467,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_9mhux2pv\\tests\\unit\\test_spec_017.py",
+                "lineno": 84,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_017.py",
+                  "lineno": 84,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "gap_column = 8, extra_mines = [(8, 0), (8, 1)]\n\n    @pytest.mark.parametrize(\n        \"gap_column, extra_mines\",\n        [\n            (0, [(8, 7), (8, 8)]),\n            (8, [(8, 0), (8, 1)]),\n        ],\n    )\n    def test_cascade_opens_numbered_cells_but_does_not_propagate_from_them(gap_column, extra_mines):\n        # Wall of mines across row 4 except one safe \"gap\" cell, plus two far mines on row 8.\n        mines = {(4, c) for c in range(WIDTH) if c != gap_column}\n        mines.update(extra_mines)\n        assert len(mines) == MINE_COUNT\n        game = _make_playing_game(mines)\n    \n        # (0,4): no mine in rows 0-1 around it, count 0 -> starts a cascade.\n        game.open_cell(row=0, column=4)\n    \n        # Rows 0..2: no mine neighbours (nearest mines are on row 4), all count 0,\n        # so the cascade opens all of them and keeps spreading into row 3.\n        for row in range(0, 3):\n            for column in range(WIDTH):\n                cell = _cell(game, row, column)\n                assert cell[\"adjacent_mine_count\"] == 0\n>               assert cell[\"state\"] == \"Opened\"\nE               AssertionError: assert 'Hidden' == 'Opened'\nE                 \nE                 - Opened\nE                 + Hidden\n\ntests\\unit\\test_spec_017.py:84: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006407999899238348,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

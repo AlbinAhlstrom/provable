@@ -1,0 +1,121 @@
+{
+  "seq": 274,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.292,
+  "thread": "red_18",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656601.4462814,
+        "duration": 0.9846878051757812,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_020.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_020.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_020.py::test_flagged_cell_cannot_be_opened_until_unflagged_in_playing_game",
+                "type": "Function",
+                "lineno": 72
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_020.py::test_flagged_cell_cannot_be_opened_until_unflagged_in_ready_game",
+                "type": "Function",
+                "lineno": 113
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_020.py::test_flagged_cell_cannot_be_opened_until_unflagged_in_playing_game",
+            "lineno": 72,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagged_cell_cannot_be_opened_until_unflagged_in_playing_game",
+              "test_spec_020.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005660000024363399,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0016841000033309683,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003460000007180497,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_020.py::test_flagged_cell_cannot_be_opened_until_unflagged_in_ready_game",
+            "lineno": 113,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagged_cell_cannot_be_opened_until_unflagged_in_ready_game",
+              "test_spec_020.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00044249999336898327,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.004785400000400841,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004293999954825267,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

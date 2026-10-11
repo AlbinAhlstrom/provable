@@ -1,0 +1,254 @@
+{
+  "seq": 372,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:30",
+  "t_offset_s": 401.981,
+  "thread": "red_0",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656610.618173,
+        "duration": 0.9129047393798828,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 6,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_026.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_026.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_026.py::test_timer_does_not_run_before_first_open",
+                "type": "Function",
+                "lineno": 58
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_026.py::test_first_open_starts_timer_at_zero",
+                "type": "Function",
+                "lineno": 72
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[1-1]",
+                "type": "Function",
+                "lineno": 86
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[2-2]",
+                "type": "Function",
+                "lineno": 86
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[5-5]",
+                "type": "Function",
+                "lineno": 86
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_026.py::test_same_ticks_before_and_after_first_open_differ_only_by_the_open",
+                "type": "Function",
+                "lineno": 104
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_026.py::test_timer_does_not_run_before_first_open",
+            "lineno": 58,
+            "outcome": "passed",
+            "keywords": [
+              "test_timer_does_not_run_before_first_open",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010777999996207654,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005701000045519322,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004329999937908724,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_026.py::test_first_open_starts_timer_at_zero",
+            "lineno": 72,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_open_starts_timer_at_zero",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005957999965175986,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001135100013925694,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003189999988535419,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[1-1]",
+            "lineno": 86,
+            "outcome": "passed",
+            "keywords": [
+              "test_timer_counts_one_per_second_after_first_open[1-1]",
+              "parametrize",
+              "pytestmark",
+              "1-1",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007028999971225858,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001073099992936477,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004048999981023371,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[2-2]",
+            "lineno": 86,
+            "outcome": "passed",
+            "keywords": [
+              "test_timer_counts_one_per_second_after_first_open[2-2]",
+              "parametrize",
+              "pytestmark",
+              "2-2",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011325000086799264,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008789000130491331,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039680000918451697,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_026.py::test_timer_counts_one_per_second_after_first_open[5-5]",
+            "lineno": 86,
+            "outcome": "passed",
+            "keywords": [
+              "test_timer_counts_one_per_second_after_first_open[5-5]",
+              "parametrize",
+              "pytestmark",
+              "5-5",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0019227000011596829,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010276999964844435,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0007283000013558194,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_026.py::test_same_ticks_before_and_after_first_open_differ_only_by_the_open",
+            "lineno": 104,
+            "outcome": "passed",
+            "keywords": [
+              "test_same_ticks_before_and_after_first_open_differ_only_by_the_open",
+              "test_spec_026.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0016527999978279695,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0018331000028410926,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004192000051261857,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,136 @@
+{
+  "seq": 130,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:17:24",
+  "t_offset_s": 88.944,
+  "thread": "red_3",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4kwbqikb\\tests\\unit\\test_spec_004.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4kwbqikb"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4kwbqikb\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 2 items\n\ntests\\unit\\test_spec_004.py .F                                           [100%]\n\n================================== FAILURES ===================================\n___________________ test_first_reveal_fixes_the_mine_layout ___________________\n\n    def test_first_reveal_fixes_the_mine_layout():\n        # Given a ready Beginner game with no layout fixed.\n        game = build_empty_beginner_game()\n    \n        # When the first cell (4, 4) is revealed.\n        game.reveal_cell(row=4, column=4)\n    \n        # Then the layout is fixed with exactly mine_count mines on the board:\n        # 10 mines are placed on the 81 cells, none on the protected 3x3 area.\n        layout_after_first_reveal = mine_positions(game)\n>       assert len(layout_after_first_reveal) == MINE_COUNT\nE       assert 0 == 10\nE        +  where 0 = len([])\n\ntests\\unit\\test_spec_004.py:87: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4kwbqikb\\.pytest_report_2c3df6b80995435fad0eef22503a31da.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_004.py::test_first_reveal_fixes_the_mine_layout\n========================= 1 failed, 1 passed in 0.47s =========================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652646.5415175,
+      "duration": 0.23941588401794434,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4kwbqikb",
+      "environment": {},
+      "summary": {
+        "passed": 1,
+        "failed": 1,
+        "total": 2,
+        "collected": 2
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_004.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_004.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_004.py::test_first_reveal_target_and_all_neighbours_are_mine_free",
+              "type": "Function",
+              "lineno": 55
+            },
+            {
+              "nodeid": "tests/unit/test_spec_004.py::test_first_reveal_fixes_the_mine_layout",
+              "type": "Function",
+              "lineno": 76
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_004.py::test_first_reveal_target_and_all_neighbours_are_mine_free",
+          "lineno": 55,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_reveal_target_and_all_neighbours_are_mine_free",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "hollow_4kwbqikb",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003552999987732619,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002640000020619482,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001756999990902841,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_004.py::test_first_reveal_fixes_the_mine_layout",
+          "lineno": 76,
+          "outcome": "failed",
+          "keywords": [
+            "test_first_reveal_fixes_the_mine_layout",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "hollow_4kwbqikb",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00033429999893996865,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008156999974744394,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_4kwbqikb\\tests\\unit\\test_spec_004.py",
+              "lineno": 87,
+              "message": "assert 0 == 10\n +  where 0 = len([])"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_004.py",
+                "lineno": 87,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_first_reveal_fixes_the_mine_layout():\n        # Given a ready Beginner game with no layout fixed.\n        game = build_empty_beginner_game()\n    \n        # When the first cell (4, 4) is revealed.\n        game.reveal_cell(row=4, column=4)\n    \n        # Then the layout is fixed with exactly mine_count mines on the board:\n        # 10 mines are placed on the 81 cells, none on the protected 3x3 area.\n        layout_after_first_reveal = mine_positions(game)\n>       assert len(layout_after_first_reveal) == MINE_COUNT\nE       assert 0 == 10\nE        +  where 0 = len([])\n\ntests\\unit\\test_spec_004.py:87: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00030450000485870987,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 2.275
+}

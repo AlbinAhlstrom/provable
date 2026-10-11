@@ -1,0 +1,341 @@
+{
+  "seq": 427,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:34",
+  "t_offset_s": 405.954,
+  "thread": "red_21",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656614.452494,
+        "duration": 1.7071542739868164,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 6,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_038.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_038.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-lost]",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-abandoned]",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-lost]",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-abandoned]",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[beginner]",
+                "type": "Function",
+                "lineno": 51
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[expert]",
+                "type": "Function",
+                "lineno": 51
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-lost]",
+            "lineno": 19,
+            "outcome": "failed",
+            "keywords": [
+              "test_lost_or_abandoned_game_does_not_change_best_time[beginner-lost]",
+              "parametrize",
+              "pytestmark",
+              "beginner-lost",
+              "test_spec_038.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011003000108757988,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009497999999439344,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                "lineno": 30,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_038.py",
+                  "lineno": 30,
+                  "message": "in test_lost_or_abandoned_game_does_not_change_best_time"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+            },
+            "teardown": {
+              "duration": 0.0007326000049943104,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-abandoned]",
+            "lineno": 19,
+            "outcome": "failed",
+            "keywords": [
+              "test_lost_or_abandoned_game_does_not_change_best_time[beginner-abandoned]",
+              "parametrize",
+              "pytestmark",
+              "beginner-abandoned",
+              "test_spec_038.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008138999983202666,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005087000026833266,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                "lineno": 30,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_038.py",
+                  "lineno": 30,
+                  "message": "in test_lost_or_abandoned_game_does_not_change_best_time"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+            },
+            "teardown": {
+              "duration": 0.0004172999906586483,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-lost]",
+            "lineno": 19,
+            "outcome": "failed",
+            "keywords": [
+              "test_lost_or_abandoned_game_does_not_change_best_time[expert-lost]",
+              "parametrize",
+              "pytestmark",
+              "expert-lost",
+              "test_spec_038.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008095999946817756,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004123999970033765,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                "lineno": 30,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_038.py",
+                  "lineno": 30,
+                  "message": "in test_lost_or_abandoned_game_does_not_change_best_time"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+            },
+            "teardown": {
+              "duration": 0.019252900005085394,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-abandoned]",
+            "lineno": 19,
+            "outcome": "failed",
+            "keywords": [
+              "test_lost_or_abandoned_game_does_not_change_best_time[expert-abandoned]",
+              "parametrize",
+              "pytestmark",
+              "expert-abandoned",
+              "test_spec_038.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007264000014401972,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004259999986970797,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                "lineno": 30,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_038.py",
+                  "lineno": 30,
+                  "message": "in test_lost_or_abandoned_game_does_not_change_best_time"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+            },
+            "teardown": {
+              "duration": 0.00047959999938029796,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[beginner]",
+            "lineno": 51,
+            "outcome": "failed",
+            "keywords": [
+              "test_won_game_end_with_same_inputs_does_set_new_best[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_038.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006863000016892329,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004973000031895936,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                "lineno": 59,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_038.py",
+                  "lineno": 59,
+                  "message": "in test_won_game_end_with_same_inputs_does_set_new_best"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_038.py:59: in test_won_game_end_with_same_inputs_does_set_new_best\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+            },
+            "teardown": {
+              "duration": 0.00041849999979604036,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[expert]",
+            "lineno": 51,
+            "outcome": "failed",
+            "keywords": [
+              "test_won_game_end_with_same_inputs_does_set_new_best[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_038.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007066999969538301,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004241999995429069,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                "lineno": 59,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_038.py",
+                  "lineno": 59,
+                  "message": "in test_won_game_end_with_same_inputs_does_set_new_best"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_038.py:59: in test_won_game_end_with_same_inputs_does_set_new_best\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+            },
+            "teardown": {
+              "duration": 0.0004563999973470345,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -3,7 +3,8 @@ Spec runner: the kickstart runs the rule deck's behaviour specs itself.
 
 The actions' methods (`action_behaviour.py`) give a generated app its basic behaviour. The specs are its rules: a move
 must be legal, a stylist cannot be double-booked. Left for the user to run one by one, a fresh app enforces none of
-them. So each behaviour spec goes through the TDD loop during the kickstart, while the page is being written.
+them. So each behaviour spec goes through the TDD loop during the kickstart, while the page is being written, in the
+same pass as the actions (`domain_round.py`).
 
 - Together: every spec's test is written side by side, then each class gets one code answer for all of its rules,
   judged test by test (`service_layer/tdd_batch.py`). One after another, the deck was most of a kickstart's duration.
@@ -44,9 +45,15 @@ class RuleProgress:
     total: int = 0
     active: int = 0    # of those, the ones the app now enforces
     latest: str = ""   # title of the rule that became active last
+    waiting: List[str] = field(default_factory=list)  # ids of the specs in the loop that are not settled yet
 
 
 Execute = Callable[[List[BusinessSpec], Callable[[BusinessSpec, Dict[str, Any]], None]], Any]
+
+
+def behaviour_rules(specs: List[BusinessSpec]) -> List[BusinessSpec]:
+    """The rules the records obey: the ones that go through the domain's test loop."""
+    return [s for s in specs if getattr(s, "kind", SpecKind.BEHAVIOR.value) == SpecKind.BEHAVIOR.value]
 
 
 @traced("specs.run_behaviour_specs")
@@ -54,7 +61,7 @@ def run_behaviour_specs(specs: List[BusinessSpec], execute: Execute,
                         report: Optional[Callable[[RuleProgress], None]] = None) -> SpecRun:
     """Hands every behaviour spec to `execute` (the TDD batch), which tells its second argument each spec's result as
     it is settled. `report` is told how far the deck has come before the first spec and after each one."""
-    behaviour = [s for s in specs if getattr(s, "kind", SpecKind.BEHAVIOR.value) == SpecKind.BEHAVIOR.value]
+    behaviour = behaviour_rules(specs)
     if not behaviour:
         return SpecRun(skipped="the deck has no behaviour spec")
     results: Dict[str, Dict[str, Any]] = {}
@@ -63,7 +70,8 @@ def run_behaviour_specs(specs: List[BusinessSpec], execute: Execute,
     def tell() -> None:
         if report is not None:
             report(RuleProgress(done=len(results), total=len(behaviour), active=len(titles),
-                                latest=titles[-1] if titles else ""))
+                                latest=titles[-1] if titles else "",
+                                waiting=[s.spec_id for s in behaviour if s.spec_id not in results]))
 
     def settled(spec: BusinessSpec, result: Dict[str, Any]) -> None:
         results[spec.spec_id] = result

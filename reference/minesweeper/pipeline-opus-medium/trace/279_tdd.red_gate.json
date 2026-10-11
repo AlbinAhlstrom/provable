@@ -1,0 +1,183 @@
+{
+  "seq": 279,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.43,
+  "thread": "red_21",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656601.846383,
+        "duration": 1.1373867988586426,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 4,
+          "total": 4,
+          "collected": 4
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_023.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_023.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_023.py::test_arranged_board_is_as_worked_out",
+                "type": "Function",
+                "lineno": 89
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_023.py::test_chord_with_exactly_n_flags_opens_all_hidden_unflagged_neighbours",
+                "type": "Function",
+                "lineno": 109
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_023.py::test_chord_with_one_flag_fewer_than_n_changes_nothing",
+                "type": "Function",
+                "lineno": 149
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_023.py::test_chord_with_one_flag_more_than_n_changes_nothing",
+                "type": "Function",
+                "lineno": 166
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_023.py::test_arranged_board_is_as_worked_out",
+            "lineno": 89,
+            "outcome": "passed",
+            "keywords": [
+              "test_arranged_board_is_as_worked_out",
+              "test_spec_023.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009550999966450036,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012546000070869923,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000524200004292652,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_023.py::test_chord_with_exactly_n_flags_opens_all_hidden_unflagged_neighbours",
+            "lineno": 109,
+            "outcome": "passed",
+            "keywords": [
+              "test_chord_with_exactly_n_flags_opens_all_hidden_unflagged_neighbours",
+              "test_spec_023.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005417000065790489,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011263999913353473,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00040410000656265765,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_023.py::test_chord_with_one_flag_fewer_than_n_changes_nothing",
+            "lineno": 149,
+            "outcome": "passed",
+            "keywords": [
+              "test_chord_with_one_flag_fewer_than_n_changes_nothing",
+              "test_spec_023.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004797000001417473,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009073000110220164,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00038779999886173755,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_023.py::test_chord_with_one_flag_more_than_n_changes_nothing",
+            "lineno": 166,
+            "outcome": "passed",
+            "keywords": [
+              "test_chord_with_one_flag_more_than_n_changes_nothing",
+              "test_spec_023.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006696999917039648,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010492000001249835,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000505700008943677,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

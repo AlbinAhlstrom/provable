@@ -1,0 +1,251 @@
+{
+  "seq": 287,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.503,
+  "thread": "red_11",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656601.4884374,
+        "duration": 1.3076446056365967,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 6,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_013.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_013.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_safe_numbered_cell_in_playing_game_becomes_opened",
+                "type": "Function",
+                "lineno": 85
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_mine_cell_in_playing_game_becomes_detonated",
+                "type": "Function",
+                "lineno": 104
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[4-4]",
+                "type": "Function",
+                "lineno": 115
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[0-0]",
+                "type": "Function",
+                "lineno": 115
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_flagged_cell_is_not_opened",
+                "type": "Function",
+                "lineno": 129
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_lost_game_changes_nothing",
+                "type": "Function",
+                "lineno": 144
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_safe_numbered_cell_in_playing_game_becomes_opened",
+            "lineno": 85,
+            "outcome": "passed",
+            "keywords": [
+              "test_open_hidden_safe_numbered_cell_in_playing_game_becomes_opened",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009763999987626448,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008227000071201473,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004518999921856448,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_mine_cell_in_playing_game_becomes_detonated",
+            "lineno": 104,
+            "outcome": "passed",
+            "keywords": [
+              "test_open_hidden_mine_cell_in_playing_game_becomes_detonated",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000673100003041327,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008154999959515408,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00033629999961704016,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[4-4]",
+            "lineno": 115,
+            "outcome": "passed",
+            "keywords": [
+              "test_open_hidden_cell_in_ready_game_becomes_opened[4-4]",
+              "parametrize",
+              "pytestmark",
+              "4-4",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000716800001100637,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009111000108532608,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003986000083386898,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_ready_game_becomes_opened[0-0]",
+            "lineno": 115,
+            "outcome": "passed",
+            "keywords": [
+              "test_open_hidden_cell_in_ready_game_becomes_opened[0-0]",
+              "parametrize",
+              "pytestmark",
+              "0-0",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008131000067805871,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010200999968219548,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003839999990304932,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_flagged_cell_is_not_opened",
+            "lineno": 129,
+            "outcome": "passed",
+            "keywords": [
+              "test_open_flagged_cell_is_not_opened",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00045950000640004873,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006277000065892935,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003473999968264252,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_013.py::test_open_hidden_cell_in_lost_game_changes_nothing",
+            "lineno": 144,
+            "outcome": "passed",
+            "keywords": [
+              "test_open_hidden_cell_in_lost_game_changes_nothing",
+              "test_spec_013.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004498000052990392,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007285000028787181,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005011000030208379,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

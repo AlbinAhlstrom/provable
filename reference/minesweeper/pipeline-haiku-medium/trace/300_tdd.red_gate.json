@@ -1,0 +1,200 @@
+{
+  "seq": 300,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:19",
+  "t_offset_s": 200.278,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652459.1244142,
+        "duration": 0.480133056640625,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_034.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_034.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_034.py::test_mine_counter_equals_mines_minus_flags[10-3-7]",
+                "type": "Function",
+                "lineno": 26
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_034.py::test_mine_counter_equals_mines_minus_flags[10-10-0]",
+                "type": "Function",
+                "lineno": 26
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_034.py::test_mine_counter_equals_mines_minus_flags[10-11--1]",
+                "type": "Function",
+                "lineno": 26
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_034.py::test_mine_counter_equals_mines_minus_flags[10-3-7]",
+            "lineno": 26,
+            "outcome": "failed",
+            "keywords": [
+              "test_mine_counter_equals_mines_minus_flags[10-3-7]",
+              "parametrize",
+              "pytestmark",
+              "10-3-7",
+              "test_spec_034.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008692000119481236,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005893999914405867,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_034.py",
+                "lineno": 43,
+                "message": "AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_034.py",
+                  "lineno": 43,
+                  "message": "in test_mine_counter_equals_mines_minus_flags"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_034.py:43: in test_mine_counter_equals_mines_minus_flags\n    counter = session.mine_counter()\n              ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+            },
+            "teardown": {
+              "duration": 0.0004214000073261559,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_034.py::test_mine_counter_equals_mines_minus_flags[10-10-0]",
+            "lineno": 26,
+            "outcome": "failed",
+            "keywords": [
+              "test_mine_counter_equals_mines_minus_flags[10-10-0]",
+              "parametrize",
+              "pytestmark",
+              "10-10-0",
+              "test_spec_034.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007027000101516023,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00046609999844804406,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_034.py",
+                "lineno": 43,
+                "message": "AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_034.py",
+                  "lineno": 43,
+                  "message": "in test_mine_counter_equals_mines_minus_flags"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_034.py:43: in test_mine_counter_equals_mines_minus_flags\n    counter = session.mine_counter()\n              ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+            },
+            "teardown": {
+              "duration": 0.0003947000077459961,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_034.py::test_mine_counter_equals_mines_minus_flags[10-11--1]",
+            "lineno": 26,
+            "outcome": "failed",
+            "keywords": [
+              "test_mine_counter_equals_mines_minus_flags[10-11--1]",
+              "parametrize",
+              "pytestmark",
+              "10-11--1",
+              "test_spec_034.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000650999994832091,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005412000027718022,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_034.py",
+                "lineno": 43,
+                "message": "AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_034.py",
+                  "lineno": 43,
+                  "message": "in test_mine_counter_equals_mines_minus_flags"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_034.py:43: in test_mine_counter_equals_mines_minus_flags\n    counter = session.mine_counter()\n              ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+            },
+            "teardown": {
+              "duration": 0.00042219999886583537,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

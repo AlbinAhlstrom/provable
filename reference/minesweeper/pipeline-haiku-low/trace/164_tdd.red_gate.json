@@ -1,0 +1,103 @@
+{
+  "seq": 164,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:17:27",
+  "t_offset_s": 91.536,
+  "thread": "red_1",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652646.8351886,
+        "duration": 0.2481088638305664,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_djd7frvb",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_002.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_002.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_002.py::test_zero_cell_reveal_expands_recursively_through_zero_region",
+                "type": "Function",
+                "lineno": 51
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_002.py::test_zero_cell_reveal_expands_recursively_through_zero_region",
+            "lineno": 51,
+            "outcome": "failed",
+            "keywords": [
+              "test_zero_cell_reveal_expands_recursively_through_zero_region",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "hollow_djd7frvb",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00037549999251496047,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006605999951716512,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_djd7frvb\\tests\\unit\\test_spec_002.py",
+                "lineno": 65,
+                "message": "AssertionError: assert 'hidden' == 'revealed'\n  \n  - revealed\n  + hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_002.py",
+                  "lineno": 65,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_zero_cell_reveal_expands_recursively_through_zero_region():\n        # Given an in-progress 9x9 board with mines only at (7,7),(7,8),(8,7).\n        # The target (0,0) has count 0, and every cell in the region rows/cols 0..6\n        # not touching the mine block has count 0, so expansion flows from (0,0).\n        game = _in_progress_game()\n        assert _cell_at(game, 0, 0)[\"adjacent_mine_count\"] == 0\n        assert _cell_at(game, 0, 0)[\"state\"] == \"hidden\"\n    \n        # When the player reveals the zero cell (0,0).\n        game.reveal_cell(row=0, column=0)\n    \n        # Then its neighbours (0,1), (1,0), (1,1) are revealed:\n        # they are hidden, unflagged, and adjacent to the zero cell (0,0).\n>       assert _cell_at(game, 0, 1)[\"state\"] == \"revealed\"\nE       AssertionError: assert 'hidden' == 'revealed'\nE         \nE         - revealed\nE         + hidden\n\ntests\\unit\\test_spec_002.py:65: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00034749999758787453,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,121 @@
+{
+  "seq": 323,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:26",
+  "t_offset_s": 206.896,
+  "thread": "red_3",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652465.8596077,
+        "duration": 0.19779634475708008,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_033.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_033.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_033.py::test_flagged_cell_reveal_is_refused_and_cell_stays_flagged",
+                "type": "Function",
+                "lineno": 64
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_033.py::test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed",
+                "type": "Function",
+                "lineno": 85
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_033.py::test_flagged_cell_reveal_is_refused_and_cell_stays_flagged",
+            "lineno": 64,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagged_cell_reveal_is_refused_and_cell_stays_flagged",
+              "test_spec_033.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00038129999302327633,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00043390000064391643,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00028399999428074807,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_033.py::test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed",
+            "lineno": 85,
+            "outcome": "passed",
+            "keywords": [
+              "test_revealed_cell_flag_toggle_is_refused_and_cell_stays_revealed",
+              "test_spec_033.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00020170000789221376,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003978000022470951,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00018600000475998968,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

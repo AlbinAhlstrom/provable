@@ -1,0 +1,332 @@
+{
+  "seq": 155,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.835,
+  "thread": "red_16",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652645.1839807,
+        "duration": 1.0064795017242432,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 6,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_017.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_017.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Beginner]",
+                "type": "Function",
+                "lineno": 14
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Intermediate]",
+                "type": "Function",
+                "lineno": 14
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Expert]",
+                "type": "Function",
+                "lineno": 14
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_017.py::test_beginner_mine_count_is_exactly_ten_not_eleven",
+                "type": "Function",
+                "lineno": 33
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_017.py::test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_017.py::test_unknown_difficulty_is_rejected",
+                "type": "Function",
+                "lineno": 57
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Beginner]",
+            "lineno": 14,
+            "outcome": "failed",
+            "keywords": [
+              "test_choosing_difficulty_yields_exact_board_size_and_mine_count[Beginner]",
+              "parametrize",
+              "pytestmark",
+              "Beginner",
+              "test_spec_017.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008490999898640439,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006223999953363091,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                "lineno": 21,
+                "message": "AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_017.py",
+                  "lineno": 21,
+                  "message": "in test_choosing_difficulty_yields_exact_board_size_and_mine_count"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_017.py:21: in test_choosing_difficulty_yields_exact_board_size_and_mine_count\n    setting = DifficultySetting.for_difficulty(name)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.000440800009528175,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Intermediate]",
+            "lineno": 14,
+            "outcome": "failed",
+            "keywords": [
+              "test_choosing_difficulty_yields_exact_board_size_and_mine_count[Intermediate]",
+              "parametrize",
+              "pytestmark",
+              "Intermediate",
+              "test_spec_017.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007038000039756298,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004138000076636672,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                "lineno": 21,
+                "message": "AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_017.py",
+                  "lineno": 21,
+                  "message": "in test_choosing_difficulty_yields_exact_board_size_and_mine_count"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_017.py:21: in test_choosing_difficulty_yields_exact_board_size_and_mine_count\n    setting = DifficultySetting.for_difficulty(name)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.00038409999979194254,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Expert]",
+            "lineno": 14,
+            "outcome": "failed",
+            "keywords": [
+              "test_choosing_difficulty_yields_exact_board_size_and_mine_count[Expert]",
+              "parametrize",
+              "pytestmark",
+              "Expert",
+              "test_spec_017.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005797999911010265,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004209999897284433,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                "lineno": 21,
+                "message": "AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_017.py",
+                  "lineno": 21,
+                  "message": "in test_choosing_difficulty_yields_exact_board_size_and_mine_count"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_017.py:21: in test_choosing_difficulty_yields_exact_board_size_and_mine_count\n    setting = DifficultySetting.for_difficulty(name)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.0003980000037699938,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_017.py::test_beginner_mine_count_is_exactly_ten_not_eleven",
+            "lineno": 33,
+            "outcome": "failed",
+            "keywords": [
+              "test_beginner_mine_count_is_exactly_ten_not_eleven",
+              "test_spec_017.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00039110000943765044,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00043149999692104757,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                "lineno": 38,
+                "message": "AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_017.py",
+                  "lineno": 38,
+                  "message": "in test_beginner_mine_count_is_exactly_ten_not_eleven"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_017.py:38: in test_beginner_mine_count_is_exactly_ten_not_eleven\n    setting = DifficultySetting.for_difficulty(\"Beginner\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.00034079999022651464,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_017.py::test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred",
+            "lineno": 45,
+            "outcome": "failed",
+            "keywords": [
+              "test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred",
+              "test_spec_017.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00041939999209716916,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003842000005533919,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                "lineno": 50,
+                "message": "AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_017.py",
+                  "lineno": 50,
+                  "message": "in test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_017.py:50: in test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred\n    setting = DifficultySetting.for_difficulty(\"Expert\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+            },
+            "teardown": {
+              "duration": 0.00035609999031294137,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_017.py::test_unknown_difficulty_is_rejected",
+            "lineno": 57,
+            "outcome": "failed",
+            "keywords": [
+              "test_unknown_difficulty_is_rejected",
+              "test_spec_017.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003981000045314431,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000705099999322556,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                "lineno": 66,
+                "message": "AssertionError: assert 'AttributeError' == 'ValueError'\n  \n  - ValueError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_017.py",
+                  "lineno": 66,
+                  "message": "in test_unknown_difficulty_is_rejected"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_017.py:66: in test_unknown_difficulty_is_rejected\n    assert type(exc_info.value).__name__ == \"ValueError\"\nE   AssertionError: assert 'AttributeError' == 'ValueError'\nE     \nE     - ValueError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00045370000589173287,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

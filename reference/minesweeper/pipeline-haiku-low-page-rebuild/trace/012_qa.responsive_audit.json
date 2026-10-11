@@ -1,0 +1,119 @@
+{
+  "seq": 12,
+  "step": "qa.responsive_audit",
+  "kind": "step",
+  "depth": 1,
+  "caller_chain": [
+    "visual.review"
+  ],
+  "started_at": "19:28:58",
+  "t_offset_s": 99.613,
+  "thread": "AnyIO worker thread",
+  "input": {
+    "args": [],
+    "kwargs": {
+      "url": "http://localhost:5174",
+      "save_screenshots": true,
+      "workspace_dir": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace",
+      "api_ready_url": "http://localhost:8001/openapi.json"
+    }
+  },
+  "output": {
+    "passed": true,
+    "overall_status": "PASS",
+    "device_results": [
+      {
+        "device": "Mobile",
+        "width": 375,
+        "height": 812,
+        "passed": true,
+        "metrics": {
+          "clippedCount": 0,
+          "clippedSamples": [],
+          "crashFile": "",
+          "crashMessage": "",
+          "hasCrashOverlay": false,
+          "hasHorizontalOverflow": false,
+          "hasVerticalOverflow": false,
+          "innerHeight": 812,
+          "innerWidth": 375,
+          "isRootEmpty": false,
+          "layoutViewportWidth": 375,
+          "maxScrollHeight": 812,
+          "maxScrollWidth": 375,
+          "overflowDelta": 0,
+          "verticalOverflowDelta": 0
+        },
+        "defects": [],
+        "warnings": [],
+        "screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_mobile_375x812.png",
+        "full_page_screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_mobile_full.png",
+        "forms": null,
+        "duration_s": 1.86
+      },
+      {
+        "device": "Tablet",
+        "width": 768,
+        "height": 1024,
+        "passed": true,
+        "metrics": {
+          "clippedCount": 0,
+          "clippedSamples": [],
+          "crashFile": "",
+          "crashMessage": "",
+          "hasCrashOverlay": false,
+          "hasHorizontalOverflow": false,
+          "hasVerticalOverflow": false,
+          "innerHeight": 1024,
+          "innerWidth": 768,
+          "isRootEmpty": false,
+          "layoutViewportWidth": 768,
+          "maxScrollHeight": 1024,
+          "maxScrollWidth": 768,
+          "overflowDelta": 0,
+          "verticalOverflowDelta": 0
+        },
+        "defects": [],
+        "warnings": [],
+        "screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_tablet_768x1024.png",
+        "full_page_screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_tablet_full.png",
+        "forms": null,
+        "duration_s": 1.79
+      },
+      {
+        "device": "Desktop",
+        "width": 1280,
+        "height": 800,
+        "passed": true,
+        "metrics": {
+          "clippedCount": 0,
+          "clippedSamples": [],
+          "crashFile": "",
+          "crashMessage": "",
+          "hasCrashOverlay": false,
+          "hasHorizontalOverflow": false,
+          "hasVerticalOverflow": false,
+          "innerHeight": 800,
+          "innerWidth": 1280,
+          "isRootEmpty": false,
+          "layoutViewportWidth": 1280,
+          "maxScrollHeight": 800,
+          "maxScrollWidth": 1280,
+          "overflowDelta": 0,
+          "verticalOverflowDelta": 0
+        },
+        "defects": [],
+        "warnings": [],
+        "screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_desktop_1280x800.png",
+        "full_page_screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_desktop_full.png",
+        "forms": [],
+        "duration_s": 1.79
+      }
+    ],
+    "defects": [],
+    "warnings": [],
+    "console_errors": [],
+    "summary": "QA Audit PASS: Tested across 3 viewports (Mobile, Tablet, Desktop). 0 defect(s) discovered."
+  },
+  "duration_s": 8.257
+}

@@ -1,0 +1,134 @@
+{
+  "seq": 329,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:28",
+  "t_offset_s": 399.188,
+  "thread": "red_10",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656607.2569304,
+        "duration": 1.4804973602294922,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_sds_o0io",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "passed": 1,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_012.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_012.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_012.py::test_first_open_of_hidden_unflagged_cell_moves_ready_game_to_playing",
+                "type": "Function",
+                "lineno": 51
+              },
+              {
+                "nodeid": "tests/unit/test_spec_012.py::test_opening_a_flagged_cell_in_ready_game_keeps_it_ready",
+                "type": "Function",
+                "lineno": 66
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_012.py::test_first_open_of_hidden_unflagged_cell_moves_ready_game_to_playing",
+            "lineno": 51,
+            "outcome": "failed",
+            "keywords": [
+              "test_first_open_of_hidden_unflagged_cell_moves_ready_game_to_playing",
+              "test_spec_012.py",
+              "unit",
+              "tests",
+              "hollow_sds_o0io",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005885999999009073,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010088999988511205,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_sds_o0io\\tests\\unit\\test_spec_012.py",
+                "lineno": 62,
+                "message": "AssertionError: assert 'Ready' == 'Playing'\n  \n  - Playing\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_012.py",
+                  "lineno": 62,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_first_open_of_hidden_unflagged_cell_moves_ready_game_to_playing():\n        game = _ready_game()\n    \n        game.open_cell(row=4, column=4)\n    \n        # Cell (4,4) is Hidden and unflagged, and the game is Ready.\n        # The first open lays 64 mines on the cells other than (4,4), so (4,4) is safe.\n        # A safe cell cannot cause a loss.\n        # 16 other safe cells exist, and they are not all opened by this one click.\n        # So the game cannot be Won. The Ready->Playing rule alone decides the status.\n>       assert game.status == \"Playing\"\nE       AssertionError: assert 'Ready' == 'Playing'\nE         \nE         - Playing\nE         + Ready\n\ntests\\unit\\test_spec_012.py:62: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00042270000267308205,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_012.py::test_opening_a_flagged_cell_in_ready_game_keeps_it_ready",
+            "lineno": 66,
+            "outcome": "passed",
+            "keywords": [
+              "test_opening_a_flagged_cell_in_ready_game_keeps_it_ready",
+              "test_spec_012.py",
+              "unit",
+              "tests",
+              "hollow_sds_o0io",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007112000021152198,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005696000007446855,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003735999925993383,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.001
+}

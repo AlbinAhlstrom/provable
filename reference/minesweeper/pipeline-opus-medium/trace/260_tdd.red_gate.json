@@ -1,0 +1,195 @@
+{
+  "seq": 260,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:21",
+  "t_offset_s": 392.948,
+  "thread": "red_4",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656601.339584,
+        "duration": 1.032956600189209,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 4,
+          "total": 4,
+          "collected": 4
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_005.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_005.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_005.py::test_custom_width_at_limits_is_accepted[9]",
+                "type": "Function",
+                "lineno": 21
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_005.py::test_custom_width_at_limits_is_accepted[30]",
+                "type": "Function",
+                "lineno": 21
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_005.py::test_custom_width_just_outside_limits_is_refused[8]",
+                "type": "Function",
+                "lineno": 46
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_005.py::test_custom_width_just_outside_limits_is_refused[31]",
+                "type": "Function",
+                "lineno": 46
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_005.py::test_custom_width_at_limits_is_accepted[9]",
+            "lineno": 21,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_width_at_limits_is_accepted[9]",
+              "parametrize",
+              "pytestmark",
+              "9",
+              "test_spec_005.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007772000099066645,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008462999976472929,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039370000013150275,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_005.py::test_custom_width_at_limits_is_accepted[30]",
+            "lineno": 21,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_width_at_limits_is_accepted[30]",
+              "parametrize",
+              "pytestmark",
+              "30",
+              "test_spec_005.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008857000066200271,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012923000031150877,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039399998786393553,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_005.py::test_custom_width_just_outside_limits_is_refused[8]",
+            "lineno": 46,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_width_just_outside_limits_is_refused[8]",
+              "parametrize",
+              "pytestmark",
+              "8",
+              "test_spec_005.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006371999916154891,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00058149998949375,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039620000461582094,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_005.py::test_custom_width_just_outside_limits_is_refused[31]",
+            "lineno": 46,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_width_just_outside_limits_is_refused[31]",
+              "parametrize",
+              "pytestmark",
+              "31",
+              "test_spec_005.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011587000044528395,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006484000041382387,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0006561000045621768,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.001
+}

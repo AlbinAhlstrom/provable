@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import AddIcon from '@mui/icons-material/Add';
+import CheckIcon from '@mui/icons-material/Check';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
 
 interface Project {
   name: string;
@@ -7,7 +11,7 @@ interface Project {
 }
 
 interface ProjectSelectorProps {
-  onProjectSwitch: (previewUrl: string) => void;
+  onProjectSwitch: () => void;
 }
 
 const ProjectSelector: React.FC<ProjectSelectorProps> = ({ onProjectSwitch }) => {
@@ -64,7 +68,7 @@ const ProjectSelector: React.FC<ProjectSelectorProps> = ({ onProjectSwitch }) =>
       const data = await res.json();
       if (data.success) {
         await fetchProjects();
-        onProjectSwitch(data.project?.preview_url ?? 'http://localhost:5174');
+        onProjectSwitch();
       } else {
         alert(`Failed to switch project: ${data.error}`);
       }
@@ -116,12 +120,12 @@ const ProjectSelector: React.FC<ProjectSelectorProps> = ({ onProjectSwitch }) =>
           {isSwitching ? (
             <span className="spinner" />
           ) : (
-            <span style={{ fontSize: '1rem' }}>📁</span>
+            <FolderOutlinedIcon fontSize="inherit" />
           )}
           <span className="project-selector-name">
-            {isSwitching ? 'Switching…' : (activeProject?.name ?? 'Select Project')}
+            {isSwitching ? 'Switching…' : (activeProject?.name ?? 'Select project')}
           </span>
-          <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>▾</span>
+          <ExpandMoreIcon fontSize="inherit" />
         </button>
 
         {isOpen && (
@@ -137,7 +141,7 @@ const ProjectSelector: React.FC<ProjectSelectorProps> = ({ onProjectSwitch }) =>
                 onClick={() => handleSwitch(p)}
                 title={p.path}
               >
-                <span>{p.active ? '✅' : '○'}</span>
+                <span className="project-item-mark">{p.active && <CheckIcon fontSize="inherit" />}</span>
                 <span className="project-item-name">{p.name}</span>
                 <span className="project-item-path">{p.path.split('/').slice(-2).join('/')}</span>
               </button>
@@ -147,7 +151,7 @@ const ProjectSelector: React.FC<ProjectSelectorProps> = ({ onProjectSwitch }) =>
               className="project-dropdown-add"
               onClick={() => { setIsOpen(false); setShowAddModal(true); }}
             >
-              ＋ Add Project…
+              <AddIcon fontSize="inherit" /> Add project
             </button>
           </div>
         )}

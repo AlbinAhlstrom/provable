@@ -1,0 +1,385 @@
+{
+  "seq": 193,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:12",
+  "t_offset_s": 193.0,
+  "thread": "red_3",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw\\tests\\unit\\test_spec_004.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 7 items\n\ntests\\unit\\test_spec_004.py FFFFFFF                                      [100%]\n\n================================== FAILURES ===================================\n______________ test_reveal_on_last_cell_keeps_expert_dimensions _______________\n\n    def test_reveal_on_last_cell_keeps_expert_dimensions():\n        session = _expert_session_in_progress()\n    \n        session.reveal_cell(row=15, column=29)\n    \n        # (15, 29) is inside the 16x30 board, hidden, unflagged and safe\n        # (index 479 is not a mine), so the reveal is allowed. Its count is 3\n        # from the mines at (14,28), (14,29) and (15,28), so nothing spreads and\n        # the board is not won. The cell itself becomes revealed.\n>       assert _cell_at(session, 15, 29)[\"state\"] == \"revealed\"\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_004.py:76: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='session-expert', difficulty_id='expert', rows=16, columns=30, mine_count=99, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-03-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 15, column = 29\n\n    def _cell_at(session, row, column):\n>       return next(\n            cell\n            for cell in session.cells\n            if cell[\"row\"] == row and cell[\"column\"] == column\n        )\nE       StopIteration\n\ntests\\unit\\test_spec_004.py:54: StopIteration\n____________ test_toggle_flag_on_last_cell_keeps_expert_dimensions ____________\n\n    def test_toggle_flag_on_last_cell_keeps_expert_dimensions():\n        session = _expert_session_in_progress()\n    \n        session.toggle_flag(row=15, column=29)\n    \n        # (15, 29) is hidden and inside the board, so the flag is placed:\n        # the cell becomes flagged and flag_count goes from 0 to 1. Nothing else\n        # about the board changes.\n>       assert _cell_at(session, 15, 29)[\"state\"] == \"flagged\"\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_004.py:90: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='session-expert', difficulty_id='expert', rows=16, columns=30, mine_count=99, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-03-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 15, column = 29\n\n    def _cell_at(session, row, column):\n>       return next(\n            cell\n            for cell in session.cells\n            if cell[\"row\"] == row and cell[\"column\"] == column\n        )\nE       StopIteration\n\ntests\\unit\\test_spec_004.py:54: StopIteration\n__________________ test_abandon_game_keeps_expert_dimensions __________________\n\n    def test_abandon_game_keeps_expert_dimensions():\n        session = _expert_session_in_progress()\n    \n        session.abandon_game()\n    \n        # The session is in_progress, which is a status abandon_game accepts,\n        # so the game ends as abandoned with no win or loss result.\n>       assert session.status == \"abandoned\"\nE       AssertionError: assert 'in_progress' == 'abandoned'\nE         \nE         - abandoned\nE         + in_progress\n\ntests\\unit\\test_spec_004.py:103: AssertionError\n____ test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[16-29] ____\n\nrow = 16, column = 29\n\n    @pytest.mark.parametrize(\"row,column\", [(16, 29), (15, 30)])\n    def test_reveal_beyond_expert_board_is_refused_and_dimensions_stay(row, column):\n        session = _expert_session_in_progress()\n    \n        # Only one coordinate is moved past the last valid index (15 for rows,\n        # 29 for columns). Row 16 or column 30 lies outside the 16x30 board,\n        # so the reveal is refused with CellOutOfBoundsError.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_004.py:115: Failed\n____ test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[15-30] ____\n\nrow = 15, column = 30\n\n    @pytest.mark.parametrize(\"row,column\", [(16, 29), (15, 30)])\n    def test_reveal_beyond_expert_board_is_refused_and_dimensions_stay(row, column):\n        session = _expert_session_in_progress()\n    \n        # Only one coordinate is moved past the last valid index (15 for rows,\n        # 29 for columns). Row 16 or column 30 lies outside the 16x30 board,\n        # so the reveal is refused with CellOutOfBoundsError.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_004.py:115: Failed\n_ test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[16-29] __\n\nrow = 16, column = 29\n\n    @pytest.mark.parametrize(\"row,column\", [(16, 29), (15, 30)])\n    def test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay(row, column):\n        session = _expert_session_in_progress()\n    \n        # Only one coordinate is moved past the last valid index. The flag\n        # placement is refused with CellOutOfBoundsError because the cell lies\n        # outside the 16x30 board.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_004.py:130: Failed\n_ test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[15-30] __\n\nrow = 15, column = 30\n\n    @pytest.mark.parametrize(\"row,column\", [(16, 29), (15, 30)])\n    def test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay(row, column):\n        session = _expert_session_in_progress()\n    \n        # Only one coordinate is moved past the last valid index. The flag\n        # placement is refused with CellOutOfBoundsError because the cell lies\n        # outside the 16x30 board.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_004.py:130: Failed\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw\\.pytest_report_ef030d6427de4013a100620e7d6d23e1.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_004.py::test_reveal_on_last_cell_keeps_expert_dimensions\nFAILED tests/unit/test_spec_004.py::test_toggle_flag_on_last_cell_keeps_expert_dimensions\nFAILED tests/unit/test_spec_004.py::test_abandon_game_keeps_expert_dimensions\nFAILED tests/unit/test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[16-29]\nFAILED tests/unit/test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[15-30]\nFAILED tests/unit/test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[16-29]\nFAILED tests/unit/test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[15-30]\n============================== 7 failed in 1.00s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652455.6039765,
+      "duration": 0.6625680923461914,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw",
+      "environment": {},
+      "summary": {
+        "failed": 7,
+        "total": 7,
+        "collected": 7
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_004.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_004.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_004.py::test_reveal_on_last_cell_keeps_expert_dimensions",
+              "type": "Function",
+              "lineno": 66
+            },
+            {
+              "nodeid": "tests/unit/test_spec_004.py::test_toggle_flag_on_last_cell_keeps_expert_dimensions",
+              "type": "Function",
+              "lineno": 81
+            },
+            {
+              "nodeid": "tests/unit/test_spec_004.py::test_abandon_game_keeps_expert_dimensions",
+              "type": "Function",
+              "lineno": 95
+            },
+            {
+              "nodeid": "tests/unit/test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+              "type": "Function",
+              "lineno": 107
+            },
+            {
+              "nodeid": "tests/unit/test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+              "type": "Function",
+              "lineno": 107
+            },
+            {
+              "nodeid": "tests/unit/test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+              "type": "Function",
+              "lineno": 122
+            },
+            {
+              "nodeid": "tests/unit/test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+              "type": "Function",
+              "lineno": 122
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_004.py::test_reveal_on_last_cell_keeps_expert_dimensions",
+          "lineno": 66,
+          "outcome": "failed",
+          "keywords": [
+            "test_reveal_on_last_cell_keeps_expert_dimensions",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "hollow_zvjw33kw",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007296999974641949,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004191999905742705,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw\\tests\\unit\\test_spec_004.py",
+              "lineno": 54,
+              "message": "StopIteration"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_004.py",
+                "lineno": 76,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_004.py",
+                "lineno": 54,
+                "message": "StopIteration"
+              }
+            ],
+            "longrepr": "def test_reveal_on_last_cell_keeps_expert_dimensions():\n        session = _expert_session_in_progress()\n    \n        session.reveal_cell(row=15, column=29)\n    \n        # (15, 29) is inside the 16x30 board, hidden, unflagged and safe\n        # (index 479 is not a mine), so the reveal is allowed. Its count is 3\n        # from the mines at (14,28), (14,29) and (15,28), so nothing spreads and\n        # the board is not won. The cell itself becomes revealed.\n>       assert _cell_at(session, 15, 29)[\"state\"] == \"revealed\"\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_004.py:76: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='session-expert', difficulty_id='expert', rows=16, columns=30, mine_count=99, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-03-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 15, column = 29\n\n    def _cell_at(session, row, column):\n>       return next(\n            cell\n            for cell in session.cells\n            if cell[\"row\"] == row and cell[\"column\"] == column\n        )\nE       StopIteration\n\ntests\\unit\\test_spec_004.py:54: StopIteration"
+          },
+          "teardown": {
+            "duration": 0.00041120000241789967,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_004.py::test_toggle_flag_on_last_cell_keeps_expert_dimensions",
+          "lineno": 81,
+          "outcome": "failed",
+          "keywords": [
+            "test_toggle_flag_on_last_cell_keeps_expert_dimensions",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "hollow_zvjw33kw",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004267999902367592,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00044519999937620014,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw\\tests\\unit\\test_spec_004.py",
+              "lineno": 54,
+              "message": "StopIteration"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_004.py",
+                "lineno": 90,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_004.py",
+                "lineno": 54,
+                "message": "StopIteration"
+              }
+            ],
+            "longrepr": "def test_toggle_flag_on_last_cell_keeps_expert_dimensions():\n        session = _expert_session_in_progress()\n    \n        session.toggle_flag(row=15, column=29)\n    \n        # (15, 29) is hidden and inside the board, so the flag is placed:\n        # the cell becomes flagged and flag_count goes from 0 to 1. Nothing else\n        # about the board changes.\n>       assert _cell_at(session, 15, 29)[\"state\"] == \"flagged\"\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_004.py:90: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='session-expert', difficulty_id='expert', rows=16, columns=30, mine_count=99, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-03-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 15, column = 29\n\n    def _cell_at(session, row, column):\n>       return next(\n            cell\n            for cell in session.cells\n            if cell[\"row\"] == row and cell[\"column\"] == column\n        )\nE       StopIteration\n\ntests\\unit\\test_spec_004.py:54: StopIteration"
+          },
+          "teardown": {
+            "duration": 0.0005794000026071444,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_004.py::test_abandon_game_keeps_expert_dimensions",
+          "lineno": 95,
+          "outcome": "failed",
+          "keywords": [
+            "test_abandon_game_keeps_expert_dimensions",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "hollow_zvjw33kw",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00037910000537522137,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006715999916195869,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw\\tests\\unit\\test_spec_004.py",
+              "lineno": 103,
+              "message": "AssertionError: assert 'in_progress' == 'abandoned'\n  \n  - abandoned\n  + in_progress"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_004.py",
+                "lineno": 103,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_abandon_game_keeps_expert_dimensions():\n        session = _expert_session_in_progress()\n    \n        session.abandon_game()\n    \n        # The session is in_progress, which is a status abandon_game accepts,\n        # so the game ends as abandoned with no win or loss result.\n>       assert session.status == \"abandoned\"\nE       AssertionError: assert 'in_progress' == 'abandoned'\nE         \nE         - abandoned\nE         + in_progress\n\ntests\\unit\\test_spec_004.py:103: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0003541000041877851,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+          "lineno": 107,
+          "outcome": "failed",
+          "keywords": [
+            "test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+            "parametrize",
+            "pytestmark",
+            "16-29",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "hollow_zvjw33kw",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006360999977914616,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004394999996293336,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw\\tests\\unit\\test_spec_004.py",
+              "lineno": 115,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_004.py",
+                "lineno": 115,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "row = 16, column = 29\n\n    @pytest.mark.parametrize(\"row,column\", [(16, 29), (15, 30)])\n    def test_reveal_beyond_expert_board_is_refused_and_dimensions_stay(row, column):\n        session = _expert_session_in_progress()\n    \n        # Only one coordinate is moved past the last valid index (15 for rows,\n        # 29 for columns). Row 16 or column 30 lies outside the 16x30 board,\n        # so the reveal is refused with CellOutOfBoundsError.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_004.py:115: Failed"
+          },
+          "teardown": {
+            "duration": 0.00037990001146681607,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_004.py::test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+          "lineno": 107,
+          "outcome": "failed",
+          "keywords": [
+            "test_reveal_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+            "parametrize",
+            "pytestmark",
+            "15-30",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "hollow_zvjw33kw",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006557000015163794,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004253999941283837,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw\\tests\\unit\\test_spec_004.py",
+              "lineno": 115,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_004.py",
+                "lineno": 115,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "row = 15, column = 30\n\n    @pytest.mark.parametrize(\"row,column\", [(16, 29), (15, 30)])\n    def test_reveal_beyond_expert_board_is_refused_and_dimensions_stay(row, column):\n        session = _expert_session_in_progress()\n    \n        # Only one coordinate is moved past the last valid index (15 for rows,\n        # 29 for columns). Row 16 or column 30 lies outside the 16x30 board,\n        # so the reveal is refused with CellOutOfBoundsError.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_004.py:115: Failed"
+          },
+          "teardown": {
+            "duration": 0.00037799999699927866,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+          "lineno": 122,
+          "outcome": "failed",
+          "keywords": [
+            "test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[16-29]",
+            "parametrize",
+            "pytestmark",
+            "16-29",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "hollow_zvjw33kw",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007920999923953786,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00048600000445730984,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw\\tests\\unit\\test_spec_004.py",
+              "lineno": 130,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_004.py",
+                "lineno": 130,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "row = 16, column = 29\n\n    @pytest.mark.parametrize(\"row,column\", [(16, 29), (15, 30)])\n    def test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay(row, column):\n        session = _expert_session_in_progress()\n    \n        # Only one coordinate is moved past the last valid index. The flag\n        # placement is refused with CellOutOfBoundsError because the cell lies\n        # outside the 16x30 board.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_004.py:130: Failed"
+          },
+          "teardown": {
+            "duration": 0.00044210000487510115,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_004.py::test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+          "lineno": 122,
+          "outcome": "failed",
+          "keywords": [
+            "test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay[15-30]",
+            "parametrize",
+            "pytestmark",
+            "15-30",
+            "test_spec_004.py",
+            "unit",
+            "tests",
+            "hollow_zvjw33kw",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007027999963611364,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00040389999048784375,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_zvjw33kw\\tests\\unit\\test_spec_004.py",
+              "lineno": 130,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_004.py",
+                "lineno": 130,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "row = 15, column = 30\n\n    @pytest.mark.parametrize(\"row,column\", [(16, 29), (15, 30)])\n    def test_toggle_flag_beyond_expert_board_is_refused_and_dimensions_stay(row, column):\n        session = _expert_session_in_progress()\n    \n        # Only one coordinate is moved past the last valid index. The flag\n        # placement is refused with CellOutOfBoundsError because the cell lies\n        # outside the 16x30 board.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_004.py:130: Failed"
+          },
+          "teardown": {
+            "duration": 0.00042379999649710953,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 4.164
+}

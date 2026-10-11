@@ -1,0 +1,121 @@
+{
+  "seq": 137,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.312,
+  "thread": "red_4",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652644.6741126,
+        "duration": 0.4600696563720703,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_005.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_005.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_005.py::test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count",
+                "type": "Function",
+                "lineno": 44
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_005.py::test_flagging_a_revealed_cell_leaves_the_board_unchanged",
+                "type": "Function",
+                "lineno": 58
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_005.py::test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count",
+            "lineno": 44,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count",
+              "test_spec_005.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005878000083612278,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00044489999709185213,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0002952999930130318,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_005.py::test_flagging_a_revealed_cell_leaves_the_board_unchanged",
+            "lineno": 58,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagging_a_revealed_cell_leaves_the_board_unchanged",
+              "test_spec_005.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00040699999954085797,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012686000118264928,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00041599999531172216,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

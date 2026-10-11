@@ -47,6 +47,22 @@ def test_protocol_without_manifest_says_so():
     assert "No action protocol" in format_action_protocol(None)
 
 
+def test_the_page_is_told_what_a_new_object_holds():
+    """Verify the page writer learns the starting state from the protocol, not from methods it has not seen.
+
+    id: TST-AUD-STARTING-STATE
+    Given: A manifest that states what a newly created object of one class holds (the page is written while the
+           class's methods are, so the class it is shown does not set itself up yet)
+    When: The protocol block is formatted for the page
+    Then: The block states it, by class
+    """
+    manifest = {**MANIFEST, "starting_states": [
+        {"aggregate": "Enquiry", "description": "status is \"new\" and replies is empty"}]}
+    block = format_action_protocol(manifest)
+    assert "A newly created `Enquiry`" in block and 'status is "new" and replies is empty' in block
+    assert "newly created" not in format_action_protocol(MANIFEST)
+
+
 def test_action_protocol_prompt_asks_who_performs_each_action(tmp_path, monkeypatch):
     """Verify the action-design prompt asks for performed_by relative to the intent's audience.
 
@@ -91,6 +107,28 @@ def test_presentation_prompt_forbids_controls_for_api_only_actions(tmp_path, mon
     assert "acknowledge_inquiry" not in ui.split("Authoritative Backend Action Protocol")[-1]
     assert "acknowledge_inquiry" in api_only
     assert "no buttons" in seen["p"].lower() or "no controls" in seen["p"].lower()
+
+
+def test_the_page_call_is_given_the_time_the_largest_answer_needs(tmp_path, monkeypatch):
+    """Verify the call that writes the whole page is not cut off by the time allowed for a short answer.
+
+    id: TST-AUD-PAGE-TIME
+    Given: A recording model
+    When: The presentation projection is synthesized
+    Then: The call carries the page's own time limit, longer than the default of a call
+    """
+    from onboarding import presentation_projection_synthesizer as pps
+    seen = {}
+
+    def fake(prompt, stage="general", **kwargs):
+        seen.update(kwargs)
+        return "{}"
+
+    monkeypatch.setattr(pps, "call_gemini", fake)
+    pps.synthesize_and_write_presentation_projection(
+        pitch="p", structure=STRUCTURE, inbox_specs=[SPEC], workspace_dir=str(tmp_path),
+        action_manifest=MANIFEST, ux_blueprint="plan", intent=INTENT)
+    assert seen["timeout_s"] == pps.PAGE_TIMEOUT_S > agent_orchestrator.DEFAULT_TIMEOUT_S
 
 
 def test_the_action_protocol_is_held_to_a_schema_and_asks_for_starting_states(tmp_path, monkeypatch):
@@ -138,3 +176,49 @@ def test_the_action_protocol_fixes_the_shared_words(tmp_path, monkeypatch):
     manifest_schema = seen["json_schema"]["properties"]["action_manifest"]
     assert {"vocabulary", "rejections"} <= set(manifest_schema["required"])
     assert "vocabulary" in seen["prompt"] and "rejections" in seen["prompt"]
+
+
+def test_an_action_nobody_performs_by_hand_is_the_pages_own_to_send():
+    """Verify an action that happens by itself is handed to the page to perform, with no control.
+
+    id: TST-AUD-AUTOMATIC
+    Given: A manifest with an action marked automatic (a game's clock was marked as someone else's, the page was
+           told to leave it alone, and nothing in the running product ever performed it: the time stood still)
+    When: The protocol block is formatted, and the prompts of the action protocol and the page are read
+    Then: The action is listed apart from the controls and from the API-only actions, with the client that sends
+          it; the protocol's prompt offers that performer and the page's prompt says the page sends such actions
+    """
+    manifest = {"actions": MANIFEST["actions"] + [
+        {"name": "advance_clock", "aggregate": "Enquiry", "performed_by": "automatic", "params": ["seconds"],
+         "description": "Counts the time on"}]}
+    block = format_action_protocol(manifest)
+    controls, _, rest = block.partition("Actions the page performs by itself")
+    by_itself, _, api_only = rest.partition("API-only")
+    assert "advance_clock" not in controls and "advance_clock" not in api_only
+    assert "advance_clock" in by_itself and "enquiryClient.ts" in by_itself
+    assert "acknowledge_inquiry" in api_only
+    prompts = os.path.join(os.path.dirname(__file__), "..", "..", "prompts")
+    with open(os.path.join(prompts, "domain_engine_synthesis.md"), encoding="utf-8") as handle:
+        protocol = handle.read()
+    assert '"automatic"' in protocol and "Nothing runs beside the page and the API" in protocol
+    with open(os.path.join(prompts, "presentation_projection_synthesis.md"), encoding="utf-8") as handle:
+        page = handle.read()
+    assert 'Actions listed under "Actions the page performs by itself"' in page
+
+
+def test_the_page_is_told_which_actions_are_sent_to_the_kind():
+    """Verify the page sends an action done to no one record without an id, and makes records through it.
+
+    id: TST-AUD-KIND-ACTION
+    Given: A manifest with an action sent to the kind and one sent to a record
+    When: The action protocol is written out for the page
+    Then: The first names `sendKindAction` and no id, the second `sendAction` with the record's id
+    """
+    from onboarding.action_protocol import format_action_protocol
+    text = format_action_protocol({"actions": [
+        {"name": "place_order", "aggregate": "Order", "params": ["dish_id"], "on_kind": True, "given": ["Order"]},
+        {"name": "cancel_order", "aggregate": "Order", "params": []}]})
+    place, cancel = (next(l for l in text.splitlines() if f"`{n}`" in l) for n in ("place_order", "cancel_order"))
+
+    assert "`sendKindAction` of `src/api/orderClient.ts`" in place and "no id" in place
+    assert "`sendAction` of `src/api/orderClient.ts`" in cancel and "with the id of that Order" in cancel

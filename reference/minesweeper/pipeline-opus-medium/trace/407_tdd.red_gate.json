@@ -1,0 +1,121 @@
+{
+  "seq": 407,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:33",
+  "t_offset_s": 404.999,
+  "thread": "red_4",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656613.4932117,
+        "duration": 0.605675220489502,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_042.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_042.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_042.py::test_chording_a_hidden_cell_changes_nothing",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_042.py::test_chording_the_same_cell_when_opened_does_open_neighbours",
+                "type": "Function",
+                "lineno": 115
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_042.py::test_chording_a_hidden_cell_changes_nothing",
+            "lineno": 87,
+            "outcome": "passed",
+            "keywords": [
+              "test_chording_a_hidden_cell_changes_nothing",
+              "test_spec_042.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006054999976186082,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0024111000093398616,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0017924999992828816,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_042.py::test_chording_the_same_cell_when_opened_does_open_neighbours",
+            "lineno": 115,
+            "outcome": "passed",
+            "keywords": [
+              "test_chording_the_same_cell_when_opened_does_open_neighbours",
+              "test_spec_042.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008251000108430162,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011078999959863722,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005610000080196187,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

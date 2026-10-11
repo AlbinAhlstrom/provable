@@ -1,0 +1,103 @@
+{
+  "seq": 288,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:18",
+  "t_offset_s": 199.156,
+  "thread": "red_12",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652457.331563,
+        "duration": 1.1405401229858398,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_nfvb9ejo",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_014.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_014.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_014.py::test_revealed_cell_cannot_be_revealed_again",
+                "type": "Function",
+                "lineno": 52
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_014.py::test_revealed_cell_cannot_be_revealed_again",
+            "lineno": 52,
+            "outcome": "failed",
+            "keywords": [
+              "test_revealed_cell_cannot_be_revealed_again",
+              "test_spec_014.py",
+              "unit",
+              "tests",
+              "hollow_nfvb9ejo",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005805000109830871,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004413999995449558,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_nfvb9ejo\\tests\\unit\\test_spec_014.py",
+                "lineno": 61,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_014.py",
+                  "lineno": 61,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "def test_revealed_cell_cannot_be_revealed_again():\n        # Given a revealed cell (1, 1) with adjacent_mine_count 1 in an in_progress game,\n        # elapsed_seconds 42, started_at recorded, no ended_at.\n        session = build_session_with_revealed_number_cell()\n        cells_before = copy.deepcopy(session.cells)\n    \n        # When the player attempts to reveal the same cell again.\n        # Then the action is refused by the rules.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_014.py:61: Failed"
+            },
+            "teardown": {
+              "duration": 0.000421799995820038,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

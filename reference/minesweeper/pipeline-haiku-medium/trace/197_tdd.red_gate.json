@@ -1,0 +1,147 @@
+{
+  "seq": 197,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:12",
+  "t_offset_s": 193.298,
+  "thread": "red_1",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652452.0515852,
+        "duration": 1.0742933750152588,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_002.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_002.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_002.py::test_selecting_intermediate_gives_16_rows_16_columns_40_mines",
+                "type": "Function",
+                "lineno": 5
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_002.py::test_intermediate_preset_is_not_one_step_beyond_its_limits",
+                "type": "Function",
+                "lineno": 23
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_002.py::test_selecting_intermediate_gives_16_rows_16_columns_40_mines",
+            "lineno": 5,
+            "outcome": "failed",
+            "keywords": [
+              "test_selecting_intermediate_gives_16_rows_16_columns_40_mines",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005283999926177785,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00042380001104902476,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_002.py",
+                "lineno": 9,
+                "message": "AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_002.py",
+                  "lineno": 9,
+                  "message": "in test_selecting_intermediate_gives_16_rows_16_columns_40_mines"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_002.py:9: in test_selecting_intermediate_gives_16_rows_16_columns_40_mines\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n                 ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+            },
+            "teardown": {
+              "duration": 0.0004264999879524112,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_002.py::test_intermediate_preset_is_not_one_step_beyond_its_limits",
+            "lineno": 23,
+            "outcome": "failed",
+            "keywords": [
+              "test_intermediate_preset_is_not_one_step_beyond_its_limits",
+              "test_spec_002.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003763999993680045,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000377499993192032,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_002.py",
+                "lineno": 27,
+                "message": "AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_002.py",
+                  "lineno": 27,
+                  "message": "in test_intermediate_preset_is_not_one_step_beyond_its_limits"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_002.py:27: in test_intermediate_preset_is_not_one_step_beyond_its_limits\n    difficulty = Difficulty.select_preset(name=\"Intermediate\")\n                 ^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'Difficulty' has no attribute 'select_preset'"
+            },
+            "teardown": {
+              "duration": 0.0003935999993700534,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

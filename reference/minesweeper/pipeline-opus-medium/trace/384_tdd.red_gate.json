@@ -1,0 +1,161 @@
+{
+  "seq": 384,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:32",
+  "t_offset_s": 403.477,
+  "thread": "red_23",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656612.0033007,
+        "duration": 0.6232619285583496,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+                "type": "Function",
+                "lineno": 7
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+                "type": "Function",
+                "lineno": 7
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+                "type": "Function",
+                "lineno": 7
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+            "lineno": 7,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+              "parametrize",
+              "pytestmark",
+              "beginner-game-b-1-42-2024-03-01T10:15:00Z",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001207400011480786,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00042440000106580555,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00045340000360738486,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+            "lineno": 7,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-game-i-1-137-2024-03-02T11:20:00Z",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009086000063689426,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006886000046506524,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00037560000782832503,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+            "lineno": 7,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+              "parametrize",
+              "pytestmark",
+              "expert-game-e-1-389-2024-03-03T12:25:00Z",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0019490999984554946,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00046660000225529075,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00041110000165645033,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

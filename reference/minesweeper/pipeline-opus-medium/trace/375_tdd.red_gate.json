@@ -1,0 +1,152 @@
+{
+  "seq": 375,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:31",
+  "t_offset_s": 402.664,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656611.1861386,
+        "duration": 0.672346830368042,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_028.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_028.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_028.py::test_timer_runs_while_playing_as_control",
+                "type": "Function",
+                "lineno": 71
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_lost",
+                "type": "Function",
+                "lineno": 78
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_won",
+                "type": "Function",
+                "lineno": 99
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_028.py::test_timer_runs_while_playing_as_control",
+            "lineno": 71,
+            "outcome": "passed",
+            "keywords": [
+              "test_timer_runs_while_playing_as_control",
+              "test_spec_028.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000759299990022555,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0022017000010237098,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004326000052969903,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_lost",
+            "lineno": 78,
+            "outcome": "passed",
+            "keywords": [
+              "test_timer_freezes_when_game_is_lost",
+              "test_spec_028.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005681000038748607,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001112400001147762,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00032079999800771475,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_won",
+            "lineno": 99,
+            "outcome": "passed",
+            "keywords": [
+              "test_timer_freezes_when_game_is_won",
+              "test_spec_028.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.009519800005364232,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0030544000037480146,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0011138999980175868,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

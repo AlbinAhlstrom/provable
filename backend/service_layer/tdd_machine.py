@@ -24,12 +24,13 @@ from onboarding.cst_isolator import (
 
 
 # Failures that mean the TEST is broken (not that the behavior is missing): never a valid RED.
-_BROKEN_TEST_MARKERS = (
-    "syntaxerror", "indentationerror", "importerror", "modulenotfounderror", "nameerror", "timed out",
-    "fixture '", "module 'src.",
-)
+_BROKEN_TEST_MARKERS = ("timed out", "fixture '", "module 'src.")
+# Read as whole names: a product's own refusal may end in one of them (`EmptyNameError`, expected by a valid test).
+_BROKEN_TEST_ERRORS = re.compile(
+    r"(?<![a-z])(?:syntaxerror|indentationerror|importerror|modulenotfounderror|nameerror)(?![a-z])")
 
 
+GIVEN_FAILED = "AssertionError: Given:"  # how a failed check of a test's own arrangement reads (red_test_generation.md)
 REGRESSION_TIMEOUT_S = 30  # the domain tests in tests/unit; the page's browser checks live in tests/acceptance
 
 
@@ -66,6 +67,9 @@ def evaluate_red_gate_result(
     BEHAVIOR is missing or wrong, never because the test itself is broken.
     - Exit Code 0: tautology (REJECTED).
     - Constructor misuse (TypeError in __init__), ImportError, NameError, SyntaxError, timeouts: broken test (REJECTED).
+    - An assertion whose message begins "Given:": the test's arrangement is not the one it states (REJECTED). The
+      writer asserts the facts its expectation rests on before it acts, so a state typed otherwise than planned is
+      caught here, by this run, and not by whoever implements against it.
     - AssertionError, "DID NOT RAISE", missing attribute/method, method signature mismatch: valid RED (APPROVED).
     """
     if exit_code == 0:
@@ -87,6 +91,16 @@ def evaluate_red_gate_result(
             }
 
     messages = _failure_texts(report_json)
+    for text in messages:
+        if GIVEN_FAILED in text:
+            fact = text.split(GIVEN_FAILED, 1)[1].splitlines()[0].strip()
+            return {
+                "status": "REJECTED_GIVEN",
+                "approved": False,
+                "reason": f"The test does not arrange the state it says it does, so what it expects rests on a state "
+                          f"it never built. This did not hold after the arrangement: \"{fact}\". Correct the "
+                          f"arrangement so that it does."
+            }
     for text in messages + ([stderr] if stderr else []):
         low = text.lower()
         if "typeerror" in low and "__init__" in low:
@@ -95,7 +109,7 @@ def evaluate_red_gate_result(
                 "approved": False,
                 "reason": f"Broken test, not a valid RED: the test constructs the class with arguments it does not accept ({_headline(text)}). Use only the fields listed in the class API."
             }
-        if any(marker in low for marker in _BROKEN_TEST_MARKERS):
+        if any(marker in low for marker in _BROKEN_TEST_MARKERS) or _BROKEN_TEST_ERRORS.search(low):
             return {
                 "status": "REJECTED_SYNTAX_OR_EXEC",
                 "approved": False,
@@ -213,11 +227,12 @@ class TddExecutionState:
 def run_isolated_pytest(
     test_path: str,
     cwd: str,
-    timeout_seconds: int = 5
+    timeout_seconds: int = 5,
+    extra_env: Optional[Dict[str, str]] = None
 ) -> Dict[str, Any]:
     """
     Executes Pytest with pytest-json-report and hard timeout.
-    Returns exit code, parsed report, and stdout/stderr.
+    Returns exit code, parsed report, and stdout/stderr. `extra_env` is added to the run's environment.
     """
     # One report file per run: specs' tests are run side by side (service_layer/tdd_batch.py)
     report_file = os.path.join(cwd, f".pytest_report_{uuid.uuid4().hex}.json")
@@ -225,6 +240,7 @@ def run_isolated_pytest(
     env = os.environ.copy()
     current_pythonpath = env.get("PYTHONPATH", "")
     env["PYTHONPATH"] = f"{cwd}{os.pathsep}{current_pythonpath}"
+    env.update(extra_env or {})
 
     cmd = [
         sys.executable, "-m", "pytest",
@@ -393,6 +409,9 @@ LIMIT_NOTE = ("\n- **States a limit**: yes. Rule 7 below applies to this scenari
               "the limit and one exactly at it.")
 CAREFUL_EFFORT = "medium"
 CAREFUL_TIMEOUT_S = 180.0
+# Seconds a first draft may take. The one test of a whole class of actions is among the largest answers of a build:
+# 31 s for eight actions on a quick day, cut off at the 60 s of an ordinary call on a slow one.
+RED_TIMEOUT_S = 180.0
 
 
 @traced("tdd.red_generate")
@@ -430,9 +449,10 @@ def generate_red_test(
         "interface_contract": interface_contract or "(none: no interface method has been promised for this class)",
         "feedback_block": feedback_block,
         "limit_note": LIMIT_NOTE if spec.is_mathematical_boundary else "",
+        "situation_block": f"\n- **Situation** {spec.situation}" if spec.situation else "",
         "other_rules": other_rules or "(none: this is the only rule being written for this class)",
     })
-    thought = dict(reasoning_effort=CAREFUL_EFFORT, timeout_s=CAREFUL_TIMEOUT_S) if careful else {}
+    thought = dict(reasoning_effort=CAREFUL_EFFORT, timeout_s=CAREFUL_TIMEOUT_S) if careful else dict(timeout_s=RED_TIMEOUT_S)
     raw = agent_orchestrator.call_gemini(prompt, stage="red_test_generation", **thought)
     if not raw or not raw.strip():
         reason = agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response"
@@ -496,8 +516,18 @@ def synthesize_green_class_implementation(
         if f"class {target_class_name}" in clean_code:
             return clean_code + "\n"
 
-    reason = agent_orchestrator.LAST_LLM_ERROR or f"the response did not contain a definition of class {target_class_name}"
-    raise RuntimeError(f"GREEN synthesis failed: {reason}")
+    if raw_response and raw_response.strip():
+        raise NoClassInAnswer(target_class_name, raw_response)
+    raise RuntimeError(f"GREEN synthesis failed: {agent_orchestrator.LAST_LLM_ERROR or 'the response was empty'}")
+
+
+class NoClassInAnswer(RuntimeError):
+    """The code writer answered, and the answer holds no definition of the class: it wrote words in place of code
+    (typically that the frozen test expects the wrong thing). No provider error, and no code either."""
+
+    def __init__(self, class_name: str, answer: str):
+        super().__init__(f"GREEN synthesis failed: the response did not contain a definition of class {class_name}")
+        self.answer = answer
 
 
 @dataclass
@@ -571,11 +601,16 @@ def _sent_back(reason: str, test_code: str) -> str:
 
 
 def run_red_phase(spec: BusinessSpec, target: DomainTarget, workspace_dir: str, existing_tests: str,
-                  action_manifest: Optional[Dict[str, Any]] = None, other_rules: str = "") -> RedOutcome:
+                  action_manifest: Optional[Dict[str, Any]] = None, other_rules: str = "",
+                  first_test: Optional[str] = None) -> RedOutcome:
     """The LLM writes a behavioural test from the BDD spec; the gate checks it fails for the RIGHT reason.
 
     Retry policy (.claude/rules/pipeline.md): at most ONE regeneration, only because the lint or the RED gate rejected
-    the first test, and the rejection reason is fed back to the test generator."""
+    the first test, and the rejection reason is fed back to the test generator.
+
+    `first_test` is the spec's first test when it is already written (a kickstart writes the first tests of a class
+    in one answer, `onboarding/first_tests.py`): it is judged as the first attempt, and only the regeneration is a
+    call of this spec's own. An empty one (the answer held no test for this spec) is refused like any other."""
     test_file_path = spec_test_path(spec, target.tests_dir)
     with open(target.domain_file, "r", encoding="utf-8") as f:
         current_source = f.read()
@@ -587,10 +622,10 @@ def run_red_phase(spec: BusinessSpec, target: DomainTarget, workspace_dir: str, 
     red_attempts: List[Dict[str, Any]] = []
     test_code = ""
     for red_attempt in (1, 2):
-        test_code = generate_red_test(spec, current_class, target.module_name, target.class_name,
-                                      rejection_feedback=red_feedback, existing_tests=existing_tests,
-                                      interface_contract=format_interface_contract(action_manifest, target.class_name),
-                                      other_rules=other_rules)
+        test_code = first_test if red_attempt == 1 and first_test is not None else generate_red_test(
+            spec, current_class, target.module_name, target.class_name,
+            rejection_feedback=red_feedback, existing_tests=existing_tests,
+            interface_contract=format_interface_contract(action_manifest, target.class_name), other_rules=other_rules)
         lint_ok, lint_reason = lint_red_test(test_code, require_both_sides=bool(spec.is_mathematical_boundary))
         if not lint_ok:
             red_attempts.append({"attempt": red_attempt, "approved": False, "reason": lint_reason})

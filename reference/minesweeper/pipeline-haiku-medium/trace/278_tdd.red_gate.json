@@ -1,0 +1,325 @@
+{
+  "seq": 278,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:17",
+  "t_offset_s": 198.038,
+  "thread": "red_23",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652456.8103907,
+        "duration": 0.4161379337310791,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 8,
+          "total": 8,
+          "collected": 8
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-won]",
+                "type": "Function",
+                "lineno": 71
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-lost]",
+                "type": "Function",
+                "lineno": 71
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-won]",
+                "type": "Function",
+                "lineno": 71
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-lost]",
+                "type": "Function",
+                "lineno": 71
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-won]",
+                "type": "Function",
+                "lineno": 71
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-lost]",
+                "type": "Function",
+                "lineno": 71
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py::test_same_flag_action_succeeds_while_in_progress",
+                "type": "Function",
+                "lineno": 97
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py::test_same_abandon_action_succeeds_while_in_progress",
+                "type": "Function",
+                "lineno": 114
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-won]",
+            "lineno": 71,
+            "outcome": "passed",
+            "keywords": [
+              "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-won]",
+              "parametrize",
+              "pytestmark",
+              "reveal_cell-won",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009110999963013455,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006341000116663054,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00040639999497216195,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-lost]",
+            "lineno": 71,
+            "outcome": "passed",
+            "keywords": [
+              "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-lost]",
+              "parametrize",
+              "pytestmark",
+              "reveal_cell-lost",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006753000052412972,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005799000064143911,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00038779999886173755,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-won]",
+            "lineno": 71,
+            "outcome": "passed",
+            "keywords": [
+              "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-won]",
+              "parametrize",
+              "pytestmark",
+              "toggle_flag-won",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006785999867133796,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005824999971082434,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00038600001425947994,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-lost]",
+            "lineno": 71,
+            "outcome": "passed",
+            "keywords": [
+              "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-lost]",
+              "parametrize",
+              "pytestmark",
+              "toggle_flag-lost",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007347000064328313,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000738300004741177,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003601000062189996,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-won]",
+            "lineno": 71,
+            "outcome": "passed",
+            "keywords": [
+              "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-won]",
+              "parametrize",
+              "pytestmark",
+              "abandon_game-won",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007419999892590567,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000599599996348843,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004410999972606078,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-lost]",
+            "lineno": 71,
+            "outcome": "passed",
+            "keywords": [
+              "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-lost]",
+              "parametrize",
+              "pytestmark",
+              "abandon_game-lost",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006807000027038157,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005782000080216676,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004169000021647662,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py::test_same_flag_action_succeeds_while_in_progress",
+            "lineno": 97,
+            "outcome": "passed",
+            "keywords": [
+              "test_same_flag_action_succeeds_while_in_progress",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004042999935336411,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005750999989686534,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003437999985180795,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py::test_same_abandon_action_succeeds_while_in_progress",
+            "lineno": 114,
+            "outcome": "passed",
+            "keywords": [
+              "test_same_abandon_action_succeeds_while_in_progress",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004288000054657459,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005470000032801181,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00037200000951997936,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

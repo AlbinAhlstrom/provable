@@ -14,8 +14,8 @@ One look. When the applier refuses a repair (the class text is not in the file, 
 file no longer compiles), the refused repairs go back to the reviewer once with the reason, and its corrected repairs
 are applied the same way: the one retry the policy allows, a verifier's verdict fed back (.claude/rules/pipeline.md).
 Provider and parse errors are reported, not retried, and never read as "the page is fine". Whatever is not repaired
-is listed in the result, and `unresolved()` turns it into the stage's failure: a problem a visitor would notice and
-that is still on the page degrades the build by name.
+is listed in the result and `unresolved()` puts it in words. The gates keep it as a remark on the stage
+(`page_gates.py`): the page has passed QA by then, so what is left is a matter of looks and not a failed build.
 """
 
 import os

@@ -1,0 +1,279 @@
+{
+  "seq": 125,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "behaviour.implement_actions",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:13:34",
+  "t_offset_s": 155.575,
+  "thread": "red_0",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652414.5381923,
+        "duration": 0.3631918430328369,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 5,
+          "total": 5,
+          "collected": 5
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_constructor_creates_ready_hidden_board",
+                "type": "Function",
+                "lineno": 40
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_start_new_game_replaces_board_with_fresh_hidden_expert_board",
+                "type": "Function",
+                "lineno": 74
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal",
+                "type": "Function",
+                "lineno": 127
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell",
+                "type": "Function",
+                "lineno": 177
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_abandon_game_refuses_won_game_then_abandons_in_progress_game",
+                "type": "Function",
+                "lineno": 227
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_constructor_creates_ready_hidden_board",
+            "lineno": 40,
+            "outcome": "failed",
+            "keywords": [
+              "test_constructor_creates_ready_hidden_board",
+              "test_spec_act_gamesession.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003040000010514632,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00046460000157821923,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+                "lineno": 62,
+                "message": "AssertionError: assert 0 == 81\n +  where 0 = len([])\n +    where [] = GameSession(id='s1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='ready', flag_count=0, elapsed_seconds=0, started_at=None, ended_at=None, cells=[], events=[]).cells"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_gamesession.py",
+                  "lineno": 62,
+                  "message": "in test_constructor_creates_ready_hidden_board"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_gamesession.py:62: in test_constructor_creates_ready_hidden_board\n    assert len(session.cells) == 81\nE   AssertionError: assert 0 == 81\nE    +  where 0 = len([])\nE    +    where [] = GameSession(id='s1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='ready', flag_count=0, elapsed_seconds=0, started_at=None, ended_at=None, cells=[], events=[]).cells"
+            },
+            "teardown": {
+              "duration": 0.00022539999918080866,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_start_new_game_replaces_board_with_fresh_hidden_expert_board",
+            "lineno": 74,
+            "outcome": "failed",
+            "keywords": [
+              "test_start_new_game_replaces_board_with_fresh_hidden_expert_board",
+              "test_spec_act_gamesession.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000195399989024736,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002182000025641173,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+                "lineno": 83,
+                "message": "KeyError: (0, 0)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_gamesession.py",
+                  "lineno": 83,
+                  "message": "in test_start_new_game_replaces_board_with_fresh_hidden_expert_board"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_gamesession.py:83: in test_start_new_game_replaces_board_with_fresh_hidden_expert_board\n    _index(session)[(0, 0)][\"state\"] = \"revealed\"\n    ^^^^^^^^^^^^^^^^^^^^^^^\nE   KeyError: (0, 0)"
+            },
+            "teardown": {
+              "duration": 0.00021659999038092792,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal",
+            "lineno": 127,
+            "outcome": "failed",
+            "keywords": [
+              "test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal",
+              "test_spec_act_gamesession.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00019099999917671084,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0001970999874174595,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+                "lineno": 131,
+                "message": "KeyError: (0, 0)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_gamesession.py",
+                  "lineno": 131,
+                  "message": "in test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_gamesession.py:131: in test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal\n    _index(session)[(0, 0)][\"state\"] = \"flagged\"\n    ^^^^^^^^^^^^^^^^^^^^^^^\nE   KeyError: (0, 0)"
+            },
+            "teardown": {
+              "duration": 0.00020929999300278723,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell",
+            "lineno": 177,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell",
+              "test_spec_act_gamesession.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00018369998724665493,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00020680000307038426,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+                "lineno": 186,
+                "message": "KeyError: (0, 1)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_gamesession.py",
+                  "lineno": 186,
+                  "message": "in test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_gamesession.py:186: in test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell\n    _index(session)[(0, 1)][\"state\"] = \"revealed\"\n    ^^^^^^^^^^^^^^^^^^^^^^^\nE   KeyError: (0, 1)"
+            },
+            "teardown": {
+              "duration": 0.00018879999697674066,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_abandon_game_refuses_won_game_then_abandons_in_progress_game",
+            "lineno": 227,
+            "outcome": "failed",
+            "keywords": [
+              "test_abandon_game_refuses_won_game_then_abandons_in_progress_game",
+              "test_spec_act_gamesession.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000182400006451644,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000385499995900318,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+                "lineno": 248,
+                "message": "AssertionError: assert 'AttributeError' == 'ActionNotAllowedError'\n  \n  - ActionNotAllowedError\n  + AttributeError"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_gamesession.py",
+                  "lineno": 248,
+                  "message": "in test_abandon_game_refuses_won_game_then_abandons_in_progress_game"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_gamesession.py:248: in test_abandon_game_refuses_won_game_then_abandons_in_progress_game\n    assert type(exc_info.value).__name__ == \"ActionNotAllowedError\"\nE   AssertionError: assert 'AttributeError' == 'ActionNotAllowedError'\nE     \nE     - ActionNotAllowedError\nE     + AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00021300000662449747,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

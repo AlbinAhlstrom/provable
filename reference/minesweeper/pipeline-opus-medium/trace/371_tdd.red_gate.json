@@ -1,0 +1,1716 @@
+{
+  "seq": 371,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:30",
+  "t_offset_s": 401.344,
+  "thread": "red_7",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656609.3740673,
+        "duration": 3.0627503395080566,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf",
+        "environment": {},
+        "summary": {
+          "failed": 36,
+          "total": 36,
+          "collected": 36
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_008.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Ready]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Playing]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Won]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Lost]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Abandoned]",
+                "type": "Function",
+                "lineno": 176
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[width-exactly-9]",
+                "type": "Function",
+                "lineno": 210
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[width-exactly-30]",
+                "type": "Function",
+                "lineno": 210
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[height-exactly-9]",
+                "type": "Function",
+                "lineno": 210
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[height-exactly-24]",
+                "type": "Function",
+                "lineno": 210
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[mines-exactly-10]",
+                "type": "Function",
+                "lineno": 210
+              },
+              {
+                "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[mines-exactly-64]",
+                "type": "Function",
+                "lineno": 210
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Ready]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Ready]",
+              "parametrize",
+              "pytestmark",
+              "width-below-9-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011188000062247738,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012076999992132187,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Ready', width = 8, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0006162999925436452,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Playing]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Playing]",
+              "parametrize",
+              "pytestmark",
+              "width-below-9-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009682999952929094,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013261999993119389,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Playing', width = 8, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0004788999940501526,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Won]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Won]",
+              "parametrize",
+              "pytestmark",
+              "width-below-9-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000901999999769032,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013432000123430043,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Won', width = 8, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0004934000025968999,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Lost]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Lost]",
+              "parametrize",
+              "pytestmark",
+              "width-below-9-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009102000040002167,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001285300008021295,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Lost', width = 8, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0007727999909548089,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Abandoned]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-below-9-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "width-below-9-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.002971499998238869,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001512399991042912,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Abandoned', width = 8, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.00044100001105107367,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Ready]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Ready]",
+              "parametrize",
+              "pytestmark",
+              "width-above-30-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001146900001913309,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011374000023351982,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Ready', width = 31, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0004970000009052455,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Playing]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Playing]",
+              "parametrize",
+              "pytestmark",
+              "width-above-30-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010239999974146485,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0015067000058479607,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Playing', width = 31, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.000676499999826774,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Won]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Won]",
+              "parametrize",
+              "pytestmark",
+              "width-above-30-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009724999981699511,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013691999920411035,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Won', width = 31, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0005347999976947904,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Lost]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Lost]",
+              "parametrize",
+              "pytestmark",
+              "width-above-30-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0025664999993750826,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0015007999900262803,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Lost', width = 31, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.00045789999421685934,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Abandoned]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[width-above-30-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "width-above-30-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009252000018022954,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0015451000072062016,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Abandoned', width = 31, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0005404999974416569,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Ready]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Ready]",
+              "parametrize",
+              "pytestmark",
+              "height-below-9-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010863000061362982,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001559700001962483,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Ready', width = 9, height = 8, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0006591999990632758,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Playing]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Playing]",
+              "parametrize",
+              "pytestmark",
+              "height-below-9-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0018416999955661595,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012817999959224835,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Playing', width = 9, height = 8, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0007010999979684129,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Won]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Won]",
+              "parametrize",
+              "pytestmark",
+              "height-below-9-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009585999941918999,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0018680999928619713,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Won', width = 9, height = 8, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0005209999944781885,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Lost]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Lost]",
+              "parametrize",
+              "pytestmark",
+              "height-below-9-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009213000012096018,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001399499989929609,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Lost', width = 9, height = 8, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0006139000033726916,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Abandoned]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-below-9-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "height-below-9-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008980999991763383,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001570799999171868,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Abandoned', width = 9, height = 8, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.00045259999751579016,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Ready]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Ready]",
+              "parametrize",
+              "pytestmark",
+              "height-above-24-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009260000078938901,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012937999999849126,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Ready', width = 9, height = 25, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0004245000018272549,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Playing]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Playing]",
+              "parametrize",
+              "pytestmark",
+              "height-above-24-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009597000025678426,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012435000098776072,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Playing', width = 9, height = 25, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.000497799992444925,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Won]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Won]",
+              "parametrize",
+              "pytestmark",
+              "height-above-24-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000825099996291101,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012787000014213845,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Won', width = 9, height = 25, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0005068000027677044,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Lost]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Lost]",
+              "parametrize",
+              "pytestmark",
+              "height-above-24-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0020464999979594722,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012463000020943582,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Lost', width = 9, height = 25, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0004591000033542514,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Abandoned]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[height-above-24-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "height-above-24-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011273999989498407,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013570999872172251,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Abandoned', width = 9, height = 25, mine_count = 10\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.00042639998719096184,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Ready]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Ready]",
+              "parametrize",
+              "pytestmark",
+              "mines-below-10-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000992499990388751,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012672000011662021,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Ready', width = 9, height = 9, mine_count = 9\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.00046329999167937785,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Playing]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Playing]",
+              "parametrize",
+              "pytestmark",
+              "mines-below-10-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009279999940190464,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012528000079328194,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Playing', width = 9, height = 9, mine_count = 9\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.00048600000445730984,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Won]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Won]",
+              "parametrize",
+              "pytestmark",
+              "mines-below-10-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008495000074617565,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013235000078566372,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Won', width = 9, height = 9, mine_count = 9\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.00046350000775419176,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Lost]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Lost]",
+              "parametrize",
+              "pytestmark",
+              "mines-below-10-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011969999904977158,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013543000095523894,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Lost', width = 9, height = 9, mine_count = 9\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.00039879999530967325,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Abandoned]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-below-10-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "mines-below-10-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008873999904608354,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001559399999678135,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Abandoned', width = 9, height = 9, mine_count = 9\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.000714000008883886,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Ready]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Ready]",
+              "parametrize",
+              "pytestmark",
+              "mines-above-(9-1)x(9-1)=64-Ready",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008317000028910115,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010584000119706616,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Ready', width = 9, height = 9, mine_count = 65\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.00042749999556690454,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Playing]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Playing]",
+              "parametrize",
+              "pytestmark",
+              "mines-above-(9-1)x(9-1)=64-Playing",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008015999919734895,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012466000043787062,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Playing', width = 9, height = 9, mine_count = 65\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0008677000005263835,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Won]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Won]",
+              "parametrize",
+              "pytestmark",
+              "mines-above-(9-1)x(9-1)=64-Won",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008377999911317602,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013383000041358173,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Won', width = 9, height = 9, mine_count = 65\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.00040720000106375664,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Lost]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Lost]",
+              "parametrize",
+              "pytestmark",
+              "mines-above-(9-1)x(9-1)=64-Lost",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001072400002158247,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013696999958483502,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Lost', width = 9, height = 9, mine_count = 65\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.00045760000648442656,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Abandoned]",
+            "lineno": 176,
+            "outcome": "failed",
+            "keywords": [
+              "test_invalid_custom_is_refused_and_leaves_game_unchanged[mines-above-(9-1)x(9-1)=64-Abandoned]",
+              "parametrize",
+              "pytestmark",
+              "mines-above-(9-1)x(9-1)=64-Abandoned",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008040000102482736,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001389600001857616,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 185,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 185,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Abandoned', width = 9, height = 9, mine_count = 65\n\n    @pytest.mark.parametrize(\"status\", STATUSES)\n    @pytest.mark.parametrize(\"width,height,mine_count\", REFUSED)\n    def test_invalid_custom_is_refused_and_leaves_game_unchanged(\n        status, width, height, mine_count\n    ):\n        game = _game_in(status)\n        before = _snapshot(game)\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_008.py:185: Failed"
+            },
+            "teardown": {
+              "duration": 0.0005606000049738213,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[width-exactly-9]",
+            "lineno": 210,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[width-exactly-9]",
+              "parametrize",
+              "pytestmark",
+              "width-exactly-9",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010309999925084412,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004935999895678833,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 224,
+                "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 224,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "width = 9, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"width,height,mine_count\", ACCEPTED)\n    def test_custom_exactly_at_limits_is_accepted(width, height, mine_count):\n        game = _game_in(\"Ready\")\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\",\n            width=width,\n            height=height,\n            mine_count=mine_count,\n        )\n    \n        # Every value is within its inclusive limits, so no error is raised and a\n        # new game with the chosen configuration is returned in its starting state.\n>       assert new_game.id != game.id\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_008.py:224: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0005051000043749809,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[width-exactly-30]",
+            "lineno": 210,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[width-exactly-30]",
+              "parametrize",
+              "pytestmark",
+              "width-exactly-30",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008895999926608056,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005702000053133816,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 224,
+                "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 224,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "width = 30, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"width,height,mine_count\", ACCEPTED)\n    def test_custom_exactly_at_limits_is_accepted(width, height, mine_count):\n        game = _game_in(\"Ready\")\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\",\n            width=width,\n            height=height,\n            mine_count=mine_count,\n        )\n    \n        # Every value is within its inclusive limits, so no error is raised and a\n        # new game with the chosen configuration is returned in its starting state.\n>       assert new_game.id != game.id\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_008.py:224: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00040360000275541097,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[height-exactly-9]",
+            "lineno": 210,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[height-exactly-9]",
+              "parametrize",
+              "pytestmark",
+              "height-exactly-9",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007822999905329198,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000490999998874031,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 224,
+                "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 224,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "width = 9, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"width,height,mine_count\", ACCEPTED)\n    def test_custom_exactly_at_limits_is_accepted(width, height, mine_count):\n        game = _game_in(\"Ready\")\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\",\n            width=width,\n            height=height,\n            mine_count=mine_count,\n        )\n    \n        # Every value is within its inclusive limits, so no error is raised and a\n        # new game with the chosen configuration is returned in its starting state.\n>       assert new_game.id != game.id\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_008.py:224: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00039990000368561596,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[height-exactly-24]",
+            "lineno": 210,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[height-exactly-24]",
+              "parametrize",
+              "pytestmark",
+              "height-exactly-24",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007294999959412962,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004182999982731417,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 224,
+                "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 224,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "width = 9, height = 24, mine_count = 10\n\n    @pytest.mark.parametrize(\"width,height,mine_count\", ACCEPTED)\n    def test_custom_exactly_at_limits_is_accepted(width, height, mine_count):\n        game = _game_in(\"Ready\")\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\",\n            width=width,\n            height=height,\n            mine_count=mine_count,\n        )\n    \n        # Every value is within its inclusive limits, so no error is raised and a\n        # new game with the chosen configuration is returned in its starting state.\n>       assert new_game.id != game.id\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_008.py:224: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0004112999886274338,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[mines-exactly-10]",
+            "lineno": 210,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[mines-exactly-10]",
+              "parametrize",
+              "pytestmark",
+              "mines-exactly-10",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007763999892631546,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00040589999116491526,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 224,
+                "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 224,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "width = 9, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"width,height,mine_count\", ACCEPTED)\n    def test_custom_exactly_at_limits_is_accepted(width, height, mine_count):\n        game = _game_in(\"Ready\")\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\",\n            width=width,\n            height=height,\n            mine_count=mine_count,\n        )\n    \n        # Every value is within its inclusive limits, so no error is raised and a\n        # new game with the chosen configuration is returned in its starting state.\n>       assert new_game.id != game.id\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_008.py:224: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0004096000047866255,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_008.py::test_custom_exactly_at_limits_is_accepted[mines-exactly-64]",
+            "lineno": 210,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_exactly_at_limits_is_accepted[mines-exactly-64]",
+              "parametrize",
+              "pytestmark",
+              "mines-exactly-64",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "hollow_rdhyxicf",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007762999885017052,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004790999955730513,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_rdhyxicf\\tests\\unit\\test_spec_008.py",
+                "lineno": 224,
+                "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 224,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "width = 9, height = 9, mine_count = 64\n\n    @pytest.mark.parametrize(\"width,height,mine_count\", ACCEPTED)\n    def test_custom_exactly_at_limits_is_accepted(width, height, mine_count):\n        game = _game_in(\"Ready\")\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\",\n            width=width,\n            height=height,\n            mine_count=mine_count,\n        )\n    \n        # Every value is within its inclusive limits, so no error is raised and a\n        # new game with the chosen configuration is returned in its starting state.\n>       assert new_game.id != game.id\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_008.py:224: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.00044830000842921436,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

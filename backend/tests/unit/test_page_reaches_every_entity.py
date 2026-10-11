@@ -58,7 +58,7 @@ def test_the_page_is_written_knowing_every_created_class_and_client(tmp_path, mo
     """
     build_and_write_skeleton(STRUCTURE, target_dir=str(tmp_path))
     prompts = []
-    monkeypatch.setattr(presentation, "call_gemini", lambda prompt, stage="": prompts.append(prompt) or "")
+    monkeypatch.setattr(presentation, "call_gemini", lambda prompt, stage="", **_: prompts.append(prompt) or "")
     presentation.synthesize_and_write_presentation_projection(
         pitch="a tool for a plumbing company", structure=STRUCTURE, inbox_specs=[], workspace_dir=str(tmp_path),
         action_manifest=MANIFEST, ux_blueprint="plan")

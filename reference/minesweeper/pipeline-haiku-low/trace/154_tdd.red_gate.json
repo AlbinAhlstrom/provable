@@ -1,0 +1,113 @@
+{
+  "seq": 154,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.679,
+  "thread": "red_8",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652645.046907,
+        "duration": 0.9284069538116455,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_009.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_009.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_009.py::test_revealing_a_mine_loses_the_game_and_shows_all_mines",
+                "type": "Function",
+                "lineno": 53
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_009.py::test_revealing_a_mine_loses_the_game_and_shows_all_mines",
+            "lineno": 53,
+            "outcome": "failed",
+            "keywords": [
+              "test_revealing_a_mine_loses_the_game_and_shows_all_mines",
+              "test_spec_009.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005524000007426366,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006814999942434952,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\game.py",
+                "lineno": 219,
+                "message": "TypeError: can't subtract offset-naive and offset-aware datetimes"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_009.py",
+                  "lineno": 60,
+                  "message": "in test_revealing_a_mine_loses_the_game_and_shows_all_mines"
+                },
+                {
+                  "path": "src\\domain\\game.py",
+                  "lineno": 97,
+                  "message": "in reveal_cell"
+                },
+                {
+                  "path": "src\\domain\\game.py",
+                  "lineno": 219,
+                  "message": "in _finish"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_009.py:60: in test_revealing_a_mine_loses_the_game_and_shows_all_mines\n    game.reveal_cell(row=0, column=0)\nsrc\\domain\\game.py:97: in reveal_cell\n    self._finish(\"lost\")\nsrc\\domain\\game.py:219: in _finish\n    self.elapsed_seconds = int((finished - started).total_seconds())\n                                ^^^^^^^^^^^^^^^^^^\nE   TypeError: can't subtract offset-naive and offset-aware datetimes"
+            },
+            "teardown": {
+              "duration": 0.00043030000233557075,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

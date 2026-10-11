@@ -1,0 +1,278 @@
+{
+  "seq": 369,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:29",
+  "t_offset_s": 400.509,
+  "thread": "red_13",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_049.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 7 items\n\ntests\\unit\\test_spec_049.py::test_hidden_to_flagged_and_back_to_hidden PASSED [ 14%]\ntests\\unit\\test_spec_049.py::test_hidden_safe_cell_becomes_opened PASSED [ 28%]\ntests\\unit\\test_spec_049.py::test_hidden_mine_cell_becomes_detonated PASSED [ 42%]\ntests\\unit\\test_spec_049.py::test_opened_cell_never_becomes_flagged_or_hidden PASSED [ 57%]\ntests\\unit\\test_spec_049.py::test_detonated_cell_never_becomes_flagged_or_hidden PASSED [ 71%]\ntests\\unit\\test_spec_049.py::test_flagged_cell_cannot_become_opened_directly PASSED [ 85%]\ntests\\unit\\test_spec_049.py::test_flagged_mine_cell_cannot_become_detonated_directly PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_e0dca45a3b0e4bf7b4d8cea13c5c7226.json\n============================== 7 passed in 0.70s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656615.5169773,
+      "duration": 0.681342363357544,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 7,
+        "total": 7,
+        "collected": 7
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_049.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_049.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_049.py::test_hidden_to_flagged_and_back_to_hidden",
+              "type": "Function",
+              "lineno": 58
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_049.py::test_hidden_safe_cell_becomes_opened",
+              "type": "Function",
+              "lineno": 74
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_049.py::test_hidden_mine_cell_becomes_detonated",
+              "type": "Function",
+              "lineno": 87
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_049.py::test_opened_cell_never_becomes_flagged_or_hidden",
+              "type": "Function",
+              "lineno": 97
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_049.py::test_detonated_cell_never_becomes_flagged_or_hidden",
+              "type": "Function",
+              "lineno": 113
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_049.py::test_flagged_cell_cannot_become_opened_directly",
+              "type": "Function",
+              "lineno": 130
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_049.py::test_flagged_mine_cell_cannot_become_detonated_directly",
+              "type": "Function",
+              "lineno": 143
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_049.py::test_hidden_to_flagged_and_back_to_hidden",
+          "lineno": 58,
+          "outcome": "passed",
+          "keywords": [
+            "test_hidden_to_flagged_and_back_to_hidden",
+            "test_spec_049.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0015034999960334972,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008728999964660034,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004199999966658652,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_049.py::test_hidden_safe_cell_becomes_opened",
+          "lineno": 74,
+          "outcome": "passed",
+          "keywords": [
+            "test_hidden_safe_cell_becomes_opened",
+            "test_spec_049.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00039399998786393553,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0009531999967293814,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00031600000511389226,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_049.py::test_hidden_mine_cell_becomes_detonated",
+          "lineno": 87,
+          "outcome": "passed",
+          "keywords": [
+            "test_hidden_mine_cell_becomes_detonated",
+            "test_spec_049.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003899000003002584,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008889999880921096,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003026000049430877,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_049.py::test_opened_cell_never_becomes_flagged_or_hidden",
+          "lineno": 97,
+          "outcome": "passed",
+          "keywords": [
+            "test_opened_cell_never_becomes_flagged_or_hidden",
+            "test_spec_049.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00043819998973049223,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008046000002650544,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003519000019878149,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_049.py::test_detonated_cell_never_becomes_flagged_or_hidden",
+          "lineno": 113,
+          "outcome": "passed",
+          "keywords": [
+            "test_detonated_cell_never_becomes_flagged_or_hidden",
+            "test_spec_049.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006028999923728406,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00229869999748189,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0007512000011047348,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_049.py::test_flagged_cell_cannot_become_opened_directly",
+          "lineno": 130,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagged_cell_cannot_become_opened_directly",
+            "test_spec_049.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000596500001847744,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000865399997564964,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003724999987753108,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_049.py::test_flagged_mine_cell_cannot_become_detonated_directly",
+          "lineno": 143,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagged_mine_cell_cannot_become_detonated_directly",
+            "test_spec_049.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000567299997783266,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0009350000036647543,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0006472000095527619,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 6.437
+}

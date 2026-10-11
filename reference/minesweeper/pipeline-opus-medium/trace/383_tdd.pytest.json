@@ -1,0 +1,154 @@
+{
+  "seq": 383,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:32",
+  "t_offset_s": 403.348,
+  "thread": "red_9",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_9j_2gdhw\\tests\\unit\\test_spec_029.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_9j_2gdhw"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_9j_2gdhw\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 2 items\n\ntests\\unit\\test_spec_029.py FF                                           [100%]\n\n================================== FAILURES ===================================\n____________ test_opening_a_hidden_mine_in_playing_game_loses[8-4] ____________\n\nrow = 8, column = 4\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (8, 4),  # mine on the bottom edge\n            (4, 4),  # interior mine\n        ],\n    )\n    def test_opening_a_hidden_mine_in_playing_game_loses(row, column):\n        game = _playing_game()\n        assert _cell(game, row, column)[\"has_mine\"] is True\n        assert _cell(game, row, column)[\"state\"] == \"Hidden\"\n    \n        game.open_cell(row=row, column=column)\n    \n        # The opened cell holds a mine and was Hidden: Hidden -> Detonated is allowed,\n        # so the cell becomes Detonated.\n>       assert _cell(game, row, column)[\"state\"] == \"Detonated\"\nE       AssertionError: assert 'Hidden' == 'Detonated'\nE         \nE         - Detonated\nE         + Hidden\n\ntests\\unit\\test_spec_029.py:81: AssertionError\n____________ test_opening_a_hidden_mine_in_playing_game_loses[4-4] ____________\n\nrow = 4, column = 4\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (8, 4),  # mine on the bottom edge\n            (4, 4),  # interior mine\n        ],\n    )\n    def test_opening_a_hidden_mine_in_playing_game_loses(row, column):\n        game = _playing_game()\n        assert _cell(game, row, column)[\"has_mine\"] is True\n        assert _cell(game, row, column)[\"state\"] == \"Hidden\"\n    \n        game.open_cell(row=row, column=column)\n    \n        # The opened cell holds a mine and was Hidden: Hidden -> Detonated is allowed,\n        # so the cell becomes Detonated.\n>       assert _cell(game, row, column)[\"state\"] == \"Detonated\"\nE       AssertionError: assert 'Hidden' == 'Detonated'\nE         \nE         - Detonated\nE         + Hidden\n\ntests\\unit\\test_spec_029.py:81: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_9j_2gdhw\\.pytest_report_dfab96d4d61a48888dfa6aeb5d836cd6.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_029.py::test_opening_a_hidden_mine_in_playing_game_loses[8-4]\nFAILED tests/unit/test_spec_029.py::test_opening_a_hidden_mine_in_playing_game_loses[4-4]\n============================== 2 failed in 1.47s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656617.9319315,
+      "duration": 1.1268000602722168,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_9j_2gdhw",
+      "environment": {},
+      "summary": {
+        "failed": 2,
+        "total": 2,
+        "collected": 2
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_029.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_029.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_029.py::test_opening_a_hidden_mine_in_playing_game_loses[8-4]",
+              "type": "Function",
+              "lineno": 64
+            },
+            {
+              "nodeid": "tests/unit/test_spec_029.py::test_opening_a_hidden_mine_in_playing_game_loses[4-4]",
+              "type": "Function",
+              "lineno": 64
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_029.py::test_opening_a_hidden_mine_in_playing_game_loses[8-4]",
+          "lineno": 64,
+          "outcome": "failed",
+          "keywords": [
+            "test_opening_a_hidden_mine_in_playing_game_loses[8-4]",
+            "parametrize",
+            "pytestmark",
+            "8-4",
+            "test_spec_029.py",
+            "unit",
+            "tests",
+            "hollow_9j_2gdhw",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0009369999897899106,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001098200009437278,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_9j_2gdhw\\tests\\unit\\test_spec_029.py",
+              "lineno": 81,
+              "message": "AssertionError: assert 'Hidden' == 'Detonated'\n  \n  - Detonated\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_029.py",
+                "lineno": 81,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 8, column = 4\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (8, 4),  # mine on the bottom edge\n            (4, 4),  # interior mine\n        ],\n    )\n    def test_opening_a_hidden_mine_in_playing_game_loses(row, column):\n        game = _playing_game()\n        assert _cell(game, row, column)[\"has_mine\"] is True\n        assert _cell(game, row, column)[\"state\"] == \"Hidden\"\n    \n        game.open_cell(row=row, column=column)\n    \n        # The opened cell holds a mine and was Hidden: Hidden -> Detonated is allowed,\n        # so the cell becomes Detonated.\n>       assert _cell(game, row, column)[\"state\"] == \"Detonated\"\nE       AssertionError: assert 'Hidden' == 'Detonated'\nE         \nE         - Detonated\nE         + Hidden\n\ntests\\unit\\test_spec_029.py:81: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004655999946407974,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_029.py::test_opening_a_hidden_mine_in_playing_game_loses[4-4]",
+          "lineno": 64,
+          "outcome": "failed",
+          "keywords": [
+            "test_opening_a_hidden_mine_in_playing_game_loses[4-4]",
+            "parametrize",
+            "pytestmark",
+            "4-4",
+            "test_spec_029.py",
+            "unit",
+            "tests",
+            "hollow_9j_2gdhw",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0009659000061219558,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0012898999993922189,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_9j_2gdhw\\tests\\unit\\test_spec_029.py",
+              "lineno": 81,
+              "message": "AssertionError: assert 'Hidden' == 'Detonated'\n  \n  - Detonated\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_029.py",
+                "lineno": 81,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 4, column = 4\n\n    @pytest.mark.parametrize(\n        \"row, column\",\n        [\n            (8, 4),  # mine on the bottom edge\n            (4, 4),  # interior mine\n        ],\n    )\n    def test_opening_a_hidden_mine_in_playing_game_loses(row, column):\n        game = _playing_game()\n        assert _cell(game, row, column)[\"has_mine\"] is True\n        assert _cell(game, row, column)[\"state\"] == \"Hidden\"\n    \n        game.open_cell(row=row, column=column)\n    \n        # The opened cell holds a mine and was Hidden: Hidden -> Detonated is allowed,\n        # so the cell becomes Detonated.\n>       assert _cell(game, row, column)[\"state\"] == \"Detonated\"\nE       AssertionError: assert 'Hidden' == 'Detonated'\nE         \nE         - Detonated\nE         + Hidden\n\ntests\\unit\\test_spec_029.py:81: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00047620000259485096,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 6.449
+}

@@ -6,10 +6,11 @@ Usage:
     python scripts/trace_report.py <run> [--full N]    <run> is a run id, a run folder or a bare trace folder
     python scripts/trace_report.py --list              one line per recorded run, newest last
     python scripts/trace_report.py --compare A B       what changed between two runs (code version, stages, files)
+    python scripts/trace_report.py --backfill-costs    price the runs recorded before costs were stored, from their trace
 
 The report shows the verdict, where the wall time went, each stage (when it started, status, time, the files it wrote
 with their line counts, why it failed), what the visual review saw and repaired, the generated frontend's files that nothing imports,
-LLM totals per stage (with hidden reasoning tokens and output speed) and the traced call tree on a timeline.
+LLM totals per stage (with hidden reasoning tokens, output speed and cost in SEK) and the traced call tree on a timeline.
 `--full N` prints the complete input/output of traced step N (the prompt and the raw answer for an LLM call).
 """
 import collections
@@ -42,6 +43,13 @@ def resolve(arg):
     return None, folder
 
 
+def _sek(llm):
+    """A run's or a stage's cost as text: empty for a summary written before costs were stored."""
+    if "cost_sek" not in llm:
+        return ""
+    return "cost unknown" if llm["cost_sek"] is None else f"{llm['cost_sek']:.2f} SEK"
+
+
 def traces(trace_dir):
     return [_load(f) for f in sorted(glob.glob(os.path.join(trace_dir, "*.json")))]
 
@@ -51,9 +59,9 @@ def list_runs():
         path = os.path.join(RUNS, name, "summary.json")
         if os.path.exists(path):
             s = _load(path)
-            print(f"{s['status']:9} {s['duration_s']:7.1f}s  {s['llm']['calls']:3d} LLM calls  {name}")
+            print(f"{s['status']:9} {s['duration_s']:7.1f}s  {s['llm']['calls']:3d} LLM calls  {_sek(s['llm']):>12}  {name}")
         else:
-            print(f"{'(open)':9} {'':8}  {'':14}  {name}")
+            print(f"{'(open)':9} {'':8}  {'':14}  {'':12}  {name}")
 
 
 def show_run(folder, trace_dir):
@@ -111,10 +119,15 @@ def show_run(folder, trace_dir):
               f"{llm['completion_tokens']} completion tokens"
               + (f" + {llm['reasoning_tokens']} hidden reasoning" if llm.get("reasoning_tokens") else "")
               + f", {llm['total_s']}s summed over calls (calls overlap, so this can exceed the wall time)")
+        if "cost_sek" in llm:
+            print(f"COST {_sek(llm)}"
+                  + (f" ({llm['cost_usd']:.4f} USD at {llm['usd_to_sek']} SEK, prices of {llm['prices_as_of']}"
+                     f", {llm['cached_tokens']} prompt tokens were cache hits)" if llm["cost_sek"] is not None else "")
+                  + (f"  no price for: {', '.join(llm['unpriced_models'])} (backend/llm_cost.py)" if llm["unpriced_models"] else ""))
         for stage_name, b in sorted(llm["by_stage"].items(), key=lambda kv: -kv[1]["total_s"]):
             speed = f"{b['completion_tokens'] / b['total_s']:>5.0f} tok/s" if b["total_s"] else ""
             print(f"  {stage_name:<34} {b['calls']:2d} calls {b['total_s']:>7.1f}s {b['prompt_tokens']:>7} in {b['completion_tokens']:>6} out"
-                  + (f" {b['reasoning_tokens']:>6} reasoning" if b.get("reasoning_tokens") else "") + f" {speed}"
+                  + (f" {b['reasoning_tokens']:>6} reasoning" if b.get("reasoning_tokens") else "") + f" {speed} {_sek(b):>10}"
                   + (f"  {b['errors']} ERRORS" if b["errors"] else ""))
     print("\nTRACE")
     show_trace(traces(trace_dir))
@@ -186,6 +199,8 @@ def compare(a_arg, b_arg):
     print(f"duration  {sa['duration_s']}s -> {sb['duration_s']}s")
     print(f"LLM       {sa['llm']['calls']} calls / {sa['llm']['prompt_tokens'] + sa['llm']['completion_tokens']} tok -> "
           f"{sb['llm']['calls']} calls / {sb['llm']['prompt_tokens'] + sb['llm']['completion_tokens']} tok")
+    if _sek(sa["llm"]) or _sek(sb["llm"]):
+        print(f"cost      {_sek(sa['llm']) or '(not recorded)'} -> {_sek(sb['llm']) or '(not recorded)'}")
     inv_a, inv_b = ((s.get("result") or {}).get("app_inventory") for s in (sa, sb))
     if inv_a or inv_b:
         shown = [f"{i['reachable_lines']} reached + {i['unreachable_lines']} unreachable lines" if i else "(not recorded)"
@@ -216,6 +231,12 @@ def main():
     if "-h" in args or "--help" in args:
         sys.exit(__doc__)
     if "--list" in args:
+        return list_runs()
+    if "--backfill-costs" in args:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "backend"))
+        import run_recorder
+        priced = run_recorder.backfill_costs()
+        print(f"priced {len(priced)} run(s)")
         return list_runs()
     if "--compare" in args:
         rest = [a for a in args if a != "--compare"]

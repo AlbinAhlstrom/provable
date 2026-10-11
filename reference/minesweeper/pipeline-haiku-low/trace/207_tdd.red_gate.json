@@ -1,0 +1,104 @@
+{
+  "seq": 207,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 5,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.reconsider_test",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:18:34",
+  "t_offset_s": 158.345,
+  "thread": "reconsider_2",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652713.8371458,
+        "duration": 0.15599822998046875,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_0nafmlqq",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_010.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_010.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_010.py::test_revealing_last_safe_cell_wins_and_flags_remaining_mines",
+                "type": "Function",
+                "lineno": 48
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_010.py::test_revealing_last_safe_cell_wins_and_flags_remaining_mines",
+            "lineno": 48,
+            "outcome": "failed",
+            "keywords": [
+              "test_revealing_last_safe_cell_wins_and_flags_remaining_mines",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "hollow_0nafmlqq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00030499999411404133,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00038100000529084355,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_0nafmlqq\\tests\\unit\\test_spec_010.py",
+                "lineno": 61,
+                "message": "AssertionError: assert 'in_progress' == 'won'\n  \n  - won\n  + in_progress"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_010.py",
+                  "lineno": 61,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_revealing_last_safe_cell_wins_and_flags_remaining_mines():\n        # Given an in-progress game where the only hidden safe cell is (1,1),\n        # the mine at (0,0) is still hidden, and the session started at STARTED.\n        game = build_in_progress_game_one_safe_cell_left()\n    \n        # When the last non-mine cell (1,1) is revealed at the moment WON_AT.\n        # Revealing (1,1) is a hidden, unflagged, safe cell on an in-progress game,\n        # so the reveal is accepted. Once it is opened, every non-mine cell\n        # (0,1), (1,0), (1,1) is revealed, so the session is won.\n        game.reveal_cell(row=1, column=1, now=WON_AT)\n    \n        # Then the status becomes \"won\", because every non-mine cell is revealed.\n>       assert game.status == \"won\"\nE       AssertionError: assert 'in_progress' == 'won'\nE         \nE         - won\nE         + in_progress\n\ntests\\unit\\test_spec_010.py:61: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00026169999910052866,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

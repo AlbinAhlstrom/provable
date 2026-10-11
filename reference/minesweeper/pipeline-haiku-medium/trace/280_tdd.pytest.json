@@ -1,0 +1,424 @@
+{
+  "seq": 280,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:17",
+  "t_offset_s": 198.113,
+  "thread": "red_23",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv\\tests\\unit\\test_spec_032.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 8 items\n\ntests\\unit\\test_spec_032.py FFFFFFFF                                     [100%]\n\n================================== FAILURES ===================================\n_ test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-won] _\n\nended_status = 'won', action = 'reveal_cell'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed\n_ test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-lost] _\n\nended_status = 'lost', action = 'reveal_cell'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed\n_ test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-won] _\n\nended_status = 'won', action = 'toggle_flag'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed\n_ test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-lost] _\n\nended_status = 'lost', action = 'toggle_flag'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed\n_ test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-won] _\n\nended_status = 'won', action = 'abandon_game'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed\n_ test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-lost] _\n\nended_status = 'lost', action = 'abandon_game'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed\n______________ test_same_flag_action_succeeds_while_in_progress _______________\n\n    def test_same_flag_action_succeeds_while_in_progress():\n        # Control for the refused flag case above: identical board, identical target\n        # cell, identical elapsed time, only the status differs. The status is\n        # in_progress, which allows toggle_flag on a hidden cell. The flag is placed,\n        # so the refusal above is decided by the terminal status alone.\n        session = make_session(\"in_progress\")\n    \n        session.toggle_flag(row=TARGET_ROW, column=TARGET_COLUMN)\n    \n        # The hidden target cell becomes flagged, and flag_count rises from 0 to 1.\n>       assert cell_at(session, TARGET_ROW, TARGET_COLUMN)[\"state\"] == \"flagged\"\nE       AssertionError: assert 'hidden' == 'flagged'\nE         \nE         - flagged\nE         + hidden\n\ntests\\unit\\test_spec_032.py:108: AssertionError\n_____________ test_same_abandon_action_succeeds_while_in_progress _____________\n\n    def test_same_abandon_action_succeeds_while_in_progress():\n        # Control for the refused abandon case above: the same board, with status\n        # in_progress. Abandon is allowed from in_progress, so it succeeds and\n        # ends the game as abandoned. The refusal above is therefore decided by the\n        # terminal status alone.\n        session = make_session(\"in_progress\")\n    \n        session.abandon_game()\n    \n        # The status becomes abandoned, and ended_at is recorded. Before the call\n        # ended_at was None, so the recorded value is a new value and is not None.\n>       assert session.status == \"abandoned\"\nE       AssertionError: assert 'in_progress' == 'abandoned'\nE         \nE         - abandoned\nE         + in_progress\n\ntests\\unit\\test_spec_032.py:126: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv\\.pytest_report_9afb8632172c450ebf6b21838d8c57e3.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-won]\nFAILED tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-lost]\nFAILED tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-won]\nFAILED tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-lost]\nFAILED tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-won]\nFAILED tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-lost]\nFAILED tests/unit/test_spec_032.py::test_same_flag_action_succeeds_while_in_progress\nFAILED tests/unit/test_spec_032.py::test_same_abandon_action_succeeds_while_in_progress\n============================== 8 failed in 0.47s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652459.3348484,
+      "duration": 0.2908198833465576,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv",
+      "environment": {},
+      "summary": {
+        "failed": 8,
+        "total": 8,
+        "collected": 8
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_032.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_032.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-won]",
+              "type": "Function",
+              "lineno": 71
+            },
+            {
+              "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-lost]",
+              "type": "Function",
+              "lineno": 71
+            },
+            {
+              "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-won]",
+              "type": "Function",
+              "lineno": 71
+            },
+            {
+              "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-lost]",
+              "type": "Function",
+              "lineno": 71
+            },
+            {
+              "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-won]",
+              "type": "Function",
+              "lineno": 71
+            },
+            {
+              "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-lost]",
+              "type": "Function",
+              "lineno": 71
+            },
+            {
+              "nodeid": "tests/unit/test_spec_032.py::test_same_flag_action_succeeds_while_in_progress",
+              "type": "Function",
+              "lineno": 97
+            },
+            {
+              "nodeid": "tests/unit/test_spec_032.py::test_same_abandon_action_succeeds_while_in_progress",
+              "type": "Function",
+              "lineno": 114
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-won]",
+          "lineno": 71,
+          "outcome": "failed",
+          "keywords": [
+            "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-won]",
+            "parametrize",
+            "pytestmark",
+            "reveal_cell-won",
+            "test_spec_032.py",
+            "unit",
+            "tests",
+            "hollow_3x1eu_fv",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0010059000051114708,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005009000014979392,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv\\tests\\unit\\test_spec_032.py",
+              "lineno": 78,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_032.py",
+                "lineno": 78,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "ended_status = 'won', action = 'reveal_cell'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed"
+          },
+          "teardown": {
+            "duration": 0.00031790000502951443,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-lost]",
+          "lineno": 71,
+          "outcome": "failed",
+          "keywords": [
+            "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[reveal_cell-lost]",
+            "parametrize",
+            "pytestmark",
+            "reveal_cell-lost",
+            "test_spec_032.py",
+            "unit",
+            "tests",
+            "hollow_3x1eu_fv",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006384000007528812,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00045790000876877457,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv\\tests\\unit\\test_spec_032.py",
+              "lineno": 78,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_032.py",
+                "lineno": 78,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "ended_status = 'lost', action = 'reveal_cell'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed"
+          },
+          "teardown": {
+            "duration": 0.00039400000241585076,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-won]",
+          "lineno": 71,
+          "outcome": "failed",
+          "keywords": [
+            "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-won]",
+            "parametrize",
+            "pytestmark",
+            "toggle_flag-won",
+            "test_spec_032.py",
+            "unit",
+            "tests",
+            "hollow_3x1eu_fv",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005886999861104414,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004847999953199178,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv\\tests\\unit\\test_spec_032.py",
+              "lineno": 78,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_032.py",
+                "lineno": 78,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "ended_status = 'won', action = 'toggle_flag'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed"
+          },
+          "teardown": {
+            "duration": 0.0003915999986929819,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-lost]",
+          "lineno": 71,
+          "outcome": "failed",
+          "keywords": [
+            "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[toggle_flag-lost]",
+            "parametrize",
+            "pytestmark",
+            "toggle_flag-lost",
+            "test_spec_032.py",
+            "unit",
+            "tests",
+            "hollow_3x1eu_fv",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006033999961800873,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004693999944720417,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv\\tests\\unit\\test_spec_032.py",
+              "lineno": 78,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_032.py",
+                "lineno": 78,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "ended_status = 'lost', action = 'toggle_flag'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed"
+          },
+          "teardown": {
+            "duration": 0.0003921000025002286,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-won]",
+          "lineno": 71,
+          "outcome": "failed",
+          "keywords": [
+            "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-won]",
+            "parametrize",
+            "pytestmark",
+            "abandon_game-won",
+            "test_spec_032.py",
+            "unit",
+            "tests",
+            "hollow_3x1eu_fv",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005439000087790191,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004304999893065542,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv\\tests\\unit\\test_spec_032.py",
+              "lineno": 78,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_032.py",
+                "lineno": 78,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "ended_status = 'won', action = 'abandon_game'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed"
+          },
+          "teardown": {
+            "duration": 0.0003495999990263954,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_032.py::test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-lost]",
+          "lineno": 71,
+          "outcome": "failed",
+          "keywords": [
+            "test_actions_other_than_new_game_are_refused_and_status_remains_terminal[abandon_game-lost]",
+            "parametrize",
+            "pytestmark",
+            "abandon_game-lost",
+            "test_spec_032.py",
+            "unit",
+            "tests",
+            "hollow_3x1eu_fv",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004132000030949712,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002793000021483749,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv\\tests\\unit\\test_spec_032.py",
+              "lineno": 78,
+              "message": "Failed: DID NOT RAISE Exception"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_032.py",
+                "lineno": 78,
+                "message": "Failed"
+              }
+            ],
+            "longrepr": "ended_status = 'lost', action = 'abandon_game'\n\n    @pytest.mark.parametrize(\"ended_status\", [\"won\", \"lost\"])\n    @pytest.mark.parametrize(\"action\", [\"reveal_cell\", \"toggle_flag\", \"abandon_game\"])\n    def test_actions_other_than_new_game_are_refused_and_status_remains_terminal(ended_status, action):\n        session = make_session(ended_status)\n        ended_at_before = session.ended_at\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_032.py:78: Failed"
+          },
+          "teardown": {
+            "duration": 0.0002939000114565715,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_032.py::test_same_flag_action_succeeds_while_in_progress",
+          "lineno": 97,
+          "outcome": "failed",
+          "keywords": [
+            "test_same_flag_action_succeeds_while_in_progress",
+            "test_spec_032.py",
+            "unit",
+            "tests",
+            "hollow_3x1eu_fv",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00021090000518597662,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000446999998530373,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv\\tests\\unit\\test_spec_032.py",
+              "lineno": 108,
+              "message": "AssertionError: assert 'hidden' == 'flagged'\n  \n  - flagged\n  + hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_032.py",
+                "lineno": 108,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_same_flag_action_succeeds_while_in_progress():\n        # Control for the refused flag case above: identical board, identical target\n        # cell, identical elapsed time, only the status differs. The status is\n        # in_progress, which allows toggle_flag on a hidden cell. The flag is placed,\n        # so the refusal above is decided by the terminal status alone.\n        session = make_session(\"in_progress\")\n    \n        session.toggle_flag(row=TARGET_ROW, column=TARGET_COLUMN)\n    \n        # The hidden target cell becomes flagged, and flag_count rises from 0 to 1.\n>       assert cell_at(session, TARGET_ROW, TARGET_COLUMN)[\"state\"] == \"flagged\"\nE       AssertionError: assert 'hidden' == 'flagged'\nE         \nE         - flagged\nE         + hidden\n\ntests\\unit\\test_spec_032.py:108: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00028310000197961926,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_032.py::test_same_abandon_action_succeeds_while_in_progress",
+          "lineno": 114,
+          "outcome": "failed",
+          "keywords": [
+            "test_same_abandon_action_succeeds_while_in_progress",
+            "test_spec_032.py",
+            "unit",
+            "tests",
+            "hollow_3x1eu_fv",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00034070000401698053,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008049999887589365,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_3x1eu_fv\\tests\\unit\\test_spec_032.py",
+              "lineno": 126,
+              "message": "AssertionError: assert 'in_progress' == 'abandoned'\n  \n  - abandoned\n  + in_progress"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_032.py",
+                "lineno": 126,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_same_abandon_action_succeeds_while_in_progress():\n        # Control for the refused abandon case above: the same board, with status\n        # in_progress. Abandon is allowed from in_progress, so it succeeds and\n        # ends the game as abandoned. The refusal above is therefore decided by the\n        # terminal status alone.\n        session = make_session(\"in_progress\")\n    \n        session.abandon_game()\n    \n        # The status becomes abandoned, and ended_at is recorded. Before the call\n        # ended_at was None, so the recorded value is a new value and is not None.\n>       assert session.status == \"abandoned\"\nE       AssertionError: assert 'in_progress' == 'abandoned'\nE         \nE         - abandoned\nE         + in_progress\n\ntests\\unit\\test_spec_032.py:126: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00039709999691694975,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 2.492
+}

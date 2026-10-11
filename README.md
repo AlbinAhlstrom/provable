@@ -148,7 +148,7 @@ provable/
 │   └── tests/                # Unit, integration, and E2E test suites (124+ tests)
 ├── frontend/                 # PM Studio React 18 + Vite frontend
 │   ├── src/                  # React TypeScript source
-│   │   ├── components/       # KickstartStudio, BehaviorInboxPanel, RequirementControlPanel, AppPreview
+│   │   ├── components/       # KickstartStudio, AppPreview, RequirementControlPanel, specs/
 │   │   └── App.tsx           # Main application shell
 ├── vault/                    # Comprehensive Obsidian knowledge base & architectural records
 │   ├── 01-Architecture/      # System architecture, DDD patterns, schema-driven UI

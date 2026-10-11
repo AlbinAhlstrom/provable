@@ -1,0 +1,428 @@
+{
+  "seq": 308,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:26",
+  "t_offset_s": 397.581,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656605.8381014,
+        "duration": 1.255244255065918,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_qmgeg8hb",
+        "environment": {},
+        "summary": {
+          "failed": 8,
+          "total": 8,
+          "collected": 8
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_007.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_007.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[9-9-10]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[9-9-64]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[12-10-10]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[12-10-99]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[9-9-9]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[9-9-65]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[12-10-9]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[12-10-100]",
+                "type": "Function",
+                "lineno": 84
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[9-9-10]",
+            "lineno": 45,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_mine_count_at_limit_is_accepted[9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "9-9-10",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "hollow_qmgeg8hb",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0012602999922819436,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00048160000005736947,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_qmgeg8hb\\tests\\unit\\test_spec_007.py",
+                "lineno": 65,
+                "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_007.py",
+                  "lineno": 65,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "width = 9, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\n        \"width, height, mine_count\",\n        [\n            (9, 9, 10),    # lower limit exactly: 10\n            (9, 9, 64),    # upper limit exactly: (9-1)*(9-1) = 64\n            (12, 10, 10),  # lower limit exactly: 10\n            (12, 10, 99),  # upper limit exactly: (12-1)*(10-1) = 99\n        ],\n    )\n    def test_custom_mine_count_at_limit_is_accepted(width, height, mine_count):\n        game = _ready_beginner_game()\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=width, height=height, mine_count=mine_count\n        )\n    \n        # Width 9 or 12 is within 9-30 and height 9 or 10 within 9-24, so only the\n        # mine count rule decides; mine_count is exactly at a limit, so it is accepted\n        # and a new custom game is returned with exactly the chosen values.\n>       assert new_game.id != game.id\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_007.py:65: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0004493000014917925,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[9-9-64]",
+            "lineno": 45,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_mine_count_at_limit_is_accepted[9-9-64]",
+              "parametrize",
+              "pytestmark",
+              "9-9-64",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "hollow_qmgeg8hb",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008208000072045252,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000440500007243827,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_qmgeg8hb\\tests\\unit\\test_spec_007.py",
+                "lineno": 65,
+                "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_007.py",
+                  "lineno": 65,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "width = 9, height = 9, mine_count = 64\n\n    @pytest.mark.parametrize(\n        \"width, height, mine_count\",\n        [\n            (9, 9, 10),    # lower limit exactly: 10\n            (9, 9, 64),    # upper limit exactly: (9-1)*(9-1) = 64\n            (12, 10, 10),  # lower limit exactly: 10\n            (12, 10, 99),  # upper limit exactly: (12-1)*(10-1) = 99\n        ],\n    )\n    def test_custom_mine_count_at_limit_is_accepted(width, height, mine_count):\n        game = _ready_beginner_game()\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=width, height=height, mine_count=mine_count\n        )\n    \n        # Width 9 or 12 is within 9-30 and height 9 or 10 within 9-24, so only the\n        # mine count rule decides; mine_count is exactly at a limit, so it is accepted\n        # and a new custom game is returned with exactly the chosen values.\n>       assert new_game.id != game.id\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_007.py:65: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0006881000008434057,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[12-10-10]",
+            "lineno": 45,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_mine_count_at_limit_is_accepted[12-10-10]",
+              "parametrize",
+              "pytestmark",
+              "12-10-10",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "hollow_qmgeg8hb",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009254000033251941,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004398000019136816,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_qmgeg8hb\\tests\\unit\\test_spec_007.py",
+                "lineno": 65,
+                "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_007.py",
+                  "lineno": 65,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "width = 12, height = 10, mine_count = 10\n\n    @pytest.mark.parametrize(\n        \"width, height, mine_count\",\n        [\n            (9, 9, 10),    # lower limit exactly: 10\n            (9, 9, 64),    # upper limit exactly: (9-1)*(9-1) = 64\n            (12, 10, 10),  # lower limit exactly: 10\n            (12, 10, 99),  # upper limit exactly: (12-1)*(10-1) = 99\n        ],\n    )\n    def test_custom_mine_count_at_limit_is_accepted(width, height, mine_count):\n        game = _ready_beginner_game()\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=width, height=height, mine_count=mine_count\n        )\n    \n        # Width 9 or 12 is within 9-30 and height 9 or 10 within 9-24, so only the\n        # mine count rule decides; mine_count is exactly at a limit, so it is accepted\n        # and a new custom game is returned with exactly the chosen values.\n>       assert new_game.id != game.id\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_007.py:65: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0006976000004215166,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[12-10-99]",
+            "lineno": 45,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_mine_count_at_limit_is_accepted[12-10-99]",
+              "parametrize",
+              "pytestmark",
+              "12-10-99",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "hollow_qmgeg8hb",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008652999968035147,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00047810000251047313,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_qmgeg8hb\\tests\\unit\\test_spec_007.py",
+                "lineno": 65,
+                "message": "AttributeError: 'NoneType' object has no attribute 'id'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_007.py",
+                  "lineno": 65,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "width = 12, height = 10, mine_count = 99\n\n    @pytest.mark.parametrize(\n        \"width, height, mine_count\",\n        [\n            (9, 9, 10),    # lower limit exactly: 10\n            (9, 9, 64),    # upper limit exactly: (9-1)*(9-1) = 64\n            (12, 10, 10),  # lower limit exactly: 10\n            (12, 10, 99),  # upper limit exactly: (12-1)*(10-1) = 99\n        ],\n    )\n    def test_custom_mine_count_at_limit_is_accepted(width, height, mine_count):\n        game = _ready_beginner_game()\n    \n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=width, height=height, mine_count=mine_count\n        )\n    \n        # Width 9 or 12 is within 9-30 and height 9 or 10 within 9-24, so only the\n        # mine count rule decides; mine_count is exactly at a limit, so it is accepted\n        # and a new custom game is returned with exactly the chosen values.\n>       assert new_game.id != game.id\n               ^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'id'\n\ntests\\unit\\test_spec_007.py:65: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.0006891000084578991,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[9-9-9]",
+            "lineno": 84,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_mine_count_beyond_limit_is_refused[9-9-9]",
+              "parametrize",
+              "pytestmark",
+              "9-9-9",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "hollow_qmgeg8hb",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007415000000037253,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00044319999869912863,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_qmgeg8hb\\tests\\unit\\test_spec_007.py",
+                "lineno": 98,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_007.py",
+                  "lineno": 98,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "width = 9, height = 9, mine_count = 9\n\n    @pytest.mark.parametrize(\n        \"width, height, mine_count\",\n        [\n            (9, 9, 9),     # just below the lower limit 10\n            (9, 9, 65),    # just above the upper limit 64\n            (12, 10, 9),   # just below the lower limit 10\n            (12, 10, 100), # just above the upper limit 99\n        ],\n    )\n    def test_custom_mine_count_beyond_limit_is_refused(width, height, mine_count):\n        game = _ready_beginner_game()\n        before = game.to_dict()\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_007.py:98: Failed"
+            },
+            "teardown": {
+              "duration": 0.0005181000014999881,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[9-9-65]",
+            "lineno": 84,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_mine_count_beyond_limit_is_refused[9-9-65]",
+              "parametrize",
+              "pytestmark",
+              "9-9-65",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "hollow_qmgeg8hb",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000992799992673099,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004837000014958903,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_qmgeg8hb\\tests\\unit\\test_spec_007.py",
+                "lineno": 98,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_007.py",
+                  "lineno": 98,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "width = 9, height = 9, mine_count = 65\n\n    @pytest.mark.parametrize(\n        \"width, height, mine_count\",\n        [\n            (9, 9, 9),     # just below the lower limit 10\n            (9, 9, 65),    # just above the upper limit 64\n            (12, 10, 9),   # just below the lower limit 10\n            (12, 10, 100), # just above the upper limit 99\n        ],\n    )\n    def test_custom_mine_count_beyond_limit_is_refused(width, height, mine_count):\n        game = _ready_beginner_game()\n        before = game.to_dict()\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_007.py:98: Failed"
+            },
+            "teardown": {
+              "duration": 0.00041900000360328704,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[12-10-9]",
+            "lineno": 84,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_mine_count_beyond_limit_is_refused[12-10-9]",
+              "parametrize",
+              "pytestmark",
+              "12-10-9",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "hollow_qmgeg8hb",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007092000014381483,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004773999971803278,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_qmgeg8hb\\tests\\unit\\test_spec_007.py",
+                "lineno": 98,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_007.py",
+                  "lineno": 98,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "width = 12, height = 10, mine_count = 9\n\n    @pytest.mark.parametrize(\n        \"width, height, mine_count\",\n        [\n            (9, 9, 9),     # just below the lower limit 10\n            (9, 9, 65),    # just above the upper limit 64\n            (12, 10, 9),   # just below the lower limit 10\n            (12, 10, 100), # just above the upper limit 99\n        ],\n    )\n    def test_custom_mine_count_beyond_limit_is_refused(width, height, mine_count):\n        game = _ready_beginner_game()\n        before = game.to_dict()\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_007.py:98: Failed"
+            },
+            "teardown": {
+              "duration": 0.00039840000681579113,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[12-10-100]",
+            "lineno": 84,
+            "outcome": "failed",
+            "keywords": [
+              "test_custom_mine_count_beyond_limit_is_refused[12-10-100]",
+              "parametrize",
+              "pytestmark",
+              "12-10-100",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "hollow_qmgeg8hb",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008698000019649044,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005767999973613769,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_qmgeg8hb\\tests\\unit\\test_spec_007.py",
+                "lineno": 98,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_007.py",
+                  "lineno": 98,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "width = 12, height = 10, mine_count = 100\n\n    @pytest.mark.parametrize(\n        \"width, height, mine_count\",\n        [\n            (9, 9, 9),     # just below the lower limit 10\n            (9, 9, 65),    # just above the upper limit 64\n            (12, 10, 9),   # just below the lower limit 10\n            (12, 10, 100), # just above the upper limit 99\n        ],\n    )\n    def test_custom_mine_count_beyond_limit_is_refused(width, height, mine_count):\n        game = _ready_beginner_game()\n        before = game.to_dict()\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_007.py:98: Failed"
+            },
+            "teardown": {
+              "duration": 0.0004989000008208677,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

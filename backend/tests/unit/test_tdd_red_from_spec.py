@@ -265,3 +265,42 @@ def test_the_test_writer_is_told_to_arrange_the_state_directly_and_show_its_work
     prompt = open(path, encoding="utf-8").read()
     assert "## Arranging the Given" in prompt and "by setting its fields" in prompt
     assert "works out the expected result" in prompt
+
+
+def test_a_scenario_about_what_follows_is_acted_out_through_a_method_the_application_calls():
+    """Verify the RED prompt has a consequence tested through the promised method that causes it.
+
+    id: TST-RED-CONSEQUENCE
+    Given: The RED test prompt (a rule read "when the result is recorded, the score equals the time"; no promised
+           method records a result, so the writer named one of its own, it was implemented and passed its test, and
+           the application never called it: a won round kept a score of zero)
+    When: It is read
+    Then: It says the application calls no other method, and that a When which follows from what someone does is
+          acted out through the promised method that brings it about
+    """
+    import agent_orchestrator
+    path = os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts", "red_test_generation.md")
+    prompt = open(path, encoding="utf-8").read()
+    assert "The application calls no other method of this class" in prompt
+    assert "act it out through the listed method that brings it about" in prompt
+    assert "If the scenario is not about any of them, name the method you need as the scenario implies." not in prompt
+
+
+def test_the_test_writer_is_given_the_situation_the_rule_starts_from(monkeypatch):
+    """Verify a rule's starting state is not left to its test writer to make up: the contract's situation is shown.
+
+    id: TST-RFS-SITUATION
+    Given: A spec that carries the situation its Given names, and one that carries none
+    When: generate_red_test builds its prompt for each
+    Then: The first prompt shows the situation with its values; the second has no line for one
+    """
+    import agent_orchestrator
+    seen = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda p, stage="general", **_: seen.append(p) or "def test_a():\n    assert False\n")
+    placed = _spec().model_copy(update={"situation": "`short_booking`: a booking of half an hour: start 10:00, end 10:30"})
+
+    tm.generate_red_test(placed, "class Booking:\n    pass\n", "booking", "Booking")
+    tm.generate_red_test(_spec(), "class Booking:\n    pass\n", "booking", "Booking")
+
+    assert "- **Situation** `short_booking`: a booking of half an hour: start 10:00, end 10:30" in seen[0]
+    assert "**Situation**" not in seen[1]

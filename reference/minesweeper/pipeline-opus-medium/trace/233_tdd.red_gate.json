@@ -1,0 +1,331 @@
+{
+  "seq": 233,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:20",
+  "t_offset_s": 391.523,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656600.086895,
+        "duration": 0.6926524639129639,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 8,
+          "total": 8,
+          "collected": 8
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[9-9-10]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[9-9-64]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[12-10-10]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[12-10-99]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[9-9-9]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[9-9-65]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[12-10-9]",
+                "type": "Function",
+                "lineno": 84
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[12-10-100]",
+                "type": "Function",
+                "lineno": 84
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[9-9-10]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_mine_count_at_limit_is_accepted[9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "9-9-10",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0013879000034648925,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007129000005079433,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003988000098615885,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[9-9-64]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_mine_count_at_limit_is_accepted[9-9-64]",
+              "parametrize",
+              "pytestmark",
+              "9-9-64",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.02736820001155138,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007438000029651448,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004630999901564792,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[12-10-10]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_mine_count_at_limit_is_accepted[12-10-10]",
+              "parametrize",
+              "pytestmark",
+              "12-10-10",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009946999925887212,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008727000094950199,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00034830000367946923,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_at_limit_is_accepted[12-10-99]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_mine_count_at_limit_is_accepted[12-10-99]",
+              "parametrize",
+              "pytestmark",
+              "12-10-99",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010556999914115295,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006427000043913722,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00035239999124314636,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[9-9-9]",
+            "lineno": 84,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_mine_count_beyond_limit_is_refused[9-9-9]",
+              "parametrize",
+              "pytestmark",
+              "9-9-9",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007125000120140612,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005123000009916723,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003228999994462356,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[9-9-65]",
+            "lineno": 84,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_mine_count_beyond_limit_is_refused[9-9-65]",
+              "parametrize",
+              "pytestmark",
+              "9-9-65",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010665000008884817,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006009000062476844,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005269000102998689,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[12-10-9]",
+            "lineno": 84,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_mine_count_beyond_limit_is_refused[12-10-9]",
+              "parametrize",
+              "pytestmark",
+              "12-10-9",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006849000055808574,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006280000088736415,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003637000045273453,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_007.py::test_custom_mine_count_beyond_limit_is_refused[12-10-100]",
+            "lineno": 84,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_mine_count_beyond_limit_is_refused[12-10-100]",
+              "parametrize",
+              "pytestmark",
+              "12-10-100",
+              "test_spec_007.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008101999992504716,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006048999930499122,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003890000079991296,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

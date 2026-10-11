@@ -1,0 +1,397 @@
+{
+  "seq": 449,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:39",
+  "t_offset_s": 410.188,
+  "thread": "red_10",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656618.2711215,
+        "duration": 1.137190580368042,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_95p_58yq",
+        "environment": {},
+        "summary": {
+          "passed": 6,
+          "failed": 3,
+          "total": 9,
+          "collected": 9
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_036.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[beginner]",
+                "type": "Function",
+                "lineno": 20
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[intermediate]",
+                "type": "Function",
+                "lineno": 20
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[expert]",
+                "type": "Function",
+                "lineno": 20
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[beginner]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[intermediate]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[expert]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[beginner]",
+                "type": "Function",
+                "lineno": 66
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[intermediate]",
+                "type": "Function",
+                "lineno": 66
+              },
+              {
+                "nodeid": "tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[expert]",
+                "type": "Function",
+                "lineno": 66
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[beginner]",
+            "lineno": 20,
+            "outcome": "passed",
+            "keywords": [
+              "test_equal_win_keeps_stored_best[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_95p_58yq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010812000109581277,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003997999883722514,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004209000035189092,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[intermediate]",
+            "lineno": 20,
+            "outcome": "passed",
+            "keywords": [
+              "test_equal_win_keeps_stored_best[intermediate]",
+              "parametrize",
+              "pytestmark",
+              "intermediate",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_95p_58yq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007008999964455143,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004673999937949702,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00036109999928157777,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[expert]",
+            "lineno": 20,
+            "outcome": "passed",
+            "keywords": [
+              "test_equal_win_keeps_stored_best[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_95p_58yq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005666000070050359,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003660000074887648,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003281999961473048,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[beginner]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_slower_win_keeps_stored_best[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_95p_58yq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005457999941427261,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00034550001146271825,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0002906000008806586,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[intermediate]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_slower_win_keeps_stored_best[intermediate]",
+              "parametrize",
+              "pytestmark",
+              "intermediate",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_95p_58yq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007634000066900626,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00046019999717827886,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00033409999741706997,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[expert]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_slower_win_keeps_stored_best[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_95p_58yq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006621999928029254,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00047309999354183674,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00040360000275541097,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[beginner]",
+            "lineno": 66,
+            "outcome": "failed",
+            "keywords": [
+              "test_win_just_faster_than_best_replaces_it[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_95p_58yq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006491999956779182,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006978999881539494,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_95p_58yq\\tests\\unit\\test_spec_036.py",
+                "lineno": 83,
+                "message": "AssertionError: assert 100 == 99\n +  where 100 = BestTime(id='bt-1', difficulty_id='beginner', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_036.py",
+                  "lineno": 83,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "difficulty_id = 'beginner'\n\n    @pytest.mark.parametrize(\"difficulty_id\", STANDARD_DIFFICULTIES)\n    def test_win_just_faster_than_best_replaces_it(difficulty_id):\n        best = _stored_best(difficulty_id, 100)\n    \n        # When: the player wins a game of the same difficulty in B - 1 seconds\n        # (just beyond the limit of \"not faster than the stored best\").\n        best.record_win(\n            game_id=\"game-new\",\n            difficulty_id=difficulty_id,\n            elapsed_seconds=99,\n            achieved_at=\"2024-02-01T12:00:00Z\",\n        )\n    \n        # Stored best is 100 and the win took 99: 99 < 100 is true, standard\n        # difficulty matching the record, a win: the new-best rule applies and\n        # the best becomes 99.\n>       assert best.best_seconds == 99\nE       AssertionError: assert 100 == 99\nE        +  where 100 = BestTime(id='bt-1', difficulty_id='beginner', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds\n\ntests\\unit\\test_spec_036.py:83: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0007303000020328909,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[intermediate]",
+            "lineno": 66,
+            "outcome": "failed",
+            "keywords": [
+              "test_win_just_faster_than_best_replaces_it[intermediate]",
+              "parametrize",
+              "pytestmark",
+              "intermediate",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_95p_58yq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006621000065933913,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000979500007815659,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_95p_58yq\\tests\\unit\\test_spec_036.py",
+                "lineno": 83,
+                "message": "AssertionError: assert 100 == 99\n +  where 100 = BestTime(id='bt-1', difficulty_id='intermediate', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_036.py",
+                  "lineno": 83,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "difficulty_id = 'intermediate'\n\n    @pytest.mark.parametrize(\"difficulty_id\", STANDARD_DIFFICULTIES)\n    def test_win_just_faster_than_best_replaces_it(difficulty_id):\n        best = _stored_best(difficulty_id, 100)\n    \n        # When: the player wins a game of the same difficulty in B - 1 seconds\n        # (just beyond the limit of \"not faster than the stored best\").\n        best.record_win(\n            game_id=\"game-new\",\n            difficulty_id=difficulty_id,\n            elapsed_seconds=99,\n            achieved_at=\"2024-02-01T12:00:00Z\",\n        )\n    \n        # Stored best is 100 and the win took 99: 99 < 100 is true, standard\n        # difficulty matching the record, a win: the new-best rule applies and\n        # the best becomes 99.\n>       assert best.best_seconds == 99\nE       AssertionError: assert 100 == 99\nE        +  where 100 = BestTime(id='bt-1', difficulty_id='intermediate', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds\n\ntests\\unit\\test_spec_036.py:83: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006714000046486035,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[expert]",
+            "lineno": 66,
+            "outcome": "failed",
+            "keywords": [
+              "test_win_just_faster_than_best_replaces_it[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "hollow_95p_58yq",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010800000018207356,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000746300007449463,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_95p_58yq\\tests\\unit\\test_spec_036.py",
+                "lineno": 83,
+                "message": "AssertionError: assert 100 == 99\n +  where 100 = BestTime(id='bt-1', difficulty_id='expert', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_036.py",
+                  "lineno": 83,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "difficulty_id = 'expert'\n\n    @pytest.mark.parametrize(\"difficulty_id\", STANDARD_DIFFICULTIES)\n    def test_win_just_faster_than_best_replaces_it(difficulty_id):\n        best = _stored_best(difficulty_id, 100)\n    \n        # When: the player wins a game of the same difficulty in B - 1 seconds\n        # (just beyond the limit of \"not faster than the stored best\").\n        best.record_win(\n            game_id=\"game-new\",\n            difficulty_id=difficulty_id,\n            elapsed_seconds=99,\n            achieved_at=\"2024-02-01T12:00:00Z\",\n        )\n    \n        # Stored best is 100 and the win took 99: 99 < 100 is true, standard\n        # difficulty matching the record, a win: the new-best rule applies and\n        # the best becomes 99.\n>       assert best.best_seconds == 99\nE       AssertionError: assert 100 == 99\nE        +  where 100 = BestTime(id='bt-1', difficulty_id='expert', game_id='game-old', best_seconds=100, achieved_at='2024-01-01T10:00:00Z', events=[]).best_seconds\n\ntests\\unit\\test_spec_036.py:83: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00040269999590236694,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

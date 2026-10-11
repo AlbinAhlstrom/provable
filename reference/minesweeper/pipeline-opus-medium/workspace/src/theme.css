@@ -1,0 +1,20 @@
+:root {
+  --draft-bg: #0f766e;
+  --draft-surface: #c0c0c0;
+  --draft-text: #000000;
+  --draft-accent: #fde047;
+  --draft-on-accent: #000000;
+  --draft-heading-font: inherit;
+}
+.draft-shape {
+  margin: 1.5rem auto 0;
+  width: min(100%, calc(60vh * 9 / 9));
+  aspect-ratio: 9 / 9;
+  border-radius: 0.5rem;
+  background-color: color-mix(in srgb, var(--draft-text) 9%, var(--draft-surface));
+  background-image: linear-gradient(to right, var(--draft-bg) 4px, transparent 4px),
+                    linear-gradient(to bottom, var(--draft-bg) 4px, transparent 4px);
+  background-size: calc(100% / 9) calc(100% / 9);
+  animation: draft-shape-wait 1.8s ease-in-out infinite;
+}
+@keyframes draft-shape-wait { 50% { opacity: 0.55; } }
