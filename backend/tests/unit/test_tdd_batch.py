@@ -99,7 +99,10 @@ def _models(monkeypatch, answers, tests=TESTS):
 
     def green(**kwargs):
         calls.append(kwargs)
-        return answers[len(calls) - 1]
+        answer = answers[len(calls) - 1]
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
     monkeypatch.setattr(tdd_machine, "synthesize_green_class_implementation", green)
     return calls
 
@@ -191,6 +194,48 @@ def test_a_rule_still_failing_after_the_retry_is_named_and_the_others_stand(tmp_
     assert os.path.exists(tmp_path / "tests" / "pending" / "test_spec_003.py")
     assert not os.path.exists(tmp_path / "tests" / "unit" / "test_spec_003.py")
     assert tdd_machine.run_isolated_pytest(str(tmp_path / "tests" / "unit"), cwd=workspace)["exit_code"] == 0
+
+
+def test_a_retry_that_answers_in_words_leaves_the_first_answer_standing(tmp_path, monkeypatch):
+    """Verify a code writer that declines the retry ("the test is wrong, the class needs no change") does not take
+    the rules its first answer fulfilled down with it. A live kickstart lost all seventeen specs of a class this way.
+
+    id: TST-BATCH-RETRY-IN-WORDS
+    Given: A first answer that leaves the third test failing, and a retry whose answer holds no class
+    When: The specs are executed together
+    Then: The first two specs are fulfilled by the first answer; the third is not, with the failing assertion as
+          its reason and the writer's words in its second attempt; the tests left in tests/unit pass
+    """
+    workspace = _workspace(tmp_path)
+    declined = tdd_machine.NoClassInAnswer("Invoice", "The test expects the wrong total; Invoice needs no change.")
+    calls = _models(monkeypatch, [_fragment(PAY, ADD_LINE_OPEN), declined])
+
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert len(calls) == 2
+    assert results["SPEC-001"]["status"] == results["SPEC-002"]["status"] == "FULFILLED"
+    failed = results["SPEC-003"]
+    assert failed["status"] == "REQUIRES_HUMAN_INTERVENTION" and "Test assertions failed" in failed["error"]
+    assert "Invoice needs no change" in failed["attempts"][1]["reason"]
+    assert tdd_machine.run_isolated_pytest(str(tmp_path / "tests" / "unit"), cwd=workspace)["exit_code"] == 0
+
+
+def test_a_first_answer_without_the_class_fails_the_class_loudly(tmp_path, monkeypatch):
+    """Verify nothing is kept or retried when the first answer is no code: there is no verdict to feed back.
+
+    id: TST-BATCH-NO-CLASS-FIRST
+    Given: A first answer that holds no class
+    When: The specs are executed together
+    Then: One code call; every spec is an error naming the reason; the class is as it was
+    """
+    workspace = _workspace(tmp_path)
+    calls = _models(monkeypatch, [tdd_machine.NoClassInAnswer("Invoice", "I cannot do this.")])
+
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert len(calls) == 1
+    assert all(results[i]["status"] == "ERROR" and "definition of class Invoice" in results[i]["error"] for i in TESTS)
+    assert (tmp_path / "src" / "domain" / "invoice.py").read_text(encoding="utf-8") == INVOICE
 
 
 def test_an_answer_that_breaks_an_earlier_verified_test_is_never_kept(tmp_path, monkeypatch):

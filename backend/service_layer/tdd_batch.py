@@ -22,6 +22,8 @@ What is kept afterwards:
 - A spec whose test still fails moves to `tests/pending` with the reason. Unlike the single loop, the code written
   for it cannot be taken out of an answer that also carries the other rules: it stays, and every test left in
   `tests/unit` passes.
+- A retry answered in words and no code (the writer holds that a frozen test expects the wrong thing) changes
+  nothing: the first answer stands with the rules it fulfilled, and the words are kept in the attempt.
 - The hash lock holds for every test of the batch: the code writer cannot have changed any of them.
 - A test that neither code answer could meet goes back to its writer once (`reconsider_test`), with the failure and
   its own test: a test can expect the wrong thing (a check that is not one), and then a correct class fails it.
@@ -51,6 +53,7 @@ RED_WORKERS = 24  # one wave for a deck of two dozen rules; the calls are I/O bo
 FEEDBACK_LIMIT = 6000  # characters of failing-test output shown to the code writer on the retry
 
 RECONSIDER_EVIDENCE = 2500
+WORDS_LIMIT = 1200  # characters kept of a retry that was answered in words
 RECONSIDER = """Two implementations of the class could not make this test pass, while every other test of the class passes.
 
 Your test:
@@ -143,12 +146,21 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
         for attempt in (1, 2):
             with open(target.domain_file, "r", encoding="utf-8") as f:
                 domain_source = f.read()
-            fragment = tdd_machine.synthesize_green_class_implementation(
-                extracted_class=extract_class_cst(domain_source, target.class_name) or "",
-                target_class_name=target.class_name, spec=rules_spec(target.class_name, [s for s, _ in frozen]),
-                failure_output=failure, test_source=_tests_block(frozen),
-                module_imports=module_import_lines(domain_source), existing_tests=verified,
-                module_helpers=module_helpers_source(domain_source, target.class_name))
+            try:
+                fragment = tdd_machine.synthesize_green_class_implementation(
+                    extracted_class=extract_class_cst(domain_source, target.class_name) or "",
+                    target_class_name=target.class_name, spec=rules_spec(target.class_name, [s for s, _ in frozen]),
+                    failure_output=failure, test_source=_tests_block(frozen),
+                    module_imports=module_import_lines(domain_source), existing_tests=verified,
+                    module_helpers=module_helpers_source(domain_source, target.class_name))
+            except tdd_machine.NoClassInAnswer as declined:
+                if kept is None:
+                    raise  # no answer to fall back on: the class fails with this reason
+                # The retry was answered in words. The first answer stands, and the tests it left failing go to
+                # their writers below, which is what such an answer asks for.
+                attempts.append({"attempt": attempt, "approved": False,
+                                 "reason": f"The code writer changed nothing and said: {declined.answer.strip()[:WORDS_LIMIT]}"})
+                break
             try:
                 merged = merge_module_fragment(domain_source, target.class_name, fragment)
             except FragmentError as err:

@@ -501,8 +501,18 @@ def synthesize_green_class_implementation(
         if f"class {target_class_name}" in clean_code:
             return clean_code + "\n"
 
-    reason = agent_orchestrator.LAST_LLM_ERROR or f"the response did not contain a definition of class {target_class_name}"
-    raise RuntimeError(f"GREEN synthesis failed: {reason}")
+    if raw_response and raw_response.strip():
+        raise NoClassInAnswer(target_class_name, raw_response)
+    raise RuntimeError(f"GREEN synthesis failed: {agent_orchestrator.LAST_LLM_ERROR or 'the response was empty'}")
+
+
+class NoClassInAnswer(RuntimeError):
+    """The code writer answered, and the answer holds no definition of the class: it wrote words in place of code
+    (typically that the frozen test expects the wrong thing). No provider error, and no code either."""
+
+    def __init__(self, class_name: str, answer: str):
+        super().__init__(f"GREEN synthesis failed: the response did not contain a definition of class {class_name}")
+        self.answer = answer
 
 
 @dataclass
