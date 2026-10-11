@@ -113,6 +113,9 @@ test writer each read the outcome their own way, so neither a pass nor a fail sa
   A part a rule tells apart by its state says that state in its name; a look alone is the look's, not a rule's.
 - **Two wordings.** `given_when_then` is the exact line tests are written from, in the contract's names. `plain`
   is the same rule as a person who uses the product says it, which is what a card shows.
+- **The deck is the contract's rules and nothing else** (`backend/onboarding/rule_deck.py`). Six cards every
+  product used to get (a visual workspace, a status display, viewport containment and the like) are gone: no rule
+  stood behind them, so their tests were invented and their verdicts said nothing. What they stood for is QA's.
 - **A rule's record is read, not written.** It is the record its action is sent to; for a rule of the page alone,
   the record a person or the page makes.
 
