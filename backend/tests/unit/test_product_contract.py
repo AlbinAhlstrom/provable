@@ -23,9 +23,9 @@ CONTRACT = {
                 "has": ["Pick a table (kept)", "Gift cards (left out: payment)"]},
     "look": {"summary": "A warm, plain booking page.",
              "tokens": "background=#faf6f1 surface=#ffffff text=#2b2b2b accent=#c2185b on_accent=#ffffff heading=serif",
-             "palette": "#faf6f1 page background; #c2185b the chosen table", "type": "Serif headings, 16px text",
+             "palette": "#faf6f1 page background; #c2185b the chosen table",
              "parts": ["Floor plan: centre, a grid of 48px tables, the chosen one filled #c2185b"],
-             "narrow": "The floor plan scrolls inside itself.", "grid_columns": 4, "grid_rows": 3},
+             "narrow": "The floor plan scrolls inside itself.", "grid": "columns=4 rows=3"},
     "opening": "All tables exist and no booking yet. The floor plan shows every table free. On return, taken tables are grey.",
     "records": [
         {"name": "Booking", "origin": "created_by_person", "starting_records": "",
@@ -53,7 +53,7 @@ CONTRACT = {
          "fields": [{"name": "seats", "part_of": "", "type": "whole_number", "starts_as": "", "holds": "how many fit",
                      "values": [], "part_name": ""}]},
     ],
-    "fixed": ["max_guests = 8", "stay_minutes = 90"],
+    "fixed": "max_guests = 8; stay_minutes = 90",
     "actions": [
         {"name": "create_booking", "record": "Booking", "performed_by": "audience",
          "params": ["table_id: text", "guests: whole_number"],
@@ -67,16 +67,22 @@ CONTRACT = {
     "refusals": [{"name": "TooManyGuestsError", "action": "create_booking",
                   "raised_when": "guests is above max_guests", "sentence": "We seat at most 8 at one table.",
                   "appears": "under the form"}],
+    "situations": ["two_tables_free = two tables and nobody has booked: Table 1 with seats 2, Table 2 with seats 4; no Booking",
+                   "table_1_taken = the first table is booked: as two_tables_free, and a Booking with table_id of Table 1, "
+                   "guests 2, status confirmed"],
     "rules": [
-        {"kind": "api", "title": "A booking holds its table", "record": "Booking", "action": "create_booking",
-         "given": "a free table", "when": "create_booking(table_id, guests 2)", "then": "a Booking with status confirmed",
-         "sees": "\"Table 1, taken\"", "states_limit": False},
-        {"kind": "api", "title": "No more than eight guests", "record": "Booking", "action": "create_booking",
-         "given": "a free table", "when": "create_booking with guests 9", "then": "TooManyGuestsError, nothing changes",
-         "sees": "the sentence under the form", "states_limit": True},
-        {"kind": "page", "title": "Book button waits for a table", "record": "Booking", "action": "",
-         "given": "no table chosen", "when": "the page opens", "then": "", "sees": "\"Book table\" is unavailable",
-         "states_limit": False},
+        {"kind": "api", "title": "A booking holds its table", "action": "create_booking",
+         "given": "two_tables_free", "when": "create_booking(table_id of Table 1, guests 2)",
+         "then": "a Booking with status confirmed", "sees": "\"Table 1, taken\"", "states_limit": False,
+         "plain": "Given a free table, When a guest books it for two, Then the table is theirs"},
+        {"kind": "api", "title": "No more than eight guests", "action": "create_booking",
+         "given": "two_tables_free", "when": "create_booking with guests 9", "then": "TooManyGuestsError, nothing changes",
+         "sees": "the sentence under the form", "states_limit": True,
+         "plain": "Given a free table, When a guest asks for nine seats, Then they are told eight is the most"},
+        {"kind": "page", "title": "Book button waits for a table", "action": "",
+         "given": "two_tables_free, no table chosen", "when": "the page opens", "then": "",
+         "sees": "\"Book table\" is unavailable", "states_limit": False,
+         "plain": "Given no table is chosen, When a guest arrives, Then booking is not yet offered"},
     ],
 }
 
@@ -125,11 +131,12 @@ def test_the_rules_of_the_contract_are_the_rule_deck():
     assert [s.spec_id for s in (first, limit, page)] == ["SPEC-001", "SPEC-002", "SPEC-003"]
     assert first.kind == limit.kind == SpecKind.BEHAVIOR.value and page.kind == SpecKind.PRESENTATION.value
     assert first.target_aggregate == "Booking"
-    assert first.given_when_then == ("Given a free table, When create_booking(table_id, guests 2), "
+    assert first.given_when_then == ("Given two_tables_free, When create_booking(table_id of Table 1, guests 2), "
                                      "Then a Booking with status confirmed")
     assert "Table 1, taken" in first.description
     assert limit.is_mathematical_boundary and not first.is_mathematical_boundary
-    assert page.given_when_then == 'Given no table chosen, When the page opens, Then "Book table" is unavailable'
+    assert page.given_when_then == ('Given two_tables_free, no table chosen, When the page opens, '
+                                    'Then "Book table" is unavailable')
 
 
 def test_the_actions_of_the_contract_are_the_action_manifest():
@@ -191,7 +198,7 @@ def test_the_brief_says_what_is_built_in_words():
     brief = _contract().brief()
 
     for stated in ("Table Booking", "Pick a table (kept)", "guests: whole_number = 2", "Table 2, 4 seats",
-                   "max_guests = 8", "No more than eight guests", "ends_at = start plus stay_minutes"):
+                   "- max_guests = 8", "- stay_minutes = 90", "No more than eight guests", "ends_at = start plus stay_minutes"):
         assert stated in brief
 
 
@@ -290,7 +297,7 @@ def test_the_schema_is_one_the_provider_compiles():
         own = len(node.get("properties", {})) + (1 if node.get("type") == "array" else 0)
         return own + sum(weight(child) for child in list(node.get("properties", {}).values()) + [node.get("items")])
 
-    assert weight(pc.CONTRACT_SCHEMA) <= pc.SCHEMA_WEIGHT_LIMIT == 66
+    assert weight(pc.CONTRACT_SCHEMA) <= pc.SCHEMA_WEIGHT_LIMIT == 65
 
 
 def test_a_part_and_what_it_holds_are_fields_of_the_same_list():
@@ -434,3 +441,64 @@ def test_the_contract_decides_who_makes_the_first_record():
     assert "### Booking: the page creates one when it opens and none exists" in opening.brief()
     origins = pc.CONTRACT_SCHEMA["properties"]["records"]["items"]["properties"]["origin"]["enum"]
     assert origins == ["created_by_person", "created_on_opening", "exists_from_start"]
+
+
+def test_a_rule_starts_from_a_situation_the_contract_wrote_once():
+    """Verify a rule's starting point reaches its test writers as the contract wrote it, values and all, so two
+    writers of the same rule arrange the same records.
+
+    id: TST-CONTRACT-SITUATIONS
+    Given: A contract with two situations, and rules whose Given names one of them
+    When: Its specs and its brief are read
+    Then: Each spec carries the situation its Given names, as its name and what it holds; a Given that names one
+          and adds to it still finds it; and the brief lists every situation once
+    """
+    contract = _contract()
+    first, _, page = contract.specs()
+
+    assert first.situation == ("`two_tables_free`: two tables and nobody has booked: Table 1 with seats 2, "
+                               "Table 2 with seats 4; no Booking")
+    assert page.situation.startswith("`two_tables_free`: ")
+    assert contract.brief().count("table_1_taken = the first table is booked") == 1
+
+
+def test_a_given_that_names_no_situation_carries_none():
+    """Verify a rule whose Given is written in words of its own is passed on as it is, with nothing made up for it.
+
+    id: TST-CONTRACT-SITUATIONS-NONE
+    Given: A contract whose first rule's Given names no situation
+    When: Its specs are read
+    Then: That spec carries no situation
+    """
+    data = copy.deepcopy(CONTRACT)
+    data["rules"][0]["given"] = "a free table"
+
+    assert pc.ProductContract.from_dict(data).specs()[0].situation == ""
+
+
+def test_a_rule_is_also_said_in_the_words_of_the_person_who_uses_the_product():
+    """Verify the card a person reads is not the line a test is written from: the rule carries both.
+
+    id: TST-CONTRACT-PLAIN
+    Given: A contract whose rules each have a plain wording beside their exact one
+    When: Its specs are read
+    Then: Each spec carries the plain wording, and its exact Given, When and Then are unchanged by it
+    """
+    first = _contract().specs()[0]
+
+    assert first.plain == "Given a free table, When a guest books it for two, Then the table is theirs"
+    assert "create_booking" in first.given_when_then and "create_booking" not in first.plain
+
+
+def test_a_rule_is_about_the_record_its_action_is_sent_to():
+    """Verify the record a rule is about follows from the contract and is not written a second time by the model.
+
+    id: TST-CONTRACT-RULE-RECORD
+    Given: A contract with two records, a rule on an action of the first and a rule of the page alone
+    When: Its specs are read
+    Then: The action's rule is about the action's record, and the page's rule about the record a person makes
+    """
+    first, _, page = _contract().specs()
+
+    assert first.target_aggregate == "Booking" and page.target_aggregate == "Booking"
+    assert "record" not in pc.CONTRACT_SCHEMA["properties"]["rules"]["items"]["properties"]

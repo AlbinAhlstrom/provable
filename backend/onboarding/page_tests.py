@@ -323,6 +323,7 @@ def write_test(rule: Dict[str, Any], app: AppDescription, feedback: str = "") ->
     prompt = agent_orchestrator.load_prompt("page_test_generation.md", {
         "title": rule.get("title", ""), "description": rule.get("description", ""), "rule": rule_text(rule),
         "api": app.api, "page": app.page, "rendered": app.rendered, "feedback_block": feedback,
+        "situation_block": f"\n- **Situation** {rule['situation']}" if rule.get("situation") else "",
     })
     raw = agent_orchestrator.call_gemini(prompt, stage="page_test_generation")
     if not raw or not raw.strip():

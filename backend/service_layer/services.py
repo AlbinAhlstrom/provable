@@ -1751,7 +1751,8 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
         target_aggregate=target_spec_dict.get("target_aggregate") or target_spec_dict.get("target", "Session"),
         spec_type=target_spec_dict.get("spec_type", "DOMAIN_INVARIANT"),
         is_mathematical_boundary=target_spec_dict.get("is_mathematical_boundary", False),
-        priority=target_spec_dict.get("priority", "High")
+        priority=target_spec_dict.get("priority", "High"),
+        situation=target_spec_dict.get("situation", "")
     )
 
     with uow:

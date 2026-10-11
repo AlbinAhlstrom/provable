@@ -449,6 +449,7 @@ def generate_red_test(
         "interface_contract": interface_contract or "(none: no interface method has been promised for this class)",
         "feedback_block": feedback_block,
         "limit_note": LIMIT_NOTE if spec.is_mathematical_boundary else "",
+        "situation_block": f"\n- **Situation** {spec.situation}" if spec.situation else "",
         "other_rules": other_rules or "(none: this is the only rule being written for this class)",
     })
     thought = dict(reasoning_effort=CAREFUL_EFFORT, timeout_s=CAREFUL_TIMEOUT_S) if careful else dict(timeout_s=RED_TIMEOUT_S)

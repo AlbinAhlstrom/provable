@@ -3,7 +3,7 @@ You are a senior test engineer writing the RED test of a strict TDD loop for a p
 ## Specification (BDD)
 - **Title**: {spec_title}
 - **Description**: {spec_description}
-- **Scenario**: {spec_given_when_then}{limit_note}
+- **Scenario**: {spec_given_when_then}{situation_block}{limit_note}
 
 ## Class under test
 Import it exactly like this: `from src.domain.{module_name} import {target_class_name}`
@@ -29,6 +29,8 @@ Each of these has its own test, written by someone else at the same time, and on
 {other_rules}
 {feedback_block}
 ## Arranging the Given
+When a Situation is given with the scenario, it is the state the scenario starts from, written once for everyone who tests or builds this product: arrange exactly it, every value as it is written and every item at the position it names, and add nothing of your own beside it. What the Given says after the situation's name is all that differs from it. The values the Then expects were worked out for that state.
+
 Put the object straight into the situation the scenario starts from by setting its fields after construction: in a collection it owns, clear what the scenario does not need and write in only the few items it does need. Keep the shape the object has when it is newly created: a collection that starts with one item for every position (each cell of a grid, each slot of a day) keeps one item for every position, each with every key the class's description lists, and you change only what the items hold. Reach a situation through a sequence of calls only when the scenario is about that sequence itself. Every step of a long sequence is a place where your expectation and the product's rules can part ways, and a test with a wrong expectation fails a correct implementation. For the same reason, show the rule in the simplest situation that shows it (and the situations rule 7 asks for when the scenario states a limit): each further situation is one more expectation that can be wrong, and the implementer is told to implement the rule in full whatever the examples. Simple still means a situation in which your rule decides the outcome alone: go through the other rules above and check, one by one, that none of them also applies to the state you arrange or to the state your action leaves (none of them ends, refuses or changes it). When one does, add or move what it takes for that rule to stay out of it.
 
 Then prove the arrangement before the When. What you expect rests on facts about the state you built: which items hold what, where they are, what they add up to. After arranging and before acting, assert each of those facts, read back from the object's fields and put in the terms of the rule (the items at a position, the amounts of one party), not in terms of the variables you built the state from, and give each the message `"Given: <the fact>"`. For example `assert all(seat["taken"] for seat in hall.seats if seat["row"] == 3), "Given: every seat in row 3 is taken"`, or `assert sum(line["amount"] for line in order.lines) == 120, "Given: the lines add up to 120"`. A state typed otherwise than you planned it then stops the test at that line and comes back to you, before anyone writes code against a state you did not mean. Assert this way only what you set through fields: a state reached through calls does not exist until those calls are implemented.

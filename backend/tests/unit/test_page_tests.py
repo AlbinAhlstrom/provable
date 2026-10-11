@@ -357,3 +357,22 @@ def test_the_harness_is_written_into_the_app_and_kept_current(tmp_path):
     ensure_harness(str(tmp_path))
     with open(path, encoding="utf-8") as f:
         assert f.read() == written
+
+
+def test_the_situation_a_rule_starts_from_is_part_of_what_the_model_is_asked(monkeypatch):
+    """
+    Given: A rule that carries the situation its Given names, and one that carries none
+    When: A test is written for each
+    Then: The first prompt shows the situation with its values; the second has no line for one
+    """
+    import agent_orchestrator
+    asked = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda prompt, stage="general", **k: asked.append(prompt) or "```python\n" + GOOD_TEST + "```")
+    app = page_tests.AppDescription(api="API", page="PAGE")
+    rule = {"title": "t", "given_when_then": "Given sent_order When b Then c"}
+
+    page_tests.write_test({**rule, "situation": "`sent_order`: an order already sent: status sent, lines 2"}, app)
+    page_tests.write_test(rule, app)
+
+    assert "- **Situation** `sent_order`: an order already sent: status sent, lines 2" in asked[0]
+    assert "**Situation**" not in asked[1]

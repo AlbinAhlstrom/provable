@@ -9,6 +9,7 @@ by code, so the builders that start from it side by side cannot disagree.
 """
 
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
@@ -61,24 +62,27 @@ def _one_of(*values: str) -> Dict[str, Any]:
 # on shapes of this contract: a schema is accepted while its properties and its lists together count no more than this.
 # So what code reads as structure is held by the schema, what is read as words is a text or a list of texts, and what
 # one part of a list holds is a field of the same list (`part_of`) rather than an object nested inside it.
-SCHEMA_WEIGHT_LIMIT = 66
+# The count is a guide and not the provider's own measure: a shape counting 66 was accepted, and another counting 66
+# (one more list of texts, two integers fewer) was refused until any one property was taken out. 65 is the largest
+# count no shape was refused at; a new shape is still tried against the provider before it is relied on.
+SCHEMA_WEIGHT_LIMIT = 65
 
 _FIELD = _object(name=_TEXT, part_of=_TEXT, type=_one_of(*FIELD_TYPES, PARTS), starts_as=_TEXT, holds=_TEXT,
                  values=_TEXTS, part_name=_TEXT)
 CONTRACT_SCHEMA: Dict[str, Any] = _object(
     product=_object(name=_TEXT, product_type=_TEXT, audience=_TEXT, loop=_TEXT, has=_TEXTS),
-    look=_object(summary=_TEXT, tokens=_TEXT, palette=_TEXT, type=_TEXT, parts=_TEXTS, narrow=_TEXT,
-                 grid_columns={"type": "integer"}, grid_rows={"type": "integer"}),
+    look=_object(summary=_TEXT, tokens=_TEXT, palette=_TEXT, parts=_TEXTS, narrow=_TEXT, grid=_TEXT),
     opening=_TEXT,
     records=_list(_object(name=_TEXT, origin=_one_of(CREATED, OPENED, FROM_START), fields=_list(_FIELD), shown=_TEXTS,
                           starting_records=_TEXT)),
-    fixed=_TEXTS,
+    fixed=_TEXT,
     actions=_list(_object(name=_TEXT, record=_TEXT, performed_by=_one_of(AUDIENCE, AUTOMATIC, OTHER), params=_TEXTS,
                           trigger=_TEXT, does=_TEXT)),
     read_out=_TEXTS,
+    situations=_TEXTS,
     refusals=_list(_object(name=_TEXT, action=_TEXT, raised_when=_TEXT, sentence=_TEXT, appears=_TEXT)),
-    rules=_list(_object(kind=_one_of(API_RULE, PAGE_RULE), title=_TEXT, record=_TEXT, action=_TEXT, given=_TEXT,
-                        when=_TEXT, then=_TEXT, sees=_TEXT, states_limit={"type": "boolean"})),
+    rules=_list(_object(kind=_one_of(API_RULE, PAGE_RULE), title=_TEXT, action=_TEXT, given=_TEXT, when=_TEXT,
+                        then=_TEXT, sees=_TEXT, plain=_TEXT, states_limit={"type": "boolean"})),
 )
 
 
@@ -195,12 +199,12 @@ class Refusal:
 class Rule:
     kind: str
     title: str
-    record: str = ""
     action: str = ""
-    given: str = ""
+    given: str = ""      # opens with the name of one of the contract's situations
     when: str = ""
     then: str = ""
-    sees: str = ""
+    sees: str = ""       # which parts then read what, in the names of `read_out`
+    plain: str = ""      # the rule as a person who uses the product says it: what a card shows
     states_limit: bool = False
 
 
@@ -218,11 +222,14 @@ class Look:
     summary: str = ""
     tokens: str = ""     # the draft theme's line: `background=#.. surface=#.. text=#.. accent=#.. on_accent=#.. heading=..`
     palette: str = ""
-    type: str = ""
     parts: List[str] = field(default_factory=list)
     narrow: str = ""
-    grid_columns: int = 0
-    grid_rows: int = 0
+    grid: str = ""       # `columns=9 rows=9` for a main view that is a grid of equal parts; empty otherwise
+
+    def grid_size(self) -> "tuple[int, int]":
+        """The columns and rows the main view opens with; 0 where the contract names none."""
+        columns, rows = (re.search(rf"{side}\s*=\s*(\d+)", self.grid or "") for side in ("columns", "rows"))
+        return (int(columns.group(1)) if columns else 0, int(rows.group(1)) if rows else 0)
 
 
 @dataclass
@@ -236,6 +243,7 @@ class ProductContract:
     read_out: List[str]
     refusals: List[Refusal]
     rules: List[Rule]
+    situations: List[str] = field(default_factory=list)   # each as `name = what it is in words: the values it holds`
     source: Dict[str, Any] = field(default_factory=dict, repr=False)  # the answer as it was given, for the record
 
     @classmethod
@@ -251,9 +259,10 @@ class ProductContract:
                                 fields=Field.of_record(r.get("fields") or []), shown=list(r.get("shown") or []),
                                 starting_records=str(r.get("starting_records") or ""))
                          for r in data["records"]],
-                fixed=list(data.get("fixed") or []), actions=[Action(**a) for a in data["actions"]],
+                fixed=[entry.strip() for entry in str(data.get("fixed") or "").split(";") if entry.strip()], actions=[Action(**a) for a in data["actions"]],
                 read_out=list(data.get("read_out") or []), refusals=[Refusal(**r) for r in data.get("refusals") or []],
-                rules=[Rule(**r) for r in data["rules"]], source=data)
+                rules=[Rule(**r) for r in data["rules"]], situations=[str(s) for s in data.get("situations") or []],
+                source=data)
         except (KeyError, TypeError) as exc:
             raise ContractError(f"The contract is not in the agreed form: {type(exc).__name__}: {exc}") from exc
 
@@ -278,10 +287,22 @@ class ProductContract:
                 spec_id=f"SPEC-{number:03d}", title=rule.title,
                 description=rule.sees if page_only else f"What the person sees: {rule.sees}",
                 given_when_then=f"Given {rule.given}, When {rule.when}, Then {outcome}",
-                target_aggregate=rule.record or self.records[0].name,
+                plain=rule.plain, situation=self._situation_of(rule.given),
+                target_aggregate=self._record_of(rule.action) if rule.action else self._worked_on().name,
                 kind=(SpecKind.PRESENTATION if page_only else SpecKind.BEHAVIOR).value,
                 is_mathematical_boundary=rule.states_limit))
         return specs
+
+    def _situation_of(self, given: str) -> str:
+        """The situation a Given names, as `name`: what it holds; empty when it names none. The longest name found
+        is the one meant, so a situation named after another (`order_sent`, `order_sent_twice`) is not mistaken."""
+        named = {name.strip(): holds.strip() for name, _, holds in (entry.partition("=") for entry in self.situations)}
+        found = [name for name in named if name and re.search(rf"(?<![\w]){re.escape(name)}(?![\w])", given)]
+        return f"`{max(found, key=len)}`: {named[max(found, key=len)]}" if found else ""
+
+    def _worked_on(self) -> Record:
+        """The record the page is about: the first one a person or the page makes, else the first."""
+        return next((r for r in self.records if r.origin != FROM_START), self.records[0])
 
     def action_manifest(self) -> Dict[str, Any]:
         """The action protocol in the form its readers know (action_protocol.py, the test and code writers)."""
@@ -334,6 +355,7 @@ class ProductContract:
             if record.starting_records:
                 lines.append(f"- starting records: {record.starting_records}")
         lines += ["", "## Fixed values"] + [f"- {entry}" for entry in self.fixed]
+        lines += ["", "## Situations the rules start from"] + [f"- {entry}" for entry in self.situations]
         lines += ["", "## Rules"]
         for spec, rule in zip(self.specs(), self.rules):
             sees = "" if rule.kind == PAGE_RULE else f" The person sees: {rule.sees}"
@@ -342,7 +364,7 @@ class ProductContract:
 
     def blueprint(self) -> str:
         """The page's plan: what a person meets, where each action is done, how parts are read out, and the look."""
-        columns, rows = self.look.grid_columns, self.look.grid_rows
+        columns, rows = self.look.grid_size()
         lines = ["### 1. Opening", self.opening, "", "### 2. Where each action is done"]
         for action in self.actions:
             if action.performed_by == AUDIENCE:
@@ -361,7 +383,7 @@ class ProductContract:
         lines += ["", "### 6. Visual Direction", self.look.summary, f"TOKENS {self.look.tokens}"]
         if columns > 0:
             lines.append(f"LAYOUT columns={columns} rows={rows if rows > 0 else 'auto'}")
-        lines += [f"Palette: {self.look.palette}", f"Type: {self.look.type}", "Parts, in the order they sit on the page:"]
+        lines += [f"Palette: {self.look.palette}", "Parts, in the order they sit on the page:"]
         lines += [f"- {part}" for part in self.look.parts]
         lines.append(f"On a narrow screen: {self.look.narrow}")
         return "\n".join(lines)

@@ -26,13 +26,12 @@ One JSON object with the keys below. Every text is short; a list is written out 
 - `has`: every choice, setting and convenience the product offers a person, one entry each, and for a product known by sight every entry of its menus, toolbars and dialogs; each entry ends in "(kept)" or "(left out: the reason)". Everything kept appears below as fields, actions and rules.
 
 ### `look`
-- `summary`: one sentence for the look as a whole.
+- `summary`: one sentence for the look as a whole, and one for the typeface and its sizes.
 - `tokens`: the five colours and the heading typeface the page is themed with before it is written, as one line in exactly this form, each colour a six-digit hex value and the typeface one of `serif`, `sans`, `mono`: `background=#f4f1ea surface=#ffffff text=#1f2328 accent=#0b6e4f on_accent=#ffffff heading=sans`.
 - `palette`: every colour as a hex value with what it is for, separated by semicolons.
-- `type`: the typeface and sizes.
 - `parts`: one entry per part a person sees, in the order the parts sit on the page, starting with what lies behind and around the main view, at most 30 words each: the part, where it sits, its size in pixels where it has a fixed one, its colour and surface (flat, raised, sunken, outlined, shadowed), what it shows, and every other look it can have with what brings that about (while pressed or held, when selected, unavailable, finished, failed). Where things of one kind are told apart by a colour or a mark, every one of them is given its colour or mark.
 - `narrow`: what changes on a screen 375 pixels wide (what stacks, what scrolls inside itself, what shrinks).
-- `grid_columns`, `grid_rows`: when the main view is a grid of equal parts (a playing field, a calendar month, a seating plan), how many columns and rows it opens with; 0 for a view that is not a grid or grows with its content.
+- `grid`: when the main view is a grid of equal parts (a playing field, a calendar month, a seating plan), the columns and rows it opens with, in exactly this form: `columns=7 rows=5`; empty for a view that is not a grid or grows with its content.
 
 ### `opening`
 What a person meets on arrival, before doing anything, in three sentences: which records exist at that moment and which one the page shows (the newest, a chosen one, a list of all), and when none exists yet, what a person meets (a record of an `origin` `created_on_opening` is made at that moment and holds its `starts_as` values; otherwise which empty wording is shown); the parts visible and what each holds at that moment; and what a person sees who reloads the page in the middle of the loop.
@@ -50,7 +49,7 @@ One entry per kind of record: its `name` and its `origin`, which says who makes 
 `shown` lists each value the page shows that is worked out from fields (a remaining count, a total, a free or taken slot), as `name = how it is worked out`.
 
 ### `fixed`
-Every number or wording the rules depend on that never changes (a limit, opening hours, a size per level), one entry each as `name = value`, stated here once and used by name below.
+Every number or wording the rules depend on that never changes (a limit, opening hours, a size per level), as one text of entries separated by semicolons, each as `name = value`, stated here once and used by name below.
 
 ### `actions`
 An action is something the page sends to the API that creates or changes a record; picking and typing before that are not actions. One entry per action:
@@ -62,14 +61,23 @@ An action is something the page sends to the API that creates or changes a recor
 Where an action depends on the present moment (what is past, what is due, how long something took), it takes that moment from the API's clock; where it depends on chance (what is dealt, where something is placed), `does` says what must hold of the outcome whatever the chance.
 
 ### `read_out`
-How each part is found by someone who cannot see the page, and by a test: one entry per part or control, as `part · role · "name"`, with the role one of button, textbox, grid, gridcell, dialog, menuitem, checkbox, status, heading, list, listitem, img. A name built from a record's values is written as a pattern with the fields in braces (`"Row {row}, column {column}, {state wording}"`, `"Table {number}, {status wording}"`) and is the same in every state except for those values. Include every control of `actions`, every part that shows a field, and every dialog and message.
+How each part is found by someone who cannot see the page, and by a test: one entry per part or control, as `part · role · "name"`, with the role one of button, textbox, grid, gridcell, dialog, menuitem, checkbox, status, heading, list, listitem, img. A name built from a record's values is written as a pattern with the fields in braces (`"Row {row}, column {column}, {state wording}"`, `"Table {number}, {status wording}"`) and is the same in every state except for those values. A part that a rule tells apart by the state it is in (chosen, open, held down, unavailable, finished) says that state in its name, as a value in braces, so that what a rule promises is read out and not only seen. Include every control of `actions`, every part that shows a field, and every dialog and message.
+
+### `situations`
+The few states the rules start from, each written once and whole, so that everyone who arranges one arrives at the same records. One entry each, as `name = what it is in a person's words: the values it holds`, the name in `snake_case`. The values are those of the fields of `records`: every field that differs from its `starts_as`, and for a list of parts how many there are and, by position, which of them hold what (every other part holds its `starts_as` values). For example `two_lines_unsent = an order of two lines that has not been sent: status draft; lines 2: line 1 item "soup" price 40.00, line 2 item "bread" price 15.00; total 55.00`, or `corner_taken = a hall of three rows of three where one corner seat is taken: rows 3, columns 3; seats 9, all free except row 1 seat 1 taken`.
+
+A situation is as small as shows its rules (a grid of three by three where the product opens with thirty by sixteen, an order of two lines, a day of two slots) and holds fixed values wherever an outcome depends on them: nothing in it is left to chance or to the present moment. A value worked out from others (how many neighbours hold something, a total) is given as the number that follows from the rest. Check each one by going through it against the rules that start from it: the rule's outcome must follow from these values and from no others. A few situations serve many rules; a rule that needs something a little different names the nearest one and says what differs.
 
 ### `refusals`
 One entry per way an action is turned down: its `name`, the `action` it belongs to, `raised_when`, the exact `sentence` the person reads, and where on the page it `appears`. An action that is simply ignored (nothing changes, nothing is said) is not a refusal; the rule says so.
 
 ### `rules`
-One entry per rule. Every rule that governs the loop is here, with its special cases and exceptions as rules of their own; where the product follows an established set of rules, every rule of that set. Each has a short `title`, the `record` it is about, and a `kind`:
-- `api`, a rule the records obey: `given` the fields and values the records start with; `action`, exactly one action of `actions`, and `when` that action with its parameters; `then` the fields and values afterwards, or the refusal by name, or "nothing changes"; `sees` what the person sees on the page as a result, in the names of `read_out` and the wordings and looks above.
-- `page`, a rule of the page alone, where no action is sent (what is offered or unavailable, what a held press shows, what a dialog does when dismissed): `given` what the page shows, `when` the gesture, `sees` the result; `action` and `then` are empty.
+One entry per rule. Every rule that governs the loop is here, with its special cases and exceptions as rules of their own; where the product follows an established set of rules, every rule of that set. Each has a short `title` and a `kind`:
+- `api`, a rule the records obey: `given` the name of one of `situations`, and after it only what differs from it for this rule; `action`, exactly one action of `actions`, and `when` that action with the value of every parameter, and nothing before it: whatever has to have happened first is the situation's to hold, in a situation of its own where none fits; `then` the fields and values afterwards for exactly that state, each named by its position or number where there are several, or the refusal by name, or "nothing changes"; `sees` what the page then reads out.
+- `page`, a rule of the page alone, where no action is sent (what is offered or unavailable, what a held press shows, what a dialog does when dismissed): `given` the name of one of `situations` and what the page shows on top of it (which menu is open, what has been typed); `when` the gesture and the part of `read_out` it is done on, by its name; `sees` what the page then reads out; `action` and `then` are empty.
+
+`sees` is written so that it can be checked without looking: each part of `read_out` that changed, by its name as it is then read with the values filled in (`"Table 2, taken"`, `"Total 55.00"`), a part that is no longer there as `no "name"`, one that cannot be used as `"name" unavailable`, and a refusal by its sentence. What only looks different (a colour, a surface while held down) is described in `look.parts`; where a rule depends on it, the part says that state in its name, and `sees` gives the name.
+
+`plain` is the same rule as a person who uses the product would tell it to another, as `Given ..., When ..., Then ...` in everyday words: none of the names above and no value written the way code writes it.
 
 A rule about something that follows from an action (the loop ends, a result is recorded) is an `api` rule whose action is the one that brings it about, from a `given` one step before it. `states_limit` is true for a rule that states a limit; such a rule gives the number, by its name in `fixed`.

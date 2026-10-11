@@ -31,7 +31,7 @@ comparable product elsewhere. The timeline of that run:
    entry kept or left out with the reason).
 4. **The schema holds what code reads.** The answer is a structured one. Who performs an action, the kind of a rule
    and the type of a field are fixed sets, and every key is required, so an action "by user" or a rule without its
-   action cannot be written. The provider refuses a schema whose properties and lists together count more than 66
+   action cannot be written. The provider refuses a schema whose properties and lists together count more than about 65
    (measured; `SCHEMA_WEIGHT_LIMIT`, guarded by a test), so what is read as words is a text or a list of texts, and
    what one part of a list holds is a field of the same list (`part_of`) rather than an object nested inside it.
 5. **A rule is of the records or of the page.** A rule the records obey names exactly one action and goes through
@@ -96,6 +96,28 @@ the newest record, or a new one in its starting state. The page's writer is told
 writes the list-or-create itself. Measured: the contract chose the origin as meant for a grid game, a booking
 page and a board of cards, and six of six pages written from the game's contract call the open function and
 neither list nor create a record themselves.
+
+## What a rule is written from
+A rule used to start from loose words ("playing, a hidden square with no mines around it") and end in free prose
+("the square looks flat", "clicking outside closes it"). Every test writer then made up its own whole state, which is
+where its hidden thinking went and where states the product can never be in came from; and the page writer and the
+test writer each read the outcome their own way, so neither a pass nor a fail said much.
+
+- **Situations.** The contract writes the few states its rules start from once (`situations`, each as
+  `name = what it is in words: the values it holds`), as small as shows the rules and with nothing left to chance.
+  A rule's Given names one. The spec carries it (`BusinessSpec.situation`), and both test writers are shown it and
+  told to arrange exactly that.
+- **One action, with its values.** A rule's When is one action with the value of every parameter. What has to have
+  happened first belongs to the situation.
+- **Outcomes that are read out.** `sees` names the parts of `read_out` that changed, by the name each then carries.
+  A part a rule tells apart by its state says that state in its name; a look alone is the look's, not a rule's.
+- **Two wordings.** `given_when_then` is the exact line tests are written from, in the contract's names. `plain`
+  is the same rule as a person who uses the product says it, which is what a card shows.
+- **A rule's record is read, not written.** It is the record its action is sent to; for a rule of the page alone,
+  the record a person or the page makes.
+
+Measured on the minesweeper pitch, the first tests of the eleven rules written side by side: the slowest took 15 s
+(30 s before) and the mean 11 s (15 s). The contract itself grew by about 5 s (32 s to 37 s).
 
 ## Consequences
 - The front is one stage (`contract`) of some 25 to 40 s in place of five.
