@@ -18,7 +18,7 @@ page = app.open(width=1280, height=800)            # opens the app in a browser;
 - **Then: what the person can see.** Assert on what the page shows after the When. Where the rule is about something the app records and the page does not show (what was stored, which hidden items changed), read the record with `app.record` or `app.records` after the page has shown that the action is done, and assert the values the rule names (a status, a total, what a field holds). How the app keeps a thing is its own choice, and the rule holds either way: something that starts over (a round begun again, a draft replaced, a basket emptied) may be the same record made new or a second record beside the first, so find the record the page now shows and assert on its values, and leave out how many records there are and which id the new one has unless the rule itself states it.
 
 ## Finding a control
-Find controls the way a person does, by role and by the name read out for them: `page.get_by_role("button", name="Send order")`, `page.get_by_label("Email")`, `page.get_by_text("Sold out")`. Two things below show which roles, names and texts exist. "The page as it opens" lists what a browser read out from the opened page, each line a role and the name it carries: take a name from there as it is written. The page's source shows the rest: what is behind a menu or in a dialog that was closed, how a name is built from a record's values, and which record the page shows when it opens (the newest one, a chosen one, a list of all). A name built from values (`"Row 2, column 3, empty"`, `"Table 4, free"`) is matched with the values your Given produces. A name you give matches every control whose name contains it, so give the whole name with `exact=True`; leave it out only when you mean to match a part. Use a CSS selector only for something that has no role, name or text.
+Find controls the way a person does, by role and by the name read out for them: `page.get_by_role("button", name="Send order")`, `page.get_by_label("Email")`, `page.get_by_text("Sold out")`. Two things below show which roles, names and texts exist. "The page as it opens" lists what a browser read out from the opened page, each line a role and the name it carries: take a name from there as it is written. The section after it shows the rest: what is behind a menu or in a dialog that was closed, how a name is built from a record's values, and which record the page shows when it opens (the newest one, a chosen one, a list of all). A name built from values (`"Row 2, column 3, empty"`, `"Table 4, free"`) is matched with the values your Given produces. A name you give matches every control whose name contains it, so give the whole name with `exact=True`; leave it out only when you mean to match a part. Use a CSS selector only for something that has no role, name or text.
 
 ## The app's API
 A collection is created, listed and read under `/api/<collection>`, and its actions are the public methods of its class; `app` calls them for you. Field names, their defaults and the actions' parameters:
@@ -32,8 +32,7 @@ What a browser read out when the page opened on an app holding only the records 
 {rendered}
 ```
 
-## The page's source
-{page}
+{page_block}
 
 ## Rules for the test
 1. Write ONE pytest module that proves the rule below: arrange (Given), act on the page (When), assert (Then).

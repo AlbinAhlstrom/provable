@@ -376,3 +376,58 @@ def test_the_situation_a_rule_starts_from_is_part_of_what_the_model_is_asked(mon
 
     assert "- **Situation** `sent_order`: an order already sent: status sent, lines 2" in asked[0]
     assert "**Situation**" not in asked[1]
+
+
+SPECIFICATION = """# Table Booking
+
+## Rules
+- SPEC-001 [api] A booking holds its table: Given a free table, When it is booked, Then it is taken.
+
+## The page
+### 1. Opening
+The floor plan shows every table free.
+
+### 3. How each part is read out (role and name, used as written)
+- Table · button · "Table {number}, {status wording}"
+
+### 5. Refusals (the sentence is shown as written)
+- (none)
+
+### 6. Visual Direction
+A warm, plain booking page.
+TOKENS background=#faf6f1"""
+
+
+def test_the_pages_plan_is_read_from_the_stored_specification():
+    """
+    Given: A product's stored specification with the page's plan in it, and one without
+    When: The plan is read from each
+    Then: The first gives the opening, the parts' names and the refusals, without the rules before it or the look
+          after it; the second gives nothing
+    """
+    plan = page_tests.page_plan(SPECIFICATION)
+
+    assert plan.startswith("### 1. Opening") and plan.endswith("- (none)")
+    assert 'Table · button · "Table {number}, {status wording}"' in plan
+    assert "SPEC-001" not in plan and "Visual Direction" not in plan and "TOKENS" not in plan
+    assert page_tests.page_plan("A booking page for a restaurant.") == ""
+
+
+def test_a_test_is_written_from_the_pages_plan_and_not_from_its_source(monkeypatch):
+    """
+    Given: An app described with the plan its page was built from, and one described without a plan
+    When: A test is written for each
+    Then: The first prompt holds the plan and none of the page's source, so nothing in the test can lean on how
+          the page happens to be written; the second holds the source, the only account of the page there is
+    """
+    import agent_orchestrator
+    asked = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda prompt, stage="general", **k: asked.append(prompt) or "```python\n" + GOOD_TEST + "```")
+    rule = {"title": "t", "given_when_then": "Given a When b Then c"}
+
+    page_tests.write_test(rule, page_tests.AppDescription(api="API", page="<button className='raised'>", plan='- Table · button · "Table 1, free"'))
+    page_tests.write_test(rule, page_tests.AppDescription(api="API", page="<button className='raised'>"))
+
+    assert "## The page's plan" in asked[0] and '- Table · button · "Table 1, free"' in asked[0]
+    assert "className='raised'" not in asked[0] and "## The page's source" not in asked[0]
+    assert "## The page's source" in asked[1] and "className='raised'" in asked[1] and "## The page's plan" not in asked[1]

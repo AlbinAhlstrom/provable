@@ -87,11 +87,11 @@ def test_a_rules_page_test_is_run_through_the_api(monkeypatch):
     services.add_rule_card({"id": "SPEC-001", "title": "A rule", "card_type": "LOGIC", "target": "global",
                             "given_clause": "a", "when_clause": "b", "then_clause": "c", "is_active": True}, uow=fake_uow)
 
-    def prover(rule, workspace_dir, page_url, stored=None, app=None):
+    def prover(rule, workspace_dir, page_url, stored=None, app=None, plan=""):
         return {"status": "fail", "reason": "AssertionError: nothing happened", "evidence": "", "source": "s",
                 "written_for": "x", "written": 1}
     monkeypatch.setattr(rule_tests.page_tests, "prove_rule", prover)
-    monkeypatch.setattr(rule_tests.page_tests, "describe_app", lambda ws, url: None)
+    monkeypatch.setattr(rule_tests.page_tests, "describe_app", lambda ws, url, plan="": None)
 
     one = client.post("/api/specs/rules/SPEC-001/test")
     assert one.status_code == 200 and one.json()["status"] == "fail" and one.json()["success"] is False

@@ -48,11 +48,15 @@ class Verdict:
 
 @dataclass
 class AppDescription:
-    """What the test writer is shown of an app: how records are arranged, the page's source, and what the opened
-    page reads out (roles and names as a browser found them, so that a control's name is seen and not guessed)."""
+    """What the test writer is shown of an app: how records are arranged, what the opened page reads out (roles
+    and names as a browser found them, so that a control's name is seen and not guessed), and the plan the page was
+    built from. A test is written from the plan, which says what the page is to do, and not from the page's source,
+    which says how it happens to do it; the source is shown only where there is no plan (and to `rule_fix`, which
+    changes it)."""
     api: str
     page: str
     rendered: str = ""
+    plan: str = ""
 
 
 def rule_text(rule: Dict[str, Any]) -> str:
@@ -197,7 +201,8 @@ def _feedback(source: str, verdict: Verdict) -> str:
     if verdict.could_not_judge:
         return ("\n## Your previous test could not judge the rule\n" + shown +
                 "Write the test again so that it can judge the rule. If a control the test waited for is not on the "
-                "page under that role and name, find the control by what the page's source gives it.\n")
+                "page under that role and name, find the control by the role and name it is shown to carry "
+                "above.\n")
     return ("\n## Your previous test ran and an assertion did not hold\n" + shown +
             "Either the app does not keep the rule, or the test expects something the rule does not say for the "
             "records it arranged. Go through the test once more against the rule: are the arranged records what the "
@@ -303,10 +308,33 @@ def read_out_page(workspace_dir: str, page_url: str) -> str:
         return condense(f.read())
 
 
+_PLAN_STARTS, _PLAN_ENDS = "### 1. Opening", "### 6. Visual Direction"
+
+
+def page_plan(specification: str) -> str:
+    """The page's plan as a product's stored specification holds it (`ProductContract.blueprint()`): how the page
+    opens, where each action is done, how each part is read out, its wordings and its refusals. The look that
+    follows is left out, since no rule is told apart by a look. Empty when the specification holds no plan."""
+    text = (specification or "").replace("\r\n", "\n")
+    start = text.find(_PLAN_STARTS)
+    if start < 0:
+        return ""
+    end = text.find(_PLAN_ENDS, start)
+    return text[start:end if end >= 0 else len(text)].strip()
+
+
+def _page_block(app: AppDescription) -> str:
+    if app.plan:
+        return ("## The page's plan\nWhat the page was built from: how it opens, where each action is done, the role "
+                "and name each part is read out by (a value in braces is filled in from the record shown), its "
+                "wordings, and the sentence shown when something is refused.\n\n" + app.plan)
+    return "## The page's source\n" + app.page
+
+
 def describe_app(workspace_dir: str, page_url: Optional[str] = None,
-                 read_out: Optional[Callable[[str, str], str]] = None) -> AppDescription:
+                 read_out: Optional[Callable[[str, str], str]] = None, plan: str = "") -> AppDescription:
     rendered = (read_out or read_out_page)(workspace_dir, page_url) if page_url else ""
-    return AppDescription(api=_api_of(workspace_dir), page=_page_of(workspace_dir), rendered=rendered)
+    return AppDescription(api=_api_of(workspace_dir), page=_page_of(workspace_dir), rendered=rendered, plan=plan)
 
 
 # ── the model and the browser ────────────────────────────────────────────────
@@ -322,7 +350,7 @@ def write_test(rule: Dict[str, Any], app: AppDescription, feedback: str = "") ->
     import agent_orchestrator
     prompt = agent_orchestrator.load_prompt("page_test_generation.md", {
         "title": rule.get("title", ""), "description": rule.get("description", ""), "rule": rule_text(rule),
-        "api": app.api, "page": app.page, "rendered": app.rendered, "feedback_block": feedback,
+        "api": app.api, "page_block": _page_block(app), "rendered": app.rendered, "feedback_block": feedback,
         "situation_block": f"\n- **Situation** {rule['situation']}" if rule.get("situation") else "",
     })
     raw = agent_orchestrator.call_gemini(prompt, stage="page_test_generation")
@@ -349,13 +377,13 @@ def run_test(workspace_dir: str, spec_id: str, source: str, page_url: str) -> Ve
 
 @traced("page_test.prove")
 def prove_rule(rule: Dict[str, Any], workspace_dir: str, page_url: str, stored: Optional[Dict[str, Any]] = None,
-               app: Optional[AppDescription] = None) -> Dict[str, Any]:
+               app: Optional[AppDescription] = None, plan: str = "") -> Dict[str, Any]:
     """`prove` with the model writing and a browser running."""
     described: List[AppDescription] = [app] if app else []
 
     def write(the_rule: Dict[str, Any], feedback: str) -> str:
         if not described:  # only read when a test has to be written
-            described.append(describe_app(workspace_dir, page_url))
+            described.append(describe_app(workspace_dir, page_url, plan=plan))
         return write_test(the_rule, described[0], feedback)
 
     return prove(rule, write=write, run=lambda source: run_test(workspace_dir, rule_id(rule), source, page_url), stored=stored)

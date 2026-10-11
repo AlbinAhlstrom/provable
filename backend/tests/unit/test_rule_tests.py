@@ -18,8 +18,8 @@ class _Prover:
     def __init__(self, status="pass", reason=None):
         self.calls, self.status, self.reason = [], status, reason
 
-    def __call__(self, rule, workspace_dir, page_url, stored=None, app=None):
-        self.calls.append({"rule": rule, "stored": stored, "page_url": page_url})
+    def __call__(self, rule, workspace_dir, page_url, stored=None, app=None, plan=""):
+        self.calls.append({"rule": rule, "stored": stored, "page_url": page_url, "plan": plan})
         return {"status": self.status, "reason": self.reason, "evidence": "", "source": "def test_x(app): ...",
                 "written_for": "x", "written": 0 if stored else 1}
 
@@ -100,10 +100,10 @@ def test_running_the_deck_runs_every_active_rule_and_counts_the_outcomes():
     uow = _deck(CARD, {**CARD, "id": "SPEC-002"}, paused)
     outcomes = {"SPEC-001": "pass", "SPEC-002": "fail"}
 
-    def prover(rule, workspace_dir, page_url, stored=None, app=None):
+    def prover(rule, workspace_dir, page_url, stored=None, app=None, plan=""):
         return {"status": outcomes[rule["id"]], "reason": None, "evidence": "", "source": "s", "written_for": "x", "written": 1}
 
-    result = rule_tests.run_all_rule_tests(uow=uow, workspace_dir="ws", page_url="p", prove=prover, describe=lambda ws, url: None)
+    result = rule_tests.run_all_rule_tests(uow=uow, workspace_dir="ws", page_url="p", prove=prover, describe=lambda ws, url, plan="": None)
 
     assert result["counts"] == {"pass": 1, "fail": 1, "broken": 0}
     assert [r["spec_id"] for r in result["rules"]] == ["SPEC-001", "SPEC-002"]
@@ -119,12 +119,12 @@ def test_a_rule_whose_run_crashes_is_broken_and_the_others_still_run():
     """
     uow = _deck(CARD, {**CARD, "id": "SPEC-002"})
 
-    def prover(rule, workspace_dir, page_url, stored=None, app=None):
+    def prover(rule, workspace_dir, page_url, stored=None, app=None, plan=""):
         if rule["id"] == "SPEC-001":
             raise OSError("no browser")
         return {"status": "pass", "reason": None, "evidence": "", "source": "s", "written_for": "x", "written": 1}
 
-    result = rule_tests.run_all_rule_tests(uow=uow, workspace_dir="ws", page_url="p", prove=prover, describe=lambda ws, url: None)
+    result = rule_tests.run_all_rule_tests(uow=uow, workspace_dir="ws", page_url="p", prove=prover, describe=lambda ws, url, plan="": None)
     by_id = {r["spec_id"]: r for r in result["rules"]}
     assert (by_id["SPEC-001"]["status"], by_id["SPEC-002"]["status"]) == ("broken", "pass")
     assert "no browser" in by_id["SPEC-001"]["reason"]
@@ -191,3 +191,23 @@ def test_fixing_an_unknown_rule_is_reported():
     """
     result = rule_tests.fix_rule_test("SPEC-404", uow=FakeUnitOfWork(), workspace_dir="ws", page_url="p", fixer=None)
     assert result["status"] == "not_found"
+
+
+def test_the_test_writers_are_given_the_plan_the_page_was_built_from():
+    """
+    Given: A deck whose product's stored specification holds the page's plan
+    When: One rule's test is run, and then every rule's
+    Then: The prover of the one rule is handed the plan, and the app is described once, with the plan, for all
+    """
+    uow, prover, described = _deck(CARD), _Prover(), []
+    with uow:
+        state = uow.kickstart.get()
+        state.business_pitch = "# Shop\n\n## The page\n### 1. Opening\nAn empty basket.\n\n### 6. Visual Direction\nPlain."
+        uow.kickstart.save(state)
+
+    rule_tests.run_rule_test("SPEC-001", uow=uow, workspace_dir="ws", page_url="p", prove=prover)
+    rule_tests.run_all_rule_tests(uow=uow, workspace_dir="ws", page_url="p", prove=prover,
+                                  describe=lambda ws, url, plan="": described.append(plan))
+
+    assert prover.calls[0]["plan"] == "### 1. Opening\nAn empty basket."
+    assert described == ["### 1. Opening\nAn empty basket."]

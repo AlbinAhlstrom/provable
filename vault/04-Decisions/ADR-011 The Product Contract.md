@@ -116,6 +116,11 @@ test writer each read the outcome their own way, so neither a pass nor a fail sa
 - **The deck is the contract's rules and nothing else** (`backend/onboarding/rule_deck.py`). Six cards every
   product used to get (a visual workspace, a status display, viewport containment and the like) are gone: no rule
   stood behind them, so their tests were invented and their verdicts said nothing. What they stood for is QA's.
+- **A page test is written from the page's plan.** The test writer is shown the plan the page was built from
+  (opening, where each action is done, read-out names, wordings, refusals; `page_tests.page_plan`) and what the
+  opened page reads out, not the page's source. The plan says what the page is to do; the source says how it
+  happens to do it, and a test written from it proves the page against itself. The source is shown only where a
+  product has no plan.
 - **A rule's record is read, not written.** It is the record its action is sent to; for a rule of the page alone,
   the record a person or the page makes.
 
