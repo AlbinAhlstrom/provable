@@ -1,8 +1,8 @@
 """
 The gates a written page goes through: QA, then one visual review.
 
-    QA            layout on three devices, forms, console, contrast, types, and every part the plan names
-                  (page_parts.py); one rework with the defects as feedback
+    QA            layout on three devices, forms, console, contrast, types, every part the plan names
+                  (page_parts.py) and an opening that shows at least one of them (qa_opening_check.py); one rework with the defects as feedback
     visual review one look at QA's screenshots, repairs as class changes; only for a page that passed QA
 
 Both a kickstart and a page rebuild (`page_rebuild.py`) end here, so a page is judged the same way however it came to
@@ -67,7 +67,8 @@ def run_page_gates(
         else:
             from onboarding.qa_auditor import run_responsive_qa_audit
             last_audit["report"] = run_responsive_qa_audit(url=PREVIEW_URL, save_screenshots=True,
-                                                          workspace_dir=workspace_dir, api_ready_url=API_READY_URL)
+                                                          workspace_dir=workspace_dir, api_ready_url=API_READY_URL,
+                                                          parts=parts_of(ux_blueprint))
         absent = missing_parts(parts_of(ux_blueprint), _sources(presentation.get("files", [])))
         if absent:  # a part the plan names and the page lacks is a defect like any other the audit finds
             report = last_audit["report"]

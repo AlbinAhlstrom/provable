@@ -10,6 +10,8 @@ That list is the page's extent. It is read here once and used twice:
                    before it writes the files (prompts/presentation_projection_synthesis.md)
     missing_parts  the written page is looked through for every part; one that is not there is a QA defect, so it
                    goes through the single rework QA allows (page_gates.py)
+    present_parts  the page as opened in a browser is looked through the same way: none of its parts on screen is
+                   a page that never gets going (qa_opening_check.py)
 
 The look-through reads source, not a rendered page: a dialog or the items of a menu are not on screen until a step
 brings them up, and they are the parts a hurried page leaves out. It is a presence check and claims no more: a part
@@ -79,9 +81,16 @@ def _has_name(name: str, source: str) -> bool:
     return all(re.search(r"(?<!\w)" + re.escape(words) + r"(?!\w)", source, re.IGNORECASE) for words in fixed)
 
 
+def present_parts(parts: Iterable[Part], sources: Iterable[str]) -> List[Part]:
+    """The parts found in the sources: the page's files, or the document of the page as opened."""
+    source = "\n".join(sources)
+    return [part for part in parts if _has_role(part.role, source) and _has_name(part.name, source)]
+
+
 def missing_parts(parts: Iterable[Part], sources: Iterable[str]) -> List[str]:
     """One defect for each part the page's files do not have."""
-    source = "\n".join(sources)
+    parts = list(parts)
+    found = present_parts(parts, sources)
     return [f'{MISSING}The plan names "{part.what}" ({part.role}, read out as "{part.name}") and the page does not '
             f'have it. Write it as the plan describes it, with the step that brings it up.'
-            for part in parts if not (_has_role(part.role, source) and _has_name(part.name, source))]
+            for part in parts if part not in found]

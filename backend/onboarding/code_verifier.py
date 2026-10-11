@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 import agent_orchestrator
 from agent_orchestrator import call_gemini
 from onboarding.page_parts import MISSING
+from onboarding.qa_opening_check import EMPTY
 from onboarding.verification import compile_tsx
 
 
@@ -183,9 +184,9 @@ def self_heal_presentation_suite(
                       "them, and a request the API refuses is shown to the user as it is) ---\n"
                       + "\n".join(contracts) + "\n") if contracts else ""
 
-    plan_block = ("\n--- THE PAGE'S PLAN (a defect that names a missing part is answered by writing that part as this "
-                  "plan describes it: its role, its name, what brings it up and what it does) ---\n"
-                  + plan + "\n") if plan and any(d.startswith(MISSING) for d in defects) else ""
+    plan_block = ("\n--- THE PAGE'S PLAN (a defect that names a missing part, or a page that opens empty, is answered from this "
+                  "plan: a part by its role, its name, what brings it up and what it does; the opening by its section) ---\n"
+                  + plan + "\n") if plan and any(MISSING in d or EMPTY in d for d in defects) else ""
 
     prompt = f"""You are Provable's Principal Lead Frontend Architect.
 The live application preview on :5174 failed runtime verification.
