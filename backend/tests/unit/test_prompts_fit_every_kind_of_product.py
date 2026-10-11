@@ -182,3 +182,19 @@ def test_a_frame_sized_by_what_it_holds_takes_its_width_from_it():
     assert "is written once, on the repeated part itself" in page
     assert "takes its width from what it holds (`w-fit`)" in page
     assert "a width the blueprint gives for such a frame is what that comes to" in page
+
+
+def test_a_page_test_judges_what_the_rule_names_not_how_the_app_keeps_it():
+    """Verify a page test that reads a record asserts the values the rule names, whichever way the app stores them
+    (a rule said a new round is created when the level changes; the app started the same record over, the page
+    showed exactly that, and the test failed for counting one stored record where it expected two).
+
+    id: TST-KINDS-011
+    Given: The prompt of the page test
+    When: It is read
+    Then: A record is read for the values the rule names, and how many records hold a thing or which id it has is
+          left to the app
+    """
+    page_test = _prompt("page_test_generation.md")
+    assert "assert the values the rule names" in page_test
+    assert "How the app keeps a thing is its own choice" in page_test
