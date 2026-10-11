@@ -10,9 +10,12 @@ from dataclasses import asdict
 
 import pytest
 
-from onboarding.build_progress import FINAL_CHECKS, STAGE_LABELS, BuildProgress, current_progress
+from onboarding.build_progress import (DRAFT_STAGE, FINAL_CHECKS, FRONTS, PHASE_JITTER, PHASES_DONE_BY, STAGE_LABELS,
+                                       STAGE_PHASES, BuildProgress, current_progress, phase_ends)
 
-BUILD_STAGES = [name for name in STAGE_LABELS if name not in FINAL_CHECKS]
+CONTRACT_FRONT, STAGED_FRONT = FRONTS
+OPENING_STAGES = list(CONTRACT_FRONT + STAGED_FRONT) + [DRAFT_STAGE]          # before there is anything to show
+BUILD_STAGES = [name for name in STAGE_LABELS if name not in OPENING_STAGES and name not in FINAL_CHECKS]
 from onboarding.router_engine import BusinessSpec, SpecKind
 from onboarding.spec_runner import run_behaviour_specs
 from run_recorder import recorded_run, stage_begin
@@ -33,7 +36,7 @@ def test_nothing_is_reported_as_building_when_no_kickstart_runs():
 
 
 def _started(progress):
-    return [(s.name, s.status) for s in progress.stages if s.status != "pending"]
+    return [(s.name, s.status) for s in progress.opening + progress.stages if s.status != "pending"]
 
 
 def _finished_build(root, durations):
@@ -60,7 +63,7 @@ def test_a_running_kickstart_reports_its_stages_in_plain_words(tmp_path):
 
     assert progress.building is True and progress.run_id == run.id
     assert _started(progress) == [("skeleton", "ok"), ("presentation", "running")]
-    assert all(s.label and s.label != s.name for s in progress.stages)
+    assert all(s.label and s.label != s.name for s in progress.opening + progress.stages)
     assert progress.draft_ready is True and progress.page_ready is False
 
 
@@ -140,7 +143,7 @@ def test_progress_serialises_for_the_studio(tmp_path):
     assert data["building"] is True and data["page_ready"] is True and data["rules"] is None
     page = next(s for s in data["stages"] if s["name"] == "presentation")
     assert page == {"name": "presentation", "label": page["label"], "status": "ok", "error": None,
-                    "weight": page["weight"], "fraction": 1.0}
+                    "weight": page["weight"], "fraction": 1.0, "phases": [], "phase": 0}
     assert isinstance(data["percent"], float)
 
 
@@ -150,16 +153,18 @@ def test_every_stage_of_the_build_is_listed_from_the_start(tmp_path):
     id: TST-PROGRESS-007
     Given: A kickstart that has only read the idea so far
     When: The progress is asked for
-    Then: Every stage that builds the app is listed in pipeline order, the ones not begun as pending; the checks
-          made on the finished app are listed apart
+    Then: The stages of that opening are listed up to the first draft, and apart from them every stage that comes
+          after it in pipeline order, the ones not begun as pending; the checks made on the finished app are
+          listed apart too
     """
     with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
         stage_begin("intent").ok()
         progress = current_progress()
 
+    assert [s.name for s in progress.opening] == list(STAGED_FRONT) + [DRAFT_STAGE]
     assert [s.name for s in progress.stages] == BUILD_STAGES
     assert [(s.name, s.status) for s in progress.final_checks] == [(name, "pending") for name in FINAL_CHECKS]
-    assert {s.status for s in progress.stages if s.name != "intent"} == {"pending"}
+    assert {s.status for s in progress.opening + progress.stages if s.name != "intent"} == {"pending"}
 
 
 def test_a_stage_the_pipeline_added_is_listed_after_the_known_ones(tmp_path):
@@ -178,23 +183,29 @@ def test_a_stage_the_pipeline_added_is_listed_after_the_known_ones(tmp_path):
 
 
 def test_the_bar_fills_by_each_stages_usual_share_of_a_build(tmp_path, monkeypatch):
-    """Verify a finished stage adds its usual share of the build's time to the total, whatever its position.
+    """Verify a finished stage adds its usual share of the time after the first draft to the total, and that
+    what comes before the draft has no share of the bar.
 
     id: TST-PROGRESS-009
-    Given: An earlier build in which reading the idea took 10 seconds and writing the page 30, out of 40 in all
-    When: A new kickstart has read the idea, and then also written the page
-    Then: The total is 25 percent, then 100; the weights sum to one
+    Given: An earlier build in which the opening took 100 seconds, and after it checking the rules took 10 and
+           writing the page 30
+    When: A new kickstart has ended its opening, then checked the rules, and then also written the page
+    Then: The total is 0 percent, then 25, then 100; the weights sum to one
     """
     monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
-    _finished_build(str(tmp_path / "runs"), {name: 0.0 for name in STAGE_LABELS} | {"intent": 10.0, "presentation": 30.0})
+    _finished_build(str(tmp_path / "runs"), {name: 0.0 for name in STAGE_LABELS} | {"contract": 100.0, "spec_review": 10.0, "presentation": 30.0})
 
     with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
-        stage_begin("intent").ok()
+        stage_begin("contract").ok()
+        stage_begin(DRAFT_STAGE).ok()
+        opened = current_progress()
+        stage_begin("spec_review").ok()
         early = current_progress()
         stage_begin("presentation").ok()
         late = current_progress()
 
-    assert early.percent == 25.0 and late.percent == 100.0
+    assert (opened.percent, early.percent, late.percent) == (0.0, 25.0, 100.0)
+    assert all(s.weight == 0.0 for s in opened.opening)
     assert sum(s.weight for s in early.stages) == pytest.approx(1.0)
     assert next(s for s in early.stages if s.name == "presentation").weight == pytest.approx(0.75)
 
@@ -232,8 +243,8 @@ def test_without_earlier_builds_every_stage_is_an_equal_step(tmp_path, monkeypat
     monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
 
     with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
-        stage_begin("intent").ok()
-        stage_begin("expansion")
+        stage_begin("spec_review").ok()
+        stage_begin("presentation")
         progress = current_progress()
 
     share = 1 / len(BUILD_STAGES)
@@ -283,7 +294,7 @@ def test_the_app_is_ready_once_everything_that_builds_it_has_ended(tmp_path, mon
     _finished_build(str(tmp_path / "runs"), {name: 10.0 for name in STAGE_LABELS})
 
     with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
-        for name in BUILD_STAGES[:-1]:
+        for name in list(CONTRACT_FRONT) + [DRAFT_STAGE] + BUILD_STAGES[:-1]:
             stage_begin(name).ok()
         last = stage_begin(BUILD_STAGES[-1])
         before = current_progress()
@@ -296,3 +307,120 @@ def test_the_app_is_ready_once_everything_that_builds_it_has_ended(tmp_path, mon
     assert built.ready is True and built.percent == 100.0 and built.building is True
     assert checking.ready is True and checking.final_checks[0].status == "running"
     assert sum(s.weight for s in checking.stages) == pytest.approx(1.0)
+
+
+def test_a_build_lists_only_the_opening_it_runs(tmp_path, monkeypatch):
+    """Verify the stages of the opening a build does not run are not part of its road: they would never end, and
+    the app would never be reported ready.
+
+    id: TST-PROGRESS-014
+    Given: An earlier build in which every stage took as long as any other
+    When: A kickstart that opened with the product contract has ended every other building stage
+    Then: The stages of the other opening are not listed; the bar is full and the app is ready
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    _finished_build(str(tmp_path / "runs"), {name: 10.0 for name in STAGE_LABELS})
+
+    with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)):
+        for name in list(CONTRACT_FRONT) + [DRAFT_STAGE] + BUILD_STAGES:
+            stage_begin(name).ok()
+        progress = current_progress()
+
+    assert [s.name for s in progress.opening] == list(CONTRACT_FRONT) + [DRAFT_STAGE]
+    assert progress.percent == 100.0 and progress.ready is True
+    assert sum(s.weight for s in progress.stages) == pytest.approx(1.0)
+
+
+def _contract(progress):
+    return next(s for s in progress.opening if s.name == "contract")
+
+
+def test_a_long_stage_says_which_part_of_its_work_it_is_in(tmp_path, monkeypatch):
+    """Verify the one long opening stage reads as a row of steps to someone waiting: the steps before the last are
+    over with a margin before the stage usually ends, and the last one holds until it does.
+
+    id: TST-PROGRESS-015
+    Given: An earlier build whose contract stage took 100 seconds
+    When: The contract has just begun, has run for the share of its usual time the phases are done by, has run far
+          longer than usual, and has ended
+    Then: It names its phases and is in the first, then the last, still the last, and then past them all
+    """
+    phases = [label for label, _ in STAGE_PHASES["contract"]]
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    _finished_build(str(tmp_path / "runs"), {name: 0.0 for name in STAGE_LABELS} | {"contract": 100.0})
+
+    with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)) as run:
+        handle = stage_begin("contract")
+        began = run.started + run.stages[0].record["t_offset_s"]
+        first = _contract(current_progress(now=began + 0.5))
+        again = _contract(current_progress(now=began + 0.5))
+        margin = _contract(current_progress(now=began + 100.0 * PHASES_DONE_BY + 0.5))
+        overdue = _contract(current_progress(now=began + 10_000.0))
+        handle.ok()
+        ended = _contract(current_progress())
+
+    last = len(phases) - 1
+    assert len(phases) > 2 and first.phases == phases and PHASES_DONE_BY < 1
+    assert (first.phase, again.phase, margin.phase, overdue.phase, ended.phase) == (0, 0, last, last, len(phases))
+
+
+def test_phases_differ_in_length_and_from_build_to_build():
+    """Verify the steps do not tick like a clock: a phase given more length takes longer, and no two builds pace
+    them alike, while one build always paces them the same.
+
+    id: TST-PROGRESS-016
+    Given: Three phases, the second given four times the length of the others, in a stage that usually takes 100 s
+    When: Their ends are asked for in one build twice, and in many other builds
+    Then: The ends rise to the share of the usual time the phases are done by; the second phase is the longest in
+          every build; each phase's share stays within the jitter of its given one; the builds do not agree
+    """
+    lengths = [1.0, 4.0, 1.0]
+    builds = [phase_ends(lengths, 100.0, f"run-{i}") for i in range(50)]
+    low, high = 1 - PHASE_JITTER, 1 + PHASE_JITTER
+
+    assert phase_ends(lengths, 100.0, "run-0") == builds[0]
+    assert len({tuple(ends) for ends in builds}) == len(builds)
+    for ends in builds:
+        took = [end - start for start, end in zip([0.0] + ends, ends)]
+        assert ends == sorted(ends) and ends[-1] == pytest.approx(100.0 * PHASES_DONE_BY)
+        assert took[1] == max(took)
+        for given, real in zip(lengths, took):
+            assert given * low / (sum(lengths) * high) <= real / sum(took) <= given * high / (sum(lengths) * low)
+
+
+def test_phases_move_on_a_fresh_install_too(tmp_path, monkeypatch):
+    """Verify the phases do not stand still when no recorded build says how long the stage takes.
+
+    id: TST-PROGRESS-017
+    Given: No recorded builds
+    When: The contract has been in the making for half a second, and for a minute
+    Then: It is in its first phase, then in its last
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+
+    with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)) as run:
+        stage_begin("contract")
+        began = run.started + run.stages[0].record["t_offset_s"]
+        early = _contract(current_progress(now=began + 0.5))
+        later = _contract(current_progress(now=began + 60.0))
+
+    assert early.phase == 0 and later.phase == len(later.phases) - 1
+
+
+def test_the_wait_after_the_first_draft_is_timed_from_the_draft(tmp_path):
+    """Verify the Studio can time the bar from the moment the app came on screen, not from the pitch.
+
+    id: TST-PROGRESS-018
+    Given: A kickstart whose opening is running, and then one whose skeleton is written
+    When: The progress is asked for, the second time 20 seconds after the skeleton ended
+    Then: No time since the draft is reported before there is one; afterwards it is 20 seconds
+    """
+    with recorded_run("kickstart", "a pitch", workspace_dir=str(tmp_path)) as run:
+        stage_begin("contract")
+        before = current_progress(now=run.started + 30.0)
+        stage_begin(DRAFT_STAGE).ok()
+        record = run.stages[-1].record
+        after = current_progress(now=run.started + record["t_offset_s"] + record["duration_s"] + 20.0)
+
+    assert before.since_draft_s == 0.0 and before.draft_ready is False
+    assert after.since_draft_s == pytest.approx(20.0, abs=0.1)

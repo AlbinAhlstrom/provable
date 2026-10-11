@@ -576,6 +576,36 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
 .build-step-running .build-step-dot { background: var(--accent-primary); border-color: var(--accent-primary); animation: build-pulse 1.6s ease-in-out infinite; }
 .build-step-note { color: var(--text-secondary); font-weight: 400; }
 .build-step-error { display: block; font-size: 0.75rem; font-weight: 400; }
+.build-step, .build-step-mark { transition: color 0.4s; }
+
+/* ── Build opening: in place of the pitch form until the build has a first draft ── */
+
+.kickstart-badge-working { animation: build-lift 2.4s ease-in-out infinite; }
+@keyframes build-lift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-0.35rem); } }
+.build-opening {
+  padding: 1.1rem 1.25rem 1rem;
+  background: var(--bg-glass);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 1.1rem;
+  box-shadow: var(--shadow-glass);
+  color: var(--text-secondary);
+}
+.build-opening-pitch {
+  display: -webkit-box;
+  margin: 0 0 0.9rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--accent-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+.build-opening-steps { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.95rem; }
 
 /* ── Live workspace beside its specifications ──────────────────────────────── */
 
@@ -658,7 +688,7 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
 @keyframes preview-glow { 0% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
   .preview-frame-building::after, .preview-frame-finished::after, .preview-frame-finished iframe,
-  .build-bar-step-running .build-bar-fill, .build-step-running .build-step-dot, .status-light-testing { animation: none; }
+  .build-bar-step-running .build-bar-fill, .build-step-running .build-step-dot, .status-light-testing, .kickstart-badge-working { animation: none; }
 }
 
 .specs-panel {

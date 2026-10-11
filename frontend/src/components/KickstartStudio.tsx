@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { AppPreview } from './AppPreview';
+import { BuildOpening } from './BuildOpening';
 import { BuildProgress, BuildProgressBanner } from './BuildProgressPanel';
 import { StatusMessage, StudioMessage } from './StatusMessage';
 
@@ -70,8 +71,8 @@ export const KickstartStudio: React.FC = () => {
     return () => clearInterval(timer);
   }, [building]);
 
-  // The live workspace is on screen from the start of a build; show what it has become each time the build
-  // delivers something to look at (the first draft, the written page, the finished app)
+  // The live workspace comes on screen with the build's first draft; show what it has become each time the build
+  // delivers something more to look at (the written page, the finished app)
   useEffect(() => {
     if (progress?.draft_ready || progress?.page_ready || progress?.ready) setReloadToken(t => t + 1);
     if (progress?.ready) shownReady.current = true;
@@ -147,7 +148,10 @@ export const KickstartStudio: React.FC = () => {
     }
   };
 
-  // ── VIEW 2: LIVE APP VIEW (FROM THE MOMENT A BUILD STARTS) ─────────────────────
+  // ── VIEW 2: BUILD OPENING (A BUILD RUNS, NOTHING TO SHOW YET) ──────────────────
+  if (building && !progress?.draft_ready) return <BuildOpening pitch={pitch} progress={progress} />;
+
+  // ── VIEW 3: LIVE APP VIEW (FROM THE BUILD'S FIRST DRAFT) ───────────────────────
   if (synthesized || building) {
     return (
       <AppPreview

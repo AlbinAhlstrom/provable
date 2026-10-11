@@ -16,8 +16,24 @@ there after about 100 s; in a rule-heavy build the gap is minutes).
 - **`rules`**: the spec runner reports `RuleProgress` (done, total, active, the title of the rule that became
   active last, and `waiting`: the ids of the specs in the loop that are not settled yet) before the first behaviour
   spec and after each one; the `behaviour_specs` stage keeps it as its `rules` note.
-- **`stages`, `percent`**: every stage of a build from the start, each with its usual share of a build's time and
-  how far it has come (`backend/onboarding/stage_timing.py`; see "The build progress bar" in [[Frontend Components]]).
+- **`opening`**: the stages before there is anything to show (the build's front and the skeleton). They are steps
+  on the pitch view and have no share of the bar.
+- **`stages`, `percent`, `since_draft_s`**: every stage after the first draft, each with its usual share of the time
+  those stages take and how far it has come (`backend/onboarding/stage_timing.py`; see "The build progress bar" in
+  [[Frontend Components]]). The bar and its timer start when the app comes on screen.
+- **One opening per build**: a build opens with the product contract, or with intent, expansion and decomposition
+  (`kickstart_front.py`). Once one has begun, the other's stages are left out of the report (`FRONTS`): they would
+  never end, and the bar would never fill.
+- **`phases`, `phase`**: the contract is one call of most of a minute that reports nothing while it runs. Its stage
+  names the parts of its work (`STAGE_PHASES`: reading the prompt, defining actions, writing rules, planning layout,
+  selecting theme, building page) and which one it is in. This is pacing for someone waiting, not a report from
+  inside the call:
+  - Each phase has a given length against the others (writing rules is the longest), varied by up to
+    `PHASE_JITTER` either way per build. The variation is drawn from the run's id, so one build always reports
+    the same pace and no two builds tick alike.
+  - Every phase but the last is over by `PHASES_DONE_BY` (0.7) of the time the stage usually takes
+    (`PHASE_SECONDS` each when no build is recorded). The last, "Building page", holds until the stage ends, so
+    the preview arrives while the page seems to be in the making, which it then is.
 - **`ready`, `final_checks`**: the QA audit and the visual review (`FINAL_CHECKS`) are made on the finished app
   and are not part of the wait. `ready` turns true once every stage that builds the app has ended; the two checks
   are listed apart and carry no share of the bar. The kickstart request still answers only when they are done.
@@ -25,10 +41,13 @@ there after about 100 s; in a rule-heavy build the gap is minutes).
 
 ## What the Studio shows (`frontend/src/components/KickstartStudio.tsx`, `BuildProgressPanel.tsx`)
 
-1. From the moment a build starts: the live preview beside the specifications, with a banner above it: the
-   percentage, what is being worked on, the weighted progress bar and the stages by name. Until the skeleton is
-   written the preview shows the blank workspace page.
-2. The preview reloads when the first draft is written and again when the page is written.
+1. From the moment a build starts until it has a first draft (`BuildOpening.tsx`): the pitch view stays, with the
+   form replaced by the pitch as it was written and the opening's steps ticking off (a stage's phases, one step
+   each). No bar, no timer, no empty preview.
+2. From `draft_ready`: the live preview beside the specifications, with a banner above it: the percentage and the
+   time since the draft, what is being worked on, the bar and its stages by name. A stage that usually takes under
+   a hundredth of that time is neither a segment nor a step, unless it failed. The preview reloads again when the
+   page is written.
 3. While the build runs the preview is held back a little: muted, with a slow band of light passing over it. It
    stays usable. The specifications appear in their panel as soon as the rule deck is stored; the ones the build
    is working on pulse, and each turns to its test light as it is settled.
