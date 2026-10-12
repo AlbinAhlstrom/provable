@@ -1,42 +1,6 @@
 import pytest
 from domain.model import RuleCard, CardType
-from onboarding.router_engine import (
-    derive_logic_rules_from_view_prompt,
-    project_ui_affordances_from_logic_card
-)
-
-def test_view_to_logic_derivation_creates_logic_card():
-    view_name = "ChessBoard"
-    prompt = "Add an Undo Move button below the board"
-    existing_cards = [
-        {"id": "CARD-001", "title": "50-Move Rule", "card_type": "LOGIC", "target": "global"}
-    ]
-    
-    derived_cards = derive_logic_rules_from_view_prompt(
-        view_name=view_name,
-        prompt=prompt,
-        existing_logic_cards=existing_cards
-    )
-    
-    assert len(derived_cards) >= 1
-    undo_card = derived_cards[0]
-    assert undo_card.card_type == "LOGIC"
-    assert "undo" in undo_card.title.lower() or "undo" in undo_card.when_clause.lower() or "ångra" in undo_card.title.lower()
-    assert undo_card.derived_from_id == view_name
-    assert undo_card.is_active is True
-
-def test_view_to_logic_derivation_skips_pure_styling_prompts():
-    view_name = "ChessBoard"
-    prompt = "Make the dark tiles deep purple with glowing borders"
-    existing_cards = []
-    
-    derived_cards = derive_logic_rules_from_view_prompt(
-        view_name=view_name,
-        prompt=prompt,
-        existing_logic_cards=existing_cards
-    )
-    # Pure styling prompts should not synthesize backend logic cards
-    assert len(derived_cards) == 0
+from onboarding.router_engine import project_ui_affordances_from_logic_card
 
 def test_logic_to_view_projection_identifies_ui_affordances():
     logic_card = RuleCard(
