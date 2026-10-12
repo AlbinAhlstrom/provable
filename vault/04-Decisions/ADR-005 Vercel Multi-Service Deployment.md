@@ -30,3 +30,6 @@ Vercel functions have a read-only checkout and cannot keep background processes,
 
 ## Status
 Accepted (initial configuration; verify path forwarding and limits on the first preview deployment).
+
+## Only `main` deploys
+`dev` is a working branch and never gets a Vercel build (`git.deploymentEnabled` in `vercel.json`): its preview URL is behind Vercel's login and has no `VITE_ENGINE_URL`, so it cannot be used for testing. Production builds from `main`.
