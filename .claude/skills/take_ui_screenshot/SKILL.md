@@ -20,6 +20,6 @@ Parameters:
 - `--viewport`: Viewport resolution, e.g., `1280x800` (default) or `375x812`.
 
 ## Notes
-- Tries Selenium first; if it cannot start a browser (e.g. a chromedriver/Chrome version mismatch in a cloud sandbox) it falls back to Playwright (`pip install playwright`; set `CHROME_BIN` to a Chromium binary or run `playwright install chromium`).
-- To start only the frontend for a capture, run the Vite dev server from `frontend/` on port 5173 (never `python run.py` from the agent) and stop it afterwards.
+- Tries Selenium first; if it cannot start a browser (e.g. a chromedriver/Chrome version mismatch in a cloud sandbox) it falls back to Playwright (`pip install playwright`; in cloud sessions Chromium is pre-installed under `/opt/pw-browsers`; never run `playwright install`).
+- Studio must be up on :5173. Check or start it with `bash .claude/hooks/ensure_app_running.sh`; never start Vite or `run.py` by hand.
 - `python scripts/agent_preflight_check.py` calls this script in Phase 6 and writes `logs/latest_ui_render.png` (gitignored).

@@ -27,10 +27,12 @@ The original pitch, and optionally the rule deck, the expected behaviour, or a s
 | Directory or boilerplate problems | `skeleton_builder.py` |
 | Rule deck problems | `service_layer/services.py` |
 | Edits clobbered unrelated code | `presentation_specs.py`, `cst_isolator.py` |
-| Domain, service or router code wrong | `domain_engine_synthesizer.py`, `prompts/domain_engine_synthesis.md` |
+| Domain, service or router code wrong | `domain_engine_synthesizer.py` (action names), `domain_round.py`, `action_behaviour.py`, `prompts/domain_engine_synthesis.md` |
+| Behaviour spec tests wrong or missing | `first_tests.py`, `prompts/first_tests.md`, `spec_runner.py` |
+| Page out of step with changed class fields | `page_contract.py` |
 | Components, view logic, action mismatch | `presentation_projection_synthesizer.py`, `frontend_planning_engine.py`, `prompts/presentation_projection_synthesis.md` |
 | Colors, typography, tokens | `ux_planner.py`, `prompts/ux_planning.md` (visual direction), `visual_review.py`, `prompts/visual_review.md` |
-| Defect passed QA unnoticed | `qa_auditor.py`, `qa_gate.py` |
+| Defect passed QA unnoticed | `qa_auditor.py`, `qa_form_check.py` (forms), `qa_gate.py` |
 
 ## Report
 
