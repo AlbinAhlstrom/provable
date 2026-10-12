@@ -11,7 +11,8 @@ NOTE = {"name": "note", "part_of": "", "type": "text", "starts_as": "", "holds":
         "values": [], "part_name": ""}
 TICKET = {
     "title": "Guests can leave a note",
-    "understood": "A guest can add a short note to a booking, and a note that is too long is refused.",
+    "understood": "A guest can add a short note to a booking.",
+    "decided": ["A note is at most 200 characters.", "The note is shown on the booking."],
     "fields": [{"record": "Booking", **NOTE}],
     "actions": [{"name": "add_note", "record": "Booking", "performed_by": "audience", "params": "note: text",
                  "sent_to": "one_record", "trigger": "Note field, type and press \"Save note\"",

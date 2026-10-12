@@ -58,7 +58,10 @@ it.
 ## What the person sees
 A card before Build, in the person's words ("rules" and "the app", never spec, entity or assertion):
 
-- the request as one short paragraph of what was understood; editing it plans again;
+- the request as one sentence of what was understood (at most twenty words), then each choice the planner made
+  as a line of its own (at most twelve words) under "Decided for you"; editing either plans again. A card is read
+  at a glance, also by a person with ADHD or dyslexia, so nothing on it is a paragraph: the first card held 90
+  words in one block and was not read;
 - each proposed rule as a card: title, Given / When / Then / Unless, example rows; it can be edited, removed, or
   added from a plain sentence;
 - where what a person would see is ambiguous, two whole rules side by side with one chosen; about three such forks
@@ -122,8 +125,9 @@ A thin slice first, because the planner's prompt is the part most likely to be w
 6. The Studio: the text box in the live workspace, the card, the pre-kickstart view removed.
    Done ahead of step 2, so the planner can be judged on real apps: the text box under the live workspace and the
    card, read only (`POST /api/tickets/plan`, `backend/service_layer/change_tickets.py`,
-   `frontend/src/components/tickets/`). The card shows the title, what was understood, each new rule as its
-   sentence, what else is added behind "Advanced", and how many rules will be checked. Build is shown unavailable
+   `frontend/src/components/tickets/`). The card shows the title, what was understood as one sentence, what was
+   decided as short lines, each new rule with its Given, When and Then on lines of their own
+   (`rule_deck.clauses_of`, as the rule deck's cards), what else is added behind "Advanced", and how many rules will be checked. Build is shown unavailable
    with the reason. The pre-kickstart view is removed: the live workspace is the one page, and with nothing built
    its text box asks for the app and starts the kickstart. Left: editing a rule on the card, forks, estimates and
    Build.

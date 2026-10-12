@@ -43,13 +43,14 @@ class TicketError(ValueError):
 class ChangeTicket:
     request: str                 # the person's own words
     title: str
-    understood: str              # the request as the planner read it: one short paragraph the person can correct
+    understood: str              # the request as the planner read it: one sentence the person can correct
     rules: List[Dict[str, Any]]  # each in the contract's form of a rule
     fields: List[Dict[str, Any]] = field(default_factory=list)   # the contract's form of a field, with its `record`
     actions: List[Dict[str, Any]] = field(default_factory=list)
     situations: List[str] = field(default_factory=list)
     refusals: List[Dict[str, Any]] = field(default_factory=list)
     read_out: List[str] = field(default_factory=list)
+    decided: List[str] = field(default_factory=list)   # each choice the request left open, as one short line
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any], request: str) -> "ChangeTicket":
@@ -58,7 +59,8 @@ class ChangeTicket:
                    actions=[dict(a) for a in data.get("actions") or []],
                    situations=[str(s) for s in data.get("situations") or []],
                    refusals=[dict(r) for r in data.get("refusals") or []],
-                   read_out=[str(r) for r in data.get("read_out") or []])
+                   read_out=[str(r) for r in data.get("read_out") or []],
+                   decided=[str(d).strip() for d in data.get("decided") or [] if str(d).strip()])
 
     def stays_green(self, contract: ProductContract) -> List[str]:
         """The rules the ticket leaves alone, by title: each must be as green after the build as before it."""

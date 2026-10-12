@@ -88,6 +88,7 @@ def test_a_ticket_is_written_in_the_form_of_the_contract():
         own = len(node.get("properties", {})) + (1 if node.get("type") == "array" else 0)
         return own + sum(weight(child) for child in list(node.get("properties", {}).values()) + [node.get("items")])
 
+    assert ticket["decided"] == {"type": "array", "items": {"type": "string"}}
     for node in objects(tp.TICKET_SCHEMA):
         assert sorted(node["required"]) == sorted(node["properties"])
     assert weight(tp.TICKET_SCHEMA) <= pc.SCHEMA_WEIGHT_LIMIT

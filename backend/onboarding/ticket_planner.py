@@ -29,7 +29,7 @@ def _object(**properties: Any) -> Dict[str, Any]:
 
 
 TICKET_SCHEMA: Dict[str, Any] = _object(
-    title=_TEXT, understood=_TEXT,
+    title=_TEXT, understood=_TEXT, decided={"type": "array", "items": _TEXT},
     fields={"type": "array", "items": _object(record=_TEXT, **_FIELD)},
     actions=_CONTRACT["actions"], situations=_CONTRACT["situations"], refusals=_CONTRACT["refusals"],
     read_out=_CONTRACT["read_out"], rules=_CONTRACT["rules"],

@@ -5,7 +5,31 @@ import { ChangeCardDTO } from '../../types/api';
 // Building from a planned change is not part of the engine yet (ADR-014, order of work)
 const NOT_BUILT_YET = 'Building a planned change is not available yet.';
 
-/** A planned change before it is built: what was understood, the rules it would add, and what else is checked. */
+type PlannedRule = ChangeCardDTO['rules'][number];
+
+const CLAUSES: { key: 'given' | 'when' | 'then'; label: string }[] = [
+  { key: 'given', label: 'Given' },
+  { key: 'when', label: 'When' },
+  { key: 'then', label: 'Then' },
+];
+
+/** A rule's Given, When and Then, each on a line of its own; a rule not written that way is shown as its sentence. */
+const RuleClauses: React.FC<{ rule: PlannedRule }> = ({ rule }) => {
+  if (!rule.when || !rule.then) return <span className="change-card-rule-plain">{rule.plain}</span>;
+  return (
+    <dl className="change-card-clauses">
+      {CLAUSES.filter(c => rule[c.key]).map(c => (
+        <div key={c.key} className="change-card-clause">
+          <dt>{c.label}</dt>
+          <dd>{rule[c.key]}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+};
+
+/** A planned change before it is built: what was understood in one sentence, what was decided for the person, the
+ *  rules it would add, and what else is checked. Every piece is short and stands on a line of its own. */
 export const ChangeCard: React.FC<{ card: ChangeCardDTO; onDiscard: () => void }> = ({ card, onDiscard }) => (
   <article className="change-card" aria-label="Planned change">
     <header className="change-card-head">
@@ -15,14 +39,25 @@ export const ChangeCard: React.FC<{ card: ChangeCardDTO; onDiscard: () => void }
       </button>
     </header>
     <p className="change-card-understood">{card.understood}</p>
-    <ul className="change-card-rules">
-      {card.rules.map(rule => (
-        <li key={rule.title}>
-          <span className="change-card-rule-title">{rule.title}</span>
-          <span className="change-card-rule-plain">{rule.plain}</span>
-        </li>
-      ))}
-    </ul>
+    {card.decided.length > 0 && (
+      <section className="change-card-section">
+        <h5 className="change-card-label">Decided for you</h5>
+        <ul className="change-card-decided">
+          {card.decided.map(line => <li key={line}>{line}</li>)}
+        </ul>
+      </section>
+    )}
+    <section className="change-card-section">
+      <h5 className="change-card-label">{card.rules.length === 1 ? '1 new rule' : `${card.rules.length} new rules`}</h5>
+      <ul className="change-card-rules">
+        {card.rules.map(rule => (
+          <li key={rule.title}>
+            <span className="change-card-rule-title">{rule.title}</span>
+            <RuleClauses rule={rule} />
+          </li>
+        ))}
+      </ul>
+    </section>
     {card.adds.length > 0 && (
       <details className="change-card-advanced">
         <summary>Advanced</summary>

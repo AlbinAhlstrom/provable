@@ -35,8 +35,9 @@ def test_a_planned_request_is_a_card_in_the_persons_words():
     Given: A built app with a stored contract of three rules, and a planner that answers with a ticket of one rule
     When: A request is planned
     Then: The planner is given the request and the app's contract once, and the card holds the title, what was
-          understood, each new rule by its title and its sentence, what the ticket adds by kind and name, and how many
-          rules will be checked too; nothing of the app is changed
+          understood as one sentence, each choice the planner made as a line of its own, each new rule by its title
+          with its Given, When and Then apart, what the ticket adds by kind and name, and how many rules will be
+          checked too; nothing of the app is changed
     """
     uow, planner = _app(), _Planner()
 
@@ -47,8 +48,11 @@ def test_a_planned_request_is_a_card_in_the_persons_words():
     assert card["success"] is True and card["problem"] is None
     assert (card["request"], card["title"]) == ("let guests leave a note", "Guests can leave a note")
     assert card["understood"] == TICKET["understood"]
+    assert card["decided"] == ["A note is at most 200 characters.", "The note is shown on the booking."]
     assert card["rules"] == [{"title": "A booking takes a note",
-                              "plain": "Given a booked table, When the guest writes a note, Then the booking shows it"}]
+                              "plain": "Given a booked table, When the guest writes a note, Then the booking shows it",
+                              "given": "a booked table", "when": "the guest writes a note",
+                              "then": "the booking shows it"}]
     assert card["stays_green"] == 3
     assert card["adds"] == [{"kind": "field", "name": "Booking.note"}, {"kind": "action", "name": "add_note"},
                             {"kind": "refusal", "name": "NoteTooLongError"}]

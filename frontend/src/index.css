@@ -829,7 +829,26 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
 }
 .change-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
 .change-card-title { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
-.change-card-understood { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
+.change-card-understood { margin: 0; max-width: 65ch; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); }
+.change-card-section { display: grid; gap: 0.3rem; }
+.change-card-label {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.change-card-decided {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding-left: 1.1rem;
+  max-width: 65ch;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
 .change-card-rules { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
 .change-card-rules li {
   display: grid;
@@ -839,8 +858,18 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-sm);
 }
-.change-card-rule-title { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); }
-.change-card-rule-plain { font-size: 0.8rem; color: var(--text-secondary); }
+.change-card-rule-title { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+.change-card-rule-plain { font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); }
+.change-card-clauses { display: grid; gap: 0.15rem; margin: 0.15rem 0 0; font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); }
+.change-card-clause { display: grid; grid-template-columns: 3.2rem 1fr; gap: 0.5rem; align-items: baseline; }
+.change-card-clause dt {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.change-card-clause dd { margin: 0; }
 .change-card-advanced { font-size: 0.78rem; color: var(--text-muted); }
 .change-card-advanced summary { cursor: pointer; }
 .change-card-advanced ul { margin: 0.3rem 0 0; padding-left: 1.1rem; }

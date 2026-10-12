@@ -1,12 +1,15 @@
 """
 Planning a change from the Studio (ADR-014): a request in a person's words becomes the card they read before anything
-is built. The card is the ticket in everyday words (its title, what was understood, each new rule as a sentence) with
-what it adds to the app by name, and it says when the app cannot take the ticket. Planning changes nothing of the app.
+is built. The card is the ticket in everyday words, in pieces short enough to take in at a glance: its title, what
+was understood as one sentence, each choice the planner made as a line of its own, and each new rule with its Given,
+When and Then apart. With it comes what the ticket adds to the app by name, and why the app cannot take the ticket
+when it cannot. Planning changes nothing of the app.
 """
 from typing import Any, Callable, Dict, List, Optional
 
 from onboarding.change_ticket import ChangeTicket, TicketError
 from onboarding.product_contract import ProductContract, stored_contract
+from onboarding.rule_deck import clauses_of
 from run_recorder import recorded
 from service_layer.unit_of_work import AbstractUnitOfWork
 
@@ -20,6 +23,14 @@ def _adds(ticket: ChangeTicket, contract: ProductContract) -> List[Dict[str, str
             + [{"kind": "changed action" if action.get("name") in had else "action", "name": str(action.get("name"))}
                for action in ticket.actions]
             + [{"kind": "refusal", "name": str(refusal.get("name"))} for refusal in ticket.refusals])
+
+
+def _rule(rule: Dict[str, Any]) -> Dict[str, str]:
+    """A new rule as the card shows it: its sentence, and the sentence's Given, When and Then each on its own."""
+    plain = str(rule.get("plain") or "")
+    clauses = clauses_of(plain)
+    return {"title": str(rule.get("title") or ""), "plain": plain, "given": clauses["given_clause"],
+            "when": clauses["when_clause"], "then": clauses["then_clause"]}
 
 
 @recorded("ticket_plan", label="request")
@@ -46,6 +57,5 @@ def plan_change(request: str, uow: AbstractUnitOfWork, planner: Optional[Planner
     except TicketError as err:
         problem = str(err)
     return {"success": True, "request": ticket.request, "title": ticket.title, "understood": ticket.understood,
-            "rules": [{"title": str(rule.get("title") or ""), "plain": str(rule.get("plain") or "")}
-                      for rule in ticket.rules],
+            "decided": ticket.decided, "rules": [_rule(rule) for rule in ticket.rules],
             "adds": _adds(ticket, contract), "stays_green": len(ticket.stays_green(contract)), "problem": problem}
