@@ -10,6 +10,7 @@ import re
 import json
 import time
 from typing import List, Dict, Any, Optional
+from onboarding import page_gestures
 from onboarding.action_protocol import format_action_protocol
 from onboarding.intent import ProductIntent, intent_block
 from onboarding.page_parts import parts_block
@@ -223,6 +224,7 @@ Answer with four blocks, each introduced by its marker alone on a line:
         "{rel_workspace}": rel_ws,
         "{entities_block}": entities_block,
         "{clients_block}": _clients_block(structure.presented_entities() or ([master_entity] if master_entity else []), master_name),
+        "{gestures_block}": page_gestures.gestures_block(),
         "{bdd_section}": bdd_section,
         "{backend_state_model}": backend_state_model,
         "{action_protocol_block}": action_protocol_block,
@@ -260,6 +262,7 @@ Answer with four blocks, each introduced by its marker alone on a line:
     from onboarding.skeleton_builder import generate_master_client
     client_files = {f"{_to_snake_case(_sanitize_name(e.name))}Client.ts": generate_master_client(e)
                     for e in (structure.presented_entities() or ([master_entity] if master_entity else []))}
+    client_files[page_gestures.FILE_NAME] = page_gestures.GESTURES_TS
     omitted = [name for name in SECTIONS if not is_component_file(payload.get(name))]
     view_code = payload.get("view_tsx")
     controls_code = payload.get("controls_tsx") if "controls_tsx" not in omitted else None
