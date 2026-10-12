@@ -1,0 +1,281 @@
+{
+  "seq": 298,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.819,
+  "thread": "red_17",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_j1se5s79\\tests\\unit\\test_spec_019.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_j1se5s79"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_j1se5s79\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 6 items\n\ntests\\unit\\test_spec_019.py FF....                                       [100%]\n\n================================== FAILURES ===================================\n___ test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Ready] ___\n\nmake_game = <function _ready_game at 0x000001DCA53D05E0>\n\n    @pytest.mark.parametrize(\"make_game\", [_ready_game, _playing_game], ids=[\"Ready\", \"Playing\"])\n    def test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it(make_game):\n        game = make_game()\n        status_before = game.status\n        other_cells_before = [copy.deepcopy(c) for c in game.cells if c[\"id\"] != \"0-0\"]\n    \n        # (0, 0) is Hidden and has no mine; status is Ready or Playing, so the\n        # toggle is allowed: Hidden -> Flagged, flags_placed 0 -> 1.\n        game.toggle_flag(row=0, column=0)\n    \n        # Hidden -> Flagged.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_019.py:121: AssertionError\n__ test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Playing] __\n\nmake_game = <function _playing_game at 0x000001DCA53D0680>\n\n    @pytest.mark.parametrize(\"make_game\", [_ready_game, _playing_game], ids=[\"Ready\", \"Playing\"])\n    def test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it(make_game):\n        game = make_game()\n        status_before = game.status\n        other_cells_before = [copy.deepcopy(c) for c in game.cells if c[\"id\"] != \"0-0\"]\n    \n        # (0, 0) is Hidden and has no mine; status is Ready or Playing, so the\n        # toggle is allowed: Hidden -> Flagged, flags_placed 0 -> 1.\n        game.toggle_flag(row=0, column=0)\n    \n        # Hidden -> Flagged.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_019.py:121: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_j1se5s79\\.pytest_report_ac80116da1f34cb0a6be1733f29a0d24.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_019.py::test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Ready]\nFAILED tests/unit/test_spec_019.py::test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Playing]\n========================= 2 failed, 4 passed in 2.31s =========================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656607.4569917,
+      "duration": 1.622889518737793,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_j1se5s79",
+      "environment": {},
+      "summary": {
+        "failed": 2,
+        "passed": 4,
+        "total": 6,
+        "collected": 6
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_019.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_019.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_019.py::test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Ready]",
+              "type": "Function",
+              "lineno": 109
+            },
+            {
+              "nodeid": "tests/unit/test_spec_019.py::test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Playing]",
+              "type": "Function",
+              "lineno": 109
+            },
+            {
+              "nodeid": "tests/unit/test_spec_019.py::test_flagging_opened_cell_in_playing_game_changes_nothing",
+              "type": "Function",
+              "lineno": 142
+            },
+            {
+              "nodeid": "tests/unit/test_spec_019.py::test_flagging_in_finished_game_changes_nothing[Lost]",
+              "type": "Function",
+              "lineno": 157
+            },
+            {
+              "nodeid": "tests/unit/test_spec_019.py::test_flagging_in_finished_game_changes_nothing[Won]",
+              "type": "Function",
+              "lineno": 157
+            },
+            {
+              "nodeid": "tests/unit/test_spec_019.py::test_flagging_hidden_cell_in_lost_game_does_not_flag_it",
+              "type": "Function",
+              "lineno": 177
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_019.py::test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Ready]",
+          "lineno": 109,
+          "outcome": "failed",
+          "keywords": [
+            "test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Ready]",
+            "parametrize",
+            "pytestmark",
+            "Ready",
+            "test_spec_019.py",
+            "unit",
+            "tests",
+            "hollow_j1se5s79",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0009817999962251633,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001406199997290969,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_j1se5s79\\tests\\unit\\test_spec_019.py",
+              "lineno": 121,
+              "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_019.py",
+                "lineno": 121,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "make_game = <function _ready_game at 0x000001DCA53D05E0>\n\n    @pytest.mark.parametrize(\"make_game\", [_ready_game, _playing_game], ids=[\"Ready\", \"Playing\"])\n    def test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it(make_game):\n        game = make_game()\n        status_before = game.status\n        other_cells_before = [copy.deepcopy(c) for c in game.cells if c[\"id\"] != \"0-0\"]\n    \n        # (0, 0) is Hidden and has no mine; status is Ready or Playing, so the\n        # toggle is allowed: Hidden -> Flagged, flags_placed 0 -> 1.\n        game.toggle_flag(row=0, column=0)\n    \n        # Hidden -> Flagged.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_019.py:121: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004963999963365495,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_019.py::test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Playing]",
+          "lineno": 109,
+          "outcome": "failed",
+          "keywords": [
+            "test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it[Playing]",
+            "parametrize",
+            "pytestmark",
+            "Playing",
+            "test_spec_019.py",
+            "unit",
+            "tests",
+            "hollow_j1se5s79",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008350000134669244,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0018511999951442704,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_j1se5s79\\tests\\unit\\test_spec_019.py",
+              "lineno": 121,
+              "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_019.py",
+                "lineno": 121,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "make_game = <function _playing_game at 0x000001DCA53D0680>\n\n    @pytest.mark.parametrize(\"make_game\", [_ready_game, _playing_game], ids=[\"Ready\", \"Playing\"])\n    def test_flagging_hidden_cell_flags_it_and_flagging_again_unflags_it(make_game):\n        game = make_game()\n        status_before = game.status\n        other_cells_before = [copy.deepcopy(c) for c in game.cells if c[\"id\"] != \"0-0\"]\n    \n        # (0, 0) is Hidden and has no mine; status is Ready or Playing, so the\n        # toggle is allowed: Hidden -> Flagged, flags_placed 0 -> 1.\n        game.toggle_flag(row=0, column=0)\n    \n        # Hidden -> Flagged.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_019.py:121: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0006636000034632161,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_019.py::test_flagging_opened_cell_in_playing_game_changes_nothing",
+          "lineno": 142,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_opened_cell_in_playing_game_changes_nothing",
+            "test_spec_019.py",
+            "unit",
+            "tests",
+            "hollow_j1se5s79",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006659999926341698,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0013670999906025827,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00037009999505244195,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_019.py::test_flagging_in_finished_game_changes_nothing[Lost]",
+          "lineno": 157,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_in_finished_game_changes_nothing[Lost]",
+            "parametrize",
+            "pytestmark",
+            "Lost",
+            "test_spec_019.py",
+            "unit",
+            "tests",
+            "hollow_j1se5s79",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007337000133702531,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007356999994954094,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00035439999192021787,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_019.py::test_flagging_in_finished_game_changes_nothing[Won]",
+          "lineno": 157,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_in_finished_game_changes_nothing[Won]",
+            "parametrize",
+            "pytestmark",
+            "Won",
+            "test_spec_019.py",
+            "unit",
+            "tests",
+            "hollow_j1se5s79",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006164999940665439,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006807000027038157,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004403999919304624,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_019.py::test_flagging_hidden_cell_in_lost_game_does_not_flag_it",
+          "lineno": 177,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_hidden_cell_in_lost_game_does_not_flag_it",
+            "test_spec_019.py",
+            "unit",
+            "tests",
+            "hollow_j1se5s79",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00041870000131893903,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006339999963529408,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003635000030044466,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 6.015
+}

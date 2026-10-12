@@ -31,7 +31,7 @@ MANIFEST_SCHEMA: Dict[str, Any] = {
         "properties": {
             "actions": {"type": "array", "items": {
                 "type": "object",
-                "properties": {"name": _TEXT, "aggregate": _TEXT, "performed_by": {"type": "string", "enum": ["audience", "other"]},
+                "properties": {"name": _TEXT, "aggregate": _TEXT, "performed_by": {"type": "string", "enum": ["audience", "automatic", "other"]},
                                "params": {"type": "array", "items": _TEXT}, "description": _TEXT},
                 "required": ["name", "aggregate", "performed_by", "params", "description"]}},
             "starting_states": {"type": "array", "items": {

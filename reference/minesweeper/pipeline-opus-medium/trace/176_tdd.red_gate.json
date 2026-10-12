@@ -1,0 +1,538 @@
+{
+  "seq": 176,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "behaviour.implement_actions",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:08",
+  "t_offset_s": 379.468,
+  "thread": "red_0",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656588.2763321,
+        "duration": 0.37290501594543457,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 3,
+          "failed": 8,
+          "total": 11,
+          "collected": 11
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[beginner]",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[intermediate]",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[expert]",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-99-True]",
+                "type": "Function",
+                "lineno": 39
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[expert-expert-99-True]",
+                "type": "Function",
+                "lineno": 39
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[intermediate-intermediate-99-True]",
+                "type": "Function",
+                "lineno": 39
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-100-False]",
+                "type": "Function",
+                "lineno": 39
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[expert-expert-100-False]",
+                "type": "Function",
+                "lineno": 39
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-101-False]",
+                "type": "Function",
+                "lineno": 39
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-custom-99-False]",
+                "type": "Function",
+                "lineno": 39
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-intermediate-99-False]",
+                "type": "Function",
+                "lineno": 39
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[beginner]",
+            "lineno": 19,
+            "outcome": "passed",
+            "keywords": [
+              "test_new_best_time_holds_exactly_constructed_values[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_act_besttime.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005268000095384195,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00020819999917875975,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0001841999910539016,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[intermediate]",
+            "lineno": 19,
+            "outcome": "passed",
+            "keywords": [
+              "test_new_best_time_holds_exactly_constructed_values[intermediate]",
+              "parametrize",
+              "pytestmark",
+              "intermediate",
+              "test_spec_act_besttime.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0002854999911505729,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00019370000518392771,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00017389999993611127,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[expert]",
+            "lineno": 19,
+            "outcome": "passed",
+            "keywords": [
+              "test_new_best_time_holds_exactly_constructed_values[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_act_besttime.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00026529999740887433,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00018509999790694565,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00016850000247359276,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-99-True]",
+            "lineno": 39,
+            "outcome": "failed",
+            "keywords": [
+              "test_record_win[beginner-beginner-99-True]",
+              "parametrize",
+              "pytestmark",
+              "beginner-beginner-99-True",
+              "test_spec_act_besttime.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00044489999709185213,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00020619999850168824,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_besttime.py",
+                "lineno": 64,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_win'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_besttime.py",
+                  "lineno": 64,
+                  "message": "in test_record_win"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_besttime.py:64: in test_record_win\n    bt.record_win(\n    ^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_win'"
+            },
+            "teardown": {
+              "duration": 0.00026369999977760017,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[expert-expert-99-True]",
+            "lineno": 39,
+            "outcome": "failed",
+            "keywords": [
+              "test_record_win[expert-expert-99-True]",
+              "parametrize",
+              "pytestmark",
+              "expert-expert-99-True",
+              "test_spec_act_besttime.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004702000005636364,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00021299999207258224,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_besttime.py",
+                "lineno": 64,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_win'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_besttime.py",
+                  "lineno": 64,
+                  "message": "in test_record_win"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_besttime.py:64: in test_record_win\n    bt.record_win(\n    ^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_win'"
+            },
+            "teardown": {
+              "duration": 0.00029579999682027847,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[intermediate-intermediate-99-True]",
+            "lineno": 39,
+            "outcome": "failed",
+            "keywords": [
+              "test_record_win[intermediate-intermediate-99-True]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-intermediate-99-True",
+              "test_spec_act_besttime.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005459999956656247,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00022119999630376697,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_besttime.py",
+                "lineno": 64,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_win'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_besttime.py",
+                  "lineno": 64,
+                  "message": "in test_record_win"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_besttime.py:64: in test_record_win\n    bt.record_win(\n    ^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_win'"
+            },
+            "teardown": {
+              "duration": 0.00024709998979233205,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-100-False]",
+            "lineno": 39,
+            "outcome": "failed",
+            "keywords": [
+              "test_record_win[beginner-beginner-100-False]",
+              "parametrize",
+              "pytestmark",
+              "beginner-beginner-100-False",
+              "test_spec_act_besttime.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004565999988699332,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00020410001161508262,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_besttime.py",
+                "lineno": 64,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_win'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_besttime.py",
+                  "lineno": 64,
+                  "message": "in test_record_win"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_besttime.py:64: in test_record_win\n    bt.record_win(\n    ^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_win'"
+            },
+            "teardown": {
+              "duration": 0.00024200000916607678,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[expert-expert-100-False]",
+            "lineno": 39,
+            "outcome": "failed",
+            "keywords": [
+              "test_record_win[expert-expert-100-False]",
+              "parametrize",
+              "pytestmark",
+              "expert-expert-100-False",
+              "test_spec_act_besttime.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004693999944720417,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002077000099234283,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_besttime.py",
+                "lineno": 64,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_win'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_besttime.py",
+                  "lineno": 64,
+                  "message": "in test_record_win"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_besttime.py:64: in test_record_win\n    bt.record_win(\n    ^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_win'"
+            },
+            "teardown": {
+              "duration": 0.00024750000739004463,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-101-False]",
+            "lineno": 39,
+            "outcome": "failed",
+            "keywords": [
+              "test_record_win[beginner-beginner-101-False]",
+              "parametrize",
+              "pytestmark",
+              "beginner-beginner-101-False",
+              "test_spec_act_besttime.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00043909999658353627,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00022250000620260835,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_besttime.py",
+                "lineno": 64,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_win'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_besttime.py",
+                  "lineno": 64,
+                  "message": "in test_record_win"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_besttime.py:64: in test_record_win\n    bt.record_win(\n    ^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_win'"
+            },
+            "teardown": {
+              "duration": 0.0002572999947005883,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-custom-99-False]",
+            "lineno": 39,
+            "outcome": "failed",
+            "keywords": [
+              "test_record_win[beginner-custom-99-False]",
+              "parametrize",
+              "pytestmark",
+              "beginner-custom-99-False",
+              "test_spec_act_besttime.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004253000079188496,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00019940000493079424,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_besttime.py",
+                "lineno": 64,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_win'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_besttime.py",
+                  "lineno": 64,
+                  "message": "in test_record_win"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_besttime.py:64: in test_record_win\n    bt.record_win(\n    ^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_win'"
+            },
+            "teardown": {
+              "duration": 0.0002442999975755811,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-intermediate-99-False]",
+            "lineno": 39,
+            "outcome": "failed",
+            "keywords": [
+              "test_record_win[beginner-intermediate-99-False]",
+              "parametrize",
+              "pytestmark",
+              "beginner-intermediate-99-False",
+              "test_spec_act_besttime.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00043289999302942306,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00020080000103916973,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_besttime.py",
+                "lineno": 64,
+                "message": "AttributeError: 'BestTime' object has no attribute 'record_win'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_besttime.py",
+                  "lineno": 64,
+                  "message": "in test_record_win"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_besttime.py:64: in test_record_win\n    bt.record_win(\n    ^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_win'"
+            },
+            "teardown": {
+              "duration": 0.0002806999982567504,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

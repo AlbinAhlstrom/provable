@@ -15,6 +15,37 @@ from onboarding.router_engine import DomainStructureSchema, BusinessSpec
 from agent_orchestrator import call_gemini
 
 
+def plan_prompt_values(pitch: str, structure: DomainStructureSchema, action_manifest: Optional[Dict[str, Any]] = None,
+                       master_name: str = "", intent: Optional[ProductIntent] = None,
+                       inbox_specs: Optional[List[BusinessSpec]] = None) -> Dict[str, str]:
+    """What fills each placeholder of the UX-plan prompt. One function, so a benchmark of the prompt
+    (`.claude/skills/step-analysis`) fills it exactly as the pipeline does."""
+    entity_summaries = []
+    for ent in structure.entities:
+        attr_desc = ", ".join(a.describe() for a in ent.attributes)
+        role = f" ({ent.audience_role.value.replace('_', ' ')})" if ent.audience_role.value != "internal" else ""
+        # Said at the entity itself: a planner that read it only in the paragraph below took content the pitch names
+        # (a game's levels, a tool's presets) to be built into the page
+        if ent.audience_role.value == "shown_to_audience":
+            role = role[:-1] + ": its records are loaded from the API)"
+        entity_summaries.append(f"- **{ent.name}**{role}: [{attr_desc}]")
+    entities_block = "\n".join(entity_summaries) if entity_summaries else f"- **{master_name}**: Primary Aggregate Root"
+
+    # The plan needs to know what the product does. With an action protocol that is its actions; planned alongside
+    # the protocol (before it exists) it is the product's rules, from which the protocol is designed as well.
+    if action_manifest:
+        action_protocol_block = ("The backend domain engine provides these authoritative actions and state fields (the "
+                                 "interface offers only the audience-facing ones; plan nothing for actions marked "
+                                 "API-only):\n" + format_action_protocol(action_manifest))
+    else:
+        rules = "\n".join(f"- [{s.title}] ({s.target_aggregate}): {s.given_when_then}" for s in inbox_specs or [])
+        action_protocol_block = ("The rules the product enforces (plan the audience's side of them; the business's own "
+                                 "back-office handling is out of view):\n" + (rules or "- (no rules yet)"))
+    return {"pitch": pitch, "domain_name": structure.domain_name or "Application", "master_name": master_name,
+            "entities_block": entities_block, "action_protocol_block": action_protocol_block,
+            "intent_block": intent_block(intent)}
+
+
 @traced("ux.plan_blueprint")
 def plan_ux_blueprint(
     pitch: str,
@@ -31,25 +62,6 @@ def plan_ux_blueprint(
     action prerequisites, form ergonomics, and copy harmonization.
     """
     start_time = time.time()
-    domain_name = structure.domain_name or "Application"
-
-    entity_summaries = []
-    for ent in structure.entities:
-        attr_desc = ", ".join(a.describe() for a in ent.attributes)
-        role = f" ({ent.audience_role.value.replace('_', ' ')})" if ent.audience_role.value != "internal" else ""
-        entity_summaries.append(f"- **{ent.name}**{role}: [{attr_desc}]")
-    entities_block = "\n".join(entity_summaries) if entity_summaries else f"- **{master_name}**: Primary Aggregate Root"
-
-    # The plan needs to know what the product does. With an action protocol that is its actions; planned alongside
-    # the protocol (before it exists) it is the product's rules, from which the protocol is designed as well.
-    if action_manifest:
-        action_protocol_block = ("The backend domain engine provides these authoritative actions and state fields (the "
-                                 "interface offers only the audience-facing ones; plan nothing for actions marked "
-                                 "API-only):\n" + format_action_protocol(action_manifest))
-    else:
-        rules = "\n".join(f"- [{s.title}] ({s.target_aggregate}): {s.given_when_then}" for s in inbox_specs or [])
-        action_protocol_block = ("The rules the product enforces (plan the audience's side of them; the business's own "
-                                 "back-office handling is out of view):\n" + (rules or "- (no rules yet)"))
 
     prompt_path = os.path.join(os.path.dirname(__file__), "..", "prompts", "ux_planning.md")
     if os.path.exists(prompt_path):
@@ -58,12 +70,9 @@ def plan_ux_blueprint(
     else:
         template = "Plan UX for {pitch}"
 
-    prompt = template.replace("{pitch}", pitch)
-    prompt = prompt.replace("{domain_name}", domain_name)
-    prompt = prompt.replace("{master_name}", master_name)
-    prompt = prompt.replace("{entities_block}", entities_block)
-    prompt = prompt.replace("{action_protocol_block}", action_protocol_block)
-    prompt = prompt.replace("{intent_block}", intent_block(intent))
+    prompt = template
+    for name, value in plan_prompt_values(pitch, structure, action_manifest, master_name, intent, inbox_specs).items():
+        prompt = prompt.replace("{" + name + "}", value)
 
     print(f"[Compiler:UXPlanner] Reasoning about Cold Start, user journeys, and action ergonomics...", flush=True)
     try:

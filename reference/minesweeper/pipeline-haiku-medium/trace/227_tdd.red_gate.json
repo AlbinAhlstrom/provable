@@ -1,0 +1,158 @@
+{
+  "seq": 227,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:13",
+  "t_offset_s": 194.193,
+  "thread": "red_17",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652452.8553843,
+        "duration": 0.557053804397583,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_019.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_019.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_019.py::test_toggling_flag_on_hidden_cell_flags_it_then_returns_it_to_hidden[2-3]",
+                "type": "Function",
+                "lineno": 23
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_019.py::test_toggling_flag_on_hidden_cell_flags_it_then_returns_it_to_hidden[8-8]",
+                "type": "Function",
+                "lineno": 23
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_019.py::test_toggling_flag_on_revealed_cell_is_refused_and_changes_nothing",
+                "type": "Function",
+                "lineno": 48
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_019.py::test_toggling_flag_on_hidden_cell_flags_it_then_returns_it_to_hidden[2-3]",
+            "lineno": 23,
+            "outcome": "passed",
+            "keywords": [
+              "test_toggling_flag_on_hidden_cell_flags_it_then_returns_it_to_hidden[2-3]",
+              "parametrize",
+              "pytestmark",
+              "2-3",
+              "test_spec_019.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009778999956324697,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.012348000003839843,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004785999917658046,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_019.py::test_toggling_flag_on_hidden_cell_flags_it_then_returns_it_to_hidden[8-8]",
+            "lineno": 23,
+            "outcome": "passed",
+            "keywords": [
+              "test_toggling_flag_on_hidden_cell_flags_it_then_returns_it_to_hidden[8-8]",
+              "parametrize",
+              "pytestmark",
+              "8-8",
+              "test_spec_019.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007838000019546598,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005318999901646748,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003406999894650653,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_019.py::test_toggling_flag_on_revealed_cell_is_refused_and_changes_nothing",
+            "lineno": 48,
+            "outcome": "passed",
+            "keywords": [
+              "test_toggling_flag_on_revealed_cell_is_refused_and_changes_nothing",
+              "test_spec_019.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00041710000368766487,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004910999996354803,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00034949999826494604,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,284 @@
+{
+  "seq": 306,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:26",
+  "t_offset_s": 397.543,
+  "thread": "red_0",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656605.8060536,
+        "duration": 1.6122324466705322,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_plkng8ol",
+        "environment": {},
+        "summary": {
+          "failed": 5,
+          "total": 5,
+          "collected": 5
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_001.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_001.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_001.py::test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board[beginner-9-9-10]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "tests/unit/test_spec_001.py::test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board[expert-30-16-99]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "tests/unit/test_spec_001.py::test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board[custom-12-20-25]",
+                "type": "Function",
+                "lineno": 43
+              },
+              {
+                "nodeid": "tests/unit/test_spec_001.py::test_mine_count_exactly_at_the_maximum_is_accepted_and_fully_laid",
+                "type": "Function",
+                "lineno": 70
+              },
+              {
+                "nodeid": "tests/unit/test_spec_001.py::test_mine_count_just_beyond_the_maximum_is_refused",
+                "type": "Function",
+                "lineno": 93
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_001.py::test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board[beginner-9-9-10]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board[beginner-9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "beginner-9-9-10",
+              "test_spec_001.py",
+              "unit",
+              "tests",
+              "hollow_plkng8ol",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0014544000005116686,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010716000106185675,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_plkng8ol\\tests\\unit\\test_spec_001.py",
+                "lineno": 59,
+                "message": "AssertionError: assert 0 == (9 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_001.py",
+                  "lineno": 59,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "difficulty_id = 'beginner', width = 9, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\n        \"difficulty_id, width, height, mine_count\",\n        [\n            (\"beginner\", 9, 9, 10),\n            (\"expert\", 30, 16, 99),\n            (\"custom\", 12, 20, 25),\n        ],\n    )\n    def test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board(\n        difficulty_id, width, height, mine_count\n    ):\n        # Given a newly created Ready game of width W, height H and mine count M\n        game = _new_game(difficulty_id, width, height, mine_count)\n    \n        # Before laying: W*H cells, none holds a mine.\n>       assert len(game.cells) == width * height\nE       AssertionError: assert 0 == (9 * 9)\nE        +  where 0 = len([])\nE        +    where [] = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_001.py:59: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004169999883743003,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_001.py::test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board[expert-30-16-99]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board[expert-30-16-99]",
+              "parametrize",
+              "pytestmark",
+              "expert-30-16-99",
+              "test_spec_001.py",
+              "unit",
+              "tests",
+              "hollow_plkng8ol",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008742000063648447,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005501999985426664,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_plkng8ol\\tests\\unit\\test_spec_001.py",
+                "lineno": 59,
+                "message": "AssertionError: assert 0 == (30 * 16)\n +  where 0 = len([])\n +    where [] = Game(id='game-1', difficulty_id='expert', width=30, height=16, mine_count=99, remaining_mines=99, created_at='2024-01-...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_001.py",
+                  "lineno": 59,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "difficulty_id = 'expert', width = 30, height = 16, mine_count = 99\n\n    @pytest.mark.parametrize(\n        \"difficulty_id, width, height, mine_count\",\n        [\n            (\"beginner\", 9, 9, 10),\n            (\"expert\", 30, 16, 99),\n            (\"custom\", 12, 20, 25),\n        ],\n    )\n    def test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board(\n        difficulty_id, width, height, mine_count\n    ):\n        # Given a newly created Ready game of width W, height H and mine count M\n        game = _new_game(difficulty_id, width, height, mine_count)\n    \n        # Before laying: W*H cells, none holds a mine.\n>       assert len(game.cells) == width * height\nE       AssertionError: assert 0 == (30 * 16)\nE        +  where 0 = len([])\nE        +    where [] = Game(id='game-1', difficulty_id='expert', width=30, height=16, mine_count=99, remaining_mines=99, created_at='2024-01-...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_001.py:59: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00043450000521261245,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_001.py::test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board[custom-12-20-25]",
+            "lineno": 43,
+            "outcome": "failed",
+            "keywords": [
+              "test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board[custom-12-20-25]",
+              "parametrize",
+              "pytestmark",
+              "custom-12-20-25",
+              "test_spec_001.py",
+              "unit",
+              "tests",
+              "hollow_plkng8ol",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008686000073794276,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005318000039551407,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_plkng8ol\\tests\\unit\\test_spec_001.py",
+                "lineno": 59,
+                "message": "AssertionError: assert 0 == (12 * 20)\n +  where 0 = len([])\n +    where [] = Game(id='game-1', difficulty_id='custom', width=12, height=20, mine_count=25, remaining_mines=25, created_at='2024-01-...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_001.py",
+                  "lineno": 59,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "difficulty_id = 'custom', width = 12, height = 20, mine_count = 25\n\n    @pytest.mark.parametrize(\n        \"difficulty_id, width, height, mine_count\",\n        [\n            (\"beginner\", 9, 9, 10),\n            (\"expert\", 30, 16, 99),\n            (\"custom\", 12, 20, 25),\n        ],\n    )\n    def test_laying_mines_places_exactly_mine_count_on_a_width_by_height_board(\n        difficulty_id, width, height, mine_count\n    ):\n        # Given a newly created Ready game of width W, height H and mine count M\n        game = _new_game(difficulty_id, width, height, mine_count)\n    \n        # Before laying: W*H cells, none holds a mine.\n>       assert len(game.cells) == width * height\nE       AssertionError: assert 0 == (12 * 20)\nE        +  where 0 = len([])\nE        +    where [] = Game(id='game-1', difficulty_id='custom', width=12, height=20, mine_count=25, remaining_mines=25, created_at='2024-01-...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_001.py:59: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00041930000588763505,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_001.py::test_mine_count_exactly_at_the_maximum_is_accepted_and_fully_laid",
+            "lineno": 70,
+            "outcome": "failed",
+            "keywords": [
+              "test_mine_count_exactly_at_the_maximum_is_accepted_and_fully_laid",
+              "test_spec_001.py",
+              "unit",
+              "tests",
+              "hollow_plkng8ol",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000375300005543977,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00035339999885763973,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_plkng8ol\\tests\\unit\\test_spec_001.py",
+                "lineno": 81,
+                "message": "AttributeError: 'NoneType' object has no attribute 'width'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_001.py",
+                  "lineno": 81,
+                  "message": "AttributeError"
+                }
+              ],
+              "longrepr": "def test_mine_count_exactly_at_the_maximum_is_accepted_and_fully_laid():\n        # Given a beginner game; a Custom 9x9 board allows at most (9-1)*(9-1) = 64 mines\n        game = _new_game(\"beginner\", 9, 9, 10)\n    \n        # When the player picks Custom 9x9 with exactly 64 mines (at the limit)\n        new_game = game.change_difficulty(\n            difficulty_id=\"custom\", width=9, height=9, mine_count=64\n        )\n    \n        # Then it is accepted: a new Ready game with the chosen configuration\n>       assert new_game.width == 9\n               ^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'width'\n\ntests\\unit\\test_spec_001.py:81: AttributeError"
+            },
+            "teardown": {
+              "duration": 0.000374399998690933,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_001.py::test_mine_count_just_beyond_the_maximum_is_refused",
+            "lineno": 93,
+            "outcome": "failed",
+            "keywords": [
+              "test_mine_count_just_beyond_the_maximum_is_refused",
+              "test_spec_001.py",
+              "unit",
+              "tests",
+              "hollow_plkng8ol",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003701999958138913,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004684000014094636,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_plkng8ol\\tests\\unit\\test_spec_001.py",
+                "lineno": 99,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_001.py",
+                  "lineno": 99,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "def test_mine_count_just_beyond_the_maximum_is_refused():\n        # Given a beginner game; a Custom 9x9 board allows at most 64 mines\n        game = _new_game(\"beginner\", 9, 9, 10)\n    \n        # When the player picks Custom 9x9 with 65 mines (one beyond the limit)\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_001.py:99: Failed"
+            },
+            "teardown": {
+              "duration": 0.00037960000918246806,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,68 +1,76 @@
 # Frontend Components
 
-The PM Studio frontend ([`frontend/src/`](../../frontend/src)) is a modern React 18 application built with TypeScript, Vite, and custom CSS design system tokens.
+PM Studio ([`frontend/src/`](../../frontend/src)) is a React 18 + TypeScript + Vite app. It is one screen: the generated app beside its specifications. It knows nothing about any particular generated app.
 
----
-
-## 🧩 Component Sitemap
+## Component map
 
 ```mermaid
 graph TD
-    App["App.tsx Shell"] --> Header["Header Nav & Project Selector"]
-    Header --> ProjectSelector["components/ProjectSelector.tsx"]
-    
-    App --> KickstartStudio["components/KickstartStudio.tsx Intake Studio"]
-    KickstartStudio --> AppPreview["components/AppPreview.tsx 3-View System"]
-    
-    AppPreview --> PageSelectorBar["components/PageSelectorBar.tsx Top Page Selector"]
-    AppPreview --> ReqControl["components/RequirementControlPanel.tsx Domain Aggregates Panel"]
-    AppPreview --> DomainInspector["Domain Visualizer Inspector (@dataclass Class Projection)"]
-    
-    ReqControl --> BehaviorInbox["components/BehaviorInboxPanel.tsx BDD Spec CRUD"]
-    ReqControl --> DomainEntities["components/DomainEntitiesPanel.tsx Dynamic Entity Fixtures"]
-    
-    App --> CoverageHub["components/CoverageHub.tsx Allure Matrix"]
+    App["App.tsx shell"] --> ProjectSelector["components/ProjectSelector.tsx"]
+    App --> KickstartStudio["components/KickstartStudio.tsx"]
+    KickstartStudio --> BuildProgress["components/BuildProgressPanel.tsx"]
+    KickstartStudio --> AppPreview["components/AppPreview.tsx"]
+    AppPreview --> Panel["components/RequirementControlPanel.tsx"]
+    Panel --> SpecTree["components/specs/SpecTree.tsx"]
+    Panel --> SpecDetail["components/specs/SpecDetail.tsx"]
+    Panel --> SpecFormModal["components/specs/SpecFormModal.tsx"]
+    SpecTree --> Light["components/specs/SpecStatusLight.tsx"]
+    SpecDetail --> Light
 ```
 
----
+## Components
 
-## 📦 Component Descriptions
+- **`App.tsx`**: the header (product name, project selector) and the studio. Switching project remounts the studio.
+- **`components/KickstartStudio.tsx`**: decides which of two views is shown. Nothing built yet: one question as the headline and a composer (text box with a Build button, Ctrl + Enter builds) (`POST /api/onboarding/kickstart`). Otherwise, and from the moment a build starts: the app preview, with the build progress banner above it while the build runs. The preview is reloaded when the build delivers the first draft and again when it delivers the written page. It also owns the workspace reset (`POST /api/onboarding/reset`).
+- **`components/BuildProgressPanel.tsx`**: the build progress banner, read from `GET /api/onboarding/progress`: how far the build has come in percent, what is being worked on, one bar, and the stages by name (collapsible, collapsed at first on a narrow screen). See "The build progress bar" below.
+- **`components/BuildOpening.tsx`**: what the pitch view shows from the start of a build until its first draft is written: the pitch, and the steps of the build's opening (a stage's `phases`, one step each), without a bar. See [[Build Progress]].
+- **`components/AppPreview.tsx`**: the live workspace (an iframe on the generated app's dev server, :5174) beside the specifications panel, always side by side. Its toolbar holds reset, reload and open-in-new-tab. While a build runs the app is shown as being worked on (muted, a slow band of light over it, still usable); when the build ends it steps forward with a short pop.
+- **`components/RequirementControlPanel.tsx`**: loads the Living Rule Deck (`GET /api/specs/deck`, polled) and owns add, edit, delete, Run Test (`POST /api/specs/rules/{id}/test`, `?rewrite=true` to have the test written again), Fix on a red specification (`POST /api/specs/rules/{id}/fix`) and Run all tests (`POST /api/specs/rules/test`). It renders the three `specs/` components.
+- **`components/specs/SpecTree.tsx`**: the specifications grouped by chapter, collapsible.
+- **`components/specs/SpecDetail.tsx`**: the selected specification: title, behaviour (Given / When / Then / Unless), the stored page test with what it saw, Edit, Delete, Write test again and Run Test.
+- **`components/specs/SpecFormModal.tsx`**: the add and edit form.
+- **`components/specs/SpecStatusLight.tsx`**: the test light (see below).
+- **`components/StatusMessage.tsx`**: a short outcome message with a typed severity (`success`, `warning`, `error`). Severity is stated by the code that reports it, never read out of the message text.
+- **`components/ProjectSelector.tsx`**: lists, switches and adds projects (`/api/projects`).
 
-### 1. `frontend/src/App.tsx` (Application Shell)
-- **Responsibility**: Top-level layout manager, project banner, and global view state router (`Domain`, `Requirements`, `Tests`).
+## The test light
 
-### 2. `frontend/src/components/KickstartStudio.tsx` (Bounded Context Studio)
-- **Responsibility**: Intake form accepting industrial bounded context descriptions, triggering synthesis via `POST /api/onboarding/kickstart`, and initiating physical workspace resets (`POST /api/onboarding/reset`).
+Every specification shows one light, in the tree and next to its title. It only reports what the spec's page test said the last time it ran against the running app ([[ADR-010 One Kind of Rule Proved on the Page]]). Running a test changes no code:
 
-### 3. `frontend/src/components/AppPreview.tsx` (3-View Workspace System)
-- **Responsibility**: 3-in-1 workspace system providing:
-  1. `Preview`: Live Vite sandbox iframe (`http://localhost:5174/`).
-  2. `API (Swagger)`: Embedded FastAPI OpenAPI Swagger UI (`http://localhost:8000/docs`).
-  3. `Domain`: Abstract JSON-driven schema visualizer presenting Python Aggregate dataclasses (`Pallet`, `Zone`, `Operator`), attributes, types, invariants, and method signatures without client-side AST parsing.
+| Light | `test_status` | Meaning |
+| --- | --- | --- |
+| Grey | `not_run` | No run has ended for this spec |
+| Green | `pass` | The page behaved as the rule says |
+| Yellow | `broken` | The test could not judge the page (it did not start, crashed outside an assertion, or timed out) |
+| Red | `fail` | The page did not behave as the rule says, or the control the rule needs was not found |
 
-### 4. `frontend/src/components/BehaviorInboxPanel.tsx` (BDD Specification Inbox)
-- **Responsibility**: Structured specification inbox for managing atomic business rules (`GIVEN / WHEN / THEN`), target aggregate binding, mathematical boundary flags, and execution status (`PENDING`, `IN_PROGRESS`, `FULFILLED`, `REQUIRES_HUMAN_INTERVENTION`).
+The backend derives the status (`backend/onboarding/spec_test_status.py`) and serves it on every deck card together with `test_reason`, one line shown under the title when the light is yellow or red. The Studio does not interpret pipeline statuses itself.
 
-### 5. `frontend/src/components/RequirementControlPanel.tsx` (Domain Aggregates Panel)
-- **Responsibility**: Collapsible tree inspector for active domain aggregates, inline BDD spec creation forms, and attribute schema controls.
+Editing a spec does not clear its stored result, so the light shows the last run until Run Test is pressed again.
 
-### 6. `frontend/src/components/DomainEntitiesPanel.tsx` (Dynamic Entity Fixtures)
-- **Responsibility**: Dynamic CRUD panel for entity data instances bound directly to schema attribute metadata.
+While a build is working on a spec (its id is in the progress report's `rules.waiting`), or its test is running, its light pulses in the accent colour instead, and turns to one of the four above when the spec is settled.
 
-### 7. `frontend/src/components/CoverageHub.tsx` (Coverage Matrix)
-- **Responsibility**: Embeds the containerized Allure reporting dashboard (`http://localhost:5050/allure-docker-service/projects/default/reports/latest/index.html`).
+## The build progress bar
 
----
+The bar is cut into one segment per stage that comes after the build's first draft, all of them from the moment the preview is shown. What comes before the draft is shown as steps on the pitch view and has no share of it. The Studio only draws what the backend reports (`backend/onboarding/build_progress.py`); it computes nothing itself.
 
-## 🏛️ Discrepancies & Evolution Tags
+- **Only the stages that build the app are in the bar.** The QA audit and the visual review run on the finished app: when the report says `ready` the banner becomes one line ("Your app is ready") naming the check that is running.
+- **A segment's length** is the stage's `weight`: its usual share of a build's time. The backend learns it from the recorded runs (`backend/onboarding/stage_timing.py`): the mean duration of each stage over the kickstarts under `logs/runs/` that went well, divided by the sum over all stages. No durations are kept by hand, and since the recorder keeps a bounded number of runs the weights follow the pipeline as it changes.
+- **Shares of work, not of the clock.** Stages that run side by side each keep their own segment and fill at the same time.
+- **A segment's fill** is the stage's `fraction`: full once the stage ended (red when it failed), and while it runs the time it has spent against the time it usually takes, never more than full.
+- **The percentage** is the sum of weight times fraction.
+- **No recorded build yet:** every stage weighs the same, and a running stage adds nothing until it ends. A stage the recorded builds never ran weighs as an average stage.
 
-> [!NOTE]
-> [DISCREPANCY: Doc approach better - The original PM Studio architecture envisioned a 100% dumb schema-driven UI using `@rjsf/core` directly rendering forms from `/openapi.json` with zero custom hardcoded DOM structures. While the active React frontend has been cleaned of domain keywords, it currently uses a hybrid iframe (:5174) and custom table visualizer rather than a pure `@rjsf/core` schema form runner.]
+Until the skeleton is written (about a minute into a build) the workspace has nothing of the new app to show: the preview shows the blank workspace page from `backend/onboarding/templates/workspace_scaffold.py`.
 
----
+## Layout and styling
 
-## 🔗 Related Documentation
+- Styles live in `frontend/src/index.css` as classes on CSS variables; components carry no layout in inline styles, so media queries can change it.
+- Below 768px the layout stacks: a square preview as wide as the screen, the specifications below it (tree, then detail), and one scroll for both.
+- Icons come from `@mui/icons-material`, used sparingly on actions. No emoji in the UI. All UI text is English.
+
+## Related
+
 - [[System Architecture]]
 - [[PM-Studio-UX-Architecture-And-Direction]]
 - [[Automated-Verification-And-Self-Healing-Pipeline]]
-

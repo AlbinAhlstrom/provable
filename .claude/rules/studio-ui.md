@@ -8,10 +8,13 @@ paths:
 PM Studio is a domain-agnostic projection. It knows nothing about any particular generated app.
 
 - All domain data and forms come from the OpenAPI schema (`/openapi.json`) or engine responses (`/api/onboarding/aggregates`). Forms render through themed `@rjsf/mui` controls, never raw unstyled inputs.
-- No hard-coded domain terms (`Pallet`, `Zone`, `Operator`, `Pizza`, `User`, `Order`, `CartItem`, ...) in components. Known violation to fix: the `'Order'` default in `BehaviorInboxPanel.tsx`.
+- No hard-coded domain terms (`Pallet`, `Zone`, `Operator`, `Pizza`, `User`, `Order`, `CartItem`, ...) in components.
 - No mock or placeholder UI to bypass a rendering problem. If a schema fails to render, show an empty state or a red `ErrorBoundary` with the technical error. Never fake the UI to turn a test green; if a test is stale because the architecture moved on, rewrite or delete it.
 - Use relative `/api/...` URLs, never `http://localhost:8000` (Vercel deployment).
-- Keep components small and composable. `RequirementControlPanel.tsx` (about 900 lines) and `RequirementsList.tsx` (about 600) are known debts; split along their natural seams when touching them.
+- Keep components small and composable: one job per file (`components/specs/` is the pattern), data and handlers in the panel that owns them.
+- All UI text is English. No emoji; icons come from `@mui/icons-material`, sparingly, on actions.
+- A message's severity is typed (`StatusMessage`), never guessed from its text.
+- Layout lives in `index.css` classes, not inline styles, so the narrow-screen media query can restack it. Check both widths after a layout change.
 
 ## Verifying UI changes
 

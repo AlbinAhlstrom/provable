@@ -5,9 +5,9 @@ answers every action with "Unknown action": the page looks finished and nothing 
 """
 import os
 
-from onboarding.action_behaviour import ActionBehaviour, action_spec, implement_actions
+from onboarding.action_behaviour import action_specs, specs_of_actions
 from onboarding.dynamic_test_generator import write_acceptance_suites
-from onboarding.router_engine import BusinessSpec, DomainStructureSchema, EntitySpec
+from onboarding.router_engine import DomainStructureSchema, EntitySpec
 from onboarding.skeleton_builder import build_and_write_skeleton
 
 STRUCTURE = DomainStructureSchema(domain_name="Salon", entities=[
@@ -31,88 +31,46 @@ def _workspace(tmp_path):
     return str(tmp_path)
 
 
-def _writes_methods(*names_by_aggregate):
-    """A stand-in for the TDD loop that appends the given methods to the aggregate's class, as GREEN would."""
-    wanted = dict(names_by_aggregate)
-    specs = []
-
-    def run_spec(spec, workspace_dir, action_manifest=None):
-        specs.append(spec)
-        path = os.path.join(workspace_dir, "src", "domain", f"{spec.target_aggregate.lower()}.py")
-        with open(path, "a", encoding="utf-8") as f:
-            for name in wanted.get(spec.target_aggregate, []):
-                f.write(f"\n    def {name}(self, **params):\n        self.status = '{name}'\n")
-        return {"success": True, "status": "FULFILLED", "attempts": [{"attempt": 1, "approved": True}]}
-
-    run_spec.specs = specs
-    return run_spec
-
-
-def test_one_spec_per_aggregate_states_every_action_it_must_carry_out():
-    """Verify the spec handed to the TDD loop names each action with its parameters and what it does.
+def test_every_action_is_a_spec_of_its_own():
+    """Verify each action is stated on its own, so its test is written beside the others and not after them.
 
     id: TST-ACTB-001
     Given: The two actions the manifest gives Appointment
-    When: Their spec is built
-    Then: It targets Appointment, joins the regression suite's naming (test_spec_...), and states both actions
+    When: Their specs are built
+    Then: There is one per action, each targets Appointment, joins the regression suite's naming (test_spec_...),
+          and states its action with its parameters and what it does
     """
-    spec = action_spec("Appointment", [a for a in MANIFEST["actions"] if a["aggregate"] == "Appointment"])
-    assert spec.target_aggregate == "Appointment" and spec.spec_id == "SPEC-ACT-APPOINTMENT"
-    text = spec.given_when_then
-    assert "confirm_booking(guest_name, guest_phone)" in text and "cancel_appointment()" in text
-    assert "The guest confirms the held slot with contact details" in text
+    confirm, cancel = action_specs("Appointment", [a for a in MANIFEST["actions"] if a["aggregate"] == "Appointment"])
+    assert (confirm.spec_id, cancel.spec_id) == ("SPEC-ACT-APPOINTMENT-CONFIRM_BOOKING", "SPEC-ACT-APPOINTMENT-CANCEL_APPOINTMENT")
+    assert confirm.target_aggregate == cancel.target_aggregate == "Appointment"
+    assert "confirm_booking(guest_name, guest_phone)" in confirm.given_when_then
+    assert "The guest confirms the held slot with contact details" in confirm.given_when_then
+    assert "cancel_appointment()" in cancel.given_when_then and "confirm_booking" not in cancel.given_when_then
 
 
-def test_every_aggregate_with_actions_gets_its_methods_and_the_contract_holds(tmp_path):
-    """Verify the stage runs the TDD loop once per aggregate and then checks the code against the manifest.
+def test_every_class_with_actions_gets_its_specs_and_a_run_to_fill_in(tmp_path):
+    """Verify the round is handed a spec for every action, with a record of each to report on.
 
     id: TST-ACTB-002
-    Given: A skeleton, a manifest with actions on two aggregates, and a loop that writes all of their methods
-    When: The actions are implemented
-    Then: The loop ran once per aggregate with the manifest, every action is implemented and nothing is missing
+    Given: A skeleton and a manifest with actions on two aggregates
+    When: The specs of its actions are built
+    Then: There are three specs in the manifest's order, and one open run per spec naming its aggregate
     """
-    run_spec = _writes_methods(("Appointment", ["confirm_booking", "cancel_appointment"]), ("Stylist", ["set_availability"]))
-    result = implement_actions(MANIFEST, _workspace(tmp_path), run_spec=run_spec)
+    specs, runs = specs_of_actions(MANIFEST, _workspace(tmp_path))
 
-    assert isinstance(result, ActionBehaviour) and result.success and result.error == ""
-    assert [s.target_aggregate for s in run_spec.specs] == ["Appointment", "Stylist"]
-    assert sorted(result.implemented) == ["cancel_appointment", "confirm_booking", "set_availability"]
-    assert result.missing == []
+    assert [s.target_aggregate for s in specs] == ["Appointment", "Appointment", "Stylist"]
+    assert [(r["aggregate"], r["spec_id"], r["status"]) for r in runs] == [(s.target_aggregate, s.spec_id, "") for s in specs]
 
 
-def test_an_action_left_without_a_method_fails_the_stage_by_name(tmp_path):
-    """Verify a page action nothing implements is reported, with the loop's own reason, instead of passing silently.
-
-    id: TST-ACTB-003
-    Given: A loop that dead-ends on Appointment and writes only one of its two methods for nobody
-    When: The actions are implemented
-    Then: The result is not a success, names the missing actions and carries why the loop stopped
-    """
-    def run_spec(spec, workspace_dir, action_manifest=None):
-        if spec.target_aggregate == "Appointment":
-            return {"success": False, "status": "REQUIRES_HUMAN_INTERVENTION", "error": "assert status == 'Confirmed'",
-                    "attempts": [{"attempt": 1, "approved": False}, {"attempt": 2, "approved": False}]}
-        return _writes_methods(("Stylist", ["set_availability"]))(spec, workspace_dir, action_manifest)
-
-    result = implement_actions(MANIFEST, _workspace(tmp_path), run_spec=run_spec)
-
-    assert not result.success
-    assert [m["action"] for m in result.missing] == ["confirm_booking", "cancel_appointment"]
-    assert "confirm_booking" in result.error and "assert status == 'Confirmed'" in result.error
-    assert result.implemented == ["set_availability"]
-
-
-def test_a_product_without_actions_needs_no_behaviour(tmp_path):
-    """Verify nothing runs when the manifest offers no action.
+def test_a_product_without_actions_has_no_action_specs(tmp_path):
+    """Verify nothing is asked for when the manifest offers no action.
 
     id: TST-ACTB-004
     Given: An empty manifest
-    When: The actions are implemented
-    Then: The loop is never called and the result says why it was skipped
+    When: The specs of its actions are built
+    Then: There is none, and no run
     """
-    run_spec = _writes_methods()
-    result = implement_actions({"actions": []}, _workspace(tmp_path), run_spec=run_spec)
-    assert result.success and result.skipped and run_spec.specs == []
+    assert specs_of_actions({"actions": []}, _workspace(tmp_path)) == ([], [])
 
 
 def test_browser_checks_stay_out_of_the_domain_regression_suite(tmp_path):
@@ -133,33 +91,30 @@ STARTING = {**MANIFEST, "starting_states": [
     {"aggregate": "Appointment", "description": "status is 'held' and no guest details are set"}]}
 
 
-def test_the_spec_states_what_a_new_object_holds_before_any_action():
+def test_what_a_new_object_holds_is_a_spec_of_its_own():
     """Verify the class is asked to start in the state its first action needs.
 
     id: TST-ACTB-START-001
     Given: A manifest that says what a newly created Appointment holds
-    When: The aggregate's spec is built
-    Then: The spec has a scenario for an object created with only its required fields, in the manifest's words
+    When: The aggregate's specs are built
+    Then: The first is about an object nothing was called on, in the manifest's words
     """
-    spec = action_spec("Appointment", [a for a in STARTING["actions"] if a["aggregate"] == "Appointment"],
-                       starting_state="status is 'held' and no guest details are set")
-    assert "created with only its required fields" in spec.given_when_then
-    assert "status is 'held' and no guest details are set" in spec.given_when_then
+    new = action_specs("Appointment", [a for a in STARTING["actions"] if a["aggregate"] == "Appointment"],
+                       starting_state="status is 'held' and no guest details are set")[0]
+    assert new.spec_id == "SPEC-NEW-APPOINTMENT" and "nothing is called on it" in new.given_when_then
+    assert "status is 'held' and no guest details are set" in new.given_when_then
 
 
-def test_the_manifests_starting_state_reaches_the_aggregates_spec(tmp_path):
-    """Verify implement_actions hands each aggregate its own starting state.
+def test_the_manifests_starting_state_reaches_its_own_class_only(tmp_path):
+    """Verify each aggregate is given its own starting state.
 
     id: TST-ACTB-START-002
     Given: A manifest with a starting state for Appointment and none for Stylist
-    When: The actions are implemented
-    Then: Appointment's spec carries the starting state and Stylist's spec has no such scenario
+    When: The specs of its actions are built
+    Then: Appointment has a spec for a new object and Stylist has none
     """
-    run_spec = _writes_methods(("Appointment", ["confirm_booking", "cancel_appointment"]), ("Stylist", ["set_availability"]))
-    implement_actions(STARTING, _workspace(tmp_path), run_spec=run_spec)
-    by_aggregate = {s.target_aggregate: s.given_when_then for s in run_spec.specs}
-    assert "status is 'held'" in by_aggregate["Appointment"]
-    assert "created with only its required fields" not in by_aggregate["Stylist"]
+    specs, _ = specs_of_actions(STARTING, _workspace(tmp_path))
+    assert [s.spec_id for s in specs if s.spec_id.startswith("SPEC-NEW-")] == ["SPEC-NEW-APPOINTMENT"]
 
 
 def test_the_rule_writers_are_told_the_starting_state_too():
@@ -189,13 +144,13 @@ def test_the_shared_words_reach_every_writer_of_the_class():
     Given: A manifest that fixes the values of Appointment.status and the name of its one refusal (tests written
            side by side each invented their own: one expected ValueError, another IllegalMoveError, and no code
            could satisfy both)
-    When: The interface contract and the actions' spec for Appointment are rendered
-    Then: Both state every status value with its meaning and the refusal with its name; Stylist's contract has none
+    When: The interface contract and the actions' specs for Appointment are rendered
+    Then: All state every status value with its meaning and the refusal with its name; Stylist's contract has none
     """
     from onboarding.action_protocol import format_interface_contract
     contract = format_interface_contract(WORDS, "Appointment")
-    spec = action_spec("Appointment", [a for a in WORDS["actions"] if a["aggregate"] == "Appointment"], manifest=WORDS)
-    for text in (contract, spec.description + spec.given_when_then):
+    specs = action_specs("Appointment", [a for a in WORDS["actions"] if a["aggregate"] == "Appointment"], manifest=WORDS)
+    for text in [contract] + [spec.description + spec.given_when_then for spec in specs]:
         assert '"held"' in text and "a slot is reserved and not yet confirmed" in text and '"confirmed"' in text
         assert "SlotTakenError" in text and "the slot is no longer free" in text
     assert "SlotTakenError" not in format_interface_contract(WORDS, "Stylist")
@@ -214,29 +169,36 @@ def test_the_page_writer_is_given_the_field_values_too():
     assert '"held"' in text and '"confirmed"' in text and "SlotTakenError" not in text
 
 
-def test_the_actions_spec_goes_through_the_loop_that_can_reconsider_a_test(tmp_path, monkeypatch):
-    """Verify the actions' spec is executed by the batch, whose test writer may correct a test no code could meet.
+def test_a_state_the_class_already_starts_in_needs_no_spec(tmp_path):
+    """Verify no test is asked for where there is nothing to write: such a test passes on the empty class.
 
-    id: TST-ACTB-RECONSIDER
-    Given: No executor injected (a kickstart), and a batch executor that records what it is given (the actions'
-           test once read a field under a misspelt name; two code answers could not satisfy it, the stage failed,
-           and the build had no domain at all)
-    When: The actions are implemented
-    Then: Each aggregate's spec was executed through the batch, on its own, with the manifest
+    id: TST-ACTB-START-004
+    Given: A manifest whose starting state for Appointment is held by the class's defaults
+    When: The specs of its actions are built
+    Then: There is no spec for a new Appointment, every spec has its run, and the writers are still told the state
     """
-    from service_layer import tdd_batch
-    seen = []
+    from onboarding.action_protocol import format_interface_contract
+    held = {**MANIFEST, "starting_states": [
+        {"aggregate": "Appointment", "description": "status held", "held_by_defaults": True}]}
 
-    decks = []
+    specs, runs = specs_of_actions(held, _workspace(tmp_path))
 
-    def together(specs, workspace_dir, action_manifest=None, on_result=None, deck=None):
-        decks.append([s.spec_id for s in deck])
-        seen.append(([s.spec_id for s in specs], action_manifest is MANIFEST))
-        return {s.spec_id: {"success": True, "status": "FULFILLED", "attempts": []} for s in specs}
+    assert not [s.spec_id for s in specs if s.spec_id.startswith("SPEC-NEW-")]
+    assert [r["spec_id"] for r in runs] == [s.spec_id for s in specs]
+    assert "status held" in format_interface_contract(held, "Appointment")
 
-    monkeypatch.setattr(tdd_batch, "execute_specs_together", together)
-    rule = BusinessSpec(spec_id="SPEC-001", title="t", description="d", given_when_then="g", target_aggregate="Appointment")
-    result = implement_actions(MANIFEST, _workspace(tmp_path), rules=[rule])
-    assert seen == [(["SPEC-ACT-APPOINTMENT"], True), (["SPEC-ACT-STYLIST"], True)]
-    assert decks[0] == ["SPEC-ACT-APPOINTMENT", "SPEC-001"]  # the test writer is shown the rules that come next
-    assert [r["status"] for r in result.runs] == ["FULFILLED", "FULFILLED"]
+
+def test_an_actions_spec_is_one_call_and_its_other_cases_are_the_rules():
+    """Verify an action's test shows the action once: each further case in it is one more expectation that can be
+    wrong, and the rules already prove those cases one by one.
+
+    id: TST-ACTB-ONE-CALL
+    Given: An action of Appointment
+    When: Its spec is built
+    Then: It asks for the simplest state the action is allowed in and one call, and leaves what the action refuses,
+          ignores or does from another state to the rules' own tests
+    """
+    confirm = action_specs("Appointment", [a for a in MANIFEST["actions"] if a["aggregate"] == "Appointment"])[0]
+    assert "the simplest state in which the action is allowed" in confirm.given_when_then
+    assert "is called once with valid values" in confirm.given_when_then
+    assert "each with a test of its own" in confirm.given_when_then

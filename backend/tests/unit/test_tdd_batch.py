@@ -1,14 +1,15 @@
 """A deck's rules are written together (service_layer/tdd_batch.py).
 
 One spec at a time, a nine-rule deck took nine test calls and nine code calls strictly one after another: most of a
-kickstart's duration. The tests do not depend on each other's code, so they are written side by side; the code for
-every rule of one class is then written in one answer and judged test by test.
+kickstart's duration. The tests do not depend on each other's code, so the first tests of a class are written in one
+answer (onboarding/first_tests.py); the code for every rule of the class is then written in one answer and judged
+test by test.
 """
 import os
-import threading
 
 import pytest
 
+from onboarding import first_tests
 from onboarding.router_engine import BusinessSpec
 from service_layer import tdd_batch, tdd_machine
 
@@ -93,13 +94,18 @@ def _workspace(tmp_path, source=INVOICE):
 
 
 def _models(monkeypatch, answers, tests=TESTS):
-    """The test writer answers by spec; the code writer gives `answers` in order and records what it was shown."""
+    """The test writers answer by spec (the one that writes a class's first tests, and the one asked again about
+    a single test); the code writer gives `answers` in order and records what it was shown."""
     calls = []
+    monkeypatch.setattr(first_tests, "write_first_tests", lambda specs, *a, **k: {s.spec_id: tests[s.spec_id] for s in specs})
     monkeypatch.setattr(tdd_machine, "generate_red_test", lambda spec, *a, **k: tests[spec.spec_id])
 
     def green(**kwargs):
         calls.append(kwargs)
-        return answers[len(calls) - 1]
+        answer = answers[len(calls) - 1]
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
     monkeypatch.setattr(tdd_machine, "synthesize_green_class_implementation", green)
     return calls
 
@@ -127,27 +133,54 @@ def test_every_rule_of_a_class_is_implemented_by_one_answer(tmp_path, monkeypatc
     assert reported == list(TESTS)
 
 
-def test_the_tests_are_written_side_by_side(tmp_path, monkeypatch):
-    """Verify the test calls overlap: each waits for another to be in flight before answering.
+def test_the_first_tests_of_a_class_are_one_answer(tmp_path, monkeypatch):
+    """Verify three rules need one test call, not three, and no rule's own writer is asked while its test stands.
 
     id: TST-BATCH-002
-    Given: A test writer that only answers once two calls are in flight at the same time
-    When: Three specs are executed together
-    Then: Every spec got its test (no call waited in vain)
+    Given: Three specs on one class, and a writer of first tests whose every test the gate approves
+    When: The specs are executed together
+    Then: That writer was called once, with all three specs, the class as it is and its module; the writer of a
+          single test was never called; every spec is fulfilled
     """
     workspace = _workspace(tmp_path)
     _models(monkeypatch, [_fragment(PAY, ADD_LINE)])
-    together = threading.Barrier(2, timeout=10)
-    first_two = iter([True, True])
+    asked, alone = [], []
 
-    def write_test(spec, *args, **kwargs):
-        if next(first_two, False):
-            together.wait()
-        return TESTS[spec.spec_id]
-    monkeypatch.setattr(tdd_machine, "generate_red_test", write_test)
+    def write_all(specs, class_source, module_name, class_name, **kwargs):
+        asked.append(([s.spec_id for s in specs], class_source, module_name, class_name))
+        return {s.spec_id: TESTS[s.spec_id] for s in specs}
+    monkeypatch.setattr(first_tests, "write_first_tests", write_all)
+    monkeypatch.setattr(tdd_machine, "generate_red_test", lambda spec, *a, **k: alone.append(spec.spec_id) or TESTS[spec.spec_id])
 
     results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
-    assert all(results[i]["success"] for i in TESTS)
+
+    (ids, class_source, module_name, class_name), = asked
+    assert ids == list(TESTS) and "class Invoice" in class_source and (module_name, class_name) == ("invoice", "Invoice")
+    assert alone == [] and all(results[i]["success"] for i in TESTS)
+
+
+def test_a_writer_of_first_tests_that_fails_fails_its_class_by_name(tmp_path, monkeypatch):
+    """Verify a provider error is reported on every rule it left without a test, and nothing is tried again.
+
+    id: TST-BATCH-012
+    Given: A writer of first tests that raises
+    When: Three specs are executed together
+    Then: Every spec is an error of the test-writing phase with the reason; no single test and no code was asked for
+    """
+    workspace = _workspace(tmp_path)
+    calls = _models(monkeypatch, [])
+    alone = []
+
+    def fails(specs, *args, **kwargs):
+        raise RuntimeError("first tests failed: quota exceeded")
+    monkeypatch.setattr(first_tests, "write_first_tests", fails)
+    monkeypatch.setattr(tdd_machine, "generate_red_test", lambda spec, *a, **k: alone.append(spec.spec_id) or TESTS[spec.spec_id])
+
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert all(results[i]["status"] == "ERROR" and results[i]["phase"] == "RED_GEN"
+               and "quota exceeded" in results[i]["error"] for i in TESTS)
+    assert alone == [] and calls == []
 
 
 def test_tests_still_failing_are_fed_back_once(tmp_path, monkeypatch):
@@ -191,6 +224,48 @@ def test_a_rule_still_failing_after_the_retry_is_named_and_the_others_stand(tmp_
     assert os.path.exists(tmp_path / "tests" / "pending" / "test_spec_003.py")
     assert not os.path.exists(tmp_path / "tests" / "unit" / "test_spec_003.py")
     assert tdd_machine.run_isolated_pytest(str(tmp_path / "tests" / "unit"), cwd=workspace)["exit_code"] == 0
+
+
+def test_a_retry_that_answers_in_words_leaves_the_first_answer_standing(tmp_path, monkeypatch):
+    """Verify a code writer that declines the retry ("the test is wrong, the class needs no change") does not take
+    the rules its first answer fulfilled down with it. A live kickstart lost all seventeen specs of a class this way.
+
+    id: TST-BATCH-RETRY-IN-WORDS
+    Given: A first answer that leaves the third test failing, and a retry whose answer holds no class
+    When: The specs are executed together
+    Then: The first two specs are fulfilled by the first answer; the third is not, with the failing assertion as
+          its reason and the writer's words in its second attempt; the tests left in tests/unit pass
+    """
+    workspace = _workspace(tmp_path)
+    declined = tdd_machine.NoClassInAnswer("Invoice", "The test expects the wrong total; Invoice needs no change.")
+    calls = _models(monkeypatch, [_fragment(PAY, ADD_LINE_OPEN), declined])
+
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert len(calls) == 2
+    assert results["SPEC-001"]["status"] == results["SPEC-002"]["status"] == "FULFILLED"
+    failed = results["SPEC-003"]
+    assert failed["status"] == "REQUIRES_HUMAN_INTERVENTION" and "Test assertions failed" in failed["error"]
+    assert "Invoice needs no change" in failed["attempts"][1]["reason"]
+    assert tdd_machine.run_isolated_pytest(str(tmp_path / "tests" / "unit"), cwd=workspace)["exit_code"] == 0
+
+
+def test_a_first_answer_without_the_class_fails_the_class_loudly(tmp_path, monkeypatch):
+    """Verify nothing is kept or retried when the first answer is no code: there is no verdict to feed back.
+
+    id: TST-BATCH-NO-CLASS-FIRST
+    Given: A first answer that holds no class
+    When: The specs are executed together
+    Then: One code call; every spec is an error naming the reason; the class is as it was
+    """
+    workspace = _workspace(tmp_path)
+    calls = _models(monkeypatch, [tdd_machine.NoClassInAnswer("Invoice", "I cannot do this.")])
+
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert len(calls) == 1
+    assert all(results[i]["status"] == "ERROR" and "definition of class Invoice" in results[i]["error"] for i in TESTS)
+    assert (tmp_path / "src" / "domain" / "invoice.py").read_text(encoding="utf-8") == INVOICE
 
 
 def test_an_answer_that_breaks_an_earlier_verified_test_is_never_kept(tmp_path, monkeypatch):
@@ -263,12 +338,18 @@ def _writer(monkeypatch, first, second):
     asked = []
     careful = asked_carefully
 
+    def write_all(specs, *args, **kwargs):
+        asked.append("")
+        careful.append(False)
+        return {s.spec_id: first if s.spec_id == "SPEC-003" else TESTS[s.spec_id] for s in specs}
+
     def write_test(spec, *args, rejection_feedback="", **kwargs):
         if spec.spec_id != "SPEC-003":
             return TESTS[spec.spec_id]
         asked.append(rejection_feedback)
         careful.append(bool(kwargs.get("careful")))
-        return first if len(asked) == 1 else second
+        return second
+    monkeypatch.setattr(first_tests, "write_first_tests", write_all)
     monkeypatch.setattr(tdd_machine, "generate_red_test", write_test)
     return asked
 
@@ -337,27 +418,33 @@ def test_a_test_already_regenerated_once_is_not_reconsidered(tmp_path, monkeypat
     assert len(asked) == 2 and not results["SPEC-003"]["success"]
 
 
-def test_each_test_writer_is_shown_the_other_rules_of_the_class(tmp_path, monkeypatch):
-    """Verify a test can be arranged so that no other rule of the deck changes its outcome: its writer knows them.
+def test_a_first_test_the_gate_refuses_goes_to_a_writer_of_its_own_once(tmp_path, monkeypatch):
+    """Verify the one regeneration the policy allows is still there, for the one rule that needs it.
 
     id: TST-BATCH-010
-    Given: Three specs on one class
+    Given: Three specs on one class; the answer with the first tests holds none for SPEC-001
     When: The specs are executed together
-    Then: The writer of each test was given the other two rules, title and scenario, and not its own
+    Then: Only SPEC-001 was sent to a writer of its own, with the refusal and the other two rules of the class;
+          every spec is fulfilled, SPEC-001 on its second attempt
     """
     workspace = _workspace(tmp_path)
     _models(monkeypatch, [_fragment(PAY, ADD_LINE)])
     shown = {}
+    monkeypatch.setattr(first_tests, "write_first_tests",
+                        lambda specs, *a, **k: {s.spec_id: "" if s.spec_id == "SPEC-001" else TESTS[s.spec_id] for s in specs})
 
-    def write_test(spec, *args, **kwargs):
-        shown[spec.spec_id] = kwargs.get("other_rules", "")
+    def write_test(spec, *args, rejection_feedback="", **kwargs):
+        shown[spec.spec_id] = (rejection_feedback, kwargs.get("other_rules", ""))
         return TESTS[spec.spec_id]
     monkeypatch.setattr(tdd_machine, "generate_red_test", write_test)
 
-    tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+    results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
 
-    assert "Rule SPEC-002: Given a When b Then c" in shown["SPEC-001"] and "Rule SPEC-003" in shown["SPEC-001"]
-    assert "Rule SPEC-001" not in shown["SPEC-001"]
+    assert list(shown) == ["SPEC-001"]
+    feedback, others = shown["SPEC-001"]
+    assert "no test function" in feedback
+    assert "Rule SPEC-002: Given a When b Then c" in others and "Rule SPEC-003" in others and "Rule SPEC-001" not in others
+    assert all(results[i]["success"] for i in TESTS) and len(results["SPEC-001"]["red_attempts"]) == 2
 
 
 def test_a_rule_that_passed_before_the_code_was_written_does_not_outrank_the_others(tmp_path, monkeypatch):

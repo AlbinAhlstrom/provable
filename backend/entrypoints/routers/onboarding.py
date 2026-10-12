@@ -3,11 +3,11 @@ Onboarding & Kickstart API Router — Handles domain decomposition, skeleton sca
 Delegates 100% of business logic to DDD Service Layer & Unit of Work.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from service_layer.unit_of_work import SqliteUnitOfWork
-from service_layer import services
+from service_layer import app_wiring, rule_tests, services
 
 router = APIRouter(prefix="/api/onboarding", tags=["Onboarding Kickstart"])
 
@@ -19,12 +19,13 @@ class KickstartRequest(BaseModel):
 
 
 @router.post("/kickstart")
-def kickstart_endpoint(req: KickstartRequest):
-    """Synchronously decomposes pitch, builds DDD skeleton, and returns domain aggregates."""
+def kickstart_endpoint(req: KickstartRequest, background: BackgroundTasks):
+    """Synchronously decomposes pitch, builds DDD skeleton, and returns domain aggregates. A kickstart that built a
+    page has every rule's page test run once it has answered (ADR-010): the lights fill in while the app is used."""
     uow = SqliteUnitOfWork()
     pitch = req.pitch or req.business_pitch or "An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
     try:
-        return services.kickstart_domain_and_scaffold(
+        result = services.kickstart_domain_and_scaffold(
             pitch=pitch,
             uow=uow,
             mode=req.mode or "fast"
@@ -35,6 +36,9 @@ def kickstart_endpoint(req: KickstartRequest):
             "error": str(e),
             "detail": str(e)
         }
+    if result.get("success") and result.get("qa") is not None:
+        background.add_task(rule_tests.run_all_rule_tests, uow=SqliteUnitOfWork(), label="after kickstart")
+    return result
 
 
 
@@ -43,6 +47,15 @@ def rebuild_page_endpoint():
     """Writes the current app's page again against the domain it already has (no decomposition, no TDD loop)."""
     try:
         return services.rebuild_page(uow=SqliteUnitOfWork())
+    except Exception as e:
+        return {"success": False, "error": str(e), "detail": str(e)}
+
+
+@router.post("/wiring")
+def refresh_wiring_endpoint():
+    """Writes the current app's routers and API clients again with today's generator; nothing else is touched."""
+    try:
+        return app_wiring.refresh_app_wiring(uow=SqliteUnitOfWork())
     except Exception as e:
         return {"success": False, "error": str(e), "detail": str(e)}
 

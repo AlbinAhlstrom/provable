@@ -1,0 +1,148 @@
+{
+  "seq": 276,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.353,
+  "thread": "red_18",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ivhkbkxp\\tests\\unit\\test_spec_020.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ivhkbkxp"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ivhkbkxp\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 2 items\n\ntests\\unit\\test_spec_020.py FF                                           [100%]\n\n================================== FAILURES ===================================\n_____ test_flagged_cell_cannot_be_opened_until_unflagged_in_playing_game ______\n\n    def test_flagged_cell_cannot_be_opened_until_unflagged_in_playing_game():\n        game = _arrange_playing_game_with_flag_on_0_0()\n        cells_before = copy.deepcopy(game.cells)\n    \n        game.open_cell(row=0, column=0)\n    \n        # (0,0) is Flagged; opening a Flagged cell changes nothing and raises no error.\n        assert _cell(game, 0, 0)[\"state\"] == \"Flagged\"\n        # Nothing is revealed: every cell is exactly as before (no cascade, no detonation).\n        assert game.cells == cells_before\n        # Game stays Playing, no struck cell, counters untouched.\n        assert game.status == \"Playing\"\n        assert game.struck_cell_id is None\n        assert game.flags_placed == 1\n        assert game.remaining_mines == MINE_COUNT - 1\n        assert game.elapsed_seconds == 5\n    \n        game.toggle_flag(row=0, column=0)\n    \n        # Flagged -> Hidden, flags_placed 1 -> 0, remaining = 10 - 0 = 10.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Hidden\"\nE       AssertionError: assert 'Flagged' == 'Hidden'\nE         \nE         - Hidden\nE         + Flagged\n\ntests\\unit\\test_spec_020.py:93: AssertionError\n______ test_flagged_cell_cannot_be_opened_until_unflagged_in_ready_game _______\n\n    def test_flagged_cell_cannot_be_opened_until_unflagged_in_ready_game():\n        game = _make_game()\n        game.cells = _fresh_cells()\n        _cell(game, 4, 4)[\"state\"] = \"Flagged\"\n        game.flags_placed = 1\n        game.remaining_mines = MINE_COUNT - 1\n        cells_before = copy.deepcopy(game.cells)\n    \n        game.open_cell(row=4, column=4)\n    \n        # Opening a Flagged cell is ignored: it is not a first open, so no mines are laid\n        # and the game stays Ready with the timer not started.\n        assert _cell(game, 4, 4)[\"state\"] == \"Flagged\"\n        assert game.cells == cells_before\n        assert game.status == \"Ready\"\n        assert game.mines_laid is False\n        assert game.started_at is None\n        assert game.flags_placed == 1\n        assert game.remaining_mines == MINE_COUNT - 1\n    \n        game.toggle_flag(row=4, column=4)\n    \n        # Flagged -> Hidden, flags_placed back to 0, remaining 10.\n>       assert _cell(game, 4, 4)[\"state\"] == \"Hidden\"\nE       AssertionError: assert 'Flagged' == 'Hidden'\nE         \nE         - Hidden\nE         + Flagged\n\ntests\\unit\\test_spec_020.py:137: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ivhkbkxp\\.pytest_report_83b03a47ef594df4991fe7f728bad8bd.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_020.py::test_flagged_cell_cannot_be_opened_until_unflagged_in_playing_game\nFAILED tests/unit/test_spec_020.py::test_flagged_cell_cannot_be_opened_until_unflagged_in_ready_game\n============================== 2 failed in 1.97s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656607.2629426,
+      "duration": 1.4729509353637695,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ivhkbkxp",
+      "environment": {},
+      "summary": {
+        "failed": 2,
+        "total": 2,
+        "collected": 2
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_020.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_020.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_020.py::test_flagged_cell_cannot_be_opened_until_unflagged_in_playing_game",
+              "type": "Function",
+              "lineno": 72
+            },
+            {
+              "nodeid": "tests/unit/test_spec_020.py::test_flagged_cell_cannot_be_opened_until_unflagged_in_ready_game",
+              "type": "Function",
+              "lineno": 113
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_020.py::test_flagged_cell_cannot_be_opened_until_unflagged_in_playing_game",
+          "lineno": 72,
+          "outcome": "failed",
+          "keywords": [
+            "test_flagged_cell_cannot_be_opened_until_unflagged_in_playing_game",
+            "test_spec_020.py",
+            "unit",
+            "tests",
+            "hollow_ivhkbkxp",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006933999975444749,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001552000001538545,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ivhkbkxp\\tests\\unit\\test_spec_020.py",
+              "lineno": 93,
+              "message": "AssertionError: assert 'Flagged' == 'Hidden'\n  \n  - Hidden\n  + Flagged"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_020.py",
+                "lineno": 93,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_flagged_cell_cannot_be_opened_until_unflagged_in_playing_game():\n        game = _arrange_playing_game_with_flag_on_0_0()\n        cells_before = copy.deepcopy(game.cells)\n    \n        game.open_cell(row=0, column=0)\n    \n        # (0,0) is Flagged; opening a Flagged cell changes nothing and raises no error.\n        assert _cell(game, 0, 0)[\"state\"] == \"Flagged\"\n        # Nothing is revealed: every cell is exactly as before (no cascade, no detonation).\n        assert game.cells == cells_before\n        # Game stays Playing, no struck cell, counters untouched.\n        assert game.status == \"Playing\"\n        assert game.struck_cell_id is None\n        assert game.flags_placed == 1\n        assert game.remaining_mines == MINE_COUNT - 1\n        assert game.elapsed_seconds == 5\n    \n        game.toggle_flag(row=0, column=0)\n    \n        # Flagged -> Hidden, flags_placed 1 -> 0, remaining = 10 - 0 = 10.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Hidden\"\nE       AssertionError: assert 'Flagged' == 'Hidden'\nE         \nE         - Hidden\nE         + Flagged\n\ntests\\unit\\test_spec_020.py:93: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0005185000045457855,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_020.py::test_flagged_cell_cannot_be_opened_until_unflagged_in_ready_game",
+          "lineno": 113,
+          "outcome": "failed",
+          "keywords": [
+            "test_flagged_cell_cannot_be_opened_until_unflagged_in_ready_game",
+            "test_spec_020.py",
+            "unit",
+            "tests",
+            "hollow_ivhkbkxp",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004332000098656863,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0016654999926686287,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_ivhkbkxp\\tests\\unit\\test_spec_020.py",
+              "lineno": 137,
+              "message": "AssertionError: assert 'Flagged' == 'Hidden'\n  \n  - Hidden\n  + Flagged"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_020.py",
+                "lineno": 137,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_flagged_cell_cannot_be_opened_until_unflagged_in_ready_game():\n        game = _make_game()\n        game.cells = _fresh_cells()\n        _cell(game, 4, 4)[\"state\"] = \"Flagged\"\n        game.flags_placed = 1\n        game.remaining_mines = MINE_COUNT - 1\n        cells_before = copy.deepcopy(game.cells)\n    \n        game.open_cell(row=4, column=4)\n    \n        # Opening a Flagged cell is ignored: it is not a first open, so no mines are laid\n        # and the game stays Ready with the timer not started.\n        assert _cell(game, 4, 4)[\"state\"] == \"Flagged\"\n        assert game.cells == cells_before\n        assert game.status == \"Ready\"\n        assert game.mines_laid is False\n        assert game.started_at is None\n        assert game.flags_placed == 1\n        assert game.remaining_mines == MINE_COUNT - 1\n    \n        game.toggle_flag(row=4, column=4)\n    \n        # Flagged -> Hidden, flags_placed back to 0, remaining 10.\n>       assert _cell(game, 4, 4)[\"state\"] == \"Hidden\"\nE       AssertionError: assert 'Flagged' == 'Hidden'\nE         \nE         - Hidden\nE         + Flagged\n\ntests\\unit\\test_spec_020.py:137: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0005090000049676746,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.965
+}

@@ -1,0 +1,134 @@
+{
+  "seq": 165,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:17:27",
+  "t_offset_s": 91.581,
+  "thread": "red_4",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652646.8713567,
+        "duration": 0.24652981758117676,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kefb7ht_",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "passed": 1,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_005.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_005.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_005.py::test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count",
+                "type": "Function",
+                "lineno": 44
+              },
+              {
+                "nodeid": "tests/unit/test_spec_005.py::test_flagging_a_revealed_cell_leaves_the_board_unchanged",
+                "type": "Function",
+                "lineno": 58
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_005.py::test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count",
+            "lineno": 44,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count",
+              "test_spec_005.py",
+              "unit",
+              "tests",
+              "hollow_kefb7ht_",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00044380000326782465,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006436999974539503,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kefb7ht_\\tests\\unit\\test_spec_005.py",
+                "lineno": 54,
+                "message": "AssertionError: assert 'hidden' == 'flagged'\n  \n  - flagged\n  + hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_005.py",
+                  "lineno": 54,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count():\n        # Given an in-progress 9x9 board, all cells safe with count 0,\n        # and cell (4, 4) is hidden. flag_count starts at 0.\n        game = make_in_progress_game(target_state=\"hidden\")\n    \n        # When the player flags cell (4, 4).\n        game.toggle_flag(row=4, column=4)\n    \n        # Then the cell is hidden -> flagged: its state is \"flagged\".\n>       assert find_cell(game, 4, 4)[\"state\"] == \"flagged\"\nE       AssertionError: assert 'hidden' == 'flagged'\nE         \nE         - flagged\nE         + hidden\n\ntests\\unit\\test_spec_005.py:54: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0003578999894671142,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_005.py::test_flagging_a_revealed_cell_leaves_the_board_unchanged",
+            "lineno": 58,
+            "outcome": "passed",
+            "keywords": [
+              "test_flagging_a_revealed_cell_leaves_the_board_unchanged",
+              "test_spec_005.py",
+              "unit",
+              "tests",
+              "hollow_kefb7ht_",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00034329999471083283,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007681999995838851,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00028900000324938446,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

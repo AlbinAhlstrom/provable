@@ -1,0 +1,101 @@
+[
+ {
+  "file": "minesweeper_haiku.md",
+  "case": "minesweeper",
+  "model": "haiku",
+  "seconds": 8.5,
+  "in": 6771,
+  "out": 1429,
+  "sek": 0.0139,
+  "words": 676,
+  "stop": "end_turn"
+ },
+ {
+  "file": "minesweeper_sonnet.md",
+  "case": "minesweeper",
+  "model": "sonnet",
+  "seconds": 11.9,
+  "in": 6771,
+  "out": 1581,
+  "sek": 0.2935,
+  "words": 684,
+  "stop": "end_turn"
+ },
+ {
+  "file": "minesweeper_opus.md",
+  "case": "minesweeper",
+  "model": "opus",
+  "seconds": 17.3,
+  "in": 6771,
+  "out": 1689,
+  "sek": 0.6086,
+  "words": 695,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_haiku.md",
+  "case": "kanban",
+  "model": "haiku",
+  "seconds": 9.0,
+  "in": 5823,
+  "out": 1674,
+  "sek": 0.0142,
+  "words": 723,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_sonnet.md",
+  "case": "kanban",
+  "model": "sonnet",
+  "seconds": 11.5,
+  "in": 5823,
+  "out": 1576,
+  "sek": 0.2741,
+  "words": 693,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_opus.md",
+  "case": "kanban",
+  "model": "opus",
+  "seconds": 16.8,
+  "in": 5823,
+  "out": 1756,
+  "sek": 0.5841,
+  "words": 766,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_haiku.md",
+  "case": "salon",
+  "model": "haiku",
+  "seconds": 8.3,
+  "in": 6619,
+  "out": 1576,
+  "sek": 0.0145,
+  "words": 725,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_sonnet.md",
+  "case": "salon",
+  "model": "sonnet",
+  "seconds": 12.0,
+  "in": 6619,
+  "out": 1679,
+  "sek": 0.3003,
+  "words": 722,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_opus.md",
+  "case": "salon",
+  "model": "opus",
+  "seconds": 18.0,
+  "in": 6619,
+  "out": 1896,
+  "sek": 0.644,
+  "words": 761,
+  "stop": "end_turn"
+ }
+]

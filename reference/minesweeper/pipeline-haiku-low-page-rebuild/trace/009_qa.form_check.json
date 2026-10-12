@@ -1,0 +1,26 @@
+{
+  "seq": 9,
+  "step": "qa.form_check",
+  "kind": "step",
+  "depth": 2,
+  "caller_chain": [
+    "qa.gate",
+    "qa.responsive_audit"
+  ],
+  "started_at": "19:28:46",
+  "t_offset_s": 87.675,
+  "thread": "ThreadPoolExecutor-0_3",
+  "input": {
+    "args": [
+      "<selenium.webdriver.chrome.webdriver.WebDriver (session=\"ef4e51d48708cb12e5a59c03d1ace2d2\")>",
+      "Desktop"
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "defects": [],
+    "warnings": [],
+    "outcomes": []
+  },
+  "duration_s": 0.006
+}

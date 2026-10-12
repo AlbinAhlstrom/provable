@@ -1,0 +1,160 @@
+{
+  "seq": 345,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:28",
+  "t_offset_s": 399.776,
+  "thread": "red_8",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_040.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 3 items\n\ntests\\unit\\test_spec_040.py::test_opening_an_opened_cell_changes_nothing[7-4-3] PASSED [ 33%]\ntests\\unit\\test_spec_040.py::test_opening_an_opened_cell_changes_nothing[2-2-0] PASSED [ 66%]\ntests\\unit\\test_spec_040.py::test_opening_a_hidden_cell_does_change_it_for_contrast PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_a025c55f312046e5ae2095ee97a0b31e.json\n============================== 3 passed in 0.58s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656612.7373295,
+      "duration": 0.5777797698974609,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 3,
+        "total": 3,
+        "collected": 3
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_040.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_040.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_040.py::test_opening_an_opened_cell_changes_nothing[7-4-3]",
+              "type": "Function",
+              "lineno": 66
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_040.py::test_opening_an_opened_cell_changes_nothing[2-2-0]",
+              "type": "Function",
+              "lineno": 66
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_040.py::test_opening_a_hidden_cell_does_change_it_for_contrast",
+              "type": "Function",
+              "lineno": 103
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_040.py::test_opening_an_opened_cell_changes_nothing[7-4-3]",
+          "lineno": 66,
+          "outcome": "passed",
+          "keywords": [
+            "test_opening_an_opened_cell_changes_nothing[7-4-3]",
+            "parametrize",
+            "pytestmark",
+            "7-4-3",
+            "test_spec_040.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0014181000005919486,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0014956999948481098,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0006326000002445653,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_040.py::test_opening_an_opened_cell_changes_nothing[2-2-0]",
+          "lineno": 66,
+          "outcome": "passed",
+          "keywords": [
+            "test_opening_an_opened_cell_changes_nothing[2-2-0]",
+            "parametrize",
+            "pytestmark",
+            "2-2-0",
+            "test_spec_040.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0010485999955562875,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001389600001857616,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0005268999957479537,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_040.py::test_opening_a_hidden_cell_does_change_it_for_contrast",
+          "lineno": 103,
+          "outcome": "passed",
+          "keywords": [
+            "test_opening_a_hidden_cell_does_change_it_for_contrast",
+            "test_spec_040.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004157999937888235,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0009274999902117997,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004628000024240464,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 4.362
+}

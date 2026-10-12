@@ -1,0 +1,4892 @@
+{
+  "seq": 182,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "behaviour.implement_actions",
+    "tdd.execute_together",
+    "tdd.green_together"
+  ],
+  "started_at": "20:23:13",
+  "t_offset_s": 384.457,
+  "thread": "synthesis_0",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace",
+      "timeout_seconds": 30
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 30.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 148 items\n\ntests\\unit\\test_minesweeper_acceptance.py::test_rectangular_grid_with_fixed_mine_count PASSED [  0%]\ntests\\unit\\test_minesweeper_acceptance.py::test_beginner_preset PASSED   [  1%]\ntests\\unit\\test_minesweeper_acceptance.py::test_intermediate_preset PASSED [  2%]\ntests\\unit\\test_minesweeper_acceptance.py::test_expert_preset PASSED     [  2%]\ntests\\unit\\test_minesweeper_acceptance.py::test_custom_width_range PASSED [  3%]\ntests\\unit\\test_minesweeper_acceptance.py::test_custom_height_range PASSED [  4%]\ntests\\unit\\test_minesweeper_acceptance.py::test_custom_mine_count_range PASSED [  4%]\ntests\\unit\\test_minesweeper_acceptance.py::test_invalid_custom_leaves_current_game_unchanged PASSED [  5%]\ntests\\unit\\test_minesweeper_acceptance.py::test_custom_validation_message_display PASSED [  6%]\ntests\\unit\\test_minesweeper_acceptance.py::test_mines_laid_on_first_open PASSED [  6%]\ntests\\unit\\test_minesweeper_acceptance.py::test_first_click_is_safe PASSED [  7%]\ntests\\unit\\test_minesweeper_acceptance.py::test_ready_to_playing_transition PASSED [  8%]\ntests\\unit\\test_minesweeper_acceptance.py::test_open_a_hidden_unflagged_cell PASSED [  8%]\ntests\\unit\\test_minesweeper_acceptance.py::test_neighbour_mine_count PASSED [  9%]\ntests\\unit\\test_minesweeper_acceptance.py::test_edge_and_corner_neighbours PASSED [ 10%]\ntests\\unit\\test_minesweeper_acceptance.py::test_cascade_on_zero PASSED   [ 10%]\ntests\\unit\\test_minesweeper_acceptance.py::test_cascade_stops_at_numbered_cells PASSED [ 11%]\ntests\\unit\\test_minesweeper_acceptance.py::test_cascade_skips_flagged_cells PASSED [ 12%]\ntests\\unit\\test_minesweeper_acceptance.py::test_toggle_flag PASSED       [ 12%]\ntests\\unit\\test_minesweeper_acceptance.py::test_flagged_cell_cannot_be_opened PASSED [ 13%]\ntests\\unit\\test_minesweeper_acceptance.py::test_unlimited_flags PASSED   [ 14%]\ntests\\unit\\test_minesweeper_acceptance.py::test_remaining_mines_counter PASSED [ 14%]\ntests\\unit\\test_minesweeper_acceptance.py::test_chord_with_matching_flags PASSED [ 15%]\ntests\\unit\\test_minesweeper_acceptance.py::test_chord_with_mismatched_flags_does_nothing PASSED [ 16%]\ntests\\unit\\test_minesweeper_acceptance.py::test_chord_with_wrong_flag_loses PASSED [ 16%]\ntests\\unit\\test_minesweeper_acceptance.py::test_timer_starts_at_first_open PASSED [ 17%]\ntests\\unit\\test_minesweeper_acceptance.py::test_timer_cap_at_999 PASSED  [ 18%]\ntests\\unit\\test_minesweeper_acceptance.py::test_timer_freezes_on_end PASSED [ 18%]\ntests\\unit\\test_minesweeper_acceptance.py::test_opening_a_mine_loses PASSED [ 19%]\ntests\\unit\\test_minesweeper_acceptance.py::test_loss_display PASSED      [ 20%]\ntests\\unit\\test_minesweeper_acceptance.py::test_win_condition PASSED     [ 20%]\ntests\\unit\\test_minesweeper_acceptance.py::test_autoflag_on_win PASSED   [ 21%]\ntests\\unit\\test_minesweeper_acceptance.py::test_win_display PASSED       [ 22%]\ntests\\unit\\test_minesweeper_acceptance.py::test_new_best_time PASSED     [ 22%]\ntests\\unit\\test_minesweeper_acceptance.py::test_first_win_sets_best_time PASSED [ 23%]\ntests\\unit\\test_minesweeper_acceptance.py::test_slower_or_equal_win_keeps_best PASSED [ 24%]\ntests\\unit\\test_minesweeper_acceptance.py::test_custom_games_record_no_best_time PASSED [ 25%]\ntests\\unit\\test_minesweeper_acceptance.py::test_lost_or_abandoned_games_record_no_best_time PASSED [ 25%]\ntests\\unit\\test_minesweeper_acceptance.py::test_board_lock_after_end PASSED [ 26%]\ntests\\unit\\test_minesweeper_acceptance.py::test_opening_an_opened_cell_is_ignored PASSED [ 27%]\ntests\\unit\\test_minesweeper_acceptance.py::test_flagging_an_opened_cell_is_ignored PASSED [ 27%]\ntests\\unit\\test_minesweeper_acceptance.py::test_chording_a_hidden_cell_is_ignored PASSED [ 28%]\ntests\\unit\\test_minesweeper_acceptance.py::test_restart_via_smiley PASSED [ 29%]\ntests\\unit\\test_minesweeper_acceptance.py::test_smiley_after_end_starts_new_game PASSED [ 29%]\ntests\\unit\\test_minesweeper_acceptance.py::test_changing_difficulty PASSED [ 30%]\ntests\\unit\\test_minesweeper_acceptance.py::test_leaving_abandons_the_game PASSED [ 31%]\ntests\\unit\\test_minesweeper_acceptance.py::test_abandon_only_from_ready_or_playing PASSED [ 31%]\ntests\\unit\\test_minesweeper_acceptance.py::test_game_status_transitions PASSED [ 32%]\ntests\\unit\\test_minesweeper_acceptance.py::test_cell_state_transitions PASSED [ 33%]\ntests\\unit\\test_minesweeper_acceptance.py::test_classic_window_frame PASSED [ 33%]\ntests\\unit\\test_minesweeper_acceptance.py::test_header_mine_counter PASSED [ 34%]\ntests\\unit\\test_minesweeper_acceptance.py::test_header_timer PASSED      [ 35%]\ntests\\unit\\test_minesweeper_acceptance.py::test_smiley_button_placement PASSED [ 35%]\ntests\\unit\\test_minesweeper_acceptance.py::test_smiley_faces PASSED      [ 36%]\ntests\\unit\\test_minesweeper_acceptance.py::test_hidden_and_opened_cell_appearance PASSED [ 37%]\ntests\\unit\\test_minesweeper_acceptance.py::test_number_colours PASSED    [ 37%]\ntests\\unit\\test_minesweeper_acceptance.py::test_flag_and_mine_icons PASSED [ 38%]\ntests\\unit\\test_minesweeper_acceptance.py::test_open_control PASSED      [ 39%]\ntests\\unit\\test_minesweeper_acceptance.py::test_flag_control PASSED      [ 39%]\ntests\\unit\\test_minesweeper_acceptance.py::test_chord_control PASSED     [ 40%]\ntests\\unit\\test_minesweeper_acceptance.py::test_difficulty_menu PASSED   [ 41%]\ntests\\unit\\test_minesweeper_acceptance.py::test_best_time_shown_per_standard_difficulty PASSED [ 41%]\ntests\\unit\\test_skeleton.py::test_domain_entity_instantiation PASSED     [ 42%]\ntests\\unit\\test_skeleton.py::test_fake_repository_crud PASSED            [ 43%]\ntests\\unit\\test_skeleton.py::test_fake_uow_commit PASSED                 [ 43%]\ntests\\unit\\test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[beginner] PASSED [ 44%]\ntests\\unit\\test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[intermediate] PASSED [ 45%]\ntests\\unit\\test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[expert] PASSED [ 45%]\ntests\\unit\\test_spec_act_besttime.py::test_record_win[beginner-beginner-99-True] PASSED [ 46%]\ntests\\unit\\test_spec_act_besttime.py::test_record_win[expert-expert-99-True] PASSED [ 47%]\ntests\\unit\\test_spec_act_besttime.py::test_record_win[intermediate-intermediate-99-True] PASSED [ 47%]\ntests\\unit\\test_spec_act_besttime.py::test_record_win[beginner-beginner-100-False] PASSED [ 48%]\ntests\\unit\\test_spec_act_besttime.py::test_record_win[expert-expert-100-False] PASSED [ 49%]\ntests\\unit\\test_spec_act_besttime.py::test_record_win[beginner-beginner-101-False] PASSED [ 50%]\ntests\\unit\\test_spec_act_besttime.py::test_record_win[beginner-custom-99-False] PASSED [ 50%]\ntests\\unit\\test_spec_act_besttime.py::test_record_win[beginner-intermediate-99-False] PASSED [ 51%]\ntests\\unit\\test_spec_act_game.py::test_new_game_starts_ready_with_hidden_empty_grid PASSED [ 52%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_first_open_lays_mines_and_starts_playing PASSED [ 52%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_numbered_cell_opens_only_itself PASSED [ 53%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_zero_cascades_stops_at_numbers_and_skips_flags PASSED [ 54%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_on_mine_loses PASSED    [ 54%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_last_safe_cell_wins_and_flags_mines PASSED [ 55%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_on_opened_or_flagged_cell_is_ignored[target0] PASSED [ 56%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_on_opened_or_flagged_cell_is_ignored[target1] PASSED [ 56%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Won] PASSED [ 57%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Lost] PASSED [ 58%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Abandoned] PASSED [ 58%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_outside_grid_is_refused[8-8-True] PASSED [ 59%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_outside_grid_is_refused[9-0-False] PASSED [ 60%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_outside_grid_is_refused[0-9-False] PASSED [ 60%]\ntests\\unit\\test_spec_act_game.py::test_open_cell_outside_grid_is_refused[-1-0-False] PASSED [ 61%]\ntests\\unit\\test_spec_act_game.py::test_toggle_flag_switches_hidden_and_flagged[Ready] PASSED [ 62%]\ntests\\unit\\test_spec_act_game.py::test_toggle_flag_switches_hidden_and_flagged[Playing] PASSED [ 62%]\ntests\\unit\\test_spec_act_game.py::test_toggle_flag_is_unlimited_and_counter_goes_negative PASSED [ 63%]\ntests\\unit\\test_spec_act_game.py::test_toggle_flag_on_opened_cell_is_ignored PASSED [ 64%]\ntests\\unit\\test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Won] PASSED [ 64%]\ntests\\unit\\test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Lost] PASSED [ 65%]\ntests\\unit\\test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Abandoned] PASSED [ 66%]\ntests\\unit\\test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[0-8-True] PASSED [ 66%]\ntests\\unit\\test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[0-9-False] PASSED [ 67%]\ntests\\unit\\test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[9-0-False] PASSED [ 68%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_with_matching_flags_opens_neighbours_and_cascades PASSED [ 68%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_with_mismatched_flags_changes_nothing[flags0] PASSED [ 69%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_with_mismatched_flags_changes_nothing[flags1] PASSED [ 70%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_with_wrong_flag_loses PASSED [ 70%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_on_hidden_cell_is_ignored PASSED [ 71%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_on_zero_cell_is_ignored PASSED [ 72%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Won] PASSED [ 72%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Lost] PASSED [ 73%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Abandoned] PASSED [ 74%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[8-0-True] PASSED [ 75%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[9-0-False] PASSED [ 75%]\ntests\\unit\\test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[0-9-False] PASSED [ 76%]\ntests\\unit\\test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[5-6] PASSED [ 77%]\ntests\\unit\\test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[998-999] PASSED [ 77%]\ntests\\unit\\test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[999-999] PASSED [ 78%]\ntests\\unit\\test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Won] PASSED [ 79%]\ntests\\unit\\test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Lost] PASSED [ 79%]\ntests\\unit\\test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Abandoned] PASSED [ 80%]\ntests\\unit\\test_spec_act_game.py::test_tick_in_ready_game_changes_nothing PASSED [ 81%]\ntests\\unit\\test_spec_act_game.py::test_restart_game_abandons_active_game_and_returns_new_one[Ready] PASSED [ 81%]\ntests\\unit\\test_spec_act_game.py::test_restart_game_abandons_active_game_and_returns_new_one[Playing] PASSED [ 82%]\ntests\\unit\\test_spec_act_game.py::test_restart_game_after_end_keeps_outcome[Won] PASSED [ 83%]\ntests\\unit\\test_spec_act_game.py::test_restart_game_after_end_keeps_outcome[Lost] PASSED [ 83%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_presets[beginner-9-9-10] PASSED [ 84%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_presets[intermediate-16-16-40] PASSED [ 85%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_presets[expert-30-16-99] PASSED [ 85%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-9-10] PASSED [ 86%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[30-9-10] PASSED [ 87%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-24-10] PASSED [ 87%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-9-64] PASSED [ 88%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[30-24-667] PASSED [ 89%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-8-9-10] PASSED [ 89%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-31-9-10] PASSED [ 90%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-8-10] PASSED [ 91%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-25-10] PASSED [ 91%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-9] PASSED [ 92%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-65] PASSED [ 93%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-30-24-668] PASSED [ 93%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[master-9-9-10] PASSED [ 94%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_refusal_message_states_width_limits PASSED [ 95%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_after_end_keeps_outcome[Won] PASSED [ 95%]\ntests\\unit\\test_spec_act_game.py::test_change_difficulty_after_end_keeps_outcome[Lost] PASSED [ 96%]\ntests\\unit\\test_spec_act_game.py::test_abandon_game_from_ready PASSED    [ 97%]\ntests\\unit\\test_spec_act_game.py::test_abandon_game_from_playing_freezes_timer PASSED [ 97%]\ntests\\unit\\test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Won] PASSED [ 98%]\ntests\\unit\\test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Lost] PASSED [ 99%]\ntests\\unit\\test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Abandoned] PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_f1851efacd4c4e0db7a47a812dded715.json\n============================= 148 passed in 0.76s =============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656595.2289007,
+      "duration": 0.752608060836792,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 148,
+        "total": 148,
+        "collected": 148
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit",
+              "type": "Dir"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_rectangular_grid_with_fixed_mine_count",
+              "type": "Function",
+              "lineno": 9
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_beginner_preset",
+              "type": "Function",
+              "lineno": 24
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_intermediate_preset",
+              "type": "Function",
+              "lineno": 39
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_expert_preset",
+              "type": "Function",
+              "lineno": 54
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_custom_width_range",
+              "type": "Function",
+              "lineno": 69
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_custom_height_range",
+              "type": "Function",
+              "lineno": 84
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_custom_mine_count_range",
+              "type": "Function",
+              "lineno": 99
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_invalid_custom_leaves_current_game_unchanged",
+              "type": "Function",
+              "lineno": 114
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_custom_validation_message_display",
+              "type": "Function",
+              "lineno": 129
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_mines_laid_on_first_open",
+              "type": "Function",
+              "lineno": 144
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_first_click_is_safe",
+              "type": "Function",
+              "lineno": 159
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_ready_to_playing_transition",
+              "type": "Function",
+              "lineno": 174
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_open_a_hidden_unflagged_cell",
+              "type": "Function",
+              "lineno": 189
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_neighbour_mine_count",
+              "type": "Function",
+              "lineno": 204
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_edge_and_corner_neighbours",
+              "type": "Function",
+              "lineno": 219
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_cascade_on_zero",
+              "type": "Function",
+              "lineno": 234
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_cascade_stops_at_numbered_cells",
+              "type": "Function",
+              "lineno": 249
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_cascade_skips_flagged_cells",
+              "type": "Function",
+              "lineno": 264
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_toggle_flag",
+              "type": "Function",
+              "lineno": 279
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flagged_cell_cannot_be_opened",
+              "type": "Function",
+              "lineno": 294
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_unlimited_flags",
+              "type": "Function",
+              "lineno": 309
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_remaining_mines_counter",
+              "type": "Function",
+              "lineno": 324
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_chord_with_matching_flags",
+              "type": "Function",
+              "lineno": 339
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_chord_with_mismatched_flags_does_nothing",
+              "type": "Function",
+              "lineno": 354
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_chord_with_wrong_flag_loses",
+              "type": "Function",
+              "lineno": 369
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_starts_at_first_open",
+              "type": "Function",
+              "lineno": 384
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_cap_at_999",
+              "type": "Function",
+              "lineno": 399
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_freezes_on_end",
+              "type": "Function",
+              "lineno": 414
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_opening_a_mine_loses",
+              "type": "Function",
+              "lineno": 429
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_loss_display",
+              "type": "Function",
+              "lineno": 444
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_win_condition",
+              "type": "Function",
+              "lineno": 459
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_autoflag_on_win",
+              "type": "Function",
+              "lineno": 474
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_win_display",
+              "type": "Function",
+              "lineno": 489
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_new_best_time",
+              "type": "Function",
+              "lineno": 504
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_first_win_sets_best_time",
+              "type": "Function",
+              "lineno": 519
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_slower_or_equal_win_keeps_best",
+              "type": "Function",
+              "lineno": 534
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_custom_games_record_no_best_time",
+              "type": "Function",
+              "lineno": 549
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_lost_or_abandoned_games_record_no_best_time",
+              "type": "Function",
+              "lineno": 564
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_board_lock_after_end",
+              "type": "Function",
+              "lineno": 579
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_opening_an_opened_cell_is_ignored",
+              "type": "Function",
+              "lineno": 594
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flagging_an_opened_cell_is_ignored",
+              "type": "Function",
+              "lineno": 609
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_chording_a_hidden_cell_is_ignored",
+              "type": "Function",
+              "lineno": 624
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_restart_via_smiley",
+              "type": "Function",
+              "lineno": 639
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_smiley_after_end_starts_new_game",
+              "type": "Function",
+              "lineno": 654
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_changing_difficulty",
+              "type": "Function",
+              "lineno": 669
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_leaving_abandons_the_game",
+              "type": "Function",
+              "lineno": 684
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_abandon_only_from_ready_or_playing",
+              "type": "Function",
+              "lineno": 699
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_game_status_transitions",
+              "type": "Function",
+              "lineno": 714
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_cell_state_transitions",
+              "type": "Function",
+              "lineno": 729
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_classic_window_frame",
+              "type": "Function",
+              "lineno": 744
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_header_mine_counter",
+              "type": "Function",
+              "lineno": 759
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_header_timer",
+              "type": "Function",
+              "lineno": 774
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_smiley_button_placement",
+              "type": "Function",
+              "lineno": 789
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_smiley_faces",
+              "type": "Function",
+              "lineno": 804
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_hidden_and_opened_cell_appearance",
+              "type": "Function",
+              "lineno": 819
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_number_colours",
+              "type": "Function",
+              "lineno": 834
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flag_and_mine_icons",
+              "type": "Function",
+              "lineno": 849
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_open_control",
+              "type": "Function",
+              "lineno": 864
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flag_control",
+              "type": "Function",
+              "lineno": 879
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_chord_control",
+              "type": "Function",
+              "lineno": 894
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_difficulty_menu",
+              "type": "Function",
+              "lineno": 909
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_best_time_shown_per_standard_difficulty",
+              "type": "Function",
+              "lineno": 924
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_skeleton.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_skeleton.py::test_domain_entity_instantiation",
+              "type": "Function",
+              "lineno": 6
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_skeleton.py::test_fake_repository_crud",
+              "type": "Function",
+              "lineno": 11
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_skeleton.py::test_fake_uow_commit",
+              "type": "Function",
+              "lineno": 18
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[beginner]",
+              "type": "Function",
+              "lineno": 19
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[intermediate]",
+              "type": "Function",
+              "lineno": 19
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[expert]",
+              "type": "Function",
+              "lineno": 19
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-99-True]",
+              "type": "Function",
+              "lineno": 39
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[expert-expert-99-True]",
+              "type": "Function",
+              "lineno": 39
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[intermediate-intermediate-99-True]",
+              "type": "Function",
+              "lineno": 39
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-100-False]",
+              "type": "Function",
+              "lineno": 39
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[expert-expert-100-False]",
+              "type": "Function",
+              "lineno": 39
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-101-False]",
+              "type": "Function",
+              "lineno": 39
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-custom-99-False]",
+              "type": "Function",
+              "lineno": 39
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-intermediate-99-False]",
+              "type": "Function",
+              "lineno": 39
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_new_game_starts_ready_with_hidden_empty_grid",
+              "type": "Function",
+              "lineno": 136
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_first_open_lays_mines_and_starts_playing",
+              "type": "Function",
+              "lineno": 152
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_numbered_cell_opens_only_itself",
+              "type": "Function",
+              "lineno": 183
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_zero_cascades_stops_at_numbers_and_skips_flags",
+              "type": "Function",
+              "lineno": 198
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_mine_loses",
+              "type": "Function",
+              "lineno": 222
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_last_safe_cell_wins_and_flags_mines",
+              "type": "Function",
+              "lineno": 235
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_opened_or_flagged_cell_is_ignored[target0]",
+              "type": "Function",
+              "lineno": 252
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_opened_or_flagged_cell_is_ignored[target1]",
+              "type": "Function",
+              "lineno": 252
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Won]",
+              "type": "Function",
+              "lineno": 264
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Lost]",
+              "type": "Function",
+              "lineno": 264
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Abandoned]",
+              "type": "Function",
+              "lineno": 264
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[8-8-True]",
+              "type": "Function",
+              "lineno": 275
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[9-0-False]",
+              "type": "Function",
+              "lineno": 275
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[0-9-False]",
+              "type": "Function",
+              "lineno": 275
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[-1-0-False]",
+              "type": "Function",
+              "lineno": 275
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_switches_hidden_and_flagged[Ready]",
+              "type": "Function",
+              "lineno": 293
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_switches_hidden_and_flagged[Playing]",
+              "type": "Function",
+              "lineno": 293
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_is_unlimited_and_counter_goes_negative",
+              "type": "Function",
+              "lineno": 314
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_on_opened_cell_is_ignored",
+              "type": "Function",
+              "lineno": 326
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Won]",
+              "type": "Function",
+              "lineno": 336
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Lost]",
+              "type": "Function",
+              "lineno": 336
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Abandoned]",
+              "type": "Function",
+              "lineno": 336
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[0-8-True]",
+              "type": "Function",
+              "lineno": 347
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[0-9-False]",
+              "type": "Function",
+              "lineno": 347
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[9-0-False]",
+              "type": "Function",
+              "lineno": 347
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_matching_flags_opens_neighbours_and_cascades",
+              "type": "Function",
+              "lineno": 365
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_mismatched_flags_changes_nothing[flags0]",
+              "type": "Function",
+              "lineno": 388
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_mismatched_flags_changes_nothing[flags1]",
+              "type": "Function",
+              "lineno": 388
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_wrong_flag_loses",
+              "type": "Function",
+              "lineno": 400
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_on_hidden_cell_is_ignored",
+              "type": "Function",
+              "lineno": 414
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_on_zero_cell_is_ignored",
+              "type": "Function",
+              "lineno": 424
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Won]",
+              "type": "Function",
+              "lineno": 434
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Lost]",
+              "type": "Function",
+              "lineno": 434
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Abandoned]",
+              "type": "Function",
+              "lineno": 434
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[8-0-True]",
+              "type": "Function",
+              "lineno": 446
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[9-0-False]",
+              "type": "Function",
+              "lineno": 446
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[0-9-False]",
+              "type": "Function",
+              "lineno": 446
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[5-6]",
+              "type": "Function",
+              "lineno": 463
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[998-999]",
+              "type": "Function",
+              "lineno": 463
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[999-999]",
+              "type": "Function",
+              "lineno": 463
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Won]",
+              "type": "Function",
+              "lineno": 474
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Lost]",
+              "type": "Function",
+              "lineno": 474
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Abandoned]",
+              "type": "Function",
+              "lineno": 474
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_ready_game_changes_nothing",
+              "type": "Function",
+              "lineno": 485
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_abandons_active_game_and_returns_new_one[Ready]",
+              "type": "Function",
+              "lineno": 498
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_abandons_active_game_and_returns_new_one[Playing]",
+              "type": "Function",
+              "lineno": 498
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_after_end_keeps_outcome[Won]",
+              "type": "Function",
+              "lineno": 516
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_after_end_keeps_outcome[Lost]",
+              "type": "Function",
+              "lineno": 516
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[beginner-9-9-10]",
+              "type": "Function",
+              "lineno": 534
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[intermediate-16-16-40]",
+              "type": "Function",
+              "lineno": 534
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[expert-30-16-99]",
+              "type": "Function",
+              "lineno": 534
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-9-10]",
+              "type": "Function",
+              "lineno": 550
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[30-9-10]",
+              "type": "Function",
+              "lineno": 550
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-24-10]",
+              "type": "Function",
+              "lineno": 550
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-9-64]",
+              "type": "Function",
+              "lineno": 550
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[30-24-667]",
+              "type": "Function",
+              "lineno": 550
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-8-9-10]",
+              "type": "Function",
+              "lineno": 566
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-31-9-10]",
+              "type": "Function",
+              "lineno": 566
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-8-10]",
+              "type": "Function",
+              "lineno": 566
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-25-10]",
+              "type": "Function",
+              "lineno": 566
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-9]",
+              "type": "Function",
+              "lineno": 566
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-65]",
+              "type": "Function",
+              "lineno": 566
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-30-24-668]",
+              "type": "Function",
+              "lineno": 566
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[master-9-9-10]",
+              "type": "Function",
+              "lineno": 566
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_refusal_message_states_width_limits",
+              "type": "Function",
+              "lineno": 595
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_after_end_keeps_outcome[Won]",
+              "type": "Function",
+              "lineno": 604
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_after_end_keeps_outcome[Lost]",
+              "type": "Function",
+              "lineno": 604
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_from_ready",
+              "type": "Function",
+              "lineno": 619
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_from_playing_freezes_timer",
+              "type": "Function",
+              "lineno": 630
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Won]",
+              "type": "Function",
+              "lineno": 642
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Lost]",
+              "type": "Function",
+              "lineno": 642
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Abandoned]",
+              "type": "Function",
+              "lineno": 642
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py",
+              "type": "Module"
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_skeleton.py",
+              "type": "Module"
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_besttime.py",
+              "type": "Module"
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_act_game.py",
+              "type": "Module"
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_rectangular_grid_with_fixed_mine_count",
+          "lineno": 9,
+          "outcome": "passed",
+          "keywords": [
+            "test_rectangular_grid_with_fixed_mine_count",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003766000008909032,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00020880000374745578,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001723000023048371,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_beginner_preset",
+          "lineno": 24,
+          "outcome": "passed",
+          "keywords": [
+            "test_beginner_preset",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002162000018870458,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00028670000028796494,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018420000560581684,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_intermediate_preset",
+          "lineno": 39,
+          "outcome": "passed",
+          "keywords": [
+            "test_intermediate_preset",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00035260000731796026,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00029799999902024865,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016939999477472156,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_expert_preset",
+          "lineno": 54,
+          "outcome": "passed",
+          "keywords": [
+            "test_expert_preset",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00022149999858811498,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001951000012923032,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015750000602565706,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_custom_width_range",
+          "lineno": 69,
+          "outcome": "passed",
+          "keywords": [
+            "test_custom_width_range",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001917999907163903,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017970000044442713,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001711000077193603,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_custom_height_range",
+          "lineno": 84,
+          "outcome": "passed",
+          "keywords": [
+            "test_custom_height_range",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00023540000256616622,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019800000882241875,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015949999215081334,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_custom_mine_count_range",
+          "lineno": 99,
+          "outcome": "passed",
+          "keywords": [
+            "test_custom_mine_count_range",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018339999951422215,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001812000118661672,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016190001042559743,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_invalid_custom_leaves_current_game_unchanged",
+          "lineno": 114,
+          "outcome": "passed",
+          "keywords": [
+            "test_invalid_custom_leaves_current_game_unchanged",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002238000015495345,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019999999494757503,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015979999443516135,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_custom_validation_message_display",
+          "lineno": 129,
+          "outcome": "passed",
+          "keywords": [
+            "test_custom_validation_message_display",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001973000034922734,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001799000019673258,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000159099989105016,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_mines_laid_on_first_open",
+          "lineno": 144,
+          "outcome": "passed",
+          "keywords": [
+            "test_mines_laid_on_first_open",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020410001161508262,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019339998834766448,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001545999984955415,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_first_click_is_safe",
+          "lineno": 159,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_click_is_safe",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001765000051818788,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017899999511428177,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015870000061113387,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_ready_to_playing_transition",
+          "lineno": 174,
+          "outcome": "passed",
+          "keywords": [
+            "test_ready_to_playing_transition",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00019700000120792538,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018900001305155456,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014930000179447234,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_open_a_hidden_unflagged_cell",
+          "lineno": 189,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_a_hidden_unflagged_cell",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017669999215286225,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001689000055193901,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00021949999791104347,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_neighbour_mine_count",
+          "lineno": 204,
+          "outcome": "passed",
+          "keywords": [
+            "test_neighbour_mine_count",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00021850000484846532,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019060001068282872,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015249999705702066,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_edge_and_corner_neighbours",
+          "lineno": 219,
+          "outcome": "passed",
+          "keywords": [
+            "test_edge_and_corner_neighbours",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017600000137463212,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018599999020807445,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015669999993406236,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_cascade_on_zero",
+          "lineno": 234,
+          "outcome": "passed",
+          "keywords": [
+            "test_cascade_on_zero",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018989999080076814,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00024280000070575625,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000149500003317371,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_cascade_stops_at_numbered_cells",
+          "lineno": 249,
+          "outcome": "passed",
+          "keywords": [
+            "test_cascade_stops_at_numbered_cells",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017159999697469175,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019690000044647604,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016930000856518745,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_cascade_skips_flagged_cells",
+          "lineno": 264,
+          "outcome": "passed",
+          "keywords": [
+            "test_cascade_skips_flagged_cells",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00019869999960064888,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018149999959859997,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014990000636316836,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_toggle_flag",
+          "lineno": 279,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002629000082379207,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00020680000307038426,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00019079999765381217,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flagged_cell_cannot_be_opened",
+          "lineno": 294,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagged_cell_cannot_be_opened",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00021670000569429249,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018679999629966915,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001568000006955117,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_unlimited_flags",
+          "lineno": 309,
+          "outcome": "passed",
+          "keywords": [
+            "test_unlimited_flags",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00022080000780988485,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019249999604653567,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015350000467151403,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_remaining_mines_counter",
+          "lineno": 324,
+          "outcome": "passed",
+          "keywords": [
+            "test_remaining_mines_counter",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018069999350700527,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017129999469034374,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00022270000772550702,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_chord_with_matching_flags",
+          "lineno": 339,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_with_matching_flags",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00021859999105799943,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019099999917671084,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015439999697264284,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_chord_with_mismatched_flags_does_nothing",
+          "lineno": 354,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_with_mismatched_flags_does_nothing",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018089999502990395,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017499999376013875,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0002052999916486442,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_chord_with_wrong_flag_loses",
+          "lineno": 369,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_with_wrong_flag_loses",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00021729999571107328,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019659999816212803,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016330000653397292,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_starts_at_first_open",
+          "lineno": 384,
+          "outcome": "passed",
+          "keywords": [
+            "test_timer_starts_at_first_open",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017919999663718045,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002683999919099733,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016280000272672623,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_cap_at_999",
+          "lineno": 399,
+          "outcome": "passed",
+          "keywords": [
+            "test_timer_cap_at_999",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002108000044245273,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018980000459123403,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014930000179447234,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_timer_freezes_on_end",
+          "lineno": 414,
+          "outcome": "passed",
+          "keywords": [
+            "test_timer_freezes_on_end",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020369999401737005,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002761999930953607,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001579000090714544,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_opening_a_mine_loses",
+          "lineno": 429,
+          "outcome": "passed",
+          "keywords": [
+            "test_opening_a_mine_loses",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020629999926313758,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018370000179857016,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014819999341852963,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_loss_display",
+          "lineno": 444,
+          "outcome": "passed",
+          "keywords": [
+            "test_loss_display",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00019189999147783965,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001863999932538718,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018390000332146883,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_win_condition",
+          "lineno": 459,
+          "outcome": "passed",
+          "keywords": [
+            "test_win_condition",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00021399999968707561,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019230000907555223,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000152299995534122,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_autoflag_on_win",
+          "lineno": 474,
+          "outcome": "passed",
+          "keywords": [
+            "test_autoflag_on_win",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002793000021483749,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002091999922413379,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015889998758211732,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_win_display",
+          "lineno": 489,
+          "outcome": "passed",
+          "keywords": [
+            "test_win_display",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018990000535268337,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018259999342262745,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014870001177769154,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_new_best_time",
+          "lineno": 504,
+          "outcome": "passed",
+          "keywords": [
+            "test_new_best_time",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002187999925808981,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019230000907555223,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001601000112714246,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_first_win_sets_best_time",
+          "lineno": 519,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_win_sets_best_time",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001945000112755224,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001838000025600195,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015659999917261302,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_slower_or_equal_win_keeps_best",
+          "lineno": 534,
+          "outcome": "passed",
+          "keywords": [
+            "test_slower_or_equal_win_keeps_best",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002330999996047467,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00021139999444130808,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001568000006955117,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_custom_games_record_no_best_time",
+          "lineno": 549,
+          "outcome": "passed",
+          "keywords": [
+            "test_custom_games_record_no_best_time",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018289999570697546,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001720000000204891,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001475999888498336,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_lost_or_abandoned_games_record_no_best_time",
+          "lineno": 564,
+          "outcome": "passed",
+          "keywords": [
+            "test_lost_or_abandoned_games_record_no_best_time",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020799999765586108,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018780000391416252,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001534999901195988,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_board_lock_after_end",
+          "lineno": 579,
+          "outcome": "passed",
+          "keywords": [
+            "test_board_lock_after_end",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017689999367576092,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001680999994277954,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015190000704023987,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_opening_an_opened_cell_is_ignored",
+          "lineno": 594,
+          "outcome": "passed",
+          "keywords": [
+            "test_opening_an_opened_cell_is_ignored",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002204000047640875,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008748999971430749,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016349999350495636,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flagging_an_opened_cell_is_ignored",
+          "lineno": 609,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_an_opened_cell_is_ignored",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003496999997878447,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002982000005431473,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00023919998784549534,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_chording_a_hidden_cell_is_ignored",
+          "lineno": 624,
+          "outcome": "passed",
+          "keywords": [
+            "test_chording_a_hidden_cell_is_ignored",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00019289999909233302,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00021980000019539148,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00023740000324323773,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_restart_via_smiley",
+          "lineno": 639,
+          "outcome": "passed",
+          "keywords": [
+            "test_restart_via_smiley",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002108000044245273,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00020539999241009355,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015320000238716602,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_smiley_after_end_starts_new_game",
+          "lineno": 654,
+          "outcome": "passed",
+          "keywords": [
+            "test_smiley_after_end_starts_new_game",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00021689999266527593,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019910000264644623,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001618999958736822,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_changing_difficulty",
+          "lineno": 669,
+          "outcome": "passed",
+          "keywords": [
+            "test_changing_difficulty",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00021399999968707561,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018339999951422215,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001539999939268455,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_leaving_abandons_the_game",
+          "lineno": 684,
+          "outcome": "passed",
+          "keywords": [
+            "test_leaving_abandons_the_game",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002145000034943223,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019550000433810055,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001655999949434772,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_abandon_only_from_ready_or_playing",
+          "lineno": 699,
+          "outcome": "passed",
+          "keywords": [
+            "test_abandon_only_from_ready_or_playing",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000192299994523637,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001807999942684546,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014850001025479287,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_game_status_transitions",
+          "lineno": 714,
+          "outcome": "passed",
+          "keywords": [
+            "test_game_status_transitions",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00026390000130049884,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019970000721514225,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001632999919820577,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_cell_state_transitions",
+          "lineno": 729,
+          "outcome": "passed",
+          "keywords": [
+            "test_cell_state_transitions",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018449999333824962,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017780000052880496,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014739998732693493,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_classic_window_frame",
+          "lineno": 744,
+          "outcome": "passed",
+          "keywords": [
+            "test_classic_window_frame",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020619999850168824,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018930000078398734,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0002457999944454059,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_header_mine_counter",
+          "lineno": 759,
+          "outcome": "passed",
+          "keywords": [
+            "test_header_mine_counter",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018819999240804464,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001818999880924821,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000152299995534122,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_header_timer",
+          "lineno": 774,
+          "outcome": "passed",
+          "keywords": [
+            "test_header_timer",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020700000459328294,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019370000518392771,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001598999951966107,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_smiley_button_placement",
+          "lineno": 789,
+          "outcome": "passed",
+          "keywords": [
+            "test_smiley_button_placement",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00024090000079013407,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017830000433605164,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014859999646432698,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_smiley_faces",
+          "lineno": 804,
+          "outcome": "passed",
+          "keywords": [
+            "test_smiley_faces",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002035000070463866,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018819999240804464,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015920000441838056,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_hidden_and_opened_cell_appearance",
+          "lineno": 819,
+          "outcome": "passed",
+          "keywords": [
+            "test_hidden_and_opened_cell_appearance",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018269999418407679,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017440000374335796,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00014989999181125313,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_number_colours",
+          "lineno": 834,
+          "outcome": "passed",
+          "keywords": [
+            "test_number_colours",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002936999953817576,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00028979999478906393,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016080000204965472,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flag_and_mine_icons",
+          "lineno": 849,
+          "outcome": "passed",
+          "keywords": [
+            "test_flag_and_mine_icons",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00017630000365898013,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00017499999376013875,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015820001135580242,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_open_control",
+          "lineno": 864,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_control",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00021579999884124845,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00020129999029450119,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015430001076310873,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_flag_control",
+          "lineno": 879,
+          "outcome": "passed",
+          "keywords": [
+            "test_flag_control",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018170000112149864,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001753999968059361,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001551999885123223,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_chord_control",
+          "lineno": 894,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_control",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002066000015474856,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019409999367780983,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001508999994257465,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_difficulty_menu",
+          "lineno": 909,
+          "outcome": "passed",
+          "keywords": [
+            "test_difficulty_menu",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001762000028975308,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001711999939288944,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001697999978205189,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_minesweeper_acceptance.py::test_best_time_shown_per_standard_difficulty",
+          "lineno": 924,
+          "outcome": "passed",
+          "keywords": [
+            "test_best_time_shown_per_standard_difficulty",
+            "test_minesweeper_acceptance.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00028819999715778977,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002736999886110425,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00023929998860694468,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_skeleton.py::test_domain_entity_instantiation",
+          "lineno": 6,
+          "outcome": "passed",
+          "keywords": [
+            "test_domain_entity_instantiation",
+            "test_skeleton.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00019380000594537705,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002945000014733523,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016540000797249377,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_skeleton.py::test_fake_repository_crud",
+          "lineno": 11,
+          "outcome": "passed",
+          "keywords": [
+            "test_fake_repository_crud",
+            "test_skeleton.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020799999765586108,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00020000000949949026,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000149200001033023,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_skeleton.py::test_fake_uow_commit",
+          "lineno": 18,
+          "outcome": "passed",
+          "keywords": [
+            "test_fake_uow_commit",
+            "test_skeleton.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00019109999993816018,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00028330000350251794,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016029999824240804,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[beginner]",
+          "lineno": 19,
+          "outcome": "passed",
+          "keywords": [
+            "test_new_best_time_holds_exactly_constructed_values[beginner]",
+            "parametrize",
+            "pytestmark",
+            "beginner",
+            "test_spec_act_besttime.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003026999911526218,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018579998868517578,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001660999987507239,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[intermediate]",
+          "lineno": 19,
+          "outcome": "passed",
+          "keywords": [
+            "test_new_best_time_holds_exactly_constructed_values[intermediate]",
+            "parametrize",
+            "pytestmark",
+            "intermediate",
+            "test_spec_act_besttime.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003060000017285347,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00022370000078808516,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000182100004167296,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_new_best_time_holds_exactly_constructed_values[expert]",
+          "lineno": 19,
+          "outcome": "passed",
+          "keywords": [
+            "test_new_best_time_holds_exactly_constructed_values[expert]",
+            "parametrize",
+            "pytestmark",
+            "expert",
+            "test_spec_act_besttime.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00029240000003483146,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001877999893622473,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016700000560376793,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-99-True]",
+          "lineno": 39,
+          "outcome": "passed",
+          "keywords": [
+            "test_record_win[beginner-beginner-99-True]",
+            "parametrize",
+            "pytestmark",
+            "beginner-beginner-99-True",
+            "test_spec_act_besttime.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005039000097895041,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00020309998944867402,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018700001237448305,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[expert-expert-99-True]",
+          "lineno": 39,
+          "outcome": "passed",
+          "keywords": [
+            "test_record_win[expert-expert-99-True]",
+            "parametrize",
+            "pytestmark",
+            "expert-expert-99-True",
+            "test_spec_act_besttime.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004343000036897138,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019889998657163233,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020009999570902437,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[intermediate-intermediate-99-True]",
+          "lineno": 39,
+          "outcome": "passed",
+          "keywords": [
+            "test_record_win[intermediate-intermediate-99-True]",
+            "parametrize",
+            "pytestmark",
+            "intermediate-intermediate-99-True",
+            "test_spec_act_besttime.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004523999959928915,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002545000024838373,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001894999877549708,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-100-False]",
+          "lineno": 39,
+          "outcome": "passed",
+          "keywords": [
+            "test_record_win[beginner-beginner-100-False]",
+            "parametrize",
+            "pytestmark",
+            "beginner-beginner-100-False",
+            "test_spec_act_besttime.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004723999882116914,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00021269998978823423,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018529999942984432,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[expert-expert-100-False]",
+          "lineno": 39,
+          "outcome": "passed",
+          "keywords": [
+            "test_record_win[expert-expert-100-False]",
+            "parametrize",
+            "pytestmark",
+            "expert-expert-100-False",
+            "test_spec_act_besttime.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004167000006418675,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0001846999948611483,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0002097000106004998,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-beginner-101-False]",
+          "lineno": 39,
+          "outcome": "passed",
+          "keywords": [
+            "test_record_win[beginner-beginner-101-False]",
+            "parametrize",
+            "pytestmark",
+            "beginner-beginner-101-False",
+            "test_spec_act_besttime.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004693000082625076,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00019400000746827573,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00017469999147579074,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-custom-99-False]",
+          "lineno": 39,
+          "outcome": "passed",
+          "keywords": [
+            "test_record_win[beginner-custom-99-False]",
+            "parametrize",
+            "pytestmark",
+            "beginner-custom-99-False",
+            "test_spec_act_besttime.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006637000042246655,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00030339999648276716,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001886000100057572,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_besttime.py::test_record_win[beginner-intermediate-99-False]",
+          "lineno": 39,
+          "outcome": "passed",
+          "keywords": [
+            "test_record_win[beginner-intermediate-99-False]",
+            "parametrize",
+            "pytestmark",
+            "beginner-intermediate-99-False",
+            "test_spec_act_besttime.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000411300003179349,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00018869999621529132,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0002586999908089638,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_new_game_starts_ready_with_hidden_empty_grid",
+          "lineno": 136,
+          "outcome": "passed",
+          "keywords": [
+            "test_new_game_starts_ready_with_hidden_empty_grid",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020229999790899456,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007009000109974295,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015190000704023987,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_first_open_lays_mines_and_starts_playing",
+          "lineno": 152,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_first_open_lays_mines_and_starts_playing",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00025019999884534627,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000676499999826774,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016980001237243414,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_numbered_cell_opens_only_itself",
+          "lineno": 183,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_numbered_cell_opens_only_itself",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001841999910539016,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0009027999913087115,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0002263000060338527,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_zero_cascades_stops_at_numbers_and_skips_flags",
+          "lineno": 198,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_zero_cascades_stops_at_numbers_and_skips_flags",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001979000080609694,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005969000048935413,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015720000374130905,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_mine_loses",
+          "lineno": 222,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_on_mine_loses",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020140000560786575,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004386000073282048,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016149999282788485,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_last_safe_cell_wins_and_flags_mines",
+          "lineno": 235,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_last_safe_cell_wins_and_flags_mines",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001804999919841066,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005797000048914924,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018069999350700527,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_opened_or_flagged_cell_is_ignored[target0]",
+          "lineno": 252,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_on_opened_or_flagged_cell_is_ignored[target0]",
+            "parametrize",
+            "pytestmark",
+            "target0",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00030839999089948833,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010260999988531694,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00019109999993816018,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_on_opened_or_flagged_cell_is_ignored[target1]",
+          "lineno": 252,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_on_opened_or_flagged_cell_is_ignored[target1]",
+            "parametrize",
+            "pytestmark",
+            "target1",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003138999891234562,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010169999877689406,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018050000653602183,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Won]",
+          "lineno": 264,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_in_finished_game_is_ignored[Won]",
+            "parametrize",
+            "pytestmark",
+            "Won",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003163999936077744,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010758999997051433,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001694999955361709,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Lost]",
+          "lineno": 264,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_in_finished_game_is_ignored[Lost]",
+            "parametrize",
+            "pytestmark",
+            "Lost",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003237000055378303,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010408000089228153,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001762999891070649,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_in_finished_game_is_ignored[Abandoned]",
+          "lineno": 264,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_in_finished_game_is_ignored[Abandoned]",
+            "parametrize",
+            "pytestmark",
+            "Abandoned",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003166999958921224,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010492000001249835,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018459999409969896,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[8-8-True]",
+          "lineno": 275,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_outside_grid_is_refused[8-8-True]",
+            "parametrize",
+            "pytestmark",
+            "8-8-True",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00047879999328870326,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005161000008229166,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020049999875482172,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[9-0-False]",
+          "lineno": 275,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_outside_grid_is_refused[9-0-False]",
+            "parametrize",
+            "pytestmark",
+            "9-0-False",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003823000006377697,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0011247999937040731,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020640000002458692,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[0-9-False]",
+          "lineno": 275,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_outside_grid_is_refused[0-9-False]",
+            "parametrize",
+            "pytestmark",
+            "0-9-False",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003778000100282952,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0011988000042038038,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020670000230893493,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_open_cell_outside_grid_is_refused[-1-0-False]",
+          "lineno": 275,
+          "outcome": "passed",
+          "keywords": [
+            "test_open_cell_outside_grid_is_refused[-1-0-False]",
+            "parametrize",
+            "pytestmark",
+            "-1-0-False",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00037850000080652535,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001217600001837127,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00021660000493284315,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_switches_hidden_and_flagged[Ready]",
+          "lineno": 293,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_switches_hidden_and_flagged[Ready]",
+            "parametrize",
+            "pytestmark",
+            "Ready",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000301499996567145,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00023239999427460134,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00019990000873804092,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_switches_hidden_and_flagged[Playing]",
+          "lineno": 293,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_switches_hidden_and_flagged[Playing]",
+            "parametrize",
+            "pytestmark",
+            "Playing",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003181999927619472,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005834000039612874,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00021040000137872994,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_is_unlimited_and_counter_goes_negative",
+          "lineno": 314,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_is_unlimited_and_counter_goes_negative",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002195999986724928,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005073000065749511,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001866999955382198,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_on_opened_cell_is_ignored",
+          "lineno": 326,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_on_opened_cell_is_ignored",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020080000103916973,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0011552999931154773,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001829999964684248,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Won]",
+          "lineno": 336,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_in_finished_game_is_ignored[Won]",
+            "parametrize",
+            "pytestmark",
+            "Won",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00029460000223480165,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010339000000385568,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00019289999909233302,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Lost]",
+          "lineno": 336,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_in_finished_game_is_ignored[Lost]",
+            "parametrize",
+            "pytestmark",
+            "Lost",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002964000013889745,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001028700004098937,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018899999849963933,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_in_finished_game_is_ignored[Abandoned]",
+          "lineno": 336,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_in_finished_game_is_ignored[Abandoned]",
+            "parametrize",
+            "pytestmark",
+            "Abandoned",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003193000011378899,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010178000084124506,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00024009999469853938,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[0-8-True]",
+          "lineno": 347,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_outside_grid_is_refused[0-8-True]",
+            "parametrize",
+            "pytestmark",
+            "0-8-True",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004321000014897436,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004163000121479854,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00017410000145900995,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[0-9-False]",
+          "lineno": 347,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_outside_grid_is_refused[0-9-False]",
+            "parametrize",
+            "pytestmark",
+            "0-9-False",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005003999976906925,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004714999959105626,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018950000230688602,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_outside_grid_is_refused[9-0-False]",
+          "lineno": 347,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_outside_grid_is_refused[9-0-False]",
+            "parametrize",
+            "pytestmark",
+            "9-0-False",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00037539999175351113,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00042860000394284725,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018610000552143902,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_matching_flags_opens_neighbours_and_cascades",
+          "lineno": 365,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_with_matching_flags_opens_neighbours_and_cascades",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00019690000044647604,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006653000018559396,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015430001076310873,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_mismatched_flags_changes_nothing[flags0]",
+          "lineno": 388,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_with_mismatched_flags_changes_nothing[flags0]",
+            "parametrize",
+            "pytestmark",
+            "flags0",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00028289998590480536,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010274999949615449,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00017549999756738544,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_mismatched_flags_changes_nothing[flags1]",
+          "lineno": 388,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_with_mismatched_flags_changes_nothing[flags1]",
+            "parametrize",
+            "pytestmark",
+            "flags1",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002761999930953607,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010446000087540597,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018170000112149864,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_with_wrong_flag_loses",
+          "lineno": 400,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_with_wrong_flag_loses",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00018489999638404697,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005477000086102635,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016280000272672623,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_on_hidden_cell_is_ignored",
+          "lineno": 414,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_on_hidden_cell_is_ignored",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0001939000067068264,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010054000013042241,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015809999604243785,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_on_zero_cell_is_ignored",
+          "lineno": 424,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_on_zero_cell_is_ignored",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00022149999858811498,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010359000007156283,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001596000074641779,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Won]",
+          "lineno": 434,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_when_not_playing_is_ignored[Won]",
+            "parametrize",
+            "pytestmark",
+            "Won",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00030720001086592674,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010239999974146485,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016760001017246395,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Lost]",
+          "lineno": 434,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_when_not_playing_is_ignored[Lost]",
+            "parametrize",
+            "pytestmark",
+            "Lost",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003009000065503642,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010184999991906807,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016570001025684178,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_when_not_playing_is_ignored[Abandoned]",
+          "lineno": 434,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_when_not_playing_is_ignored[Abandoned]",
+            "parametrize",
+            "pytestmark",
+            "Abandoned",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002840999950421974,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001034000000800006,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00017600000137463212,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[8-0-True]",
+          "lineno": 446,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_outside_grid_is_refused[8-0-True]",
+            "parametrize",
+            "pytestmark",
+            "8-0-True",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003986000083386898,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010978000063914806,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018930000078398734,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[9-0-False]",
+          "lineno": 446,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_outside_grid_is_refused[9-0-False]",
+            "parametrize",
+            "pytestmark",
+            "9-0-False",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00037140000495128334,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010991000017384067,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020110000332351774,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_chord_cell_outside_grid_is_refused[0-9-False]",
+          "lineno": 446,
+          "outcome": "passed",
+          "keywords": [
+            "test_chord_cell_outside_grid_is_refused[0-9-False]",
+            "parametrize",
+            "pytestmark",
+            "0-9-False",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00037980001070536673,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0011684999917633832,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00021640000340994447,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[5-6]",
+          "lineno": 463,
+          "outcome": "passed",
+          "keywords": [
+            "test_tick_advances_playing_timer_capped_at_999[5-6]",
+            "parametrize",
+            "pytestmark",
+            "5-6",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003426999901421368,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005387999990489334,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00019160000374540687,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[998-999]",
+          "lineno": 463,
+          "outcome": "passed",
+          "keywords": [
+            "test_tick_advances_playing_timer_capped_at_999[998-999]",
+            "parametrize",
+            "pytestmark",
+            "998-999",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000338099998771213,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00041059999784920365,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00017270000535063446,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_advances_playing_timer_capped_at_999[999-999]",
+          "lineno": 463,
+          "outcome": "passed",
+          "keywords": [
+            "test_tick_advances_playing_timer_capped_at_999[999-999]",
+            "parametrize",
+            "pytestmark",
+            "999-999",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003463000030023977,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004199999966658652,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00017290000687353313,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Won]",
+          "lineno": 474,
+          "outcome": "passed",
+          "keywords": [
+            "test_tick_in_finished_game_changes_nothing[Won]",
+            "parametrize",
+            "pytestmark",
+            "Won",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00026149999757763,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001032100000884384,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001849999971454963,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Lost]",
+          "lineno": 474,
+          "outcome": "passed",
+          "keywords": [
+            "test_tick_in_finished_game_changes_nothing[Lost]",
+            "parametrize",
+            "pytestmark",
+            "Lost",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00028279999969527125,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001196700002765283,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020059999951627105,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_finished_game_changes_nothing[Abandoned]",
+          "lineno": 474,
+          "outcome": "passed",
+          "keywords": [
+            "test_tick_in_finished_game_changes_nothing[Abandoned]",
+            "parametrize",
+            "pytestmark",
+            "Abandoned",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00027969999064225703,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010230000043520704,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018990000535268337,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_tick_in_ready_game_changes_nothing",
+          "lineno": 485,
+          "outcome": "passed",
+          "keywords": [
+            "test_tick_in_ready_game_changes_nothing",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00019940000493079424,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008519999973941594,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001638000103412196,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_abandons_active_game_and_returns_new_one[Ready]",
+          "lineno": 498,
+          "outcome": "passed",
+          "keywords": [
+            "test_restart_game_abandons_active_game_and_returns_new_one[Ready]",
+            "parametrize",
+            "pytestmark",
+            "Ready",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.000305499997921288,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006195999885676429,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00017040000238921493,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_abandons_active_game_and_returns_new_one[Playing]",
+          "lineno": 498,
+          "outcome": "passed",
+          "keywords": [
+            "test_restart_game_abandons_active_game_and_returns_new_one[Playing]",
+            "parametrize",
+            "pytestmark",
+            "Playing",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00028390000807121396,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0011569000052986667,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018619999173097312,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_after_end_keeps_outcome[Won]",
+          "lineno": 516,
+          "outcome": "passed",
+          "keywords": [
+            "test_restart_game_after_end_keeps_outcome[Won]",
+            "parametrize",
+            "pytestmark",
+            "Won",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00028029999521095306,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0011578999983612448,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018339999951422215,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_restart_game_after_end_keeps_outcome[Lost]",
+          "lineno": 516,
+          "outcome": "passed",
+          "keywords": [
+            "test_restart_game_after_end_keeps_outcome[Lost]",
+            "parametrize",
+            "pytestmark",
+            "Lost",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002733000001171604,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001191799994558096,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020140000560786575,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[beginner-9-9-10]",
+          "lineno": 534,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_presets[beginner-9-9-10]",
+            "parametrize",
+            "pytestmark",
+            "beginner-9-9-10",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004278999986127019,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00036100001307204366,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00019260001135990024,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[intermediate-16-16-40]",
+          "lineno": 534,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_presets[intermediate-16-16-40]",
+            "parametrize",
+            "pytestmark",
+            "intermediate-16-16-40",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00044729998626280576,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004997000069124624,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001795999996829778,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_presets[expert-30-16-99]",
+          "lineno": 534,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_presets[expert-30-16-99]",
+            "parametrize",
+            "pytestmark",
+            "expert-30-16-99",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004532000020844862,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007852999988244846,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0002055000077234581,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-9-10]",
+          "lineno": 550,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_custom_at_limits_is_accepted[9-9-10]",
+            "parametrize",
+            "pytestmark",
+            "9-9-10",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004040000058012083,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005506000015884638,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020569999469444156,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[30-9-10]",
+          "lineno": 550,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_custom_at_limits_is_accepted[30-9-10]",
+            "parametrize",
+            "pytestmark",
+            "30-9-10",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00037199999496806413,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007119000074453652,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020969999604858458,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-24-10]",
+          "lineno": 550,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_custom_at_limits_is_accepted[9-24-10]",
+            "parametrize",
+            "pytestmark",
+            "9-24-10",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00038949999725446105,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006293000042205676,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00018269999418407679,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[9-9-64]",
+          "lineno": 550,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_custom_at_limits_is_accepted[9-9-64]",
+            "parametrize",
+            "pytestmark",
+            "9-9-64",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00043200000072829425,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005310000124154612,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001866999955382198,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_custom_at_limits_is_accepted[30-24-667]",
+          "lineno": 550,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_custom_at_limits_is_accepted[30-24-667]",
+            "parametrize",
+            "pytestmark",
+            "30-24-667",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004056999896420166,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0014922999980626628,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001984999980777502,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-8-9-10]",
+          "lineno": 566,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-8-9-10]",
+            "parametrize",
+            "pytestmark",
+            "custom-8-9-10",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004813999985344708,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0011011000024154782,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020360000780783594,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-31-9-10]",
+          "lineno": 566,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-31-9-10]",
+            "parametrize",
+            "pytestmark",
+            "custom-31-9-10",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004535000043688342,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0012271000014152378,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00022020000324118882,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-8-10]",
+          "lineno": 566,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-8-10]",
+            "parametrize",
+            "pytestmark",
+            "custom-9-8-10",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005634999979520217,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001168400005553849,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020419999782461673,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-25-10]",
+          "lineno": 566,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-25-10]",
+            "parametrize",
+            "pytestmark",
+            "custom-9-25-10",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00044180000259075314,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010789999942062423,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0002082999999402091,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-9]",
+          "lineno": 566,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-9]",
+            "parametrize",
+            "pytestmark",
+            "custom-9-9-9",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00045950000640004873,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001076799992006272,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0002018999948631972,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-65]",
+          "lineno": 566,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-9-9-65]",
+            "parametrize",
+            "pytestmark",
+            "custom-9-9-65",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005452999903354794,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001084100003936328,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00021379999816417694,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-30-24-668]",
+          "lineno": 566,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_invalid_is_refused_and_game_unchanged[custom-30-24-668]",
+            "parametrize",
+            "pytestmark",
+            "custom-30-24-668",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00042609999945852906,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0012414999946486205,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00022470000840257853,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_invalid_is_refused_and_game_unchanged[master-9-9-10]",
+          "lineno": 566,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_invalid_is_refused_and_game_unchanged[master-9-9-10]",
+            "parametrize",
+            "pytestmark",
+            "master-9-9-10",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004495999892242253,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001382800008286722,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00021189999824855477,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_refusal_message_states_width_limits",
+          "lineno": 595,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_refusal_message_states_width_limits",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00019720000273082405,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0002497000095900148,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00016260000120382756,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_after_end_keeps_outcome[Won]",
+          "lineno": 604,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_after_end_keeps_outcome[Won]",
+            "parametrize",
+            "pytestmark",
+            "Won",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002906000008806586,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0016325000033248216,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0002199000009568408,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_change_difficulty_after_end_keeps_outcome[Lost]",
+          "lineno": 604,
+          "outcome": "passed",
+          "keywords": [
+            "test_change_difficulty_after_end_keeps_outcome[Lost]",
+            "parametrize",
+            "pytestmark",
+            "Lost",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00030980000155977905,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0015567000082228333,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00022850000823382288,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_from_ready",
+          "lineno": 619,
+          "outcome": "passed",
+          "keywords": [
+            "test_abandon_game_from_ready",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020670000230893493,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00023179998970590532,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00015039999561849982,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_from_playing_freezes_timer",
+          "lineno": 630,
+          "outcome": "passed",
+          "keywords": [
+            "test_abandon_game_from_playing_freezes_timer",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00020900000527035445,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00044770000386051834,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0001740000006975606,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Won]",
+          "lineno": 642,
+          "outcome": "passed",
+          "keywords": [
+            "test_abandon_game_when_finished_changes_nothing[Won]",
+            "parametrize",
+            "pytestmark",
+            "Won",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0002945000014733523,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0012067999923601747,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020789999689441174,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Lost]",
+          "lineno": 642,
+          "outcome": "passed",
+          "keywords": [
+            "test_abandon_game_when_finished_changes_nothing[Lost]",
+            "parametrize",
+            "pytestmark",
+            "Lost",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00030029998742975295,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010379000013926998,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00020789999689441174,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_abandon_game_when_finished_changes_nothing[Abandoned]",
+          "lineno": 642,
+          "outcome": "passed",
+          "keywords": [
+            "test_abandon_game_when_finished_changes_nothing[Abandoned]",
+            "parametrize",
+            "pytestmark",
+            "Abandoned",
+            "test_spec_act_game.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003164999943692237,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010359000007156283,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00022329999774228781,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 2.016
+}

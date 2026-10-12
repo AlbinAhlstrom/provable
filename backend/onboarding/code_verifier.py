@@ -14,6 +14,8 @@ from typing import Callable, Dict, Any, Sequence, Tuple, List
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import agent_orchestrator
 from agent_orchestrator import call_gemini
+from onboarding.page_parts import MISSING
+from onboarding.qa_opening_check import EMPTY
 from onboarding.verification import compile_tsx
 
 
@@ -143,6 +145,7 @@ def self_heal_presentation_suite(
     component_files: List[str],
     contract_files: Sequence[str] = (),
     compile_check: Callable[[str, str], Tuple[bool, str]] = compile_tsx,
+    plan: str = "",
 ) -> bool:
     """
     Closed-loop LLM repair for live preview issues detected by the QA auditor.
@@ -150,6 +153,7 @@ def self_heal_presentation_suite(
     PresentationRepair naming the files to replace; only generated components are writable.
     `contract_files` (the API clients, written from the domain model) are shown and stay as they are: the page is
     changed to fit them. A fix that does not compile is not written, so the file keeps what it had.
+    `plan` is the page's plan: a defect that names a part the page lacks is answered from it.
     One call, no retry. Returns True if at least one file was repaired.
     """
     if not defects and not console_errors:
@@ -180,6 +184,10 @@ def self_heal_presentation_suite(
                       "them, and a request the API refuses is shown to the user as it is) ---\n"
                       + "\n".join(contracts) + "\n") if contracts else ""
 
+    plan_block = ("\n--- THE PAGE'S PLAN (a defect that names a missing part, or a page that opens empty, is answered from this "
+                  "plan: a part by its role, its name, what brings it up and what it does; the opening by its section) ---\n"
+                  + plan + "\n") if plan and any(MISSING in d or EMPTY in d for d in defects) else ""
+
     prompt = f"""You are Provable's Principal Lead Frontend Architect.
 The live application preview on :5174 failed runtime verification.
 
@@ -191,7 +199,7 @@ The live application preview on :5174 failed runtime verification.
 
 --- GENERATED COMPONENTS ---
 {chr(10).join(sources)}
-{contract_block}
+{contract_block}{plan_block}
 Task:
 1. Diagnose which component(s) cause the defects above; layout defects usually carry no file name, so decide from the code.
 2. Fix syntax, JSX escaping, prop mismatches or layout scaling so the app renders cleanly without errors. `App.tsx` must keep `export default App;`.

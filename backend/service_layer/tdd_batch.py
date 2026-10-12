@@ -8,9 +8,11 @@ one had just rewritten.
 
 Here the same gates are passed in two steps:
 
-1. RED, side by side. Every spec gets its test through the RED phase the single loop uses (`run_red_phase`: lint,
-   RED gate, hollow check, one regeneration with the verdict fed back). The tests are written against the class as
-   it is before any of them is implemented, so none depends on another's code.
+1. RED, one answer per class. The first tests of every spec of a class are written by one writer in one answer
+   (`onboarding/first_tests.py`) and cut up by spec. Each then passes the RED phase the single loop uses
+   (`run_red_phase`: lint, RED gate, hollow check), side by side; a test the gate refuses goes to a writer of that
+   spec's own, with the verdict, for the one regeneration. The tests are written against the class as it is before
+   any of them is implemented, so none depends on another's code.
 2. GREEN, once per class. One code answer implements every rule of the class whose test was approved. The whole
    `tests/unit` folder is then run and each spec is judged by its own test file. Tests still failing are fed back
    for the one retry the policy allows (.claude/rules/pipeline.md).
@@ -22,6 +24,8 @@ What is kept afterwards:
 - A spec whose test still fails moves to `tests/pending` with the reason. Unlike the single loop, the code written
   for it cannot be taken out of an answer that also carries the other rules: it stays, and every test left in
   `tests/unit` passes.
+- A retry answered in words and no code (the writer holds that a frozen test expects the wrong thing) changes
+  nothing: the first answer stands with the rules it fulfilled, and the words are kept in the attempt.
 - The hash lock holds for every test of the batch: the code writer cannot have changed any of them.
 - A test that neither code answer could meet goes back to its writer once (`reconsider_test`), with the failure and
   its own test: a test can expect the wrong thing (a check that is not one), and then a correct class fails it.
@@ -39,6 +43,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import pipeline_trace
+from onboarding import first_tests
 from onboarding.cst_isolator import (
     FragmentError, extract_class_cst, merge_module_fragment, module_helpers_source, module_import_lines
 )
@@ -51,6 +56,7 @@ RED_WORKERS = 24  # one wave for a deck of two dozen rules; the calls are I/O bo
 FEEDBACK_LIMIT = 6000  # characters of failing-test output shown to the code writer on the retry
 
 RECONSIDER_EVIDENCE = 2500
+WORDS_LIMIT = 1200  # characters kept of a retry that was answered in words
 RECONSIDER = """Two implementations of the class could not make this test pass, while every other test of the class passes.
 
 Your test:
@@ -143,12 +149,21 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
         for attempt in (1, 2):
             with open(target.domain_file, "r", encoding="utf-8") as f:
                 domain_source = f.read()
-            fragment = tdd_machine.synthesize_green_class_implementation(
-                extracted_class=extract_class_cst(domain_source, target.class_name) or "",
-                target_class_name=target.class_name, spec=rules_spec(target.class_name, [s for s, _ in frozen]),
-                failure_output=failure, test_source=_tests_block(frozen),
-                module_imports=module_import_lines(domain_source), existing_tests=verified,
-                module_helpers=module_helpers_source(domain_source, target.class_name))
+            try:
+                fragment = tdd_machine.synthesize_green_class_implementation(
+                    extracted_class=extract_class_cst(domain_source, target.class_name) or "",
+                    target_class_name=target.class_name, spec=rules_spec(target.class_name, [s for s, _ in frozen]),
+                    failure_output=failure, test_source=_tests_block(frozen),
+                    module_imports=module_import_lines(domain_source), existing_tests=verified,
+                    module_helpers=module_helpers_source(domain_source, target.class_name))
+            except tdd_machine.NoClassInAnswer as declined:
+                if kept is None:
+                    raise  # no answer to fall back on: the class fails with this reason
+                # The retry was answered in words. The first answer stands, and the tests it left failing go to
+                # their writers below, which is what such an answer asks for.
+                attempts.append({"attempt": attempt, "approved": False,
+                                 "reason": f"The code writer changed nothing and said: {declined.answer.strip()[:WORDS_LIMIT]}"})
+                break
             try:
                 merged = merge_module_fragment(domain_source, target.class_name, fragment)
             except FragmentError as err:
@@ -276,25 +291,47 @@ def execute_specs_together(
     on_result: Optional[Callable[[BusinessSpec, Dict[str, Any]], None]] = None,
     deck: Optional[List[BusinessSpec]] = None,
 ) -> Dict[str, Dict[str, Any]]:
-    """Runs every spec through RED side by side, then GREEN once per class. Returns each spec's result by spec id,
-    in the shape the single loop returns; `on_result` is told each one, in deck order within its class, from the
-    calling thread. `deck` is every rule the product has (default: `specs`): each test writer is shown the other
-    rules of its class, so that it arranges a situation none of them interferes with."""
+    """Writes the first tests of each class in one answer, runs every spec through RED side by side, then GREEN
+    once per class. Returns each spec's result by spec id, in the shape the single loop returns; `on_result` is told
+    each one, in deck order within its class, from the calling thread. `deck` is every rule the product has
+    (default: `specs`): a writer asked again about one test is shown the other rules of its class, so that it
+    arranges a situation none of them interferes with."""
     deck = list(deck) if deck is not None else list(specs)
     targets = {s.spec_id: tdd_machine.locate_domain_target(s, workspace_dir) for s in specs}
     # What each test writer is shown: the verified tests from before this batch, read before any new one is written
     earlier_tests = {t.domain_file: tdd_machine.collect_existing_tests(t.tests_dir, exclude="", module_name=t.module_name)
                      for t in targets.values()}
 
+    of_class: Dict[str, List[BusinessSpec]] = {}
+    for spec in specs:
+        of_class.setdefault(targets[spec.spec_id].domain_file, []).append(spec)
+
+    def write(domain_file: str) -> Any:
+        """The first test of every spec of one class, by spec id; or the error that left them unwritten."""
+        target = targets[of_class[domain_file][0].spec_id]
+        with open(domain_file, "r", encoding="utf-8") as f:
+            current_class = extract_class_cst(f.read(), target.class_name) or f"@dataclass\nclass {target.class_name}:\n    id: str\n"
+        try:
+            return first_tests.write_first_tests(
+                of_class[domain_file], current_class, target.module_name, target.class_name,
+                interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name),
+                existing_tests=earlier_tests[domain_file])
+        except Exception as err:  # a provider or infrastructure error: reported with its reason, never retried
+            return err
+
     def red(spec: BusinessSpec) -> Any:
         target = targets[spec.spec_id]
+        written = firsts[target.domain_file]
+        if isinstance(written, Exception):
+            return written
         try:
             return tdd_machine.run_red_phase(spec, target, workspace_dir, earlier_tests[target.domain_file], action_manifest,
-                                             other_rules=other_rules(spec, deck))
+                                             other_rules=other_rules(spec, deck), first_test=written.get(spec.spec_id, ""))
         except Exception as err:  # a provider or infrastructure error: reported with its reason, never retried
             return err
 
     with ThreadPoolExecutor(max_workers=RED_WORKERS, thread_name_prefix="red") as pool:
+        firsts = dict(zip(of_class, pool.map(pipeline_trace.bind_context(write), list(of_class))))
         reds = list(pool.map(pipeline_trace.bind_context(red), specs))
 
     results: Dict[str, Dict[str, Any]] = {}

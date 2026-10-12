@@ -1,0 +1,127 @@
+{
+  "seq": 262,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:16",
+  "t_offset_s": 197.353,
+  "thread": "red_0",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652456.0898573,
+        "duration": 0.48388028144836426,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_027.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_027.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_027.py::test_abandon_game_ends_with_no_result_and_new_board_keeps_difficulty[ready]",
+                "type": "Function",
+                "lineno": 58
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_027.py::test_abandon_game_ends_with_no_result_and_new_board_keeps_difficulty[in_progress]",
+                "type": "Function",
+                "lineno": 58
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_027.py::test_abandon_game_ends_with_no_result_and_new_board_keeps_difficulty[ready]",
+            "lineno": 58,
+            "outcome": "passed",
+            "keywords": [
+              "test_abandon_game_ends_with_no_result_and_new_board_keeps_difficulty[ready]",
+              "parametrize",
+              "pytestmark",
+              "ready",
+              "test_spec_027.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000782300005084835,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012218000047141686,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0007699000125285238,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_027.py::test_abandon_game_ends_with_no_result_and_new_board_keeps_difficulty[in_progress]",
+            "lineno": 58,
+            "outcome": "passed",
+            "keywords": [
+              "test_abandon_game_ends_with_no_result_and_new_board_keeps_difficulty[in_progress]",
+              "parametrize",
+              "pytestmark",
+              "in_progress",
+              "test_spec_027.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006013999955030158,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007717999978922307,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003956000000471249,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

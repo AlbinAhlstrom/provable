@@ -1,0 +1,161 @@
+{
+  "seq": 389,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:32",
+  "t_offset_s": 403.646,
+  "thread": "red_23",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_0dz8ud6v\\tests\\unit\\test_spec_035.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_0dz8ud6v"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_0dz8ud6v\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 3 items\n\ntests\\unit\\test_spec_035.py ...                                          [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_0dz8ud6v\\.pytest_report_f145de5c64c745fda4beb337cf675f02.json\n============================== 3 passed in 0.60s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656616.9413111,
+      "duration": 0.20276403427124023,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_0dz8ud6v",
+      "environment": {},
+      "summary": {
+        "passed": 3,
+        "total": 3,
+        "collected": 3
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_035.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_035.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+              "type": "Function",
+              "lineno": 7
+            },
+            {
+              "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+              "type": "Function",
+              "lineno": 7
+            },
+            {
+              "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+              "type": "Function",
+              "lineno": 7
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+          "lineno": 7,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+            "parametrize",
+            "pytestmark",
+            "beginner-game-b-1-42-2024-03-01T10:15:00Z",
+            "test_spec_035.py",
+            "unit",
+            "tests",
+            "hollow_0dz8ud6v",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0016660999972373247,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005810000002384186,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000530999997863546,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+          "lineno": 7,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+            "parametrize",
+            "pytestmark",
+            "intermediate-game-i-1-137-2024-03-02T11:20:00Z",
+            "test_spec_035.py",
+            "unit",
+            "tests",
+            "hollow_0dz8ud6v",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00101120000181254,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006156000017654151,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004856000014115125,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+          "lineno": 7,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+            "parametrize",
+            "pytestmark",
+            "expert-game-e-1-389-2024-03-03T12:25:00Z",
+            "test_spec_035.py",
+            "unit",
+            "tests",
+            "hollow_0dz8ud6v",
+            ""
+          ],
+          "setup": {
+            "duration": 0.001061900009517558,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004543000104604289,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00041700000292621553,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.124
+}

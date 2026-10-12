@@ -1,0 +1,195 @@
+{
+  "seq": 141,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.344,
+  "thread": "red_15",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652644.6966367,
+        "duration": 0.48810505867004395,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 4,
+          "total": 4,
+          "collected": 4
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_016.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_016.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_016.py::test_restart_resets_session[ready]",
+                "type": "Function",
+                "lineno": 41
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_016.py::test_restart_resets_session[in_progress]",
+                "type": "Function",
+                "lineno": 41
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_016.py::test_restart_resets_session[won]",
+                "type": "Function",
+                "lineno": 41
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_016.py::test_restart_resets_session[lost]",
+                "type": "Function",
+                "lineno": 41
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_016.py::test_restart_resets_session[ready]",
+            "lineno": 41,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_resets_session[ready]",
+              "parametrize",
+              "pytestmark",
+              "ready",
+              "test_spec_016.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006987999950069934,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000989099993603304,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00035539999953471124,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_016.py::test_restart_resets_session[in_progress]",
+            "lineno": 41,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_resets_session[in_progress]",
+              "parametrize",
+              "pytestmark",
+              "in_progress",
+              "test_spec_016.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006017999985488132,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007987999997567385,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039539999852422625,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_016.py::test_restart_resets_session[won]",
+            "lineno": 41,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_resets_session[won]",
+              "parametrize",
+              "pytestmark",
+              "won",
+              "test_spec_016.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000617499987129122,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0008228999940911308,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003256999916629866,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_016.py::test_restart_resets_session[lost]",
+            "lineno": 41,
+            "outcome": "passed",
+            "keywords": [
+              "test_restart_resets_session[lost]",
+              "parametrize",
+              "pytestmark",
+              "lost",
+              "test_spec_016.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007146999996621162,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007890000124461949,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003665999975055456,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

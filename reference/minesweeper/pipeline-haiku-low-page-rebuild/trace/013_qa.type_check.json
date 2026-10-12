@@ -1,0 +1,24 @@
+{
+  "seq": 13,
+  "step": "qa.type_check",
+  "kind": "step",
+  "depth": 2,
+  "caller_chain": [
+    "visual.review",
+    "qa.responsive_audit"
+  ],
+  "started_at": "19:29:00",
+  "t_offset_s": 101.681,
+  "thread": "ThreadPoolExecutor-1_0",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "defects": [],
+    "warnings": []
+  },
+  "duration_s": 1.514
+}

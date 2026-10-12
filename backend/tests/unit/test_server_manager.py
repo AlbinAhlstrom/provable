@@ -39,10 +39,10 @@ def _alive(pid: int) -> bool:
         os.kill(pid, 0)
     except OSError:
         return False
-    try:  # a killed process nobody has reaped yet is a zombie: gone, though kill(pid, 0) still finds it
+    try:  # a killed process nobody has reaped yet (container init) is a zombie: dead, not alive
         with open(f"/proc/{pid}/stat") as stat:
             return stat.read().rsplit(")", 1)[1].split()[0] != "Z"
-    except (OSError, IndexError):
+    except OSError:
         return True
 
 

@@ -1,0 +1,130 @@
+{
+  "seq": 208,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.reconsider_test"
+  ],
+  "started_at": "19:18:38",
+  "t_offset_s": 162.302,
+  "thread": "reconsider_0",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_001.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 2 items\n\ntests\\unit\\test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[exactly_at_eight_neighbour_limit] PASSED [ 50%]\ntests\\unit\\test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[just_beyond_limit_outside_mine_ignored] PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_ef0da73d4f5346c88c0e09d28ffcdd5d.json\n============================== 2 passed in 0.23s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652719.2975383,
+      "duration": 0.23031163215637207,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 2,
+        "total": 2,
+        "collected": 2
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_001.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_001.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[exactly_at_eight_neighbour_limit]",
+              "type": "Function",
+              "lineno": 84
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[just_beyond_limit_outside_mine_ignored]",
+              "type": "Function",
+              "lineno": 84
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[exactly_at_eight_neighbour_limit]",
+          "lineno": 84,
+          "outcome": "passed",
+          "keywords": [
+            "test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[exactly_at_eight_neighbour_limit]",
+            "parametrize",
+            "pytestmark",
+            "exactly_at_eight_neighbour_limit",
+            "test_spec_001.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004712999943876639,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006198000046424568,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00023280001187231392,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_001.py::test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[just_beyond_limit_outside_mine_ignored]",
+          "lineno": 84,
+          "outcome": "passed",
+          "keywords": [
+            "test_safe_cell_adjacent_mine_count_equals_mines_among_neighbours[just_beyond_limit_outside_mine_ignored]",
+            "parametrize",
+            "pytestmark",
+            "just_beyond_limit_outside_mine_ignored",
+            "test_spec_001.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00047899999481160194,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004234000080032274,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00021980000019539148,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 1.452
+}

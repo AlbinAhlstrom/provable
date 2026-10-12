@@ -1,0 +1,37 @@
+{
+  "Difficulty": [
+    {
+      "id": "beginner",
+      "name": "Beginner",
+      "width": 9,
+      "height": 9,
+      "mine_count": 10,
+      "is_standard": true,
+      "display_order": 1
+    },
+    {
+      "id": "intermediate",
+      "name": "Intermediate",
+      "width": 16,
+      "height": 16,
+      "mine_count": 40,
+      "is_standard": true,
+      "display_order": 2
+    },
+    {
+      "id": "expert",
+      "name": "Expert",
+      "width": 30,
+      "height": 16,
+      "mine_count": 99,
+      "is_standard": true,
+      "display_order": 3
+    },
+    {
+      "id": "custom",
+      "name": "Custom",
+      "is_standard": false,
+      "display_order": 4
+    }
+  ]
+}

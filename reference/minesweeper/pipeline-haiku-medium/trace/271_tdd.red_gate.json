@@ -1,0 +1,204 @@
+{
+  "seq": 271,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:16",
+  "t_offset_s": 197.812,
+  "thread": "red_9",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652456.1674893,
+        "duration": 0.48265910148620605,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xqf0cgdp",
+        "environment": {},
+        "summary": {
+          "failed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_010.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_010.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_010.py::test_corner_cell_with_two_mine_neighbours_and_one_safe_neighbour_counts_two",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "tests/unit/test_spec_010.py::test_corner_cell_at_its_limit_counts_all_three_existing_neighbours",
+                "type": "Function",
+                "lineno": 38
+              },
+              {
+                "nodeid": "tests/unit/test_spec_010.py::test_corner_cell_just_beyond_its_limit_ignores_non_neighbour_mines",
+                "type": "Function",
+                "lineno": 54
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_010.py::test_corner_cell_with_two_mine_neighbours_and_one_safe_neighbour_counts_two",
+            "lineno": 19,
+            "outcome": "failed",
+            "keywords": [
+              "test_corner_cell_with_two_mine_neighbours_and_one_safe_neighbour_counts_two",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "hollow_xqf0cgdp",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000519900000654161,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007321999873965979,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xqf0cgdp\\tests\\unit\\test_spec_010.py",
+                "lineno": 16,
+                "message": "assert 0 == 1\n +  where 0 = len([])"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_010.py",
+                  "lineno": 31,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_010.py",
+                  "lineno": 16,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_corner_cell_with_two_mine_neighbours_and_one_safe_neighbour_counts_two():\n        # Given a 2x2 board with 2 mines.\n        # The corner (0,0) has exactly 3 existing neighbours: (0,1), (1,0), (1,1).\n        # Those are the only other cells on the board, and the 2 mines sit among them,\n        # so exactly 2 neighbours are mines and 1 is safe, whichever placement is random.\n        session = make_session(rows=2, columns=2, mine_count=2)\n    \n        # When the first cell (0,0) is revealed. Mines are placed avoiding (0,0),\n        # and adjacency is computed for every cell.\n        session.reveal_cell(row=0, column=0)\n    \n>       corner = cell_at(session, 0, 0)\n                 ^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_010.py:31: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='session-1', difficulty_id='custom', rows=2, columns=2, mine_count=2, status='ready', flag_count=0, elapsed_seconds=0, started_at=None, ended_at=None, cells=[], events=[])\nrow = 0, column = 0\n\n    def cell_at(session, row, column):\n        matches = [c for c in session.cells if c[\"row\"] == row and c[\"column\"] == column]\n>       assert len(matches) == 1\nE       assert 0 == 1\nE        +  where 0 = len([])\n\ntests\\unit\\test_spec_010.py:16: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004253000079188496,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_010.py::test_corner_cell_at_its_limit_counts_all_three_existing_neighbours",
+            "lineno": 38,
+            "outcome": "failed",
+            "keywords": [
+              "test_corner_cell_at_its_limit_counts_all_three_existing_neighbours",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "hollow_xqf0cgdp",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003985999937867746,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005461999971885234,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xqf0cgdp\\tests\\unit\\test_spec_010.py",
+                "lineno": 16,
+                "message": "assert 0 == 1\n +  where 0 = len([])"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_010.py",
+                  "lineno": 48,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_010.py",
+                  "lineno": 16,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_corner_cell_at_its_limit_counts_all_three_existing_neighbours():\n        # Given a 2x2 board with 3 mines.\n        # The corner (0,0) has exactly 3 existing neighbours, and the 3 mines fill all\n        # other cells, so all 3 existing neighbours are mines (exactly at the limit).\n        session = make_session(rows=2, columns=2, mine_count=3)\n    \n        # When the corner (0,0) is revealed first, mines are placed avoiding it.\n        session.reveal_cell(row=0, column=0)\n    \n>       corner = cell_at(session, 0, 0)\n                 ^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_010.py:48: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='session-1', difficulty_id='custom', rows=2, columns=2, mine_count=3, status='ready', flag_count=0, elapsed_seconds=0, started_at=None, ended_at=None, cells=[], events=[])\nrow = 0, column = 0\n\n    def cell_at(session, row, column):\n        matches = [c for c in session.cells if c[\"row\"] == row and c[\"column\"] == column]\n>       assert len(matches) == 1\nE       assert 0 == 1\nE        +  where 0 = len([])\n\ntests\\unit\\test_spec_010.py:16: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0003831999929388985,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_010.py::test_corner_cell_just_beyond_its_limit_ignores_non_neighbour_mines",
+            "lineno": 54,
+            "outcome": "failed",
+            "keywords": [
+              "test_corner_cell_just_beyond_its_limit_ignores_non_neighbour_mines",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "hollow_xqf0cgdp",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004383000050438568,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006730000022798777,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xqf0cgdp\\tests\\unit\\test_spec_010.py",
+                "lineno": 16,
+                "message": "assert 0 == 1\n +  where 0 = len([])"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_010.py",
+                  "lineno": 66,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_010.py",
+                  "lineno": 16,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_corner_cell_just_beyond_its_limit_ignores_non_neighbour_mines():\n        # Given a 3x3 board with 8 mines.\n        # The corner (0,0) has exactly 3 existing neighbours: (0,1), (1,0), (1,1).\n        # Every cell except (0,0) is a mine, so the 3 neighbours are mines and the\n        # other 5 cells, (0,2), (1,2), (2,0), (2,1), (2,2), are mines that are NOT\n        # neighbours of (0,0) and must not be counted.\n        session = make_session(rows=3, columns=3, mine_count=8)\n    \n        # When the corner (0,0) is revealed first, mines are placed avoiding it.\n        session.reveal_cell(row=0, column=0)\n    \n>       corner = cell_at(session, 0, 0)\n                 ^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_010.py:66: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='session-1', difficulty_id='custom', rows=3, columns=3, mine_count=8, status='ready', flag_count=0, elapsed_seconds=0, started_at=None, ended_at=None, cells=[], events=[])\nrow = 0, column = 0\n\n    def cell_at(session, row, column):\n        matches = [c for c in session.cells if c[\"row\"] == row and c[\"column\"] == column]\n>       assert len(matches) == 1\nE       assert 0 == 1\nE        +  where 0 = len([])\n\ntests\\unit\\test_spec_010.py:16: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004518000059761107,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,41 @@
+{
+  "seq": 2,
+  "step": "intent.classify",
+  "kind": "step",
+  "depth": 1,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold"
+  ],
+  "started_at": "19:10:59",
+  "t_offset_s": 0.002,
+  "thread": "AnyIO worker thread",
+  "input": {
+    "args": [
+      "A minesweeper game"
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "product_type": "game",
+    "audience": "players who want to play a single-player minesweeper puzzle",
+    "primary_goal": "Let a player reveal cells on a hidden minefield without triggering a mine, using the classic rules, and win by clearing all safe cells.",
+    "scope_summary": "A playable minesweeper board with cell state, mine placement, adjacency counts, flagging, and win/lose detection.",
+    "model_focus": [
+      "board grid and cell states (hidden, revealed, flagged)",
+      "mine placement and adjacency counts",
+      "game session status (in progress, won, lost) and elapsed time",
+      "difficulty settings that define board size and mine count"
+    ],
+    "out_of_scope": [
+      "user accounts and login",
+      "online multiplayer or matchmaking",
+      "leaderboards or persistent player profiles",
+      "payments or monetisation"
+    ],
+    "assumptions": [
+      "The game is single-player and runs locally or in a browser without a backend.",
+      "Classic minesweeper rules apply, including first-click safety only if it is part of the chosen variant."
+    ]
+  },
+  "duration_s": 2.593
+}

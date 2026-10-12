@@ -1,0 +1,136 @@
+{
+  "seq": 143,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.363,
+  "thread": "red_4",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kefb7ht_\\tests\\unit\\test_spec_005.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kefb7ht_"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kefb7ht_\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 2 items\n\ntests\\unit\\test_spec_005.py F.                                           [100%]\n\n================================== FAILURES ===================================\n_ test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count _\n\n    def test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count():\n        # Given an in-progress 9x9 board, all cells safe with count 0,\n        # and cell (4, 4) is hidden. flag_count starts at 0.\n        game = make_in_progress_game(target_state=\"hidden\")\n    \n        # When the player flags cell (4, 4).\n        game.toggle_flag(row=4, column=4)\n    \n        # Then the cell is hidden -> flagged: its state is \"flagged\".\n>       assert find_cell(game, 4, 4)[\"state\"] == \"flagged\"\nE       AssertionError: assert 'hidden' == 'flagged'\nE         \nE         - flagged\nE         + hidden\n\ntests\\unit\\test_spec_005.py:54: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kefb7ht_\\.pytest_report_6adfeae5de0b435caeb44eca3f02b6a1.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_005.py::test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count\n========================= 1 failed, 1 passed in 0.45s =========================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652646.8713567,
+      "duration": 0.24652981758117676,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kefb7ht_",
+      "environment": {},
+      "summary": {
+        "failed": 1,
+        "passed": 1,
+        "total": 2,
+        "collected": 2
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_005.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_005.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_005.py::test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count",
+              "type": "Function",
+              "lineno": 44
+            },
+            {
+              "nodeid": "tests/unit/test_spec_005.py::test_flagging_a_revealed_cell_leaves_the_board_unchanged",
+              "type": "Function",
+              "lineno": 58
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_005.py::test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count",
+          "lineno": 44,
+          "outcome": "failed",
+          "keywords": [
+            "test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count",
+            "test_spec_005.py",
+            "unit",
+            "tests",
+            "hollow_kefb7ht_",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00044380000326782465,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006436999974539503,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kefb7ht_\\tests\\unit\\test_spec_005.py",
+              "lineno": 54,
+              "message": "AssertionError: assert 'hidden' == 'flagged'\n  \n  - flagged\n  + hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_005.py",
+                "lineno": 54,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_flagging_a_hidden_cell_sets_state_to_flagged_and_increments_flag_count():\n        # Given an in-progress 9x9 board, all cells safe with count 0,\n        # and cell (4, 4) is hidden. flag_count starts at 0.\n        game = make_in_progress_game(target_state=\"hidden\")\n    \n        # When the player flags cell (4, 4).\n        game.toggle_flag(row=4, column=4)\n    \n        # Then the cell is hidden -> flagged: its state is \"flagged\".\n>       assert find_cell(game, 4, 4)[\"state\"] == \"flagged\"\nE       AssertionError: assert 'hidden' == 'flagged'\nE         \nE         - flagged\nE         + hidden\n\ntests\\unit\\test_spec_005.py:54: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0003578999894671142,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_005.py::test_flagging_a_revealed_cell_leaves_the_board_unchanged",
+          "lineno": 58,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_a_revealed_cell_leaves_the_board_unchanged",
+            "test_spec_005.py",
+            "unit",
+            "tests",
+            "hollow_kefb7ht_",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00034329999471083283,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007681999995838851,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00028900000324938446,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 2.217
+}

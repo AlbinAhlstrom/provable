@@ -1,0 +1,21 @@
+{
+  "id": "20261010-201648_kickstart_a-minesweeper-game",
+  "kind": "kickstart",
+  "label": "A minesweeper game",
+  "started_at": "2026-10-10 20:16:48",
+  "git": {
+    "commit": "cbca950c78a289642b86e44ff01fe001a04eb58e",
+    "branch": "claude/pipeline-speed-gates-observability",
+    "dirty": false,
+    "dirty_files": []
+  },
+  "llm": {
+    "model": "claude-opus-5-5",
+    "provider": "anthropic-opus",
+    "stage_model_overrides": {},
+    "reasoning_effort": "medium",
+    "base_url_host": "api.anthropic.com"
+  },
+  "python": "3.11.9",
+  "workspace_dir": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+}

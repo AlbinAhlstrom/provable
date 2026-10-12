@@ -1,0 +1,158 @@
+{
+  "seq": 285,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.484,
+  "thread": "red_22",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656601.7667038,
+        "duration": 1.3928844928741455,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_024.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_024.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_fewer_than_number]",
+                "type": "Function",
+                "lineno": 70
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_more_than_number]",
+                "type": "Function",
+                "lineno": 70
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_flag_count_equal_to_number_opens_hidden_neighbours",
+                "type": "Function",
+                "lineno": 99
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_fewer_than_number]",
+            "lineno": 70,
+            "outcome": "passed",
+            "keywords": [
+              "test_chord_with_mismatched_flag_count_changes_nothing[one_flag_fewer_than_number]",
+              "parametrize",
+              "pytestmark",
+              "one_flag_fewer_than_number",
+              "test_spec_024.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008591000078013167,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001869200001237914,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004653999931178987,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_more_than_number]",
+            "lineno": 70,
+            "outcome": "passed",
+            "keywords": [
+              "test_chord_with_mismatched_flag_count_changes_nothing[one_flag_more_than_number]",
+              "parametrize",
+              "pytestmark",
+              "one_flag_more_than_number",
+              "test_spec_024.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007225000008475035,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001604600009159185,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003814000083366409,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_024.py::test_chord_with_flag_count_equal_to_number_opens_hidden_neighbours",
+            "lineno": 99,
+            "outcome": "passed",
+            "keywords": [
+              "test_chord_with_flag_count_equal_to_number_opens_hidden_neighbours",
+              "test_spec_024.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0015063999890116975,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000933699993765913,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004761000018334016,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

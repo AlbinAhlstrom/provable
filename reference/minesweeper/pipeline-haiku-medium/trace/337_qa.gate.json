@@ -1,0 +1,29 @@
+{
+  "seq": 337,
+  "step": "qa.gate",
+  "kind": "step",
+  "depth": 1,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold"
+  ],
+  "started_at": "19:14:51",
+  "t_offset_s": 232.509,
+  "thread": "AnyIO worker thread",
+  "input": {
+    "args": [],
+    "kwargs": {
+      "audit": "<function run_page_gates.<locals>.run_audit at 0x0000023211E11940>",
+      "rework": "<function run_page_gates.<locals>.run_rework at 0x0000023211F57060>"
+    }
+  },
+  "output": {
+    "passed": true,
+    "verdict": "passed",
+    "attempts": 0,
+    "defects": [],
+    "console_errors": [],
+    "warnings": [],
+    "reworked": []
+  },
+  "duration_s": 8.438
+}

@@ -1,0 +1,22 @@
+{
+  "seq": 64,
+  "step": "tdd.cst_extract",
+  "kind": "step",
+  "depth": 2,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "tdd.draft_tests"
+  ],
+  "started_at": "20:19:47",
+  "t_offset_s": 178.354,
+  "thread": "draft_17",
+  "input": {
+    "args": [
+      "\"\"\"\nDomain Model: Game (Aggregate Root)\nSingle Responsibility Principle (SRP) compliant domain model.\n\"\"\"\n\nfrom __future__ import annotations\nimport math\nfrom dataclasses import dataclass, field\nfrom datetime import datetime, date, timezone, timedelta\nfrom typing import Optional, List, Dict, Any, Union, Set, Tuple, Callable\n\n\ntry:\n    from src.domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n    from src.domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\nexcept ImportError:\n    try:\n        from domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n        from domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\n    except ImportError:\n        pass\n\n\n@dataclass\nclass Game:\n    \"\"\"Game.\n\n    cells: the Cell records this Game owns, one dict each with the keys id (str), row (int), column (int), has_mine (bool), adjacent_mine_count (int), state (str).\n    \"\"\"\n    id: str\n    difficulty_id: str\n    width: int\n    height: int\n    mine_count: int\n    remaining_mines: int\n    created_at: str\n    status: str = \"Ready\"\n    mines_laid: bool = True\n    flags_placed: int = 0\n    elapsed_seconds: int = 0\n    started_at: Optional[str] = None\n    ended_at: Optional[str] = None\n    struck_cell_id: Optional[str] = None\n    cells: List[Dict[str, Any]] = field(default_factory=list)\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n",
+      "Game"
+    ],
+    "kwargs": {}
+  },
+  "output": "\n\n@dataclass\nclass Game:\n    \"\"\"Game.\n\n    cells: the Cell records this Game owns, one dict each with the keys id (str), row (int), column (int), has_mine (bool), adjacent_mine_count (int), state (str).\n    \"\"\"\n    id: str\n    difficulty_id: str\n    width: int\n    height: int\n    mine_count: int\n    remaining_mines: int\n    created_at: str\n    status: str = \"Ready\"\n    mines_laid: bool = True\n    flags_placed: int = 0\n    elapsed_seconds: int = 0\n    started_at: Optional[str] = None\n    ended_at: Optional[str] = None\n    struck_cell_id: Optional[str] = None\n    cells: List[Dict[str, Any]] = field(default_factory=list)\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n",
+  "duration_s": 0.005
+}

@@ -1,0 +1,179 @@
+{
+  "seq": 144,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.372,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_772j4goo\\tests\\unit\\test_spec_007.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_772j4goo"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_772j4goo\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 3 items\n\ntests\\unit\\test_spec_007.py FF.                                          [100%]\n\n================================== FAILURES ===================================\n________________ test_right_click_hidden_cell_becomes_flagged _________________\n\n    def test_right_click_hidden_cell_becomes_flagged():\n        # Given: in-progress 9x9 board, target (4,4) is hidden, flag_count 0.\n        # No mines, no other flags, so nothing else in the rules interferes.\n        game = make_game(target_state=\"hidden\", flag_count=0)\n    \n        # When: the player right-clicks (4,4).\n        game.toggle_flag(row=4, column=4)\n    \n        # Then: hidden -> flagged, and flag_count rises from 0 to 1.\n>       assert cell_at(game, 4, 4)[\"state\"] == \"flagged\"\nE       AssertionError: assert 'hidden' == 'flagged'\nE         \nE         - flagged\nE         + hidden\n\ntests\\unit\\test_spec_007.py:50: AssertionError\n________________ test_right_click_flagged_cell_becomes_hidden _________________\n\n    def test_right_click_flagged_cell_becomes_hidden():\n        # Given: in-progress board, target (4,4) is flagged, flag_count 1 (consistent with one flag).\n        game = make_game(target_state=\"flagged\", flag_count=1)\n    \n        # When: the player right-clicks (4,4) again.\n        game.toggle_flag(row=4, column=4)\n    \n        # Then: flagged -> hidden (no question mark state), and flag_count falls from 1 to 0.\n>       assert cell_at(game, 4, 4)[\"state\"] == \"hidden\"\nE       AssertionError: assert 'flagged' == 'hidden'\nE         \nE         - hidden\nE         + flagged\n\ntests\\unit\\test_spec_007.py:62: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_772j4goo\\.pytest_report_8b65a682d6da4295a16dd47d12eb8106.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_007.py::test_right_click_hidden_cell_becomes_flagged\nFAILED tests/unit/test_spec_007.py::test_right_click_flagged_cell_becomes_hidden\n========================= 2 failed, 1 passed in 0.47s =========================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652646.942113,
+      "duration": 0.25020527839660645,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_772j4goo",
+      "environment": {},
+      "summary": {
+        "failed": 2,
+        "passed": 1,
+        "total": 3,
+        "collected": 3
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_007.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_007.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_007.py::test_right_click_hidden_cell_becomes_flagged",
+              "type": "Function",
+              "lineno": 40
+            },
+            {
+              "nodeid": "tests/unit/test_spec_007.py::test_right_click_flagged_cell_becomes_hidden",
+              "type": "Function",
+              "lineno": 53
+            },
+            {
+              "nodeid": "tests/unit/test_spec_007.py::test_right_click_revealed_cell_is_unchanged",
+              "type": "Function",
+              "lineno": 65
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_007.py::test_right_click_hidden_cell_becomes_flagged",
+          "lineno": 40,
+          "outcome": "failed",
+          "keywords": [
+            "test_right_click_hidden_cell_becomes_flagged",
+            "test_spec_007.py",
+            "unit",
+            "tests",
+            "hollow_772j4goo",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00048519999836571515,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006692000024486333,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_772j4goo\\tests\\unit\\test_spec_007.py",
+              "lineno": 50,
+              "message": "AssertionError: assert 'hidden' == 'flagged'\n  \n  - flagged\n  + hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_007.py",
+                "lineno": 50,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_right_click_hidden_cell_becomes_flagged():\n        # Given: in-progress 9x9 board, target (4,4) is hidden, flag_count 0.\n        # No mines, no other flags, so nothing else in the rules interferes.\n        game = make_game(target_state=\"hidden\", flag_count=0)\n    \n        # When: the player right-clicks (4,4).\n        game.toggle_flag(row=4, column=4)\n    \n        # Then: hidden -> flagged, and flag_count rises from 0 to 1.\n>       assert cell_at(game, 4, 4)[\"state\"] == \"flagged\"\nE       AssertionError: assert 'hidden' == 'flagged'\nE         \nE         - flagged\nE         + hidden\n\ntests\\unit\\test_spec_007.py:50: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00027720000070985407,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_007.py::test_right_click_flagged_cell_becomes_hidden",
+          "lineno": 53,
+          "outcome": "failed",
+          "keywords": [
+            "test_right_click_flagged_cell_becomes_hidden",
+            "test_spec_007.py",
+            "unit",
+            "tests",
+            "hollow_772j4goo",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00022620000527240336,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00041849999979604036,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_772j4goo\\tests\\unit\\test_spec_007.py",
+              "lineno": 62,
+              "message": "AssertionError: assert 'flagged' == 'hidden'\n  \n  - hidden\n  + flagged"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_007.py",
+                "lineno": 62,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_right_click_flagged_cell_becomes_hidden():\n        # Given: in-progress board, target (4,4) is flagged, flag_count 1 (consistent with one flag).\n        game = make_game(target_state=\"flagged\", flag_count=1)\n    \n        # When: the player right-clicks (4,4) again.\n        game.toggle_flag(row=4, column=4)\n    \n        # Then: flagged -> hidden (no question mark state), and flag_count falls from 1 to 0.\n>       assert cell_at(game, 4, 4)[\"state\"] == \"hidden\"\nE       AssertionError: assert 'flagged' == 'hidden'\nE         \nE         - hidden\nE         + flagged\n\ntests\\unit\\test_spec_007.py:62: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00032839999767020345,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_007.py::test_right_click_revealed_cell_is_unchanged",
+          "lineno": 65,
+          "outcome": "passed",
+          "keywords": [
+            "test_right_click_revealed_cell_is_unchanged",
+            "test_spec_007.py",
+            "unit",
+            "tests",
+            "hollow_772j4goo",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00034139999479521066,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0003856999974232167,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00028480000037234277,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 2.289
+}

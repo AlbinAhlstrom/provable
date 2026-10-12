@@ -1,0 +1,238 @@
+{
+  "seq": 342,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:28",
+  "t_offset_s": 399.626,
+  "thread": "red_8",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656607.4424603,
+        "duration": 1.505669116973877,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kc1fsrch",
+        "environment": {},
+        "summary": {
+          "failed": 4,
+          "total": 4,
+          "collected": 4
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_010.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_010.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_010.py::test_newly_created_game_has_no_mines_laid",
+                "type": "Function",
+                "lineno": 53
+              },
+              {
+                "nodeid": "tests/unit/test_spec_010.py::test_flagging_before_first_open_does_not_lay_mines",
+                "type": "Function",
+                "lineno": 73
+              },
+              {
+                "nodeid": "tests/unit/test_spec_010.py::test_mines_are_laid_when_first_cell_is_opened[0-0]",
+                "type": "Function",
+                "lineno": 86
+              },
+              {
+                "nodeid": "tests/unit/test_spec_010.py::test_mines_are_laid_when_first_cell_is_opened[4-4]",
+                "type": "Function",
+                "lineno": 86
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_010.py::test_newly_created_game_has_no_mines_laid",
+            "lineno": 53,
+            "outcome": "failed",
+            "keywords": [
+              "test_newly_created_game_has_no_mines_laid",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "hollow_kc1fsrch",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001180999999633059,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0014754000003449619,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kc1fsrch\\tests\\unit\\test_spec_010.py",
+                "lineno": 69,
+                "message": "AssertionError: assert 0 == (9 * 9)\n +  where 0 = len([])\n +    where [] = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_010.py",
+                  "lineno": 69,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_newly_created_game_has_no_mines_laid():\n        game = Game(\n            id=\"game-1\",\n            difficulty_id=\"beginner\",\n            width=WIDTH,\n            height=HEIGHT,\n            mine_count=MINES,\n            remaining_mines=MINES,\n            created_at=\"2024-01-01T10:00:00\",\n        )\n    \n        # A new game is Ready and has not laid its mines yet.\n        assert game.status == \"Ready\"\n        assert game.mines_laid is False\n        # The board already has all 9x9 = 81 positions ...\n>       assert len(game.cells) == WIDTH * HEIGHT\nE       AssertionError: assert 0 == (9 * 9)\nE        +  where 0 = len([])\nE        +    where [] = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...aid=False, flags_placed=0, elapsed_seconds=0, started_at=None, ended_at=None, struck_cell_id=None, cells=[], events=[]).cells\n\ntests\\unit\\test_spec_010.py:69: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005410000012489036,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_010.py::test_flagging_before_first_open_does_not_lay_mines",
+            "lineno": 73,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagging_before_first_open_does_not_lay_mines",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "hollow_kc1fsrch",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00047080000513233244,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007642999989911914,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kc1fsrch\\tests\\unit\\test_spec_010.py",
+                "lineno": 80,
+                "message": "AssertionError: assert 'Hidden' == 'Flagged'\n  \n  - Flagged\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_010.py",
+                  "lineno": 80,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_flagging_before_first_open_does_not_lay_mines():\n        game = _ready_game()\n    \n        game.toggle_flag(row=4, column=4)\n    \n        # Flagging is allowed in Ready; cell (4,4) goes Hidden -> Flagged.\n>       assert _cell(game, 4, 4)[\"state\"] == \"Flagged\"\nE       AssertionError: assert 'Hidden' == 'Flagged'\nE         \nE         - Flagged\nE         + Hidden\n\ntests\\unit\\test_spec_010.py:80: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004327000060584396,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_010.py::test_mines_are_laid_when_first_cell_is_opened[0-0]",
+            "lineno": 86,
+            "outcome": "failed",
+            "keywords": [
+              "test_mines_are_laid_when_first_cell_is_opened[0-0]",
+              "parametrize",
+              "pytestmark",
+              "0-0",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "hollow_kc1fsrch",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0013667000021087006,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010260999988531694,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kc1fsrch\\tests\\unit\\test_spec_010.py",
+                "lineno": 98,
+                "message": "AssertionError: assert False is True\n +  where False = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Hidden'}], events=[]).mines_laid"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_010.py",
+                  "lineno": 98,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "row = 0, column = 0\n\n    @pytest.mark.parametrize(\"row,column\", [(0, 0), (4, 4)])\n    def test_mines_are_laid_when_first_cell_is_opened(row, column):\n        game = _ready_game()\n    \n        # Before the first open: no cell holds a mine.\n        assert game.mines_laid is False\n        assert sum(1 for c in game.cells if c[\"has_mine\"]) == 0\n    \n        game.open_cell(row=row, column=column)\n    \n        # The first open of a Ready game lays the mines at that moment.\n>       assert game.mines_laid is True\nE       AssertionError: assert False is True\nE        +  where False = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Hidden'}], events=[]).mines_laid\n\ntests\\unit\\test_spec_010.py:98: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00042549999488983303,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_010.py::test_mines_are_laid_when_first_cell_is_opened[4-4]",
+            "lineno": 86,
+            "outcome": "failed",
+            "keywords": [
+              "test_mines_are_laid_when_first_cell_is_opened[4-4]",
+              "parametrize",
+              "pytestmark",
+              "4-4",
+              "test_spec_010.py",
+              "unit",
+              "tests",
+              "hollow_kc1fsrch",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008282999915536493,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009074999979929999,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_kc1fsrch\\tests\\unit\\test_spec_010.py",
+                "lineno": 98,
+                "message": "AssertionError: assert False is True\n +  where False = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Hidden'}], events=[]).mines_laid"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_010.py",
+                  "lineno": 98,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "row = 4, column = 4\n\n    @pytest.mark.parametrize(\"row,column\", [(0, 0), (4, 4)])\n    def test_mines_are_laid_when_first_cell_is_opened(row, column):\n        game = _ready_game()\n    \n        # Before the first open: no cell holds a mine.\n        assert game.mines_laid is False\n        assert sum(1 for c in game.cells if c[\"has_mine\"]) == 0\n    \n        game.open_cell(row=row, column=column)\n    \n        # The first open of a Ready game lays the mines at that moment.\n>       assert game.mines_laid is True\nE       AssertionError: assert False is True\nE        +  where False = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Hidden'}], events=[]).mines_laid\n\ntests\\unit\\test_spec_010.py:98: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004506000113906339,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

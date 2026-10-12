@@ -1,0 +1,167 @@
+[
+ {
+  "file": "minesweeper_haiku_1.md",
+  "case": "minesweeper",
+  "model": "haiku",
+  "seconds": 9.6,
+  "in": 7569,
+  "out": 1994,
+  "sek": 0.0175,
+  "words": 829,
+  "stop": "end_turn"
+ },
+ {
+  "file": "minesweeper_haiku_2.md",
+  "case": "minesweeper",
+  "model": "haiku",
+  "seconds": 18.7,
+  "in": 7569,
+  "out": 3828,
+  "sek": 0.0267,
+  "words": 918,
+  "stop": "end_turn"
+ },
+ {
+  "file": "minesweeper_haiku_3.md",
+  "case": "minesweeper",
+  "model": "haiku",
+  "seconds": 10.5,
+  "in": 7569,
+  "out": 2243,
+  "sek": 0.0188,
+  "words": 983,
+  "stop": "end_turn"
+ },
+ {
+  "file": "minesweeper_haiku_4.md",
+  "case": "minesweeper",
+  "model": "haiku",
+  "seconds": 10.6,
+  "in": 7569,
+  "out": 2275,
+  "sek": 0.0189,
+  "words": 948,
+  "stop": "end_turn"
+ },
+ {
+  "file": "minesweeper_haiku_5.md",
+  "case": "minesweeper",
+  "model": "haiku",
+  "seconds": 11.1,
+  "in": 7569,
+  "out": 2308,
+  "sek": 0.0191,
+  "words": 986,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_haiku_1.md",
+  "case": "kanban",
+  "model": "haiku",
+  "seconds": 28.6,
+  "in": 6611,
+  "out": 5820,
+  "sek": 0.0357,
+  "words": 1295,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_haiku_2.md",
+  "case": "kanban",
+  "model": "haiku",
+  "seconds": 19.0,
+  "in": 6611,
+  "out": 3826,
+  "sek": 0.0257,
+  "words": 979,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_haiku_3.md",
+  "case": "kanban",
+  "model": "haiku",
+  "seconds": 20.6,
+  "in": 6611,
+  "out": 4285,
+  "sek": 0.028,
+  "words": 1032,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_haiku_4.md",
+  "case": "kanban",
+  "model": "haiku",
+  "seconds": 25.7,
+  "in": 6611,
+  "out": 5353,
+  "sek": 0.0334,
+  "words": 1266,
+  "stop": "end_turn"
+ },
+ {
+  "file": "kanban_haiku_5.md",
+  "case": "kanban",
+  "model": "haiku",
+  "seconds": 18.5,
+  "in": 6611,
+  "out": 3846,
+  "sek": 0.0258,
+  "words": 1054,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_haiku_1.md",
+  "case": "salon",
+  "model": "haiku",
+  "seconds": 19.7,
+  "in": 7427,
+  "out": 4106,
+  "sek": 0.028,
+  "words": 1103,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_haiku_2.md",
+  "case": "salon",
+  "model": "haiku",
+  "seconds": 26.2,
+  "in": 7427,
+  "out": 5571,
+  "sek": 0.0353,
+  "words": 1310,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_haiku_3.md",
+  "case": "salon",
+  "model": "haiku",
+  "seconds": 20.8,
+  "in": 7427,
+  "out": 4407,
+  "sek": 0.0295,
+  "words": 1455,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_haiku_4.md",
+  "case": "salon",
+  "model": "haiku",
+  "seconds": 21.9,
+  "in": 7427,
+  "out": 4632,
+  "sek": 0.0306,
+  "words": 1172,
+  "stop": "end_turn"
+ },
+ {
+  "file": "salon_haiku_5.md",
+  "case": "salon",
+  "model": "haiku",
+  "seconds": 21.6,
+  "in": 7427,
+  "out": 4448,
+  "sek": 0.0297,
+  "words": 1093,
+  "stop": "end_turn"
+ }
+]

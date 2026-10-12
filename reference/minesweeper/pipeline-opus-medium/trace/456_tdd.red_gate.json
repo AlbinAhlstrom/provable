@@ -1,0 +1,346 @@
+{
+  "seq": 456,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:39",
+  "t_offset_s": 410.704,
+  "thread": "red_5",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656619.053195,
+        "duration": 0.798095703125,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_exeip9sg",
+        "environment": {},
+        "summary": {
+          "failed": 6,
+          "total": 6,
+          "collected": 6
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_043.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_043.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[beginner-9-9-10]",
+                "type": "Function",
+                "lineno": 94
+              },
+              {
+                "nodeid": "tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+                "type": "Function",
+                "lineno": 94
+              },
+              {
+                "nodeid": "tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[beginner-9-9-10]",
+                "type": "Function",
+                "lineno": 110
+              },
+              {
+                "nodeid": "tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+                "type": "Function",
+                "lineno": 110
+              },
+              {
+                "nodeid": "tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Won]",
+                "type": "Function",
+                "lineno": 128
+              },
+              {
+                "nodeid": "tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Lost]",
+                "type": "Function",
+                "lineno": 128
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[beginner-9-9-10]",
+            "lineno": 94,
+            "outcome": "failed",
+            "keywords": [
+              "test_restart_from_ready_abandons_and_deals_fresh_board[beginner-9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "beginner-9-9-10",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "hollow_exeip9sg",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001688600008492358,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00137489999178797,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_exeip9sg\\tests\\unit\\test_spec_043.py",
+                "lineno": 104,
+                "message": "AssertionError: assert 'Ready' == 'Abandoned'\n  \n  - Abandoned\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_043.py",
+                  "lineno": 104,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "difficulty_id = 'beginner', width = 9, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"difficulty_id,width,height,mine_count\", DIFFICULTIES)\n    def test_restart_from_ready_abandons_and_deals_fresh_board(\n        difficulty_id, width, height, mine_count\n    ):\n        game = make_game(difficulty_id, width, height, mine_count)\n    \n        new_game = game.restart_game()\n    \n        # Old game was Ready: Ready→Abandoned is allowed, so it becomes Abandoned with ended_at set.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Ready' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Ready\n\ntests\\unit\\test_spec_043.py:104: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005087000026833266,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_043.py::test_restart_from_ready_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+            "lineno": 94,
+            "outcome": "failed",
+            "keywords": [
+              "test_restart_from_ready_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-16-16-40",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "hollow_exeip9sg",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001955999992787838,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.002013799996348098,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_exeip9sg\\tests\\unit\\test_spec_043.py",
+                "lineno": 104,
+                "message": "AssertionError: assert 'Ready' == 'Abandoned'\n  \n  - Abandoned\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_043.py",
+                  "lineno": 104,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "difficulty_id = 'intermediate', width = 16, height = 16, mine_count = 40\n\n    @pytest.mark.parametrize(\"difficulty_id,width,height,mine_count\", DIFFICULTIES)\n    def test_restart_from_ready_abandons_and_deals_fresh_board(\n        difficulty_id, width, height, mine_count\n    ):\n        game = make_game(difficulty_id, width, height, mine_count)\n    \n        new_game = game.restart_game()\n    \n        # Old game was Ready: Ready→Abandoned is allowed, so it becomes Abandoned with ended_at set.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Ready' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Ready\n\ntests\\unit\\test_spec_043.py:104: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005074000073364004,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[beginner-9-9-10]",
+            "lineno": 110,
+            "outcome": "failed",
+            "keywords": [
+              "test_restart_from_playing_abandons_and_deals_fresh_board[beginner-9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "beginner-9-9-10",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "hollow_exeip9sg",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00103270000545308,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001671699996222742,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_exeip9sg\\tests\\unit\\test_spec_043.py",
+                "lineno": 121,
+                "message": "AssertionError: assert 'Playing' == 'Abandoned'\n  \n  - Abandoned\n  + Playing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_043.py",
+                  "lineno": 121,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "difficulty_id = 'beginner', width = 9, height = 9, mine_count = 10\n\n    @pytest.mark.parametrize(\"difficulty_id,width,height,mine_count\", DIFFICULTIES)\n    def test_restart_from_playing_abandons_and_deals_fresh_board(\n        difficulty_id, width, height, mine_count\n    ):\n        game = make_game(difficulty_id, width, height, mine_count)\n        put_in_playing(game)\n    \n        new_game = game.restart_game()\n    \n        # Old game was Playing: Playing→Abandoned is allowed, so it becomes Abandoned with ended_at set.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Playing' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Playing\n\ntests\\unit\\test_spec_043.py:121: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006443000020226464,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_043.py::test_restart_from_playing_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+            "lineno": 110,
+            "outcome": "failed",
+            "keywords": [
+              "test_restart_from_playing_abandons_and_deals_fresh_board[intermediate-16-16-40]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-16-16-40",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "hollow_exeip9sg",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010335000115446746,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0027603000053204596,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_exeip9sg\\tests\\unit\\test_spec_043.py",
+                "lineno": 121,
+                "message": "AssertionError: assert 'Playing' == 'Abandoned'\n  \n  - Abandoned\n  + Playing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_043.py",
+                  "lineno": 121,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "difficulty_id = 'intermediate', width = 16, height = 16, mine_count = 40\n\n    @pytest.mark.parametrize(\"difficulty_id,width,height,mine_count\", DIFFICULTIES)\n    def test_restart_from_playing_abandons_and_deals_fresh_board(\n        difficulty_id, width, height, mine_count\n    ):\n        game = make_game(difficulty_id, width, height, mine_count)\n        put_in_playing(game)\n    \n        new_game = game.restart_game()\n    \n        # Old game was Playing: Playing→Abandoned is allowed, so it becomes Abandoned with ended_at set.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Playing' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Playing\n\ntests\\unit\\test_spec_043.py:121: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005505000008270144,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Won]",
+            "lineno": 128,
+            "outcome": "failed",
+            "keywords": [
+              "test_restart_from_finished_game_keeps_outcome[Won]",
+              "parametrize",
+              "pytestmark",
+              "Won",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "hollow_exeip9sg",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006278000073507428,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013890999980503693,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_exeip9sg\\tests\\unit\\test_spec_043.py",
+                "lineno": 74,
+                "message": "assert None is not None"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_043.py",
+                  "lineno": 143,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_043.py",
+                  "lineno": 74,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "finished_status = 'Won'\n\n    @pytest.mark.parametrize(\"finished_status\", [\"Won\", \"Lost\"])\n    def test_restart_from_finished_game_keeps_outcome(finished_status):\n        game = make_game(\"beginner\", 9, 9, 10)\n        put_in_playing(game)\n        game.status = finished_status\n        game.ended_at = ENDED_AT\n    \n        new_game = game.restart_game()\n    \n        # Won/Lost→Abandoned is not an allowed transition: the outcome is kept, ended_at untouched.\n        assert game.status == finished_status\n        assert game.ended_at == ENDED_AT\n        assert game.elapsed_seconds == 42\n        # A fresh Ready game of the same difficulty is still dealt.\n>       assert_fresh_game(new_game, \"game-1\", \"beginner\", 9, 9, 10)\n\ntests\\unit\\test_spec_043.py:143: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nnew_game = None, old_id = 'game-1', difficulty_id = 'beginner', width = 9\nheight = 9, mine_count = 10\n\n    def assert_fresh_game(new_game, old_id, difficulty_id, width, height, mine_count):\n        # New game: a different id, the same configuration as the old one.\n>       assert new_game is not None\nE       assert None is not None\n\ntests\\unit\\test_spec_043.py:74: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005757000035373494,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_043.py::test_restart_from_finished_game_keeps_outcome[Lost]",
+            "lineno": 128,
+            "outcome": "failed",
+            "keywords": [
+              "test_restart_from_finished_game_keeps_outcome[Lost]",
+              "parametrize",
+              "pytestmark",
+              "Lost",
+              "test_spec_043.py",
+              "unit",
+              "tests",
+              "hollow_exeip9sg",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005762999935541302,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009028999920701608,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_exeip9sg\\tests\\unit\\test_spec_043.py",
+                "lineno": 74,
+                "message": "assert None is not None"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_043.py",
+                  "lineno": 143,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_043.py",
+                  "lineno": 74,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "finished_status = 'Lost'\n\n    @pytest.mark.parametrize(\"finished_status\", [\"Won\", \"Lost\"])\n    def test_restart_from_finished_game_keeps_outcome(finished_status):\n        game = make_game(\"beginner\", 9, 9, 10)\n        put_in_playing(game)\n        game.status = finished_status\n        game.ended_at = ENDED_AT\n    \n        new_game = game.restart_game()\n    \n        # Won/Lost→Abandoned is not an allowed transition: the outcome is kept, ended_at untouched.\n        assert game.status == finished_status\n        assert game.ended_at == ENDED_AT\n        assert game.elapsed_seconds == 42\n        # A fresh Ready game of the same difficulty is still dealt.\n>       assert_fresh_game(new_game, \"game-1\", \"beginner\", 9, 9, 10)\n\ntests\\unit\\test_spec_043.py:143: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nnew_game = None, old_id = 'game-1', difficulty_id = 'beginner', width = 9\nheight = 9, mine_count = 10\n\n    def assert_fresh_game(new_game, old_id, difficulty_id, width, height, mine_count):\n        # New game: a different id, the same configuration as the old one.\n>       assert new_game is not None\nE       assert None is not None\n\ntests\\unit\\test_spec_043.py:74: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005381000082707033,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

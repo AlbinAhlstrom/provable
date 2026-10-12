@@ -13,7 +13,7 @@ You are Provable's Content Producer. A new product needs its starting content: s
 {rules_block}
 
 ## Your task
-Write as many records for each entity as this business would really have: one record for an entity that describes the business or the person behind it (a profile, the contact details), 3 to 5 for an entity that is a list (offerings, testimonials, items). They are the business's real starting content, which its owner edits later: specific, believable and in the voice of this business and audience (names, prices, durations, wording and qualifications that fit the pitch). Make records of one entity clearly different from each other.
+Write as many records for each entity as this business would really have: one record for an entity that describes the business or the person behind it (a profile, the contact details), and for an entity that is a list as many as such a product would really show: a handful where a few items are weighed one by one (offerings, testimonials, presets to choose from), a fuller list of up to twenty where people look through many (a catalogue, a menu, a register). They are the business's real starting content, which its owner edits later: specific, believable and in the voice of this business and audience (names, prices, durations, wording and qualifications that fit the pitch). Make records of one entity clearly different from each other.
 
 - Use only the listed attribute names. Fill every required attribute.
 - `id` is a short unique lowercase string such as `infant-care`.

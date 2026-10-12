@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { AppPreview } from './AppPreview';
-import { BuildProgress, BuildProgressScreen, BuildProgressStrip } from './BuildProgressPanel';
+import { BuildOpening } from './BuildOpening';
+import { BuildProgress, BuildProgressBanner } from './BuildProgressPanel';
+import { StatusMessage, StudioMessage } from './StatusMessage';
 
 const PROGRESS_POLL_MS = 1500;       // while a build runs
 const IDLE_PROGRESS_POLL_MS = 4000;  // to notice a build started elsewhere (another tab, the API)
@@ -10,20 +13,17 @@ const fetchProgress = async (): Promise<BuildProgress | null> => {
   return res.ok ? res.json() : null;
 };
 
-export interface KickstartStudioProps {
-  onAppSynthesized?: () => void;
-}
-
-export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesized }) => {
+export const KickstartStudio: React.FC = () => {
   const [pitch, setPitch] = useState<string>('');
   const [building, setBuilding] = useState<boolean>(false);
   const [resetting, setResetting] = useState<boolean>(false);
-  const [resetMessage, setResetMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<StudioMessage | null>(null);
   const [synthesized, setSynthesized] = useState<boolean>(false);
   const [llmConfigured, setLlmConfigured] = useState<boolean>(true);
   const [progress, setProgress] = useState<BuildProgress | null>(null);
   const [reloadToken, setReloadToken] = useState<number>(0);
   const followedBuild = useRef<boolean>(false);  // the running build has been seen at least once
+  const shownReady = useRef<boolean>(false);     // the running build's finished app is already on screen
 
   const checkState = async () => {
     try {
@@ -43,7 +43,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
     checkState();
   }, []);
 
-  // Ask what the running build has delivered so far; the app is shown as soon as its page is written. A build this
+  // Ask what the running build has delivered so far. A build this
   // page did not start (it was reloaded, or the build came from elsewhere) is picked up the same way.
   useEffect(() => {
     const poll = async () => {
@@ -59,7 +59,7 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
           followedBuild.current = false;
           setBuilding(false);
           setProgress(null);
-          setReloadToken(t => t + 1);
+          showFinishedApp();
           checkState();
         }
       } catch (err) {
@@ -71,12 +71,27 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
     return () => clearInterval(timer);
   }, [building]);
 
+  // The live workspace comes on screen with the build's first draft; show what it has become each time the build
+  // delivers something more to look at (the written page, the finished app)
+  useEffect(() => {
+    if (progress?.draft_ready || progress?.page_ready || progress?.ready) setReloadToken(t => t + 1);
+    if (progress?.ready) shownReady.current = true;
+  }, [progress?.draft_ready, progress?.page_ready, progress?.ready]);
+
+  // When the build ends the finished app is usually on screen already, and someone may be using it: it is only
+  // loaded again if it was never shown as ready. What a final check changes arrives through the app's hot reload.
+  const showFinishedApp = () => {
+    if (!shownReady.current) setReloadToken(t => t + 1);
+    shownReady.current = false;
+  };
+
   const triggerSynthesis = async () => {
     if (!pitch.trim()) return;
     followedBuild.current = false;
+    shownReady.current = false;
     setBuilding(true);
     setProgress(null);
-    setResetMessage(null);
+    setMessage(null);
     try {
       const res = await fetch('/api/onboarding/kickstart', {
         method: 'POST',
@@ -93,164 +108,93 @@ export const KickstartStudio: React.FC<KickstartStudioProps> = ({ onAppSynthesiz
         data = { error: `Server returned HTTP ${res.status}` };
       }
 
+      const run = data.run_id ? ` (run ${data.run_id})` : '';
       if (res.ok && data.success) {
         setSynthesized(true);
         const failures: { stage: string; error: string }[] = data.stage_failures || [];
-        setResetMessage(failures.length
-          ? `⚠️ Built with problems. ${failures.map(f => `${f.stage}: ${f.error}`).join(' | ')}${data.run_id ? ` (run ${data.run_id})` : ''}`
-          : `✨ Domain architecture synthesized successfully${data.timing_breakdown?.total ? ` in ${Math.round(data.timing_breakdown.total)}s` : ''}${data.run_id ? ` (run ${data.run_id})` : ''}`);
-        if (onAppSynthesized) onAppSynthesized();
+        setMessage(failures.length
+          ? { severity: 'warning', text: `Built with problems. ${failures.map(f => `${f.stage}: ${f.error}`).join(' | ')}${run}` }
+          : { severity: 'success', text: `Built${data.timing_breakdown?.total ? ` in ${Math.round(data.timing_breakdown.total)}s` : ''}${run}` });
       } else {
-        const msg = data.error || data.detail || data.message || `Synthesis failed (HTTP ${res.status})`;
-        setResetMessage(`⚠️ Synthesis error: ${msg}`);
+        setMessage({ severity: 'error', text: `Build failed: ${data.error || data.detail || data.message || `HTTP ${res.status}`}` });
       }
     } catch (err: any) {
       console.error("Build failed:", err);
-      setResetMessage(`❌ Network error: ${err?.message || 'Could not connect to backend server on port 8000.'}`);
+      setMessage({ severity: 'error', text: `Could not reach the server${err?.message ? `: ${err.message}` : ''}` });
     } finally {
       setBuilding(false);
       setProgress(null);
-      setReloadToken(t => t + 1);
+      showFinishedApp();
     }
   };
 
   const handleResetAllProjects = async () => {
     setResetting(true);
-    setResetMessage(null);
+    setMessage(null);
     try {
       const res = await fetch('/api/onboarding/reset', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
         setSynthesized(false);
-        setResetMessage("✨ Active workspace wiped successfully.");
-        if (onAppSynthesized) onAppSynthesized();
-        setTimeout(() => setResetMessage(null), 3000);
+        setMessage({ severity: 'success', text: 'Workspace reset.' });
+        setTimeout(() => setMessage(null), 3000);
       } else {
-        setResetMessage("⚠️ Reset notice: " + (data.error || 'Unknown notice'));
+        setMessage({ severity: 'error', text: `Reset failed: ${data.error || `HTTP ${res.status}`}` });
       }
-    } catch (err) {
-      setResetMessage("❌ Network notice resetting projects.");
+    } catch (err: any) {
+      setMessage({ severity: 'error', text: `Could not reach the server${err?.message ? `: ${err.message}` : ''}` });
     } finally {
       setResetting(false);
     }
   };
 
-  // ── VIEW 0: A BUILD IS RUNNING AND THERE IS NO APP TO SHOW YET ─────────────────
-  if (building && !progress?.draft_ready) {
-    return <BuildProgressScreen progress={progress} />;
-  }
+  // ── VIEW 2: BUILD OPENING (A BUILD RUNS, NOTHING TO SHOW YET) ──────────────────
+  if (building && !progress?.draft_ready) return <BuildOpening pitch={pitch} progress={progress} />;
 
-  // ── VIEW 2: LIVE APP VIEW (ALSO WHILE THE BUILD CONTINUES BEHIND IT) ───────────
+  // ── VIEW 3: LIVE APP VIEW (FROM THE BUILD'S FIRST DRAFT) ───────────────────────
   if (synthesized || building) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
-        <div style={{ flex: 1, minHeight: 0 }}>
-          <AppPreview
-            onResetWorkspace={handleResetAllProjects}
-            resetting={resetting}
-            resetMessage={resetMessage}
-            reloadToken={reloadToken}
-            banner={building && progress ? <BuildProgressStrip progress={progress} /> : undefined}
-          />
-        </div>
-      </div>
+      <AppPreview
+        onResetWorkspace={handleResetAllProjects}
+        resetting={resetting}
+        message={message}
+        reloadToken={reloadToken}
+        building={building && !progress?.ready}
+        testingIds={building && !progress?.ready ? progress?.rules?.waiting : undefined}
+        banner={building ? <BuildProgressBanner progress={progress} /> : undefined}
+      />
     );
   }
 
-  // ── VIEW 1: EXECUTIVE KICKSTART (0-QUESTION INSTANT GENERATION) ────────────────
+  // ── VIEW 1: NOTHING BUILT YET ──────────────────────────────────────────────────
+  const canBuild = !building && !!pitch.trim();
   return (
-    <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '0 1rem' }}>
-      {/* Header Banner */}
-      <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', border: '1px solid #334155', borderRadius: '1rem', padding: '2.5rem', marginBottom: '2rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span style={{ fontSize: '2rem' }}>⚡</span>
-            <div>
-              <h2 style={{ margin: 0, fontSize: '1.75rem', color: '#f8fafc', fontWeight: 800 }}>Provable Architecture Synthesizer</h2>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8' }}>
-                Beskriv din appidé. Vår pipeline delegerar uppgiften genom hela organisationen och bygger en fullstack-app direkt.
-              </p>
-            </div>
-          </div>
+    <div className="kickstart">
+      <div className="kickstart-hero">
+        <span className="kickstart-badge"><RocketLaunchIcon fontSize="inherit" /></span>
+        <h1 className="kickstart-title gradient-text">What do you want to build?</h1>
+      </div>
+      {message && <StatusMessage message={message} />}
+      {!llmConfigured && (
+        <div className="status-message status-message-warning">
+          No LLM API key is configured. Set <code>GEMINI_API_KEY</code>, <code>OPENAI_API_KEY</code> or <code>LLM_API_KEY</code> in <code>.env</code> to build.
         </div>
-
-        {/* Status Toast */}
-        {resetMessage && (
-          <div style={{
-            background: resetMessage.includes('❌') || resetMessage.includes('⚠️') ? '#450a0a' : '#064e3b',
-            border: `1px solid ${resetMessage.includes('❌') || resetMessage.includes('⚠️') ? '#991b1b' : '#047857'}`,
-            color: resetMessage.includes('❌') || resetMessage.includes('⚠️') ? '#fca5a5' : '#a7f3d0',
-            padding: '0.75rem 1rem',
-            borderRadius: '0.5rem',
-            marginBottom: '1rem',
-            fontWeight: 600,
-            fontSize: '0.9rem'
-          }}>
-            {resetMessage}
-          </div>
-        )}
-
-        {/* API Key Missing Notice */}
-        {!llmConfigured && (
-          <div style={{ background: 'rgba(234, 179, 8, 0.1)', border: '1px solid #ca8a04', borderRadius: '0.5rem', padding: '0.75rem 1rem', color: '#fef08a', fontSize: '0.85rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ fontSize: '1.1rem' }}>🔑</span>
-            <div>
-              <strong>LLM API Key Not Configured:</strong> Set <code>GEMINI_API_KEY</code>, <code>OPENAI_API_KEY</code>, or <code>LLM_API_KEY</code> in your root <code>.env</code> file to enable live AI domain synthesis.
-            </div>
-          </div>
-        )}
-
-        {/* Pitch Input Box */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Affärsidé &amp; Verksamhetskrav
-          </label>
-          <textarea
-            value={pitch}
-            onChange={e => setPitch(e.target.value)}
-            placeholder="T.ex: Hotellbokningssystem för ett boutiquehotell med rumshantering, städstatus och rumsbokningar..."
-            rows={3}
-            style={{
-              width: '100%',
-              background: '#0f172a',
-              border: '1px solid #334155',
-              borderRadius: '0.5rem',
-              padding: '0.85rem',
-              color: '#ffffff',
-              fontSize: '1rem',
-              fontFamily: 'inherit',
-              resize: 'vertical',
-              boxSizing: 'border-box'
-            }}
-          />
-        </div>
-
-        {/* Action Button */}
-        <div>
-          <button
-            onClick={triggerSynthesis}
-            disabled={building || !pitch.trim()}
-            style={{
-              width: '100%',
-              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-              color: '#ffffff',
-              border: '1px solid #38bdf8',
-              padding: '1.1rem 1.5rem',
-              borderRadius: '0.75rem',
-              fontWeight: 800,
-              fontSize: '1.1rem',
-              cursor: building || !pitch.trim() ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 16px rgba(2, 132, 199, 0.4)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.75rem',
-              opacity: !pitch.trim() ? 0.6 : 1,
-              transition: 'transform 0.1s ease'
-            }}
-          >
-            <span style={{ fontSize: '1.3rem' }}>{building ? '⏳' : '🚀'}</span>
-            <span>{building ? 'Syntetiserar fullstack-arkitektur...' : 'Starta Generering (0 frågor)'}</span>
+      )}
+      <div className="kickstart-composer">
+        <textarea
+          className="kickstart-pitch"
+          value={pitch}
+          onChange={e => setPitch(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && canBuild) triggerSynthesis(); }}
+          placeholder="Describe your app"
+          aria-label="Describe your app"
+          rows={5}
+          autoFocus
+        />
+        <div className="kickstart-composer-bar">
+          <span className="kickstart-hint">Ctrl + Enter</span>
+          <button className="btn btn-primary kickstart-build" onClick={triggerSynthesis} disabled={!canBuild}>
+            <RocketLaunchIcon fontSize="inherit" /> Build
           </button>
         </div>
       </div>

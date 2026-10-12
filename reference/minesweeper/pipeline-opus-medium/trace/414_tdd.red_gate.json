@@ -1,0 +1,121 @@
+{
+  "seq": 414,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:34",
+  "t_offset_s": 405.225,
+  "thread": "red_16",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656613.6681933,
+        "duration": 0.8557498455047607,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_041.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_041.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_041.py::test_toggling_flag_on_opened_cell_changes_nothing",
+                "type": "Function",
+                "lineno": 67
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_041.py::test_toggling_flag_on_hidden_cell_in_same_game_does_flag_it",
+                "type": "Function",
+                "lineno": 91
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_041.py::test_toggling_flag_on_opened_cell_changes_nothing",
+            "lineno": 67,
+            "outcome": "passed",
+            "keywords": [
+              "test_toggling_flag_on_opened_cell_changes_nothing",
+              "test_spec_041.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0018163999920943752,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0018991999968420714,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005721000052290037,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_041.py::test_toggling_flag_on_hidden_cell_in_same_game_does_flag_it",
+            "lineno": 91,
+            "outcome": "passed",
+            "keywords": [
+              "test_toggling_flag_on_hidden_cell_in_same_game_does_flag_it",
+              "test_spec_041.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000509100005729124,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0022083000076236203,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00045530000352300704,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

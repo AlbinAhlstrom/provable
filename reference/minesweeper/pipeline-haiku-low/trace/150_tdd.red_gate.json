@@ -1,0 +1,147 @@
+{
+  "seq": 150,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.401,
+  "thread": "red_7",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652644.7432458,
+        "duration": 0.8673417568206787,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_counter_is_zero_when_flags_exactly_equal_mines",
+                "type": "Function",
+                "lineno": 13
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_008.py::test_counter_is_negative_when_flags_exceed_mines_by_one",
+                "type": "Function",
+                "lineno": 25
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_counter_is_zero_when_flags_exactly_equal_mines",
+            "lineno": 13,
+            "outcome": "failed",
+            "keywords": [
+              "test_counter_is_zero_when_flags_exactly_equal_mines",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008018999942578375,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004810999962501228,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_008.py",
+                "lineno": 20,
+                "message": "AttributeError: 'Game' object has no attribute 'mine_counter'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 20,
+                  "message": "in test_counter_is_zero_when_flags_exactly_equal_mines"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_008.py:20: in test_counter_is_zero_when_flags_exactly_equal_mines\n    value = game.mine_counter()\n            ^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'mine_counter'"
+            },
+            "teardown": {
+              "duration": 0.0003786000015679747,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_008.py::test_counter_is_negative_when_flags_exceed_mines_by_one",
+            "lineno": 25,
+            "outcome": "failed",
+            "keywords": [
+              "test_counter_is_negative_when_flags_exceed_mines_by_one",
+              "test_spec_008.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00041790000977925956,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004535000043688342,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_008.py",
+                "lineno": 32,
+                "message": "AttributeError: 'Game' object has no attribute 'mine_counter'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_008.py",
+                  "lineno": 32,
+                  "message": "in test_counter_is_negative_when_flags_exceed_mines_by_one"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_008.py:32: in test_counter_is_negative_when_flags_exceed_mines_by_one\n    value = game.mine_counter()\n            ^^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'mine_counter'"
+            },
+            "teardown": {
+              "duration": 0.00040109999827109277,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

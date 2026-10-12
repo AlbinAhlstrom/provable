@@ -1,0 +1,246 @@
+{
+  "seq": 196,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:12",
+  "t_offset_s": 193.205,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_w6e3vbiy\\tests\\unit\\test_spec_007.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_w6e3vbiy"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_w6e3vbiy\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 4 items\n\ntests\\unit\\test_spec_007.py FFFF                                         [100%]\n\n================================== FAILURES ===================================\n________________ test_first_revealed_cell_is_never_a_mine[0-0] ________________\n\nrow = 0, column = 0\n\n    @pytest.mark.parametrize(\"row,column\", [(0, 0), (0, 8), (4, 4), (8, 8)])\n    def test_first_revealed_cell_is_never_a_mine(row, column):\n        # Placement is random, so the rule is checked over many fresh sessions.\n        # Each session is a new Ready board where the first reveal is the chosen cell.\n        for _ in range(50):\n            game = _new_ready_session()\n    \n            # When the player reveals the cell first.\n            game.reveal_cell(row=row, column=column)\n    \n            # The first reveal of a ready session starts the game, so status is in_progress.\n            # The revealed cell is excluded from mine placement, so the game is not lost.\n>           assert game.status == \"in_progress\"\nE           AssertionError: assert 'ready' == 'in_progress'\nE             \nE             - in_progress\nE             + ready\n\ntests\\unit\\test_spec_007.py:37: AssertionError\n________________ test_first_revealed_cell_is_never_a_mine[0-8] ________________\n\nrow = 0, column = 8\n\n    @pytest.mark.parametrize(\"row,column\", [(0, 0), (0, 8), (4, 4), (8, 8)])\n    def test_first_revealed_cell_is_never_a_mine(row, column):\n        # Placement is random, so the rule is checked over many fresh sessions.\n        # Each session is a new Ready board where the first reveal is the chosen cell.\n        for _ in range(50):\n            game = _new_ready_session()\n    \n            # When the player reveals the cell first.\n            game.reveal_cell(row=row, column=column)\n    \n            # The first reveal of a ready session starts the game, so status is in_progress.\n            # The revealed cell is excluded from mine placement, so the game is not lost.\n>           assert game.status == \"in_progress\"\nE           AssertionError: assert 'ready' == 'in_progress'\nE             \nE             - in_progress\nE             + ready\n\ntests\\unit\\test_spec_007.py:37: AssertionError\n________________ test_first_revealed_cell_is_never_a_mine[4-4] ________________\n\nrow = 4, column = 4\n\n    @pytest.mark.parametrize(\"row,column\", [(0, 0), (0, 8), (4, 4), (8, 8)])\n    def test_first_revealed_cell_is_never_a_mine(row, column):\n        # Placement is random, so the rule is checked over many fresh sessions.\n        # Each session is a new Ready board where the first reveal is the chosen cell.\n        for _ in range(50):\n            game = _new_ready_session()\n    \n            # When the player reveals the cell first.\n            game.reveal_cell(row=row, column=column)\n    \n            # The first reveal of a ready session starts the game, so status is in_progress.\n            # The revealed cell is excluded from mine placement, so the game is not lost.\n>           assert game.status == \"in_progress\"\nE           AssertionError: assert 'ready' == 'in_progress'\nE             \nE             - in_progress\nE             + ready\n\ntests\\unit\\test_spec_007.py:37: AssertionError\n________________ test_first_revealed_cell_is_never_a_mine[8-8] ________________\n\nrow = 8, column = 8\n\n    @pytest.mark.parametrize(\"row,column\", [(0, 0), (0, 8), (4, 4), (8, 8)])\n    def test_first_revealed_cell_is_never_a_mine(row, column):\n        # Placement is random, so the rule is checked over many fresh sessions.\n        # Each session is a new Ready board where the first reveal is the chosen cell.\n        for _ in range(50):\n            game = _new_ready_session()\n    \n            # When the player reveals the cell first.\n            game.reveal_cell(row=row, column=column)\n    \n            # The first reveal of a ready session starts the game, so status is in_progress.\n            # The revealed cell is excluded from mine placement, so the game is not lost.\n>           assert game.status == \"in_progress\"\nE           AssertionError: assert 'ready' == 'in_progress'\nE             \nE             - in_progress\nE             + ready\n\ntests\\unit\\test_spec_007.py:37: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_w6e3vbiy\\.pytest_report_1ae74dd45a594a2c8566a54100a3543e.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-0]\nFAILED tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-8]\nFAILED tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[4-4]\nFAILED tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[8-8]\n============================== 4 failed in 0.83s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652455.7254045,
+      "duration": 0.49592065811157227,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_w6e3vbiy",
+      "environment": {},
+      "summary": {
+        "failed": 4,
+        "total": 4,
+        "collected": 4
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_007.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_007.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-0]",
+              "type": "Function",
+              "lineno": 24
+            },
+            {
+              "nodeid": "tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-8]",
+              "type": "Function",
+              "lineno": 24
+            },
+            {
+              "nodeid": "tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[4-4]",
+              "type": "Function",
+              "lineno": 24
+            },
+            {
+              "nodeid": "tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[8-8]",
+              "type": "Function",
+              "lineno": 24
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-0]",
+          "lineno": 24,
+          "outcome": "failed",
+          "keywords": [
+            "test_first_revealed_cell_is_never_a_mine[0-0]",
+            "parametrize",
+            "pytestmark",
+            "0-0",
+            "test_spec_007.py",
+            "unit",
+            "tests",
+            "hollow_w6e3vbiy",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008505000005243346,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0009056000126292929,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_w6e3vbiy\\tests\\unit\\test_spec_007.py",
+              "lineno": 37,
+              "message": "AssertionError: assert 'ready' == 'in_progress'\n  \n  - in_progress\n  + ready"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_007.py",
+                "lineno": 37,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 0, column = 0\n\n    @pytest.mark.parametrize(\"row,column\", [(0, 0), (0, 8), (4, 4), (8, 8)])\n    def test_first_revealed_cell_is_never_a_mine(row, column):\n        # Placement is random, so the rule is checked over many fresh sessions.\n        # Each session is a new Ready board where the first reveal is the chosen cell.\n        for _ in range(50):\n            game = _new_ready_session()\n    \n            # When the player reveals the cell first.\n            game.reveal_cell(row=row, column=column)\n    \n            # The first reveal of a ready session starts the game, so status is in_progress.\n            # The revealed cell is excluded from mine placement, so the game is not lost.\n>           assert game.status == \"in_progress\"\nE           AssertionError: assert 'ready' == 'in_progress'\nE             \nE             - in_progress\nE             + ready\n\ntests\\unit\\test_spec_007.py:37: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004138999938732013,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-8]",
+          "lineno": 24,
+          "outcome": "failed",
+          "keywords": [
+            "test_first_revealed_cell_is_never_a_mine[0-8]",
+            "parametrize",
+            "pytestmark",
+            "0-8",
+            "test_spec_007.py",
+            "unit",
+            "tests",
+            "hollow_w6e3vbiy",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006676999910268933,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006529000092996284,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_w6e3vbiy\\tests\\unit\\test_spec_007.py",
+              "lineno": 37,
+              "message": "AssertionError: assert 'ready' == 'in_progress'\n  \n  - in_progress\n  + ready"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_007.py",
+                "lineno": 37,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 0, column = 8\n\n    @pytest.mark.parametrize(\"row,column\", [(0, 0), (0, 8), (4, 4), (8, 8)])\n    def test_first_revealed_cell_is_never_a_mine(row, column):\n        # Placement is random, so the rule is checked over many fresh sessions.\n        # Each session is a new Ready board where the first reveal is the chosen cell.\n        for _ in range(50):\n            game = _new_ready_session()\n    \n            # When the player reveals the cell first.\n            game.reveal_cell(row=row, column=column)\n    \n            # The first reveal of a ready session starts the game, so status is in_progress.\n            # The revealed cell is excluded from mine placement, so the game is not lost.\n>           assert game.status == \"in_progress\"\nE           AssertionError: assert 'ready' == 'in_progress'\nE             \nE             - in_progress\nE             + ready\n\ntests\\unit\\test_spec_007.py:37: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004225000011501834,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[4-4]",
+          "lineno": 24,
+          "outcome": "failed",
+          "keywords": [
+            "test_first_revealed_cell_is_never_a_mine[4-4]",
+            "parametrize",
+            "pytestmark",
+            "4-4",
+            "test_spec_007.py",
+            "unit",
+            "tests",
+            "hollow_w6e3vbiy",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006744999991497025,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0005926000012550503,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_w6e3vbiy\\tests\\unit\\test_spec_007.py",
+              "lineno": 37,
+              "message": "AssertionError: assert 'ready' == 'in_progress'\n  \n  - in_progress\n  + ready"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_007.py",
+                "lineno": 37,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 4, column = 4\n\n    @pytest.mark.parametrize(\"row,column\", [(0, 0), (0, 8), (4, 4), (8, 8)])\n    def test_first_revealed_cell_is_never_a_mine(row, column):\n        # Placement is random, so the rule is checked over many fresh sessions.\n        # Each session is a new Ready board where the first reveal is the chosen cell.\n        for _ in range(50):\n            game = _new_ready_session()\n    \n            # When the player reveals the cell first.\n            game.reveal_cell(row=row, column=column)\n    \n            # The first reveal of a ready session starts the game, so status is in_progress.\n            # The revealed cell is excluded from mine placement, so the game is not lost.\n>           assert game.status == \"in_progress\"\nE           AssertionError: assert 'ready' == 'in_progress'\nE             \nE             - in_progress\nE             + ready\n\ntests\\unit\\test_spec_007.py:37: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0005263000057311729,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[8-8]",
+          "lineno": 24,
+          "outcome": "failed",
+          "keywords": [
+            "test_first_revealed_cell_is_never_a_mine[8-8]",
+            "parametrize",
+            "pytestmark",
+            "8-8",
+            "test_spec_007.py",
+            "unit",
+            "tests",
+            "hollow_w6e3vbiy",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006367000023601577,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006298999942373484,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_w6e3vbiy\\tests\\unit\\test_spec_007.py",
+              "lineno": 37,
+              "message": "AssertionError: assert 'ready' == 'in_progress'\n  \n  - in_progress\n  + ready"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_007.py",
+                "lineno": 37,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "row = 8, column = 8\n\n    @pytest.mark.parametrize(\"row,column\", [(0, 0), (0, 8), (4, 4), (8, 8)])\n    def test_first_revealed_cell_is_never_a_mine(row, column):\n        # Placement is random, so the rule is checked over many fresh sessions.\n        # Each session is a new Ready board where the first reveal is the chosen cell.\n        for _ in range(50):\n            game = _new_ready_session()\n    \n            # When the player reveals the cell first.\n            game.reveal_cell(row=row, column=column)\n    \n            # The first reveal of a ready session starts the game, so status is in_progress.\n            # The revealed cell is excluded from mine placement, so the game is not lost.\n>           assert game.status == \"in_progress\"\nE           AssertionError: assert 'ready' == 'in_progress'\nE             \nE             - in_progress\nE             + ready\n\ntests\\unit\\test_spec_007.py:37: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004344999906606972,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 4.081
+}

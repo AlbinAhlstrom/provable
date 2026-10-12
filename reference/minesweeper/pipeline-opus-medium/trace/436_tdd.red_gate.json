@@ -1,0 +1,189 @@
+{
+  "seq": 436,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:37",
+  "t_offset_s": 408.532,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656616.7630703,
+        "duration": 0.7316834926605225,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8",
+        "environment": {},
+        "summary": {
+          "failed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_028.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_028.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_028.py::test_timer_runs_while_playing_as_control",
+                "type": "Function",
+                "lineno": 71
+              },
+              {
+                "nodeid": "tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_lost",
+                "type": "Function",
+                "lineno": 78
+              },
+              {
+                "nodeid": "tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_won",
+                "type": "Function",
+                "lineno": 99
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_028.py::test_timer_runs_while_playing_as_control",
+            "lineno": 71,
+            "outcome": "failed",
+            "keywords": [
+              "test_timer_runs_while_playing_as_control",
+              "test_spec_028.py",
+              "unit",
+              "tests",
+              "hollow_xv0_amf8",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006301999965216964,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0014355000021168962,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8\\tests\\unit\\test_spec_028.py",
+                "lineno": 76,
+                "message": "AssertionError: assert 42 == 43\n +  where 42 = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Hidden'}], events=[]).elapsed_seconds"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_028.py",
+                  "lineno": 76,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_timer_runs_while_playing_as_control():\n        game = _make_playing_game(elapsed=42)\n        # Status is Playing and 42 < 999 cap, so one tick adds exactly 1 second.\n        game.tick()\n>       assert game.elapsed_seconds == 43\nE       AssertionError: assert 42 == 43\nE        +  where 42 = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Hidden'}], events=[]).elapsed_seconds\n\ntests\\unit\\test_spec_028.py:76: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0003859999997075647,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_lost",
+            "lineno": 78,
+            "outcome": "failed",
+            "keywords": [
+              "test_timer_freezes_when_game_is_lost",
+              "test_spec_028.py",
+              "unit",
+              "tests",
+              "hollow_xv0_amf8",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00034250000317115337,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009843000007094815,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8\\tests\\unit\\test_spec_028.py",
+                "lineno": 87,
+                "message": "AssertionError: assert 'Hidden' == 'Detonated'\n  \n  - Detonated\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_028.py",
+                  "lineno": 87,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_timer_freezes_when_game_is_lost():\n        game = _make_playing_game(elapsed=42)\n    \n        # (0,0) holds a mine and is Hidden; the game is Playing (not a first open),\n        # so opening it detonates it and the game becomes Lost.\n        game.open_cell(row=0, column=0)\n    \n        # Opening the mine ends the game: Detonated cell, struck cell recorded, Lost.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Detonated\"\nE       AssertionError: assert 'Hidden' == 'Detonated'\nE         \nE         - Detonated\nE         + Hidden\n\ntests\\unit\\test_spec_028.py:87: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0003639999922597781,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_won",
+            "lineno": 99,
+            "outcome": "failed",
+            "keywords": [
+              "test_timer_freezes_when_game_is_won",
+              "test_spec_028.py",
+              "unit",
+              "tests",
+              "hollow_xv0_amf8",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003997000021627173,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010228000028291717,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8\\tests\\unit\\test_spec_028.py",
+                "lineno": 110,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_028.py",
+                  "lineno": 110,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_timer_freezes_when_game_is_won():\n        # Every safe cell is Opened except (8,8). (8,8) is far from the mines\n        # (rows 0-1), so its count is 0; all its neighbours are already Opened,\n        # so the cascade opens nothing more. It is the last non-mine cell.\n        game = _make_playing_game(elapsed=42, opened_safe_except=(8, 8), open_all_safe=True)\n        assert _cell(game, 8, 8)[\"adjacent_mine_count\"] == 0\n    \n        game.open_cell(row=8, column=8)\n    \n        # Last non-mine cell opened -> Won, with every mine auto-flagged.\n>       assert _cell(game, 8, 8)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_028.py:110: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004155999922659248,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

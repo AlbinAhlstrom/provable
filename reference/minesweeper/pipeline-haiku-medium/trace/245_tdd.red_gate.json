@@ -1,0 +1,191 @@
+{
+  "seq": 245,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:13",
+  "t_offset_s": 194.826,
+  "thread": "red_8",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652453.5401084,
+        "duration": 1.4685232639312744,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_009.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_009.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_009.py::test_safe_cell_with_all_eight_neighbours_mined_counts_eight",
+                "type": "Function",
+                "lineno": 35
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_009.py::test_mine_outside_the_eight_neighbours_is_not_counted",
+                "type": "Function",
+                "lineno": 51
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_009.py::test_safe_cell_with_no_mined_neighbours_counts_zero",
+                "type": "Function",
+                "lineno": 69
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_009.py::test_safe_cell_with_all_eight_neighbours_mined_counts_eight",
+            "lineno": 35,
+            "outcome": "failed",
+            "keywords": [
+              "test_safe_cell_with_all_eight_neighbours_mined_counts_eight",
+              "test_spec_009.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006364000000758097,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006700999947497621,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_009.py",
+                "lineno": 40,
+                "message": "AttributeError: 'GameSession' object has no attribute 'place_mines'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_009.py",
+                  "lineno": 40,
+                  "message": "in test_safe_cell_with_all_eight_neighbours_mined_counts_eight"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_009.py:40: in test_safe_cell_with_all_eight_neighbours_mined_counts_eight\n    session.place_mines(mine_positions=list(EIGHT_NEIGHBOURS))\n    ^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'place_mines'"
+            },
+            "teardown": {
+              "duration": 0.0008176000119419768,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_009.py::test_mine_outside_the_eight_neighbours_is_not_counted",
+            "lineno": 51,
+            "outcome": "failed",
+            "keywords": [
+              "test_mine_outside_the_eight_neighbours_is_not_counted",
+              "test_spec_009.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006393999938154593,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000495300002512522,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_009.py",
+                "lineno": 57,
+                "message": "AttributeError: 'GameSession' object has no attribute 'place_mines'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_009.py",
+                  "lineno": 57,
+                  "message": "in test_mine_outside_the_eight_neighbours_is_not_counted"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_009.py:57: in test_mine_outside_the_eight_neighbours_is_not_counted\n    session.place_mines(mine_positions=list(EIGHT_NEIGHBOURS) + [(0, 0)])\n    ^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'place_mines'"
+            },
+            "teardown": {
+              "duration": 0.0003598999901441857,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_009.py::test_safe_cell_with_no_mined_neighbours_counts_zero",
+            "lineno": 69,
+            "outcome": "failed",
+            "keywords": [
+              "test_safe_cell_with_no_mined_neighbours_counts_zero",
+              "test_spec_009.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00042549999488983303,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005451000033644959,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_009.py",
+                "lineno": 74,
+                "message": "AttributeError: 'GameSession' object has no attribute 'place_mines'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_009.py",
+                  "lineno": 74,
+                  "message": "in test_safe_cell_with_no_mined_neighbours_counts_zero"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_009.py:74: in test_safe_cell_with_no_mined_neighbours_counts_zero\n    session.place_mines(mine_positions=[(0, 0)])\n    ^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'place_mines'"
+            },
+            "teardown": {
+              "duration": 0.00043229998846072704,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

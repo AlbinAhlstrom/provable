@@ -1,0 +1,287 @@
+{
+  "seq": 123,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:22",
+  "t_offset_s": 86.307,
+  "thread": "red_14",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_015.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 7 items\n\ntests\\unit\\test_spec_015.py::test_reveal_of_revealed_cell_is_ignored PASSED [ 14%]\ntests\\unit\\test_spec_015.py::test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell PASSED [ 28%]\ntests\\unit\\test_spec_015.py::test_reveal_outside_board_is_ignored[9-8] PASSED [ 42%]\ntests\\unit\\test_spec_015.py::test_reveal_outside_board_is_ignored[8-9] PASSED [ 57%]\ntests\\unit\\test_spec_015.py::test_reveal_outside_board_is_ignored[-1-0] PASSED [ 71%]\ntests\\unit\\test_spec_015.py::test_reveal_after_loss_is_ignored PASSED    [ 85%]\ntests\\unit\\test_spec_015.py::test_toggle_flag_after_win_is_ignored PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_e218f828cd9249bc88cd963a56d968ef.json\n============================== 7 passed in 0.45s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652644.7352273,
+      "duration": 0.45156383514404297,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 7,
+        "total": 7,
+        "collected": 7
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_015.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_015.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_of_revealed_cell_is_ignored",
+              "type": "Function",
+              "lineno": 53
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell",
+              "type": "Function",
+              "lineno": 63
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[9-8]",
+              "type": "Function",
+              "lineno": 77
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[8-9]",
+              "type": "Function",
+              "lineno": 77
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[-1-0]",
+              "type": "Function",
+              "lineno": 77
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_after_loss_is_ignored",
+              "type": "Function",
+              "lineno": 88
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_015.py::test_toggle_flag_after_win_is_ignored",
+              "type": "Function",
+              "lineno": 102
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_of_revealed_cell_is_ignored",
+          "lineno": 53,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_of_revealed_cell_is_ignored",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007373999978881329,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0013177999935578555,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00035940000088885427,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell",
+          "lineno": 63,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_of_last_inside_row_is_accepted_and_reveals_only_that_cell",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00043000000005122274,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007225000008475035,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00033760000951588154,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[9-8]",
+          "lineno": 77,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_outside_board_is_ignored[9-8]",
+            "parametrize",
+            "pytestmark",
+            "9-8",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007932000007713214,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001325600009295158,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003848000051220879,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[8-9]",
+          "lineno": 77,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_outside_board_is_ignored[8-9]",
+            "parametrize",
+            "pytestmark",
+            "8-9",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007190000033006072,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0013504000089596957,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.000345199994626455,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_outside_board_is_ignored[-1-0]",
+          "lineno": 77,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_outside_board_is_ignored[-1-0]",
+            "parametrize",
+            "pytestmark",
+            "-1-0",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006381999992299825,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0012011000071652234,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003761999978451058,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_015.py::test_reveal_after_loss_is_ignored",
+          "lineno": 88,
+          "outcome": "passed",
+          "keywords": [
+            "test_reveal_after_loss_is_ignored",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00043319999531377107,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0013253999932203442,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00035349999961908907,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_015.py::test_toggle_flag_after_win_is_ignored",
+          "lineno": 102,
+          "outcome": "passed",
+          "keywords": [
+            "test_toggle_flag_after_win_is_ignored",
+            "test_spec_015.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00041399999463465065,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0016743000014685094,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00039200000173877925,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 3.066
+}

@@ -33,3 +33,11 @@ the rules every time and also changed them every time, so two runs could not be 
 - It says nothing about the domain. A change to decomposition, actions, test writing or code writing needs a kickstart.
 - It stays on one product. A prompt change still has to be checked on a pitch of another kind
   (`.claude/rules/pipeline.md`, "Prompts are domain-neutral").
+
+## Wiring only
+
+`POST /api/onboarding/wiring` writes the current app's routers and API clients again with today's generator
+(`backend/onboarding/wiring.py`, use case in `backend/service_layer/app_wiring.py`). Both are written from the kept
+decomposition and never by a model, so nothing is lost and no model is called. Use it when a correction to
+`skeleton_builder.py` has to reach an app that exists; the domain classes, the page and the saved records are left as
+they are. It answers with the files it rewrote, and adds none the app does not have.

@@ -1,0 +1,197 @@
+{
+  "seq": 158,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:08",
+  "t_offset_s": 189.741,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_007.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 4 items\n\ntests\\unit\\test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-0] PASSED [ 25%]\ntests\\unit\\test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-8] PASSED [ 50%]\ntests\\unit\\test_spec_007.py::test_first_revealed_cell_is_never_a_mine[4-4] PASSED [ 75%]\ntests\\unit\\test_spec_007.py::test_first_revealed_cell_is_never_a_mine[8-8] PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_bb73d47cf75a42da898a840ee2840ec1.json\n============================== 4 passed in 0.63s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652451.9209034,
+      "duration": 0.6291756629943848,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 4,
+        "total": 4,
+        "collected": 4
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_007.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_007.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-0]",
+              "type": "Function",
+              "lineno": 24
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-8]",
+              "type": "Function",
+              "lineno": 24
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[4-4]",
+              "type": "Function",
+              "lineno": 24
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[8-8]",
+              "type": "Function",
+              "lineno": 24
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-0]",
+          "lineno": 24,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_revealed_cell_is_never_a_mine[0-0]",
+            "parametrize",
+            "pytestmark",
+            "0-0",
+            "test_spec_007.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0011014999909093603,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.02762550000625197,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003895999980159104,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[0-8]",
+          "lineno": 24,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_revealed_cell_is_never_a_mine[0-8]",
+            "parametrize",
+            "pytestmark",
+            "0-8",
+            "test_spec_007.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007324000034714118,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.027502700002514757,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0005360999930417165,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[4-4]",
+          "lineno": 24,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_revealed_cell_is_never_a_mine[4-4]",
+            "parametrize",
+            "pytestmark",
+            "4-4",
+            "test_spec_007.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0021489000064320862,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.02674680000927765,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0005182000022614375,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_007.py::test_first_revealed_cell_is_never_a_mine[8-8]",
+          "lineno": 24,
+          "outcome": "passed",
+          "keywords": [
+            "test_first_revealed_cell_is_never_a_mine[8-8]",
+            "parametrize",
+            "pytestmark",
+            "8-8",
+            "test_spec_007.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007699999987380579,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.027692299991031177,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.00041199999395757914,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 3.413
+}

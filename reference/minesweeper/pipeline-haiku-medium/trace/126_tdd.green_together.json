@@ -1,0 +1,358 @@
+{
+  "seq": 126,
+  "step": "tdd.green_together",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "behaviour.implement_actions",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:13:34",
+  "t_offset_s": 155.576,
+  "thread": "synthesis_0",
+  "input": {
+    "args": [
+      [
+        [
+          {
+            "spec_id": "SPEC-ACT-GAMESESSION",
+            "title": "GameSession carries out its actions",
+            "description": "The application calls these methods on GameSession by exactly these names and keyword arguments. Each one changes the object as described.\n- Field `status` holds exactly one of: \"ready\" (new game with no reveal yet; no mines placed and the timer not started); \"in_progress\" (after the first reveal and until the game is won, lost or abandoned; the timer is running); \"won\" (terminal: every safe cell has been revealed without revealing a mine); \"lost\" (terminal: a mine was revealed; all mines are exposed on screen); \"abandoned\" (terminal: the player ended the game early; no win or loss result)\n- Field `cells[].state` holds exactly one of: \"hidden\" (the cell is covered and unflagged; it can be revealed or flagged); \"revealed\" (terminal for the cell: the cell is open and shows its adjacent_mine_count or blank); \"flagged\" (the player has marked the cell as a suspected mine; it cannot be revealed until unflagged)\n- A refusal raises `ActionNotAllowedError` when the action is refused by the rules: revealing a flagged or revealed cell, flagging a revealed cell, any reveal or flag after the game is won, lost or abandoned, or abandoning a game that is not ready or in_progress; no cell state or timer changes\n- A refusal raises `CellOutOfBoundsError` when row or column lies outside the board's rows and columns\n- A refusal raises `InvalidDifficultyError` when start_new_game is given a difficulty whose rows, columns or mine_count do not match the preset for that difficulty",
+            "given_when_then": "Given a GameSession in a state where the action is allowed (arrange that by setting its fields). When a GameSession is created with only its required fields and nothing is called on it Then status is ready, flag_count is 0, elapsed_seconds is 0, started_at and ended_at are null, rows, columns and mine_count are set from the chosen difficulty, and cells holds rows times columns records each with row and column set to its position, state hidden, has_mine false and adjacent_mine_count 0; no mines are placed until the first reveal. When `start_new_game(difficulty_id, rows, columns, mine_count)` is called with valid values Then Replaces the board with a new hidden board for the chosen difficulty: status becomes ready, every cell is hidden with no mine placed, flag_count and elapsed_seconds become 0, and started_at and ended_at are cleared. Allowed from any status, including in_progress, won, lost and abandoned; rows, columns and mine_count must match the chosen difficulty, and the object's fields show it afterwards. When `reveal_cell(row, column)` is called with valid values Then Reveals the hidden, unflagged cell at row and column. On the first reveal of a ready session, mines are placed at random avoiding that cell, adjacent_mine_count is computed for every cell, status becomes in_progress and started_at is recorded. Revealing a mine sets status to lost and records ended_at; revealing a zero-count cell also reveals its neighbours repeatedly through connected zeros, stopping at numbered cells and leaving flagged cells flagged; when every safe cell is revealed status becomes won and ended_at is recorded. Allowed only while status is ready or in_progress on a hidden unflagged cell, and the object's fields show it afterwards. When `toggle_flag(row, column)` is called with valid values Then Toggles the flag on the cell at row and column: a hidden cell becomes flagged and flag_count rises by one, and a flagged cell becomes hidden and flag_count falls by one. It reveals nothing and does not start the timer. Allowed only while status is ready or in_progress on a hidden or flagged cell, and the object's fields show it afterwards. When `abandon_game()` is called with valid values Then Ends the current game with no result: status becomes abandoned, ended_at is recorded and elapsed_seconds stops at its current value. Allowed only while status is ready or in_progress; the player then starts a new board at the same difficulty, and the object's fields show it afterwards. One test function per method.",
+            "target_aggregate": "GameSession",
+            "spec_type": "DOMAIN_INVARIANT",
+            "kind": "behavior",
+            "category": "ACTION",
+            "is_mathematical_boundary": false,
+            "priority": "High",
+            "status": "PENDING"
+          },
+          {
+            "verdict": "approved",
+            "test_file_path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+            "test_code": "import pytest\n\nfrom src.domain.game_session import GameSession\n\n\nBEGINNER_MINES = [(8, c) for c in range(9)] + [(7, 8)]  # 10 mines, all far from (0, 0)\n\n\ndef _index(session):\n    return {(cell[\"row\"], cell[\"column\"]): cell for cell in session.cells}\n\n\ndef _neighbours(row, column, rows, columns):\n    result = []\n    for dr in (-1, 0, 1):\n        for dc in (-1, 0, 1):\n            if (dr, dc) == (0, 0):\n                continue\n            r, c = row + dr, column + dc\n            if 0 <= r < rows and 0 <= c < columns:\n                result.append((r, c))\n    return result\n\n\ndef _place_mines(session, positions):\n    \"\"\"Set has_mine on the existing cells and recompute adjacent_mine_count.\"\"\"\n    index = _index(session)\n    mine_set = set(positions)\n    for (r, c), cell in index.items():\n        cell[\"has_mine\"] = (r, c) in mine_set\n    for (r, c), cell in index.items():\n        cell[\"adjacent_mine_count\"] = sum(\n            1 for nb in _neighbours(r, c, session.rows, session.columns) if nb in mine_set\n        )\n\n\ndef _states(session):\n    return {(cell[\"row\"], cell[\"column\"]): cell[\"state\"] for cell in session.cells}\n\n\ndef test_constructor_creates_ready_hidden_board():\n    # Given: a session created with only its required fields and nothing called on it\n    session = GameSession(id=\"s1\", difficulty_id=\"beginner\", rows=9, columns=9, mine_count=10)\n\n    # When: nothing is called (construction only)\n\n    # Then: a new session starts in the \"ready\" status\n    assert session.status == \"ready\"\n    # Then: no flags have been placed, so flag_count is 0\n    assert session.flag_count == 0\n    # Then: the timer has not run, so elapsed_seconds is 0\n    assert session.elapsed_seconds == 0\n    # Then: no timer start was recorded, so started_at is null\n    assert session.started_at is None\n    # Then: no game has ended, so ended_at is null\n    assert session.ended_at is None\n    # Then: rows, columns and mine_count come straight from the 9x9 beginner preset\n    assert session.rows == 9\n    assert session.columns == 9\n    assert session.mine_count == 10\n    # Then: 9 * 9 = 81 cell records exist, one per position\n    assert len(session.cells) == 81\n    # Then: the records cover exactly the positions 0..8 by 0..8, each once\n    positions = {(cell[\"row\"], cell[\"column\"]) for cell in session.cells}\n    assert positions == {(r, c) for r in range(9) for c in range(9)}\n    for cell in session.cells:\n        # Then: each cell is hidden, since nothing has been revealed or flagged\n        assert cell[\"state\"] == \"hidden\"\n        # Then: no mine is placed until the first reveal\n        assert cell[\"has_mine\"] is False\n        # Then: no adjacency is computed until mines are placed\n        assert cell[\"adjacent_mine_count\"] == 0\n\n\ndef test_start_new_game_replaces_board_with_fresh_hidden_expert_board():\n    # Given: a won expert game with a timer and a recorded end, one revealed cell and one mine\n    session = GameSession(id=\"s1\", difficulty_id=\"expert\", rows=16, columns=30, mine_count=99)\n    session.status = \"won\"\n    session.elapsed_seconds = 120\n    session.started_at = \"2025-01-01T10:00:00\"\n    session.ended_at = \"2025-01-01T10:02:00\"\n    session.flag_count = 0\n    _index(session)[(0, 0)][\"state\"] = \"revealed\"\n    _place_mines(session, [(5, 5)])\n\n    # Given: a second identical game, used for the refused call\n    refused = GameSession(id=\"s2\", difficulty_id=\"expert\", rows=16, columns=30, mine_count=99)\n    refused.status = \"won\"\n    refused.elapsed_seconds = 120\n    refused.started_at = \"2025-01-01T10:00:00\"\n    refused.ended_at = \"2025-01-01T10:02:00\"\n    _index(refused)[(0, 0)][\"state\"] = \"revealed\"\n    _place_mines(refused, [(5, 5)])\n\n    # When: a start with mine_count 98, which does not match the expert preset\n    with pytest.raises(Exception) as exc_info:\n        refused.start_new_game(difficulty_id=\"expert\", rows=16, columns=30, mine_count=98)\n\n    # Then: the refusal is an InvalidDifficultyError\n    assert type(exc_info.value).__name__ == \"InvalidDifficultyError\"\n    # Then: the refused game keeps its won status\n    assert refused.status == \"won\"\n\n    # When: the valid expert start, which matches the preset 16 x 30 with 99 mines\n    session.start_new_game(difficulty_id=\"expert\", rows=16, columns=30, mine_count=99)\n\n    # Then: the status becomes ready\n    assert session.status == \"ready\"\n    # Then: flag_count and elapsed_seconds are reset to 0\n    assert session.flag_count == 0\n    assert session.elapsed_seconds == 0\n    # Then: started_at and ended_at are cleared\n    assert session.started_at is None\n    assert session.ended_at is None\n    # Then: the object's fields show the expert preset\n    assert session.rows == 16\n    assert session.columns == 30\n    assert session.mine_count == 99\n    # Then: the board has 16 * 30 = 480 cells\n    assert len(session.cells) == 480\n    for cell in session.cells:\n        # Then: every cell is hidden, including the one that was revealed before\n        assert cell[\"state\"] == \"hidden\"\n        # Then: no mine is placed on the new board\n        assert cell[\"has_mine\"] is False\n\n\ndef test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal():\n    # Given: a ready 9x9 beginner session where cell (0, 0) is flagged (so flag_count is 1)\n    session = GameSession(id=\"s1\", difficulty_id=\"beginner\", rows=9, columns=9, mine_count=10)\n    _index(session)[(0, 0)][\"state\"] = \"flagged\"\n    session.flag_count = 1\n\n    # When: the player reveals the flagged cell (0, 0)\n    with pytest.raises(Exception) as exc_info:\n        session.reveal_cell(row=0, column=0)\n\n    # Then: the refusal is an ActionNotAllowedError\n    assert type(exc_info.value).__name__ == \"ActionNotAllowedError\"\n    # Then: the cell stays flagged\n    assert _index(session)[(0, 0)][\"state\"] == \"flagged\"\n    # Then: the session stays ready and the flag count is unchanged\n    assert session.status == \"ready\"\n    assert session.flag_count == 1\n    # Then: no mines are placed, because the refused reveal was not a first reveal\n    assert all(cell[\"has_mine\"] is False for cell in session.cells)\n    # Then: the timer has not started\n    assert session.started_at is None\n\n    # When: the player reveals the hidden, unflagged cell (4, 4), the first reveal\n    session.reveal_cell(row=4, column=4)\n\n    # Then: the session status becomes in_progress\n    assert session.status == \"in_progress\"\n    # Then: the start time is recorded (a value, not null)\n    assert session.started_at is not None\n    # Then: the game has not ended\n    assert session.ended_at is None\n    # Then: cell (4, 4) is now revealed\n    assert _index(session)[(4, 4)][\"state\"] == \"revealed\"\n    # Then: the first revealed cell is never a mine\n    assert _index(session)[(4, 4)][\"has_mine\"] is False\n    # Then: exactly mine_count (10) cells carry a mine\n    assert sum(1 for cell in session.cells if cell[\"has_mine\"]) == 10\n    # Then: the flag on (0, 0) is still there, since flags are left alone\n    assert _index(session)[(0, 0)][\"state\"] == \"flagged\"\n    # Then: the flag count is unchanged by the reveal\n    assert session.flag_count == 1\n    # Then: each cell's adjacent_mine_count equals the number of mine neighbours it has\n    index = _index(session)\n    for (r, c), cell in index.items():\n        expected = sum(\n            1 for nb in _neighbours(r, c, 9, 9) if index[nb][\"has_mine\"]\n        )\n        assert cell[\"adjacent_mine_count\"] == expected\n\n\ndef test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell():\n    # Given: an in-progress 9x9 beginner game with 10 mines in row 8 and at (7, 8)\n    session = GameSession(id=\"s1\", difficulty_id=\"beginner\", rows=9, columns=9, mine_count=10)\n    session.status = \"in_progress\"\n    session.elapsed_seconds = 30\n    session.started_at = \"2025-01-01T10:00:00\"\n    _place_mines(session, BEGINNER_MINES)\n    # Given: cell (0, 1) is revealed, which is the refused case\n    _index(session)[(0, 1)][\"state\"] = \"revealed\"\n\n    # When: the player flags the revealed cell (0, 1)\n    with pytest.raises(Exception) as exc_info:\n        session.toggle_flag(row=0, column=1)\n\n    # Then: the refusal is an ActionNotAllowedError\n    assert type(exc_info.value).__name__ == \"ActionNotAllowedError\"\n    # Then: the revealed cell stays revealed\n    assert _index(session)[(0, 1)][\"state\"] == \"revealed\"\n    # Then: the flag count is unchanged\n    assert session.flag_count == 0\n\n    # Given: a snapshot of every cell state before the accepted toggle\n    before = _states(session)\n\n    # When: the player flags the hidden cell (0, 0)\n    session.toggle_flag(row=0, column=0)\n\n    # Then: cell (0, 0) becomes flagged\n    assert _index(session)[(0, 0)][\"state\"] == \"flagged\"\n    # Then: flag_count rises by one\n    assert session.flag_count == 1\n    # Then: no other cell changes state, since flags never reveal\n    after = _states(session)\n    for pos, state in before.items():\n        if pos != (0, 0):\n            assert after[pos] == state\n    # Then: the status stays in_progress and the timer is untouched\n    assert session.status == \"in_progress\"\n    assert session.elapsed_seconds == 30\n    assert session.started_at == \"2025-01-01T10:00:00\"\n\n    # When: the player toggles the flag on (0, 0) again\n    session.toggle_flag(row=0, column=0)\n\n    # Then: the cell returns to hidden\n    assert _index(session)[(0, 0)][\"state\"] == \"hidden\"\n    # Then: flag_count falls back to 0\n    assert session.flag_count == 0\n\n\ndef test_abandon_game_refuses_won_game_then_abandons_in_progress_game():\n    # Given: an in-progress 9x9 beginner game, elapsed 75 seconds, started at a fixed time\n    session = GameSession(id=\"s1\", difficulty_id=\"beginner\", rows=9, columns=9, mine_count=10)\n    session.status = \"in_progress\"\n    session.elapsed_seconds = 75\n    session.started_at = \"2025-01-01T10:00:00\"\n    _place_mines(session, BEGINNER_MINES)\n\n    # Given: an identical game that is already won, used for the refused call\n    refused = GameSession(id=\"s2\", difficulty_id=\"beginner\", rows=9, columns=9, mine_count=10)\n    refused.status = \"won\"\n    refused.elapsed_seconds = 75\n    refused.started_at = \"2025-01-01T10:00:00\"\n    _place_mines(refused, BEGINNER_MINES)\n\n    # When: the player abandons the won game\n    with pytest.raises(Exception) as exc_info:\n        refused.abandon_game()\n\n    # Then: the refusal is an ActionNotAllowedError\n    assert type(exc_info.value).__name__ == \"ActionNotAllowedError\"\n    # Then: the won game keeps its status\n    assert refused.status == \"won\"\n    # Then: no end is recorded and the timer is unchanged\n    assert refused.ended_at is None\n    assert refused.elapsed_seconds == 75\n\n    # When: the player abandons the in-progress game\n    session.abandon_game()\n\n    # Then: the status becomes abandoned, with no win or loss result\n    assert session.status == \"abandoned\"\n    # Then: ended_at is recorded (a value, not null)\n    assert session.ended_at is not None\n    # Then: elapsed_seconds stops at its current value of 75\n    assert session.elapsed_seconds == 75\n    # Then: the recorded start time is unchanged\n    assert session.started_at == \"2025-01-01T10:00:00\"\n",
+            "test_hash": "015f4c5f55cf2a689c62f79ad215ff49c92baaf75f1d87747b10325479741465",
+            "result": {
+              "exit_code": 1,
+              "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 5 items\n\ntests\\unit\\test_spec_act_gamesession.py::test_constructor_creates_ready_hidden_board FAILED [ 20%]\ntests\\unit\\test_spec_act_gamesession.py::test_start_new_game_replaces_board_with_fresh_hidden_expert_board FAILED [ 40%]\ntests\\unit\\test_spec_act_gamesession.py::test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal FAILED [ 60%]\ntests\\unit\\test_spec_act_gamesession.py::test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell FAILED [ 80%]\ntests\\unit\\test_spec_act_gamesession.py::test_abandon_game_refuses_won_game_then_abandons_in_progress_game FAILED [100%]\n\n================================== FAILURES ===================================\n_________________ test_constructor_creates_ready_hidden_board _________________\ntests\\unit\\test_spec_act_gamesession.py:62: in test_constructor_creates_ready_hidden_board\n    assert len(session.cells) == 81\nE   AssertionError: assert 0 == 81\nE    +  where 0 = len([])\nE    +    where [] = GameSession(id='s1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='ready', flag_count=0, elapsed_seconds=0, started_at=None, ended_at=None, cells=[], events=[]).cells\n______ test_start_new_game_replaces_board_with_fresh_hidden_expert_board ______\ntests\\unit\\test_spec_act_gamesession.py:83: in test_start_new_game_replaces_board_with_fresh_hidden_expert_board\n    _index(session)[(0, 0)][\"state\"] = \"revealed\"\n    ^^^^^^^^^^^^^^^^^^^^^^^\nE   KeyError: (0, 0)\n_ test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal _\ntests\\unit\\test_spec_act_gamesession.py:131: in test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal\n    _index(session)[(0, 0)][\"state\"] = \"flagged\"\n    ^^^^^^^^^^^^^^^^^^^^^^^\nE   KeyError: (0, 0)\n__ test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell __\ntests\\unit\\test_spec_act_gamesession.py:186: in test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell\n    _index(session)[(0, 1)][\"state\"] = \"revealed\"\n    ^^^^^^^^^^^^^^^^^^^^^^^\nE   KeyError: (0, 1)\n______ test_abandon_game_refuses_won_game_then_abandons_in_progress_game ______\ntests\\unit\\test_spec_act_gamesession.py:248: in test_abandon_game_refuses_won_game_then_abandons_in_progress_game\n    assert type(exc_info.value).__name__ == \"ActionNotAllowedError\"\nE   AssertionError: assert 'AttributeError' == 'ActionNotAllowedError'\nE     \nE     - ActionNotAllowedError\nE     + AttributeError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_ed83980c6a0e4a1390854c5ca7b14ea1.json\n=========================== short test summary info ===========================\nFAILED tests\\unit\\test_spec_act_gamesession.py::test_constructor_creates_ready_hidden_board\nFAILED tests\\unit\\test_spec_act_gamesession.py::test_start_new_game_replaces_board_with_fresh_hidden_expert_board\nFAILED tests\\unit\\test_spec_act_gamesession.py::test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal\nFAILED tests\\unit\\test_spec_act_gamesession.py::test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell\nFAILED tests\\unit\\test_spec_act_gamesession.py::test_abandon_game_refuses_won_game_then_abandons_in_progress_game\n============================== 5 failed in 0.37s ==============================\n",
+              "stderr": "",
+              "report": {
+                "created": 1791652414.5381923,
+                "duration": 0.3631918430328369,
+                "exitcode": 1,
+                "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+                "environment": {},
+                "summary": {
+                  "failed": 5,
+                  "total": 5,
+                  "collected": 5
+                },
+                "collectors": [
+                  {
+                    "nodeid": "",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py",
+                        "type": "Module"
+                      }
+                    ]
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_constructor_creates_ready_hidden_board",
+                        "type": "Function",
+                        "lineno": 40
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_start_new_game_replaces_board_with_fresh_hidden_expert_board",
+                        "type": "Function",
+                        "lineno": 74
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal",
+                        "type": "Function",
+                        "lineno": 127
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell",
+                        "type": "Function",
+                        "lineno": 177
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_abandon_game_refuses_won_game_then_abandons_in_progress_game",
+                        "type": "Function",
+                        "lineno": 227
+                      }
+                    ]
+                  }
+                ],
+                "tests": [
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_constructor_creates_ready_hidden_board",
+                    "lineno": 40,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_constructor_creates_ready_hidden_board",
+                      "test_spec_act_gamesession.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0003040000010514632,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.00046460000157821923,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+                        "lineno": 62,
+                        "message": "AssertionError: assert 0 == 81\n +  where 0 = len([])\n +    where [] = GameSession(id='s1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='ready', flag_count=0, elapsed_seconds=0, started_at=None, ended_at=None, cells=[], events=[]).cells"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_act_gamesession.py",
+                          "lineno": 62,
+                          "message": "in test_constructor_creates_ready_hidden_board"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_act_gamesession.py:62: in test_constructor_creates_ready_hidden_board\n    assert len(session.cells) == 81\nE   AssertionError: assert 0 == 81\nE    +  where 0 = len([])\nE    +    where [] = GameSession(id='s1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='ready', flag_count=0, elapsed_seconds=0, started_at=None, ended_at=None, cells=[], events=[]).cells"
+                    },
+                    "teardown": {
+                      "duration": 0.00022539999918080866,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_start_new_game_replaces_board_with_fresh_hidden_expert_board",
+                    "lineno": 74,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_start_new_game_replaces_board_with_fresh_hidden_expert_board",
+                      "test_spec_act_gamesession.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.000195399989024736,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0002182000025641173,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+                        "lineno": 83,
+                        "message": "KeyError: (0, 0)"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_act_gamesession.py",
+                          "lineno": 83,
+                          "message": "in test_start_new_game_replaces_board_with_fresh_hidden_expert_board"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_act_gamesession.py:83: in test_start_new_game_replaces_board_with_fresh_hidden_expert_board\n    _index(session)[(0, 0)][\"state\"] = \"revealed\"\n    ^^^^^^^^^^^^^^^^^^^^^^^\nE   KeyError: (0, 0)"
+                    },
+                    "teardown": {
+                      "duration": 0.00021659999038092792,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal",
+                    "lineno": 127,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal",
+                      "test_spec_act_gamesession.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.00019099999917671084,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0001970999874174595,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+                        "lineno": 131,
+                        "message": "KeyError: (0, 0)"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_act_gamesession.py",
+                          "lineno": 131,
+                          "message": "in test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_act_gamesession.py:131: in test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal\n    _index(session)[(0, 0)][\"state\"] = \"flagged\"\n    ^^^^^^^^^^^^^^^^^^^^^^^\nE   KeyError: (0, 0)"
+                    },
+                    "teardown": {
+                      "duration": 0.00020929999300278723,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell",
+                    "lineno": 177,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell",
+                      "test_spec_act_gamesession.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.00018369998724665493,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.00020680000307038426,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+                        "lineno": 186,
+                        "message": "KeyError: (0, 1)"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_act_gamesession.py",
+                          "lineno": 186,
+                          "message": "in test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_act_gamesession.py:186: in test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell\n    _index(session)[(0, 1)][\"state\"] = \"revealed\"\n    ^^^^^^^^^^^^^^^^^^^^^^^\nE   KeyError: (0, 1)"
+                    },
+                    "teardown": {
+                      "duration": 0.00018879999697674066,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_act_gamesession.py::test_abandon_game_refuses_won_game_then_abandons_in_progress_game",
+                    "lineno": 227,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_abandon_game_refuses_won_game_then_abandons_in_progress_game",
+                      "test_spec_act_gamesession.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.000182400006451644,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.000385499995900318,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+                        "lineno": 248,
+                        "message": "AssertionError: assert 'AttributeError' == 'ActionNotAllowedError'\n  \n  - ActionNotAllowedError\n  + AttributeError"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_act_gamesession.py",
+                          "lineno": 248,
+                          "message": "in test_abandon_game_refuses_won_game_then_abandons_in_progress_game"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_act_gamesession.py:248: in test_abandon_game_refuses_won_game_then_abandons_in_progress_game\n    assert type(exc_info.value).__name__ == \"ActionNotAllowedError\"\nE   AssertionError: assert 'AttributeError' == 'ActionNotAllowedError'\nE     \nE     - ActionNotAllowedError\nE     + AttributeError"
+                    },
+                    "teardown": {
+                      "duration": 0.00021300000662449747,
+                      "outcome": "passed"
+                    }
+                  }
+                ]
+              },
+              "timed_out": false
+            },
+            "evaluation": {
+              "status": "APPROVED_RED",
+              "approved": true,
+              "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+            },
+            "attempts": [
+              {
+                "attempt": 1,
+                "approved": true,
+                "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+              }
+            ]
+          }
+        ]
+      ],
+      {
+        "class_name": "GameSession",
+        "module_name": "game_session",
+        "domain_file": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\game_session.py",
+        "tests_dir": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit"
+      },
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace",
+      "",
+      "set()"
+    ],
+    "kwargs": {
+      "peers": []
+    }
+  },
+  "output": {
+    "SPEC-ACT-GAMESESSION": {
+      "success": true,
+      "status": "FULFILLED",
+      "phase": "COMMITTED",
+      "spec_id": "SPEC-ACT-GAMESESSION",
+      "test_file": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_gamesession.py",
+      "red_eval": {
+        "status": "APPROVED_RED",
+        "approved": true,
+        "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+      },
+      "green_eval": {
+        "status": "APPROVED_GREEN",
+        "approved": true,
+        "reason": "All tests passed cleanly."
+      },
+      "red_attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+        }
+      ],
+      "test_source": "import pytest\n\nfrom src.domain.game_session import GameSession\n\n\nBEGINNER_MINES = [(8, c) for c in range(9)] + [(7, 8)]  # 10 mines, all far from (0, 0)\n\n\ndef _index(session):\n    return {(cell[\"row\"], cell[\"column\"]): cell for cell in session.cells}\n\n\ndef _neighbours(row, column, rows, columns):\n    result = []\n    for dr in (-1, 0, 1):\n        for dc in (-1, 0, 1):\n            if (dr, dc) == (0, 0):\n                continue\n            r, c = row + dr, column + dc\n            if 0 <= r < rows and 0 <= c < columns:\n                result.append((r, c))\n    return result\n\n\ndef _place_mines(session, positions):\n    \"\"\"Set has_mine on the existing cells and recompute adjacent_mine_count.\"\"\"\n    index = _index(session)\n    mine_set = set(positions)\n    for (r, c), cell in index.items():\n        cell[\"has_mine\"] = (r, c) in mine_set\n    for (r, c), cell in index.items():\n        cell[\"adjacent_mine_count\"] = sum(\n            1 for nb in _neighbours(r, c, session.rows, session.columns) if nb in mine_set\n        )\n\n\ndef _states(session):\n    return {(cell[\"row\"], cell[\"column\"]): cell[\"state\"] for cell in session.cells}\n\n\ndef test_constructor_creates_ready_hidden_board():\n    # Given: a session created with only its required fields and nothing called on it\n    session = GameSession(id=\"s1\", difficulty_id=\"beginner\", rows=9, columns=9, mine_count=10)\n\n    # When: nothing is called (construction only)\n\n    # Then: a new session starts in the \"ready\" status\n    assert session.status == \"ready\"\n    # Then: no flags have been placed, so flag_count is 0\n    assert session.flag_count == 0\n    # Then: the timer has not run, so elapsed_seconds is 0\n    assert session.elapsed_seconds == 0\n    # Then: no timer start was recorded, so started_at is null\n    assert session.started_at is None\n    # Then: no game has ended, so ended_at is null\n    assert session.ended_at is None\n    # Then: rows, columns and mine_count come straight from the 9x9 beginner preset\n    assert session.rows == 9\n    assert session.columns == 9\n    assert session.mine_count == 10\n    # Then: 9 * 9 = 81 cell records exist, one per position\n    assert len(session.cells) == 81\n    # Then: the records cover exactly the positions 0..8 by 0..8, each once\n    positions = {(cell[\"row\"], cell[\"column\"]) for cell in session.cells}\n    assert positions == {(r, c) for r in range(9) for c in range(9)}\n    for cell in session.cells:\n        # Then: each cell is hidden, since nothing has been revealed or flagged\n        assert cell[\"state\"] == \"hidden\"\n        # Then: no mine is placed until the first reveal\n        assert cell[\"has_mine\"] is False\n        # Then: no adjacency is computed until mines are placed\n        assert cell[\"adjacent_mine_count\"] == 0\n\n\ndef test_start_new_game_replaces_board_with_fresh_hidden_expert_board():\n    # Given: a won expert game with a timer and a recorded end, one revealed cell and one mine\n    session = GameSession(id=\"s1\", difficulty_id=\"expert\", rows=16, columns=30, mine_count=99)\n    session.status = \"won\"\n    session.elapsed_seconds = 120\n    session.started_at = \"2025-01-01T10:00:00\"\n    session.ended_at = \"2025-01-01T10:02:00\"\n    session.flag_count = 0\n    _index(session)[(0, 0)][\"state\"] = \"revealed\"\n    _place_mines(session, [(5, 5)])\n\n    # Given: a second identical game, used for the refused call\n    refused = GameSession(id=\"s2\", difficulty_id=\"expert\", rows=16, columns=30, mine_count=99)\n    refused.status = \"won\"\n    refused.elapsed_seconds = 120\n    refused.started_at = \"2025-01-01T10:00:00\"\n    refused.ended_at = \"2025-01-01T10:02:00\"\n    _index(refused)[(0, 0)][\"state\"] = \"revealed\"\n    _place_mines(refused, [(5, 5)])\n\n    # When: a start with mine_count 98, which does not match the expert preset\n    with pytest.raises(Exception) as exc_info:\n        refused.start_new_game(difficulty_id=\"expert\", rows=16, columns=30, mine_count=98)\n\n    # Then: the refusal is an InvalidDifficultyError\n    assert type(exc_info.value).__name__ == \"InvalidDifficultyError\"\n    # Then: the refused game keeps its won status\n    assert refused.status == \"won\"\n\n    # When: the valid expert start, which matches the preset 16 x 30 with 99 mines\n    session.start_new_game(difficulty_id=\"expert\", rows=16, columns=30, mine_count=99)\n\n    # Then: the status becomes ready\n    assert session.status == \"ready\"\n    # Then: flag_count and elapsed_seconds are reset to 0\n    assert session.flag_count == 0\n    assert session.elapsed_seconds == 0\n    # Then: started_at and ended_at are cleared\n    assert session.started_at is None\n    assert session.ended_at is None\n    # Then: the object's fields show the expert preset\n    assert session.rows == 16\n    assert session.columns == 30\n    assert session.mine_count == 99\n    # Then: the board has 16 * 30 = 480 cells\n    assert len(session.cells) == 480\n    for cell in session.cells:\n        # Then: every cell is hidden, including the one that was revealed before\n        assert cell[\"state\"] == \"hidden\"\n        # Then: no mine is placed on the new board\n        assert cell[\"has_mine\"] is False\n\n\ndef test_reveal_cell_refuses_flagged_cell_then_places_mines_on_first_safe_reveal():\n    # Given: a ready 9x9 beginner session where cell (0, 0) is flagged (so flag_count is 1)\n    session = GameSession(id=\"s1\", difficulty_id=\"beginner\", rows=9, columns=9, mine_count=10)\n    _index(session)[(0, 0)][\"state\"] = \"flagged\"\n    session.flag_count = 1\n\n    # When: the player reveals the flagged cell (0, 0)\n    with pytest.raises(Exception) as exc_info:\n        session.reveal_cell(row=0, column=0)\n\n    # Then: the refusal is an ActionNotAllowedError\n    assert type(exc_info.value).__name__ == \"ActionNotAllowedError\"\n    # Then: the cell stays flagged\n    assert _index(session)[(0, 0)][\"state\"] == \"flagged\"\n    # Then: the session stays ready and the flag count is unchanged\n    assert session.status == \"ready\"\n    assert session.flag_count == 1\n    # Then: no mines are placed, because the refused reveal was not a first reveal\n    assert all(cell[\"has_mine\"] is False for cell in session.cells)\n    # Then: the timer has not started\n    assert session.started_at is None\n\n    # When: the player reveals the hidden, unflagged cell (4, 4), the first reveal\n    session.reveal_cell(row=4, column=4)\n\n    # Then: the session status becomes in_progress\n    assert session.status == \"in_progress\"\n    # Then: the start time is recorded (a value, not null)\n    assert session.started_at is not None\n    # Then: the game has not ended\n    assert session.ended_at is None\n    # Then: cell (4, 4) is now revealed\n    assert _index(session)[(4, 4)][\"state\"] == \"revealed\"\n    # Then: the first revealed cell is never a mine\n    assert _index(session)[(4, 4)][\"has_mine\"] is False\n    # Then: exactly mine_count (10) cells carry a mine\n    assert sum(1 for cell in session.cells if cell[\"has_mine\"]) == 10\n    # Then: the flag on (0, 0) is still there, since flags are left alone\n    assert _index(session)[(0, 0)][\"state\"] == \"flagged\"\n    # Then: the flag count is unchanged by the reveal\n    assert session.flag_count == 1\n    # Then: each cell's adjacent_mine_count equals the number of mine neighbours it has\n    index = _index(session)\n    for (r, c), cell in index.items():\n        expected = sum(\n            1 for nb in _neighbours(r, c, 9, 9) if index[nb][\"has_mine\"]\n        )\n        assert cell[\"adjacent_mine_count\"] == expected\n\n\ndef test_toggle_flag_refuses_revealed_cell_then_flags_and_unflags_hidden_cell():\n    # Given: an in-progress 9x9 beginner game with 10 mines in row 8 and at (7, 8)\n    session = GameSession(id=\"s1\", difficulty_id=\"beginner\", rows=9, columns=9, mine_count=10)\n    session.status = \"in_progress\"\n    session.elapsed_seconds = 30\n    session.started_at = \"2025-01-01T10:00:00\"\n    _place_mines(session, BEGINNER_MINES)\n    # Given: cell (0, 1) is revealed, which is the refused case\n    _index(session)[(0, 1)][\"state\"] = \"revealed\"\n\n    # When: the player flags the revealed cell (0, 1)\n    with pytest.raises(Exception) as exc_info:\n        session.toggle_flag(row=0, column=1)\n\n    # Then: the refusal is an ActionNotAllowedError\n    assert type(exc_info.value).__name__ == \"ActionNotAllowedError\"\n    # Then: the revealed cell stays revealed\n    assert _index(session)[(0, 1)][\"state\"] == \"revealed\"\n    # Then: the flag count is unchanged\n    assert session.flag_count == 0\n\n    # Given: a snapshot of every cell state before the accepted toggle\n    before = _states(session)\n\n    # When: the player flags the hidden cell (0, 0)\n    session.toggle_flag(row=0, column=0)\n\n    # Then: cell (0, 0) becomes flagged\n    assert _index(session)[(0, 0)][\"state\"] == \"flagged\"\n    # Then: flag_count rises by one\n    assert session.flag_count == 1\n    # Then: no other cell changes state, since flags never reveal\n    after = _states(session)\n    for pos, state in before.items():\n        if pos != (0, 0):\n            assert after[pos] == state\n    # Then: the status stays in_progress and the timer is untouched\n    assert session.status == \"in_progress\"\n    assert session.elapsed_seconds == 30\n    assert session.started_at == \"2025-01-01T10:00:00\"\n\n    # When: the player toggles the flag on (0, 0) again\n    session.toggle_flag(row=0, column=0)\n\n    # Then: the cell returns to hidden\n    assert _index(session)[(0, 0)][\"state\"] == \"hidden\"\n    # Then: flag_count falls back to 0\n    assert session.flag_count == 0\n\n\ndef test_abandon_game_refuses_won_game_then_abandons_in_progress_game():\n    # Given: an in-progress 9x9 beginner game, elapsed 75 seconds, started at a fixed time\n    session = GameSession(id=\"s1\", difficulty_id=\"beginner\", rows=9, columns=9, mine_count=10)\n    session.status = \"in_progress\"\n    session.elapsed_seconds = 75\n    session.started_at = \"2025-01-01T10:00:00\"\n    _place_mines(session, BEGINNER_MINES)\n\n    # Given: an identical game that is already won, used for the refused call\n    refused = GameSession(id=\"s2\", difficulty_id=\"beginner\", rows=9, columns=9, mine_count=10)\n    refused.status = \"won\"\n    refused.elapsed_seconds = 75\n    refused.started_at = \"2025-01-01T10:00:00\"\n    _place_mines(refused, BEGINNER_MINES)\n\n    # When: the player abandons the won game\n    with pytest.raises(Exception) as exc_info:\n        refused.abandon_game()\n\n    # Then: the refusal is an ActionNotAllowedError\n    assert type(exc_info.value).__name__ == \"ActionNotAllowedError\"\n    # Then: the won game keeps its status\n    assert refused.status == \"won\"\n    # Then: no end is recorded and the timer is unchanged\n    assert refused.ended_at is None\n    assert refused.elapsed_seconds == 75\n\n    # When: the player abandons the in-progress game\n    session.abandon_game()\n\n    # Then: the status becomes abandoned, with no win or loss result\n    assert session.status == \"abandoned\"\n    # Then: ended_at is recorded (a value, not null)\n    assert session.ended_at is not None\n    # Then: elapsed_seconds stops at its current value of 75\n    assert session.elapsed_seconds == 75\n    # Then: the recorded start time is unchanged\n    assert session.started_at == \"2025-01-01T10:00:00\"\n",
+      "attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "All tests passed cleanly."
+        }
+      ]
+    }
+  },
+  "duration_s": 33.655
+}

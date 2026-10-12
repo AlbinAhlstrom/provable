@@ -1,0 +1,152 @@
+{
+  "seq": 322,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:27",
+  "t_offset_s": 398.559,
+  "thread": "red_23",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656606.7844214,
+        "duration": 1.2963523864746094,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_902g9kaw",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_025.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_025.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_025.py::test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos0-wrong_flag_pos0]",
+                "type": "Function",
+                "lineno": 79
+              },
+              {
+                "nodeid": "tests/unit/test_spec_025.py::test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos1-wrong_flag_pos1]",
+                "type": "Function",
+                "lineno": 79
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_025.py::test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos0-wrong_flag_pos0]",
+            "lineno": 79,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos0-wrong_flag_pos0]",
+              "parametrize",
+              "pytestmark",
+              "mine_pos0-wrong_flag_pos0",
+              "test_spec_025.py",
+              "unit",
+              "tests",
+              "hollow_902g9kaw",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000908499991055578,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011364999954821542,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_902g9kaw\\tests\\unit\\test_spec_025.py",
+                "lineno": 104,
+                "message": "AssertionError: assert 'Hidden' == 'Detonated'\n  \n  - Detonated\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_025.py",
+                  "lineno": 104,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "mine_pos = (3, 3), wrong_flag_pos = (5, 5)\n\n    @pytest.mark.parametrize(\n        \"mine_pos, wrong_flag_pos\",\n        [\n            ((3, 3), (5, 5)),\n            ((5, 5), (3, 3)),\n        ],\n    )\n    def test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses(\n        mine_pos, wrong_flag_pos\n    ):\n        game = _arrange_game(mine_pos, wrong_flag_pos)\n    \n        # Target (4,4): among its 8 neighbours only mine_pos holds a mine\n        # (the other mines are on row 8, out of reach), so N = 1.\n        assert _cell(game, *TARGET)[\"adjacent_mine_count\"] == 1\n        # The wrongly flagged cell is a safe cell.\n        assert _cell(game, *wrong_flag_pos)[\"has_mine\"] is False\n    \n        game.chord_cell(row=TARGET[0], column=TARGET[1])\n    \n        # Flagged neighbours: exactly one (wrong_flag_pos) == N = 1, so the chord\n        # applies. The only Hidden neighbour is mine_pos, which holds a mine, so\n        # opening it makes it Detonated.\n        mine_cell = _cell(game, *mine_pos)\n>       assert mine_cell[\"state\"] == \"Detonated\"\nE       AssertionError: assert 'Hidden' == 'Detonated'\nE         \nE         - Detonated\nE         + Hidden\n\ntests\\unit\\test_spec_025.py:104: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005108000041218475,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_025.py::test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos1-wrong_flag_pos1]",
+            "lineno": 79,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos1-wrong_flag_pos1]",
+              "parametrize",
+              "pytestmark",
+              "mine_pos1-wrong_flag_pos1",
+              "test_spec_025.py",
+              "unit",
+              "tests",
+              "hollow_902g9kaw",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006868999917060137,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010710999922594056,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_902g9kaw\\tests\\unit\\test_spec_025.py",
+                "lineno": 104,
+                "message": "AssertionError: assert 'Hidden' == 'Detonated'\n  \n  - Detonated\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_025.py",
+                  "lineno": 104,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "mine_pos = (5, 5), wrong_flag_pos = (3, 3)\n\n    @pytest.mark.parametrize(\n        \"mine_pos, wrong_flag_pos\",\n        [\n            ((3, 3), (5, 5)),\n            ((5, 5), (3, 3)),\n        ],\n    )\n    def test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses(\n        mine_pos, wrong_flag_pos\n    ):\n        game = _arrange_game(mine_pos, wrong_flag_pos)\n    \n        # Target (4,4): among its 8 neighbours only mine_pos holds a mine\n        # (the other mines are on row 8, out of reach), so N = 1.\n        assert _cell(game, *TARGET)[\"adjacent_mine_count\"] == 1\n        # The wrongly flagged cell is a safe cell.\n        assert _cell(game, *wrong_flag_pos)[\"has_mine\"] is False\n    \n        game.chord_cell(row=TARGET[0], column=TARGET[1])\n    \n        # Flagged neighbours: exactly one (wrong_flag_pos) == N = 1, so the chord\n        # applies. The only Hidden neighbour is mine_pos, which holds a mine, so\n        # opening it makes it Detonated.\n        mine_cell = _cell(game, *mine_pos)\n>       assert mine_cell[\"state\"] == \"Detonated\"\nE       AssertionError: assert 'Hidden' == 'Detonated'\nE         \nE         - Detonated\nE         + Hidden\n\ntests\\unit\\test_spec_025.py:104: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004941000079270452,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

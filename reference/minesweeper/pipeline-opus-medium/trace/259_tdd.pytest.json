@@ -1,0 +1,154 @@
+{
+  "seq": 259,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:21",
+  "t_offset_s": 392.75,
+  "thread": "red_16",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xa2toi1z\\tests\\unit\\test_spec_018.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xa2toi1z"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xa2toi1z\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 2 items\n\ntests\\unit\\test_spec_018.py FF                                           [100%]\n\n================================== FAILURES ===================================\n__________ test_cascade_skips_flagged_cell[flagged0-opened_beyond0] ___________\n\nflagged = (0, 1), opened_beyond = (0, 2)\n\n    @pytest.mark.parametrize(\n        \"flagged, opened_beyond\",\n        [\n            # Flag on a direct neighbour of the opened zero cell (0,0).\n            ((0, 1), (0, 2)),\n            # Flag deep inside the zero region, reached only by repeated cascading.\n            ((3, 3), (4, 4)),\n        ],\n    )\n    def test_cascade_skips_flagged_cell(flagged, opened_beyond):\n        game = _build_playing_game(flagged)\n        fr, fc = flagged\n    \n        # Sanity of the arrangement: the flagged cell is safe, has count 0 and\n        # sits among zero cells, so an unrestrained cascade would open it.\n        assert _cell(game, fr, fc)[\"has_mine\"] is False\n        assert _cell(game, fr, fc)[\"adjacent_mine_count\"] == 0\n        assert _cell(game, 0, 0)[\"adjacent_mine_count\"] == 0\n    \n        game.open_cell(row=0, column=0)\n    \n        # (0,0) is a safe Hidden cell with no mines among its neighbours\n        # (mines are only in row 8 and at (7,8)), so it becomes Opened.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_018.py:87: AssertionError\n__________ test_cascade_skips_flagged_cell[flagged1-opened_beyond1] ___________\n\nflagged = (3, 3), opened_beyond = (4, 4)\n\n    @pytest.mark.parametrize(\n        \"flagged, opened_beyond\",\n        [\n            # Flag on a direct neighbour of the opened zero cell (0,0).\n            ((0, 1), (0, 2)),\n            # Flag deep inside the zero region, reached only by repeated cascading.\n            ((3, 3), (4, 4)),\n        ],\n    )\n    def test_cascade_skips_flagged_cell(flagged, opened_beyond):\n        game = _build_playing_game(flagged)\n        fr, fc = flagged\n    \n        # Sanity of the arrangement: the flagged cell is safe, has count 0 and\n        # sits among zero cells, so an unrestrained cascade would open it.\n        assert _cell(game, fr, fc)[\"has_mine\"] is False\n        assert _cell(game, fr, fc)[\"adjacent_mine_count\"] == 0\n        assert _cell(game, 0, 0)[\"adjacent_mine_count\"] == 0\n    \n        game.open_cell(row=0, column=0)\n    \n        # (0,0) is a safe Hidden cell with no mines among its neighbours\n        # (mines are only in row 8 and at (7,8)), so it becomes Opened.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_018.py:87: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xa2toi1z\\.pytest_report_680d1993566b42478e9abda55ec05358.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_018.py::test_cascade_skips_flagged_cell[flagged0-opened_beyond0]\nFAILED tests/unit/test_spec_018.py::test_cascade_skips_flagged_cell[flagged1-opened_beyond1]\n============================== 2 failed in 1.92s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656607.531141,
+      "duration": 1.4239585399627686,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xa2toi1z",
+      "environment": {},
+      "summary": {
+        "failed": 2,
+        "total": 2,
+        "collected": 2
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_018.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_018.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_018.py::test_cascade_skips_flagged_cell[flagged0-opened_beyond0]",
+              "type": "Function",
+              "lineno": 63
+            },
+            {
+              "nodeid": "tests/unit/test_spec_018.py::test_cascade_skips_flagged_cell[flagged1-opened_beyond1]",
+              "type": "Function",
+              "lineno": 63
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_018.py::test_cascade_skips_flagged_cell[flagged0-opened_beyond0]",
+          "lineno": 63,
+          "outcome": "failed",
+          "keywords": [
+            "test_cascade_skips_flagged_cell[flagged0-opened_beyond0]",
+            "parametrize",
+            "pytestmark",
+            "flagged0-opened_beyond0",
+            "test_spec_018.py",
+            "unit",
+            "tests",
+            "hollow_xa2toi1z",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008947000023908913,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0011455999920144677,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xa2toi1z\\tests\\unit\\test_spec_018.py",
+              "lineno": 87,
+              "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_018.py",
+                "lineno": 87,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "flagged = (0, 1), opened_beyond = (0, 2)\n\n    @pytest.mark.parametrize(\n        \"flagged, opened_beyond\",\n        [\n            # Flag on a direct neighbour of the opened zero cell (0,0).\n            ((0, 1), (0, 2)),\n            # Flag deep inside the zero region, reached only by repeated cascading.\n            ((3, 3), (4, 4)),\n        ],\n    )\n    def test_cascade_skips_flagged_cell(flagged, opened_beyond):\n        game = _build_playing_game(flagged)\n        fr, fc = flagged\n    \n        # Sanity of the arrangement: the flagged cell is safe, has count 0 and\n        # sits among zero cells, so an unrestrained cascade would open it.\n        assert _cell(game, fr, fc)[\"has_mine\"] is False\n        assert _cell(game, fr, fc)[\"adjacent_mine_count\"] == 0\n        assert _cell(game, 0, 0)[\"adjacent_mine_count\"] == 0\n    \n        game.open_cell(row=0, column=0)\n    \n        # (0,0) is a safe Hidden cell with no mines among its neighbours\n        # (mines are only in row 8 and at (7,8)), so it becomes Opened.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_018.py:87: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004633999924408272,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_018.py::test_cascade_skips_flagged_cell[flagged1-opened_beyond1]",
+          "lineno": 63,
+          "outcome": "failed",
+          "keywords": [
+            "test_cascade_skips_flagged_cell[flagged1-opened_beyond1]",
+            "parametrize",
+            "pytestmark",
+            "flagged1-opened_beyond1",
+            "test_spec_018.py",
+            "unit",
+            "tests",
+            "hollow_xa2toi1z",
+            ""
+          ],
+          "setup": {
+            "duration": 0.011415500004659407,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.001131199998781085,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xa2toi1z\\tests\\unit\\test_spec_018.py",
+              "lineno": 87,
+              "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_018.py",
+                "lineno": 87,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "flagged = (3, 3), opened_beyond = (4, 4)\n\n    @pytest.mark.parametrize(\n        \"flagged, opened_beyond\",\n        [\n            # Flag on a direct neighbour of the opened zero cell (0,0).\n            ((0, 1), (0, 2)),\n            # Flag deep inside the zero region, reached only by repeated cascading.\n            ((3, 3), (4, 4)),\n        ],\n    )\n    def test_cascade_skips_flagged_cell(flagged, opened_beyond):\n        game = _build_playing_game(flagged)\n        fr, fc = flagged\n    \n        # Sanity of the arrangement: the flagged cell is safe, has count 0 and\n        # sits among zero cells, so an unrestrained cascade would open it.\n        assert _cell(game, fr, fc)[\"has_mine\"] is False\n        assert _cell(game, fr, fc)[\"adjacent_mine_count\"] == 0\n        assert _cell(game, 0, 0)[\"adjacent_mine_count\"] == 0\n    \n        game.open_cell(row=0, column=0)\n    \n        # (0,0) is a safe Hidden cell with no mines among its neighbours\n        # (mines are only in row 8 and at (7,8)), so it becomes Opened.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_018.py:87: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004582999972626567,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 6.871
+}

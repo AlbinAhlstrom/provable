@@ -1,0 +1,110 @@
+{
+  "seq": 216,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:13",
+  "t_offset_s": 193.961,
+  "thread": "red_15",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_li_9nkwz\\tests\\unit\\test_spec_017.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_li_9nkwz"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_li_9nkwz\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 1 item\n\ntests\\unit\\test_spec_017.py F                                            [100%]\n\n================================== FAILURES ===================================\n_____ test_zero_spread_reveals_connected_zeros_and_bordering_numbers_only _____\n\n    def test_zero_spread_reveals_connected_zeros_and_bordering_numbers_only():\n        session = _session_with_board()\n    \n        session.reveal_cell(row=1, column=3)\n    \n        # The reveal starts at zero cell (1,3). Its connected zeros are all of\n        # columns 2, 3 and 4 (9 cells). Each zero spreads to its neighbours, so\n        # every zero is reached. Their numbered borders (0,1), (1,1) and (2,1)\n        # are revealed as well, but they do not spread further.\n        # Expected: revealed.\n>       assert _cell(session, 0, 2)[\"state\"] == \"revealed\"  # zero, reached from (1,3)\n               ^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_017.py:55: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-spread', difficulty_id='beginner', rows=3, columns=5, mine_count=2, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 0, column = 2\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (0, 2)\n\ntests\\unit\\test_spec_017.py:42: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_li_9nkwz\\.pytest_report_dd2b179243394d079fe4c7d842f202cb.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_017.py::test_zero_spread_reveals_connected_zeros_and_bordering_numbers_only\n============================== 1 failed in 1.41s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652457.1257153,
+      "duration": 1.0709917545318604,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_li_9nkwz",
+      "environment": {},
+      "summary": {
+        "failed": 1,
+        "total": 1,
+        "collected": 1
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_017.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_017.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_017.py::test_zero_spread_reveals_connected_zeros_and_bordering_numbers_only",
+              "type": "Function",
+              "lineno": 44
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_017.py::test_zero_spread_reveals_connected_zeros_and_bordering_numbers_only",
+          "lineno": 44,
+          "outcome": "failed",
+          "keywords": [
+            "test_zero_spread_reveals_connected_zeros_and_bordering_numbers_only",
+            "test_spec_017.py",
+            "unit",
+            "tests",
+            "hollow_li_9nkwz",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006032000092091039,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00043759999971371144,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_li_9nkwz\\tests\\unit\\test_spec_017.py",
+              "lineno": 42,
+              "message": "AssertionError: no cell at (0, 2)"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_017.py",
+                "lineno": 55,
+                "message": ""
+              },
+              {
+                "path": "tests\\unit\\test_spec_017.py",
+                "lineno": 42,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_zero_spread_reveals_connected_zeros_and_bordering_numbers_only():\n        session = _session_with_board()\n    \n        session.reveal_cell(row=1, column=3)\n    \n        # The reveal starts at zero cell (1,3). Its connected zeros are all of\n        # columns 2, 3 and 4 (9 cells). Each zero spreads to its neighbours, so\n        # every zero is reached. Their numbered borders (0,1), (1,1) and (2,1)\n        # are revealed as well, but they do not spread further.\n        # Expected: revealed.\n>       assert _cell(session, 0, 2)[\"state\"] == \"revealed\"  # zero, reached from (1,3)\n               ^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_017.py:55: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-spread', difficulty_id='beginner', rows=3, columns=5, mine_count=2, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 0, column = 2\n\n    def _cell(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (0, 2)\n\ntests\\unit\\test_spec_017.py:42: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00046719999227207154,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 4.784
+}

@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import agent_orchestrator
 from onboarding.app_inventory import imports_of, inventory_frontend
 from onboarding.router_engine import SpecKind
+from onboarding.spec_test_status import REJECTED_PHASE
 from onboarding.verification import run_workspace_build
 from pipeline_trace import traced
 
@@ -74,8 +75,9 @@ def _attempt(number: int, error: Optional[str]) -> Dict[str, Any]:
     return {"attempt": number, "approved": error is None, "reason": error or "the view builds"}
 
 
-def _result(status: str, files: List[str], attempts: List[Dict[str, Any]], error: Optional[str] = None) -> Dict[str, Any]:
-    return {"success": status == "FULFILLED", "status": status, "phase": "presentation", "error": error,
+def _result(status: str, files: List[str], attempts: List[Dict[str, Any]], error: Optional[str] = None,
+            phase: str = "presentation") -> Dict[str, Any]:
+    return {"success": status == "FULFILLED", "status": status, "phase": phase, "error": error,
             "files_updated": files, "attempts": attempts, "rolled_back": status != "FULFILLED" and bool(attempts)}
 
 
@@ -121,4 +123,6 @@ def execute_presentation_spec(spec: Dict[str, Any], workspace_dir: str) -> Dict[
 
     with open(path, "w", encoding="utf-8") as f:
         f.write(original)
-    return _result("REQUIRES_HUMAN_INTERVENTION", [], attempts, "the changed view did not build; the original was restored")
+    # The build judged the change and rejected it twice: the same dead end as a GREEN gate that said no twice
+    return _result("REQUIRES_HUMAN_INTERVENTION", [], attempts, "the changed view did not build; the original was restored",
+                   phase=REJECTED_PHASE)

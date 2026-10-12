@@ -1,0 +1,191 @@
+{
+  "seq": 377,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:31",
+  "t_offset_s": 402.718,
+  "thread": "red_6",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8\\tests\\unit\\test_spec_028.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 3 items\n\ntests\\unit\\test_spec_028.py FFF                                          [100%]\n\n================================== FAILURES ===================================\n__________________ test_timer_runs_while_playing_as_control ___________________\n\n    def test_timer_runs_while_playing_as_control():\n        game = _make_playing_game(elapsed=42)\n        # Status is Playing and 42 < 999 cap, so one tick adds exactly 1 second.\n        game.tick()\n>       assert game.elapsed_seconds == 43\nE       AssertionError: assert 42 == 43\nE        +  where 42 = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Hidden'}], events=[]).elapsed_seconds\n\ntests\\unit\\test_spec_028.py:76: AssertionError\n____________________ test_timer_freezes_when_game_is_lost _____________________\n\n    def test_timer_freezes_when_game_is_lost():\n        game = _make_playing_game(elapsed=42)\n    \n        # (0,0) holds a mine and is Hidden; the game is Playing (not a first open),\n        # so opening it detonates it and the game becomes Lost.\n        game.open_cell(row=0, column=0)\n    \n        # Opening the mine ends the game: Detonated cell, struck cell recorded, Lost.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Detonated\"\nE       AssertionError: assert 'Hidden' == 'Detonated'\nE         \nE         - Detonated\nE         + Hidden\n\ntests\\unit\\test_spec_028.py:87: AssertionError\n_____________________ test_timer_freezes_when_game_is_won _____________________\n\n    def test_timer_freezes_when_game_is_won():\n        # Every safe cell is Opened except (8,8). (8,8) is far from the mines\n        # (rows 0-1), so its count is 0; all its neighbours are already Opened,\n        # so the cascade opens nothing more. It is the last non-mine cell.\n        game = _make_playing_game(elapsed=42, opened_safe_except=(8, 8), open_all_safe=True)\n        assert _cell(game, 8, 8)[\"adjacent_mine_count\"] == 0\n    \n        game.open_cell(row=8, column=8)\n    \n        # Last non-mine cell opened -> Won, with every mine auto-flagged.\n>       assert _cell(game, 8, 8)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_028.py:110: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8\\.pytest_report_1f14ab99e6944fefb1aa41480af90b07.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_028.py::test_timer_runs_while_playing_as_control\nFAILED tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_lost - As...\nFAILED tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_won - Ass...\n============================== 3 failed in 1.11s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656616.7630703,
+      "duration": 0.7316834926605225,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8",
+      "environment": {},
+      "summary": {
+        "failed": 3,
+        "total": 3,
+        "collected": 3
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_028.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_028.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_028.py::test_timer_runs_while_playing_as_control",
+              "type": "Function",
+              "lineno": 71
+            },
+            {
+              "nodeid": "tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_lost",
+              "type": "Function",
+              "lineno": 78
+            },
+            {
+              "nodeid": "tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_won",
+              "type": "Function",
+              "lineno": 99
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_028.py::test_timer_runs_while_playing_as_control",
+          "lineno": 71,
+          "outcome": "failed",
+          "keywords": [
+            "test_timer_runs_while_playing_as_control",
+            "test_spec_028.py",
+            "unit",
+            "tests",
+            "hollow_xv0_amf8",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006301999965216964,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0014355000021168962,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8\\tests\\unit\\test_spec_028.py",
+              "lineno": 76,
+              "message": "AssertionError: assert 42 == 43\n +  where 42 = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Hidden'}], events=[]).elapsed_seconds"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_028.py",
+                "lineno": 76,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_timer_runs_while_playing_as_control():\n        game = _make_playing_game(elapsed=42)\n        # Status is Playing and 42 < 999 cap, so one tick adds exactly 1 second.\n        game.tick()\n>       assert game.elapsed_seconds == 43\nE       AssertionError: assert 42 == 43\nE        +  where 42 = Game(id='game-1', difficulty_id='beginner', width=9, height=9, mine_count=10, remaining_mines=10, created_at='2024-01-...en'}, {'id': '8-8', 'row': 8, 'column': 8, 'has_mine': False, 'adjacent_mine_count': 0, 'state': 'Hidden'}], events=[]).elapsed_seconds\n\ntests\\unit\\test_spec_028.py:76: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0003859999997075647,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_lost",
+          "lineno": 78,
+          "outcome": "failed",
+          "keywords": [
+            "test_timer_freezes_when_game_is_lost",
+            "test_spec_028.py",
+            "unit",
+            "tests",
+            "hollow_xv0_amf8",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00034250000317115337,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0009843000007094815,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8\\tests\\unit\\test_spec_028.py",
+              "lineno": 87,
+              "message": "AssertionError: assert 'Hidden' == 'Detonated'\n  \n  - Detonated\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_028.py",
+                "lineno": 87,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_timer_freezes_when_game_is_lost():\n        game = _make_playing_game(elapsed=42)\n    \n        # (0,0) holds a mine and is Hidden; the game is Playing (not a first open),\n        # so opening it detonates it and the game becomes Lost.\n        game.open_cell(row=0, column=0)\n    \n        # Opening the mine ends the game: Detonated cell, struck cell recorded, Lost.\n>       assert _cell(game, 0, 0)[\"state\"] == \"Detonated\"\nE       AssertionError: assert 'Hidden' == 'Detonated'\nE         \nE         - Detonated\nE         + Hidden\n\ntests\\unit\\test_spec_028.py:87: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0003639999922597781,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_028.py::test_timer_freezes_when_game_is_won",
+          "lineno": 99,
+          "outcome": "failed",
+          "keywords": [
+            "test_timer_freezes_when_game_is_won",
+            "test_spec_028.py",
+            "unit",
+            "tests",
+            "hollow_xv0_amf8",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0003997000021627173,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010228000028291717,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_xv0_amf8\\tests\\unit\\test_spec_028.py",
+              "lineno": 110,
+              "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_028.py",
+                "lineno": 110,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "def test_timer_freezes_when_game_is_won():\n        # Every safe cell is Opened except (8,8). (8,8) is far from the mines\n        # (rows 0-1), so its count is 0; all its neighbours are already Opened,\n        # so the cascade opens nothing more. It is the last non-mine cell.\n        game = _make_playing_game(elapsed=42, opened_safe_except=(8, 8), open_all_safe=True)\n        assert _cell(game, 8, 8)[\"adjacent_mine_count\"] == 0\n    \n        game.open_cell(row=8, column=8)\n    \n        # Last non-mine cell opened -> Won, with every mine auto-flagged.\n>       assert _cell(game, 8, 8)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_028.py:110: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004155999922659248,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.812
+}

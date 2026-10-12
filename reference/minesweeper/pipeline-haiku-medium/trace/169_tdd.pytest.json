@@ -1,0 +1,105 @@
+{
+  "seq": 169,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:09",
+  "t_offset_s": 189.905,
+  "thread": "red_11",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_013.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 1 item\n\ntests\\unit\\test_spec_013.py::test_flagged_cell_cannot_be_revealed FAILED [100%]\n\n================================== FAILURES ===================================\n____________________ test_flagged_cell_cannot_be_revealed _____________________\ntests\\unit\\test_spec_013.py:37: in test_flagged_cell_cannot_be_revealed\n    with pytest.raises(Exception) as exc_info:\n         ^^^^^^\nE   NameError: name 'pytest' is not defined\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_a7ec07db896840819c510f744a7403d3.json\n=========================== short test summary info ===========================\nFAILED tests\\unit\\test_spec_013.py::test_flagged_cell_cannot_be_revealed - Na...\n============================== 1 failed in 1.50s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652453.3923504,
+      "duration": 1.4794485569000244,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "failed": 1,
+        "total": 1,
+        "collected": 1
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_013.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_013.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_013.py::test_flagged_cell_cannot_be_revealed",
+              "type": "Function",
+              "lineno": 22
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_013.py::test_flagged_cell_cannot_be_revealed",
+          "lineno": 22,
+          "outcome": "failed",
+          "keywords": [
+            "test_flagged_cell_cannot_be_revealed",
+            "test_spec_013.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006737999938195571,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010393999982625246,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_013.py",
+              "lineno": 37,
+              "message": "NameError: name 'pytest' is not defined"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_013.py",
+                "lineno": 37,
+                "message": "in test_flagged_cell_cannot_be_revealed"
+              }
+            ],
+            "longrepr": "tests\\unit\\test_spec_013.py:37: in test_flagged_cell_cannot_be_revealed\n    with pytest.raises(Exception) as exc_info:\n         ^^^^^^\nE   NameError: name 'pytest' is not defined"
+          },
+          "teardown": {
+            "duration": 0.0005043999990448356,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 4.699
+}

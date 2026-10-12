@@ -1,0 +1,166 @@
+{
+  "seq": 317,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:23",
+  "t_offset_s": 204.15,
+  "thread": "red_16",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652462.9265049,
+        "duration": 0.16866040229797363,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_jf0_sr2h",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_018.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_018.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_018.py::test_spread_leaves_flagged_neighbour_flagged_and_hidden",
+                "type": "Function",
+                "lineno": 47
+              },
+              {
+                "nodeid": "tests/unit/test_spec_018.py::test_reveal_of_flagged_cell_next_to_zero_is_refused",
+                "type": "Function",
+                "lineno": 69
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_018.py::test_spread_leaves_flagged_neighbour_flagged_and_hidden",
+            "lineno": 47,
+            "outcome": "failed",
+            "keywords": [
+              "test_spread_leaves_flagged_neighbour_flagged_and_hidden",
+              "test_spec_018.py",
+              "unit",
+              "tests",
+              "hollow_jf0_sr2h",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00032619999547023326,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002291000128025189,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_jf0_sr2h\\tests\\unit\\test_spec_018.py",
+                "lineno": 10,
+                "message": "AssertionError: no cell at (1, 2)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_018.py",
+                  "lineno": 50,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_018.py",
+                  "lineno": 38,
+                  "message": "in build_session_with_flag_next_to_zero"
+                },
+                {
+                  "path": "tests\\unit\\test_spec_018.py",
+                  "lineno": 10,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_spread_leaves_flagged_neighbour_flagged_and_hidden():\n        # Given a zero-count cell (0,0) next to the flagged cell (1,2) via the zero cell (0,1)\n>       session = build_session_with_flag_next_to_zero()\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_018.py:50: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_018.py:38: in build_session_with_flag_next_to_zero\n    cell_at(session, 1, 2)[\"state\"] = \"flagged\"\n    ^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='session-spread-skips-flag', difficulty_id='beginner', rows=3, columns=3, mine_count=1, status='ready', flag_count=0, elapsed_seconds=0, started_at=None, ended_at=None, cells=[], events=[])\nrow = 1, column = 2\n\n    def cell_at(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (1, 2)\n\ntests\\unit\\test_spec_018.py:10: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00023320000036619604,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_018.py::test_reveal_of_flagged_cell_next_to_zero_is_refused",
+            "lineno": 69,
+            "outcome": "failed",
+            "keywords": [
+              "test_reveal_of_flagged_cell_next_to_zero_is_refused",
+              "test_spec_018.py",
+              "unit",
+              "tests",
+              "hollow_jf0_sr2h",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00020110000332351774,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00021719999494962394,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_jf0_sr2h\\tests\\unit\\test_spec_018.py",
+                "lineno": 10,
+                "message": "AssertionError: no cell at (1, 2)"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_018.py",
+                  "lineno": 72,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_018.py",
+                  "lineno": 38,
+                  "message": "in build_session_with_flag_next_to_zero"
+                },
+                {
+                  "path": "tests\\unit\\test_spec_018.py",
+                  "lineno": 10,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_reveal_of_flagged_cell_next_to_zero_is_refused():\n        # Given the same board, where the flagged cell (1,2) is the target of a direct reveal\n>       session = build_session_with_flag_next_to_zero()\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_018.py:72: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\unit\\test_spec_018.py:38: in build_session_with_flag_next_to_zero\n    cell_at(session, 1, 2)[\"state\"] = \"flagged\"\n    ^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='session-spread-skips-flag', difficulty_id='beginner', rows=3, columns=3, mine_count=1, status='ready', flag_count=0, elapsed_seconds=0, started_at=None, ended_at=None, cells=[], events=[])\nrow = 1, column = 2\n\n    def cell_at(session, row, column):\n        for cell in session.cells:\n            if cell[\"row\"] == row and cell[\"column\"] == column:\n                return cell\n>       raise AssertionError(f\"no cell at ({row}, {column})\")\nE       AssertionError: no cell at (1, 2)\n\ntests\\unit\\test_spec_018.py:10: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0002398000069661066,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

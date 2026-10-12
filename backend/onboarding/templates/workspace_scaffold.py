@@ -120,6 +120,7 @@ export default defineConfig({
     port: 5174,
     strictPort: true,
     host: true,
+    allowedHosts: true,
     proxy: {
       '/batches': 'http://localhost:8000',
       '/allocate': 'http://localhost:8000',
@@ -138,7 +139,7 @@ export default defineConfig({
     <title>Provable Clean Workspace</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body style="margin: 0; background: #0f172a; color: #f8fafc; font-family: 'Outfit', sans-serif;">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
@@ -166,7 +167,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 @tailwind components;
 @tailwind utilities;
 
-body { margin: 0; background: #0f172a; color: #f8fafc; font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }''')
+body { margin: 0; background: var(--draft-bg, #f8fafc); color: var(--draft-text, #0f172a); font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }''')
 
     app_tsx = os.path.join(src_dir, 'App.tsx')
     with open(app_tsx, 'w', encoding='utf-8') as f:
@@ -177,14 +178,11 @@ export default function App() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: '#f8fafc', padding: '2rem', textAlign: 'center' }}>
       <div style={{ background: 'rgba(30, 41, 59, 0.7)', border: '1px solid #334155', borderRadius: '1rem', padding: '2.5rem', maxWidth: '600px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5)' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 700, margin: '0 0 1rem 0', color: '#38bdf8' }}>
-          🌌 Workspace Clean & Ready
+          Your app will appear here
         </h1>
-        <p style={{ color: '#94a3b8', fontSize: '1rem', lineHeight: 1.6, margin: '0 0 1.5rem 0' }}>
-          This workspace is initialized. Enter a business pitch in the <strong>Domain</strong> tab of Provable Studio to discover aggregates and synthesize your live application stack.
+        <p style={{ color: '#94a3b8', fontSize: '1rem', lineHeight: 1.6, margin: 0 }}>
+          Describe what you want to build in Provable Studio. The first draft shows up on this page while the app is being built.
         </p>
-        <div style={{ background: '#0f172a', padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #1e293b', fontSize: '0.85rem', color: '#10b981', fontWeight: 600 }}>
-          ● Vite Dev Server Port 5174 Online & Active
-        </div>
       </div>
     </div>
   );

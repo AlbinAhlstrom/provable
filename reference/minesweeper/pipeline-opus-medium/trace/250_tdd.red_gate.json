@@ -1,0 +1,158 @@
+{
+  "seq": 250,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:21",
+  "t_offset_s": 392.209,
+  "thread": "red_2",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656600.6505983,
+        "duration": 0.5792253017425537,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_003.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_003.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_003.py::test_choosing_intermediate_creates_16_by_16_game_with_40_mines[beginner-9-9-10]",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_003.py::test_choosing_intermediate_creates_16_by_16_game_with_40_mines[expert-30-16-99]",
+                "type": "Function",
+                "lineno": 19
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_003.py::test_choosing_a_difficulty_just_beyond_intermediate_name_is_refused",
+                "type": "Function",
+                "lineno": 72
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_003.py::test_choosing_intermediate_creates_16_by_16_game_with_40_mines[beginner-9-9-10]",
+            "lineno": 19,
+            "outcome": "passed",
+            "keywords": [
+              "test_choosing_intermediate_creates_16_by_16_game_with_40_mines[beginner-9-9-10]",
+              "parametrize",
+              "pytestmark",
+              "beginner-9-9-10",
+              "test_spec_003.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001123800000641495,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012603000068338588,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039790000300854445,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_003.py::test_choosing_intermediate_creates_16_by_16_game_with_40_mines[expert-30-16-99]",
+            "lineno": 19,
+            "outcome": "passed",
+            "keywords": [
+              "test_choosing_intermediate_creates_16_by_16_game_with_40_mines[expert-30-16-99]",
+              "parametrize",
+              "pytestmark",
+              "expert-30-16-99",
+              "test_spec_003.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0020490000024437904,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0023520999966422096,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004182999982731417,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_003.py::test_choosing_a_difficulty_just_beyond_intermediate_name_is_refused",
+            "lineno": 72,
+            "outcome": "passed",
+            "keywords": [
+              "test_choosing_a_difficulty_just_beyond_intermediate_name_is_refused",
+              "test_spec_003.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0015614000003552064,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005724000075133517,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005056000081822276,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

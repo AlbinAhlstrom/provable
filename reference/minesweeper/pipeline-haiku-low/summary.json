@@ -1,0 +1,774 @@
+{
+  "id": "20261010-191555_kickstart_a-minesweeper-game",
+  "kind": "kickstart",
+  "label": "A minesweeper game",
+  "status": "degraded",
+  "error": null,
+  "finished_at": "2026-10-10 19:18:59",
+  "duration_s": 183.84,
+  "timeline": {
+    "in_stages_s": 183.39,
+    "outside_stages_s": 0.45,
+    "stage_time_sum_s": 321.73
+  },
+  "stages": [
+    {
+      "name": "intent",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:15:55",
+      "t_offset_s": 0.074,
+      "files_changed": [],
+      "duration_s": 2.521
+    },
+    {
+      "name": "expansion",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:15:58",
+      "t_offset_s": 2.596,
+      "files_changed": [],
+      "duration_s": 5.934
+    },
+    {
+      "name": "decomposition",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:16:04",
+      "t_offset_s": 8.53,
+      "files_changed": [],
+      "duration_s": 14.725
+    },
+    {
+      "name": "skeleton",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:16:18",
+      "t_offset_s": 23.255,
+      "files_changed": [
+        {
+          "path": "src/App.tsx",
+          "change": "modified",
+          "lines": 43
+        },
+        {
+          "path": "src/adapters/__init__.py",
+          "change": "added",
+          "lines": 1
+        },
+        {
+          "path": "src/adapters/record_store.py",
+          "change": "added",
+          "lines": 61
+        },
+        {
+          "path": "src/adapters/repository.py",
+          "change": "added",
+          "lines": 78
+        },
+        {
+          "path": "src/api/client.ts",
+          "change": "added",
+          "lines": 76
+        },
+        {
+          "path": "src/app.py",
+          "change": "modified",
+          "lines": 29
+        },
+        {
+          "path": "src/domain/__init__.py",
+          "change": "added",
+          "lines": 1
+        },
+        {
+          "path": "src/domain/difficulty_setting.py",
+          "change": "added",
+          "lines": 36
+        },
+        {
+          "path": "src/domain/events.py",
+          "change": "added",
+          "lines": 37
+        },
+        {
+          "path": "src/domain/exceptions.py",
+          "change": "added",
+          "lines": 32
+        },
+        {
+          "path": "src/domain/game.py",
+          "change": "added",
+          "lines": 44
+        },
+        {
+          "path": "src/domain/position.py",
+          "change": "added",
+          "lines": 33
+        },
+        {
+          "path": "src/entrypoints/__init__.py",
+          "change": "added",
+          "lines": 1
+        },
+        {
+          "path": "src/entrypoints/routers/__init__.py",
+          "change": "added",
+          "lines": 1
+        },
+        {
+          "path": "src/entrypoints/routers/difficulty_setting.py",
+          "change": "added",
+          "lines": 152
+        },
+        {
+          "path": "src/entrypoints/routers/game.py",
+          "change": "added",
+          "lines": 152
+        },
+        {
+          "path": "src/entrypoints/schemas.py",
+          "change": "added",
+          "lines": 79
+        },
+        {
+          "path": "src/main.tsx",
+          "change": "modified",
+          "lines": 13
+        },
+        {
+          "path": "src/service_layer/__init__.py",
+          "change": "added",
+          "lines": 1
+        },
+        {
+          "path": "src/service_layer/unit_of_work.py",
+          "change": "added",
+          "lines": 40
+        },
+        {
+          "path": "src/theme.css",
+          "change": "added",
+          "lines": 9
+        },
+        {
+          "path": "src/views/DifficultySettingView.tsx",
+          "change": "added",
+          "lines": 110
+        },
+        {
+          "path": "src/views/GameView.tsx",
+          "change": "added",
+          "lines": 110
+        },
+        {
+          "path": "tests/conftest.py",
+          "change": "added",
+          "lines": 4
+        },
+        {
+          "path": "tests/unit/test_skeleton.py",
+          "change": "added",
+          "lines": 25
+        }
+      ],
+      "duration_s": 0.023
+    },
+    {
+      "name": "persistence",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:16:19",
+      "t_offset_s": 23.405,
+      "files_changed": [],
+      "duration_s": 0.012
+    },
+    {
+      "name": "shell_and_acceptance",
+      "status": "ok",
+      "error": null,
+      "notes": {},
+      "started_at": "19:16:19",
+      "t_offset_s": 23.419,
+      "files_changed": [
+        {
+          "path": "tests/acceptance/test_minesweeper_frontend_acceptance.py",
+          "change": "added",
+          "lines": 40
+        },
+        {
+          "path": "tests/unit/test_minesweeper_acceptance.py",
+          "change": "added",
+          "lines": 308
+        }
+      ],
+      "duration_s": 0.004
+    },
+    {
+      "name": "seed_data",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "attempts": 1
+      },
+      "started_at": "19:16:19",
+      "t_offset_s": 23.651,
+      "files_changed": [
+        {
+          "path": "src/seed_data.json",
+          "change": "added",
+          "lines": 25
+        }
+      ],
+      "duration_s": 2.506
+    },
+    {
+      "name": "spec_review",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "conflicts": 0
+      },
+      "started_at": "19:16:19",
+      "t_offset_s": 23.651,
+      "files_changed": [],
+      "duration_s": 5.598
+    },
+    {
+      "name": "action_protocol",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "actions": [
+          "start_game",
+          "reveal_cell",
+          "toggle_flag"
+        ]
+      },
+      "started_at": "19:16:19",
+      "t_offset_s": 23.651,
+      "files_changed": [],
+      "duration_s": 5.391
+    },
+    {
+      "name": "ux_plan",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "has_visual_direction": true,
+        "draft_theme": {
+          "background": "#d4d4d4",
+          "surface": "#e5e5e5",
+          "text": "#171717",
+          "accent": "#b91c1c",
+          "on_accent": "#ffffff",
+          "heading": "sans"
+        },
+        "draft_layout": {
+          "columns": 1,
+          "rows": null
+        }
+      },
+      "started_at": "19:16:19",
+      "t_offset_s": 23.651,
+      "files_changed": [
+        {
+          "path": "src/theme.css",
+          "change": "modified",
+          "lines": 19,
+          "delta": 10
+        }
+      ],
+      "duration_s": 8.748
+    },
+    {
+      "name": "action_behaviour",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "implemented": [
+          "start_game",
+          "reveal_cell",
+          "toggle_flag"
+        ],
+        "runs": [
+          {
+            "aggregate": "Game",
+            "spec_id": "SPEC-ACT-GAME",
+            "status": "FULFILLED",
+            "error": "",
+            "attempts": 1
+          }
+        ]
+      },
+      "started_at": "19:16:24",
+      "t_offset_s": 29.053,
+      "files_changed": [
+        {
+          "path": "src/domain/game.py",
+          "change": "modified",
+          "lines": 223,
+          "delta": 179
+        },
+        {
+          "path": "tests/unit/test_spec_act_game.py",
+          "change": "added",
+          "lines": 157
+        }
+      ],
+      "duration_s": 56.815
+    },
+    {
+      "name": "rule_tests",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "written": [
+          "SPEC-001",
+          "SPEC-002",
+          "SPEC-003",
+          "SPEC-004",
+          "SPEC-005",
+          "SPEC-006",
+          "SPEC-007",
+          "SPEC-008",
+          "SPEC-009",
+          "SPEC-010",
+          "SPEC-011",
+          "SPEC-012",
+          "SPEC-013",
+          "SPEC-014",
+          "SPEC-015",
+          "SPEC-016",
+          "SPEC-017",
+          "SPEC-018"
+        ]
+      },
+      "started_at": "19:16:24",
+      "t_offset_s": 29.052,
+      "files_changed": [],
+      "duration_s": 50.657
+    },
+    {
+      "name": "presentation",
+      "status": "failed",
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.",
+      "notes": {},
+      "started_at": "19:16:28",
+      "t_offset_s": 32.409,
+      "files_changed": [],
+      "duration_s": 70.847
+    },
+    {
+      "name": "behaviour_specs",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "rules": {
+          "done": 18,
+          "total": 18,
+          "active": 18,
+          "latest": "Difficulty grid and mine count",
+          "waiting": []
+        },
+        "fulfilled": [
+          "SPEC-001",
+          "SPEC-002",
+          "SPEC-003",
+          "SPEC-004",
+          "SPEC-005",
+          "SPEC-006",
+          "SPEC-007",
+          "SPEC-008",
+          "SPEC-009",
+          "SPEC-010",
+          "SPEC-011",
+          "SPEC-012",
+          "SPEC-013",
+          "SPEC-014",
+          "SPEC-015",
+          "SPEC-016",
+          "SPEC-017",
+          "SPEC-018"
+        ]
+      },
+      "started_at": "19:17:21",
+      "t_offset_s": 85.873,
+      "files_changed": [
+        {
+          "path": "src/domain/difficulty_setting.py",
+          "change": "modified",
+          "lines": 65,
+          "delta": 29
+        },
+        {
+          "path": "src/domain/game.py",
+          "change": "modified",
+          "lines": 269,
+          "delta": 46
+        },
+        {
+          "path": "tests/unit/test_spec_001.py",
+          "change": "added",
+          "lines": 125
+        },
+        {
+          "path": "tests/unit/test_spec_002.py",
+          "change": "added",
+          "lines": 87
+        },
+        {
+          "path": "tests/unit/test_spec_003.py",
+          "change": "added",
+          "lines": 97
+        },
+        {
+          "path": "tests/unit/test_spec_004.py",
+          "change": "added",
+          "lines": 95
+        },
+        {
+          "path": "tests/unit/test_spec_005.py",
+          "change": "added",
+          "lines": 74
+        },
+        {
+          "path": "tests/unit/test_spec_006.py",
+          "change": "added",
+          "lines": 91
+        },
+        {
+          "path": "tests/unit/test_spec_007.py",
+          "change": "added",
+          "lines": 76
+        },
+        {
+          "path": "tests/unit/test_spec_008.py",
+          "change": "added",
+          "lines": 35
+        },
+        {
+          "path": "tests/unit/test_spec_009.py",
+          "change": "added",
+          "lines": 77
+        },
+        {
+          "path": "tests/unit/test_spec_010.py",
+          "change": "added",
+          "lines": 76
+        },
+        {
+          "path": "tests/unit/test_spec_011.py",
+          "change": "added",
+          "lines": 98
+        },
+        {
+          "path": "tests/unit/test_spec_012.py",
+          "change": "added",
+          "lines": 83
+        },
+        {
+          "path": "tests/unit/test_spec_013.py",
+          "change": "added",
+          "lines": 94
+        },
+        {
+          "path": "tests/unit/test_spec_014.py",
+          "change": "added",
+          "lines": 32
+        },
+        {
+          "path": "tests/unit/test_spec_015.py",
+          "change": "added",
+          "lines": 135
+        },
+        {
+          "path": "tests/unit/test_spec_016.py",
+          "change": "added",
+          "lines": 78
+        },
+        {
+          "path": "tests/unit/test_spec_017.py",
+          "change": "added",
+          "lines": 66
+        },
+        {
+          "path": "tests/unit/test_spec_018.py",
+          "change": "added",
+          "lines": 106
+        }
+      ],
+      "duration_s": 90.57
+    },
+    {
+      "name": "page_revisit",
+      "status": "skipped",
+      "error": "there is no page to revisit",
+      "notes": {},
+      "started_at": "19:17:38",
+      "t_offset_s": 103.258,
+      "files_changed": [],
+      "duration_s": 0.003
+    },
+    {
+      "name": "qa",
+      "status": "ok",
+      "error": null,
+      "notes": {
+        "verdict": "passed",
+        "rework_attempts": 0
+      },
+      "started_at": "19:18:52",
+      "t_offset_s": 176.454,
+      "files_changed": [],
+      "duration_s": 7.375
+    },
+    {
+      "name": "visual_review",
+      "status": "skipped",
+      "error": "the presentation stage delivered no components to review",
+      "notes": {},
+      "started_at": "19:18:59",
+      "t_offset_s": 183.833,
+      "files_changed": [],
+      "duration_s": 0.003
+    }
+  ],
+  "failed_stages": [
+    "presentation"
+  ],
+  "provenance": {
+    "src/App.tsx": "skeleton",
+    "src/adapters/__init__.py": "skeleton",
+    "src/adapters/record_store.py": "skeleton",
+    "src/adapters/repository.py": "skeleton",
+    "src/api/client.ts": "skeleton",
+    "src/app.py": "skeleton",
+    "src/domain/__init__.py": "skeleton",
+    "src/domain/difficulty_setting.py": "behaviour_specs",
+    "src/domain/events.py": "skeleton",
+    "src/domain/exceptions.py": "skeleton",
+    "src/domain/game.py": "behaviour_specs",
+    "src/domain/position.py": "skeleton",
+    "src/entrypoints/__init__.py": "skeleton",
+    "src/entrypoints/routers/__init__.py": "skeleton",
+    "src/entrypoints/routers/difficulty_setting.py": "skeleton",
+    "src/entrypoints/routers/game.py": "skeleton",
+    "src/entrypoints/schemas.py": "skeleton",
+    "src/main.tsx": "skeleton",
+    "src/service_layer/__init__.py": "skeleton",
+    "src/service_layer/unit_of_work.py": "skeleton",
+    "src/theme.css": "ux_plan",
+    "src/views/DifficultySettingView.tsx": "skeleton",
+    "src/views/GameView.tsx": "skeleton",
+    "tests/conftest.py": "skeleton",
+    "tests/unit/test_skeleton.py": "skeleton",
+    "tests/acceptance/test_minesweeper_frontend_acceptance.py": "shell_and_acceptance",
+    "tests/unit/test_minesweeper_acceptance.py": "shell_and_acceptance",
+    "src/seed_data.json": "seed_data",
+    "tests/unit/test_spec_act_game.py": "action_behaviour",
+    "tests/unit/test_spec_001.py": "behaviour_specs",
+    "tests/unit/test_spec_002.py": "behaviour_specs",
+    "tests/unit/test_spec_003.py": "behaviour_specs",
+    "tests/unit/test_spec_004.py": "behaviour_specs",
+    "tests/unit/test_spec_005.py": "behaviour_specs",
+    "tests/unit/test_spec_006.py": "behaviour_specs",
+    "tests/unit/test_spec_007.py": "behaviour_specs",
+    "tests/unit/test_spec_008.py": "behaviour_specs",
+    "tests/unit/test_spec_009.py": "behaviour_specs",
+    "tests/unit/test_spec_010.py": "behaviour_specs",
+    "tests/unit/test_spec_011.py": "behaviour_specs",
+    "tests/unit/test_spec_012.py": "behaviour_specs",
+    "tests/unit/test_spec_013.py": "behaviour_specs",
+    "tests/unit/test_spec_014.py": "behaviour_specs",
+    "tests/unit/test_spec_015.py": "behaviour_specs",
+    "tests/unit/test_spec_016.py": "behaviour_specs",
+    "tests/unit/test_spec_017.py": "behaviour_specs",
+    "tests/unit/test_spec_018.py": "behaviour_specs"
+  },
+  "llm": {
+    "calls": 36,
+    "errors": 1,
+    "prompt_tokens": 224466,
+    "cached_tokens": 0,
+    "completion_tokens": 116629,
+    "reasoning_tokens": 0,
+    "total_s": 643.959,
+    "cost_usd": 0.080761,
+    "cost_sek": 0.8076,
+    "usd_to_sek": 10.0,
+    "prices_as_of": "2026-10-09",
+    "unpriced_models": [],
+    "by_stage": {
+      "intent_classification": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 632,
+        "cached_tokens": 0,
+        "completion_tokens": 357,
+        "reasoning_tokens": 0,
+        "total_s": 2.518,
+        "cost_usd": 0.000242,
+        "cost_sek": 0.0024
+      },
+      "prompt_expansion": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 1818,
+        "cached_tokens": 0,
+        "completion_tokens": 1122,
+        "reasoning_tokens": 0,
+        "total_s": 5.932,
+        "cost_usd": 0.000743,
+        "cost_sek": 0.0074
+      },
+      "router_decomposition": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 3416,
+        "cached_tokens": 0,
+        "completion_tokens": 4285,
+        "reasoning_tokens": 0,
+        "total_s": 14.717,
+        "cost_usd": 0.002484,
+        "cost_sek": 0.0248
+      },
+      "seed_data": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 2067,
+        "cached_tokens": 0,
+        "completion_tokens": 384,
+        "reasoning_tokens": 0,
+        "total_s": 2.222,
+        "cost_usd": 0.000399,
+        "cost_sek": 0.004
+      },
+      "spec_consistency_review": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 2123,
+        "cached_tokens": 0,
+        "completion_tokens": 1083,
+        "reasoning_tokens": 0,
+        "total_s": 5.588,
+        "cost_usd": 0.000754,
+        "cost_sek": 0.0075
+      },
+      "ux_planning": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 5761,
+        "cached_tokens": 0,
+        "completion_tokens": 1504,
+        "reasoning_tokens": 0,
+        "total_s": 8.735,
+        "cost_usd": 0.001328,
+        "cost_sek": 0.0133
+      },
+      "domain_engine_synthesis": {
+        "calls": 1,
+        "errors": 0,
+        "prompt_tokens": 6611,
+        "cached_tokens": 0,
+        "completion_tokens": 1105,
+        "reasoning_tokens": 0,
+        "total_s": 5.377,
+        "cost_usd": 0.001214,
+        "cost_sek": 0.0121
+      },
+      "red_test_generation": {
+        "calls": 24,
+        "errors": 0,
+        "prompt_tokens": 139492,
+        "cached_tokens": 0,
+        "completion_tokens": 85762,
+        "reasoning_tokens": 0,
+        "total_s": 446.532,
+        "cost_usd": 0.05683,
+        "cost_sek": 0.5683
+      },
+      "presentation_projection_synthesis": {
+        "calls": 1,
+        "errors": 1,
+        "prompt_tokens": 0,
+        "cached_tokens": 0,
+        "completion_tokens": 0,
+        "reasoning_tokens": 0,
+        "total_s": 70.841,
+        "cost_usd": 0.0,
+        "cost_sek": 0.0
+      },
+      "green_code_repair": {
+        "calls": 4,
+        "errors": 0,
+        "prompt_tokens": 62546,
+        "cached_tokens": 0,
+        "completion_tokens": 21027,
+        "reasoning_tokens": 0,
+        "total_s": 81.497,
+        "cost_usd": 0.016768,
+        "cost_sek": 0.1677
+      }
+    }
+  },
+  "result": {
+    "success": true,
+    "stage_failures": [
+      {
+        "stage": "presentation",
+        "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+      }
+    ],
+    "spec_conflicts": [],
+    "timing_breakdown": {
+      "0_intent_grounding": 5.93,
+      "1_decomposition": 14.73,
+      "2_skeleton_scaffold": 0.15,
+      "3_persistence_deck": 0.01,
+      "4_shell_and_acceptance": 0.02,
+      "5a_domain_engine": 5.39,
+      "5b_presentation_projection": 70.85,
+      "5a_action_behaviour": 56.82,
+      "5c_behaviour_specs": 90.57,
+      "6_qa_audit": 7.38,
+      "7_visual_review": 0.01,
+      "total": 183.77
+    },
+    "qa": {
+      "passed": true,
+      "verdict": "passed",
+      "attempts": 0,
+      "defects": [],
+      "console_errors": [],
+      "warnings": [],
+      "reworked": []
+    },
+    "verification_models": {
+      "test": "claude-haiku-5-5",
+      "code": "claude-haiku-5-5",
+      "independent": false
+    },
+    "app_inventory": {
+      "entry": "src/main.tsx",
+      "entry_found": true,
+      "files": {
+        "src/App.tsx": 43,
+        "src/api/client.ts": 76,
+        "src/index.css": 6,
+        "src/main.tsx": 13,
+        "src/theme.css": 19,
+        "src/views/DifficultySettingView.tsx": 110,
+        "src/views/GameView.tsx": 110
+      },
+      "unreachable": [],
+      "reachable_lines": 377,
+      "unreachable_lines": 0
+    }
+  }
+}

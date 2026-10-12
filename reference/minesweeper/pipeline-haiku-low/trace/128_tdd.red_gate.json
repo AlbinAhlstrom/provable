@@ -1,0 +1,121 @@
+{
+  "seq": 128,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:17:24",
+  "t_offset_s": 88.907,
+  "thread": "red_3",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791652644.3603003,
+        "duration": 0.3791821002960205,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_004.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_004.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_004.py::test_first_reveal_target_and_all_neighbours_are_mine_free",
+                "type": "Function",
+                "lineno": 55
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_004.py::test_first_reveal_fixes_the_mine_layout",
+                "type": "Function",
+                "lineno": 76
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_004.py::test_first_reveal_target_and_all_neighbours_are_mine_free",
+            "lineno": 55,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_reveal_target_and_all_neighbours_are_mine_free",
+              "test_spec_004.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005358000053092837,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0016304000018863007,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003195000026607886,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_004.py::test_first_reveal_fixes_the_mine_layout",
+            "lineno": 76,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_reveal_fixes_the_mine_layout",
+              "test_spec_004.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00038889999268576503,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0010227999882772565,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00037259999953676015,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

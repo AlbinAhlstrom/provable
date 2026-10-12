@@ -1,0 +1,103 @@
+{
+  "seq": 322,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:25",
+  "t_offset_s": 206.426,
+  "thread": "red_4",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652465.2439911,
+        "duration": 0.16225028038024902,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_e_1ch_a_",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_005.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_005.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_005.py::test_new_session_starts_in_ready_state",
+                "type": "Function",
+                "lineno": 3
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_005.py::test_new_session_starts_in_ready_state",
+            "lineno": 3,
+            "outcome": "failed",
+            "keywords": [
+              "test_new_session_starts_in_ready_state",
+              "test_spec_005.py",
+              "unit",
+              "tests",
+              "hollow_e_1ch_a_",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003037999995285645,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00037229999725241214,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_e_1ch_a_\\tests\\unit\\test_spec_005.py",
+                "lineno": 33,
+                "message": "AssertionError: assert 'won' == 'ready'\n  \n  - ready\n  + won"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_005.py",
+                  "lineno": 33,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_new_session_starts_in_ready_state():\n        # Given: the player has chosen the Expert difficulty (16 rows, 30 columns, 99 mines).\n        session = GameSession(\n            id=\"game-1\",\n            difficulty_id=\"expert\",\n            rows=16,\n            columns=30,\n            mine_count=99,\n        )\n        # Given: the previous game on this session has already ended as won, with a\n        # running clock of 120 seconds, so the session is NOT in the ready state before\n        # the new game is started. Its cells are left as constructed (hidden, no mines),\n        # which is a valid board for a won game in this arrangement.\n        session.status = \"won\"\n        session.elapsed_seconds = 120\n        session.started_at = \"2025-01-01T10:00:00\"\n        session.ended_at = \"2025-01-01T10:02:00\"\n    \n        # When: a new game is started at that same difficulty (16 x 30 with 99 mines).\n        session.start_new_game(\n            difficulty_id=\"expert\",\n            rows=16,\n            columns=30,\n            mine_count=99,\n        )\n    \n        # Then: the rules say a new game with no reveal yet is in the \"ready\" status.\n        # The start is allowed from the won status, and the status was \"won\" before the call,\n        # so this assertion can only hold if start_new_game changed it.\n>       assert session.status == \"ready\"\nE       AssertionError: assert 'won' == 'ready'\nE         \nE         - ready\nE         + won\n\ntests\\unit\\test_spec_005.py:33: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0002471000043442473,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

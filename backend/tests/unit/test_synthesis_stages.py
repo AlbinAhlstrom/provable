@@ -7,6 +7,7 @@ import pytest
 
 import run_recorder
 from onboarding.action_behaviour import ActionBehaviour
+from onboarding.domain_round import DomainRound
 from onboarding.spec_runner import SpecRun
 from onboarding.synthesis_stages import run_synthesis_stages
 
@@ -20,7 +21,7 @@ def _stages(**overrides):
         seed=lambda **kw: {"success": True, "files": ["seed.json"]},
         presentation=lambda **kw: {"success": True, "files": ["App.tsx"]},
         ux=lambda **kw: "### 1. Plan\n### 6. Visual Direction\nwarm cream, one amber accent",
-        behaviour=lambda manifest, workspace_dir, rules=None: ActionBehaviour(implemented=["submit"]),
+        domain=lambda manifest, deck, report: DomainRound(behaviour=ActionBehaviour(implemented=["submit"])),
     )
     stages.update(overrides)
     return stages
@@ -102,7 +103,8 @@ def test_every_stage_that_does_not_deliver_is_reported_with_its_reason(tmp_path,
     run = next(p for p in (tmp_path / "runs").iterdir() if p.is_dir())
     stages = {s["name"]: s["status"] for s in json.loads((run / "summary.json").read_text(encoding="utf-8"))["stages"]}
     assert stages == {"spec_review": "failed", "seed_data": "failed", "ux_plan": "ok", "action_protocol": "ok",
-                      "action_behaviour": "ok", "behaviour_specs": "skipped", "presentation": "failed"}
+                      "behaviour_specs": "ok", "presentation": "failed",
+                      "page_revisit": "skipped"}
 
 
 def test_seed_data_is_credited_with_its_file_and_the_presentation_with_its_own(tmp_path, monkeypatch):
@@ -201,26 +203,156 @@ def test_a_written_page_leaves_no_scaffold_it_does_not_reach(tmp_path):
     assert (failed / "src/views/ScaffoldView.tsx").exists() and outcome.removed_scaffold == []
 
 
-def test_the_actions_are_implemented_before_the_page_that_calls_them_is_written(tmp_path):
-    """Verify the page is written against a domain that already has its methods and fields.
+CLASS = "from dataclasses import dataclass\n\n\n@dataclass\nclass Inquiry:\n    id: str\n    status: str = 'new'\n"
+
+
+def _domain_class(workspace, source=CLASS):
+    path = workspace / "src" / "domain" / "inquiry.py"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(source, encoding="utf-8")
+    return path
+
+
+def _stage_records(tmp_path):
+    run = next(p for p in (tmp_path / "runs").iterdir() if p.is_dir())
+    return {s["name"]: s for s in json.loads((run / "summary.json").read_text(encoding="utf-8"))["stages"]}
+
+
+def test_the_page_is_written_while_its_actions_are_implemented(tmp_path):
+    """Verify the page no longer waits for the methods behind its actions.
 
     id: TST-SYN-BEHAVIOUR
-    Given: A behaviour stage that records the manifest it was given, and a presentation that checks it has run
+    Given: A behaviour stage that only finishes once the presentation has started, and a presentation that only
+           finishes once the behaviour stage has started
     When: The stages run
-    Then: Behaviour ran with the protocol's manifest before the presentation, and its result is in the outcome
+    Then: Both finish (one after the other, either would wait forever); behaviour ran with the protocol's manifest
+          and its result is in the outcome
     """
-    seen = []
+    seen, behaviour_started, page_started = [], threading.Event(), threading.Event()
 
-    def behaviour(manifest, workspace_dir, rules=None):
+    def behaviour(manifest, deck, report):
         seen.append([a["name"] for a in manifest["actions"]])
-        return ActionBehaviour(implemented=["submit"])
+        behaviour_started.set()
+        assert page_started.wait(WAIT), "the page waited for its actions to be implemented"
+        return DomainRound(behaviour=ActionBehaviour(implemented=["submit"]))
 
     def presentation(**kw):
-        assert seen == [["submit"]], "the page was written before its actions were implemented"
+        page_started.set()
+        assert behaviour_started.wait(WAIT), "the actions were not implemented alongside the page"
         return {"success": True, "files": ["App.tsx"]}
 
-    outcome = _run(tmp_path, behaviour=behaviour, presentation=presentation)
+    outcome = _run(tmp_path, domain=behaviour, presentation=presentation)
+    assert seen == [["submit"]]
     assert outcome.behaviour.implemented == ["submit"] and outcome.failures == []
+
+
+def test_a_page_whose_classes_kept_their_fields_is_not_written_again(tmp_path, monkeypatch):
+    """Verify the usual case costs one page: the methods were written and the classes hold what they held.
+
+    id: TST-SYN-REVISIT-UNCHANGED
+    Given: A domain class to which the behaviour stage adds a method and no field, in a recorded run
+    When: The stages run
+    Then: The page is written once, and the revisit is recorded as skipped with the reason
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.delenv("PROVABLE_RECORD_RUNS", raising=False)
+    workspace = tmp_path / "ws"
+    domain_class = _domain_class(workspace)
+    pages = []
+
+    def behaviour(manifest, deck, report):
+        domain_class.write_text(CLASS + "\n    def submit(self) -> None:\n        self.status = 'sent'\n", encoding="utf-8")
+        return DomainRound(behaviour=ActionBehaviour(implemented=["submit"]))
+
+    def presentation(**kw):
+        pages.append(domain_class.read_text(encoding="utf-8"))
+        return {"success": True, "files": []}
+
+    with run_recorder.recorded_run("kickstart", "p", workspace_dir=str(workspace)):
+        outcome = _run(workspace, domain=behaviour, presentation=presentation)
+    assert len(pages) == 1 and outcome.failures == [] and outcome.page_revisit == []
+    revisit = _stage_records(tmp_path)["page_revisit"]
+    assert revisit["status"] == "skipped" and "hold the fields the page was written for" in revisit["error"]
+
+
+def test_a_page_is_written_again_when_a_class_holds_something_new(tmp_path, monkeypatch):
+    """Verify a class that changed under the page sends the page back once, to be written for the class as it is.
+
+    id: TST-SYN-REVISIT-CHANGED
+    Given: A domain class to which the behaviour stage adds a field the page could not know of, in a recorded run
+    When: The stages run
+    Then: The page is written a second time, after the actions, against the class with the new field; the outcome
+          and the revisit's record name what changed, and the second page is the one that stands
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.delenv("PROVABLE_RECORD_RUNS", raising=False)
+    workspace = tmp_path / "ws"
+    domain_class = _domain_class(workspace)
+    pages = []
+
+    def behaviour(manifest, deck, report):
+        domain_class.write_text(CLASS + "    answered_by: str = ''\n", encoding="utf-8")
+        return DomainRound(behaviour=ActionBehaviour(implemented=["submit"]))
+
+    def presentation(**kw):
+        pages.append("answered_by" in domain_class.read_text(encoding="utf-8"))
+        return {"success": True, "files": [f"Page{len(pages)}.tsx"]}
+
+    with run_recorder.recorded_run("kickstart", "p", workspace_dir=str(workspace)):
+        outcome = _run(workspace, domain=behaviour, presentation=presentation)
+    assert len(pages) == 2 and pages[1] is True
+    assert outcome.page_revisit == ["Inquiry now also holds answered_by"]
+    assert outcome.presentation["files"] == ["Page2.tsx"] and outcome.failures == []
+    records = _stage_records(tmp_path)
+    assert records["presentation"]["status"] == "ok" and records["page_revisit"]["status"] == "ok"
+    assert records["page_revisit"]["notes"]["changed"] == ["Inquiry now also holds answered_by"]
+
+
+def test_a_revisit_that_does_not_deliver_leaves_the_first_page(tmp_path):
+    """Verify a failed second writing is reported and costs nothing that was there.
+
+    id: TST-SYN-REVISIT-FAILED
+    Given: A class that changed under the page, and a presentation whose second call fails
+    When: The stages run
+    Then: The failure names the revisit and its reason, and the outcome still carries the first page
+    """
+    domain_class = _domain_class(tmp_path)
+    calls = []
+
+    def behaviour(manifest, deck, report):
+        domain_class.write_text(CLASS + "    answered_by: str = ''\n", encoding="utf-8")
+        return DomainRound(behaviour=ActionBehaviour(implemented=["submit"]))
+
+    def presentation(**kw):
+        calls.append(1)
+        return {"success": True, "files": ["Page.tsx"]} if len(calls) == 1 else {"success": False, "error": "quota", "files": []}
+
+    outcome = _run(tmp_path, domain=behaviour, presentation=presentation)
+    assert outcome.failures == [{"stage": "page_revisit", "error": "quota"}]
+    assert outcome.presentation == {"success": True, "files": ["Page.tsx"]}
+
+
+def test_a_page_that_was_not_written_is_not_revisited(tmp_path):
+    """Verify the revisit is not a second chance for a page that failed: that failure stands as it is.
+
+    id: TST-SYN-REVISIT-NO-PAGE
+    Given: A class that changed while the page was being written, and a presentation that fails
+    When: The stages run
+    Then: The presentation is called once and its failure is the only one
+    """
+    domain_class = _domain_class(tmp_path)
+    calls = []
+
+    def behaviour(manifest, deck, report):
+        domain_class.write_text(CLASS + "    answered_by: str = ''\n", encoding="utf-8")
+        return DomainRound(behaviour=ActionBehaviour(implemented=["submit"]))
+
+    def presentation(**kw):
+        calls.append(1)
+        return {"success": False, "error": "no App.tsx", "files": []}
+
+    outcome = _run(tmp_path, domain=behaviour, presentation=presentation)
+    assert len(calls) == 1 and outcome.failures == [{"stage": "presentation", "error": "no App.tsx"}]
 
 
 def test_an_action_nothing_implements_is_a_reported_failure_and_the_page_is_still_written(tmp_path):
@@ -233,37 +365,36 @@ def test_an_action_nothing_implements_is_a_reported_failure_and_the_page_is_stil
     """
     missing = ActionBehaviour(missing=[{"action": "submit", "aggregate": "Inquiry", "performed_by": "audience"}],
                               runs=[{"aggregate": "Inquiry", "status": "REQUIRES_HUMAN_INTERVENTION", "error": "assert failed"}])
-    outcome = _run(tmp_path, behaviour=lambda manifest, workspace_dir, rules=None: missing)
+    outcome = _run(tmp_path, domain=lambda manifest, deck, report: DomainRound(behaviour=missing))
     assert [f["stage"] for f in outcome.failures] == ["action_behaviour"]
     assert "submit" in outcome.failures[0]["error"]
     assert outcome.presentation["success"]
 
 
-def test_the_rule_specs_run_after_the_actions_and_while_the_page_is_written(tmp_path):
-    """Verify the specs build on the actions' methods and do not queue in front of the presentation.
+def test_the_actions_and_the_rules_are_written_in_one_round_while_the_page_is_written(tmp_path):
+    """Verify the domain does not queue in front of the presentation, and is settled before the stages return.
 
     id: TST-SYN-SPECS
-    Given: A spec stage that checks the actions are implemented, and a presentation that only finishes once it started
+    Given: A domain round that records what it is handed, and a presentation that only finishes once the round started
     When: The stages run
-    Then: Both finish, and the spec result is in the outcome before the stages return (QA runs on a settled domain)
+    Then: The round ran once with the action protocol's manifest and the deck, both finish, and what the round
+          delivered is in the outcome before the stages return (QA runs on a settled domain)
     """
-    order, specs_started = [], threading.Event()
+    handed, started = [], threading.Event()
 
-    def behaviour(manifest, workspace_dir, rules=None):
-        order.append("behaviour")
-        return ActionBehaviour(implemented=["submit"])
-
-    def specs(inbox_specs, report):
-        assert order == ["behaviour"], "the specs ran before the actions were implemented"
-        specs_started.set()
-        return SpecRun(fulfilled=["SPEC-001"])
+    def domain(manifest, deck, report):
+        handed.append((manifest, deck))
+        started.set()
+        return DomainRound(behaviour=ActionBehaviour(implemented=["submit"]), specs=SpecRun(fulfilled=["SPEC-001"]))
 
     def presentation(**kw):
-        assert specs_started.wait(WAIT), "the specs did not run alongside the presentation"
+        assert started.wait(WAIT), "the domain round did not run alongside the presentation"
         return {"success": True, "files": ["App.tsx"]}
 
-    outcome = _run(tmp_path, behaviour=behaviour, specs=specs, presentation=presentation)
-    assert outcome.specs.fulfilled == ["SPEC-001"] and outcome.failures == []
+    outcome = _run(tmp_path, domain=domain, presentation=presentation)
+    assert handed == [({"actions": [{"name": "submit"}]}, [])]
+    assert outcome.specs.fulfilled == ["SPEC-001"] and outcome.behaviour.implemented == ["submit"]
+    assert outcome.failures == []
 
 
 def test_a_spec_that_was_not_fulfilled_is_a_reported_failure(tmp_path):
@@ -276,7 +407,8 @@ def test_a_spec_that_was_not_fulfilled_is_a_reported_failure(tmp_path):
     """
     unfulfilled = SpecRun(unfulfilled=[{"spec_id": "SPEC-002", "title": "No double booking", "status": "REQUIRES_HUMAN_INTERVENTION",
                                         "error": "assert raised"}])
-    outcome = _run(tmp_path, specs=lambda inbox_specs, report: unfulfilled)
+    outcome = _run(tmp_path, domain=lambda manifest, deck, report: DomainRound(
+        behaviour=ActionBehaviour(implemented=["submit"]), specs=unfulfilled))
     assert [f["stage"] for f in outcome.failures] == ["behaviour_specs"]
     assert "SPEC-002" in outcome.failures[0]["error"] and outcome.presentation["success"]
 
@@ -295,6 +427,21 @@ def test_the_ux_plans_palette_is_written_as_the_drafts_theme(tmp_path):
             "TOKENS background=#faf7f2 surface=#ffffff text=#1c1917 accent=#b45309 on_accent=#ffffff heading=serif")
     _run(tmp_path, ux=lambda **kw: plan)
     assert "--draft-bg: #faf7f2;" in (tmp_path / "src" / "theme.css").read_text(encoding="utf-8")
+
+
+def test_the_ux_plans_layout_is_drawn_in_the_draft_even_without_a_palette(tmp_path):
+    """Verify the app on screen shows the outline of its main view as soon as the plan states it.
+
+    id: TST-SYN-DRAFT-LAYOUT
+    Given: A skeleton's neutral theme file, and a UX plan that states a layout but no token line
+    When: The stages run
+    Then: The theme file draws the outline, in the neutral colours
+    """
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "theme.css").write_text(":root {}", encoding="utf-8")
+    _run(tmp_path, ux=lambda **kw: "### 6. Visual Direction\nwarm cream\nLAYOUT columns=7 rows=5")
+    css = (tmp_path / "src" / "theme.css").read_text(encoding="utf-8")
+    assert "aspect-ratio: 7 / 5;" in css and "--draft-bg:" in css
 
 
 def test_a_component_the_page_does_not_use_is_no_longer_reported_as_written(tmp_path, monkeypatch):
@@ -322,16 +469,16 @@ def test_a_component_the_page_does_not_use_is_no_longer_reported_as_written(tmp_
     assert str(unused) not in outcome.files and outcome.removed_scaffold == ["src/Unused.tsx"]
 
 
-def test_rules_are_not_written_when_there_is_no_action_protocol(tmp_path):
-    """Verify a failed action protocol stops the rules too: nothing was implemented for them to build on.
+def test_nothing_is_written_for_the_domain_when_there_is_no_action_protocol(tmp_path):
+    """Verify a failed action protocol stops the round too: there is nothing for its tests to be written from.
 
     id: TST-SYN-SPECS-NO-PROTOCOL
     Given: An action protocol stage that fails (its answer could not be read)
     When: The stages run
-    Then: The spec executor is never called; the only failure is the action protocol's
+    Then: The domain round is never called; the only failure is the action protocol's
     """
-    def specs(inbox_specs, report):
-        raise AssertionError("the rules ran on a class without its actions")
+    def domain(manifest, deck, report):
+        raise AssertionError("the round ran on classes whose actions are not named")
 
-    outcome = _run(tmp_path, protocol=lambda **kw: {"success": False, "error": "not valid JSON", "files": []}, specs=specs)
+    outcome = _run(tmp_path, protocol=lambda **kw: {"success": False, "error": "not valid JSON", "files": []}, domain=domain)
     assert [f["stage"] for f in outcome.failures] == ["action_protocol"]

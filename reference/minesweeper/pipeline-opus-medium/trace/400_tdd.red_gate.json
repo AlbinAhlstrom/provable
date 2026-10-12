@@ -1,0 +1,195 @@
+{
+  "seq": 400,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:33",
+  "t_offset_s": 404.893,
+  "thread": "red_18",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656613.3123884,
+        "duration": 0.8418674468994141,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 4,
+          "total": 4,
+          "collected": 4
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_037.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_037.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[beginner]",
+                "type": "Function",
+                "lineno": 17
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[expert]",
+                "type": "Function",
+                "lineno": 17
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+                "type": "Function",
+                "lineno": 45
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[beginner]",
+            "lineno": 17,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_win_does_not_change_best_time[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_037.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009579000034136698,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001059200003510341,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0007009000109974295,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[expert]",
+            "lineno": 17,
+            "outcome": "passed",
+            "keywords": [
+              "test_custom_win_does_not_change_best_time[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_037.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006551999977091327,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004995000053895637,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003981000045314431,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_037.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00170310000248719,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004413999995449558,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00038180001138243824,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_037.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008379000064451247,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.000588800001423806,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00039030000334605575,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

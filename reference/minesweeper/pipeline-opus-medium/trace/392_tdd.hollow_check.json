@@ -1,0 +1,28 @@
+{
+  "seq": 392,
+  "step": "tdd.hollow_check",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:33",
+  "t_offset_s": 404.141,
+  "thread": "red_8",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_040.py",
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace",
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\game.py",
+      "Game"
+    ],
+    "kwargs": {
+      "run": "<function run_isolated_pytest at 0x0000021033AC8F40>",
+      "judge": "<function evaluate_red_gate_result at 0x0000021033AC8540>"
+    }
+  },
+  "output": true,
+  "duration_s": 5.168
+}

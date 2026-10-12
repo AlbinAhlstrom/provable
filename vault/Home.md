@@ -8,13 +8,13 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 
 ### 1. 🏗️ System Architecture
 - [[Enterprise-AppGen-TDD-Engine-Architecture]]: Core Enterprise AppGen engine architecture: Schema-Driven UI (Dumb Projection), Programmatic Red-Gate TDD Validation, LibCST Code Isolation, and SHA-256 5-Line Hash Lock.
-- [[System Architecture]]: Overview of PM Studio frontend (`KickstartStudio`, `BehaviorInboxPanel`, `RequirementControlPanel`, `AppPreview`), FastAPI backend engine, SQLite DataStore, and TDD state machine.
+- [[System Architecture]]: Overview of PM Studio frontend (`KickstartStudio`, `AppPreview`, `RequirementControlPanel`), FastAPI backend engine, SQLite DataStore, and TDD state machine.
 - [[Full-LLM-Free-Form-Orchestration-Graph]]: Full-LLM synthesis pipeline featuring Domain Storming, Backend DDD/TDD, Skeleton Builder, and Verification Gates.
 - [[PM-Studio-UX-Architecture-And-Direction]]: Breakdown of PM Studio 3-Pillar UX Architecture (Pages Bar, Executable Test Specs / Behavior Inbox, Domain Entities Inspector) and Mobile-First responsive design system invariants.
 - [[Audience Roles and Seed Data]]: Which entity the interface is organised around (what the audience creates), clients for shown content, and the validated starter records that fill it.
 - [[Universal-Dynamic-Domain-AST-Generator]]: Dynamic domain generator scaffolding pure DDD domain aggregates (`Pallet`, `Zone`, `Operator`), Pydantic DTOs, Unit of Work, and FastAPI routers.
 - [[Database Schema]]: Comprehensive documentation of SQLite tables (`requirements`, `test_cases`, `agent_runs`, `kickstart_state`, `projects`), schema triggers, JSON columns, and DataStore sync mechanisms.
-- [[Frontend Components]]: Breakdown of React components (`App`, `KickstartStudio`, `AppPreview`, `BehaviorInboxPanel`, `RequirementControlPanel`, `DomainEntitiesPanel`, `CoverageHub`), state hooks, and CSS design system.
+- [[Frontend Components]]: Breakdown of React components (`App`, `KickstartStudio`, `AppPreview`, `RequirementControlPanel`, `specs/`), the four-state test light, and the stacked mobile layout.
 - [[Backend REST API]]: Detailed REST API endpoint specifications (`/api/specs/inbox`, `/api/onboarding/kickstart`, `/api/onboarding/reset`, `/api/requirements`, `/api/coverage`), request/response models, and CORS configuration.
 - [[Integrations]]: Sync clients for StrictDoc (`strictdoc_client.py`) and containerized Allure reporting (`allure_client.py`).
 - [[LLM Abstraction and Prompts]]: Env-var model configuration, the OpenAI-SDK `call_gemini` wrapper, and where each prompt lives (file-based vs inline).
@@ -30,6 +30,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[Helper Scripts]]: Single cross-platform application launcher (`run.py`) and PowerShell/Bash wrappers.
 - [[Build Progress]]: The Studio shows an app while it is being built: a first draft in the plan's colours from the moment the skeleton exists, then the written page, with what is still being worked on above it (`GET /api/onboarding/progress`); records are saved across API restarts.
 - [[Page Rebuild]]: Writes a generated app's page again (UX plan, page, QA, visual review) against the domain it already has; about a tenth of a kickstart's tokens, for changes that only concern the page.
+- [[Step Analysis]]: One step's prompt run alone on Opus, Sonnet and Haiku for three kinds of pitch, to find what the prompt leaves to judgement and rewrite it; speed, cost and quality before and after (`step-analysis` skill).
 - [[Run Recorder]]: One folder per pipeline run (`logs/runs/`): commit and model, per-stage outcome, full step and LLM trace, generated-app snapshot; `scripts/trace_report.py` reads and compares runs.
 - [[Stage Replay]]: Re-sends a recorded run's LLM calls to cheaper models stage by stage and scores each answer against the recorded one (`scripts/stage_replay.py`).
 
@@ -48,6 +49,10 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[ADR-006 Spec-Derived RED Tests and Fragment GREEN]]: Decision record on LLM-written behavioral RED tests, the stricter RED gate, module-fragment GREEN, rollback and the evidence behind them.
 - [[ADR-007 Product Intent Step]]: Decision record on classifying what kind of product a pitch asks for before designing the domain model.
 - [[ADR-008 Aggregate Ownership and Audience-Scoped UI]]: The TDD loop owns the aggregate, the intent reaches every stage, and the UI serves only the product's audience; lists the known remaining gaps.
+- [[ADR-009 Product Kinds and Capability Roadmap]]: The kinds of product the engine is meant to build (as a review lens and test matrix, never a pipeline branch), what each lacks today, and the phased roadmap from prompt wording to rules across records, roles, time and charts.
+- [[ADR-010 One Kind of Rule Proved on the Page]]: A rule has one kind and one proof, a test that drives the running page; running a test never changes code, and fixing is a separate step that starts from a red test.
+- [[ADR-012 Engine on a Container Host]]: Moves the engine from Vercel functions (no Node) to a Fly.io container with a data volume; the Studio stays on Vercel and reaches it through `VITE_ENGINE_URL`.
+- [[ADR-011 The Product Contract]]: A live kickstart opens with one call that names the product, its look, records, actions, refusals, read-out names and rules; the structure, rule deck, action manifest, intent and page plan are read out of it by code.
 
 
 ### 5. 📜 Agent Rules & Governance

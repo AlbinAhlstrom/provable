@@ -178,3 +178,21 @@ def test_the_test_writer_thinks_longer_when_asked_to_be_careful(monkeypatch):
 
     assert not seen[0].get("reasoning_effort")
     assert seen[1]["reasoning_effort"] == "medium" and seen[1]["timeout_s"] > 60
+
+
+def test_a_first_draft_of_a_test_is_given_the_time_a_whole_class_of_actions_takes(monkeypatch):
+    """Verify a test may take longer to write than an ordinary call (the one test of a class's eight actions took
+    31 s in one build and was cut off at 60 s in the next, slower one, so no action was built and the page was empty).
+
+    id: TST-RED-TIME
+    Given: The test writer
+    When: It is asked for a first draft
+    Then: The call is given more time than an ordinary call, at the default effort
+    """
+    import agent_orchestrator
+    seen = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda p, stage="general", **k: seen.append(k) or "```python\nx\n```")
+    tdd_machine.generate_red_test(_spec(), "class Invoice:\n    pass\n", "invoice", "Invoice")
+
+    assert seen[0]["timeout_s"] == tdd_machine.RED_TIMEOUT_S > agent_orchestrator.DEFAULT_TIMEOUT_S
+    assert not seen[0].get("reasoning_effort")

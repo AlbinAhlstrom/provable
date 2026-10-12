@@ -1,0 +1,173 @@
+{
+  "seq": 343,
+  "step": "visual.review",
+  "kind": "step",
+  "depth": 1,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold"
+  ],
+  "started_at": "19:15:00",
+  "t_offset_s": 240.956,
+  "thread": "AnyIO worker thread",
+  "input": {
+    "args": [],
+    "kwargs": {
+      "workspace_dir": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace",
+      "pitch": "# Minesweeper\n\n## 1. Personas & Value Journey\n**Player (the only persona):** wants a quick, single-player logic puzzle.\n- **Sees:** the hidden grid, the mine counter, the elapsed time, the difficulty, and the game status.\n- **Decides:** which cell to reveal and which to flag.\n- **Accomplishes:** revealing every safe cell without hitting a mine.\n\nNo other roles appear in the interface.\n\n## 2. Presentation & Interaction\nLooks like classic Minesweeper:\n- **Board:** a grid of grey raised tiles. Revealed tiles are flat light grey, with numbers coloured as in the original (1 blue, 2 green, 3 red, 4 dark blue, and so on).\n- **Markers:** a red flag for flagged cells. On a loss, mines show as black dots and wrongly placed flags are marked.\n- **Top bar:** mine counter on the left, a status button in the centre (smiley face, changing to a loss or win face), and the timer on the right.\n- **Controls:** click or tap reveals a cell. Right-click or long-press toggles a flag.\n\n## 3. MVP Scope\n- **Included:** difficulty presets (Beginner 9×9 with 10 mines; Intermediate 16×16 with 40; Expert 30×16 with 99), reveal, flag, adjacency counts, win and loss detection, timer, and starting a new game.\n- **Excluded:** accounts, multiplayer, leaderboards, player profiles, and payments.\n\n## 4. Core Concepts\n- **Board:** a grid of cells, each with a mine or no mine and an adjacency count.\n- **Cell state:** Hidden → Revealed (terminal). Hidden ⇄ Flagged. A flagged cell cannot be revealed until unflagged.\n- **Game session:** Ready (no reveal yet) → In progress (after first reveal) → Won or Lost (terminal). A new game returns to Ready.\n- **Difficulty:** fixes rows, columns, and mine count.\n\n## 5. Rules\n1. **Mine placement:** mines are placed at random after the first reveal, so the first revealed cell is never a mine.\n2. **Adjacency count:** a safe cell shows how many mines are among its eight neighbours.\n   - Edge and corner cells count only neighbours that exist.\n   - A count of zero shows blank.\n3. **Reveal:** the player reveals a hidden, unflagged cell.\n   - Revealing a mine loses the game.\n   - Revealing a zero-count cell also reveals its neighbours, repeating through connected zero-count cells. Numbered cells stop the spread.\n4. **Flag:** the player toggles a flag on a hidden cell. Flags do not reveal cells.\n5. **Win:** the game is won when every safe cell is revealed. Flags are not required for a win.\n6. **Loss:** the game is lost when a mine is revealed. All mines are then shown.\n7. **Ending early:** the player may abandon a game at any time to start a new board at the same difficulty. An abandoned game has no result.\n8. **Timer:** starts at the first reveal, shows whole seconds, and stops on a win or loss.\n\n## 6. Invariants & Rejections\n- Mine count and board size are fixed for the whole session.\n- The mine counter always equals mines minus flags, and may go negative.\n- Invalid actions (revealing a flagged or revealed cell, flagging a revealed cell, or any board action after the game has ended) are ignored. They change no cell state and do not affect the timer.",
+      "visual_direction": "**Feel:** classic Windows-era Minesweeper: chunky, bevelled, and unfussy.\n\n**Palette:** a silver panel with raised grey tiles, flat light-grey revealed cells, and the classic number colours (1 blue, 2 green, 3 red, 4 dark blue, and so on). The accent is the yellow face button, the game's main control. Number colours sit on the light revealed tiles, so they stay at strong saturation. The LCD counter and timer use red digits on a near-black panel. Flags are red, mines are black dots.\n\n**Type:** sans-serif throughout. The headline is absent; the first screen is the game. Counter and timer digits use a bold, tabular numeral style for legibility.\n\n**Shape & rhythm:** square corners (0 to 2 px radius), 2-px bevelled borders (light top-left, dark bottom-right) on raised tiles, flat fills on revealed tiles. Spacing is tight: 8 px between the top bar and board, 12 px around the frame. Density is high, as in the original.\n\n**Form of the main view:** one bevelled frame, one width, containing the top bar, the grid, and the difficulty row. Board cells are square and sized to fit the frame, so every cell is the same size at any difficulty, whatever it holds. The whole stays at its natural proportions and does not scale to fill the window.\n\nLAYOUT columns=1 rows=auto\n\nTOKENS background=#c0c0c0 surface=#bdbdbd text=#111111 accent=#facc15 on_accent=#111111 heading=sans",
+      "component_files": [
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\views\\GameSessionView.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\components\\Controls\\GameSessionControls.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\App.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\main.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\api\\difficultyClient.ts",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\api\\game_sessionClient.ts",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\views\\GameSessionView.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\components\\Controls\\GameSessionControls.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\App.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\main.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\api\\difficultyClient.ts",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\api\\game_sessionClient.ts"
+      ],
+      "screenshots": {
+        "phone, 375px wide": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_mobile_full.png",
+        "desktop, 1280px wide": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_desktop_full.png"
+      },
+      "audit": "<function run_page_gates.<locals>.run_audit at 0x0000023211E11940>",
+      "settled": []
+    }
+  },
+  "output": {
+    "verdict": "repaired",
+    "problems": [
+      "On desktop the frame is stretched wide by the difficulty row, while the board stays small (cells capped at 2 rem) and sits in the middle. The mine counter and timer are pushed to the far edges, leaving large empty gaps. The main view reads as loose parts, not one compact unit fitted to the frame.",
+      "The yellow accent is applied to the selected difficulty button. The direction reserves yellow for the face button as the game's main control, so the difficulty row competes with it.",
+      "The 'Mines left' and 'Time' captions under the LCD readouts are set at 10px, which is too small to read comfortably."
+    ],
+    "edits": [
+      {
+        "problem": "The yellow accent is applied to the selected difficulty button. The direction reserves yellow for the face button as the game's main control, so the difficulty row competes with it.",
+        "file": "src/components/Controls/GameSessionControls.tsx",
+        "find": "bg-[#facc15]",
+        "replace": "bg-[#d6d6d6]",
+        "applied": true,
+        "occurrences": 1,
+        "reason": ""
+      },
+      {
+        "problem": "The 'Mines left' and 'Time' captions under the LCD readouts are set at 10px, which is too small to read comfortably.",
+        "file": "src/views/GameSessionView.tsx",
+        "find": "text-[10px] leading-tight text-[#111111]",
+        "replace": "text-xs leading-tight text-[#111111]",
+        "applied": true,
+        "occurrences": 1,
+        "reason": ""
+      }
+    ],
+    "not_repaired": [
+      "On desktop the frame is stretched wide by the difficulty row, while the board stays small (cells capped at 2 rem) and sits in the middle. The mine counter and timer are pushed to the far edges, leaving large empty gaps. The main view reads as loose parts, not one compact unit fitted to the frame.: no class change can fix it"
+    ],
+    "claims": [],
+    "error": null,
+    "attempts": 1,
+    "elapsed_seconds": 17.25,
+    "final_audit": {
+      "passed": true,
+      "overall_status": "PASS",
+      "device_results": [
+        {
+          "device": "Mobile",
+          "width": 375,
+          "height": 812,
+          "passed": true,
+          "metrics": {
+            "clippedCount": 0,
+            "clippedSamples": [],
+            "crashFile": "",
+            "crashMessage": "",
+            "hasCrashOverlay": false,
+            "hasHorizontalOverflow": false,
+            "hasVerticalOverflow": false,
+            "innerHeight": 812,
+            "innerWidth": 375,
+            "isRootEmpty": false,
+            "layoutViewportWidth": 375,
+            "maxScrollHeight": 812,
+            "maxScrollWidth": 375,
+            "overflowDelta": 0,
+            "verticalOverflowDelta": 0
+          },
+          "defects": [],
+          "warnings": [],
+          "screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_mobile_375x812.png",
+          "full_page_screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_mobile_full.png",
+          "forms": null,
+          "duration_s": 1.88
+        },
+        {
+          "device": "Tablet",
+          "width": 768,
+          "height": 1024,
+          "passed": true,
+          "metrics": {
+            "clippedCount": 0,
+            "clippedSamples": [],
+            "crashFile": "",
+            "crashMessage": "",
+            "hasCrashOverlay": false,
+            "hasHorizontalOverflow": false,
+            "hasVerticalOverflow": false,
+            "innerHeight": 1024,
+            "innerWidth": 768,
+            "isRootEmpty": false,
+            "layoutViewportWidth": 768,
+            "maxScrollHeight": 1024,
+            "maxScrollWidth": 768,
+            "overflowDelta": 0,
+            "verticalOverflowDelta": 0
+          },
+          "defects": [],
+          "warnings": [],
+          "screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_tablet_768x1024.png",
+          "full_page_screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_tablet_full.png",
+          "forms": null,
+          "duration_s": 1.89
+        },
+        {
+          "device": "Desktop",
+          "width": 1280,
+          "height": 800,
+          "passed": true,
+          "metrics": {
+            "clippedCount": 0,
+            "clippedSamples": [],
+            "crashFile": "",
+            "crashMessage": "",
+            "hasCrashOverlay": false,
+            "hasHorizontalOverflow": false,
+            "hasVerticalOverflow": false,
+            "innerHeight": 800,
+            "innerWidth": 1280,
+            "isRootEmpty": false,
+            "layoutViewportWidth": 1280,
+            "maxScrollHeight": 800,
+            "maxScrollWidth": 1280,
+            "overflowDelta": 0,
+            "verticalOverflowDelta": 0
+          },
+          "defects": [],
+          "warnings": [],
+          "screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_desktop_1280x800.png",
+          "full_page_screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_desktop_full.png",
+          "forms": [],
+          "duration_s": 1.84
+        }
+      ],
+      "defects": [],
+      "warnings": [],
+      "console_errors": [],
+      "summary": "QA Audit PASS: Tested across 3 viewports (Mobile, Tablet, Desktop). 0 defect(s) discovered."
+    }
+  },
+  "duration_s": 17.252
+}

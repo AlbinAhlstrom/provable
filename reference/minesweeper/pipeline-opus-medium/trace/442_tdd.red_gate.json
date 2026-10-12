@@ -1,0 +1,170 @@
+{
+  "seq": 442,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:38",
+  "t_offset_s": 409.292,
+  "thread": "red_8",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656617.5216181,
+        "duration": 0.9809010028839111,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_y1s9in4t",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "failed": 1,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_040.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_040.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_040.py::test_opening_an_opened_cell_changes_nothing[7-4-3]",
+                "type": "Function",
+                "lineno": 66
+              },
+              {
+                "nodeid": "tests/unit/test_spec_040.py::test_opening_an_opened_cell_changes_nothing[2-2-0]",
+                "type": "Function",
+                "lineno": 66
+              },
+              {
+                "nodeid": "tests/unit/test_spec_040.py::test_opening_a_hidden_cell_does_change_it_for_contrast",
+                "type": "Function",
+                "lineno": 103
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_040.py::test_opening_an_opened_cell_changes_nothing[7-4-3]",
+            "lineno": 66,
+            "outcome": "passed",
+            "keywords": [
+              "test_opening_an_opened_cell_changes_nothing[7-4-3]",
+              "parametrize",
+              "pytestmark",
+              "7-4-3",
+              "test_spec_040.py",
+              "unit",
+              "tests",
+              "hollow_y1s9in4t",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0013257000100566074,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.015004800006863661,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00048329999845009297,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_040.py::test_opening_an_opened_cell_changes_nothing[2-2-0]",
+            "lineno": 66,
+            "outcome": "passed",
+            "keywords": [
+              "test_opening_an_opened_cell_changes_nothing[2-2-0]",
+              "parametrize",
+              "pytestmark",
+              "2-2-0",
+              "test_spec_040.py",
+              "unit",
+              "tests",
+              "hollow_y1s9in4t",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009813000069698319,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0014590000064345077,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00034559999767225236,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_040.py::test_opening_a_hidden_cell_does_change_it_for_contrast",
+            "lineno": 103,
+            "outcome": "failed",
+            "keywords": [
+              "test_opening_a_hidden_cell_does_change_it_for_contrast",
+              "test_spec_040.py",
+              "unit",
+              "tests",
+              "hollow_y1s9in4t",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00040129999979399145,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009671000007074326,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_y1s9in4t\\tests\\unit\\test_spec_040.py",
+                "lineno": 113,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_040.py",
+                  "lineno": 113,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_opening_a_hidden_cell_does_change_it_for_contrast():\n        # Same board, same already-opened cell (7, 4); this time the player opens Hidden (7, 5).\n        game = _make_playing_game(opened_cells={(7, 4)})\n        assert _cell(game, 7, 5)[\"state\"] == \"Hidden\"\n    \n        game.open_cell(row=7, column=5)\n    \n        # (7, 5) is safe with neighbours (8,4), (8,5), (8,6) mined -> count 3, so it becomes Opened\n        # and does not cascade.\n>       assert _cell(game, 7, 5)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_040.py:113: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006833000079495832,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

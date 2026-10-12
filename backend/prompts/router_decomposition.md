@@ -13,7 +13,8 @@ PRODUCT INTENT (decided before this step; scope the model by it):
 CRITICAL DECOMPOSITION INSTRUCTIONS:
 - SCOPE: Model only what the product intent asks for. Anything listed under "Do NOT model" must not appear as an entity, and the BDD rules must concern what this product's users and owner experience, not internal operations the intent excludes.
 - STRUCTURE:
-  - Focus strictly on the primary 2 to 4 domain entities needed for the core user value loop, plus one entity for each kind of content the business publishes as a list.
+  - `domain_name` is the product's name as the pitch names it (or, where the pitch gives it no name, the plain name of what it is), with nothing added.
+  - Focus strictly on the domain entities the core user value loop needs (as many as it needs and no more), plus one entity for each kind of content the business publishes as a list.
   - Identify the primary Aggregate Roots (e.g. Order, Shipment, Booking).
   - An entity that only exists inside one aggregate root (the cells of a grid, the lines of an order, the entries of a history) has `is_aggregate_root` false and a "many_to_one" relationship to that root. It is stored inside its owner and read and changed through it, so everything the owner's rules must look at (positions, lines, history) is such a part of it. An entity that is created, listed or chosen on its own is an aggregate root.
   - Give every entity an `audience_role`, derived from the product intent's audience and goal:

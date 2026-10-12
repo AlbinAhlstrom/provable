@@ -1,0 +1,25 @@
+{
+  "seq": 331,
+  "step": "tdd.cst_merge",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.green_together"
+  ],
+  "started_at": "19:14:31",
+  "t_offset_s": 212.351,
+  "thread": "synthesis_0",
+  "input": {
+    "args": [
+      "\"\"\"\nDomain Model: Difficulty (Aggregate Root)\nSingle Responsibility Principle (SRP) compliant domain model.\n\"\"\"\n\nfrom __future__ import annotations\nimport math\nfrom dataclasses import dataclass, field\nfrom datetime import datetime, date, timezone, timedelta\nfrom typing import Optional, List, Dict, Any, Union, Set, Tuple, Callable\n\n\ntry:\n    from src.domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n    from src.domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\nexcept ImportError:\n    try:\n        from domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n        from domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\n    except ImportError:\n        pass\n\n\n@dataclass\nclass Difficulty:\n    \"\"\"Difficulty.\"\"\"\n    id: str\n    name: str\n    rows: int\n    columns: int\n    mine_count: int\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n",
+      "Difficulty",
+      "class Difficulty:\n    \"\"\"Difficulty.\"\"\"\n\n    @classmethod\n    def select_preset(cls, name: str) -> Difficulty:\n        \"\"\"Build the difficulty preset registered under the given name.\n\n        Args:\n            name: The preset name, one of Beginner, Intermediate or Expert.\n\n        Returns:\n            A Difficulty holding the rows, columns and mine count of the preset.\n\n        Raises:\n            ValueError: If the name does not match a known preset.\n        \"\"\"\n        presets = {\n            \"Beginner\": (9, 9, 10),\n            \"Intermediate\": (16, 16, 40),\n            \"Expert\": (16, 30, 99),\n        }\n        if name not in presets:\n            raise ValueError(f\"Unknown difficulty preset: {name}\")\n        rows, columns, mine_count = presets[name]\n        return cls(\n            id=name.lower(),\n            name=name,\n            rows=rows,\n            columns=columns,\n            mine_count=mine_count,\n        )\n"
+    ],
+    "kwargs": {}
+  },
+  "output": "\"\"\"\nDomain Model: Difficulty (Aggregate Root)\nSingle Responsibility Principle (SRP) compliant domain model.\n\"\"\"\n\nfrom __future__ import annotations\nimport math\nfrom dataclasses import dataclass, field\nfrom datetime import datetime, date, timezone, timedelta\nfrom typing import Optional, List, Dict, Any, Union, Set, Tuple, Callable\n\n\ntry:\n    from src.domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n    from src.domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\nexcept ImportError:\n    try:\n        from domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n        from domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\n    except ImportError:\n        pass\n\n\n@dataclass\nclass Difficulty:\n    \"\"\"Difficulty.\"\"\"\n    id: str\n    name: str\n    rows: int\n    columns: int\n    mine_count: int\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n\n    @classmethod\n    def select_preset(cls, name: str) -> Difficulty:\n        \"\"\"Build the difficulty preset registered under the given name.\n\n        Args:\n            name: The preset name, one of Beginner, Intermediate or Expert.\n\n        Returns:\n            A Difficulty holding the rows, columns and mine count of the preset.\n\n        Raises:\n            ValueError: If the name does not match a known preset.\n        \"\"\"\n        presets = {\n            \"Beginner\": (9, 9, 10),\n            \"Intermediate\": (16, 16, 40),\n            \"Expert\": (16, 30, 99),\n        }\n        if name not in presets:\n            raise ValueError(f\"Unknown difficulty preset: {name}\")\n        rows, columns, mine_count = presets[name]\n        return cls(\n            id=name.lower(),\n            name=name,\n            rows=rows,\n            columns=columns,\n            mine_count=mine_count,\n        )\n",
+  "duration_s": 0.005
+}

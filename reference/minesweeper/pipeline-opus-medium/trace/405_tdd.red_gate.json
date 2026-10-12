@@ -1,0 +1,365 @@
+{
+  "seq": 405,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:33",
+  "t_offset_s": 404.952,
+  "thread": "red_10",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656613.360476,
+        "duration": 0.9701075553894043,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 9,
+          "total": 9,
+          "collected": 9
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[beginner]",
+                "type": "Function",
+                "lineno": 20
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[intermediate]",
+                "type": "Function",
+                "lineno": 20
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[expert]",
+                "type": "Function",
+                "lineno": 20
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[beginner]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[intermediate]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[expert]",
+                "type": "Function",
+                "lineno": 45
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[beginner]",
+                "type": "Function",
+                "lineno": 66
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[intermediate]",
+                "type": "Function",
+                "lineno": 66
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[expert]",
+                "type": "Function",
+                "lineno": 66
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[beginner]",
+            "lineno": 20,
+            "outcome": "passed",
+            "keywords": [
+              "test_equal_win_keeps_stored_best[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010850999969989061,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00042640000174287707,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003843000013148412,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[intermediate]",
+            "lineno": 20,
+            "outcome": "passed",
+            "keywords": [
+              "test_equal_win_keeps_stored_best[intermediate]",
+              "parametrize",
+              "pytestmark",
+              "intermediate",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008471000037388876,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012698000064119697,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0005557000113185495,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[expert]",
+            "lineno": 20,
+            "outcome": "passed",
+            "keywords": [
+              "test_equal_win_keeps_stored_best[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006133999995654449,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00043369999912101775,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003601000062189996,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[beginner]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_slower_win_keeps_stored_best[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005541999998968095,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003394000086700544,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003262999962316826,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[intermediate]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_slower_win_keeps_stored_best[intermediate]",
+              "parametrize",
+              "pytestmark",
+              "intermediate",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008588000055169687,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005436000064946711,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00035820000630337745,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[expert]",
+            "lineno": 45,
+            "outcome": "passed",
+            "keywords": [
+              "test_slower_win_keeps_stored_best[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0026039999938802794,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005794000026071444,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00036049999471288174,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[beginner]",
+            "lineno": 66,
+            "outcome": "passed",
+            "keywords": [
+              "test_win_just_faster_than_best_replaces_it[beginner]",
+              "parametrize",
+              "pytestmark",
+              "beginner",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.006292199992458336,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006076000136090443,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003969999961555004,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[intermediate]",
+            "lineno": 66,
+            "outcome": "passed",
+            "keywords": [
+              "test_win_just_faster_than_best_replaces_it[intermediate]",
+              "parametrize",
+              "pytestmark",
+              "intermediate",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006630999996559694,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006354000070132315,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00040830000943969935,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[expert]",
+            "lineno": 66,
+            "outcome": "passed",
+            "keywords": [
+              "test_win_just_faster_than_best_replaces_it[expert]",
+              "parametrize",
+              "pytestmark",
+              "expert",
+              "test_spec_036.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0014314000000013039,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0003972999984398484,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00045340000360738486,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

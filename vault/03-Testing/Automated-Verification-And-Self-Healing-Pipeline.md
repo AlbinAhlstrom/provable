@@ -32,6 +32,8 @@ graph LR
 ### 4. Gates on the generated frontend (kickstart)
 - **Styled once, then looked at once.** The UX plan decides the page's visual direction (palette, type, first screen, shape) and the presentation stage writes the page already styled from it. There is no second rewrite. After QA, the visual review (`backend/onboarding/visual_review.py`) shows a model the whole-page desktop and phone screenshots beside the component sources and asks for the problems a visitor would notice. Each repair is a class change (`ClassEdit`: in this file, this class text becomes that), applied by the pipeline inside class attributes only, so it cannot change copy, structure or logic. A changed file must compile (`compile_tsx` in `backend/onboarding/verification.py`) and the page must pass a fresh QA audit, or the files are put back. One look, no second; what could not be repaired is listed in the run summary.
 - **QA gate** (`backend/onboarding/qa_auditor.py`, `qa_gate.py`): three devices audited in parallel browsers, one rework fed the defects. Horizontal overflow is measured against the emulated device width, never `window.innerWidth` (a mobile browser widens its layout viewport to fit overflowing content, so the two grow together). A crash defect quotes the Vite overlay's message and file, and an overflow defect names the elements that run past the edge. Text that an `overflow-hidden` ancestor cuts off at the screen edge is reported as a warning: it is in the verdict and the run summary, and does not trigger rework.
+- **Every planned part is there** (`backend/onboarding/page_parts.py`): the plan names each part of the page by role and name. The page's writer is shown that list as the page's extent and opens its answer with a `<<<parts>>>` block saying where it writes each one. After the browser audit, the written files are looked through for every part (its role, as the attribute or a native element, and the fixed words of its name in any case); a part that is absent is a `[Missing part]` defect and goes through the same single rework, which is shown the plan. It reads source because a dialog or a menu's items are not on screen until a step brings them up. It is a presence check: whether the part works is the page tests' question.
+- **The page opens on something** (`backend/onboarding/qa_opening_check.py`): the document of the page as opened, on the desktop, is looked through for the same parts. None of them there is one `[Empty opening]` defect for the rework, which is shown the plan. One part is enough to pass. This is a last resort, not the mechanism: QA is there to find the unexpected and trigger one emergency repair, and what a page needs to get going is decided before it is written (who makes the first record is the contract's `origin`, and the generated client opens it; see [[ADR-011 The Product Contract]]).
 - **Forms are used, not only measured** (`backend/onboarding/qa_form_check.py`): on the desktop device, after the screenshots, each form is filled with values its fields accept (chosen from the field's own type, limits and options, never from its name), submitted, and the API's answer is read. A request the API refuses or that never arrives is a defect quoted with the API's own reason, and goes to the one rework like any other. A form the check cannot complete (a field it cannot satisfy, no submit control, nothing sent) is a warning. A record the check created is deleted again through the generated API's `DELETE /api/<plural>/{id}`.
 - **Text is measured, not only looked at** (`backend/onboarding/qa_contrast_check.py`): on the desktop device, the colour of each piece of text and the colour behind it are read from the page and their contrast computed. Text below a contrast of 1.5 to 1 (nearly the tone of its background) is a defect, quoted with both colours, so the one rework knows what to change. Partly transparent text and text over images or gradients cannot be measured and are skipped.
 - **Text is read for escapes that were never read** (`backend/onboarding/qa_text_check.py`): on the desktop device, an escape (a backslash, `u` and four hex digits) or an HTML entity that the page shows letter by letter is a defect, quoted with the text it stands in. The page builds and fits every screen with it, so only reading the text finds it. Text inside `code`, `pre` and form fields is not read.
@@ -55,26 +57,41 @@ graph LR
 - [[Testing Strategy]]
 - [[Bug-Reproduction-and-Testing-Policy]]
 
-## Actions work before the page is written
+## Actions are made to work while the page is written
 
 The action protocol only names the actions the page offers, and the generated API runs an action by calling the method
 of that name on the aggregate. A kickstart that stops there produces a page on which every action answers "Unknown
-action". So the kickstart's `action_behaviour` stage (`backend/onboarding/action_behaviour.py`) runs between the action
-protocol and the presentation:
+action". So the kickstart's domain round (`backend/onboarding/domain_round.py`, stage `behaviour_specs`) runs right after the
+action protocol, alongside the presentation, and takes the actions and the rule deck through the test loop as one batch:
 
-- One spec per aggregate states all of its actions (name, parameters, what each changes), and goes through the same
-  TDD loop as every later spec: a RED test, GREEN, the regression gate.
-- Its test is kept as `tests/unit/test_spec_act_<aggregate>.py`, so later specs are written knowing it and cannot break
+- One spec per action (name, parameters, what it changes), and one for what a new object holds, go through the same
+  TDD loop as every rule: a RED test, GREEN, the regression gate.
+- An action's spec is one call in the simplest state the action is allowed in. What it refuses, ignores or does
+  from another state is proved by the rules; repeated in the action's test, each case is one more expectation
+  that can be wrong.
+- A starting state the class's defaults already give (`held_by_defaults` in the manifest, set by the product
+  contract) has no spec: its test would pass on the empty class and be refused as proving nothing.
+- Each test is kept as `tests/unit/test_spec_act_<aggregate>_<action>.py`, so later specs are written knowing it and cannot break
   an action unnoticed.
 - The code is then compared with the manifest. An action without a method fails the stage by name and the run is
   DEGRADED; nothing is stubbed.
-- The page is written afterwards, against the class as it really is (its fields and methods).
+- The page does not wait for it. What a page needs of an action is fixed by the action protocol before any method
+  exists: its name and parameters, the values the fields take (`vocabulary`) and what a new object holds
+  (`starting_states`). The page is written from those and from the classes as the skeleton left them. It used to
+  wait for the methods, more than a minute in a recorded build.
+- Writing the methods can change what a class holds. `backend/onboarding/page_contract.py` reads the public fields
+  of the domain classes before and after the stage; a class that gained or lost a field sends the page back to be
+  written once more, for the classes as they are (stage `page_revisit`, skipped when nothing changed). A second
+  writing that fails leaves the first page and is reported. In five recorded builds two would have been revisited.
 
-While the page is written, the rule deck's behaviour specs are written together (`backend/onboarding/spec_runner.py`,
+After the actions, the rule deck's behaviour specs are written together (`backend/onboarding/spec_runner.py`,
 `backend/service_layer/tdd_batch.py`, stage `behaviour_specs`):
 
-- RED, side by side: every spec gets its test through the single loop's RED phase (lint, RED gate, hollow check, one
-  regeneration with the verdict fed back). The tests are written against the class as the action stage left it.
+- RED, one answer per class: the first tests of every spec of a class are written by one writer without thinking
+  (`backend/onboarding/first_tests.py`) and cut up by spec. Each then passes the single loop's RED phase (lint, RED
+  gate, hollow check); a test the gate refuses goes to a writer of that spec's own for the one regeneration with the
+  verdict fed back. In a kickstart the tests are judged against the class as the skeleton left it: the actions' specs are in the
+  same batch, so no rule waits for an action to be implemented.
 - GREEN, once per class: one code answer implements every rule of the class. `tests/unit` is run and each spec is
   judged by its own test file; tests still failing are fed back for the one retry.
 - The answer kept is the one that leaves the fewest of the batch's tests failing among those that break no earlier
@@ -93,8 +110,8 @@ While the page is written, the rule deck's behaviour specs are written together 
   the first (a mating move drawn through the mover's own king); at medium it takes up to a minute and holds.
 - Each test writer is shown the other rules of its class (title and scenario), and arranges a situation in which
   its own rule decides the outcome alone. Written without them, a turn-order test on two kings and a knight
-  expected play to go on where another rule of the deck ends the game as a draw. The writer of the actions' test
-  is shown the deck too (`implement_actions(rules=...)`).
+  expected play to go on where another rule of the deck ends the game as a draw. The writers of the actions' tests
+  are shown the deck too: they are in the same batch.
 - A deck's tests are peers. One that passed before any code was written (the action stage's class already met it)
   is judged with the batch: an answer that fails it leaves that one rule unfulfilled, and its test is reconsidered
   like any other. Treated as an earlier verified test it vetoed every answer, and one wrong test cost a build 19

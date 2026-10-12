@@ -928,8 +928,8 @@ def get_kickstart_state(uow: AbstractUnitOfWork) -> Dict[str, Any]:
     with uow:
         state = uow.kickstart.get()
         d = state.to_dict()
-        api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
-        d["llm_configured"] = bool(api_key)
+        import llm_provider
+        d["llm_configured"] = bool(llm_provider.connection().api_key)
         return d
 
 
@@ -1567,10 +1567,12 @@ def get_categorized_living_deck(uow: AbstractUnitOfWork) -> Dict[str, Any]:
     - chapters: { [chapter_name]: [...] }
     - logic_cards: { global: [...], entities: { [entity_name]: [...] } }
     - view_cards: { global_theme: [...], components: { [component_name]: [...] } }
+    Each card carries the outcome of its last run as `test_status` and `test_reason` (onboarding/spec_test_status.py).
     """
+    from onboarding.spec_test_status import with_test_status
     with uow:
         state = uow.kickstart.get()
-        cards = list(state.rule_cards or [])
+        cards = with_test_status(state.rule_cards or [], state.inbox_specs or [])
 
     logic_global = []
     logic_entities: Dict[str, List[Dict[str, Any]]] = {}
@@ -1749,7 +1751,8 @@ def execute_inbox_spec_tdd(spec_id: str, uow: AbstractUnitOfWork, workspace_dir:
         target_aggregate=target_spec_dict.get("target_aggregate") or target_spec_dict.get("target", "Session"),
         spec_type=target_spec_dict.get("spec_type", "DOMAIN_INVARIANT"),
         is_mathematical_boundary=target_spec_dict.get("is_mathematical_boundary", False),
-        priority=target_spec_dict.get("priority", "High")
+        priority=target_spec_dict.get("priority", "High"),
+        situation=target_spec_dict.get("situation", "")
     )
 
     with uow:
@@ -1811,244 +1814,6 @@ def _aggregate_view(key: str, name: str, is_root: bool, attrs: list) -> Dict[str
     }
 
 
-def parse_bdd_clauses(text: str) -> Dict[str, str]:
-    """Extracts given, when, then, unless clauses from a Gherkin/BDD formatted string."""
-    given = ""
-    when = ""
-    then = ""
-    unless = ""
-
-    if not text:
-        return {"given_clause": "", "when_clause": "", "then_clause": "", "unless_clause": ""}
-
-    # Match Given ... When ... Then ... (Unless ...)
-    m_given = re.search(r"Given\s+(.*?)(?=\s+When\b|\s+Then\b|\s+Unless\b|$)", text, re.IGNORECASE | re.DOTALL)
-    if m_given:
-        given = m_given.group(1).strip()
-
-    m_when = re.search(r"When\s+(.*?)(?=\s+Then\b|\s+Unless\b|$)", text, re.IGNORECASE | re.DOTALL)
-    if m_when:
-        when = m_when.group(1).strip()
-
-    m_then = re.search(r"Then\s+(.*?)(?=\s+Unless\b|$)", text, re.IGNORECASE | re.DOTALL)
-    if m_then:
-        then = m_then.group(1).strip()
-
-    m_unless = re.search(r"Unless\s+(.*?)$", text, re.IGNORECASE | re.DOTALL)
-    if m_unless:
-        unless = m_unless.group(1).strip()
-
-    return {
-        "given_clause": given,
-        "when_clause": when,
-        "then_clause": then,
-        "unless_clause": unless
-    }
-
-
-def synthesize_living_deck_cards(
-    pitch_text: str,
-    structure: Any,
-    inbox_specs: List[Any],
-    extra_view_cards: Optional[List[Dict[str, Any]]] = None
-) -> List[Dict[str, Any]]:
-    """
-    Synthesizes the complete Living Rule Deck representing the high-level abstraction of the app:
-    1. LOGIC Cards: Invariants, state machine rules, validation boundaries, win/loss/completion criteria.
-    2. VIEW Cards: Interactive visual workspace, control surface, HUD telemetry, and tactile gesture bindings.
-    """
-    cards: List[Dict[str, Any]] = []
-    seen_ids = set()
-
-    master_entity = None
-    if hasattr(structure, "entities") and structure.entities:
-        for ent in structure.entities:
-            if getattr(ent, "is_aggregate_root", False):
-                master_entity = ent
-                break
-        if not master_entity:
-            master_entity = structure.entities[0]
-
-    master_name = getattr(master_entity, "name", "Application") if master_entity else getattr(structure, "domain_name", "Application")
-    p_lower = pitch_text.lower()
-
-    # 1. Synthesize LOGIC Cards from Inbox Specs with explicit Invariant Taxonomy
-    for idx, s in enumerate(inbox_specs, 1):
-        s_dict = s.dict() if hasattr(s, "dict") else dict(s)
-        spec_id = s_dict.get("spec_id") or f"SPEC-{idx:03d}"
-        gwt = s_dict.get("given_when_then", "")
-        clauses = parse_bdd_clauses(gwt)
-
-        category = s_dict.get("category")
-        if not category:
-            if s_dict.get("is_mathematical_boundary"):
-                category = "CALCULATION"
-            elif any(k in (s_dict.get("title", "") + gwt).lower() for k in ["transition", "state", "victory", "defeat", "resolve"]):
-                category = "STATE_TRANSITION"
-            elif any(k in (s_dict.get("title", "") + gwt).lower() for k in ["cascade", "spread", "flood", "notify"]):
-                category = "PROPAGATION"
-            else:
-                category = "INVARIANT"
-
-        chapter = s_dict.get("chapter") or "General"
-
-        cards.append({
-            "id": spec_id,
-            "title": s_dict.get("title", f"Rule {idx}"),
-            "chapter": chapter,
-            "card_type": "LOGIC",
-            "category": category,
-            "target": s_dict.get("target_aggregate") or master_name,
-            "description": s_dict.get("description", ""),
-            "given_clause": clauses["given_clause"] or gwt,
-            "when_clause": clauses["when_clause"],
-            "then_clause": clauses["then_clause"],
-            "unless_clause": clauses["unless_clause"],
-            "is_active": True,
-            "status": "ACTIVE",
-            "priority": s_dict.get("priority", "High")
-        })
-        seen_ids.add(spec_id)
-
-    # 2. Synthesize Standard User Affordance VIEW Cards (Category-Free & Domain-Agnostic)
-    view_canvas_id = "VIEW-CANVAS-001"
-    if view_canvas_id not in seen_ids:
-        cards.append({
-            "id": view_canvas_id,
-            "title": f"{master_name} Interactive Visual Workspace",
-            "chapter": "User Interface & Canvas",
-            "card_type": "VIEW",
-            "category": "CANVAS",
-            "target": f"{master_name}View",
-            "description": f"Primary tactile presentation surface and interactive visual canvas for {master_name}.",
-            "given_clause": f"An initialized or active {master_name} session",
-            "when_clause": "User views or directly interacts with elements on the canvas",
-            "then_clause": "Render responsive domain layout, selection highlights, and real-time state mutations",
-            "unless_clause": "Session is in locked or terminal error state",
-            "is_active": True,
-            "status": "ACTIVE",
-            "priority": "High"
-        })
-        seen_ids.add(view_canvas_id)
-
-    view_controls_id = "VIEW-CONTROLS-002"
-    if view_controls_id not in seen_ids:
-        cards.append({
-            "id": view_controls_id,
-            "title": f"{master_name} Action Controls & Operation Bar",
-            "chapter": "User Interface & Canvas",
-            "card_type": "VIEW",
-            "category": "CONTROLS",
-            "target": f"{master_name}Controls",
-            "description": f"Primary user controls for triggering domain commands, preset switches, and actions.",
-            "given_clause": f"Rendered control panel for {master_name}",
-            "when_clause": "User clicks action triggers, selects presets, or executes actions",
-            "then_clause": "Dispatch domain commands to backend and update responsive feedback in real time",
-            "unless_clause": "Operation is in flight or action is disabled",
-            "is_active": True,
-            "status": "ACTIVE",
-            "priority": "High"
-        })
-        seen_ids.add(view_controls_id)
-
-    view_history_id = "VIEW-HUD-003"
-    if view_history_id not in seen_ids:
-        cards.append({
-            "id": view_history_id,
-            "title": f"{master_name} Telemetry & Status HUD",
-            "chapter": "Telemetry & Status",
-            "card_type": "VIEW",
-            "category": "TELEMETRY",
-            "target": f"{master_name}History",
-            "description": f"Real-time status indicators, metric meters, and chronological domain event log.",
-            "given_clause": f"Active state updates occurring in {master_name}",
-            "when_clause": "Domain events, timer ticks, or aggregate mutations trigger",
-            "then_clause": "Update status badges, counters, elapsed time, and event log display",
-            "unless_clause": "No events recorded yet",
-            "is_active": True,
-            "status": "ACTIVE",
-            "priority": "Medium"
-        })
-        seen_ids.add(view_history_id)
-
-    view_interact_id = "VIEW-INTERACT-004"
-    if view_interact_id not in seen_ids:
-        cards.append({
-            "id": view_interact_id,
-            "title": f"{master_name} Direct Interaction & Selection Affordances",
-            "chapter": "User Interface & Canvas",
-            "card_type": "VIEW",
-            "category": "AFFORDANCE",
-            "target": f"{master_name}View",
-            "description": f"Direct pointer selection, contextual triggers, and tactile feedback for {master_name} elements.",
-
-            "given_clause": f"Interactive elements rendered on the {master_name} surface",
-            "when_clause": "User selects, toggles, or triggers contextual actions on items",
-            "then_clause": "Provide instant physical feedback (highlights, depressed state, badge updates) without page reload",
-            "unless_clause": "Input is locked by completed, paused, or terminal state",
-            "is_active": True,
-            "status": "ACTIVE",
-            "priority": "High"
-        })
-        seen_ids.add(view_interact_id)
-
-    # 3. Synthesize Standard Non-Functional Responsiveness & Layout Quality Specifications
-    view_resp_mobile_id = "SPEC-RESP-001"
-    if view_resp_mobile_id not in seen_ids:
-        cards.append({
-            "id": view_resp_mobile_id,
-            "title": f"{master_name} Mobile Viewport Containment",
-            "chapter": "Interface & Responsiveness",
-            "card_type": "VIEW",
-            "category": "RESPONSIVENESS",
-            "target": f"{master_name}View",
-            "description": "Zero horizontal overflow invariant across small viewports (Mobile 375px).",
-            "given_clause": f"An active {master_name} display rendered on a 375px mobile device viewport",
-            "when_clause": "The entire layout hierarchy paints and user navigates components",
-            "then_clause": "document.documentElement.scrollWidth must not exceed innerWidth (zero horizontal scrollbar clipping)",
-            "unless_clause": "Device viewport is zero or DOM is unmounted",
-            "is_active": True,
-            "status": "ACTIVE",
-            "priority": "High"
-        })
-        seen_ids.add(view_resp_mobile_id)
-
-    view_resp_fluid_id = "SPEC-RESP-002"
-    if view_resp_fluid_id not in seen_ids:
-        cards.append({
-            "id": view_resp_fluid_id,
-            "title": f"{master_name} Fluid Grid & Adaptive Scaling",
-            "chapter": "Interface & Responsiveness",
-            "card_type": "VIEW",
-            "category": "RESPONSIVENESS",
-            "target": f"{master_name}View",
-            "description": "Adaptive scaling and fluid wrapping across Tablet (768px) and Desktop (1280px) breakpoints.",
-            "given_clause": f"An initialized {master_name} view session",
-            "when_clause": "Viewport resizes across tablet or desktop break thresholds",
-            "then_clause": "Content containers scale fluidly, grid surfaces adjust columns automatically, and controls remain accessible",
-            "unless_clause": "Screen aspect ratio is non-standard or browser zoom exceeds 300%",
-            "is_active": True,
-            "status": "ACTIVE",
-            "priority": "High"
-        })
-        seen_ids.add(view_resp_fluid_id)
-
-    # 4. Merge any extra view cards if provided
-    if extra_view_cards:
-        for evc in extra_view_cards:
-            evc_id = evc.get("id") or f"VIEW-EXT-{len(cards)+1:03d}"
-            if evc_id not in seen_ids:
-                evc["card_type"] = "VIEW"
-                if "is_active" not in evc:
-                    evc["is_active"] = True
-                if "status" not in evc:
-                    evc["status"] = "ACTIVE"
-                cards.append(evc)
-                seen_ids.add(evc_id)
-
-    return cards
-
-
 @recorded("kickstart", label="pitch")
 @traced("svc.kickstart_and_scaffold")
 def kickstart_domain_and_scaffold(
@@ -2075,40 +1840,15 @@ def kickstart_domain_and_scaffold(
     timings: Dict[str, float] = {}
     print(f"\n[Kickstart] ════════════════════════════════════════════════════════", flush=True)
 
-    from onboarding import intent as intent_step
-    # Decide what kind of product the user asked for from their own words, before any expansion can inflate the scope.
-    st = stage_begin("intent")
-    product_intent = intent_step.classify_pitch_intent(pitch_text)
-    st.ok()
-
-    # 0. Autonomous Intent Grounding (Expand concise pitch into explicit interactive full-stack spec)
+    # The front: a live kickstart writes the product contract, from which the structure, the rule deck and the
+    # intent are read (onboarding/kickstart_front.py); an offline or mock one runs the earlier stages.
     is_offline_test = "PYTEST_CURRENT_TEST" in os.environ or type(uow).__name__ == "FakeUnitOfWork"
-    from onboarding.prompt_expander import expand_pitch_into_interactive_specification
-    t0_start = time.time()
-    st = stage_begin("expansion")
-    if not is_offline_test and mode != "mock":
-        print(f"[Kickstart] [0/5] Grounding intent: expanding pitch into interactive full-stack specification...", flush=True)
-        pitch_text = expand_pitch_into_interactive_specification(pitch_text, intent=product_intent)
-        t0_elapsed = round(time.time() - t0_start, 2)
-        timings["0_intent_grounding"] = t0_elapsed
-        print(f"[Kickstart] [0/5] ✓ Specification expanded ({len(pitch_text.split())} words) in {t0_elapsed}s", flush=True)
-    else:
-        timings["0_intent_grounding"] = 0.0
-    st.ok()
-
-    from onboarding.router_engine import decompose_pitch_into_structure_and_inbox
+    from onboarding.kickstart_front import build_front
     from onboarding.skeleton_builder import build_and_write_skeleton
-
-    t1_start = time.time()
-    print(f"[Kickstart] [1/5] Decomposing pitch into domain aggregates and inbox specs...", flush=True)
-    st = stage_begin("decomposition")
-    decomp = decompose_pitch_into_structure_and_inbox(pitch_text, intent=product_intent)
-    st.ok()
-    structure = decomp.structure
-    inbox_specs = decomp.inbox.specs if hasattr(decomp, "inbox") and hasattr(decomp.inbox, "specs") else []
-    t1_elapsed = round(time.time() - t1_start, 2)
-    timings["1_decomposition"] = t1_elapsed
-    print(f"[Kickstart] [1/5] ✓ Decomposed in {t1_elapsed}s: Domain '{structure.domain_name}' ({len(structure.entities)} entities: {[e.name for e in structure.entities]})", flush=True)
+    front = build_front(pitch_text, live=not is_offline_test and mode != "mock")
+    product_intent, pitch_text, structure, inbox_specs = front.intent, front.pitch_text, front.structure, front.inbox_specs
+    timings.update(front.timings)
+    print(f"[Kickstart] [1/5] ✓ Domain '{structure.domain_name}' ({len(structure.entities)} entities: {[e.name for e in structure.entities]})", flush=True)
 
     # Build and write skeleton files
     t2_start = time.time()
@@ -2144,16 +1884,13 @@ def kickstart_domain_and_scaffold(
     st = stage_begin("persistence")
     spec_dicts = [s.dict() if hasattr(s, "dict") else dict(s) for s in inbox_specs]
 
-    # Auto-populate comprehensive living rule deck (Logic + View Cards)
-    living_cards = synthesize_living_deck_cards(
-        pitch_text=pitch_text,
-        structure=structure,
-        inbox_specs=inbox_specs
-    )
+    # The rule deck: one card for each rule of the product (onboarding/rule_deck.py)
+    from onboarding.rule_deck import deck_cards
+    living_cards = deck_cards(inbox_specs, master_name=getattr(structure.master_entity(), "name", "Application"))
 
     with uow:
         state = uow.kickstart.get()
-        state.business_pitch = pitch_text
+        state.business_pitch = front.stored_pitch or pitch_text
         state.synthesized = True
         state.entity_schemas = entity_schemas_map
         state.inbox_specs = spec_dicts
@@ -2225,7 +1962,7 @@ def kickstart_domain_and_scaffold(
         try:
             # Spec review, seed data, and action protocol -> presentation: run alongside each other (synthesis_stages.py)
             from onboarding.synthesis_stages import run_synthesis_stages
-            from onboarding.spec_runner import run_behaviour_specs
+            from onboarding.domain_round import run_domain_round
             from service_layer.tdd_batch import execute_specs_together
 
             def _store_action_manifest(manifest: Dict[str, Any]) -> None:
@@ -2235,16 +1972,14 @@ def kickstart_domain_and_scaffold(
                     uow.kickstart.save(manifest_state)
                     uow.commit()
 
-            def synthesis_manifest() -> Dict[str, Any]:
-                with type(uow)() as manifest_uow:
-                    return dict(manifest_uow.kickstart.get().action_manifest or {})
-
             synthesis = run_synthesis_stages(
                 pitch=pitch_text, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,
-                intent=product_intent, on_action_manifest=_store_action_manifest,
-                specs=lambda deck, report: run_behaviour_specs(deck, lambda batch, done: execute_specs_together(
-                    batch, workspace_dir, action_manifest=synthesis_manifest(), on_result=lambda spec, result: (
-                        record_tdd_result(spec.spec_id, result, uow=type(uow)()), done(spec, result))), report=report))
+                intent=product_intent, on_action_manifest=_store_action_manifest, **front.stage_overrides(),
+                domain=lambda manifest, deck, report: run_domain_round(
+                    manifest, deck, workspace_dir, report=report,
+                    execute=lambda batch, done: execute_specs_together(batch, workspace_dir, action_manifest=manifest,
+                                                                       on_result=done),
+                    on_rule=lambda spec, result: record_tdd_result(spec.spec_id, result, uow=type(uow)())))
             spec_conflicts = synthesis.spec_conflicts
             stage_failures.extend(synthesis.failures)
             timings.update(synthesis.timings)

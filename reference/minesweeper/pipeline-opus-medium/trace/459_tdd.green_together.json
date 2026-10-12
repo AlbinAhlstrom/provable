@@ -1,0 +1,1550 @@
+{
+  "seq": 459,
+  "step": "tdd.green_together",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:55",
+  "t_offset_s": 426.895,
+  "thread": "synthesis_0",
+  "input": {
+    "args": [
+      [
+        [
+          {
+            "spec_id": "SPEC-035",
+            "title": "First win sets best time",
+            "description": "With no stored best, a standard win becomes the best time.",
+            "given_when_then": "Given no best time stored for a standard difficulty When the player wins a game of that difficulty in T seconds Then a best time of T is recorded for that difficulty",
+            "target_aggregate": "BestTime",
+            "spec_type": "DOMAIN_INVARIANT",
+            "kind": "behavior",
+            "category": "INVARIANT",
+            "is_mathematical_boundary": false,
+            "priority": "High",
+            "status": "PENDING"
+          },
+          {
+            "verdict": "approved",
+            "test_file_path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_035.py",
+            "test_code": "import pytest\n\nfrom src.domain.best_time import BestTime\n\n\ndef _no_best_stored(difficulty_id):\n    # Build the record as it is when newly created, then clear the stored best,\n    # so that no best time is held for this difficulty.\n    best = BestTime(\n        id=f\"best-{difficulty_id}\",\n        difficulty_id=difficulty_id,\n        game_id=\"game-old\",\n        best_seconds=500,\n        achieved_at=\"2024-01-01T00:00:00Z\",\n    )\n    best.best_seconds = None\n    best.game_id = None\n    best.achieved_at = None\n    return best\n\n\n@pytest.mark.parametrize(\n    \"difficulty_id, game_id, elapsed_seconds, achieved_at\",\n    [\n        (\"beginner\", \"game-b-1\", 42, \"2024-03-01T10:15:00Z\"),\n        (\"intermediate\", \"game-i-1\", 137, \"2024-03-02T11:20:00Z\"),\n        (\"expert\", \"game-e-1\", 389, \"2024-03-03T12:25:00Z\"),\n    ],\n)\ndef test_first_win_sets_best_time(difficulty_id, game_id, elapsed_seconds, achieved_at):\n    # Given no best time stored for this standard difficulty\n    best = _no_best_stored(difficulty_id)\n\n    # When the player wins a game of that difficulty in T seconds\n    best.record_win(\n        game_id=game_id,\n        difficulty_id=difficulty_id,\n        elapsed_seconds=elapsed_seconds,\n        achieved_at=achieved_at,\n    )\n\n    # Then a best time of T is recorded for that difficulty.\n    # There is no stored best, so the \"slower or equal\" rule has nothing to\n    # compare against. The difficulty is standard and matches this record, so\n    # the custom rule and the different-difficulty rule do not apply. The game\n    # was won, so the lost/abandoned rule does not apply.\n    # Expected: best_seconds == T.\n    assert best.best_seconds == elapsed_seconds\n\n    # The winning game is credited with the best time.\n    assert best.game_id == game_id\n\n    # The moment of the winning game is recorded unchanged.\n    assert best.achieved_at == achieved_at\n\n    # Identity and difficulty of the record do not change.\n    assert best.id == f\"best-{difficulty_id}\"\n    assert best.difficulty_id == difficulty_id\n\n\n@pytest.mark.parametrize(\n    \"record_difficulty, win_difficulty\",\n    [\n        # Custom difficulty: custom games record no best time.\n        (\"beginner\", \"custom\"),\n        # A different standard difficulty: this record is not for that difficulty.\n        (\"beginner\", \"intermediate\"),\n    ],\n)\ndef test_first_win_of_other_difficulty_sets_no_best_time(record_difficulty, win_difficulty):\n    # Given no best time stored (same arrangement as the accepted case)\n    best = _no_best_stored(record_difficulty)\n\n    # When a win arrives whose difficulty is custom or differs from this record's\n    best.record_win(\n        game_id=\"game-b-1\",\n        difficulty_id=win_difficulty,\n        elapsed_seconds=42,\n        achieved_at=\"2024-03-01T10:15:00Z\",\n    )\n\n    # Then nothing is created or changed: the custom rule / different-difficulty\n    # rule decides alone, so the cleared best stays cleared.\n    assert best.best_seconds is None\n    assert best.game_id is None\n    assert best.achieved_at is None\n\n    # The record keeps its own difficulty.\n    assert best.difficulty_id == record_difficulty\n",
+            "test_hash": "60e3bfe43557d561dcf31d41d5fb8e1225eda7d369e864d70e6f72112f97b971",
+            "result": {
+              "exit_code": 1,
+              "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 5 items\n\ntests\\unit\\test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z] FAILED [ 20%]\ntests\\unit\\test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z] FAILED [ 40%]\ntests\\unit\\test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z] FAILED [ 60%]\ntests\\unit\\test_spec_035.py::test_first_win_of_other_difficulty_sets_no_best_time[beginner-custom] PASSED [ 80%]\ntests\\unit\\test_spec_035.py::test_first_win_of_other_difficulty_sets_no_best_time[beginner-intermediate] PASSED [100%]\n\n================================== FAILURES ===================================\n__ test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z] ___\ntests\\unit\\test_spec_035.py:35: in test_first_win_sets_best_time\n    best.record_win(\nsrc\\domain\\best_time.py:62: in record_win\n    if not elapsed_seconds < self.best_seconds:\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   TypeError: '<' not supported between instances of 'int' and 'NoneType'\n_ test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z] _\ntests\\unit\\test_spec_035.py:35: in test_first_win_sets_best_time\n    best.record_win(\nsrc\\domain\\best_time.py:62: in record_win\n    if not elapsed_seconds < self.best_seconds:\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   TypeError: '<' not supported between instances of 'int' and 'NoneType'\n___ test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z] ___\ntests\\unit\\test_spec_035.py:35: in test_first_win_sets_best_time\n    best.record_win(\nsrc\\domain\\best_time.py:62: in record_win\n    if not elapsed_seconds < self.best_seconds:\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   TypeError: '<' not supported between instances of 'int' and 'NoneType'\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_8886c62a1eb84ac893c5421199547f0c.json\n=========================== short test summary info ===========================\nFAILED tests\\unit\\test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]\nFAILED tests\\unit\\test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]\nFAILED tests\\unit\\test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]\n========================= 3 failed, 2 passed in 0.46s =========================\n",
+              "stderr": "",
+              "report": {
+                "created": 1791656635.71146,
+                "duration": 0.458984375,
+                "exitcode": 1,
+                "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+                "environment": {},
+                "summary": {
+                  "failed": 3,
+                  "passed": 2,
+                  "total": 5,
+                  "collected": 5
+                },
+                "collectors": [
+                  {
+                    "nodeid": "",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_035.py",
+                        "type": "Module"
+                      }
+                    ]
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_035.py",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+                        "type": "Function",
+                        "lineno": 21
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+                        "type": "Function",
+                        "lineno": 21
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+                        "type": "Function",
+                        "lineno": 21
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_of_other_difficulty_sets_no_best_time[beginner-custom]",
+                        "type": "Function",
+                        "lineno": 60
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_of_other_difficulty_sets_no_best_time[beginner-intermediate]",
+                        "type": "Function",
+                        "lineno": 60
+                      }
+                    ]
+                  }
+                ],
+                "tests": [
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+                    "lineno": 21,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner-game-b-1-42-2024-03-01T10:15:00Z",
+                      "test_spec_035.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0006320999964373186,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.00033399999665562063,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\best_time.py",
+                        "lineno": 62,
+                        "message": "TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_035.py",
+                          "lineno": 35,
+                          "message": "in test_first_win_sets_best_time"
+                        },
+                        {
+                          "path": "src\\domain\\best_time.py",
+                          "lineno": 62,
+                          "message": "in record_win"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_035.py:35: in test_first_win_sets_best_time\n    best.record_win(\nsrc\\domain\\best_time.py:62: in record_win\n    if not elapsed_seconds < self.best_seconds:\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+                    },
+                    "teardown": {
+                      "duration": 0.0002690999972401187,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+                    "lineno": 21,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+                      "parametrize",
+                      "pytestmark",
+                      "intermediate-game-i-1-137-2024-03-02T11:20:00Z",
+                      "test_spec_035.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0004641000123228878,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0002153999957954511,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\best_time.py",
+                        "lineno": 62,
+                        "message": "TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_035.py",
+                          "lineno": 35,
+                          "message": "in test_first_win_sets_best_time"
+                        },
+                        {
+                          "path": "src\\domain\\best_time.py",
+                          "lineno": 62,
+                          "message": "in record_win"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_035.py:35: in test_first_win_sets_best_time\n    best.record_win(\nsrc\\domain\\best_time.py:62: in record_win\n    if not elapsed_seconds < self.best_seconds:\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+                    },
+                    "teardown": {
+                      "duration": 0.00025710000772960484,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+                    "lineno": 21,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+                      "parametrize",
+                      "pytestmark",
+                      "expert-game-e-1-389-2024-03-03T12:25:00Z",
+                      "test_spec_035.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0004360000020824373,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0002125999890267849,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\best_time.py",
+                        "lineno": 62,
+                        "message": "TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_035.py",
+                          "lineno": 35,
+                          "message": "in test_first_win_sets_best_time"
+                        },
+                        {
+                          "path": "src\\domain\\best_time.py",
+                          "lineno": 62,
+                          "message": "in record_win"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_035.py:35: in test_first_win_sets_best_time\n    best.record_win(\nsrc\\domain\\best_time.py:62: in record_win\n    if not elapsed_seconds < self.best_seconds:\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   TypeError: '<' not supported between instances of 'int' and 'NoneType'"
+                    },
+                    "teardown": {
+                      "duration": 0.00024920000578276813,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_of_other_difficulty_sets_no_best_time[beginner-custom]",
+                    "lineno": 60,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_first_win_of_other_difficulty_sets_no_best_time[beginner-custom]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner-custom",
+                      "test_spec_035.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0003352999920025468,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0001990000018849969,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.00017220000154338777,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_035.py::test_first_win_of_other_difficulty_sets_no_best_time[beginner-intermediate]",
+                    "lineno": 60,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_first_win_of_other_difficulty_sets_no_best_time[beginner-intermediate]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner-intermediate",
+                      "test_spec_035.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.00031829999352339655,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.00018400000408291817,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.00018710001313593239,
+                      "outcome": "passed"
+                    }
+                  }
+                ]
+              },
+              "timed_out": false
+            },
+            "evaluation": {
+              "status": "APPROVED_RED",
+              "approved": true,
+              "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+            },
+            "attempts": [
+              {
+                "attempt": 1,
+                "approved": false,
+                "reason": "Test passed before logic was implemented (tautological false pass). It also passes when the class's methods do nothing, so it asserts no behaviour."
+              },
+              {
+                "attempt": 2,
+                "approved": true,
+                "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "spec_id": "SPEC-038",
+            "title": "Lost or abandoned games record no best time",
+            "description": "Only wins can produce a best time.",
+            "given_when_then": "Given a game that ends Lost or Abandoned When it ends Then no best time is created or changed",
+            "target_aggregate": "BestTime",
+            "spec_type": "DOMAIN_INVARIANT",
+            "kind": "behavior",
+            "category": "INVARIANT",
+            "is_mathematical_boundary": false,
+            "priority": "Medium",
+            "status": "PENDING"
+          },
+          {
+            "verdict": "approved",
+            "test_file_path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+            "test_code": "import pytest\n\nfrom src.domain.best_time import BestTime\n\n\ndef _stored_best(difficulty_id):\n    # Given: a stored best time of 100 seconds for a standard difficulty,\n    # set by an earlier win (game \"g-old\").\n    best = BestTime(\n        id=\"bt-1\",\n        difficulty_id=difficulty_id,\n        game_id=\"g-old\",\n        best_seconds=100,\n        achieved_at=\"2024-01-01T10:00:00Z\",\n    )\n    best.events = []\n    return best\n\n\n@pytest.mark.parametrize(\"outcome\", [\"lost\", \"abandoned\"])\n@pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\ndef test_lost_or_abandoned_game_does_not_change_best_time(outcome, difficulty_id):\n    best = _stored_best(difficulty_id)\n    before = best.to_dict()\n\n    # When: a game of the same standard difficulty ends lost/abandoned after\n    # 50 seconds, which is faster than the stored 100. Had it been a win, the\n    # \"new best time\" rule would apply (50 < 100). Because it is not a win,\n    # only wins can produce a best time, so nothing changes.\n    best.record_game_end(\n        game_id=\"g-new\",\n        difficulty_id=difficulty_id,\n        outcome=outcome,\n        elapsed_seconds=50,\n        ended_at=\"2024-02-01T12:00:00Z\",\n    )\n\n    # best_seconds: stored 100; a non-win cannot lower it -> still 100\n    assert best.best_seconds == 100\n    # game_id: still the game that set the stored best -> \"g-old\"\n    assert best.game_id == \"g-old\"\n    # achieved_at: still the time of the earlier win\n    assert best.achieved_at == \"2024-01-01T10:00:00Z\"\n    # difficulty_id: unchanged\n    assert best.difficulty_id == difficulty_id\n    # no new best was created or changed -> no events recorded\n    assert best.events == []\n    # the whole record is identical to before\n    assert best.to_dict() == before\n\n\n@pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\ndef test_won_game_end_with_same_inputs_does_set_new_best(difficulty_id):\n    best = _stored_best(difficulty_id)\n\n    # When: identical inputs to the lost/abandoned case, except the outcome\n    # is \"won\". Standard difficulty, same difficulty_id, 50 < 100, so the\n    # \"new best time\" rule applies: best becomes 50, game and time updated.\n    best.record_game_end(\n        game_id=\"g-new\",\n        difficulty_id=difficulty_id,\n        outcome=\"won\",\n        elapsed_seconds=50,\n        ended_at=\"2024-02-01T12:00:00Z\",\n    )\n\n    # best_seconds: 50 < 100 -> 50\n    assert best.best_seconds == 50\n    # game_id: updated to the winning game\n    assert best.game_id == \"g-new\"\n    # achieved_at: updated to when the win ended\n    assert best.achieved_at == \"2024-02-01T12:00:00Z\"\n    # difficulty_id: unchanged\n    assert best.difficulty_id == difficulty_id\n",
+            "test_hash": "62a739cb24d41aeb35b1f9493a8c79e3ea018c7768ccafd8d4e9a5573638fc2b",
+            "result": {
+              "exit_code": 1,
+              "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 6 items\n\ntests\\unit\\test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-lost] FAILED [ 16%]\ntests\\unit\\test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-abandoned] FAILED [ 33%]\ntests\\unit\\test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-lost] FAILED [ 50%]\ntests\\unit\\test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-abandoned] FAILED [ 66%]\ntests\\unit\\test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[beginner] FAILED [ 83%]\ntests\\unit\\test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[expert] FAILED [100%]\n\n================================== FAILURES ===================================\n____ test_lost_or_abandoned_game_does_not_change_best_time[beginner-lost] _____\ntests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'\n__ test_lost_or_abandoned_game_does_not_change_best_time[beginner-abandoned] __\ntests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'\n_____ test_lost_or_abandoned_game_does_not_change_best_time[expert-lost] ______\ntests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'\n___ test_lost_or_abandoned_game_does_not_change_best_time[expert-abandoned] ___\ntests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'\n_______ test_won_game_end_with_same_inputs_does_set_new_best[beginner] ________\ntests\\unit\\test_spec_038.py:59: in test_won_game_end_with_same_inputs_does_set_new_best\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'\n________ test_won_game_end_with_same_inputs_does_set_new_best[expert] _________\ntests\\unit\\test_spec_038.py:59: in test_won_game_end_with_same_inputs_does_set_new_best\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_17aa8868287c46afb268dfe742c6baa1.json\n=========================== short test summary info ===========================\nFAILED tests\\unit\\test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-lost]\nFAILED tests\\unit\\test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-abandoned]\nFAILED tests\\unit\\test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-lost]\nFAILED tests\\unit\\test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-abandoned]\nFAILED tests\\unit\\test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[beginner]\nFAILED tests\\unit\\test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[expert]\n============================== 6 failed in 1.71s ==============================\n",
+              "stderr": "",
+              "report": {
+                "created": 1791656614.452494,
+                "duration": 1.7071542739868164,
+                "exitcode": 1,
+                "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+                "environment": {},
+                "summary": {
+                  "failed": 6,
+                  "total": 6,
+                  "collected": 6
+                },
+                "collectors": [
+                  {
+                    "nodeid": "",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_038.py",
+                        "type": "Module"
+                      }
+                    ]
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_038.py",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-lost]",
+                        "type": "Function",
+                        "lineno": 19
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-abandoned]",
+                        "type": "Function",
+                        "lineno": 19
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-lost]",
+                        "type": "Function",
+                        "lineno": 19
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-abandoned]",
+                        "type": "Function",
+                        "lineno": 19
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[beginner]",
+                        "type": "Function",
+                        "lineno": 51
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[expert]",
+                        "type": "Function",
+                        "lineno": 51
+                      }
+                    ]
+                  }
+                ],
+                "tests": [
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-lost]",
+                    "lineno": 19,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_lost_or_abandoned_game_does_not_change_best_time[beginner-lost]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner-lost",
+                      "test_spec_038.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0011003000108757988,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0009497999999439344,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                        "lineno": 30,
+                        "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_038.py",
+                          "lineno": 30,
+                          "message": "in test_lost_or_abandoned_game_does_not_change_best_time"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                    },
+                    "teardown": {
+                      "duration": 0.0007326000049943104,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[beginner-abandoned]",
+                    "lineno": 19,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_lost_or_abandoned_game_does_not_change_best_time[beginner-abandoned]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner-abandoned",
+                      "test_spec_038.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0008138999983202666,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0005087000026833266,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                        "lineno": 30,
+                        "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_038.py",
+                          "lineno": 30,
+                          "message": "in test_lost_or_abandoned_game_does_not_change_best_time"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                    },
+                    "teardown": {
+                      "duration": 0.0004172999906586483,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-lost]",
+                    "lineno": 19,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_lost_or_abandoned_game_does_not_change_best_time[expert-lost]",
+                      "parametrize",
+                      "pytestmark",
+                      "expert-lost",
+                      "test_spec_038.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0008095999946817756,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0004123999970033765,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                        "lineno": 30,
+                        "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_038.py",
+                          "lineno": 30,
+                          "message": "in test_lost_or_abandoned_game_does_not_change_best_time"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                    },
+                    "teardown": {
+                      "duration": 0.019252900005085394,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_038.py::test_lost_or_abandoned_game_does_not_change_best_time[expert-abandoned]",
+                    "lineno": 19,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_lost_or_abandoned_game_does_not_change_best_time[expert-abandoned]",
+                      "parametrize",
+                      "pytestmark",
+                      "expert-abandoned",
+                      "test_spec_038.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0007264000014401972,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0004259999986970797,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                        "lineno": 30,
+                        "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_038.py",
+                          "lineno": 30,
+                          "message": "in test_lost_or_abandoned_game_does_not_change_best_time"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_038.py:30: in test_lost_or_abandoned_game_does_not_change_best_time\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                    },
+                    "teardown": {
+                      "duration": 0.00047959999938029796,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[beginner]",
+                    "lineno": 51,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_won_game_end_with_same_inputs_does_set_new_best[beginner]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner",
+                      "test_spec_038.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0006863000016892329,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0004973000031895936,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                        "lineno": 59,
+                        "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_038.py",
+                          "lineno": 59,
+                          "message": "in test_won_game_end_with_same_inputs_does_set_new_best"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_038.py:59: in test_won_game_end_with_same_inputs_does_set_new_best\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                    },
+                    "teardown": {
+                      "duration": 0.00041849999979604036,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_038.py::test_won_game_end_with_same_inputs_does_set_new_best[expert]",
+                    "lineno": 51,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_won_game_end_with_same_inputs_does_set_new_best[expert]",
+                      "parametrize",
+                      "pytestmark",
+                      "expert",
+                      "test_spec_038.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0007066999969538301,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0004241999995429069,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+                        "lineno": 59,
+                        "message": "AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_038.py",
+                          "lineno": 59,
+                          "message": "in test_won_game_end_with_same_inputs_does_set_new_best"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_038.py:59: in test_won_game_end_with_same_inputs_does_set_new_best\n    best.record_game_end(\n    ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'BestTime' object has no attribute 'record_game_end'"
+                    },
+                    "teardown": {
+                      "duration": 0.0004563999973470345,
+                      "outcome": "passed"
+                    }
+                  }
+                ]
+              },
+              "timed_out": false
+            },
+            "evaluation": {
+              "status": "APPROVED_RED",
+              "approved": true,
+              "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+            },
+            "attempts": [
+              {
+                "attempt": 1,
+                "approved": true,
+                "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+              }
+            ]
+          }
+        ]
+      ],
+      {
+        "class_name": "BestTime",
+        "module_name": "best_time",
+        "domain_file": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\best_time.py",
+        "tests_dir": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit"
+      },
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace",
+      "# test_spec_act_besttime.py\nimport pytest\n\nfrom src.domain.best_time import BestTime\n\n\nACHIEVED_FIRST = \"2024-01-10T09:00:00+00:00\"\nACHIEVED_LATER = \"2024-02-20T18:30:00+00:00\"\n\n\ndef _make(difficulty_id, best_seconds=100):\n    return BestTime(\n        id=\"bt-1\",\n        difficulty_id=difficulty_id,\n        game_id=\"game-first\",\n        best_seconds=best_seconds,\n        achieved_at=ACHIEVED_FIRST,\n    )\n\n\n@pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"intermediate\", \"expert\"])\ndef test_new_best_time_holds_exactly_constructed_values(difficulty_id):\n    bt = BestTime(\n        id=\"bt-1\",\n        difficulty_id=difficulty_id,\n        game_id=\"game-first\",\n        best_seconds=100,\n        achieved_at=ACHIEVED_FIRST,\n    )\n\n    # Constructed from the first win: the values passed in are kept as-is.\n    assert bt.id == \"bt-1\"\n    assert bt.difficulty_id == difficulty_id\n    assert bt.game_id == \"game-first\"\n    assert bt.best_seconds == 100\n    assert bt.achieved_at == ACHIEVED_FIRST\n    # Nothing has been called, so no events were raised.\n    assert bt.events == []\n\n\n@pytest.mark.parametrize(\n    \"record_difficulty, win_difficulty, elapsed, expect_update\",\n    [\n        # Standard difficulty, faster by one second (just inside the < boundary): update.\n        (\"beginner\", \"beginner\", 99, True),\n        # Same rule for another standard difficulty (each kind is covered).\n        (\"expert\", \"expert\", 99, True),\n        (\"intermediate\", \"intermediate\", 99, True),\n        # Equal time (exactly at the boundary): elapsed < best is false, best kept.\n        (\"beginner\", \"beginner\", 100, False),\n        (\"expert\", \"expert\", 100, False),\n        # Slower time: best kept.\n        (\"beginner\", \"beginner\", 101, False),\n        # Custom difficulty with a faster time: changes nothing.\n        (\"beginner\", \"custom\", 99, False),\n        # Different standard difficulty with a faster time: changes nothing.\n        (\"beginner\", \"intermediate\", 99, False),\n    ],\n)\ndef test_record_win(record_difficulty, win_difficulty, elapsed, expect_update):\n    # Given: a stored best of 100 seconds from game-first at ACHIEVED_FIRST.\n    bt = _make(record_difficulty, best_seconds=100)\n\n    # When\n    bt.record_win(\n        game_id=\"game-second\",\n        difficulty_id=win_difficulty,\n        elapsed_seconds=elapsed,\n        achieved_at=ACHIEVED_LATER,\n    )\n\n    # Identity and difficulty of the record never change.\n    assert bt.id == \"bt-1\"\n    assert bt.difficulty_id == record_difficulty\n\n    if expect_update:\n        # Same standard difficulty and 99 < 100: best becomes 99,\n        # game_id and achieved_at come from the new win.\n        assert bt.best_seconds == elapsed\n        assert bt.game_id == \"game-second\"\n        assert bt.achieved_at == ACHIEVED_LATER\n    else:\n        # Either elapsed >= 100, or the win's difficulty is custom / differs\n        # from this record's: the stored best from game-first stays.\n        assert bt.best_seconds == 100\n        assert bt.game_id == \"game-first\"\n        assert bt.achieved_at == ACHIEVED_FIRST\n",
+      "{'test_spec_048.py'}"
+    ],
+    "kwargs": {
+      "peers": [
+        [
+          {
+            "spec_id": "SPEC-034",
+            "title": "New best time",
+            "description": "A win on a standard difficulty faster than the stored best replaces it.",
+            "given_when_then": "Given a stored best time of B seconds for a standard difficulty When the player wins a game of that difficulty in T seconds with T < B Then the best time becomes T for that difficulty on this device",
+            "target_aggregate": "BestTime",
+            "spec_type": "DOMAIN_INVARIANT",
+            "kind": "behavior",
+            "category": "INVARIANT",
+            "is_mathematical_boundary": true,
+            "priority": "High",
+            "status": "PENDING"
+          },
+          {
+            "verdict": "already_satisfied",
+            "test_file_path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_034.py",
+            "test_code": "import pytest\n\nfrom src.domain.best_time import BestTime\n\n\nSTORED_BEST = 100\nSTORED_GAME_ID = \"game-old\"\nSTORED_ACHIEVED_AT = \"2024-01-01T10:00:00+00:00\"\nNEW_GAME_ID = \"game-new\"\nNEW_ACHIEVED_AT = \"2024-02-01T12:30:00+00:00\"\n\n\ndef _stored_best(difficulty_id: str) -> BestTime:\n    return BestTime(\n        id=\"best-1\",\n        difficulty_id=difficulty_id,\n        game_id=STORED_GAME_ID,\n        best_seconds=STORED_BEST,\n        achieved_at=STORED_ACHIEVED_AT,\n    )\n\n\n@pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\ndef test_win_just_faster_than_stored_best_replaces_it(difficulty_id):\n    best = _stored_best(difficulty_id)\n\n    best.record_win(\n        game_id=NEW_GAME_ID,\n        difficulty_id=difficulty_id,\n        elapsed_seconds=STORED_BEST - 1,\n        achieved_at=NEW_ACHIEVED_AT,\n    )\n\n    # The record's difficulty is standard (beginner or expert), so the\n    # custom-difficulty rule does not apply. The win has the same difficulty_id\n    # as the record, and the game was won, so the lost/abandoned rule does not\n    # apply. Elapsed is 99 and the stored best is 100. Since 99 < 100, the\n    # \"slower or equal keeps best\" rule does not apply. So the best time\n    # becomes 99.\n    assert best.best_seconds == STORED_BEST - 1\n    # When the best time is replaced, the game_id is taken from the new win.\n    assert best.game_id == NEW_GAME_ID\n    # When the best time is replaced, achieved_at is taken from the new win.\n    assert best.achieved_at == NEW_ACHIEVED_AT\n    # The difficulty of the record is unchanged.\n    assert best.difficulty_id == difficulty_id\n\n\n@pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\ndef test_win_exactly_equal_to_stored_best_does_not_replace_it(difficulty_id):\n    best = _stored_best(difficulty_id)\n\n    best.record_win(\n        game_id=NEW_GAME_ID,\n        difficulty_id=difficulty_id,\n        elapsed_seconds=STORED_BEST,\n        achieved_at=NEW_ACHIEVED_AT,\n    )\n\n    # This case uses the same standard difficulty, the same matching\n    # difficulty_id and the same won game as the accepted case. Only the\n    # elapsed time differs. Elapsed is 100 and the stored best is 100. The\n    # replacement needs elapsed < 100, which does not hold. The \"slower or\n    # equal keeps best\" rule applies, so the best time stays 100.\n    assert best.best_seconds == STORED_BEST\n    # The stored best is kept, so game_id still refers to the old game.\n    assert best.game_id == STORED_GAME_ID\n    # The stored best is kept, so achieved_at keeps its old value.\n    assert best.achieved_at == STORED_ACHIEVED_AT\n    # The difficulty of the record is unchanged.\n    assert best.difficulty_id == difficulty_id\n",
+            "test_hash": "8d1fe67539e439e093974002324a08c25866c50d595ebfdd95bb3a99b0695080",
+            "result": {
+              "exit_code": 0,
+              "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 4 items\n\ntests\\unit\\test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[beginner] PASSED [ 25%]\ntests\\unit\\test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[expert] PASSED [ 50%]\ntests\\unit\\test_spec_034.py::test_win_exactly_equal_to_stored_best_does_not_replace_it[beginner] PASSED [ 75%]\ntests\\unit\\test_spec_034.py::test_win_exactly_equal_to_stored_best_does_not_replace_it[expert] PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_e1fb8b66e59f482f89b00984fd3f9354.json\n============================== 4 passed in 0.82s ==============================\n",
+              "stderr": "",
+              "report": {
+                "created": 1791656613.648302,
+                "duration": 0.8318581581115723,
+                "exitcode": 0,
+                "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+                "environment": {},
+                "summary": {
+                  "passed": 4,
+                  "total": 4,
+                  "collected": 4
+                },
+                "collectors": [
+                  {
+                    "nodeid": "",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_034.py",
+                        "type": "Module"
+                      }
+                    ]
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_034.py",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[beginner]",
+                        "type": "Function",
+                        "lineno": 22
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[expert]",
+                        "type": "Function",
+                        "lineno": 22
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_034.py::test_win_exactly_equal_to_stored_best_does_not_replace_it[beginner]",
+                        "type": "Function",
+                        "lineno": 48
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_034.py::test_win_exactly_equal_to_stored_best_does_not_replace_it[expert]",
+                        "type": "Function",
+                        "lineno": 48
+                      }
+                    ]
+                  }
+                ],
+                "tests": [
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[beginner]",
+                    "lineno": 22,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_win_just_faster_than_stored_best_replaces_it[beginner]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner",
+                      "test_spec_034.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.000876799997058697,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0004580000095302239,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.0004034999874420464,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_034.py::test_win_just_faster_than_stored_best_replaces_it[expert]",
+                    "lineno": 22,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_win_just_faster_than_stored_best_replaces_it[expert]",
+                      "parametrize",
+                      "pytestmark",
+                      "expert",
+                      "test_spec_034.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0006966000073589385,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0004209000035189092,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.0003882000019075349,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_034.py::test_win_exactly_equal_to_stored_best_does_not_replace_it[beginner]",
+                    "lineno": 48,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_win_exactly_equal_to_stored_best_does_not_replace_it[beginner]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner",
+                      "test_spec_034.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0010265000018989667,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.000527299998793751,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.0004202999989502132,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_034.py::test_win_exactly_equal_to_stored_best_does_not_replace_it[expert]",
+                    "lineno": 48,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_win_exactly_equal_to_stored_best_does_not_replace_it[expert]",
+                      "parametrize",
+                      "pytestmark",
+                      "expert",
+                      "test_spec_034.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0010670000046957284,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0006303999980445951,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.0004681999998865649,
+                      "outcome": "passed"
+                    }
+                  }
+                ]
+              },
+              "timed_out": false
+            },
+            "evaluation": {
+              "status": "ALREADY_SATISFIED",
+              "approved": true,
+              "reason": "The class already enforces this rule: the test passes as it is and fails once the class's methods do nothing. No code was needed."
+            },
+            "attempts": [
+              {
+                "attempt": 1,
+                "approved": true,
+                "reason": "The class already enforces this rule: the test passes as it is and fails once the class's methods do nothing. No code was needed."
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "spec_id": "SPEC-036",
+            "title": "Slower or equal win keeps best",
+            "description": "A win not faster than the stored best does not change it.",
+            "given_when_then": "Given a stored best time of B seconds for a standard difficulty When the player wins in T seconds with T >= B Then the best time remains B",
+            "target_aggregate": "BestTime",
+            "spec_type": "DOMAIN_INVARIANT",
+            "kind": "behavior",
+            "category": "INVARIANT",
+            "is_mathematical_boundary": true,
+            "priority": "Medium",
+            "status": "PENDING"
+          },
+          {
+            "verdict": "already_satisfied",
+            "test_file_path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_036.py",
+            "test_code": "import pytest\n\nfrom src.domain.best_time import BestTime\n\n\nSTANDARD_DIFFICULTIES = [\"beginner\", \"intermediate\", \"expert\"]\n\n\ndef _stored_best(difficulty_id: str, best_seconds: int) -> BestTime:\n    # Given: a stored best time of B seconds for a standard difficulty,\n    # recorded from an earlier game \"game-old\" at a fixed time.\n    return BestTime(\n        id=\"bt-1\",\n        difficulty_id=difficulty_id,\n        game_id=\"game-old\",\n        best_seconds=best_seconds,\n        achieved_at=\"2024-01-01T10:00:00Z\",\n    )\n\n\n@pytest.mark.parametrize(\"difficulty_id\", STANDARD_DIFFICULTIES)\ndef test_equal_win_keeps_stored_best(difficulty_id):\n    best = _stored_best(difficulty_id, 100)\n\n    # When: the player wins a game of the same difficulty in exactly B seconds.\n    best.record_win(\n        game_id=\"game-new\",\n        difficulty_id=difficulty_id,\n        elapsed_seconds=100,\n        achieved_at=\"2024-02-01T12:00:00Z\",\n    )\n\n    # Stored best is 100 and the win took 100: 100 < 100 is false, so this is\n    # not a new best. Difficulty is standard and matches the record, so the\n    # custom rule does not apply; it is a win, so the lost/abandoned rule does\n    # not apply. The best stays 100.\n    assert best.best_seconds == 100\n    # The best was not replaced, so it still belongs to the original game.\n    assert best.game_id == \"game-old\"\n    # The best was not replaced, so its achieved_at is the original one.\n    assert best.achieved_at == \"2024-01-01T10:00:00Z\"\n    # Difficulty of the record never changes.\n    assert best.difficulty_id == difficulty_id\n\n\n@pytest.mark.parametrize(\"difficulty_id\", STANDARD_DIFFICULTIES)\ndef test_slower_win_keeps_stored_best(difficulty_id):\n    best = _stored_best(difficulty_id, 100)\n\n    # When: the player wins a game of the same difficulty in B + 1 seconds.\n    best.record_win(\n        game_id=\"game-new\",\n        difficulty_id=difficulty_id,\n        elapsed_seconds=101,\n        achieved_at=\"2024-02-01T12:00:00Z\",\n    )\n\n    # Stored best is 100 and the win took 101: 101 < 100 is false, so the\n    # slower time does not replace the best. The best stays 100.\n    assert best.best_seconds == 100\n    # Not replaced, so the original game remains the holder.\n    assert best.game_id == \"game-old\"\n    # Not replaced, so the original achieved_at remains.\n    assert best.achieved_at == \"2024-01-01T10:00:00Z\"\n\n\n@pytest.mark.parametrize(\"difficulty_id\", STANDARD_DIFFICULTIES)\ndef test_win_just_faster_than_best_replaces_it(difficulty_id):\n    best = _stored_best(difficulty_id, 100)\n\n    # When: the player wins a game of the same difficulty in B - 1 seconds\n    # (just beyond the limit of \"not faster than the stored best\").\n    best.record_win(\n        game_id=\"game-new\",\n        difficulty_id=difficulty_id,\n        elapsed_seconds=99,\n        achieved_at=\"2024-02-01T12:00:00Z\",\n    )\n\n    # Stored best is 100 and the win took 99: 99 < 100 is true, standard\n    # difficulty matching the record, a win: the new-best rule applies and\n    # the best becomes 99.\n    assert best.best_seconds == 99\n    # The new best belongs to the game that achieved it.\n    assert best.game_id == \"game-new\"\n    # The new best carries the time it was achieved.\n    assert best.achieved_at == \"2024-02-01T12:00:00Z\"\n    # Difficulty of the record never changes.\n    assert best.difficulty_id == difficulty_id\n",
+            "test_hash": "5462bc4d46f4fb4d0eca58ba90cb7f3b934dbb2d215a5730a1e7902a15920135",
+            "result": {
+              "exit_code": 0,
+              "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 9 items\n\ntests\\unit\\test_spec_036.py::test_equal_win_keeps_stored_best[beginner] PASSED [ 11%]\ntests\\unit\\test_spec_036.py::test_equal_win_keeps_stored_best[intermediate] PASSED [ 22%]\ntests\\unit\\test_spec_036.py::test_equal_win_keeps_stored_best[expert] PASSED [ 33%]\ntests\\unit\\test_spec_036.py::test_slower_win_keeps_stored_best[beginner] PASSED [ 44%]\ntests\\unit\\test_spec_036.py::test_slower_win_keeps_stored_best[intermediate] PASSED [ 55%]\ntests\\unit\\test_spec_036.py::test_slower_win_keeps_stored_best[expert] PASSED [ 66%]\ntests\\unit\\test_spec_036.py::test_win_just_faster_than_best_replaces_it[beginner] PASSED [ 77%]\ntests\\unit\\test_spec_036.py::test_win_just_faster_than_best_replaces_it[intermediate] PASSED [ 88%]\ntests\\unit\\test_spec_036.py::test_win_just_faster_than_best_replaces_it[expert] PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_f92c8a595c7b44218d7d3afce2955115.json\n============================== 9 passed in 0.98s ==============================\n",
+              "stderr": "",
+              "report": {
+                "created": 1791656613.360476,
+                "duration": 0.9701075553894043,
+                "exitcode": 0,
+                "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+                "environment": {},
+                "summary": {
+                  "passed": 9,
+                  "total": 9,
+                  "collected": 9
+                },
+                "collectors": [
+                  {
+                    "nodeid": "",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_036.py",
+                        "type": "Module"
+                      }
+                    ]
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_036.py",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[beginner]",
+                        "type": "Function",
+                        "lineno": 20
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[intermediate]",
+                        "type": "Function",
+                        "lineno": 20
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[expert]",
+                        "type": "Function",
+                        "lineno": 20
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[beginner]",
+                        "type": "Function",
+                        "lineno": 45
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[intermediate]",
+                        "type": "Function",
+                        "lineno": 45
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[expert]",
+                        "type": "Function",
+                        "lineno": 45
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[beginner]",
+                        "type": "Function",
+                        "lineno": 66
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[intermediate]",
+                        "type": "Function",
+                        "lineno": 66
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[expert]",
+                        "type": "Function",
+                        "lineno": 66
+                      }
+                    ]
+                  }
+                ],
+                "tests": [
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[beginner]",
+                    "lineno": 20,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_equal_win_keeps_stored_best[beginner]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner",
+                      "test_spec_036.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0010850999969989061,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.00042640000174287707,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.0003843000013148412,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[intermediate]",
+                    "lineno": 20,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_equal_win_keeps_stored_best[intermediate]",
+                      "parametrize",
+                      "pytestmark",
+                      "intermediate",
+                      "test_spec_036.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0008471000037388876,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0012698000064119697,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.0005557000113185495,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_036.py::test_equal_win_keeps_stored_best[expert]",
+                    "lineno": 20,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_equal_win_keeps_stored_best[expert]",
+                      "parametrize",
+                      "pytestmark",
+                      "expert",
+                      "test_spec_036.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0006133999995654449,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.00043369999912101775,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.0003601000062189996,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[beginner]",
+                    "lineno": 45,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_slower_win_keeps_stored_best[beginner]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner",
+                      "test_spec_036.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0005541999998968095,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0003394000086700544,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.0003262999962316826,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[intermediate]",
+                    "lineno": 45,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_slower_win_keeps_stored_best[intermediate]",
+                      "parametrize",
+                      "pytestmark",
+                      "intermediate",
+                      "test_spec_036.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0008588000055169687,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0005436000064946711,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.00035820000630337745,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_036.py::test_slower_win_keeps_stored_best[expert]",
+                    "lineno": 45,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_slower_win_keeps_stored_best[expert]",
+                      "parametrize",
+                      "pytestmark",
+                      "expert",
+                      "test_spec_036.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0026039999938802794,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0005794000026071444,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.00036049999471288174,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[beginner]",
+                    "lineno": 66,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_win_just_faster_than_best_replaces_it[beginner]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner",
+                      "test_spec_036.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.006292199992458336,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0006076000136090443,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.0003969999961555004,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[intermediate]",
+                    "lineno": 66,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_win_just_faster_than_best_replaces_it[intermediate]",
+                      "parametrize",
+                      "pytestmark",
+                      "intermediate",
+                      "test_spec_036.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0006630999996559694,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0006354000070132315,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.00040830000943969935,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_036.py::test_win_just_faster_than_best_replaces_it[expert]",
+                    "lineno": 66,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_win_just_faster_than_best_replaces_it[expert]",
+                      "parametrize",
+                      "pytestmark",
+                      "expert",
+                      "test_spec_036.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0014314000000013039,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0003972999984398484,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.00045340000360738486,
+                      "outcome": "passed"
+                    }
+                  }
+                ]
+              },
+              "timed_out": false
+            },
+            "evaluation": {
+              "status": "ALREADY_SATISFIED",
+              "approved": true,
+              "reason": "The class already enforces this rule: the test passes as it is and fails once the class's methods do nothing. No code was needed."
+            },
+            "attempts": [
+              {
+                "attempt": 1,
+                "approved": true,
+                "reason": "The class already enforces this rule: the test passes as it is and fails once the class's methods do nothing. No code was needed."
+              }
+            ]
+          }
+        ],
+        [
+          {
+            "spec_id": "SPEC-037",
+            "title": "Custom games record no best time",
+            "description": "Wins on Custom difficulty never create or update a best time.",
+            "given_when_then": "Given a game on Custom difficulty When the player wins it Then no best time is created or changed",
+            "target_aggregate": "BestTime",
+            "spec_type": "DOMAIN_INVARIANT",
+            "kind": "behavior",
+            "category": "INVARIANT",
+            "is_mathematical_boundary": false,
+            "priority": "High",
+            "status": "PENDING"
+          },
+          {
+            "verdict": "already_satisfied",
+            "test_file_path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_037.py",
+            "test_code": "import pytest\n\nfrom src.domain.best_time import BestTime\n\n\ndef _stored_best(difficulty_id: str) -> BestTime:\n    # Given: a stored best time of 100 seconds for a standard difficulty,\n    # recorded from game \"game-first\" at a fixed time, with no events.\n    return BestTime(\n        id=\"bt-1\",\n        difficulty_id=difficulty_id,\n        game_id=\"game-first\",\n        best_seconds=100,\n        achieved_at=\"2024-01-01T10:00:00Z\",\n    )\n\n\n@pytest.mark.parametrize(\"stored_difficulty\", [\"beginner\", \"expert\"])\ndef test_custom_win_does_not_change_best_time(stored_difficulty):\n    best = _stored_best(stored_difficulty)\n\n    # When: a game on Custom difficulty is won faster than the stored best.\n    # The game is Won, so the \"lost or abandoned\" rule does not apply.\n    best.record_win(\n        game_id=\"game-custom\",\n        difficulty_id=\"custom\",\n        elapsed_seconds=50,\n        achieved_at=\"2024-01-02T12:00:00Z\",\n    )\n\n    # Then: custom difficulty changes nothing. 50 < 100 would beat the record\n    # for a standard difficulty, so only the custom rule keeps it at 100.\n    assert best.best_seconds == 100\n    # The game that holds the record is still the first one.\n    assert best.game_id == \"game-first\"\n    # The time the record was achieved is unchanged.\n    assert best.achieved_at == \"2024-01-01T10:00:00Z\"\n    # The record still belongs to its standard difficulty, not \"custom\".\n    assert best.difficulty_id == stored_difficulty\n    # The record keeps its id.\n    assert best.id == \"bt-1\"\n    # Nothing happened, so no events are recorded.\n    assert best.events == []\n\n\n@pytest.mark.parametrize(\"stored_difficulty\", [\"beginner\", \"expert\"])\ndef test_same_faster_win_on_standard_difficulty_does_update_best_time(stored_difficulty):\n    best = _stored_best(stored_difficulty)\n\n    # When: the identical win (same game, same time, same moment) is played on\n    # the record's own standard difficulty instead of custom.\n    best.record_win(\n        game_id=\"game-custom\",\n        difficulty_id=stored_difficulty,\n        elapsed_seconds=50,\n        achieved_at=\"2024-01-02T12:00:00Z\",\n    )\n\n    # Then: standard difficulty and 50 < 100, so the new best is 50.\n    assert best.best_seconds == 50\n    # The record now points at the game that set the new best.\n    assert best.game_id == \"game-custom\"\n    # The achievement time is that of the new best.\n    assert best.achieved_at == \"2024-01-02T12:00:00Z\"\n    # The difficulty stays the same standard difficulty.\n    assert best.difficulty_id == stored_difficulty\n",
+            "test_hash": "fcc5438b211577c79496745cc2985f68b358964638befe94529147c65d6bd755",
+            "result": {
+              "exit_code": 0,
+              "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 4 items\n\ntests\\unit\\test_spec_037.py::test_custom_win_does_not_change_best_time[beginner] PASSED [ 25%]\ntests\\unit\\test_spec_037.py::test_custom_win_does_not_change_best_time[expert] PASSED [ 50%]\ntests\\unit\\test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner] PASSED [ 75%]\ntests\\unit\\test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[expert] PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_d8ae3389a7bd434685295f783f5a310c.json\n============================== 4 passed in 0.82s ==============================\n",
+              "stderr": "",
+              "report": {
+                "created": 1791656613.3123884,
+                "duration": 0.8418674468994141,
+                "exitcode": 0,
+                "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+                "environment": {},
+                "summary": {
+                  "passed": 4,
+                  "total": 4,
+                  "collected": 4
+                },
+                "collectors": [
+                  {
+                    "nodeid": "",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_037.py",
+                        "type": "Module"
+                      }
+                    ]
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_037.py",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[beginner]",
+                        "type": "Function",
+                        "lineno": 17
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[expert]",
+                        "type": "Function",
+                        "lineno": 17
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+                        "type": "Function",
+                        "lineno": 45
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+                        "type": "Function",
+                        "lineno": 45
+                      }
+                    ]
+                  }
+                ],
+                "tests": [
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[beginner]",
+                    "lineno": 17,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_custom_win_does_not_change_best_time[beginner]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner",
+                      "test_spec_037.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0009579000034136698,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.001059200003510341,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.0007009000109974295,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_037.py::test_custom_win_does_not_change_best_time[expert]",
+                    "lineno": 17,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_custom_win_does_not_change_best_time[expert]",
+                      "parametrize",
+                      "pytestmark",
+                      "expert",
+                      "test_spec_037.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0006551999977091327,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0004995000053895637,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.0003981000045314431,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+                    "lineno": 45,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_same_faster_win_on_standard_difficulty_does_update_best_time[beginner]",
+                      "parametrize",
+                      "pytestmark",
+                      "beginner",
+                      "test_spec_037.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.00170310000248719,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0004413999995449558,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.00038180001138243824,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_037.py::test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+                    "lineno": 45,
+                    "outcome": "passed",
+                    "keywords": [
+                      "test_same_faster_win_on_standard_difficulty_does_update_best_time[expert]",
+                      "parametrize",
+                      "pytestmark",
+                      "expert",
+                      "test_spec_037.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0008379000064451247,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.000588800001423806,
+                      "outcome": "passed"
+                    },
+                    "teardown": {
+                      "duration": 0.00039030000334605575,
+                      "outcome": "passed"
+                    }
+                  }
+                ]
+              },
+              "timed_out": false
+            },
+            "evaluation": {
+              "status": "ALREADY_SATISFIED",
+              "approved": true,
+              "reason": "The class already enforces this rule: the test passes as it is and fails once the class's methods do nothing. No code was needed."
+            },
+            "attempts": [
+              {
+                "attempt": 1,
+                "approved": true,
+                "reason": "The class already enforces this rule: the test passes as it is and fails once the class's methods do nothing. No code was needed."
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  },
+  "output": {
+    "SPEC-035": {
+      "success": true,
+      "status": "FULFILLED",
+      "phase": "COMMITTED",
+      "spec_id": "SPEC-035",
+      "test_file": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_035.py",
+      "red_eval": {
+        "status": "APPROVED_RED",
+        "approved": true,
+        "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+      },
+      "green_eval": {
+        "status": "APPROVED_GREEN",
+        "approved": true,
+        "reason": "All tests passed cleanly."
+      },
+      "red_attempts": [
+        {
+          "attempt": 1,
+          "approved": false,
+          "reason": "Test passed before logic was implemented (tautological false pass). It also passes when the class's methods do nothing, so it asserts no behaviour."
+        },
+        {
+          "attempt": 2,
+          "approved": true,
+          "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+        }
+      ],
+      "test_source": "import pytest\n\nfrom src.domain.best_time import BestTime\n\n\ndef _no_best_stored(difficulty_id):\n    # Build the record as it is when newly created, then clear the stored best,\n    # so that no best time is held for this difficulty.\n    best = BestTime(\n        id=f\"best-{difficulty_id}\",\n        difficulty_id=difficulty_id,\n        game_id=\"game-old\",\n        best_seconds=500,\n        achieved_at=\"2024-01-01T00:00:00Z\",\n    )\n    best.best_seconds = None\n    best.game_id = None\n    best.achieved_at = None\n    return best\n\n\n@pytest.mark.parametrize(\n    \"difficulty_id, game_id, elapsed_seconds, achieved_at\",\n    [\n        (\"beginner\", \"game-b-1\", 42, \"2024-03-01T10:15:00Z\"),\n        (\"intermediate\", \"game-i-1\", 137, \"2024-03-02T11:20:00Z\"),\n        (\"expert\", \"game-e-1\", 389, \"2024-03-03T12:25:00Z\"),\n    ],\n)\ndef test_first_win_sets_best_time(difficulty_id, game_id, elapsed_seconds, achieved_at):\n    # Given no best time stored for this standard difficulty\n    best = _no_best_stored(difficulty_id)\n\n    # When the player wins a game of that difficulty in T seconds\n    best.record_win(\n        game_id=game_id,\n        difficulty_id=difficulty_id,\n        elapsed_seconds=elapsed_seconds,\n        achieved_at=achieved_at,\n    )\n\n    # Then a best time of T is recorded for that difficulty.\n    # There is no stored best, so the \"slower or equal\" rule has nothing to\n    # compare against. The difficulty is standard and matches this record, so\n    # the custom rule and the different-difficulty rule do not apply. The game\n    # was won, so the lost/abandoned rule does not apply.\n    # Expected: best_seconds == T.\n    assert best.best_seconds == elapsed_seconds\n\n    # The winning game is credited with the best time.\n    assert best.game_id == game_id\n\n    # The moment of the winning game is recorded unchanged.\n    assert best.achieved_at == achieved_at\n\n    # Identity and difficulty of the record do not change.\n    assert best.id == f\"best-{difficulty_id}\"\n    assert best.difficulty_id == difficulty_id\n\n\n@pytest.mark.parametrize(\n    \"record_difficulty, win_difficulty\",\n    [\n        # Custom difficulty: custom games record no best time.\n        (\"beginner\", \"custom\"),\n        # A different standard difficulty: this record is not for that difficulty.\n        (\"beginner\", \"intermediate\"),\n    ],\n)\ndef test_first_win_of_other_difficulty_sets_no_best_time(record_difficulty, win_difficulty):\n    # Given no best time stored (same arrangement as the accepted case)\n    best = _no_best_stored(record_difficulty)\n\n    # When a win arrives whose difficulty is custom or differs from this record's\n    best.record_win(\n        game_id=\"game-b-1\",\n        difficulty_id=win_difficulty,\n        elapsed_seconds=42,\n        achieved_at=\"2024-03-01T10:15:00Z\",\n    )\n\n    # Then nothing is created or changed: the custom rule / different-difficulty\n    # rule decides alone, so the cleared best stays cleared.\n    assert best.best_seconds is None\n    assert best.game_id is None\n    assert best.achieved_at is None\n\n    # The record keeps its own difficulty.\n    assert best.difficulty_id == record_difficulty\n",
+      "attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "All tests passed cleanly."
+        }
+      ]
+    },
+    "SPEC-038": {
+      "success": true,
+      "status": "FULFILLED",
+      "phase": "COMMITTED",
+      "spec_id": "SPEC-038",
+      "test_file": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_038.py",
+      "red_eval": {
+        "status": "APPROVED_RED",
+        "approved": true,
+        "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+      },
+      "green_eval": {
+        "status": "APPROVED_GREEN",
+        "approved": true,
+        "reason": "All tests passed cleanly."
+      },
+      "red_attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+        }
+      ],
+      "test_source": "import pytest\n\nfrom src.domain.best_time import BestTime\n\n\ndef _stored_best(difficulty_id):\n    # Given: a stored best time of 100 seconds for a standard difficulty,\n    # set by an earlier win (game \"g-old\").\n    best = BestTime(\n        id=\"bt-1\",\n        difficulty_id=difficulty_id,\n        game_id=\"g-old\",\n        best_seconds=100,\n        achieved_at=\"2024-01-01T10:00:00Z\",\n    )\n    best.events = []\n    return best\n\n\n@pytest.mark.parametrize(\"outcome\", [\"lost\", \"abandoned\"])\n@pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\ndef test_lost_or_abandoned_game_does_not_change_best_time(outcome, difficulty_id):\n    best = _stored_best(difficulty_id)\n    before = best.to_dict()\n\n    # When: a game of the same standard difficulty ends lost/abandoned after\n    # 50 seconds, which is faster than the stored 100. Had it been a win, the\n    # \"new best time\" rule would apply (50 < 100). Because it is not a win,\n    # only wins can produce a best time, so nothing changes.\n    best.record_game_end(\n        game_id=\"g-new\",\n        difficulty_id=difficulty_id,\n        outcome=outcome,\n        elapsed_seconds=50,\n        ended_at=\"2024-02-01T12:00:00Z\",\n    )\n\n    # best_seconds: stored 100; a non-win cannot lower it -> still 100\n    assert best.best_seconds == 100\n    # game_id: still the game that set the stored best -> \"g-old\"\n    assert best.game_id == \"g-old\"\n    # achieved_at: still the time of the earlier win\n    assert best.achieved_at == \"2024-01-01T10:00:00Z\"\n    # difficulty_id: unchanged\n    assert best.difficulty_id == difficulty_id\n    # no new best was created or changed -> no events recorded\n    assert best.events == []\n    # the whole record is identical to before\n    assert best.to_dict() == before\n\n\n@pytest.mark.parametrize(\"difficulty_id\", [\"beginner\", \"expert\"])\ndef test_won_game_end_with_same_inputs_does_set_new_best(difficulty_id):\n    best = _stored_best(difficulty_id)\n\n    # When: identical inputs to the lost/abandoned case, except the outcome\n    # is \"won\". Standard difficulty, same difficulty_id, 50 < 100, so the\n    # \"new best time\" rule applies: best becomes 50, game and time updated.\n    best.record_game_end(\n        game_id=\"g-new\",\n        difficulty_id=difficulty_id,\n        outcome=\"won\",\n        elapsed_seconds=50,\n        ended_at=\"2024-02-01T12:00:00Z\",\n    )\n\n    # best_seconds: 50 < 100 -> 50\n    assert best.best_seconds == 50\n    # game_id: updated to the winning game\n    assert best.game_id == \"g-new\"\n    # achieved_at: updated to when the win ended\n    assert best.achieved_at == \"2024-02-01T12:00:00Z\"\n    # difficulty_id: unchanged\n    assert best.difficulty_id == difficulty_id\n",
+      "attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "All tests passed cleanly."
+        }
+      ]
+    }
+  },
+  "duration_s": 12.422
+}

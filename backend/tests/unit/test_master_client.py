@@ -32,6 +32,19 @@ def test_client_matches_the_router_and_invents_nothing():
     assert "/action" in client
 
 
+def test_an_action_outlives_the_page_and_may_answer_with_a_new_record():
+    """
+    Given: A master aggregate
+    When: Its client is generated
+    Then: An action is sent so that it still reaches the server when the page is left while it is on its way,
+          and its answer is typed with the record the action may have made
+    """
+    client = generate_master_client(ENTITY)
+    action = client[client.index("export async function sendAction"):]
+    assert "keepalive: true" in action
+    assert "created: CareInquiryState | null;" in client
+
+
 def _blocks(**sections):
     return "".join(f"<<<{name}>>>\n{code}\n" for name, code in sections.items())
 
@@ -183,3 +196,45 @@ def test_the_prompt_tells_the_form_which_fields_a_create_needs(tmp_path, monkeyp
         pitch="p", structure=STRUCTURE, inbox_specs=[SPEC], workspace_dir=str(tmp_path), action_manifest={"actions": []}, ux_blueprint="plan")
     line = next(l for l in prompts[0].splitlines() if "care_inquiryClient.ts" in l)
     assert "the server assigns `id`" in line and "must carry: `hours`" in line and "parent_email" not in line.split("must carry:")[1]
+
+
+def test_a_record_made_on_opening_is_opened_by_the_client(tmp_path):
+    """Verify the page is handed the record it works on, so that making the first one is not left to its writer.
+
+    id: TST-CLI-OPEN
+    Given: A master the page makes by itself when it opens, and one a person creates
+    When: Their clients and the prompt's description of them are generated
+    Then: The first client exports an open function that gives the newest record or creates one in its starting
+          state, and the prompt tells the page to call it on opening; the second has neither
+    """
+    from onboarding.presentation_projection_synthesizer import _clients_block
+    session = EntitySpec(name="Session", is_aggregate_root=True, audience_role="created_by_audience",
+                         created_on_opening=True, attributes=[AttributeSpec(name="id", type="str", required=True)])
+
+    client = generate_master_client(session)
+    assert "export function openSession(): Promise<SessionState>" in client
+    assert "all.length ? all[all.length - 1] : createSession({})" in client
+    told = _clients_block([session], "Session")
+    assert "`openSession(): Promise<SessionState>`" in told and "when the page opens" in told
+
+    assert "openCareInquiry" not in generate_master_client(ENTITY)
+    assert "openCareInquiry" not in _clients_block([ENTITY], "CareInquiry")
+
+
+def test_the_client_sends_an_action_to_the_kind():
+    """Verify the page has a way to send an action that is done to no one record.
+
+    id: TST-CLIENT-KIND-ACTION
+    Given: An entity
+    When: Its client is generated
+    Then: It exports a function that posts to the kind's action endpoint and answers the record made and the
+          kind's records afterwards
+    """
+    from onboarding.router_engine import AttributeSpec, EntitySpec
+    from onboarding.skeleton_builder import generate_master_client
+    client = generate_master_client(EntitySpec(name="Order", is_aggregate_root=True, attributes=[
+        AttributeSpec(name="id", type="str", required=True)]))
+
+    assert "export async function sendKindAction(" in client
+    assert "fetch(`${BASE_URL}/action`" in client
+    assert "created: OrderState | null;" in client and "records: OrderState[];" in client

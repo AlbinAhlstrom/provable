@@ -1,0 +1,11 @@
+{
+  "name": "minesweeper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minesweeper in plain HTML, CSS and JavaScript. No dependencies, no build.",
+  "scripts": {
+    "start": "python -m http.server 5182",
+    "test": "node --test tests/",
+    "test:e2e": "python tests/e2e.py"
+  }
+}

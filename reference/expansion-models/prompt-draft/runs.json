@@ -1,0 +1,92 @@
+[
+ {
+  "pitch": "minesweeper",
+  "model": "haiku",
+  "seconds": 18.1,
+  "in": 1776,
+  "out": 3474,
+  "sek": 0.0191,
+  "words": 1219,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "minesweeper",
+  "model": "sonnet",
+  "seconds": 15.9,
+  "in": 1776,
+  "out": 1992,
+  "sek": 0.2347,
+  "words": 960,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "minesweeper",
+  "model": "opus",
+  "seconds": 23.7,
+  "in": 1776,
+  "out": 2381,
+  "sek": 0.5472,
+  "words": 1179,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "kanban",
+  "model": "haiku",
+  "seconds": 12.1,
+  "in": 1747,
+  "out": 2077,
+  "sek": 0.0121,
+  "words": 1147,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "kanban",
+  "model": "sonnet",
+  "seconds": 16.3,
+  "in": 1747,
+  "out": 1925,
+  "sek": 0.2274,
+  "words": 983,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "kanban",
+  "model": "opus",
+  "seconds": 27.9,
+  "in": 1747,
+  "out": 2786,
+  "sek": 0.6271,
+  "words": 1454,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "salon",
+  "model": "haiku",
+  "seconds": 18.7,
+  "in": 1733,
+  "out": 3374,
+  "sek": 0.0186,
+  "words": 1230,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "salon",
+  "model": "sonnet",
+  "seconds": 16.8,
+  "in": 1733,
+  "out": 1900,
+  "sek": 0.2247,
+  "words": 999,
+  "stop": "end_turn"
+ },
+ {
+  "pitch": "salon",
+  "model": "opus",
+  "seconds": 27.4,
+  "in": 1733,
+  "out": 2467,
+  "sek": 0.5627,
+  "words": 1272,
+  "stop": "end_turn"
+ }
+]

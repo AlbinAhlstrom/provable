@@ -1,0 +1,180 @@
+{
+  "seq": 10,
+  "step": "visual.review",
+  "kind": "step",
+  "depth": 0,
+  "caller_chain": [],
+  "started_at": "19:28:48",
+  "t_offset_s": 89.885,
+  "thread": "AnyIO worker thread",
+  "input": {
+    "args": [],
+    "kwargs": {
+      "workspace_dir": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace",
+      "pitch": "# Minesweeper\n\n## 1. Personas & Value Journey\n**Player (single persona).** Wants a quick, fair, single-player puzzle session. Needs to:\n- See the board, mine counter, and timer at a glance.\n- Start a game at a chosen difficulty, reveal cells, flag suspected mines, and learn the outcome clearly.\n- Start a new game at any time.\n\nNo other personas are implied.\n\n## 2. Presentation & Interaction\nLooks like classic Minesweeper: a rectangular grid of uniform grey square tiles with raised bevels; revealed tiles flatten to light grey, with numbers coloured as in the original (1 blue, 2 green, 3 red, and so on). A red flag marks suspected mines. A mine counter and timer sit in a header bar above the grid, with a face or status button to restart.\n- **Left-click (tap)** reveals a hidden cell.\n- **Right-click (long-press)** cycles hidden → flagged → hidden (question marks not included).\n- Revealing a zero-count cell opens its connected empty region automatically.\n- Mine counter shows total mines minus flags placed, and may go negative.\n\n## 3. MVP Scope\nIn scope: one board, three difficulty levels, reveal, flag, win/loss detection, timer, mine counter, restart.\nOut of scope: accounts, leaderboards, multiplayer, payments, administration.\n\n## 4. Core Concepts & States\n- **Board:** a grid of cells with a fixed size and mine count set by difficulty.\n- **Cell:** state is *hidden*, *revealed*, or *flagged*. Revealed cells hold either a mine or an adjacency count (0–8).\n- **Mine layout:** fixed when the first cell is revealed, guaranteeing that cell and its neighbours are mine-free.\n- **Game session:** *ready* → *in progress* → *won* or *lost*. Elapsed time runs from the first reveal until the session ends.\n- **Difficulty:** Beginner (9×9, 10 mines), Intermediate (16×16, 40 mines), Expert (30×16, 99 mines).\n\n## 5. Business Rules & Invariants\n- **R1 Adjacency:** each safe cell shows the number of mines among its up to eight neighbours.\n- **R2 Zero expansion:** a revealed cell with count 0 reveals all neighbours, recursively.\n- **R3 First-click safety:** the first reveal is never a mine, and its neighbours are mine-free.\n- **R4 Flagging:** flags may be placed only on hidden cells; flags cannot be revealed and may be removed at any time.\n- **R5 Loss:** revealing a mine ends the session as lost; all mines are shown, and wrong flags are marked.\n- **R6 Win:** the session is won when every non-mine cell is revealed. Remaining unrevealed mines are auto-flagged.\n- **R7 Terminal state:** no reveal or flag changes are accepted after won or lost; only restart is allowed.\n- **R8 Timer:** starts on first reveal, stops at win or loss, and is capped at 999 seconds for display.\n- **R9 Invalid operations** (acting on revealed cells, after game end, or outside the board) are ignored without changing board or session state.\n- **R10 Restart:** starting a new game discards the current board and timer and returns to *ready*.",
+      "visual_direction": "**Feel:** the classic Windows Minesweeper look, a familiar retro tool that players recognise at once.\n\n**Form:** a single framed panel, one unit of one width, containing the header bar, difficulty row, and board. Tiles are uniform squares of the same size whatever their content. The whole board keeps its natural rectangular proportions for each difficulty.\n\n**Shape and rhythm:** tiles have square corners, a raised bevel (light top-left edge, dark bottom-right edge), and no shadow. The panel has a small 2px radius and a thin border. Spacing is tight (4 to 8px) so the board reads as dense and compact.\n\n**Palette:** the grey of the original. Hidden tiles and the panel use mid-grey tones so that dark numerals and red flags stay readable on them. Revealed tiles are flat light grey. Numbers keep their classic colours: 1 blue, 2 green, 3 red, 4 navy, 5 maroon, 6 teal, 7 black, 8 grey. Flags are red.\n\n**Type:** `font-mono` for the counter and timer digits, bold and large in a LCD-style read. Body and labels use `font-sans`, small and regular. The first-screen headline is replaced by the header counter, so no large headline is needed.\n\nLAYOUT columns=1 rows=auto\n\nTOKENS background=#94a3b8 surface=#bdbdbd text=#1c1917 accent=#b91c1c on_accent=#ffffff heading=mono",
+      "component_files": [
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\views\\GameView.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\components\\Controls\\GameControls.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\App.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\main.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\api\\gameClient.ts",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\api\\difficulty_settingClient.ts",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\views\\GameView.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\components\\Controls\\GameControls.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\App.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\main.tsx",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\api\\gameClient.ts",
+        "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\frontend\\src\\api\\difficulty_settingClient.ts"
+      ],
+      "screenshots": {
+        "phone, 375px wide": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_mobile_full.png",
+        "desktop, 1280px wide": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_desktop_full.png"
+      },
+      "audit": "<function run_page_gates.<locals>.run_audit at 0x000001FF31A4C540>",
+      "settled": []
+    }
+  },
+  "output": {
+    "verdict": "repaired",
+    "problems": [
+      "The sunken board frame stretches to the full width of the panel, so on desktop and phone the 9×9 grid sits at the left with an empty sunken area to its right; the frame should hug the grid as in classic Minesweeper.",
+      "A left-aligned mono page title sits above the framed panel, so the first screen opens with a headline the direction says should be replaced by the header counter, and it does not align with the centred panel on desktop.",
+      "The reserved, empty result line and the panel padding leave a loose grey strip beneath the board, making the bottom of the panel look lopsided against the tight header."
+    ],
+    "edits": [
+      {
+        "problem": "The sunken board frame stretches to the full width of the panel, so on desktop and phone the 9×9 grid sits at the left with an empty sunken area to its right; the frame should hug the grid as in classic Minesweeper.",
+        "file": "src/views/GameView.tsx",
+        "find": "max-w-full overflow-x-auto",
+        "replace": "w-fit max-w-full overflow-x-auto",
+        "applied": true,
+        "occurrences": 1,
+        "reason": ""
+      },
+      {
+        "problem": "A left-aligned mono page title sits above the framed panel, so the first screen opens with a headline the direction says should be replaced by the header counter, and it does not align with the centred panel on desktop.",
+        "file": "src/App.tsx",
+        "find": "font-mono text-xl font-bold text-stone-900",
+        "replace": "sr-only",
+        "applied": true,
+        "occurrences": 1,
+        "reason": ""
+      },
+      {
+        "problem": "The reserved, empty result line and the panel padding leave a loose grey strip beneath the board, making the bottom of the panel look lopsided against the tight header.",
+        "file": "src/views/GameView.tsx",
+        "find": "min-h-[1.5rem] text-center text-sm font-bold break-words",
+        "replace": "text-center text-sm font-bold break-words",
+        "applied": true,
+        "occurrences": 1,
+        "reason": ""
+      }
+    ],
+    "not_repaired": [],
+    "claims": [
+      "\"The first click is always safe.\""
+    ],
+    "error": null,
+    "attempts": 1,
+    "elapsed_seconds": 17.99,
+    "final_audit": {
+      "passed": true,
+      "overall_status": "PASS",
+      "device_results": [
+        {
+          "device": "Mobile",
+          "width": 375,
+          "height": 812,
+          "passed": true,
+          "metrics": {
+            "clippedCount": 0,
+            "clippedSamples": [],
+            "crashFile": "",
+            "crashMessage": "",
+            "hasCrashOverlay": false,
+            "hasHorizontalOverflow": false,
+            "hasVerticalOverflow": false,
+            "innerHeight": 812,
+            "innerWidth": 375,
+            "isRootEmpty": false,
+            "layoutViewportWidth": 375,
+            "maxScrollHeight": 812,
+            "maxScrollWidth": 375,
+            "overflowDelta": 0,
+            "verticalOverflowDelta": 0
+          },
+          "defects": [],
+          "warnings": [],
+          "screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_mobile_375x812.png",
+          "full_page_screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_mobile_full.png",
+          "forms": null,
+          "duration_s": 1.86
+        },
+        {
+          "device": "Tablet",
+          "width": 768,
+          "height": 1024,
+          "passed": true,
+          "metrics": {
+            "clippedCount": 0,
+            "clippedSamples": [],
+            "crashFile": "",
+            "crashMessage": "",
+            "hasCrashOverlay": false,
+            "hasHorizontalOverflow": false,
+            "hasVerticalOverflow": false,
+            "innerHeight": 1024,
+            "innerWidth": 768,
+            "isRootEmpty": false,
+            "layoutViewportWidth": 768,
+            "maxScrollHeight": 1024,
+            "maxScrollWidth": 768,
+            "overflowDelta": 0,
+            "verticalOverflowDelta": 0
+          },
+          "defects": [],
+          "warnings": [],
+          "screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_tablet_768x1024.png",
+          "full_page_screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_tablet_full.png",
+          "forms": null,
+          "duration_s": 1.79
+        },
+        {
+          "device": "Desktop",
+          "width": 1280,
+          "height": 800,
+          "passed": true,
+          "metrics": {
+            "clippedCount": 0,
+            "clippedSamples": [],
+            "crashFile": "",
+            "crashMessage": "",
+            "hasCrashOverlay": false,
+            "hasHorizontalOverflow": false,
+            "hasVerticalOverflow": false,
+            "innerHeight": 800,
+            "innerWidth": 1280,
+            "isRootEmpty": false,
+            "layoutViewportWidth": 1280,
+            "maxScrollHeight": 800,
+            "maxScrollWidth": 1280,
+            "overflowDelta": 0,
+            "verticalOverflowDelta": 0
+          },
+          "defects": [],
+          "warnings": [],
+          "screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_desktop_1280x800.png",
+          "full_page_screenshot": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.qa_reports\\qa_desktop_full.png",
+          "forms": [],
+          "duration_s": 1.79
+        }
+      ],
+      "defects": [],
+      "warnings": [],
+      "console_errors": [],
+      "summary": "QA Audit PASS: Tested across 3 viewports (Mobile, Tablet, Desktop). 0 defect(s) discovered."
+    }
+  },
+  "duration_s": 17.986
+}

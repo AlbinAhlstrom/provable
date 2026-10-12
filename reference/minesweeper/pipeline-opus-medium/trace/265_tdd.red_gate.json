@@ -1,0 +1,127 @@
+{
+  "seq": 265,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:22",
+  "t_offset_s": 393.118,
+  "thread": "red_23",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656601.450793,
+        "duration": 0.711113691329956,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_025.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_025.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_025.py::test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos0-wrong_flag_pos0]",
+                "type": "Function",
+                "lineno": 79
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_025.py::test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos1-wrong_flag_pos1]",
+                "type": "Function",
+                "lineno": 79
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_025.py::test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos0-wrong_flag_pos0]",
+            "lineno": 79,
+            "outcome": "passed",
+            "keywords": [
+              "test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos0-wrong_flag_pos0]",
+              "parametrize",
+              "pytestmark",
+              "mine_pos0-wrong_flag_pos0",
+              "test_spec_025.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0010371999960625544,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011356000031810254,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003831999929388985,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_025.py::test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos1-wrong_flag_pos1]",
+            "lineno": 79,
+            "outcome": "passed",
+            "keywords": [
+              "test_chord_with_wrong_flag_detonates_unflagged_mine_and_loses[mine_pos1-wrong_flag_pos1]",
+              "parametrize",
+              "pytestmark",
+              "mine_pos1-wrong_flag_pos1",
+              "test_spec_025.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007879000040702522,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009229999996023253,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004724000027636066,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

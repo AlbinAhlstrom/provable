@@ -1,0 +1,246 @@
+{
+  "seq": 147,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:17:25",
+  "t_offset_s": 89.392,
+  "thread": "red_15",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_fd8n6p8y\\tests\\unit\\test_spec_016.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_fd8n6p8y"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_fd8n6p8y\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 4 items\n\ntests\\unit\\test_spec_016.py FFFF                                         [100%]\n\n================================== FAILURES ===================================\n_____________________ test_restart_resets_session[ready] ______________________\n\nstatus = 'ready'\n\n    @pytest.mark.parametrize(\"status\", [\"ready\", \"in_progress\", \"won\", \"lost\"])\n    def test_restart_resets_session(status):\n        # Given a game in the given status, on Beginner, with 42 or 97 elapsed seconds\n        # (or 0 when ready), a started_at/ended_at matching its status, and one old cell\n        # that holds a mine.\n        game = _game_in_status(status)\n    \n        # When the player starts a new game at Expert difficulty.\n        game.start_game(difficulty=\"Expert\")\n    \n        # Then the difficulty is the chosen one.\n        # Expert is listed in the rules as 16 rows by 30 columns with 99 mines, and the\n        # board is rebuilt from that difficulty, so mine_count is 99.\n>       assert game.difficulty == \"Expert\"\nE       AssertionError: assert 'Beginner' == 'Expert'\nE         \nE         - Expert\nE         + Beginner\n\ntests\\unit\\test_spec_016.py:55: AssertionError\n__________________ test_restart_resets_session[in_progress] ___________________\n\nstatus = 'in_progress'\n\n    @pytest.mark.parametrize(\"status\", [\"ready\", \"in_progress\", \"won\", \"lost\"])\n    def test_restart_resets_session(status):\n        # Given a game in the given status, on Beginner, with 42 or 97 elapsed seconds\n        # (or 0 when ready), a started_at/ended_at matching its status, and one old cell\n        # that holds a mine.\n        game = _game_in_status(status)\n    \n        # When the player starts a new game at Expert difficulty.\n        game.start_game(difficulty=\"Expert\")\n    \n        # Then the difficulty is the chosen one.\n        # Expert is listed in the rules as 16 rows by 30 columns with 99 mines, and the\n        # board is rebuilt from that difficulty, so mine_count is 99.\n>       assert game.difficulty == \"Expert\"\nE       AssertionError: assert 'Beginner' == 'Expert'\nE         \nE         - Expert\nE         + Beginner\n\ntests\\unit\\test_spec_016.py:55: AssertionError\n______________________ test_restart_resets_session[won] _______________________\n\nstatus = 'won'\n\n    @pytest.mark.parametrize(\"status\", [\"ready\", \"in_progress\", \"won\", \"lost\"])\n    def test_restart_resets_session(status):\n        # Given a game in the given status, on Beginner, with 42 or 97 elapsed seconds\n        # (or 0 when ready), a started_at/ended_at matching its status, and one old cell\n        # that holds a mine.\n        game = _game_in_status(status)\n    \n        # When the player starts a new game at Expert difficulty.\n        game.start_game(difficulty=\"Expert\")\n    \n        # Then the difficulty is the chosen one.\n        # Expert is listed in the rules as 16 rows by 30 columns with 99 mines, and the\n        # board is rebuilt from that difficulty, so mine_count is 99.\n>       assert game.difficulty == \"Expert\"\nE       AssertionError: assert 'Beginner' == 'Expert'\nE         \nE         - Expert\nE         + Beginner\n\ntests\\unit\\test_spec_016.py:55: AssertionError\n______________________ test_restart_resets_session[lost] ______________________\n\nstatus = 'lost'\n\n    @pytest.mark.parametrize(\"status\", [\"ready\", \"in_progress\", \"won\", \"lost\"])\n    def test_restart_resets_session(status):\n        # Given a game in the given status, on Beginner, with 42 or 97 elapsed seconds\n        # (or 0 when ready), a started_at/ended_at matching its status, and one old cell\n        # that holds a mine.\n        game = _game_in_status(status)\n    \n        # When the player starts a new game at Expert difficulty.\n        game.start_game(difficulty=\"Expert\")\n    \n        # Then the difficulty is the chosen one.\n        # Expert is listed in the rules as 16 rows by 30 columns with 99 mines, and the\n        # board is rebuilt from that difficulty, so mine_count is 99.\n>       assert game.difficulty == \"Expert\"\nE       AssertionError: assert 'Beginner' == 'Expert'\nE         \nE         - Expert\nE         + Beginner\n\ntests\\unit\\test_spec_016.py:55: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_fd8n6p8y\\.pytest_report_8ed62ed427cc40dea66bcd7ffdfc0291.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_016.py::test_restart_resets_session[ready] - Asse...\nFAILED tests/unit/test_spec_016.py::test_restart_resets_session[in_progress]\nFAILED tests/unit/test_spec_016.py::test_restart_resets_session[won] - Assert...\nFAILED tests/unit/test_spec_016.py::test_restart_resets_session[lost] - Asser...\n============================== 4 failed in 0.47s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652646.9541175,
+      "duration": 0.265209436416626,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_fd8n6p8y",
+      "environment": {},
+      "summary": {
+        "failed": 4,
+        "total": 4,
+        "collected": 4
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_016.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_restart_resets_session[ready]",
+              "type": "Function",
+              "lineno": 41
+            },
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_restart_resets_session[in_progress]",
+              "type": "Function",
+              "lineno": 41
+            },
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_restart_resets_session[won]",
+              "type": "Function",
+              "lineno": 41
+            },
+            {
+              "nodeid": "tests/unit/test_spec_016.py::test_restart_resets_session[lost]",
+              "type": "Function",
+              "lineno": 41
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_restart_resets_session[ready]",
+          "lineno": 41,
+          "outcome": "failed",
+          "keywords": [
+            "test_restart_resets_session[ready]",
+            "parametrize",
+            "pytestmark",
+            "ready",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_fd8n6p8y",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006856999971205369,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006452999950852245,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_fd8n6p8y\\tests\\unit\\test_spec_016.py",
+              "lineno": 55,
+              "message": "AssertionError: assert 'Beginner' == 'Expert'\n  \n  - Expert\n  + Beginner"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 55,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "status = 'ready'\n\n    @pytest.mark.parametrize(\"status\", [\"ready\", \"in_progress\", \"won\", \"lost\"])\n    def test_restart_resets_session(status):\n        # Given a game in the given status, on Beginner, with 42 or 97 elapsed seconds\n        # (or 0 when ready), a started_at/ended_at matching its status, and one old cell\n        # that holds a mine.\n        game = _game_in_status(status)\n    \n        # When the player starts a new game at Expert difficulty.\n        game.start_game(difficulty=\"Expert\")\n    \n        # Then the difficulty is the chosen one.\n        # Expert is listed in the rules as 16 rows by 30 columns with 99 mines, and the\n        # board is rebuilt from that difficulty, so mine_count is 99.\n>       assert game.difficulty == \"Expert\"\nE       AssertionError: assert 'Beginner' == 'Expert'\nE         \nE         - Expert\nE         + Beginner\n\ntests\\unit\\test_spec_016.py:55: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.00026849999267142266,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_restart_resets_session[in_progress]",
+          "lineno": 41,
+          "outcome": "failed",
+          "keywords": [
+            "test_restart_resets_session[in_progress]",
+            "parametrize",
+            "pytestmark",
+            "in_progress",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_fd8n6p8y",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00041739999142009765,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.00039400000241585076,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_fd8n6p8y\\tests\\unit\\test_spec_016.py",
+              "lineno": 55,
+              "message": "AssertionError: assert 'Beginner' == 'Expert'\n  \n  - Expert\n  + Beginner"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 55,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "status = 'in_progress'\n\n    @pytest.mark.parametrize(\"status\", [\"ready\", \"in_progress\", \"won\", \"lost\"])\n    def test_restart_resets_session(status):\n        # Given a game in the given status, on Beginner, with 42 or 97 elapsed seconds\n        # (or 0 when ready), a started_at/ended_at matching its status, and one old cell\n        # that holds a mine.\n        game = _game_in_status(status)\n    \n        # When the player starts a new game at Expert difficulty.\n        game.start_game(difficulty=\"Expert\")\n    \n        # Then the difficulty is the chosen one.\n        # Expert is listed in the rules as 16 rows by 30 columns with 99 mines, and the\n        # board is rebuilt from that difficulty, so mine_count is 99.\n>       assert game.difficulty == \"Expert\"\nE       AssertionError: assert 'Beginner' == 'Expert'\nE         \nE         - Expert\nE         + Beginner\n\ntests\\unit\\test_spec_016.py:55: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0002497999957995489,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_restart_resets_session[won]",
+          "lineno": 41,
+          "outcome": "failed",
+          "keywords": [
+            "test_restart_resets_session[won]",
+            "parametrize",
+            "pytestmark",
+            "won",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_fd8n6p8y",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00037560000782832503,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0004098999925190583,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_fd8n6p8y\\tests\\unit\\test_spec_016.py",
+              "lineno": 55,
+              "message": "AssertionError: assert 'Beginner' == 'Expert'\n  \n  - Expert\n  + Beginner"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 55,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "status = 'won'\n\n    @pytest.mark.parametrize(\"status\", [\"ready\", \"in_progress\", \"won\", \"lost\"])\n    def test_restart_resets_session(status):\n        # Given a game in the given status, on Beginner, with 42 or 97 elapsed seconds\n        # (or 0 when ready), a started_at/ended_at matching its status, and one old cell\n        # that holds a mine.\n        game = _game_in_status(status)\n    \n        # When the player starts a new game at Expert difficulty.\n        game.start_game(difficulty=\"Expert\")\n    \n        # Then the difficulty is the chosen one.\n        # Expert is listed in the rules as 16 rows by 30 columns with 99 mines, and the\n        # board is rebuilt from that difficulty, so mine_count is 99.\n>       assert game.difficulty == \"Expert\"\nE       AssertionError: assert 'Beginner' == 'Expert'\nE         \nE         - Expert\nE         + Beginner\n\ntests\\unit\\test_spec_016.py:55: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0003133999998681247,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_016.py::test_restart_resets_session[lost]",
+          "lineno": 41,
+          "outcome": "failed",
+          "keywords": [
+            "test_restart_resets_session[lost]",
+            "parametrize",
+            "pytestmark",
+            "lost",
+            "test_spec_016.py",
+            "unit",
+            "tests",
+            "hollow_fd8n6p8y",
+            ""
+          ],
+          "setup": {
+            "duration": 0.00040950000402517617,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006227999983821064,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_fd8n6p8y\\tests\\unit\\test_spec_016.py",
+              "lineno": 55,
+              "message": "AssertionError: assert 'Beginner' == 'Expert'\n  \n  - Expert\n  + Beginner"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_016.py",
+                "lineno": 55,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "status = 'lost'\n\n    @pytest.mark.parametrize(\"status\", [\"ready\", \"in_progress\", \"won\", \"lost\"])\n    def test_restart_resets_session(status):\n        # Given a game in the given status, on Beginner, with 42 or 97 elapsed seconds\n        # (or 0 when ready), a started_at/ended_at matching its status, and one old cell\n        # that holds a mine.\n        game = _game_in_status(status)\n    \n        # When the player starts a new game at Expert difficulty.\n        game.start_game(difficulty=\"Expert\")\n    \n        # Then the difficulty is the chosen one.\n        # Expert is listed in the rules as 16 rows by 30 columns with 99 mines, and the\n        # board is rebuilt from that difficulty, so mine_count is 99.\n>       assert game.difficulty == \"Expert\"\nE       AssertionError: assert 'Beginner' == 'Expert'\nE         \nE         - Expert\nE         + Beginner\n\ntests\\unit\\test_spec_016.py:55: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0003522000042721629,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 2.262
+}

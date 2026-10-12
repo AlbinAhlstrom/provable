@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Minesweeper</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='%23222' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 2v20M2 12h20M5 5l14 14M19 5L5 19'/%3E%3C/g%3E%3Ccircle cx='12' cy='12' r='6.5' fill='%23222'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-flag" viewBox="0 0 24 24">
+      <path d="M7.5 3.5v17" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M8.5 4.2 19 8.6 8.5 13z" fill="var(--flag)"/>
+      <path d="M4.5 20.5h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+    </symbol>
+    <symbol id="i-mine" viewBox="0 0 24 24">
+      <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M12 2.5v19M2.5 12h19M5.3 5.3l13.4 13.4M18.7 5.3 5.3 18.7"/>
+      </g>
+      <circle cx="12" cy="12" r="6.5" fill="currentColor"/>
+      <circle cx="9.7" cy="9.7" r="1.7" fill="#fff" opacity=".85"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="13" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 9v4.2l2.6 1.6M9.5 2.8h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-dig" viewBox="0 0 24 24">
+      <path d="M14.5 3.5 20.5 9.5 17 13 11 7zM12.5 8.5 4 17v3h3l8.5-8.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-theme" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>
+    </symbol>
+  </svg>
+
+  <main class="app">
+    <header class="top">
+      <h1>Minesweeper</h1>
+      <button id="theme" class="icon-btn" type="button" aria-label="Switch between light and dark theme" title="Light / dark">
+        <svg class="ico" aria-hidden="true"><use href="#i-theme"/></svg>
+      </button>
+    </header>
+
+    <div class="levels" role="group" aria-label="Difficulty">
+      <button type="button" data-level="beginner" aria-pressed="false">Beginner</button>
+      <button type="button" data-level="intermediate" aria-pressed="false">Intermediate</button>
+      <button type="button" data-level="expert" aria-pressed="false">Expert</button>
+      <button type="button" data-level="custom" aria-pressed="false">Custom</button>
+    </div>
+
+    <section class="game" aria-label="Game">
+      <div class="hud">
+        <div class="readout" title="Mines left (mines minus flags)">
+          <svg class="ico" aria-hidden="true"><use href="#i-flag"/></svg>
+          <span id="mines-left" aria-label="Mines left">010</span>
+        </div>
+        <button id="face" class="face" type="button" aria-label="New game" title="New game (R)">
+          <span id="face-glyph" aria-hidden="true">🙂</span>
+        </button>
+        <div class="readout" title="Seconds">
+          <svg class="ico" aria-hidden="true"><use href="#i-clock"/></svg>
+          <span id="timer" aria-label="Seconds elapsed">000</span>
+        </div>
+      </div>
+
+      <div id="board-wrap" class="board-wrap">
+        <div id="board" class="board" role="grid" aria-label="Minefield"></div>
+      </div>
+
+      <div class="under">
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+        <div class="mode" role="group" aria-label="What a tap does">
+          <button type="button" id="mode-dig" aria-pressed="true">
+            <svg class="ico" aria-hidden="true"><use href="#i-dig"/></svg> Dig
+          </button>
+          <button type="button" id="mode-flag" aria-pressed="false">
+            <svg class="ico" aria-hidden="true"><use href="#i-flag"/></svg> Flag
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Statistics">
+      <div><span class="k">Board</span><span class="v" id="stat-board">9 × 9, 10 mines</span></div>
+      <div><span class="k">Best time</span><span class="v" id="stat-best">–</span></div>
+      <div><span class="k">Won</span><span class="v" id="stat-won">0 of 0</span></div>
+    </section>
+
+    <details class="help">
+      <summary>How to play</summary>
+      <ul>
+        <li>Clear every square that does not hide a mine. A number tells how many of the eight squares around it are mines.</li>
+        <li><b>Mouse:</b> left-click digs, right-click plants or removes a flag. Click a number (or middle-click it) once it has that many flags around it to dig the rest of its neighbours.</li>
+        <li><b>Touch:</b> tap digs, press and hold flags. Or switch to Flag mode so a tap flags and a hold digs.</li>
+        <li><b>Keyboard:</b> arrow keys move, Enter or Space digs, F flags, R or F2 starts a new game.</li>
+        <li>Your first dig is always safe and always opens an area.</li>
+      </ul>
+    </details>
+  </main>
+
+  <dialog id="custom-dialog" aria-labelledby="custom-title">
+    <form id="custom-form" method="dialog" novalidate>
+      <h2 id="custom-title">Custom board</h2>
+      <label>Columns <input id="c-cols" type="number" inputmode="numeric" min="5" max="40" required></label>
+      <label>Rows <input id="c-rows" type="number" inputmode="numeric" min="5" max="30" required></label>
+      <label>Mines <input id="c-mines" type="number" inputmode="numeric" min="1" required></label>
+      <p id="c-hint" class="hint"></p>
+      <div class="dialog-actions">
+        <button type="button" id="c-cancel">Cancel</button>
+        <button type="submit" class="primary">Play</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="src/engine.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>

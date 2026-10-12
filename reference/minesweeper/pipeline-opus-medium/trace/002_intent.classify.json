@@ -1,0 +1,43 @@
+{
+  "seq": 2,
+  "step": "intent.classify",
+  "kind": "step",
+  "depth": 1,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold"
+  ],
+  "started_at": "20:16:48",
+  "t_offset_s": 0.002,
+  "thread": "AnyIO worker thread",
+  "input": {
+    "args": [
+      "A minesweeper game"
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "product_type": "game",
+    "audience": "casual players",
+    "primary_goal": "Let a player clear a grid of hidden cells without detonating any mines, using numeric clues about adjacent mines.",
+    "scope_summary": "A single-player minesweeper game consisting of a mine grid, cell reveal and flag interactions, win/loss detection, and basic scoring such as elapsed time.",
+    "model_focus": [
+      "game board with grid dimensions, mine placement and per-cell state (hidden, revealed, flagged)",
+      "adjacent mine counts and cascade reveal of empty regions",
+      "game session lifecycle including start, win and loss conditions",
+      "difficulty settings controlling grid size and mine count",
+      "scoring via elapsed time and remaining flag counter"
+    ],
+    "out_of_scope": [
+      "user accounts and authentication",
+      "multiplayer or online matchmaking",
+      "monetization, in-app purchases or advertising",
+      "administrative back-office or content management"
+    ],
+    "assumptions": [
+      "The game is single-player and runs locally without a server.",
+      "Standard classic minesweeper rules apply, including a safe first click.",
+      "Preset difficulty levels (e.g., beginner, intermediate, expert) are sufficient."
+    ]
+  },
+  "duration_s": 5.549
+}

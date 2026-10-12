@@ -1,0 +1,471 @@
+{
+  "seq": 454,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:39",
+  "t_offset_s": 410.681,
+  "thread": "red_12",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656618.9163325,
+        "duration": 1.1816325187683105,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_tked_1e4",
+        "environment": {},
+        "summary": {
+          "failed": 9,
+          "total": 9,
+          "collected": 9
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_045.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_045.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Ready]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Playing]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Ready]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Playing]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Ready]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Playing]",
+                "type": "Function",
+                "lineno": 87
+              },
+              {
+                "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Ready]",
+                "type": "Function",
+                "lineno": 116
+              },
+              {
+                "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Playing]",
+                "type": "Function",
+                "lineno": 116
+              },
+              {
+                "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_with_unknown_difficulty_is_refused_and_game_unchanged",
+                "type": "Function",
+                "lineno": 131
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Ready]",
+            "lineno": 87,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Ready]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-16-16-40-Ready",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "hollow_tked_1e4",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0013543000095523894,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013397000002441928,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_tked_1e4\\tests\\unit\\test_spec_045.py",
+                "lineno": 108,
+                "message": "AssertionError: assert 'Ready' == 'Abandoned'\n  \n  - Abandoned\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_045.py",
+                  "lineno": 108,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Ready', difficulty_id = 'intermediate', width = 16, height = 16\nmine_count = 40\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\n        \"difficulty_id,width,height,mine_count\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n            (\"custom\", 9, 9, 10),\n        ],\n    )\n    def test_change_difficulty_abandons_current_and_returns_new_ready_game(\n        status, difficulty_id, width, height, mine_count\n    ):\n        game = _beginner_game(status)\n        old_elapsed = game.elapsed_seconds\n    \n        new_game = game.change_difficulty(\n            difficulty_id=difficulty_id, width=width, height=height, mine_count=mine_count\n        )\n    \n        # The current game was Ready/Playing; a valid choice moves it Ready/Playing -> Abandoned.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Ready' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Ready\n\ntests\\unit\\test_spec_045.py:108: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0005042999982833862,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Playing]",
+            "lineno": 87,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[intermediate-16-16-40-Playing]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-16-16-40-Playing",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "hollow_tked_1e4",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001803699997253716,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013770000077784061,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_tked_1e4\\tests\\unit\\test_spec_045.py",
+                "lineno": 108,
+                "message": "AssertionError: assert 'Playing' == 'Abandoned'\n  \n  - Abandoned\n  + Playing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_045.py",
+                  "lineno": 108,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Playing', difficulty_id = 'intermediate', width = 16, height = 16\nmine_count = 40\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\n        \"difficulty_id,width,height,mine_count\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n            (\"custom\", 9, 9, 10),\n        ],\n    )\n    def test_change_difficulty_abandons_current_and_returns_new_ready_game(\n        status, difficulty_id, width, height, mine_count\n    ):\n        game = _beginner_game(status)\n        old_elapsed = game.elapsed_seconds\n    \n        new_game = game.change_difficulty(\n            difficulty_id=difficulty_id, width=width, height=height, mine_count=mine_count\n        )\n    \n        # The current game was Ready/Playing; a valid choice moves it Ready/Playing -> Abandoned.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Playing' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Playing\n\ntests\\unit\\test_spec_045.py:108: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004890999989584088,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Ready]",
+            "lineno": 87,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Ready]",
+              "parametrize",
+              "pytestmark",
+              "expert-30-16-99-Ready",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "hollow_tked_1e4",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0013275999954203144,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013350000081118196,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_tked_1e4\\tests\\unit\\test_spec_045.py",
+                "lineno": 108,
+                "message": "AssertionError: assert 'Ready' == 'Abandoned'\n  \n  - Abandoned\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_045.py",
+                  "lineno": 108,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Ready', difficulty_id = 'expert', width = 30, height = 16\nmine_count = 99\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\n        \"difficulty_id,width,height,mine_count\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n            (\"custom\", 9, 9, 10),\n        ],\n    )\n    def test_change_difficulty_abandons_current_and_returns_new_ready_game(\n        status, difficulty_id, width, height, mine_count\n    ):\n        game = _beginner_game(status)\n        old_elapsed = game.elapsed_seconds\n    \n        new_game = game.change_difficulty(\n            difficulty_id=difficulty_id, width=width, height=height, mine_count=mine_count\n        )\n    \n        # The current game was Ready/Playing; a valid choice moves it Ready/Playing -> Abandoned.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Ready' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Ready\n\ntests\\unit\\test_spec_045.py:108: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006919999868841842,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Playing]",
+            "lineno": 87,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[expert-30-16-99-Playing]",
+              "parametrize",
+              "pytestmark",
+              "expert-30-16-99-Playing",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "hollow_tked_1e4",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0015037999983178452,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0011510000040289015,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_tked_1e4\\tests\\unit\\test_spec_045.py",
+                "lineno": 108,
+                "message": "AssertionError: assert 'Playing' == 'Abandoned'\n  \n  - Abandoned\n  + Playing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_045.py",
+                  "lineno": 108,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Playing', difficulty_id = 'expert', width = 30, height = 16\nmine_count = 99\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\n        \"difficulty_id,width,height,mine_count\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n            (\"custom\", 9, 9, 10),\n        ],\n    )\n    def test_change_difficulty_abandons_current_and_returns_new_ready_game(\n        status, difficulty_id, width, height, mine_count\n    ):\n        game = _beginner_game(status)\n        old_elapsed = game.elapsed_seconds\n    \n        new_game = game.change_difficulty(\n            difficulty_id=difficulty_id, width=width, height=height, mine_count=mine_count\n        )\n    \n        # The current game was Ready/Playing; a valid choice moves it Ready/Playing -> Abandoned.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Playing' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Playing\n\ntests\\unit\\test_spec_045.py:108: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0012351000041235238,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Ready]",
+            "lineno": 87,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Ready]",
+              "parametrize",
+              "pytestmark",
+              "custom-9-9-10-Ready",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "hollow_tked_1e4",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0016093000012915581,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00105489999987185,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_tked_1e4\\tests\\unit\\test_spec_045.py",
+                "lineno": 108,
+                "message": "AssertionError: assert 'Ready' == 'Abandoned'\n  \n  - Abandoned\n  + Ready"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_045.py",
+                  "lineno": 108,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Ready', difficulty_id = 'custom', width = 9, height = 9\nmine_count = 10\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\n        \"difficulty_id,width,height,mine_count\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n            (\"custom\", 9, 9, 10),\n        ],\n    )\n    def test_change_difficulty_abandons_current_and_returns_new_ready_game(\n        status, difficulty_id, width, height, mine_count\n    ):\n        game = _beginner_game(status)\n        old_elapsed = game.elapsed_seconds\n    \n        new_game = game.change_difficulty(\n            difficulty_id=difficulty_id, width=width, height=height, mine_count=mine_count\n        )\n    \n        # The current game was Ready/Playing; a valid choice moves it Ready/Playing -> Abandoned.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Ready' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Ready\n\ntests\\unit\\test_spec_045.py:108: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00045900000259280205,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Playing]",
+            "lineno": 87,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_abandons_current_and_returns_new_ready_game[custom-9-9-10-Playing]",
+              "parametrize",
+              "pytestmark",
+              "custom-9-9-10-Playing",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "hollow_tked_1e4",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0021902000007685274,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013418000016827136,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_tked_1e4\\tests\\unit\\test_spec_045.py",
+                "lineno": 108,
+                "message": "AssertionError: assert 'Playing' == 'Abandoned'\n  \n  - Abandoned\n  + Playing"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_045.py",
+                  "lineno": 108,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "status = 'Playing', difficulty_id = 'custom', width = 9, height = 9\nmine_count = 10\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    @pytest.mark.parametrize(\n        \"difficulty_id,width,height,mine_count\",\n        [\n            (\"intermediate\", 16, 16, 40),\n            (\"expert\", 30, 16, 99),\n            (\"custom\", 9, 9, 10),\n        ],\n    )\n    def test_change_difficulty_abandons_current_and_returns_new_ready_game(\n        status, difficulty_id, width, height, mine_count\n    ):\n        game = _beginner_game(status)\n        old_elapsed = game.elapsed_seconds\n    \n        new_game = game.change_difficulty(\n            difficulty_id=difficulty_id, width=width, height=height, mine_count=mine_count\n        )\n    \n        # The current game was Ready/Playing; a valid choice moves it Ready/Playing -> Abandoned.\n>       assert game.status == \"Abandoned\"\nE       AssertionError: assert 'Playing' == 'Abandoned'\nE         \nE         - Abandoned\nE         + Playing\n\ntests\\unit\\test_spec_045.py:108: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0006885000038892031,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Ready]",
+            "lineno": 116,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Ready]",
+              "parametrize",
+              "pytestmark",
+              "Ready",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "hollow_tked_1e4",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0009387000027345493,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0060461999964900315,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_tked_1e4\\tests\\unit\\test_spec_045.py",
+                "lineno": 123,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_045.py",
+                  "lineno": 123,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Ready'\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    def test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged(status):\n        game = _beginner_game(status)\n        before = copy.deepcopy(game.to_dict())\n    \n        # Same request as the accepted custom 9x9/10 case, only width 8 (< 9) differs.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_045.py:123: Failed"
+            },
+            "teardown": {
+              "duration": 0.0005248999950708821,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Playing]",
+            "lineno": 116,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged[Playing]",
+              "parametrize",
+              "pytestmark",
+              "Playing",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "hollow_tked_1e4",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0014093000063439831,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.002434399997582659,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_tked_1e4\\tests\\unit\\test_spec_045.py",
+                "lineno": 123,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_045.py",
+                  "lineno": 123,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "status = 'Playing'\n\n    @pytest.mark.parametrize(\"status\", [\"Ready\", \"Playing\"])\n    def test_change_difficulty_with_custom_width_below_limit_is_refused_and_game_unchanged(status):\n        game = _beginner_game(status)\n        before = copy.deepcopy(game.to_dict())\n    \n        # Same request as the accepted custom 9x9/10 case, only width 8 (< 9) differs.\n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_045.py:123: Failed"
+            },
+            "teardown": {
+              "duration": 0.0006443000020226464,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_045.py::test_change_difficulty_with_unknown_difficulty_is_refused_and_game_unchanged",
+            "lineno": 131,
+            "outcome": "failed",
+            "keywords": [
+              "test_change_difficulty_with_unknown_difficulty_is_refused_and_game_unchanged",
+              "test_spec_045.py",
+              "unit",
+              "tests",
+              "hollow_tked_1e4",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0011353000008966774,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.001186299996334128,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_tked_1e4\\tests\\unit\\test_spec_045.py",
+                "lineno": 136,
+                "message": "Failed: DID NOT RAISE Exception"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_045.py",
+                  "lineno": 136,
+                  "message": "Failed"
+                }
+              ],
+              "longrepr": "def test_change_difficulty_with_unknown_difficulty_is_refused_and_game_unchanged():\n        game = _beginner_game(\"Ready\")\n        before = copy.deepcopy(game.to_dict())\n    \n>       with pytest.raises(Exception) as exc_info:\nE       Failed: DID NOT RAISE Exception\n\ntests\\unit\\test_spec_045.py:136: Failed"
+            },
+            "teardown": {
+              "duration": 0.0012492999958340079,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,7 +1,8 @@
 """Renders the action manifest for the UI-facing stages (UX planning and presentation) and checks it against the code.
 
 The interface serves the product's audience only. Actions performed by anyone else (for example staff
-handling what the audience submitted) stay reachable through the API but must get no controls in the UI.
+handling what the audience submitted) stay reachable through the API but must get no controls in the UI. An action
+that happens by itself (time passing, a hold running out) is the page's own to send: nothing else runs.
 """
 
 import ast
@@ -16,17 +17,25 @@ def _line(act: Dict[str, Any], with_client: bool = False) -> str:
     owner = ""
     if with_client and act.get("aggregate"):
         from onboarding.skeleton_builder import to_snake_case
-        owner = (f" on `{act['aggregate']}` (`sendAction` of `src/api/{to_snake_case(str(act['aggregate']))}Client.ts`, "
-                 f"with the id of that {act['aggregate']})")
+        client = f"`src/api/{to_snake_case(str(act['aggregate']))}Client.ts`"
+        owner = (f" on `{act['aggregate']}` (`sendKindAction` of {client}: it is done to no one {act['aggregate']}, so "
+                 f"it takes no id)" if act.get("on_kind") else
+                 f" on `{act['aggregate']}` (`sendAction` of {client}, with the id of that {act['aggregate']})")
     return f"- Action `{act.get('name', 'action')}`{owner}: params [{params}]{desc}"
 
 
 def format_action_protocol(manifest: Optional[Dict[str, Any]]) -> str:
     if not manifest or not isinstance(manifest.get("actions"), list):
         return "- (No action protocol available: build the read-only views and the creation form only.)"
-    ui = [a for a in manifest["actions"] if a.get("performed_by", "audience") != "other"]
+    ui = [a for a in manifest["actions"] if a.get("performed_by", "audience") not in ("other", "automatic")]
+    by_itself = [a for a in manifest["actions"] if a.get("performed_by") == "automatic"]
     api_only = [a for a in manifest["actions"] if a.get("performed_by") == "other"]
     lines = [_line(a, with_client=True) for a in ui] or ["- (No audience-facing actions.)"]
+    if by_itself:
+        lines.append("")
+        lines.append("Actions the page performs by itself (nobody presses anything: the page sends each one when its moment "
+                     "comes, as its description says; render no control for them):")
+        lines.extend(_line(a, with_client=True) for a in by_itself)
     if api_only:
         lines.append("")
         lines.append("API-only actions (performed by someone other than this product's audience; render NO buttons, forms, "
@@ -38,6 +47,12 @@ def format_action_protocol(manifest: Optional[Dict[str, Any]]) -> str:
              for line in shared_words({"vocabulary": manifest.get("vocabulary")}, aggregate)]
     if words:
         lines += ["", "Values the fields hold, exactly as the API returns them:"] + words
+    # The page is written while the methods are, so the classes it is shown do not set themselves up yet
+    owners = list(dict.fromkeys(str(e.get("aggregate")) for e in manifest.get("starting_states") or [] if isinstance(e, dict)))
+    starts = [f"- A newly created `{owner}` holds: {starting_state(manifest, owner)}"
+              for owner in owners if starting_state(manifest, owner)]
+    if starts:
+        lines += ["", "What a record holds when it has just been created, before any action:"] + starts
     return "\n".join(lines)
 
 
@@ -47,6 +62,13 @@ def starting_state(manifest: Optional[Dict[str, Any]], aggregate: str) -> str:
         if isinstance(entry, dict) and entry.get("aggregate") == aggregate and entry.get("description"):
             return str(entry["description"]).strip()
     return ""
+
+
+def starts_whole(manifest: Optional[Dict[str, Any]], aggregate: str) -> bool:
+    """Whether the manifest says the class's defaults already give a new object its starting state, so the class
+    has nothing to write for it (and a test of it would pass on the empty class)."""
+    return any(isinstance(entry, dict) and entry.get("aggregate") == aggregate and entry.get("held_by_defaults") is True
+               for entry in (manifest or {}).get("starting_states") or [])
 
 
 def shared_words(manifest: Optional[Dict[str, Any]], aggregate: str) -> list:
@@ -64,11 +86,46 @@ def shared_words(manifest: Optional[Dict[str, Any]], aggregate: str) -> list:
     return lines
 
 
+def collection_name(aggregate: str) -> str:
+    """The name a kind's stored records go by: the keyword a method is handed them under, and their path in the API."""
+    from onboarding.skeleton_builder import _pluralize, to_snake_case
+    return _pluralize(to_snake_case(aggregate))
+
+
+def _handed(act: Dict[str, Any], aggregate: str) -> str:
+    """How a method reaches the stored records its action works with, in the words every writer of the class reads.
+    The API hands them over by these keywords and stores what the method leaves in them (the generated router)."""
+    from onboarding.skeleton_builder import to_snake_case
+    given = [str(kind) for kind in act.get("given") or []]
+    lists = " and ".join(f"`{collection_name(kind)}` (the list of every stored `{kind}` object)" for kind in given)
+    one = (f" It is done to one `{aggregate}`: an ordinary method, called on that record as "
+           f"`{to_snake_case(aggregate)}.{act['name']}(...)`.")
+    if not given:
+        return "" if act.get("on_kind") else one
+    if act.get("on_kind"):
+        return (f" It is sent to no one `{aggregate}`: it is a `@staticmethod` of `{aggregate}`, called as "
+                f"`{aggregate}.{act['name']}(...)`. Besides its params it takes, by keyword, {lists}. These lists are "
+                f"the stored records and nothing else is: it reads them, finds in them the record a param names by its "
+                f"id, appends a record it makes (with a new `id` from `uuid.uuid4().hex`), removes a record it deletes, "
+                f"and returns the `{aggregate}` it made (None when it makes none).")
+    return (f"{one} Besides its params it takes, by keyword, {lists}: the stored records and nothing else is, which "
+            f"it reads and may change; a record it deletes it removes from its list.")
+
+
 def format_interface_contract(manifest: Optional[Dict[str, Any]], aggregate: str) -> str:
     """The methods the interface has been told an aggregate offers, for the test/code stages that write them. The
     action protocol is fixed before the specs run, so the TDD loop must give the methods these names, not its own."""
-    lines = [_line(a) for a in ((manifest or {}).get("actions") or [])
-             if isinstance(a, dict) and a.get("name") and a.get("aggregate") == aggregate]
+    own = [a for a in ((manifest or {}).get("actions") or [])
+           if isinstance(a, dict) and a.get("name") and a.get("aggregate") == aggregate]
+    lines = [_line(a) + _handed(a, aggregate) for a in own]
+    from onboarding.skeleton_builder import to_snake_case
+    others = list(dict.fromkeys(str(kind) for a in own for kind in a.get("given") or [] if kind != aggregate))
+    fields = {str(r.get("aggregate")): r.get("fields") or [] for r in (manifest or {}).get("records") or []
+              if isinstance(r, dict)}
+    for kind in others:  # the other kinds a method is handed: how a test builds one, and what the code reads of it
+        built = ", ".join(f"{name}=..." for name in fields.get(kind) or ["id"])
+        lines.append(f"- A stored `{kind}` is built as `{kind}({built})`, after `from src.domain.{to_snake_case(kind)} "
+                     f"import {kind}`.")
     start = starting_state(manifest, aggregate)
     if start:
         lines.append(f"- A newly created `{aggregate}` (constructed with only its required fields) holds: {start}")

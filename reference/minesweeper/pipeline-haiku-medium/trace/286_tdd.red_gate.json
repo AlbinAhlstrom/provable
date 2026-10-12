@@ -1,0 +1,156 @@
+{
+  "seq": 286,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:18",
+  "t_offset_s": 199.038,
+  "thread": "red_18",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652457.3531108,
+        "duration": 1.1886520385742188,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yj0fjq6_",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_020.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_020.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_020.py::test_revealed_cell_cannot_be_flagged",
+                "type": "Function",
+                "lineno": 30
+              },
+              {
+                "nodeid": "tests/unit/test_spec_020.py::test_hidden_cell_in_same_session_can_be_flagged",
+                "type": "Function",
+                "lineno": 54
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_020.py::test_revealed_cell_cannot_be_flagged",
+            "lineno": 30,
+            "outcome": "failed",
+            "keywords": [
+              "test_revealed_cell_cannot_be_flagged",
+              "test_spec_020.py",
+              "unit",
+              "tests",
+              "hollow_yj0fjq6_",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006022000015946105,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004275000101188198,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yj0fjq6_\\tests\\unit\\test_spec_020.py",
+                "lineno": 28,
+                "message": "StopIteration"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_020.py",
+                  "lineno": 34,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_020.py",
+                  "lineno": 28,
+                  "message": "StopIteration"
+                }
+              ],
+              "longrepr": "def test_revealed_cell_cannot_be_flagged():\n        # Given a revealed cell in an in-progress game.\n        session = _build_session_in_progress()\n>       target = _cell_at(session, 4, 4)\n                 ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_020.py:34: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell_at(session, row, column):\n>       return next(c for c in session.cells if c[\"row\"] == row and c[\"column\"] == column)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       StopIteration\n\ntests\\unit\\test_spec_020.py:28: StopIteration"
+            },
+            "teardown": {
+              "duration": 0.0005003000114811584,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_020.py::test_hidden_cell_in_same_session_can_be_flagged",
+            "lineno": 54,
+            "outcome": "failed",
+            "keywords": [
+              "test_hidden_cell_in_same_session_can_be_flagged",
+              "test_spec_020.py",
+              "unit",
+              "tests",
+              "hollow_yj0fjq6_",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00043309999455232173,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00044669999624602497,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yj0fjq6_\\tests\\unit\\test_spec_020.py",
+                "lineno": 28,
+                "message": "StopIteration"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_020.py",
+                  "lineno": 58,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_020.py",
+                  "lineno": 28,
+                  "message": "StopIteration"
+                }
+              ],
+              "longrepr": "def test_hidden_cell_in_same_session_can_be_flagged():\n        # Given the same in-progress game, with the target cell hidden instead of revealed.\n        session = _build_session_in_progress()\n>       target = _cell_at(session, 4, 4)\n                 ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_020.py:58: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='in_progress', flag_count=0, elapsed_seconds=0, started_at='2024-01-01T10:00:00', ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell_at(session, row, column):\n>       return next(c for c in session.cells if c[\"row\"] == row and c[\"column\"] == column)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       StopIteration\n\ntests\\unit\\test_spec_020.py:28: StopIteration"
+            },
+            "teardown": {
+              "duration": 0.00046230001316871494,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

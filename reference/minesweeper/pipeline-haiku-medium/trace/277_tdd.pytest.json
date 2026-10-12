@@ -1,0 +1,200 @@
+{
+  "seq": 277,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:17",
+  "t_offset_s": 197.983,
+  "thread": "red_8",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yx0yj8ew\\tests\\unit\\test_spec_031.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yx0yj8ew"
+    }
+  },
+  "output": {
+    "exit_code": 1,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0\nrootdir: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yx0yj8ew\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollected 3 items\n\ntests\\unit\\test_spec_031.py FFF                                          [100%]\n\n================================== FAILURES ===================================\n_____________________ test_new_game_returns_to_ready[won] _____________________\n\nterminal_status = 'won'\n\n    @pytest.mark.parametrize(\"terminal_status\", [\"won\", \"lost\", \"abandoned\"])\n    def test_new_game_returns_to_ready(terminal_status):\n        # Given a 9x9 beginner session that has ended with the given terminal status.\n        session = GameSession(\n            id=\"game-1\",\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n        # Board: 81 cells, one per position. Cell (0,0) is revealed, cell (0,1) is flagged,\n        # and ten mines sit in the bottom two rows (first ten positions of rows 7 and 8).\n        # The flag count matches the single flagged cell.\n        mines = {(7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8), (8, 0)}\n        session.cells = build_cells(\n            ROWS,\n            COLUMNS,\n            revealed={(0, 0)},\n            flagged={(0, 1)},\n            mines=mines,\n        )\n        session.status = terminal_status\n        session.flag_count = 1\n        session.elapsed_seconds = 120\n        session.started_at = \"2025-01-01T10:00:00\"\n        session.ended_at = \"2025-01-01T10:02:00\"\n    \n        # When the player starts a new game at the same difficulty.\n        session.start_new_game(\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n    \n        # Then the status is ready.\n        # Rule: start_new_game is allowed from any status and sets status to ready.\n>       assert session.status == \"ready\"\nE       AssertionError: assert 'won' == 'ready'\nE         \nE         - ready\nE         + won\n\ntests\\unit\\test_spec_031.py:74: AssertionError\n____________________ test_new_game_returns_to_ready[lost] _____________________\n\nterminal_status = 'lost'\n\n    @pytest.mark.parametrize(\"terminal_status\", [\"won\", \"lost\", \"abandoned\"])\n    def test_new_game_returns_to_ready(terminal_status):\n        # Given a 9x9 beginner session that has ended with the given terminal status.\n        session = GameSession(\n            id=\"game-1\",\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n        # Board: 81 cells, one per position. Cell (0,0) is revealed, cell (0,1) is flagged,\n        # and ten mines sit in the bottom two rows (first ten positions of rows 7 and 8).\n        # The flag count matches the single flagged cell.\n        mines = {(7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8), (8, 0)}\n        session.cells = build_cells(\n            ROWS,\n            COLUMNS,\n            revealed={(0, 0)},\n            flagged={(0, 1)},\n            mines=mines,\n        )\n        session.status = terminal_status\n        session.flag_count = 1\n        session.elapsed_seconds = 120\n        session.started_at = \"2025-01-01T10:00:00\"\n        session.ended_at = \"2025-01-01T10:02:00\"\n    \n        # When the player starts a new game at the same difficulty.\n        session.start_new_game(\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n    \n        # Then the status is ready.\n        # Rule: start_new_game is allowed from any status and sets status to ready.\n>       assert session.status == \"ready\"\nE       AssertionError: assert 'lost' == 'ready'\nE         \nE         - ready\nE         + lost\n\ntests\\unit\\test_spec_031.py:74: AssertionError\n__________________ test_new_game_returns_to_ready[abandoned] __________________\n\nterminal_status = 'abandoned'\n\n    @pytest.mark.parametrize(\"terminal_status\", [\"won\", \"lost\", \"abandoned\"])\n    def test_new_game_returns_to_ready(terminal_status):\n        # Given a 9x9 beginner session that has ended with the given terminal status.\n        session = GameSession(\n            id=\"game-1\",\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n        # Board: 81 cells, one per position. Cell (0,0) is revealed, cell (0,1) is flagged,\n        # and ten mines sit in the bottom two rows (first ten positions of rows 7 and 8).\n        # The flag count matches the single flagged cell.\n        mines = {(7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8), (8, 0)}\n        session.cells = build_cells(\n            ROWS,\n            COLUMNS,\n            revealed={(0, 0)},\n            flagged={(0, 1)},\n            mines=mines,\n        )\n        session.status = terminal_status\n        session.flag_count = 1\n        session.elapsed_seconds = 120\n        session.started_at = \"2025-01-01T10:00:00\"\n        session.ended_at = \"2025-01-01T10:02:00\"\n    \n        # When the player starts a new game at the same difficulty.\n        session.start_new_game(\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n    \n        # Then the status is ready.\n        # Rule: start_new_game is allowed from any status and sets status to ready.\n>       assert session.status == \"ready\"\nE       AssertionError: assert 'abandoned' == 'ready'\nE         \nE         - ready\nE         + abandoned\n\ntests\\unit\\test_spec_031.py:74: AssertionError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yx0yj8ew\\.pytest_report_de75e0bb8cac41689d665785be221138.json\n=========================== short test summary info ===========================\nFAILED tests/unit/test_spec_031.py::test_new_game_returns_to_ready[won] - Ass...\nFAILED tests/unit/test_spec_031.py::test_new_game_returns_to_ready[lost] - As...\nFAILED tests/unit/test_spec_031.py::test_new_game_returns_to_ready[abandoned]\n============================== 3 failed in 0.47s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791652459.1926003,
+      "duration": 0.2609598636627197,
+      "exitcode": 1,
+      "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yx0yj8ew",
+      "environment": {},
+      "summary": {
+        "failed": 3,
+        "total": 3,
+        "collected": 3
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_031.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "tests/unit/test_spec_031.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "tests/unit/test_spec_031.py::test_new_game_returns_to_ready[won]",
+              "type": "Function",
+              "lineno": 36
+            },
+            {
+              "nodeid": "tests/unit/test_spec_031.py::test_new_game_returns_to_ready[lost]",
+              "type": "Function",
+              "lineno": 36
+            },
+            {
+              "nodeid": "tests/unit/test_spec_031.py::test_new_game_returns_to_ready[abandoned]",
+              "type": "Function",
+              "lineno": 36
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "tests/unit/test_spec_031.py::test_new_game_returns_to_ready[won]",
+          "lineno": 36,
+          "outcome": "failed",
+          "keywords": [
+            "test_new_game_returns_to_ready[won]",
+            "parametrize",
+            "pytestmark",
+            "won",
+            "test_spec_031.py",
+            "unit",
+            "tests",
+            "hollow_yx0yj8ew",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0004434000002220273,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006420999998226762,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yx0yj8ew\\tests\\unit\\test_spec_031.py",
+              "lineno": 74,
+              "message": "AssertionError: assert 'won' == 'ready'\n  \n  - ready\n  + won"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_031.py",
+                "lineno": 74,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "terminal_status = 'won'\n\n    @pytest.mark.parametrize(\"terminal_status\", [\"won\", \"lost\", \"abandoned\"])\n    def test_new_game_returns_to_ready(terminal_status):\n        # Given a 9x9 beginner session that has ended with the given terminal status.\n        session = GameSession(\n            id=\"game-1\",\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n        # Board: 81 cells, one per position. Cell (0,0) is revealed, cell (0,1) is flagged,\n        # and ten mines sit in the bottom two rows (first ten positions of rows 7 and 8).\n        # The flag count matches the single flagged cell.\n        mines = {(7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8), (8, 0)}\n        session.cells = build_cells(\n            ROWS,\n            COLUMNS,\n            revealed={(0, 0)},\n            flagged={(0, 1)},\n            mines=mines,\n        )\n        session.status = terminal_status\n        session.flag_count = 1\n        session.elapsed_seconds = 120\n        session.started_at = \"2025-01-01T10:00:00\"\n        session.ended_at = \"2025-01-01T10:02:00\"\n    \n        # When the player starts a new game at the same difficulty.\n        session.start_new_game(\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n    \n        # Then the status is ready.\n        # Rule: start_new_game is allowed from any status and sets status to ready.\n>       assert session.status == \"ready\"\nE       AssertionError: assert 'won' == 'ready'\nE         \nE         - ready\nE         + won\n\ntests\\unit\\test_spec_031.py:74: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0006708000000799075,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_031.py::test_new_game_returns_to_ready[lost]",
+          "lineno": 36,
+          "outcome": "failed",
+          "keywords": [
+            "test_new_game_returns_to_ready[lost]",
+            "parametrize",
+            "pytestmark",
+            "lost",
+            "test_spec_031.py",
+            "unit",
+            "tests",
+            "hollow_yx0yj8ew",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0006592999998247251,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008025000133784488,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yx0yj8ew\\tests\\unit\\test_spec_031.py",
+              "lineno": 74,
+              "message": "AssertionError: assert 'lost' == 'ready'\n  \n  - ready\n  + lost"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_031.py",
+                "lineno": 74,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "terminal_status = 'lost'\n\n    @pytest.mark.parametrize(\"terminal_status\", [\"won\", \"lost\", \"abandoned\"])\n    def test_new_game_returns_to_ready(terminal_status):\n        # Given a 9x9 beginner session that has ended with the given terminal status.\n        session = GameSession(\n            id=\"game-1\",\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n        # Board: 81 cells, one per position. Cell (0,0) is revealed, cell (0,1) is flagged,\n        # and ten mines sit in the bottom two rows (first ten positions of rows 7 and 8).\n        # The flag count matches the single flagged cell.\n        mines = {(7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8), (8, 0)}\n        session.cells = build_cells(\n            ROWS,\n            COLUMNS,\n            revealed={(0, 0)},\n            flagged={(0, 1)},\n            mines=mines,\n        )\n        session.status = terminal_status\n        session.flag_count = 1\n        session.elapsed_seconds = 120\n        session.started_at = \"2025-01-01T10:00:00\"\n        session.ended_at = \"2025-01-01T10:02:00\"\n    \n        # When the player starts a new game at the same difficulty.\n        session.start_new_game(\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n    \n        # Then the status is ready.\n        # Rule: start_new_game is allowed from any status and sets status to ready.\n>       assert session.status == \"ready\"\nE       AssertionError: assert 'lost' == 'ready'\nE         \nE         - ready\nE         + lost\n\ntests\\unit\\test_spec_031.py:74: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004256999964127317,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "tests/unit/test_spec_031.py::test_new_game_returns_to_ready[abandoned]",
+          "lineno": 36,
+          "outcome": "failed",
+          "keywords": [
+            "test_new_game_returns_to_ready[abandoned]",
+            "parametrize",
+            "pytestmark",
+            "abandoned",
+            "test_spec_031.py",
+            "unit",
+            "tests",
+            "hollow_yx0yj8ew",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0005442000110633671,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0006280999950831756,
+            "outcome": "failed",
+            "crash": {
+              "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_yx0yj8ew\\tests\\unit\\test_spec_031.py",
+              "lineno": 74,
+              "message": "AssertionError: assert 'abandoned' == 'ready'\n  \n  - ready\n  + abandoned"
+            },
+            "traceback": [
+              {
+                "path": "tests\\unit\\test_spec_031.py",
+                "lineno": 74,
+                "message": "AssertionError"
+              }
+            ],
+            "longrepr": "terminal_status = 'abandoned'\n\n    @pytest.mark.parametrize(\"terminal_status\", [\"won\", \"lost\", \"abandoned\"])\n    def test_new_game_returns_to_ready(terminal_status):\n        # Given a 9x9 beginner session that has ended with the given terminal status.\n        session = GameSession(\n            id=\"game-1\",\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n        # Board: 81 cells, one per position. Cell (0,0) is revealed, cell (0,1) is flagged,\n        # and ten mines sit in the bottom two rows (first ten positions of rows 7 and 8).\n        # The flag count matches the single flagged cell.\n        mines = {(7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8), (8, 0)}\n        session.cells = build_cells(\n            ROWS,\n            COLUMNS,\n            revealed={(0, 0)},\n            flagged={(0, 1)},\n            mines=mines,\n        )\n        session.status = terminal_status\n        session.flag_count = 1\n        session.elapsed_seconds = 120\n        session.started_at = \"2025-01-01T10:00:00\"\n        session.ended_at = \"2025-01-01T10:02:00\"\n    \n        # When the player starts a new game at the same difficulty.\n        session.start_new_game(\n            difficulty_id=DIFFICULTY_ID,\n            rows=ROWS,\n            columns=COLUMNS,\n            mine_count=MINE_COUNT,\n        )\n    \n        # Then the status is ready.\n        # Rule: start_new_game is allowed from any status and sets status to ready.\n>       assert session.status == \"ready\"\nE       AssertionError: assert 'abandoned' == 'ready'\nE         \nE         - ready\nE         + abandoned\n\ntests\\unit\\test_spec_031.py:74: AssertionError"
+          },
+          "teardown": {
+            "duration": 0.0004231000057188794,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 2.527
+}

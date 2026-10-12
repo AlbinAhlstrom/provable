@@ -1,0 +1,22 @@
+{
+  "seq": 115,
+  "step": "tdd.cst_extract",
+  "kind": "step",
+  "depth": 2,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "tdd.draft_tests"
+  ],
+  "started_at": "20:20:10",
+  "t_offset_s": 201.85,
+  "thread": "draft_2",
+  "input": {
+    "args": [
+      "\"\"\"\nDomain Model: BestTime (Aggregate Root)\nSingle Responsibility Principle (SRP) compliant domain model.\n\"\"\"\n\nfrom __future__ import annotations\nimport math\nfrom dataclasses import dataclass, field\nfrom datetime import datetime, date, timezone, timedelta\nfrom typing import Optional, List, Dict, Any, Union, Set, Tuple, Callable\n\n\ntry:\n    from src.domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n    from src.domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\nexcept ImportError:\n    try:\n        from domain.exceptions import DomainError, StaleDataError, InvariantViolation, MaintenanceRequiredError, MaintenanceLockoutError, ReservationConflictError, BusinessRuleViolation\n        from domain.events import DomainEvent, MaintenanceRequiredEvent, MaintenanceLockedEvent\n    except ImportError:\n        pass\n\n\n@dataclass\nclass BestTime:\n    \"\"\"BestTime.\"\"\"\n    id: str\n    difficulty_id: str\n    game_id: str\n    best_seconds: int\n    achieved_at: str\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n",
+      "BestTime"
+    ],
+    "kwargs": {}
+  },
+  "output": "\n\n@dataclass\nclass BestTime:\n    \"\"\"BestTime.\"\"\"\n    id: str\n    difficulty_id: str\n    game_id: str\n    best_seconds: int\n    achieved_at: str\n    events: List[Any] = field(default_factory=list)\n\n    def to_dict(self) -> Dict[str, Any]:\n        return {\n            k: v for k, v in self.__dict__.items() if not k.startswith(\"_\")\n        }\n",
+  "duration_s": 0.004
+}

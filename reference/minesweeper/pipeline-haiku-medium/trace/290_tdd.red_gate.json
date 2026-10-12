@@ -1,0 +1,108 @@
+{
+  "seq": 290,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "19:14:18",
+  "t_offset_s": 199.199,
+  "thread": "red_19",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652457.3596275,
+        "duration": 1.196164608001709,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow__gp1o11a",
+        "environment": {},
+        "summary": {
+          "failed": 1,
+          "total": 1,
+          "collected": 1
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_021.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_021.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_changes_only_that_cell",
+                "type": "Function",
+                "lineno": 22
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_021.py::test_flagging_hidden_cell_changes_only_that_cell",
+            "lineno": 22,
+            "outcome": "failed",
+            "keywords": [
+              "test_flagging_hidden_cell_changes_only_that_cell",
+              "test_spec_021.py",
+              "unit",
+              "tests",
+              "hollow__gp1o11a",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006570999976247549,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006779999966965988,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow__gp1o11a\\tests\\unit\\test_spec_021.py",
+                "lineno": 6,
+                "message": "assert 0 == 1\n +  where 0 = len([])"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_021.py",
+                  "lineno": 30,
+                  "message": ""
+                },
+                {
+                  "path": "tests\\unit\\test_spec_021.py",
+                  "lineno": 6,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_flagging_hidden_cell_changes_only_that_cell():\n        # Given: a ready session with no mines placed, so every cell has\n        # adjacent_mine_count 0 and state hidden.\n        # The hidden cell at (4, 4) is next to the zero-count cell at (4, 5).\n        # No reveal has happened, so no cell is revealed and no spread can occur.\n        session = _new_session()\n        before = [dict(c) for c in session.cells]\n>       target = _cell_at(session, 4, 4)\n                 ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests\\unit\\test_spec_021.py:30: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nsession = GameSession(id='game-1', difficulty_id='beginner', rows=9, columns=9, mine_count=10, status='ready', flag_count=0, elapsed_seconds=0, started_at=None, ended_at=None, cells=[], events=[])\nrow = 4, column = 4\n\n    def _cell_at(session, row, column):\n        matches = [c for c in session.cells if c[\"row\"] == row and c[\"column\"] == column]\n>       assert len(matches) == 1\nE       assert 0 == 1\nE        +  where 0 = len([])\n\ntests\\unit\\test_spec_021.py:6: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004918000049656257,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

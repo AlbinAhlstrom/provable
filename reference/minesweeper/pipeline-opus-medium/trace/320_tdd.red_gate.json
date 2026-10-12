@@ -1,0 +1,170 @@
+{
+  "seq": 320,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:27",
+  "t_offset_s": 398.546,
+  "thread": "red_22",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656606.6993701,
+        "duration": 1.236386775970459,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_cawpyhyj",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "failed": 1,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_024.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_024.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_fewer_than_number]",
+                "type": "Function",
+                "lineno": 70
+              },
+              {
+                "nodeid": "tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_more_than_number]",
+                "type": "Function",
+                "lineno": 70
+              },
+              {
+                "nodeid": "tests/unit/test_spec_024.py::test_chord_with_flag_count_equal_to_number_opens_hidden_neighbours",
+                "type": "Function",
+                "lineno": 99
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_fewer_than_number]",
+            "lineno": 70,
+            "outcome": "passed",
+            "keywords": [
+              "test_chord_with_mismatched_flag_count_changes_nothing[one_flag_fewer_than_number]",
+              "parametrize",
+              "pytestmark",
+              "one_flag_fewer_than_number",
+              "test_spec_024.py",
+              "unit",
+              "tests",
+              "hollow_cawpyhyj",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0007112000021152198,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0015268999995896593,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00036040000850334764,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_024.py::test_chord_with_mismatched_flag_count_changes_nothing[one_flag_more_than_number]",
+            "lineno": 70,
+            "outcome": "passed",
+            "keywords": [
+              "test_chord_with_mismatched_flag_count_changes_nothing[one_flag_more_than_number]",
+              "parametrize",
+              "pytestmark",
+              "one_flag_more_than_number",
+              "test_spec_024.py",
+              "unit",
+              "tests",
+              "hollow_cawpyhyj",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0005532000068342313,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012645000097109005,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0003147999959765002,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_024.py::test_chord_with_flag_count_equal_to_number_opens_hidden_neighbours",
+            "lineno": 99,
+            "outcome": "failed",
+            "keywords": [
+              "test_chord_with_flag_count_equal_to_number_opens_hidden_neighbours",
+              "test_spec_024.py",
+              "unit",
+              "tests",
+              "hollow_cawpyhyj",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00037229999725241214,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009123000054387376,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_cawpyhyj\\tests\\unit\\test_spec_024.py",
+                "lineno": 110,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_024.py",
+                  "lineno": 110,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_chord_with_flag_count_equal_to_number_opens_hidden_neighbours():\n        game = _playing_game([(3, 3), (3, 5)])\n        assert _cell(game, *TARGET)[\"adjacent_mine_count\"] == 2\n    \n        game.chord_cell(row=4, column=4)\n    \n        # Exactly N=2 flags (both on the real mines) -> every Hidden neighbour is opened:\n        # (3,4) count 2, (4,3) count 1, (4,5) count 1, (5,3),(5,4),(5,5) count 3 each,\n        # all numbered, so no cascade spreads further; none holds a mine.\n        for row, column in HIDDEN_NEIGHBOURS:\n>           assert _cell(game, row, column)[\"state\"] == \"Opened\"\nE           AssertionError: assert 'Hidden' == 'Opened'\nE             \nE             - Opened\nE             + Hidden\n\ntests\\unit\\test_spec_024.py:110: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004315000114729628,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

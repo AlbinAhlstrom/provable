@@ -1,0 +1,200 @@
+{
+  "seq": 304,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:14:19",
+  "t_offset_s": 200.509,
+  "thread": "red_7",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652459.3775115,
+        "duration": 0.4865412712097168,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "failed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py::test_mine_counter_is_not_clamped_at_zero[exactly-at-zero-limit]",
+                "type": "Function",
+                "lineno": 29
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py::test_mine_counter_is_not_clamped_at_zero[just-beyond-zero-limit]",
+                "type": "Function",
+                "lineno": 29
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_035.py::test_mine_counter_is_not_clamped_at_zero[scenario-twelve-flags]",
+                "type": "Function",
+                "lineno": 29
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py::test_mine_counter_is_not_clamped_at_zero[exactly-at-zero-limit]",
+            "lineno": 29,
+            "outcome": "failed",
+            "keywords": [
+              "test_mine_counter_is_not_clamped_at_zero[exactly-at-zero-limit]",
+              "parametrize",
+              "pytestmark",
+              "exactly-at-zero-limit",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000829099997645244,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0007092000014381483,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_035.py",
+                "lineno": 46,
+                "message": "AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_035.py",
+                  "lineno": 46,
+                  "message": "in test_mine_counter_is_not_clamped_at_zero"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_035.py:46: in test_mine_counter_is_not_clamped_at_zero\n    counter = session.mine_counter()\n              ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+            },
+            "teardown": {
+              "duration": 0.00029150000773370266,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py::test_mine_counter_is_not_clamped_at_zero[just-beyond-zero-limit]",
+            "lineno": 29,
+            "outcome": "failed",
+            "keywords": [
+              "test_mine_counter_is_not_clamped_at_zero[just-beyond-zero-limit]",
+              "parametrize",
+              "pytestmark",
+              "just-beyond-zero-limit",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.000557100007426925,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00025209999876096845,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_035.py",
+                "lineno": 46,
+                "message": "AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_035.py",
+                  "lineno": 46,
+                  "message": "in test_mine_counter_is_not_clamped_at_zero"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_035.py:46: in test_mine_counter_is_not_clamped_at_zero\n    counter = session.mine_counter()\n              ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+            },
+            "teardown": {
+              "duration": 0.0002708999963942915,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_035.py::test_mine_counter_is_not_clamped_at_zero[scenario-twelve-flags]",
+            "lineno": 29,
+            "outcome": "failed",
+            "keywords": [
+              "test_mine_counter_is_not_clamped_at_zero[scenario-twelve-flags]",
+              "parametrize",
+              "pytestmark",
+              "scenario-twelve-flags",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00038080000376794487,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002494000073056668,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_035.py",
+                "lineno": 46,
+                "message": "AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_035.py",
+                  "lineno": 46,
+                  "message": "in test_mine_counter_is_not_clamped_at_zero"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_035.py:46: in test_mine_counter_is_not_clamped_at_zero\n    counter = session.mine_counter()\n              ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'GameSession' object has no attribute 'mine_counter'"
+            },
+            "teardown": {
+              "duration": 0.00028899998869746923,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

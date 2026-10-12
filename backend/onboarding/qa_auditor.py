@@ -37,6 +37,7 @@ from selenium.webdriver.chrome.options import Options
 from onboarding.qa_access_check import read_names
 from onboarding.qa_contrast_check import measure_contrast
 from onboarding.qa_form_check import exercise_forms
+from onboarding.qa_opening_check import check_opening
 from onboarding.qa_text_check import read_text
 from onboarding.qa_type_check import check_types
 
@@ -115,11 +116,14 @@ def run_responsive_qa_audit(
     output_dir: Optional[str] = None,
     check_vertical_containment: bool = False,
     workspace_dir: Optional[str] = None,
-    api_ready_url: Optional[str] = None
+    api_ready_url: Optional[str] = None,
+    parts: Optional[List[Any]] = None
 ) -> Dict[str, Any]:
     """
     Executes automated QA verification against the live frontend on :5174 across device viewports.
     Returns a structured QA report detailing pass/fail status, device metrics, and layout defects.
+    `parts` are the parts the page's plan names (page_parts.py): given them, the opened page is looked through
+    for them once (qa_opening_check.py).
     """
     if output_dir is None:
         workspace_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "workspace"))
@@ -333,6 +337,13 @@ def run_responsive_qa_audit(
                     passed = False
                     device_defects.extend(access_check.defects)
                     defects.extend(access_check.defects)
+
+            if parts and dev.get("read_text") and not metrics.get("hasCrashOverlay") and not metrics.get("isRootEmpty"):
+                opening = check_opening(driver, dev_name, parts)
+                if opening.defects:
+                    passed = False
+                    device_defects.extend(opening.defects)
+                    defects.extend(opening.defects)
 
             # Last, after the screenshots: submitting a form changes what the page shows
             form_check = None

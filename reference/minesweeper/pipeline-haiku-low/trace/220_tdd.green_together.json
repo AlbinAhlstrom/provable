@@ -1,0 +1,411 @@
+{
+  "seq": 220,
+  "step": "tdd.green_together",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:18:47",
+  "t_offset_s": 171.828,
+  "thread": "synthesis_3",
+  "input": {
+    "args": [
+      [
+        [
+          {
+            "spec_id": "SPEC-017",
+            "title": "Difficulty grid and mine count",
+            "description": "Three difficulties define board size and mine count.",
+            "given_when_then": "Given a player starting a game When Beginner is chosen Then the board is 9x9 with 10 mines; Intermediate yields 16x16 with 40 mines; Expert yields 30x16 with 99 mines.",
+            "target_aggregate": "DifficultySetting",
+            "spec_type": "DOMAIN_INVARIANT",
+            "kind": "behavior",
+            "category": "INVARIANT",
+            "is_mathematical_boundary": true,
+            "priority": "High",
+            "status": "PENDING"
+          },
+          {
+            "verdict": "approved",
+            "test_file_path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+            "test_code": "import pytest\n\nfrom src.domain.difficulty_setting import DifficultySetting\n\n\n# Expected grid per difficulty, read from the specification.\n# The spec writes size as \"width x height\": Expert 30x16 means 30 columns and 16 rows.\nEXPECTED = {\n    \"Beginner\": {\"rows\": 9, \"columns\": 9, \"mine_count\": 10},\n    \"Intermediate\": {\"rows\": 16, \"columns\": 16, \"mine_count\": 40},\n    \"Expert\": {\"rows\": 16, \"columns\": 30, \"mine_count\": 99},\n}\n\n\n@pytest.mark.parametrize(\"name\", [\"Beginner\", \"Intermediate\", \"Expert\"])\ndef test_choosing_difficulty_yields_exact_board_size_and_mine_count(name):\n    # Given: a player starting a game. No prior state is needed; the choice alone\n    # determines the board.\n\n    # When: the difficulty is chosen by name.\n    setting = DifficultySetting.for_difficulty(name)\n\n    # Then: the board dimensions and mine count match the specification exactly.\n    # Beginner -> 9 rows, 9 columns, 10 mines (9*9 = 81 cells).\n    # Intermediate -> 16 rows, 16 columns, 40 mines (256 cells).\n    # Expert -> 16 rows, 30 columns, 99 mines (480 cells).\n    expected = EXPECTED[name]\n    assert setting.name == name\n    assert setting.rows == expected[\"rows\"]\n    assert setting.columns == expected[\"columns\"]\n    assert setting.mine_count == expected[\"mine_count\"]\n\n\ndef test_beginner_mine_count_is_exactly_ten_not_eleven():\n    # Given: a player starting a game.\n\n    # When: Beginner is chosen.\n    setting = DifficultySetting.for_difficulty(\"Beginner\")\n\n    # Then: the mine count is exactly 10. Beginner has 81 cells, so 10 mines is\n    # the limit specified; one more mine (11) would not match the specification.\n    assert setting.mine_count == 10\n    assert setting.mine_count != 11\n\n\ndef test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred():\n    # Given: a player starting a game.\n\n    # When: Expert is chosen.\n    setting = DifficultySetting.for_difficulty(\"Expert\")\n\n    # Then: the mine count is exactly 99 (30x16 = 480 cells). One more mine (100)\n    # is just beyond the specified limit and does not match.\n    assert setting.mine_count == 99\n    assert setting.mine_count != 100\n\n\ndef test_unknown_difficulty_is_rejected():\n    # Given: a player starting a game.\n\n    # When: a difficulty that is not one of the three is chosen.\n    with pytest.raises(Exception) as exc_info:\n        DifficultySetting.for_difficulty(\"Impossible\")\n\n    # Then: the choice is refused.\n    assert type(exc_info.value).__name__ == \"ValueError\"\n",
+            "test_hash": "1e102ad8a3d60d340d503df3e7a74a127e92400e882b729d5cbf52ff9ed8a7d6",
+            "result": {
+              "exit_code": 1,
+              "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 6 items\n\ntests\\unit\\test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Beginner] FAILED [ 16%]\ntests\\unit\\test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Intermediate] FAILED [ 33%]\ntests\\unit\\test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Expert] FAILED [ 50%]\ntests\\unit\\test_spec_017.py::test_beginner_mine_count_is_exactly_ten_not_eleven FAILED [ 66%]\ntests\\unit\\test_spec_017.py::test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred FAILED [ 83%]\ntests\\unit\\test_spec_017.py::test_unknown_difficulty_is_rejected FAILED  [100%]\n\n================================== FAILURES ===================================\n__ test_choosing_difficulty_yields_exact_board_size_and_mine_count[Beginner] __\ntests\\unit\\test_spec_017.py:21: in test_choosing_difficulty_yields_exact_board_size_and_mine_count\n    setting = DifficultySetting.for_difficulty(name)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'\n_ test_choosing_difficulty_yields_exact_board_size_and_mine_count[Intermediate] _\ntests\\unit\\test_spec_017.py:21: in test_choosing_difficulty_yields_exact_board_size_and_mine_count\n    setting = DifficultySetting.for_difficulty(name)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'\n___ test_choosing_difficulty_yields_exact_board_size_and_mine_count[Expert] ___\ntests\\unit\\test_spec_017.py:21: in test_choosing_difficulty_yields_exact_board_size_and_mine_count\n    setting = DifficultySetting.for_difficulty(name)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'\n_____________ test_beginner_mine_count_is_exactly_ten_not_eleven ______________\ntests\\unit\\test_spec_017.py:38: in test_beginner_mine_count_is_exactly_ten_not_eleven\n    setting = DifficultySetting.for_difficulty(\"Beginner\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'\n________ test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred ________\ntests\\unit\\test_spec_017.py:50: in test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred\n    setting = DifficultySetting.for_difficulty(\"Expert\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'\n_____________________ test_unknown_difficulty_is_rejected _____________________\ntests\\unit\\test_spec_017.py:66: in test_unknown_difficulty_is_rejected\n    assert type(exc_info.value).__name__ == \"ValueError\"\nE   AssertionError: assert 'AttributeError' == 'ValueError'\nE     \nE     - ValueError\nE     + AttributeError\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_ba7760e07204443da44d7cacf66caa3f.json\n=========================== short test summary info ===========================\nFAILED tests\\unit\\test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Beginner]\nFAILED tests\\unit\\test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Intermediate]\nFAILED tests\\unit\\test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Expert]\nFAILED tests\\unit\\test_spec_017.py::test_beginner_mine_count_is_exactly_ten_not_eleven\nFAILED tests\\unit\\test_spec_017.py::test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred\nFAILED tests\\unit\\test_spec_017.py::test_unknown_difficulty_is_rejected - Ass...\n============================== 6 failed in 1.02s ==============================\n",
+              "stderr": "",
+              "report": {
+                "created": 1791652645.1839807,
+                "duration": 1.0064795017242432,
+                "exitcode": 1,
+                "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+                "environment": {},
+                "summary": {
+                  "failed": 6,
+                  "total": 6,
+                  "collected": 6
+                },
+                "collectors": [
+                  {
+                    "nodeid": "",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_017.py",
+                        "type": "Module"
+                      }
+                    ]
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_017.py",
+                    "outcome": "passed",
+                    "result": [
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Beginner]",
+                        "type": "Function",
+                        "lineno": 14
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Intermediate]",
+                        "type": "Function",
+                        "lineno": 14
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Expert]",
+                        "type": "Function",
+                        "lineno": 14
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_017.py::test_beginner_mine_count_is_exactly_ten_not_eleven",
+                        "type": "Function",
+                        "lineno": 33
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_017.py::test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred",
+                        "type": "Function",
+                        "lineno": 45
+                      },
+                      {
+                        "nodeid": "workspace/tests/unit/test_spec_017.py::test_unknown_difficulty_is_rejected",
+                        "type": "Function",
+                        "lineno": 57
+                      }
+                    ]
+                  }
+                ],
+                "tests": [
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Beginner]",
+                    "lineno": 14,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_choosing_difficulty_yields_exact_board_size_and_mine_count[Beginner]",
+                      "parametrize",
+                      "pytestmark",
+                      "Beginner",
+                      "test_spec_017.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0008490999898640439,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0006223999953363091,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                        "lineno": 21,
+                        "message": "AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_017.py",
+                          "lineno": 21,
+                          "message": "in test_choosing_difficulty_yields_exact_board_size_and_mine_count"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_017.py:21: in test_choosing_difficulty_yields_exact_board_size_and_mine_count\n    setting = DifficultySetting.for_difficulty(name)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+                    },
+                    "teardown": {
+                      "duration": 0.000440800009528175,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Intermediate]",
+                    "lineno": 14,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_choosing_difficulty_yields_exact_board_size_and_mine_count[Intermediate]",
+                      "parametrize",
+                      "pytestmark",
+                      "Intermediate",
+                      "test_spec_017.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0007038000039756298,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0004138000076636672,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                        "lineno": 21,
+                        "message": "AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_017.py",
+                          "lineno": 21,
+                          "message": "in test_choosing_difficulty_yields_exact_board_size_and_mine_count"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_017.py:21: in test_choosing_difficulty_yields_exact_board_size_and_mine_count\n    setting = DifficultySetting.for_difficulty(name)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+                    },
+                    "teardown": {
+                      "duration": 0.00038409999979194254,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_017.py::test_choosing_difficulty_yields_exact_board_size_and_mine_count[Expert]",
+                    "lineno": 14,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_choosing_difficulty_yields_exact_board_size_and_mine_count[Expert]",
+                      "parametrize",
+                      "pytestmark",
+                      "Expert",
+                      "test_spec_017.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0005797999911010265,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0004209999897284433,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                        "lineno": 21,
+                        "message": "AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_017.py",
+                          "lineno": 21,
+                          "message": "in test_choosing_difficulty_yields_exact_board_size_and_mine_count"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_017.py:21: in test_choosing_difficulty_yields_exact_board_size_and_mine_count\n    setting = DifficultySetting.for_difficulty(name)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+                    },
+                    "teardown": {
+                      "duration": 0.0003980000037699938,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_017.py::test_beginner_mine_count_is_exactly_ten_not_eleven",
+                    "lineno": 33,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_beginner_mine_count_is_exactly_ten_not_eleven",
+                      "test_spec_017.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.00039110000943765044,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.00043149999692104757,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                        "lineno": 38,
+                        "message": "AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_017.py",
+                          "lineno": 38,
+                          "message": "in test_beginner_mine_count_is_exactly_ten_not_eleven"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_017.py:38: in test_beginner_mine_count_is_exactly_ten_not_eleven\n    setting = DifficultySetting.for_difficulty(\"Beginner\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+                    },
+                    "teardown": {
+                      "duration": 0.00034079999022651464,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_017.py::test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred",
+                    "lineno": 45,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred",
+                      "test_spec_017.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.00041939999209716916,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.0003842000005533919,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                        "lineno": 50,
+                        "message": "AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_017.py",
+                          "lineno": 50,
+                          "message": "in test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_017.py:50: in test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred\n    setting = DifficultySetting.for_difficulty(\"Expert\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: type object 'DifficultySetting' has no attribute 'for_difficulty'"
+                    },
+                    "teardown": {
+                      "duration": 0.00035609999031294137,
+                      "outcome": "passed"
+                    }
+                  },
+                  {
+                    "nodeid": "workspace/tests/unit/test_spec_017.py::test_unknown_difficulty_is_rejected",
+                    "lineno": 57,
+                    "outcome": "failed",
+                    "keywords": [
+                      "test_unknown_difficulty_is_rejected",
+                      "test_spec_017.py",
+                      "unit",
+                      "tests",
+                      "workspace",
+                      "provable",
+                      ""
+                    ],
+                    "setup": {
+                      "duration": 0.0003981000045314431,
+                      "outcome": "passed"
+                    },
+                    "call": {
+                      "duration": 0.000705099999322556,
+                      "outcome": "failed",
+                      "crash": {
+                        "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+                        "lineno": 66,
+                        "message": "AssertionError: assert 'AttributeError' == 'ValueError'\n  \n  - ValueError\n  + AttributeError"
+                      },
+                      "traceback": [
+                        {
+                          "path": "tests\\unit\\test_spec_017.py",
+                          "lineno": 66,
+                          "message": "in test_unknown_difficulty_is_rejected"
+                        }
+                      ],
+                      "longrepr": "tests\\unit\\test_spec_017.py:66: in test_unknown_difficulty_is_rejected\n    assert type(exc_info.value).__name__ == \"ValueError\"\nE   AssertionError: assert 'AttributeError' == 'ValueError'\nE     \nE     - ValueError\nE     + AttributeError"
+                    },
+                    "teardown": {
+                      "duration": 0.00045370000589173287,
+                      "outcome": "passed"
+                    }
+                  }
+                ]
+              },
+              "timed_out": false
+            },
+            "evaluation": {
+              "status": "APPROVED_RED",
+              "approved": true,
+              "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+            },
+            "attempts": [
+              {
+                "attempt": 1,
+                "approved": true,
+                "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+              }
+            ]
+          }
+        ]
+      ],
+      {
+        "class_name": "DifficultySetting",
+        "module_name": "difficulty_setting",
+        "domain_file": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\src\\domain\\difficulty_setting.py",
+        "tests_dir": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit"
+      },
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace",
+      "",
+      "set()"
+    ],
+    "kwargs": {
+      "peers": []
+    }
+  },
+  "output": {
+    "SPEC-017": {
+      "success": true,
+      "status": "FULFILLED",
+      "phase": "COMMITTED",
+      "spec_id": "SPEC-017",
+      "test_file": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_017.py",
+      "red_eval": {
+        "status": "APPROVED_RED",
+        "approved": true,
+        "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+      },
+      "green_eval": {
+        "status": "APPROVED_GREEN",
+        "approved": true,
+        "reason": "All tests passed cleanly."
+      },
+      "red_attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+        }
+      ],
+      "test_source": "import pytest\n\nfrom src.domain.difficulty_setting import DifficultySetting\n\n\n# Expected grid per difficulty, read from the specification.\n# The spec writes size as \"width x height\": Expert 30x16 means 30 columns and 16 rows.\nEXPECTED = {\n    \"Beginner\": {\"rows\": 9, \"columns\": 9, \"mine_count\": 10},\n    \"Intermediate\": {\"rows\": 16, \"columns\": 16, \"mine_count\": 40},\n    \"Expert\": {\"rows\": 16, \"columns\": 30, \"mine_count\": 99},\n}\n\n\n@pytest.mark.parametrize(\"name\", [\"Beginner\", \"Intermediate\", \"Expert\"])\ndef test_choosing_difficulty_yields_exact_board_size_and_mine_count(name):\n    # Given: a player starting a game. No prior state is needed; the choice alone\n    # determines the board.\n\n    # When: the difficulty is chosen by name.\n    setting = DifficultySetting.for_difficulty(name)\n\n    # Then: the board dimensions and mine count match the specification exactly.\n    # Beginner -> 9 rows, 9 columns, 10 mines (9*9 = 81 cells).\n    # Intermediate -> 16 rows, 16 columns, 40 mines (256 cells).\n    # Expert -> 16 rows, 30 columns, 99 mines (480 cells).\n    expected = EXPECTED[name]\n    assert setting.name == name\n    assert setting.rows == expected[\"rows\"]\n    assert setting.columns == expected[\"columns\"]\n    assert setting.mine_count == expected[\"mine_count\"]\n\n\ndef test_beginner_mine_count_is_exactly_ten_not_eleven():\n    # Given: a player starting a game.\n\n    # When: Beginner is chosen.\n    setting = DifficultySetting.for_difficulty(\"Beginner\")\n\n    # Then: the mine count is exactly 10. Beginner has 81 cells, so 10 mines is\n    # the limit specified; one more mine (11) would not match the specification.\n    assert setting.mine_count == 10\n    assert setting.mine_count != 11\n\n\ndef test_expert_mine_count_is_exactly_ninety_nine_not_one_hundred():\n    # Given: a player starting a game.\n\n    # When: Expert is chosen.\n    setting = DifficultySetting.for_difficulty(\"Expert\")\n\n    # Then: the mine count is exactly 99 (30x16 = 480 cells). One more mine (100)\n    # is just beyond the specified limit and does not match.\n    assert setting.mine_count == 99\n    assert setting.mine_count != 100\n\n\ndef test_unknown_difficulty_is_rejected():\n    # Given: a player starting a game.\n\n    # When: a difficulty that is not one of the three is chosen.\n    with pytest.raises(Exception) as exc_info:\n        DifficultySetting.for_difficulty(\"Impossible\")\n\n    # Then: the choice is refused.\n    assert type(exc_info.value).__name__ == \"ValueError\"\n",
+      "attempts": [
+        {
+          "attempt": 1,
+          "approved": true,
+          "reason": "All tests passed cleanly."
+        }
+      ]
+    }
+  },
+  "duration_s": 4.529
+}

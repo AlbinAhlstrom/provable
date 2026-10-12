@@ -1,0 +1,296 @@
+{
+  "seq": 227,
+  "step": "tdd.pytest",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:16",
+  "t_offset_s": 387.725,
+  "thread": "red_19",
+  "input": {
+    "args": [
+      "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_021.py"
+    ],
+    "kwargs": {
+      "cwd": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace"
+    }
+  },
+  "output": {
+    "exit_code": 0,
+    "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\ahlst\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nhypothesis profile 'default'\nmetadata: {'Python': '3.11.9', 'Platform': 'Windows-10-10.0.22621-SP0', 'Packages': {'pytest': '9.1.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.14.2', 'hypothesis': '6.151.5', 'langsmith': '0.10.9', 'asyncio': '1.3.0', 'json-report': '1.5.0', 'metadata': '3.1.1', 'timeout': '2.4.0'}}\nrootdir: C:\\Users\\ahlst\\Documents\\GitHub\\provable\nconfigfile: pytest.ini\nplugins: anyio-4.14.2, hypothesis-6.151.5, langsmith-0.10.9, asyncio-1.3.0, json-report-1.5.0, metadata-3.1.1, timeout-2.4.0\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ntimeout: 5.0s\ntimeout method: thread\ntimeout func_only: False\ncollecting ... collected 7 items\n\ntests\\unit\\test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Ready] PASSED [ 14%]\ntests\\unit\\test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Playing] PASSED [ 28%]\ntests\\unit\\test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Ready] PASSED [ 42%]\ntests\\unit\\test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Playing] PASSED [ 57%]\ntests\\unit\\test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Ready] PASSED [ 71%]\ntests\\unit\\test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Playing] PASSED [ 85%]\ntests\\unit\\test_spec_021.py::test_flagging_opened_cell_at_mine_count_is_ignored PASSED [100%]\n\n--------------------------------- JSON report ---------------------------------\nreport saved to: C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\.pytest_report_7210a506254b47d3a3fd71844f75f72e.json\n============================== 7 passed in 1.38s ==============================\n",
+    "stderr": "",
+    "report": {
+      "created": 1791656602.0610714,
+      "duration": 1.365217924118042,
+      "exitcode": 0,
+      "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+      "environment": {},
+      "summary": {
+        "passed": 7,
+        "total": 7,
+        "collected": 7
+      },
+      "collectors": [
+        {
+          "nodeid": "",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_021.py",
+              "type": "Module"
+            }
+          ]
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_021.py",
+          "outcome": "passed",
+          "result": [
+            {
+              "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Ready]",
+              "type": "Function",
+              "lineno": 72
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Playing]",
+              "type": "Function",
+              "lineno": 72
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Ready]",
+              "type": "Function",
+              "lineno": 72
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Playing]",
+              "type": "Function",
+              "lineno": 72
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Ready]",
+              "type": "Function",
+              "lineno": 72
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Playing]",
+              "type": "Function",
+              "lineno": 72
+            },
+            {
+              "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_opened_cell_at_mine_count_is_ignored",
+              "type": "Function",
+              "lineno": 95
+            }
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Ready]",
+          "lineno": 72,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Ready]",
+            "parametrize",
+            "pytestmark",
+            "9-Ready",
+            "test_spec_021.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0012648999982047826,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0007290999928954989,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003946999931940809,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Playing]",
+          "lineno": 72,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_hidden_cell_is_not_limited_by_mine_count[9-Playing]",
+            "parametrize",
+            "pytestmark",
+            "9-Playing",
+            "test_spec_021.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0012275000044610351,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0009150000114459544,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0004415000003064051,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Ready]",
+          "lineno": 72,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Ready]",
+            "parametrize",
+            "pytestmark",
+            "10-Ready",
+            "test_spec_021.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008345999958692119,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.000705400001606904,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0003723999980138615,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Playing]",
+          "lineno": 72,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_hidden_cell_is_not_limited_by_mine_count[10-Playing]",
+            "parametrize",
+            "pytestmark",
+            "10-Playing",
+            "test_spec_021.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0009522000036668032,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0008777000039117411,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0005330999993020669,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Ready]",
+          "lineno": 72,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Ready]",
+            "parametrize",
+            "pytestmark",
+            "11-Ready",
+            "test_spec_021.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.001742499996908009,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0022019000025466084,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0012718999932985753,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Playing]",
+          "lineno": 72,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_hidden_cell_is_not_limited_by_mine_count[11-Playing]",
+            "parametrize",
+            "pytestmark",
+            "11-Playing",
+            "test_spec_021.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0007509999995818362,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0022136000043246895,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0008769999985815957,
+            "outcome": "passed"
+          }
+        },
+        {
+          "nodeid": "workspace/tests/unit/test_spec_021.py::test_flagging_opened_cell_at_mine_count_is_ignored",
+          "lineno": 95,
+          "outcome": "passed",
+          "keywords": [
+            "test_flagging_opened_cell_at_mine_count_is_ignored",
+            "test_spec_021.py",
+            "unit",
+            "tests",
+            "workspace",
+            "provable",
+            ""
+          ],
+          "setup": {
+            "duration": 0.0008148999913828447,
+            "outcome": "passed"
+          },
+          "call": {
+            "duration": 0.0010211000044364482,
+            "outcome": "passed"
+          },
+          "teardown": {
+            "duration": 0.0007865999941714108,
+            "outcome": "passed"
+          }
+        }
+      ]
+    },
+    "timed_out": false
+  },
+  "duration_s": 5.87
+}

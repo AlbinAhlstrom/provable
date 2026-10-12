@@ -1,0 +1,146 @@
+{
+  "seq": 441,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:38",
+  "t_offset_s": 409.024,
+  "thread": "red_1",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791656617.2250168,
+        "duration": 0.8811476230621338,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_edxdge4b",
+        "environment": {},
+        "summary": {
+          "failed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_032.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_032.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_032.py::test_opening_last_safe_cell_wins_and_auto_flags_every_mine",
+                "type": "Function",
+                "lineno": 74
+              },
+              {
+                "nodeid": "tests/unit/test_spec_032.py::test_opening_a_safe_cell_with_another_still_hidden_does_not_auto_flag",
+                "type": "Function",
+                "lineno": 103
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_032.py::test_opening_last_safe_cell_wins_and_auto_flags_every_mine",
+            "lineno": 74,
+            "outcome": "failed",
+            "keywords": [
+              "test_opening_last_safe_cell_wins_and_auto_flags_every_mine",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "hollow_edxdge4b",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0008964000007836148,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0012128000089433044,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_edxdge4b\\tests\\unit\\test_spec_032.py",
+                "lineno": 83,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_032.py",
+                  "lineno": 83,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_opening_last_safe_cell_wins_and_auto_flags_every_mine():\n        # Exactly at the limit: (2,0) is the only unopened non-mine cell.\n        game = _make_playing_game(hidden_safe_cells={(2, 0)})\n    \n        game.open_cell(row=2, column=0)\n    \n        # (2,0) is safe; neighbours (1,0) mine, (1,1),(2,1),(3,0),(3,1) safe -> count 1,\n        # so it becomes Opened with no cascade.\n>       assert _cell(game, 2, 0)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_032.py:83: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.0004493000014917925,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_032.py::test_opening_a_safe_cell_with_another_still_hidden_does_not_auto_flag",
+            "lineno": 103,
+            "outcome": "failed",
+            "keywords": [
+              "test_opening_a_safe_cell_with_another_still_hidden_does_not_auto_flag",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "hollow_edxdge4b",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0004174000059720129,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0009406000026501715,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_edxdge4b\\tests\\unit\\test_spec_032.py",
+                "lineno": 111,
+                "message": "AssertionError: assert 'Hidden' == 'Opened'\n  \n  - Opened\n  + Hidden"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_032.py",
+                  "lineno": 111,
+                  "message": "AssertionError"
+                }
+              ],
+              "longrepr": "def test_opening_a_safe_cell_with_another_still_hidden_does_not_auto_flag():\n        # Just beyond the limit: same board, but (8,8) is also still Hidden.\n        game = _make_playing_game(hidden_safe_cells={(2, 0), (8, 8)})\n    \n        game.open_cell(row=2, column=0)\n    \n        # (2,0) has count 1 -> Opened, no cascade, so (8,8) is not reached.\n>       assert _cell(game, 2, 0)[\"state\"] == \"Opened\"\nE       AssertionError: assert 'Hidden' == 'Opened'\nE         \nE         - Opened\nE         + Hidden\n\ntests\\unit\\test_spec_032.py:111: AssertionError"
+            },
+            "teardown": {
+              "duration": 0.00044269999489188194,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

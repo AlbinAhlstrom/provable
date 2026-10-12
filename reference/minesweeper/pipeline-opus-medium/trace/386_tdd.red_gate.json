@@ -1,0 +1,121 @@
+{
+  "seq": 386,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together"
+  ],
+  "started_at": "20:23:32",
+  "t_offset_s": 403.503,
+  "thread": "red_1",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656612.0613906,
+        "duration": 0.6662726402282715,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 2,
+          "total": 2,
+          "collected": 2
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py::test_opening_last_safe_cell_wins_and_auto_flags_every_mine",
+                "type": "Function",
+                "lineno": 74
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_032.py::test_opening_a_safe_cell_with_another_still_hidden_does_not_auto_flag",
+                "type": "Function",
+                "lineno": 103
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py::test_opening_last_safe_cell_wins_and_auto_flags_every_mine",
+            "lineno": 74,
+            "outcome": "passed",
+            "keywords": [
+              "test_opening_last_safe_cell_wins_and_auto_flags_every_mine",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0006635000027017668,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0015522000030614436,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00033120000443886966,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_032.py::test_opening_a_safe_cell_with_another_still_hidden_does_not_auto_flag",
+            "lineno": 103,
+            "outcome": "passed",
+            "keywords": [
+              "test_opening_a_safe_cell_with_another_still_hidden_does_not_auto_flag",
+              "test_spec_032.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00048149999929592013,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0013630000030389056,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004344999906606972,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,223 @@
+{
+  "seq": 80,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 3,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "behaviour.implement_actions",
+    "tdd.execute_together"
+  ],
+  "started_at": "19:16:54",
+  "t_offset_s": 58.557,
+  "thread": "red_0",
+  "input": {
+    "args": [
+      1,
+      {
+        "created": 1791652614.1726766,
+        "duration": 0.35292696952819824,
+        "exitcode": 1,
+        "root": "C:\\Users\\ahlst\\Documents\\GitHub\\provable",
+        "environment": {},
+        "summary": {
+          "passed": 1,
+          "failed": 3,
+          "total": 4,
+          "collected": 4
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_new_game_has_default_fields",
+                "type": "Function",
+                "lineno": 30
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_start_game_discards_old_session_and_sets_up_intermediate_board",
+                "type": "Function",
+                "lineno": 50
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_reveal_cell_on_ready_game_lays_out_board_and_starts_session",
+                "type": "Function",
+                "lineno": 91
+              },
+              {
+                "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_cycles_hidden_to_flagged_and_back_without_starting_timer",
+                "type": "Function",
+                "lineno": 122
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_new_game_has_default_fields",
+            "lineno": 30,
+            "outcome": "passed",
+            "keywords": [
+              "test_new_game_has_default_fields",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0003397999971639365,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002055000077234581,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00016910000704228878,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_start_game_discards_old_session_and_sets_up_intermediate_board",
+            "lineno": 50,
+            "outcome": "failed",
+            "keywords": [
+              "test_start_game_discards_old_session_and_sets_up_intermediate_board",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00019039999460801482,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0002429999876767397,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 71,
+                "message": "AttributeError: 'Game' object has no attribute 'start_game'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 71,
+                  "message": "in test_start_game_discards_old_session_and_sets_up_intermediate_board"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:71: in test_start_game_discards_old_session_and_sets_up_intermediate_board\n    game.start_game(difficulty=\"Intermediate\")\n    ^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'start_game'"
+            },
+            "teardown": {
+              "duration": 0.00022009998792782426,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_reveal_cell_on_ready_game_lays_out_board_and_starts_session",
+            "lineno": 91,
+            "outcome": "failed",
+            "keywords": [
+              "test_reveal_cell_on_ready_game_lays_out_board_and_starts_session",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00018790000467561185,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0001993000041693449,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 103,
+                "message": "AttributeError: 'Game' object has no attribute 'reveal_cell'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 103,
+                  "message": "in test_reveal_cell_on_ready_game_lays_out_board_and_starts_session"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:103: in test_reveal_cell_on_ready_game_lays_out_board_and_starts_session\n    game.reveal_cell(row=0, column=0)\n    ^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'reveal_cell'"
+            },
+            "teardown": {
+              "duration": 0.00019990000873804092,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "workspace/tests/unit/test_spec_act_game.py::test_toggle_flag_cycles_hidden_to_flagged_and_back_without_starting_timer",
+            "lineno": 122,
+            "outcome": "failed",
+            "keywords": [
+              "test_toggle_flag_cycles_hidden_to_flagged_and_back_without_starting_timer",
+              "test_spec_act_game.py",
+              "unit",
+              "tests",
+              "workspace",
+              "provable",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0001908999984152615,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.00023520000104326755,
+              "outcome": "failed",
+              "crash": {
+                "path": "C:\\Users\\ahlst\\Documents\\GitHub\\provable\\workspace\\tests\\unit\\test_spec_act_game.py",
+                "lineno": 138,
+                "message": "AttributeError: 'Game' object has no attribute 'toggle_flag'"
+              },
+              "traceback": [
+                {
+                  "path": "tests\\unit\\test_spec_act_game.py",
+                  "lineno": 138,
+                  "message": "in test_toggle_flag_cycles_hidden_to_flagged_and_back_without_starting_timer"
+                }
+              ],
+              "longrepr": "tests\\unit\\test_spec_act_game.py:138: in test_toggle_flag_cycles_hidden_to_flagged_and_back_without_starting_timer\n    game.toggle_flag(row=4, column=4)\n    ^^^^^^^^^^^^^^^^\nE   AttributeError: 'Game' object has no attribute 'toggle_flag'"
+            },
+            "teardown": {
+              "duration": 0.0002288000105181709,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "APPROVED_RED",
+    "approved": true,
+    "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
+  },
+  "duration_s": 0.0
+}

@@ -1,0 +1,159 @@
+{
+  "seq": 437,
+  "step": "tdd.red_gate",
+  "kind": "step",
+  "depth": 4,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold",
+    "specs.run_behaviour_specs",
+    "tdd.execute_together",
+    "tdd.hollow_check"
+  ],
+  "started_at": "20:23:37",
+  "t_offset_s": 408.772,
+  "thread": "red_23",
+  "input": {
+    "args": [
+      0,
+      {
+        "created": 1791656616.9413111,
+        "duration": 0.20276403427124023,
+        "exitcode": 0,
+        "root": "C:\\Users\\ahlst\\AppData\\Local\\Temp\\hollow_0dz8ud6v",
+        "environment": {},
+        "summary": {
+          "passed": 3,
+          "total": 3,
+          "collected": 3
+        },
+        "collectors": [
+          {
+            "nodeid": "",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_035.py",
+                "type": "Module"
+              }
+            ]
+          },
+          {
+            "nodeid": "tests/unit/test_spec_035.py",
+            "outcome": "passed",
+            "result": [
+              {
+                "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+                "type": "Function",
+                "lineno": 7
+              },
+              {
+                "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+                "type": "Function",
+                "lineno": 7
+              },
+              {
+                "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+                "type": "Function",
+                "lineno": 7
+              }
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+            "lineno": 7,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_win_sets_best_time[beginner-game-b-1-42-2024-03-01T10:15:00Z]",
+              "parametrize",
+              "pytestmark",
+              "beginner-game-b-1-42-2024-03-01T10:15:00Z",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "hollow_0dz8ud6v",
+              ""
+            ],
+            "setup": {
+              "duration": 0.0016660999972373247,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0005810000002384186,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.000530999997863546,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+            "lineno": 7,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_win_sets_best_time[intermediate-game-i-1-137-2024-03-02T11:20:00Z]",
+              "parametrize",
+              "pytestmark",
+              "intermediate-game-i-1-137-2024-03-02T11:20:00Z",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "hollow_0dz8ud6v",
+              ""
+            ],
+            "setup": {
+              "duration": 0.00101120000181254,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0006156000017654151,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.0004856000014115125,
+              "outcome": "passed"
+            }
+          },
+          {
+            "nodeid": "tests/unit/test_spec_035.py::test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+            "lineno": 7,
+            "outcome": "passed",
+            "keywords": [
+              "test_first_win_sets_best_time[expert-game-e-1-389-2024-03-03T12:25:00Z]",
+              "parametrize",
+              "pytestmark",
+              "expert-game-e-1-389-2024-03-03T12:25:00Z",
+              "test_spec_035.py",
+              "unit",
+              "tests",
+              "hollow_0dz8ud6v",
+              ""
+            ],
+            "setup": {
+              "duration": 0.001061900009517558,
+              "outcome": "passed"
+            },
+            "call": {
+              "duration": 0.0004543000104604289,
+              "outcome": "passed"
+            },
+            "teardown": {
+              "duration": 0.00041700000292621553,
+              "outcome": "passed"
+            }
+          }
+        ]
+      },
+      ""
+    ],
+    "kwargs": {}
+  },
+  "output": {
+    "status": "REJECTED_TAUTOLOGY",
+    "approved": false,
+    "reason": "Test passed before logic was implemented (tautological false pass)."
+  },
+  "duration_s": 0.0
+}

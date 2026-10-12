@@ -1,0 +1,43 @@
+{
+  "seq": 4,
+  "step": "coo.expand_pitch",
+  "kind": "step",
+  "depth": 1,
+  "caller_chain": [
+    "svc.kickstart_and_scaffold"
+  ],
+  "started_at": "19:15:58",
+  "t_offset_s": 2.524,
+  "thread": "AnyIO worker thread",
+  "input": {
+    "args": [
+      "A minesweeper game"
+    ],
+    "kwargs": {
+      "intent": {
+        "product_type": "game",
+        "audience": "players who want to play a single-player minesweeper puzzle",
+        "primary_goal": "Let players clear a minefield by revealing safe cells and flagging mines, with a clear win or loss outcome.",
+        "scope_summary": "A playable minesweeper game consisting of a grid board, mine placement, cell reveal and flag interaction, and win/loss detection with a game timer and mine counter.",
+        "model_focus": [
+          "Board grid and cell states (hidden, revealed, flagged)",
+          "Mine layout and adjacency counts",
+          "Game session state (in progress, won, lost) and elapsed time",
+          "Difficulty settings (grid size and mine count)"
+        ],
+        "out_of_scope": [
+          "User accounts and login",
+          "Online leaderboards or cross-player multiplayer",
+          "Payments or monetization",
+          "Server-side back-office administration"
+        ],
+        "assumptions": [
+          "The game is single-player and runs locally or in a browser without a backend.",
+          "Standard minesweeper rules apply, with the first reveal guaranteed safe unless the pitch specifies otherwise."
+        ]
+      }
+    }
+  },
+  "output": "# Minesweeper\n\n## 1. Personas & Value Journey\n**Player (single persona).** Wants a quick, fair, single-player puzzle session. Needs to:\n- See the board, mine counter, and timer at a glance.\n- Start a game at a chosen difficulty, reveal cells, flag suspected mines, and learn the outcome clearly.\n- Start a new game at any time.\n\nNo other personas are implied.\n\n## 2. Presentation & Interaction\nLooks like classic Minesweeper: a rectangular grid of uniform grey square tiles with raised bevels; revealed tiles flatten to light grey, with numbers coloured as in the original (1 blue, 2 green, 3 red, and so on). A red flag marks suspected mines. A mine counter and timer sit in a header bar above the grid, with a face or status button to restart.\n- **Left-click (tap)** reveals a hidden cell.\n- **Right-click (long-press)** cycles hidden → flagged → hidden (question marks not included).\n- Revealing a zero-count cell opens its connected empty region automatically.\n- Mine counter shows total mines minus flags placed, and may go negative.\n\n## 3. MVP Scope\nIn scope: one board, three difficulty levels, reveal, flag, win/loss detection, timer, mine counter, restart.\nOut of scope: accounts, leaderboards, multiplayer, payments, administration.\n\n## 4. Core Concepts & States\n- **Board:** a grid of cells with a fixed size and mine count set by difficulty.\n- **Cell:** state is *hidden*, *revealed*, or *flagged*. Revealed cells hold either a mine or an adjacency count (0–8).\n- **Mine layout:** fixed when the first cell is revealed, guaranteeing that cell and its neighbours are mine-free.\n- **Game session:** *ready* → *in progress* → *won* or *lost*. Elapsed time runs from the first reveal until the session ends.\n- **Difficulty:** Beginner (9×9, 10 mines), Intermediate (16×16, 40 mines), Expert (30×16, 99 mines).\n\n## 5. Business Rules & Invariants\n- **R1 Adjacency:** each safe cell shows the number of mines among its up to eight neighbours.\n- **R2 Zero expansion:** a revealed cell with count 0 reveals all neighbours, recursively.\n- **R3 First-click safety:** the first reveal is never a mine, and its neighbours are mine-free.\n- **R4 Flagging:** flags may be placed only on hidden cells; flags cannot be revealed and may be removed at any time.\n- **R5 Loss:** revealing a mine ends the session as lost; all mines are shown, and wrong flags are marked.\n- **R6 Win:** the session is won when every non-mine cell is revealed. Remaining unrevealed mines are auto-flagged.\n- **R7 Terminal state:** no reveal or flag changes are accepted after won or lost; only restart is allowed.\n- **R8 Timer:** starts on first reveal, stops at win or loss, and is capped at 999 seconds for display.\n- **R9 Invalid operations** (acting on revealed cells, after game end, or outside the board) are ignored without changing board or session state.\n- **R10 Restart:** starting a new game discards the current board and timer and returns to *ready*.",
+  "duration_s": 5.933
+}

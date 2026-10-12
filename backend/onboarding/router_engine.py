@@ -37,6 +37,7 @@ class AttributeSpec(BaseModel):
     type: str = "str"
     required: bool = True
     default_value: Optional[Any] = None
+    description: str = ""                                       # what it holds, in words, for whoever writes against the class
     item_name: str = ""                                         # set when the attribute is a list of an owned part
     item_attributes: List["AttributeSpec"] = Field(default_factory=list)  # what one item of that list holds
 
@@ -44,7 +45,7 @@ class AttributeSpec(BaseModel):
         """The attribute as prompts state it: `name: type`, and for a list of parts what one item holds."""
         if not self.item_attributes:
             return f"{self.name}: {self.type}"
-        item = ", ".join(f"{a.name}: {a.type}" for a in self.item_attributes)
+        item = ", ".join(a.describe() for a in self.item_attributes)
         return f"{self.name}: list of {self.item_name} {{{item}}}"
 
 
@@ -59,6 +60,9 @@ class EntitySpec(BaseModel):
     name: str
     is_aggregate_root: bool = True
     audience_role: AudienceRole = AudienceRole.INTERNAL
+    # The page makes one of these by itself when it opens and none exists (a round, a draft): the generated client
+    # then opens it (`skeleton_builder.generate_master_client`), so no page writer has to remember to
+    created_on_opening: bool = False
     attributes: List[AttributeSpec] = Field(default_factory=list)
     relationships: List[Dict[str, str]] = Field(default_factory=list)
 
@@ -108,7 +112,14 @@ class BusinessSpec(BaseModel):
     is_mathematical_boundary: bool = False
     priority: str = "High"
     status: str = "PENDING"
-
+    # From the product contract (ADR-011). `given_when_then` is the exact line tests are written from, in the
+    # contract's field and action names; `plain` is the same rule as a person who uses the product says it, which
+    # is what a card shows. `situation` is the state the Given names, as the contract wrote it once for every
+    # writer: its name and the values it holds. `action` is the one action the rule is about; a rule of the page
+    # alone has none.
+    plain: str = ""
+    situation: str = ""
+    action: str = ""
 
 
 class DomainBehaviorInboxSchema(BaseModel):
