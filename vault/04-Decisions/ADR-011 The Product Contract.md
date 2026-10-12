@@ -186,8 +186,8 @@ exist from the start are still chosen by the seed step, not by the contract.
 - The front is one stage (`contract`) of some 25 to 40 s in place of five.
 - Later writers read the contract's brief where they read the expanded pitch. The stored specification also holds
   the page's plan, so a page rebuild plans from the same look.
-- The contract is not stored as a record of its own; a page rebuild still calls the UX planner. Storing it is part
-  of the next step.
+- The contract is stored with the build state as it was answered ([[ADR-014 Change Tickets]]); a page rebuild still
+  calls the UX planner.
 - A structured answer costs more tokens than free text. Not yet measured against the earlier front on a whole run.
 
 ## Order of work

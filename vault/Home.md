@@ -52,6 +52,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[ADR-010 One Kind of Rule Proved on the Page]]: A rule has one kind and one proof, a test that drives the running page; running a test never changes code, and fixing is a separate step that starts from a red test.
 - [[ADR-012 Engine on a Container Host]]: Moves the engine from Vercel functions (no Node) to a Fly.io container with a data volume; the Studio stays on Vercel and reaches it through `VITE_ENGINE_URL`.
 - [[ADR-013 Clerk Login]]: Decision record on Clerk-hosted login, token verification in the engine, and auth being off when unconfigured.
+- [[ADR-014 Change Tickets]]: Every change to a generated app, the kickstart included, is a ticket: a delta of the stored product contract, built only where its rules live and proved by the new rules going green while all others stay green.
 - [[ADR-011 The Product Contract]]: A live kickstart opens with one call that names the product, its look, records, actions, refusals, read-out names and rules; the structure, rule deck, action manifest, intent and page plan are read out of it by code.
 
 
