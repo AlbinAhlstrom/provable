@@ -8,9 +8,9 @@ primary_region = "arn"
 [env]
   PROVABLE_WORKSPACE = "/data/ws-root"
 
-[mounts]
-  source = "provable_data"
-  destination = "/data"
+# Persistence is optional: to keep generated apps and state across deploys, run
+#   fly volumes create provable_data --size 3
+# and add a [mounts] block (source = "provable_data", destination = "/data").
 
 [http_service]
   internal_port = 8000

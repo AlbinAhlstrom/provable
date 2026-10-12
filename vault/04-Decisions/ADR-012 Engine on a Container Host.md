@@ -5,13 +5,13 @@ A kickstart on Vercel fails with "npm is not installed". Vercel functions have n
 
 ## Decision
 - The engine runs in a container on Fly.io (`Dockerfile`, `fly.toml`, `deploy/start.sh`): Python, Node 20, Chromium and Playwright. It serves the API on :8000 and the generated app's preview on :5174.
-- Generated output and the database live on a volume mounted at `/data` (`PROVABLE_WORKSPACE`), so they survive restarts.
+- Generated output and the database live under `/data/ws-root` (`PROVABLE_WORKSPACE`). Without a volume they are lost on every deploy or restart; to keep them, create a Fly volume `provable_data` and mount it at `/data` (see `fly.toml`).
 - PM Studio stays on Vercel as a static bundle (`vercel.json` has only the `frontend` service).
 - The Studio reaches the engine through `VITE_ENGINE_URL` (calls to `/api/...` are prefixed in `frontend/src/engine.ts`) and shows the preview from `VITE_PREVIEW_URL`. Both are unset in development, where the Vite proxy and `localhost:5174` apply.
 - Generated Vite configs set `allowedHosts: true` so the preview answers on the hosted hostname.
 
 ## Consequences
-- Deploy: `fly volumes create provable_data --size 3`, `fly secrets set GEMINI_API_KEY=...`, `fly deploy`; then set the two `VITE_` variables in Vercel.
+- Deploy: `fly secrets set GEMINI_API_KEY=...`, `fly deploy` (optionally with the volume above); then set the two `VITE_` variables in Vercel.
 - The engine API is public and unauthenticated (CORS is open); add auth before sharing the URL.
 - The Swagger tab still points at the workspace API on :8001, which is not exposed.
 - The generated app's fixtures fallback still calls `localhost:8000`.
