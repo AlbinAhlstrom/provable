@@ -65,6 +65,13 @@ def no_provider_from_the_developers_env(monkeypatch, request):
 
 
 @pytest.fixture(autouse=True)
+def no_login_from_the_developers_env(monkeypatch):
+    """The developer's .env turns login on (CLERK_ISSUER), and every API test would then be answered 401; a test
+    of the login sets its own verifier."""
+    monkeypatch.delenv("CLERK_ISSUER", raising=False)
+
+
+@pytest.fixture(autouse=True)
 def isolate_test_workspace(monkeypatch, tmp_path_factory, request):
     """
     Hermetic Workspace Isolation Fixture:
