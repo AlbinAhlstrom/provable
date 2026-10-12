@@ -308,7 +308,8 @@ class SqliteKickstartRepository(AbstractKickstartRepository):
             intent=raw.get("intent", {}),
             rule_cards=raw.get("rule_cards", []),
             action_manifest=raw.get("action_manifest", {}),
-            structure=raw.get("structure", {})
+            structure=raw.get("structure", {}),
+            contract=raw.get("contract", {})
         )
 
     def save(self, state: KickstartState) -> None:

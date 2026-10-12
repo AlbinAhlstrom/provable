@@ -517,6 +517,10 @@ def get_kickstart_state() -> Dict[str, Any]:
             conn.execute("ALTER TABLE kickstart_state ADD COLUMN structure_json TEXT")
         except Exception:
             pass
+        try:
+            conn.execute("ALTER TABLE kickstart_state ADD COLUMN contract_json TEXT")
+        except Exception:
+            pass
 
         row = conn.execute("SELECT * FROM kickstart_state WHERE id = 1").fetchone()
         conn.close()
@@ -539,7 +543,8 @@ def get_kickstart_state() -> Dict[str, Any]:
                 "intent": intent,
                 "rule_cards": rule_cards,
                 "action_manifest": action_manifest,
-                "structure": json.loads(row['structure_json']) if ('structure_json' in keys and row['structure_json']) else {}
+                "structure": json.loads(row['structure_json']) if ('structure_json' in keys and row['structure_json']) else {},
+                "contract": json.loads(row['contract_json']) if ('contract_json' in keys and row['contract_json']) else {}
             }
     except Exception as e:
         print(f"📦 DataStore: Error fetching kickstart state: {e}")
@@ -559,7 +564,8 @@ def get_kickstart_state() -> Dict[str, Any]:
         "intent": {},
         "rule_cards": [],
         "action_manifest": {},
-        "structure": {}
+        "structure": {},
+        "contract": {}
     }
 
 
@@ -608,6 +614,10 @@ def save_kickstart_state(state: Dict[str, Any]):
             conn.execute("ALTER TABLE kickstart_state ADD COLUMN structure_json TEXT")
         except Exception:
             pass
+        try:
+            conn.execute("ALTER TABLE kickstart_state ADD COLUMN contract_json TEXT")
+        except Exception:
+            pass
         
         # Check if row exists
         existing = conn.execute("SELECT * FROM kickstart_state WHERE id = 1").fetchone()
@@ -622,6 +632,7 @@ def save_kickstart_state(state: Dict[str, Any]):
         rule_cards_json = json.dumps(state.get("rule_cards", []))
         action_manifest_json = json.dumps(state.get("action_manifest", {}))
         structure_json = json.dumps(state.get("structure", {}))
+        contract_json = json.dumps(state.get("contract", {}))
         
         ent_schemas_raw = state.get("entity_schemas", {})
         if isinstance(ent_schemas_raw, dict):
@@ -640,13 +651,13 @@ def save_kickstart_state(state: Dict[str, Any]):
                 if state.get("blocks") and isinstance(state["blocks"][0], str) if state.get("blocks") else False:
                     blocks = existing['blocks_json']
             conn.execute(
-                "UPDATE kickstart_state SET business_pitch = ?, blocks_json = ?, extracted_reqs_json = ?, synthesized = ?, custom_fixtures_json = ?, entity_schemas_json = ?, inbox_specs_json = ?, intent_json = ?, rule_cards_json = ?, action_manifest_json = ?, structure_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1",
-                (pitch, blocks, reqs, synthesized, cust_fix, ent_schemas_json, inbox_specs_json, intent_json, rule_cards_json, action_manifest_json, structure_json)
+                "UPDATE kickstart_state SET business_pitch = ?, blocks_json = ?, extracted_reqs_json = ?, synthesized = ?, custom_fixtures_json = ?, entity_schemas_json = ?, inbox_specs_json = ?, intent_json = ?, rule_cards_json = ?, action_manifest_json = ?, structure_json = ?, contract_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1",
+                (pitch, blocks, reqs, synthesized, cust_fix, ent_schemas_json, inbox_specs_json, intent_json, rule_cards_json, action_manifest_json, structure_json, contract_json)
             )
         else:
             conn.execute(
-                "INSERT INTO kickstart_state (id, business_pitch, blocks_json, extracted_reqs_json, synthesized, custom_fixtures_json, entity_schemas_json, inbox_specs_json, intent_json, rule_cards_json, action_manifest_json, structure_json) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (pitch, blocks, reqs, synthesized, cust_fix, ent_schemas_json, inbox_specs_json, intent_json, rule_cards_json, action_manifest_json, structure_json)
+                "INSERT INTO kickstart_state (id, business_pitch, blocks_json, extracted_reqs_json, synthesized, custom_fixtures_json, entity_schemas_json, inbox_specs_json, intent_json, rule_cards_json, action_manifest_json, structure_json, contract_json) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (pitch, blocks, reqs, synthesized, cust_fix, ent_schemas_json, inbox_specs_json, intent_json, rule_cards_json, action_manifest_json, structure_json, contract_json)
             )
         conn.commit()
     except Exception as e:

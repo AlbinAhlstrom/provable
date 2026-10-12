@@ -439,5 +439,10 @@ def contract_ux(contract: ProductContract) -> Any:
     return ux
 
 
+def stored_contract(state: Any) -> Optional[ProductContract]:
+    """The contract an app was built from, read from its build state; None for an app built without one."""
+    return ProductContract.from_dict(state.contract) if state.contract else None
+
+
 def to_json(contract: ProductContract) -> str:
     return json.dumps(contract.source, indent=2, ensure_ascii=False)

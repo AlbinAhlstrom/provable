@@ -580,3 +580,45 @@ def test_an_action_says_which_stored_records_it_is_handed():
     assert "works_with" in pc.CONTRACT_SCHEMA["properties"]["actions"]["items"]["properties"]
     path = os.path.join(os.path.dirname(pc.__file__), "..", "prompts", "product_contract.md")
     assert "`works_with`" in open(path, encoding="utf-8").read()
+
+
+def test_the_contract_is_kept_with_the_build_state():
+    """Verify a later change can start from the contract the app was built from (ADR-014): it is stored as it was
+    answered, and read back as the typed contract.
+
+    id: TST-CONTRACT-STORED
+    Given: A build state holding a contract, and one from a build that wrote none
+    When: Each is saved and read back
+    Then: The first gives the same answer and the typed contract with its rules; the second gives no contract
+    """
+    from adapters.repository import SqliteKickstartRepository
+    from domain.model import KickstartState
+    repository = SqliteKickstartRepository()
+
+    repository.save(KickstartState(contract=copy.deepcopy(CONTRACT)))
+    state = repository.get()
+    assert state.contract == CONTRACT
+    assert [r.title for r in pc.stored_contract(state).rules] == [r["title"] for r in CONTRACT["rules"]]
+
+    repository.save(KickstartState())
+    assert repository.get().contract == {} and pc.stored_contract(repository.get()) is None
+
+
+def test_a_kickstart_stores_the_contract_it_built_from(monkeypatch, tmp_path):
+    """Verify the kickstart keeps the contract, not only what was read out of it.
+
+    id: TST-CONTRACT-STORED-BY-KICKSTART
+    Given: A kickstart whose front is the product contract
+    When: It has run
+    Then: The build state holds the contract as it was answered
+    """
+    from onboarding import kickstart_front as kf
+    from service_layer import services
+    from service_layer.unit_of_work import FakeUnitOfWork
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda prompt, stage="general", **k: json.dumps(CONTRACT))
+    monkeypatch.setattr(kf, "build_front", lambda pitch, live: kf.contract_front(pitch))
+    uow = FakeUnitOfWork()
+
+    services.kickstart_domain_and_scaffold(pitch="A table booking page", uow=uow, workspace_dir=str(tmp_path))
+
+    assert uow.kickstart.get().contract == CONTRACT

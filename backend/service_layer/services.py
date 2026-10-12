@@ -1896,6 +1896,7 @@ def kickstart_domain_and_scaffold(
         state.inbox_specs = spec_dicts
         state.intent = product_intent.to_dict()
         state.structure = structure.model_dump(mode="json")
+        state.contract = front.contract.source if front.contract is not None else {}
         state.rule_cards = living_cards
 
         uow.kickstart.save(state)

@@ -435,11 +435,15 @@ class KickstartState:
     # The decomposition as the kickstart made it (entities with their audience roles): what the page is written
     # from, kept so the page can be written again without decomposing the pitch anew
     structure: Dict[str, Any] = field(default_factory=dict)
+    # The product contract as it was answered (ADR-011): what a later change is a change of (ADR-014). Empty for
+    # an app built without one
+    contract: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "business_pitch": self.business_pitch,
             "structure": self.structure,
+            "contract": self.contract,
             "intent": self.intent,
             "action_manifest": self.action_manifest,
             "blocks": self.blocks,
