@@ -24,9 +24,9 @@ def main():
     path = struggle_corpus.corpus_path()
     corpus = struggle_corpus.build(run_recorder.runs_root(), path)
     if "--show" in sys.argv:
-        entry_id = sys.argv[sys.argv.index("--show") + 1]
+        entry_id = (sys.argv[sys.argv.index("--show") + 1:] or [None])[0]
         if entry_id not in corpus["entries"]:
-            sys.exit(f"No such entry: {entry_id}")
+            sys.exit(f"No such entry: {entry_id}. Entries: {', '.join(sorted(corpus['entries']))}")
         print(json.dumps(corpus["entries"][entry_id], indent=2, ensure_ascii=True))
         return
     print("\n".join(struggle_corpus.report_lines(corpus)))
