@@ -15,8 +15,7 @@ Domain model (pure) -> repository -> service layer / unit of work -> routers.
 - `backend/service_layer/`: orchestrates use cases through a unit of work. Routers and `services.py` never import `db.store`.
 - `backend/entrypoints/routers/`: thin HTTP controllers that parse DTOs and call `services.<use_case>(uow=SqliteUnitOfWork())`.
 
-Layer-leak check (must print nothing):
-`grep -rn "import db.store" backend/entrypoints/routers/ backend/service_layer/services.py`
+Layer leaks are caught by `backend/tests/unit/test_layer_leak.py`, which runs with the suite on every commit.
 
 Where new code goes: `services.py` is already over 2,000 lines and mixes use cases with file I/O, subprocesses and pipeline orchestration. Do not grow it. New pipeline logic lives in a module under `backend/onboarding/` with its collaborators injected (the pattern of `qa_gate.py`), and `services.py` only calls it. When you touch an existing function there, prefer extracting it.
 
@@ -25,7 +24,7 @@ Where new code goes: `services.py` is already over 2,000 lines and mixes use cas
 1. RED: write `backend/tests/unit/test_<target>.py` using `FakeUnitOfWork` and in-memory doubles. Run only that file and watch it fail for the right reason.
 2. GREEN: implement the domain logic and service function. The targeted run passes, fast.
 3. WIRE: add concrete adapters and the router handler.
-4. VERIFY: the layer-leak check above prints nothing. The full suite runs for you on `git commit`.
+4. VERIFY: the full suite (layer-leak test included) runs for you on `git commit`.
 
 Do this directly in the main context so the RED/GREEN evidence stays visible. Subagents are for read-only research and review. Never weaken an assertion to get green.
 

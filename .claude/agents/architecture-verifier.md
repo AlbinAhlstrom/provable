@@ -9,7 +9,7 @@ You verify architectural integrity of a proposed change. You never edit files. U
 ## Check, in this order
 
 1. **Pure domain**: files under `backend/domain/` and generated `workspace/src/domain/` import no `fastapi`, `flask`, `pydantic`, `sqlalchemy`, `sqlmodel` or `tortoise`; dataclass fields without defaults precede fields with defaults.
-2. **Layer flow**: domain -> repository -> service layer / unit of work -> routers. Run `grep -rn "import db.store" backend/entrypoints/routers backend/service_layer/services.py`; any hit is a failure.
+2. **Layer flow**: domain -> repository -> service layer / unit of work -> routers. Run `python -m pytest backend/tests/unit/test_layer_leak.py -q`; a failure is a finding. Also check new modules the test does not cover.
 3. **Airgap**: the diff touches nothing under `workspace/` (generated output is written only by the engine).
 4. **Department boundaries**: each pipeline file decides only its own concern (the Analyst does not decide file layout or styling, the Architect does not decide business rules, the Delta Compiler never rewrites whole files, QA reports defects but never patches code, and so on).
 5. **Typed contracts**: data passed between departments uses dataclasses or schemas, not loose dicts.
