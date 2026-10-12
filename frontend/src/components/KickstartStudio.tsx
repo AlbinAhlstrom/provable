@@ -136,6 +136,7 @@ export const KickstartStudio: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setSynthesized(false);
+        setPitch('');
         setMessage({ severity: 'success', text: 'Workspace reset.' });
         setTimeout(() => setMessage(null), 3000);
       } else {
@@ -148,9 +149,6 @@ export const KickstartStudio: React.FC = () => {
     }
   };
 
-  // A build runs and has nothing to show yet
-  if (building && !progress?.draft_ready) return <BuildOpening pitch={pitch} progress={progress} />;
-
   // The live workspace: the app beside its specifications, or the place to ask for one when nothing is built
   const built = synthesized || building;
   const noKey: StudioMessage = { severity: 'warning', text: 'No LLM API key is configured. Set GEMINI_API_KEY, OPENAI_API_KEY or LLM_API_KEY in .env to build.' };
@@ -159,6 +157,7 @@ export const KickstartStudio: React.FC = () => {
       built={built}
       onBuild={triggerSynthesis}
       draft={pitch}
+      opening={building && !progress?.draft_ready ? <BuildOpening pitch={pitch} progress={progress} /> : undefined}
       onResetWorkspace={handleResetAllProjects}
       resetting={resetting}
       message={message ?? (!built && !llmConfigured ? noKey : null)}

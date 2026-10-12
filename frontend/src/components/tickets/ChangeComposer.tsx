@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { ChangeCardDTO } from '../../types/api';
@@ -18,6 +18,9 @@ export const ChangeComposer: React.FC<ChangeComposerProps> = ({ built, onBuild, 
   const [planning, setPlanning] = useState<boolean>(false);
   const [card, setCard] = useState<ChangeCardDTO | null>(null);
   const [message, setMessage] = useState<StudioMessage | null>(null);
+
+  // The box starts empty for a change to an app; with no app it holds what was last asked for and did not become one
+  useEffect(() => { setRequest(built ? '' : draft); }, [built]);
 
   const canPlan = !disabled && !planning && !!request.trim();
 
