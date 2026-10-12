@@ -1,0 +1,26 @@
+# Deploys the engine to Fly whenever main changes (the "deploy" step in CLAUDE.md fast-forwards main).
+# Needs the repository secret FLY_API_TOKEN (a Fly deploy token for the app in fly.toml).
+name: Deploy engine to Fly
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "vault/**"
+      - "*.md"
+      - ".claude/**"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-fly
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

@@ -11,7 +11,7 @@ A kickstart on Vercel fails with "npm is not installed". Vercel functions have n
 - Generated Vite configs set `allowedHosts: true` so the preview answers on the hosted hostname.
 
 ## Consequences
-- Deploy: `fly secrets set GEMINI_API_KEY=...`, `fly deploy` (optionally with the volume above); then set the two `VITE_` variables in Vercel.
+- Deploy: pushing `main` runs `.github/workflows/deploy-fly.yml` (`fly deploy`), which needs the GitHub secret `FLY_API_TOKEN`. First setup by hand: `fly secrets set GEMINI_API_KEY=...`, `fly deploy` (optionally with the volume above); then set the two `VITE_` variables in Vercel.
 - The engine API is public and unauthenticated (CORS is open); add auth before sharing the URL.
 - The Swagger tab still points at the workspace API on :8001, which is not exposed.
 - The generated app's fixtures fallback still calls `localhost:8000`.
