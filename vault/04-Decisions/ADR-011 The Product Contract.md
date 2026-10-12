@@ -45,7 +45,9 @@ comparable product elsewhere. The timeline of that run:
    about, one for what a new object holds; since written in one answer per class, see below), then one code answer
    per class. Measured alone on the same contract: 57 s,
    every action and all 15 rules fulfilled. Writing first tests ahead of the loop, which only existed to fill the
-   wait, is gone.
+   wait, is gone. The code writer reads the rules and, after them, what each action of the class does in full
+   (`tdd_batch.rules_spec`): an action every rule is about has no spec of its own, and without its description the
+   class did only what a test tried.
 8. **What the contract says of a field is in the class.** The class's description is what the test writers, the
    code writer and the page writer all read, so it carries each field's `holds` (a position counted from 1), and
    the one form a date, a time and a moment are written in (`product_contract.FORMS`; a moment always with its
