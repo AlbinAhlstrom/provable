@@ -124,8 +124,9 @@ A thin slice first, because the planner's prompt is the part most likely to be w
    card, read only (`POST /api/tickets/plan`, `backend/service_layer/change_tickets.py`,
    `frontend/src/components/tickets/`). The card shows the title, what was understood, each new rule as its
    sentence, what else is added behind "Advanced", and how many rules will be checked. Build is shown unavailable
-   with the reason. Left: editing a rule on the card, forks, estimates, Build, and removing the pre-kickstart view,
-   which stays while it is the only way to make an app.
+   with the reason. The pre-kickstart view is removed: the live workspace is the one page, and with nothing built
+   its text box asks for the app and starts the kickstart. Left: editing a rule on the card, forks, estimates and
+   Build.
 7. The kickstart as a ticket; forks; a large request split into follow-up tickets; estimates.
 
 ## Measured: the planner alone

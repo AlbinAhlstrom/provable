@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { AppPreview } from './AppPreview';
 import { BuildOpening } from './BuildOpening';
 import { BuildProgress, BuildProgressBanner } from './BuildProgressPanel';
-import { StatusMessage, StudioMessage } from './StatusMessage';
+import { StudioMessage } from './StatusMessage';
 
 const PROGRESS_POLL_MS = 1500;       // while a build runs
 const IDLE_PROGRESS_POLL_MS = 4000;  // to notice a build started elsewhere (another tab, the API)
@@ -85,8 +84,9 @@ export const KickstartStudio: React.FC = () => {
     shownReady.current = false;
   };
 
-  const triggerSynthesis = async () => {
-    if (!pitch.trim()) return;
+  const triggerSynthesis = async (asked: string) => {
+    if (!asked.trim()) return;
+    setPitch(asked.trim());
     followedBuild.current = false;
     shownReady.current = false;
     setBuilding(true);
@@ -97,7 +97,7 @@ export const KickstartStudio: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pitch: pitch.trim(),
+          pitch: asked.trim(),
           mode: 'fast'
         })
       });
@@ -148,57 +148,25 @@ export const KickstartStudio: React.FC = () => {
     }
   };
 
-  // ── VIEW 2: BUILD OPENING (A BUILD RUNS, NOTHING TO SHOW YET) ──────────────────
+  // A build runs and has nothing to show yet
   if (building && !progress?.draft_ready) return <BuildOpening pitch={pitch} progress={progress} />;
 
-  // ── VIEW 3: LIVE APP VIEW (FROM THE BUILD'S FIRST DRAFT) ───────────────────────
-  if (synthesized || building) {
-    return (
-      <AppPreview
-        onResetWorkspace={handleResetAllProjects}
-        resetting={resetting}
-        message={message}
-        reloadToken={reloadToken}
-        building={building && !progress?.ready}
-        testingIds={building && !progress?.ready ? progress?.rules?.waiting : undefined}
-        banner={building ? <BuildProgressBanner progress={progress} /> : undefined}
-      />
-    );
-  }
-
-  // ── VIEW 1: NOTHING BUILT YET ──────────────────────────────────────────────────
-  const canBuild = !building && !!pitch.trim();
+  // The live workspace: the app beside its specifications, or the place to ask for one when nothing is built
+  const built = synthesized || building;
+  const noKey: StudioMessage = { severity: 'warning', text: 'No LLM API key is configured. Set GEMINI_API_KEY, OPENAI_API_KEY or LLM_API_KEY in .env to build.' };
   return (
-    <div className="kickstart">
-      <div className="kickstart-hero">
-        <span className="kickstart-badge"><RocketLaunchIcon fontSize="inherit" /></span>
-        <h1 className="kickstart-title gradient-text">What do you want to build?</h1>
-      </div>
-      {message && <StatusMessage message={message} />}
-      {!llmConfigured && (
-        <div className="status-message status-message-warning">
-          No LLM API key is configured. Set <code>GEMINI_API_KEY</code>, <code>OPENAI_API_KEY</code> or <code>LLM_API_KEY</code> in <code>.env</code> to build.
-        </div>
-      )}
-      <div className="kickstart-composer">
-        <textarea
-          className="kickstart-pitch"
-          value={pitch}
-          onChange={e => setPitch(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && canBuild) triggerSynthesis(); }}
-          placeholder="Describe your app"
-          aria-label="Describe your app"
-          rows={5}
-          autoFocus
-        />
-        <div className="kickstart-composer-bar">
-          <span className="kickstart-hint">Ctrl + Enter</span>
-          <button className="btn btn-primary kickstart-build" onClick={triggerSynthesis} disabled={!canBuild}>
-            <RocketLaunchIcon fontSize="inherit" /> Build
-          </button>
-        </div>
-      </div>
-    </div>
+    <AppPreview
+      built={built}
+      onBuild={triggerSynthesis}
+      draft={pitch}
+      onResetWorkspace={handleResetAllProjects}
+      resetting={resetting}
+      message={message ?? (!built && !llmConfigured ? noKey : null)}
+      reloadToken={reloadToken}
+      building={building && !progress?.ready}
+      testingIds={building && !progress?.ready ? progress?.rules?.waiting : undefined}
+      banner={building ? <BuildProgressBanner progress={progress} /> : undefined}
+    />
   );
 };
 

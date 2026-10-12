@@ -19,7 +19,7 @@ const openingSteps = (stages: StageProgress[]): OpeningStep[] =>
     }));
   });
 
-/** Shown in place of the pitch form from the moment a build starts until it has a first draft to show: what was
+/** Shown in place of the live workspace from the moment a build starts until it has a first draft to show: what was
  *  asked for, and the steps of the build's opening as they are worked through. */
 export const BuildOpening: React.FC<{ pitch: string; progress: BuildProgress | null }> = ({ pitch, progress }) => {
   const steps = openingSteps(progress?.opening ?? []);

@@ -479,44 +479,6 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
   line-height: 1.15;
   text-align: center;
 }
-.kickstart-composer {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-glass);
-  backdrop-filter: var(--blur-glass);
-  -webkit-backdrop-filter: var(--blur-glass);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 1.1rem;
-  box-shadow: var(--shadow-glass);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.kickstart-composer:focus-within {
-  border-color: rgba(129, 140, 248, 0.7);
-  box-shadow: var(--shadow-glass), 0 0 0 4px rgba(99, 102, 241, 0.18);
-}
-.kickstart-pitch {
-  width: 100%;
-  padding: 1.1rem 1.25rem 0.5rem;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: 1.1rem;
-  line-height: 1.5;
-  resize: none;
-  outline: none;
-}
-.kickstart-pitch::placeholder { color: var(--text-muted); }
-.kickstart-composer-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.6rem 0.75rem 0.75rem 1.25rem;
-}
-.kickstart-hint { font-size: 0.75rem; color: var(--text-muted); }
-.kickstart-build { gap: 0.45rem; padding: 0.6rem 1.4rem; border-radius: 0.7rem; font-size: 1rem; font-weight: 600; }
-.kickstart-build svg { font-size: 1.15rem; }
-
 /* ── Build progress above the live workspace ───────────────────────────────── */
 
 .build-progress {
@@ -578,7 +540,7 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
 .build-step-error { display: block; font-size: 0.75rem; font-weight: 400; }
 .build-step, .build-step-mark { transition: color 0.4s; }
 
-/* ── Build opening: in place of the pitch form until the build has a first draft ── */
+/* ── Build opening: in place of the live workspace until the build has a first draft ── */
 
 .kickstart-badge-working { animation: build-lift 2.4s ease-in-out infinite; }
 @keyframes build-lift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-0.35rem); } }
@@ -648,6 +610,7 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
 .preview-toolbar-actions { display: flex; gap: 0.35rem; }
 .preview-pane > .status-message { margin: 0.5rem; }
 .preview-frame { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+.preview-empty { display: grid; place-items: center; height: 100%; margin: 0; padding: 1rem; color: var(--text-muted); text-align: center; }
 .preview-frame iframe {
   display: block;
   width: 100%;
@@ -934,7 +897,6 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
   .nav-logo { font-size: 1.1rem; }
   .modal-box { width: 95vw; padding: 1rem; }
   .kickstart { justify-content: flex-start; padding: 1.5rem 0 0; }
-  .kickstart-hint { visibility: hidden; }
   .build-progress-head { justify-content: space-between; }
   .build-progress-now { flex-basis: 100%; order: 1; }  /* what is being worked on gets a line of its own */
 

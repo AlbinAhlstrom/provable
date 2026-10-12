@@ -9,6 +9,9 @@ import { StatusMessage, StudioMessage } from './StatusMessage';
 
 
 export interface AppPreviewProps {
+  built: boolean;                    // an app exists (or its first draft does); otherwise the first one is asked for here
+  onBuild: (pitch: string) => void;  // builds the first app from what was asked for
+  draft?: string;                    // what was last asked for, when it did not become an app
   onResetWorkspace: () => void;
   resetting: boolean;
   message: StudioMessage | null;
@@ -19,7 +22,7 @@ export interface AppPreviewProps {
 }
 
 /** The generated app beside its specifications; stacked, with a square preview, on a narrow screen. */
-export function AppPreview({ onResetWorkspace, resetting, message, banner, reloadToken = 0, building = false, testingIds }: AppPreviewProps) {
+export function AppPreview({ built, onBuild, draft = '', onResetWorkspace, resetting, message, banner, reloadToken = 0, building = false, testingIds }: AppPreviewProps) {
   const [key, setKey] = useState(0);
   const [justFinished, setJustFinished] = useState(false);  // the build ended a moment ago: the app steps forward
   const wasBuilding = useRef(building);
@@ -43,19 +46,21 @@ export function AppPreview({ onResetWorkspace, resetting, message, banner, reloa
                 {resetting ? <span className="spinner" /> : <RestartAltIcon fontSize="inherit" />}
                 {resetting ? 'Resetting…' : 'Reset'}
               </button>
-              <button className="tool-btn" onClick={() => setKey(k => k + 1)} title="Reload the app" aria-label="Reload the app">
+              <button className="tool-btn" onClick={() => setKey(k => k + 1)} disabled={!built} title="Reload the app" aria-label="Reload the app">
                 <RefreshIcon fontSize="inherit" />
               </button>
-              <button className="tool-btn" onClick={() => window.open(PREVIEW_URL, '_blank')} title="Open the app in a new tab" aria-label="Open the app in a new tab">
+              <button className="tool-btn" onClick={() => window.open(PREVIEW_URL, '_blank')} disabled={!built} title="Open the app in a new tab" aria-label="Open the app in a new tab">
                 <OpenInNewIcon fontSize="inherit" />
               </button>
             </div>
           </div>
           {message && <StatusMessage message={message} />}
           <div className={`preview-frame${frameState}`} onAnimationEnd={event => { if (event.animationName === 'preview-pop') setJustFinished(false); }}>
-            <iframe key={`workspace-iframe-${key}-${reloadToken}`} src={PREVIEW_URL} title="Workspace live app" />
+            {built
+              ? <iframe key={`workspace-iframe-${key}-${reloadToken}`} src={PREVIEW_URL} title="Workspace live app" />
+              : <p className="preview-empty">Nothing is built yet. Describe your app below.</p>}
           </div>
-          <ChangeComposer disabled={building} />
+          <ChangeComposer built={built} onBuild={onBuild} draft={draft} disabled={building} />
         </section>
 
         <section className="specs-pane">
