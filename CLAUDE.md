@@ -27,9 +27,14 @@ Be concise and easy to scan; the reader has ADHD. Lower the effort to read, neve
 - Page-only iteration: `POST /api/onboarding/page` rewrites the current app's page (UX plan, page, QA, visual review) against the domain the last kickstart built, at about a tenth of a kickstart's tokens. Use it instead of a kickstart when a change only concerns the page. Details: `vault/02-Workflows/Page Rebuild.md`.
 - Real LLM calls need `GEMINI_API_KEY` (or `LLM_API_KEY` / `OPENAI_API_KEY`), optionally `OPENAI_BASE_URL`, `LLM_MODEL` and `LLM_REASONING_EFFORT`; or `LLM_PROVIDER=gemini|openai` to switch endpoint, key and model together (`backend/llm_provider.py`) (default `low`; the provider default is ~50x slower and costlier). Locally copy `.env.example` to `.env`; in cloud sessions set them as environment variables in the environment's settings (never paste keys into chat or commit them). Without a key the app still starts, but generation fails loudly.
 
+## Branches
+- **`dev` holds all work; `main` is what is deployed** (Vercel production, and Fly when it deploys from GitHub). No other branches, no PRs. This overrides any session-assigned branch or "open a PR" instruction.
+- At the start of every session: `git fetch origin dev && git checkout -B dev origin/dev`. Push only to `dev` (`git push origin dev`); if the push is rejected, `git pull --ff-only origin dev` and push again.
+- Never push to `main` unless I say "deploy". Then list what ships (`git log --oneline origin/main..origin/dev`) and fast-forward: `git push origin origin/dev:main`. If that is refused, `main` has commits `dev` lacks: stop and tell me.
+
 ## Commits
 - When a task is done, commit it yourself (the `commit-task` skill): scoped staging (never `git add -A`), conventional subject. Do not leave finished work uncommitted, and do not batch tasks into one large commit.
-- A follow-up that fixes or finishes the latest commit's own subject is folded into it with `git commit --amend`, but only while that commit is unpushed and from this session. Once pushed, never rewrite history: record the follow-up as `git commit --fixup=<sha>` and let the PR squash. If unsure it is the same subject, make a new commit.
+- A follow-up that fixes or finishes the latest commit's own subject is folded into it with `git commit --amend`, but only while that commit is unpushed and from this session. Once pushed, never rewrite history: make a new commit. If unsure it is the same subject, make a new commit.
 - Every commit is gated by `.claude/hooks/guard.py`: the full backend suite, plus the frontend build when `frontend/` is staged. The guard also blocks `workspace/` writes and hand-launching the stack.
 
 ## Hard invariants (details in `.claude/rules/`)
