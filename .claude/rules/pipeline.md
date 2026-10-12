@@ -14,6 +14,14 @@ These govern the generation pipeline itself (COO -> intent -> Analyst -> Archite
 
 If a stage emits bad output, fix the upstream schema, prompt or contract. No post-hoc regex or string repair of generated output, and no "MUST NOT" lines added to a prompt to hide a bug. Describe the wanted behaviour positively. If you are tempted to patch downstream, stop and flag it to the user.
 
+When a stage emits something wrong or unwanted, trace it before proposing anything:
+
+1. Did the stage follow its prompt? If it did, or it is unclear, the fault is the prompt or the input, not the model.
+2. Suggest rerunning the stage on Opus 5.5 medium as the benchmark (`/step-analysis`). Where the standard model differs from Opus, the prompt leaves something to judgement: revise it and compare again until the gap closes.
+3. If the input was wrong, apply the same steps to the stage that produced it.
+
+A downstream check (QA, a sanity pass, sorting results) is an addition to this, never a substitute for it.
+
 What the generated product must look like (copy in the audience's own words, plain-English GIVEN / WHEN / THEN / UNLESS cards, the acceptance checks every generated app ships with) is encoded in the prompts (`prompt_expansion.md`, `presentation_projection_synthesis.md`) and generator templates. When output misses it, change those; do not restate the spec here.
 
 ## Derivation, not classification
