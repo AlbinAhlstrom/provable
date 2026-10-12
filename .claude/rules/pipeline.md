@@ -49,8 +49,6 @@ Stages exchange dataclasses, not loose dicts. Entities carry an `audience_role` 
 - No hidden retries: no retry loops, fallbacks-on-error or SDK auto-retries (the OpenAI client is built with `max_retries=0`). Every attempt is visible in the result (`attempts`) and in the trace.
 - Changing this policy needs an explicit decision from the user.
 
-Known inconsistency: `agent_orchestrator.py` and `domain/model.py` report `max_attempts=3` in status payloads. It is display only and not enforced; do not copy it into new code.
-
 ## Test integrity (5-line hash lock)
 
 The TDD loop hash-locks the RED test (`compute_test_file_hash` / `verify_test_file_integrity`). The GREEN generator must never modify or weaken test assertions; tampering fails the run and is not retried.

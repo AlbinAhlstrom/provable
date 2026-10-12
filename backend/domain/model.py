@@ -324,7 +324,7 @@ class AgentRun:
     step: str = "Idle"
     active: bool = False
     attempt: int = 0
-    max_attempts: int = 3
+    max_attempts: int = 2
     last_update: str = ""
     log_content: str = ""
     events: List[Any] = field(default_factory=list)

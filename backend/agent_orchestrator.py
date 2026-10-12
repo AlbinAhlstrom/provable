@@ -60,7 +60,7 @@ AGENT_STATUS = {
     "ticket_id": None,
     "step": "Idle",
     "attempt": 0,
-    "max_attempts": 3,
+    "max_attempts": 2,
     "last_update": ""
 }
 
@@ -304,7 +304,7 @@ def run_openhands_loop(req_id: Optional[str] = None) -> Dict[str, Any]:
 
     ticket_id = req['id']
     branch_name = f"ticket/{ticket_id}"
-    update_agent_status(active=True, ticket_id=ticket_id, step="Preparing Branch", attempt=1, max_attempts=3)
+    update_agent_status(active=True, ticket_id=ticket_id, step="Preparing Branch", attempt=1, max_attempts=2)
 
     log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logs'))
     os.makedirs(log_dir, exist_ok=True)
