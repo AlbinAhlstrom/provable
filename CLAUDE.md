@@ -38,21 +38,21 @@ Be concise and easy to scan; the reader has ADHD. Lower the effort to read, neve
 - Every commit is gated by `.claude/hooks/guard.py`: the full backend suite, plus the frontend build when `frontend/` is staged. The guard also blocks `workspace/` writes and hand-launching the stack.
 
 ## Hard invariants (details in `.claude/rules/`)
-- **`workspace/` is read-only for you** (an embedded git repo of generated output). Fix the generator in `backend/onboarding/` (`skeleton_builder.py`, `templates/workspace_scaffold.py`) or `backend/prompts/` instead.
-- DDD layering: pure domain -> repositories -> service layer/UoW -> routers. Routers never import `db.store`. Do not grow `services.py`; new pipeline logic goes in `backend/onboarding/`.
-- Test-first (RED -> GREEN -> WIRE -> VERIFY), done directly in the main context; subagents only for read-only research and review. Don't weaken tests to get green; if the architecture evolved, rewrite or delete the obsolete test.
-- Retries mask errors: at most ONE retry, only when a verifying step rejects a generator's output and its verdict is fed back; never retry provider, parse or infra errors (`pipeline.md`).
-- Frontend (PM Studio) is domain-agnostic: no hardcoded domain terms and no mock UI. Fail loudly.
-- Live-LLM runs (kickstart, spec execution) take minutes and cost money: do them only when a change alters what a model sees or writes, in the background, and as the smallest run that answers the question (one spec, a page rebuild, or kickstart only), never the whole pipeline by reflex. Live-LLM "boss fight" tests only on request (`RUN_BOSS_FIGHTS=1` or `-m boss_fight`); the standard suite is offline. Restart the app only for dependency or startup changes; hot reload covers the rest.
-- You may reset `workspace/` and start a kickstart or page rebuild yourself through the engine API (`/api/onboarding/reset`, `/kickstart`, `/page`) when a task needs one; the user has approved this standing. Say which pitch you ran.
+- **`workspace/` is read-only for you.** Fix the generator (`backend/onboarding/`, `backend/prompts/`) instead (`architecture.md`).
+- DDD layering; routers never import `db.store`; do not grow `services.py` (`engine.md`).
+- Test-first (RED -> GREEN -> WIRE -> VERIFY) in the main context; subagents only read and review. Never weaken a test to get green (`engine.md`).
+- At most ONE retry, only on a verifier's verdict; never retry provider, parse or infra errors (`pipeline.md`).
+- PM Studio is domain-agnostic: no domain terms, no mock UI, fail loudly (`studio-ui.md`).
+- Live-LLM runs cost minutes and money: only when a change alters what a model sees or writes, in the background, as the smallest run that answers the question (one spec, a page rebuild, or kickstart only). Boss-fight tests only on request. Restart the app only for dependency or startup changes.
+- You may reset `workspace/` and start a kickstart or page rebuild through the engine API (`/api/onboarding/reset`, `/kickstart`, `/page`) when a task needs one (standing approval). Say which pitch you ran.
 
-## Generator principles
-- **Root cause only.** If a stage emits bad output, fix the upstream schema, prompt or contract. No post-hoc regex filters or "MUST NOT" prompt patches; if you are tempted, stop and flag it to the user. A bad output is traced to the stage whose prompt or input caused it before anything else is proposed (`pipeline.md`).
-- **The plan decides, the rest execute.** The planning step makes every decision and writes it out; later steps carry it out without needing judgement. If a cheap model has to think, the plan is underspecified: fix the plan, not the executor.
-- **Steps do not judge quality.** A step does its task from what it is given and cannot fail the run on its own judgement. QA and fix-up catch the unexpected; they are an emergency net, never something a design relies on.
-- **A spec is end-to-end behaviour.** Each spec maps to one test of real page behaviour, worded without implementation terms; a test that is not end-to-end is never linked to a spec. A broken app must show at least one red spec: if it does not, the specs are missing core behaviour.
-- **Prompts are domain-neutral.** A prompt speaks of owners, kinds and statuses, with examples from at least two unrelated kinds of product, never in the words of the pitch being debugged; a rule only one kind of product can trigger is not a prompt rule (`pipeline.md`, guarded by `test_prompt_domain_neutrality.py`).
-- **Typed contracts** between pipeline stages (dataclasses, not loose dicts); **surgical deltas** through `cst_isolator.py` (behaviour specs) and `presentation_specs.py` (presentation specs: one view, proved by a build); **zero-question kickstart** (the user is the CEO: the pipeline makes opinionated assumptions and never interviews them).
+## Generator principles (details in `pipeline.md`)
+- **Root cause only.** Trace bad output to the stage whose prompt or input caused it and fix that; no post-hoc regex filters or "MUST NOT" patches. If tempted, stop and flag it.
+- **The plan decides, the rest execute.** If a cheap model has to think, fix the plan, not the executor.
+- **Steps do not judge quality.** QA and fix-up are an emergency net, never part of the design.
+- **A spec is end-to-end behaviour**: one real page test each, no implementation terms. A broken app must show a red spec.
+- **Prompts are domain-neutral**: owners, kinds, statuses; examples from two unrelated kinds of product (`test_prompt_domain_neutrality.py`).
+- **Typed contracts** between stages; **surgical deltas** (`cst_isolator.py`, `presentation_specs.py`); **zero-question kickstart**.
 - Pipeline map: COO `prompt_expander.py` -> intent `onboarding/intent.py` -> Analyst `router_engine.py`, `domain_ontology.py` -> Architect `skeleton_builder.py` -> Product Manager `service_layer/services.py` (Living Rule Deck) -> TDD `service_layer/tdd_machine.py` -> Backend `domain_engine_synthesizer.py` (names the actions), `domain_round.py` (writes their methods and the rule deck's behaviour specs in one pass of the TDD loop while the page is written: the first tests of a class transcribed from the contract's rules in one answer without thinking, `first_tests.py`, then one code answer per class, `action_behaviour.py`, `spec_runner.py`; a class whose fields changed sends the page back once, `page_contract.py`) -> UX and visual direction `ux_planner.py` -> Frontend `presentation_projection_synthesizer.py`, `frontend_planning_engine.py` (written once, already styled) -> QA `qa_auditor.py`, `qa_form_check.py`, `qa_gate.py` (layout on three devices, forms filled and submitted; one rework with the defects as feedback, `max_rework_attempts=1`) -> Visual review `visual_review.py` (one look at the screenshots, repairs as class changes). Stages that do not depend on each other run side by side (`onboarding/synthesis_stages.py`).
 
 ## Environment notes
