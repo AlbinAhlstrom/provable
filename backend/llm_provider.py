@@ -33,7 +33,10 @@ PROVIDERS: Dict[str, Provider] = {
                           stage_models={"prompt_expansion": "claude-sonnet-5-5",
                                         # The contract every later stage is derived from: measured alone, the middle
                                         # model answered in a third of the small one's time (ADR-011).
-                                        "product_contract": "claude-sonnet-5-5"},
+                                        "product_contract": "claude-sonnet-5-5",
+                                        # A change is planned against that contract and written in its form
+                                        # (ADR-014); not yet measured on the small model.
+                                        "change_ticket": "claude-sonnet-5-5"},
                           # The small model thinks by default. Writing the page from the contract and the plan, that
                           # was four fifths of the answer's tokens and of its time (67 s against 12 s, ADR-011). The
                           # first tests of a class are transcribed from the contract's rules, which state every value

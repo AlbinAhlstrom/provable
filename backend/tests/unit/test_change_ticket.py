@@ -70,6 +70,28 @@ def test_the_rules_a_ticket_leaves_alone_are_the_ones_that_must_stay_green():
     assert _ticket().stays_green(_contract()) == [rule["title"] for rule in CONTRACT["rules"]]
 
 
+def test_an_action_the_app_has_can_gain_a_parameter():
+    """Verify a change done through an action the app already has is that action with more to say, not a second
+    action beside it: what a person adds to a form they already fill in is sent with the form.
+
+    id: TST-TICKET-ACTION-GAINS
+    Given: A ticket whose action has the name of one the contract holds, with every parameter it had and one more
+    When: The ticket is applied
+    Then: The contract after holds that action once, in its place, as the ticket wrote it
+    """
+    before = _contract()
+    grown = {**CONTRACT["actions"][0], "params": "table_id: text, guests: whole_number, note: text",
+             "does": "creates a Booking with status confirmed and the note"}
+    rule = {**TICKET["rules"][0], "action": "create_booking", "given": "two_tables_free",
+            "when": "create_booking(table_id of Table 1, guests 2, note \"window seat\")"}
+
+    after = _ticket(actions=[grown], refusals=[], rules=[rule]).applied_to(before)
+
+    assert [a.name for a in after.actions] == [a.name for a in before.actions]
+    assert after.actions[0].params == ["table_id: text", "guests: whole_number", "note: text"]
+    assert after.actions[0].does.endswith("and the note") and before.actions[0].params[-1] == "guests: whole_number"
+
+
 @pytest.mark.parametrize("changes, reason", [
     ({"rules": []}, "adds no rule"),
     ({"title": " "}, "title"),
@@ -77,7 +99,8 @@ def test_the_rules_a_ticket_leaves_alone_are_the_ones_that_must_stay_green():
     ({"fields": [{"record": "Booking", **{**NOTE, "name": "guests"}}]}, "already has a field 'guests'"),
     ({"fields": [{"record": "Booking", **{**NOTE, "type": "whole_number", "starts_as": "as many as the table seats"}}]},
      "starting value"),
-    ({"actions": [{**TICKET["actions"][0], "name": "create_booking"}]}, "already has an action 'create_booking'"),
+    ({"actions": [{**CONTRACT["actions"][0], "params": "guests: whole_number, note: text"}]}, "'table_id'"),
+    ({"actions": [{**CONTRACT["actions"][0], "sent_to": "one_record"}]}, "sent"),
     ({"actions": [{**TICKET["actions"][0], "record": "Guest"}]}, "'Guest'"),
     ({"rules": [{**TICKET["rules"][0], "title": "No more than eight guests"}]}, "already has a rule"),
     ({"rules": [{**TICKET["rules"][0], "action": "remove_note"}]}, "'remove_note'"),

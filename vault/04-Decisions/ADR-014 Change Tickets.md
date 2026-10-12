@@ -1,7 +1,7 @@
 # ADR-014: Change tickets, every change as a delta of the product contract
 
-Status: accepted (2026-10-12). Implemented so far: the contract is stored with the build state. Everything else is
-listed under "Order of work".
+Status: accepted (2026-10-12). Implemented so far: the contract is stored with the build state, a ticket is a typed
+delta that is applied to it, and the planner writes one. Nothing is built from a ticket yet. See "Order of work".
 Builds on [[ADR-011 The Product Contract]] and [[ADR-010 One Kind of Rule Proved on the Page]].
 
 ## Problem
@@ -106,6 +106,10 @@ proved by a test for the ticket's use before they are relied on (decision 13).
 A thin slice first, because the planner's prompt is the part most likely to be wrong and should meet a model early.
 
 1. Done: the contract is stored.
+   Done: the ticket as a typed delta and its application (`backend/onboarding/change_ticket.py`), and the planner
+   (`backend/onboarding/ticket_planner.py`, prompt `backend/prompts/change_ticket.md`, on the model the contract
+   is written on). So far a ticket only adds: fields, actions, situations, refusals, read-out names, rules, and
+   parameters of an action the app already has.
 2. The slice: one ticket that adds one rule to an existing record. The ticket as a typed delta of the contract;
    the planner that writes it from the request, the brief and the stored contract; the delta applied; the rule
    built in the record's class and on the page; the gate once; roll back on red. No Studio work, no retry, fields
@@ -116,6 +120,21 @@ A thin slice first, because the planner's prompt is the part most likely to be w
 5. Versions: the three stores together, a changelog entry in plain words, undo.
 6. The Studio: the text box in the live workspace, the card, the pre-kickstart view removed.
 7. The kickstart as a ticket; forks; a large request split into follow-up tickets; estimates.
+
+## Measured: the planner alone
+One call per request on the middle model at low effort, against a recorded contract of a game (17 rules, a button
+that does something new) and a small contract of a booking page (3 rules, a note on the form). Each answer was applied
+to its contract by code.
+
+| Product | Seconds | Cost | Rules added | Applies |
+| --- | --- | --- | --- | --- |
+| Game | 10 | 0.35 SEK | 5 | yes |
+| Booking | 7 | 0.20 SEK | 3 | yes |
+
+The first form of a ticket could only add actions. The booking request belongs to the form a guest already sends,
+and the planner, given no way to say so, wrote the field and no rule at all. A ticket can now carry an action the
+app has, whole, with parameters added (it keeps every one it had and is sent the same way), and both requests plan.
+Whether the builders can build from these tickets is not measured: nothing is built from a ticket yet.
 
 ## Consequences
 - A change costs one planner call plus the build of what it touches, and the gate's test run. The gate's run grows

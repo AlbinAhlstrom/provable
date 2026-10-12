@@ -6,8 +6,8 @@ contract. A ticket names what is added, in the contract's own form, and the cont
 before it with that appended: nothing the app already has is restated, so the two cannot disagree. The builders are
 then given the contract after, and the rules the ticket left alone are the ones that must still be green.
 
-So far a ticket only adds. A saved record must stay valid without being rewritten, so a field it adds is one the
-class's default is enough for. Changing or retiring a rule waits for rules to have an identity of their own: a
+So far a ticket only adds: a field, an action, a parameter of an action the app has, a rule. A saved record must stay
+valid without being rewritten, so a field it adds is one the class's default is enough for. Changing or retiring a rule waits for rules to have an identity of their own: a
 spec's id is its place in the contract (`ProductContract.specs`), and taking one out would rename every later one.
 """
 
@@ -16,6 +16,23 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
 from onboarding.product_contract import ContractError, Field, ProductContract
+
+
+def _params(action: Dict[str, Any]) -> List[str]:
+    return [entry.strip() for entry in str(action.get("params") or "").split(",") if entry.strip()]
+
+
+def _check_grown(had: Dict[str, Any], has: Dict[str, Any]) -> None:
+    """An action the app already has may gain parameters and do more. The rules that send it today must still be
+    able to: it goes to the same record in the same way and keeps every parameter it had."""
+    for key in ("record", "sent_to"):
+        if had.get(key) != has.get(key):
+            raise TicketError(f"Action '{has['name']}' is sent differently after the ticket ({key}: '{had.get(key)}' "
+                              f"became '{has.get(key)}'), so the rules that send it today could not.")
+    for param in _params(had):
+        if param not in _params(has):
+            raise TicketError(f"Action '{has['name']}' no longer takes '{param.split(':')[0].strip()}', "
+                              f"which the rules that send it today give it.")
 
 
 class TicketError(ValueError):
@@ -70,11 +87,14 @@ class ChangeTicket:
             record["fields"].append(added)
 
         for action in self.actions:
-            if any(existing["name"] == action["name"] for existing in after["actions"]):
-                raise TicketError(f"The app already has an action '{action['name']}'.")
             if action.get("record") not in records:
                 raise TicketError(f"Action '{action['name']}' is sent to '{action.get('record')}', which is no record of the app.")
-            after["actions"].append(action)
+            place = next((n for n, existing in enumerate(after["actions"]) if existing["name"] == action["name"]), None)
+            if place is None:
+                after["actions"].append(action)
+            else:
+                _check_grown(after["actions"][place], action)
+                after["actions"][place] = action
         actions = {action["name"] for action in after["actions"]}
 
         for refusal in self.refusals:
