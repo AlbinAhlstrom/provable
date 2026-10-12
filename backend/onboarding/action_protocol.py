@@ -86,6 +86,15 @@ def shared_words(manifest: Optional[Dict[str, Any]], aggregate: str) -> list:
     return lines
 
 
+def actions_in_full(manifest: Optional[Dict[str, Any]], aggregate: str) -> list:
+    """What each action of this class does, as the contract wrote it: one line per action that says anything. The
+    rules try some of its cases, and the code is written for all of them."""
+    return [f"- `{act['name']}({', '.join(str(p) for p in act.get('params') or [])})`: {str(act['description']).strip()}"
+            for act in (manifest or {}).get("actions") or []
+            if isinstance(act, dict) and act.get("name") and act.get("aggregate") == aggregate
+            and str(act.get("description") or "").strip()]
+
+
 def collection_name(aggregate: str) -> str:
     """The name a kind's stored records go by: the keyword a method is handed them under, and their path in the API."""
     from onboarding.skeleton_builder import _pluralize, to_snake_case

@@ -468,3 +468,42 @@ def test_a_rule_that_passed_before_the_code_was_written_does_not_outrank_the_oth
     assert not broken["success"] and "DID NOT RAISE" in broken["error"]
     assert len(calls) == 2 and "test_spec_001.py" in calls[0]["existing_tests"] and "test_spec_001.py" in calls[1]["test_source"]
     assert tdd_machine.run_isolated_pytest(str(tmp_path / "tests" / "unit"), cwd=workspace)["exit_code"] == 0
+
+
+def test_the_code_writer_is_shown_what_each_action_of_the_class_does_in_full(tmp_path, monkeypatch):
+    """Verify the class's code is written from what its actions do, not only from the cases the rules try.
+
+    id: TST-BATCH-016
+    Given: Three rules of one class, and an action protocol that says what each action of that class and of
+           another class does
+    When: The specs are executed together
+    Then: The code writer's scenario holds each of the class's actions with its parameters and its full description,
+          after the rules, and nothing of the other class
+    """
+    workspace = _workspace(tmp_path)
+    calls = _models(monkeypatch, [_fragment(PAY, ADD_LINE)])
+    manifest = {"actions": [
+        {"name": "pay", "aggregate": "Invoice", "params": [], "description": "Status becomes paid and the day is kept."},
+        {"name": "add_line", "aggregate": "Invoice", "params": ["amount"], "description": "Total grows by amount."},
+        {"name": "send", "aggregate": "Parcel", "params": [], "description": "Status becomes sent."}]}
+
+    tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace, action_manifest=manifest)
+
+    shown = calls[0]["spec"].given_when_then
+    assert "`pay()`: Status becomes paid and the day is kept." in shown
+    assert "`add_line(amount)`: Total grows by amount." in shown
+    assert "Status becomes sent" not in shown
+    assert shown.index("Rule SPEC-003") < shown.index("`pay()`")
+
+
+def test_a_class_whose_actions_say_nothing_is_written_from_its_rules_alone():
+    """Verify no empty heading is shown when the protocol describes no action of the class.
+
+    id: TST-BATCH-017
+    Given: Rules of a class and no action protocol
+    When: The code writer's spec is made
+    Then: Its scenario is the rules and nothing more
+    """
+    spec = tdd_batch.rules_spec("Invoice", [_spec("SPEC-001")])
+
+    assert spec.given_when_then == "(1) Rule SPEC-001: Given a When b Then c"

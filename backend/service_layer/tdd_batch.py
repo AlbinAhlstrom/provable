@@ -44,6 +44,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import pipeline_trace
 from onboarding import first_tests
+from onboarding.action_protocol import actions_in_full
 from onboarding.cst_isolator import (
     FragmentError, extract_class_cst, merge_module_fragment, module_helpers_source, module_import_lines
 )
@@ -84,9 +85,15 @@ exactly as it is."""
 Approved = Tuple[BusinessSpec, RedOutcome]
 
 
-def rules_spec(class_name: str, specs: List[BusinessSpec]) -> BusinessSpec:
-    """The one spec the code writer is given for every rule of a class."""
+def rules_spec(class_name: str, specs: List[BusinessSpec], manifest: Optional[Dict[str, Any]] = None) -> BusinessSpec:
+    """The one spec the code writer is given for every rule of a class: the rules, and after them what each action
+    of the class does in full. A rule's test tries one case of its action, and an action every rule is about has no
+    spec of its own (`action_behaviour.py`), so this is where the writer reads the rest of what it does."""
     scenarios = " ".join(f"({n}) {s.title}: {s.given_when_then}" for n, s in enumerate(specs, 1))
+    in_full = actions_in_full(manifest, class_name)
+    if in_full:
+        scenarios += ("\n\nWhat each action does in full. The rules above are cases of these; the methods do all of "
+                      "it, also where no test tries it:\n" + "\n".join(in_full))
     return BusinessSpec(
         spec_id=f"RULES-{class_name.upper()}",
         title=f"{len(specs)} rules of {class_name}, each with its own frozen test",
@@ -122,7 +129,8 @@ def _failing_spec_result(spec: BusinessSpec, red: RedOutcome, attempts: List[Dic
 
 @traced("tdd.green_together")
 def implement_together(batch: List[Approved], target: DomainTarget, workspace_dir: str, existing_tests: str,
-                       waiting: Set[str], peers: Optional[List[Approved]] = None) -> Dict[str, Dict[str, Any]]:
+                       waiting: Set[str], peers: Optional[List[Approved]] = None,
+                       action_manifest: Optional[Dict[str, Any]] = None) -> Dict[str, Dict[str, Any]]:
     """One code answer for every approved test of one class, and one retry with the tests it left failing.
     `waiting` holds the test files of classes not implemented yet: they fail by design and are not counted.
     `peers` are the deck's tests that passed before any code was written (the class as the action stage left it
@@ -152,7 +160,7 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
             try:
                 fragment = tdd_machine.synthesize_green_class_implementation(
                     extracted_class=extract_class_cst(domain_source, target.class_name) or "",
-                    target_class_name=target.class_name, spec=rules_spec(target.class_name, [s for s, _ in frozen]),
+                    target_class_name=target.class_name, spec=rules_spec(target.class_name, [s for s, _ in frozen], action_manifest),
                     failure_output=failure, test_source=_tests_block(frozen),
                     module_imports=module_import_lines(domain_source), existing_tests=verified,
                     module_helpers=module_helpers_source(domain_source, target.class_name))
@@ -372,7 +380,7 @@ def execute_specs_together(
         peers = satisfied.get(domain_file, [])
         try:
             done = implement_together(batch, targets[batch[0][0].spec_id], workspace_dir, earlier_tests[domain_file], waiting,
-                                      peers=peers)
+                                      peers=peers, action_manifest=action_manifest)
         except Exception as err:  # a provider error or a tampered test: the class is back as it was, nothing is retried
             done = {s.spec_id: {"success": False, "status": "ERROR", "phase": "GREEN_GEN", "spec_id": s.spec_id,
                                 "error": f"{type(err).__name__}: {err}", "red_attempts": red.attempts,
