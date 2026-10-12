@@ -1,7 +1,8 @@
 # ADR-014: Change tickets, every change as a delta of the product contract
 
 Status: accepted (2026-10-12). Implemented so far: the contract is stored with the build state, a ticket is a typed
-delta that is applied to it, and the planner writes one. Nothing is built from a ticket yet. See "Order of work".
+delta that is applied to it, the planner writes one, and the Studio asks for a change and shows its card. Nothing is
+built from a ticket yet. See "Order of work".
 Builds on [[ADR-011 The Product Contract]] and [[ADR-010 One Kind of Rule Proved on the Page]].
 
 ## Problem
@@ -119,6 +120,12 @@ A thin slice first, because the planner's prompt is the part most likely to be w
 4. The checks of decision 10, and anchors.
 5. Versions: the three stores together, a changelog entry in plain words, undo.
 6. The Studio: the text box in the live workspace, the card, the pre-kickstart view removed.
+   Done ahead of step 2, so the planner can be judged on real apps: the text box under the live workspace and the
+   card, read only (`POST /api/tickets/plan`, `backend/service_layer/change_tickets.py`,
+   `frontend/src/components/tickets/`). The card shows the title, what was understood, each new rule as its
+   sentence, what else is added behind "Advanced", and how many rules will be checked. Build is shown unavailable
+   with the reason. Left: editing a rule on the card, forks, estimates, Build, and removing the pre-kickstart view,
+   which stays while it is the only way to make an app.
 7. The kickstart as a ticket; forks; a large request split into follow-up tickets; estimates.
 
 ## Measured: the planner alone

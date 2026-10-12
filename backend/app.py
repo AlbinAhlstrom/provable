@@ -93,6 +93,7 @@ from entrypoints.routers.kickstart import router as kickstart_router
 from entrypoints.routers.components import router as components_router
 from entrypoints.routers.specs import router as specs_router
 from entrypoints.routers.onboarding import router as onboarding_router
+from entrypoints.routers.tickets import router as tickets_router
 app.include_router(projects_router, dependencies=[Depends(require_user)])
 app.include_router(requirements_router, dependencies=[Depends(require_user)])
 app.include_router(testing_router, dependencies=[Depends(require_user)])
@@ -100,5 +101,6 @@ app.include_router(kickstart_router, dependencies=[Depends(require_user)])
 app.include_router(components_router, dependencies=[Depends(require_user)])
 app.include_router(specs_router, dependencies=[Depends(require_user)])
 app.include_router(onboarding_router, dependencies=[Depends(require_user)])
+app.include_router(tickets_router, dependencies=[Depends(require_user)])
 
 

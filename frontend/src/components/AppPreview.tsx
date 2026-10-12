@@ -3,6 +3,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { RequirementControlPanel } from './RequirementControlPanel';
+import { ChangeComposer } from './tickets/ChangeComposer';
 import { PREVIEW_URL } from '../engine';
 import { StatusMessage, StudioMessage } from './StatusMessage';
 
@@ -54,6 +55,7 @@ export function AppPreview({ onResetWorkspace, resetting, message, banner, reloa
           <div className={`preview-frame${frameState}`} onAnimationEnd={event => { if (event.animationName === 'preview-pop') setJustFinished(false); }}>
             <iframe key={`workspace-iframe-${key}-${reloadToken}`} src={PREVIEW_URL} title="Workspace live app" />
           </div>
+          <ChangeComposer disabled={building} />
         </section>
 
         <section className="specs-pane">

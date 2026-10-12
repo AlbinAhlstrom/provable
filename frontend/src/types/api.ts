@@ -32,6 +32,17 @@ export interface PageTestDTO {
 /** The outcome of a rule's page test: never run, every assertion held, the test could not judge, or one did not hold. */
 export type SpecTestStatus = 'not_run' | 'pass' | 'broken' | 'fail';
 
+/** A planned change to the built app, before it is built (backend/service_layer/change_tickets.py). */
+export interface ChangeCardDTO {
+  request: string;
+  title: string;
+  understood: string;                          // the request as it was read, in everyday words
+  rules: { title: string; plain: string }[];   // the rules the change would add
+  adds: { kind: string; name: string }[];      // what else it adds to the app, by name
+  stays_green: number;                         // the rules the app already has, checked after the build
+  problem: string | null;                      // why the app cannot take the change as planned
+}
+
 export interface LivingDeckDTO {
   chapters?: Record<string, RuleCardDTO[]>;
   logic_cards: {
