@@ -12,7 +12,7 @@ if hasattr(sys.stderr, 'reconfigure'):
 import os
 import dotenv
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 # Load environment variables from root .env file if present
@@ -85,6 +85,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from entrypoints.auth import require_user
 from entrypoints.routers.projects import router as projects_router
 from entrypoints.routers.requirements import router as requirements_router
 from entrypoints.routers.testing import router as testing_router
@@ -92,12 +93,12 @@ from entrypoints.routers.kickstart import router as kickstart_router
 from entrypoints.routers.components import router as components_router
 from entrypoints.routers.specs import router as specs_router
 from entrypoints.routers.onboarding import router as onboarding_router
-app.include_router(projects_router)
-app.include_router(requirements_router)
-app.include_router(testing_router)
-app.include_router(kickstart_router)
-app.include_router(components_router)
-app.include_router(specs_router)
-app.include_router(onboarding_router)
+app.include_router(projects_router, dependencies=[Depends(require_user)])
+app.include_router(requirements_router, dependencies=[Depends(require_user)])
+app.include_router(testing_router, dependencies=[Depends(require_user)])
+app.include_router(kickstart_router, dependencies=[Depends(require_user)])
+app.include_router(components_router, dependencies=[Depends(require_user)])
+app.include_router(specs_router, dependencies=[Depends(require_user)])
+app.include_router(onboarding_router, dependencies=[Depends(require_user)])
 
 

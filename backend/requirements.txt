@@ -11,3 +11,4 @@ pyyaml
 libcst
 selenium
 networkx
+pyjwt[crypto]>=2.8
