@@ -168,3 +168,11 @@ def test_a_provider_may_have_one_stage_answer_without_hidden_thinking(monkeypatc
     assert llm_provider.connection(page).thinking is True
     monkeypatch.delenv("LLM_PROVIDER")
     assert llm_provider.connection(page).thinking is True
+
+
+def test_anthropic_sonnet_runs_every_stage_on_the_middle_model(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "anthropic-sonnet")
+    for stage in ("prompt_expansion", "product_contract", "presentation_projection_synthesis", "general"):
+        conn = llm_provider.connection(stage)
+        assert conn.model == "claude-sonnet-5-5"
+        assert conn.api == "anthropic"

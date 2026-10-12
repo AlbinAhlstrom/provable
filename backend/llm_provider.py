@@ -43,6 +43,9 @@ PROVIDERS: Dict[str, Provider] = {
     # The larger model of the same family, on the same key: what a build is compared against.
     "anthropic-opus": Provider("https://api.anthropic.com/v1/", "claude-opus-5-5", "CLAUDE_API_KEY",
                                accepts_temperature=False, api="anthropic"),
+    # The middle model on every stage: the same build at the middle model's quality and price.
+    "anthropic-sonnet": Provider("https://api.anthropic.com/v1/", "claude-sonnet-5-5", "CLAUDE_API_KEY",
+                                 accepts_temperature=False, api="anthropic"),
 }
 
 
