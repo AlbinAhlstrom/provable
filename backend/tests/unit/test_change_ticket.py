@@ -12,7 +12,6 @@ NOTE = {"name": "note", "part_of": "", "type": "text", "starts_as": "", "holds":
 TICKET = {
     "title": "Guests can leave a note",
     "understood": "A guest can add a short note to a booking.",
-    "decided": ["A note is at most 200 characters.", "The note is shown on the booking."],
     "fields": [{"record": "Booking", **NOTE}],
     "actions": [{"name": "add_note", "record": "Booking", "performed_by": "audience", "params": "note: text",
                  "sent_to": "one_record", "trigger": "Note field, type and press \"Save note\"",
@@ -123,3 +122,22 @@ def test_a_ticket_the_contract_cannot_take_is_refused_by_name(changes, reason):
         _ticket(**changes).applied_to(before)
 
     assert before.source == CONTRACT
+
+
+def test_a_rule_of_a_ticket_lands_in_a_feature_the_app_has_or_brings_a_new_one():
+    """Verify a change is filed where the app's rules are: under what the product offers.
+
+    id: TST-TICKET-FEATURE
+    Given: A ticket with one rule that names a feature the app has and one that names a feature it does not
+    When: The ticket is applied
+    Then: The first rule's spec is in that feature's chapter, and the new feature is in the contract's list of what
+          it offers, kept, with its rule in a chapter of that name
+    """
+    rules = [{**TICKET["rules"][0], "feature": "Pick a table"},
+             {**TICKET["rules"][0], "title": "A note is shown to the kitchen", "feature": "Notes for the kitchen"}]
+
+    after = _ticket(rules=rules).applied_to(_contract())
+
+    assert after.features() == ["Pick a table", "Notes for the kitchen"]
+    assert [s.chapter for s in after.specs()[-2:]] == ["Pick a table", "Notes for the kitchen"]
+    assert _contract().features() == ["Pick a table"]

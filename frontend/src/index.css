@@ -839,16 +839,6 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
   text-transform: uppercase;
   color: var(--text-muted);
 }
-.change-card-decided {
-  display: grid;
-  gap: 0.25rem;
-  margin: 0;
-  padding-left: 1.1rem;
-  max-width: 65ch;
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--text-secondary);
-}
 .change-card-rules { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
 .change-card-rules li {
   display: grid;

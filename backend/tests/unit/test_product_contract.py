@@ -622,3 +622,66 @@ def test_a_kickstart_stores_the_contract_it_built_from(monkeypatch, tmp_path):
     services.kickstart_domain_and_scaffold(pitch="A table booking page", uow=uow, workspace_dir=str(tmp_path))
 
     assert uow.kickstart.get().contract == CONTRACT
+
+
+def test_a_rule_names_the_feature_it_proves_and_its_kind_follows_from_its_action():
+    """Verify the rules are grouped by the product's own list of what it offers, and that the schema did not grow:
+    whether a rule is of the page alone is read from its having no action, so the feature takes that key's place.
+
+    id: TST-CONTRACT-FEATURE
+    Given: The contract's schema; a contract whose rules name a feature of `has`, with and without the "(kept)"
+           the list ends each entry in, one rule naming none, and no rule saying its kind
+    When: The schema's rule is read, and the contract's rules and specs
+    Then: A rule has a `feature` and no `kind` to write; a rule with an action is one the records obey and one
+          without is of the page alone; each spec's chapter is its feature as the list names it, and "General"
+          where the rule names none
+    """
+    rule_keys = pc.CONTRACT_SCHEMA["properties"]["rules"]["items"]["properties"]
+    assert "feature" in rule_keys and "kind" not in rule_keys
+
+    data = copy.deepcopy(CONTRACT)
+    for rule, feature in zip(data["rules"], ("Pick a table", "pick a table (kept)", "")):
+        del rule["kind"]
+        rule["feature"] = feature
+    contract = pc.ProductContract.from_dict(data)
+
+    assert [r.kind for r in contract.rules] == ["api", "api", "page"]
+    assert [s.chapter for s in contract.specs()] == ["Pick a table", "Pick a table", "General"]
+    assert [s.kind for s in contract.specs()] == [SpecKind.BEHAVIOR.value, SpecKind.BEHAVIOR.value,
+                                                  SpecKind.PRESENTATION.value]
+
+
+def test_a_contract_stored_before_rules_named_a_feature_still_loads():
+    """
+    id: TST-CONTRACT-FEATURE-STORED
+    Given: A stored contract whose rules say their kind and name no feature
+    When: It is read
+    Then: Each rule keeps the kind it was stored with, and its spec is in the chapter "General"
+    """
+    contract = _contract()
+
+    assert [r.kind for r in contract.rules] == ["api", "api", "page"]
+    assert {s.chapter for s in contract.specs()} == {"General"}
+
+
+def test_the_features_of_a_contract_are_what_it_kept():
+    """
+    id: TST-CONTRACT-FEATURES
+    Given: A contract that offers one thing and leaves one out
+    When: Its features are read
+    Then: They are the kept entries, without the mark
+    """
+    assert _contract().features() == ["Pick a table"]
+
+
+def test_the_prompt_asks_each_rule_for_its_feature():
+    """
+    id: TST-CONTRACT-FEATURE-PROMPT
+    Given: The contract's prompt
+    When: It is read
+    Then: It asks each rule for the `feature` it proves, as an entry of `has`
+    """
+    prompt = open(os.path.join(os.path.dirname(__file__), "..", "..", "prompts", "product_contract.md"),
+                  encoding="utf-8").read()
+
+    assert "`feature`" in prompt and "`kind`" not in prompt

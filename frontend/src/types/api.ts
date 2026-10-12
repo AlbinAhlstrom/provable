@@ -37,9 +37,9 @@ export interface ChangeCardDTO {
   request: string;
   title: string;
   understood: string;                          // the request as it was read: one sentence in everyday words
-  decided: string[];                           // each choice the request left open, one short line each
-  // the rules the change would add: the sentence, and its Given, When and Then apart (empty where it has none)
-  rules: { title: string; plain: string; given: string; when: string; then: string }[];
+  // the rules the change would add: the feature of the app each is filed under, the sentence, and its Given, When
+  // and Then apart (empty where it has none)
+  rules: { title: string; feature: string; plain: string; given: string; when: string; then: string }[];
   adds: { kind: string; name: string }[];      // what else it adds to the app, by name
   stays_green: number;                         // the rules the app already has, checked after the build
   problem: string | null;                      // why the app cannot take the change as planned

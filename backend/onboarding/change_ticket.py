@@ -15,7 +15,7 @@ import copy
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
-from onboarding.product_contract import ContractError, Field, ProductContract
+from onboarding.product_contract import KEPT, ContractError, Field, ProductContract, feature_name
 
 
 def _params(action: Dict[str, Any]) -> List[str]:
@@ -50,7 +50,6 @@ class ChangeTicket:
     situations: List[str] = field(default_factory=list)
     refusals: List[Dict[str, Any]] = field(default_factory=list)
     read_out: List[str] = field(default_factory=list)
-    decided: List[str] = field(default_factory=list)   # each choice the request left open, as one short line
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any], request: str) -> "ChangeTicket":
@@ -59,8 +58,7 @@ class ChangeTicket:
                    actions=[dict(a) for a in data.get("actions") or []],
                    situations=[str(s) for s in data.get("situations") or []],
                    refusals=[dict(r) for r in data.get("refusals") or []],
-                   read_out=[str(r) for r in data.get("read_out") or []],
-                   decided=[str(d).strip() for d in data.get("decided") or [] if str(d).strip()])
+                   read_out=[str(r) for r in data.get("read_out") or []])
 
     def stays_green(self, contract: ProductContract) -> List[str]:
         """The rules the ticket leaves alone, by title: each must be as green after the build as before it."""
@@ -112,6 +110,11 @@ class ChangeTicket:
             if rule.get("action") and rule["action"] not in actions:
                 raise TicketError(f"Rule '{rule.get('title')}' is about '{rule['action']}', which is no action of the app.")
             after["rules"].append(rule)
+            # A rule is filed under what the product offers; a feature the product did not have is one it now has
+            feature = feature_name(rule.get("feature"))
+            offered = {feature_name(entry).lower() for entry in after["product"].get("has") or []}
+            if feature and feature.lower() not in offered:
+                after["product"]["has"] = list(after["product"].get("has") or []) + [f"{feature} {KEPT}"]
 
         try:
             result = ProductContract.from_dict(after)

@@ -56,21 +56,40 @@ it.
     and a test shows it does what the ticket needs. Its docstring is not evidence.
 
 ## What the person sees
-A card before Build, in the person's words ("rules" and "the app", never spec, entity or assertion):
+Decided on 2026-10-12 with the user, after the first cards were read on a real app. It replaces a card that was
+to be reviewed and edited before every build.
 
-- the request as one sentence of what was understood (at most twenty words), then each choice the planner made
-  as a line of its own (at most twelve words) under "Decided for you"; editing either plans again. A card is read
-  at a glance, also by a person with ADHD or dyslexia, so nothing on it is a paragraph: the first card held 90
-  words in one block and was not read;
-- each proposed rule as a card: title, Given / When / Then / Unless, example rows; it can be edited, removed, or
-  added from a plain sentence;
-- where what a person would see is ambiguous, two whole rules side by side with one chosen; about three such forks
-  at most, and a request that needs more is split;
-- existing rules that change or are replaced, marked so;
-- one line: "Your N other rules will be checked too";
-- the estimated time and cost, and Build, which is unavailable with one stated reason when a check fails.
+**No card stands between a request and its build.** A person who has just typed a change gains little from
+reading it back, and judges a running app in seconds where a rule in words tells them little. The first card held
+what was understood as a paragraph of 90 words and was not read; cut to one sentence with the planner's choices as
+a list ("Decided for you") it was still not worth its place, and the list said a second time what the rules said,
+so neither could be edited without the other. That list is removed. So: the request is planned and built, and the
+person sees the changed app, one line in a history of changes (the ticket's title, undo), and the new rules where
+the app's rules are. A correction is the next request in the same box. The build stops and asks only when the app
+cannot take the ticket, when the request was too large and was split, or when two readings would give visibly
+different apps; then it asks one question. This needs undo (decision 11), which therefore comes with Build and not
+after it: a ticket can only add, so a wrong build cannot be taken back by a second ticket.
 
-Records, fields, scope and build order are behind "Advanced".
+**Rules are filed by feature, and a feature is an entry of what the product offers.** The contract already lists
+that (`product.has`, each entry kept or left out), in the product's own words and for any kind of product. Each
+rule names the one kept entry it proves (`Rule.feature`), and the rule deck groups by it (`BusinessSpec.chapter`,
+`ProductContract.features`). Considered first: grouping by the rule's action, which is in the data for nothing.
+Measured on three contracts it left a quarter to a half of the rules without a group, because a rule of the page
+alone has no action (a booking page 3 of 11, a portfolio 4 of 8), and a page's parts are too fine to group by (19
+on the portfolio, one per button). What this gives:
+
+- a rule added by a ticket lands in the feature it belongs to, and a ticket that brings something the product did
+  not offer adds the entry (`ChangeTicket.applied_to`); a ticket is one build and one line of history however many
+  rules it adds and wherever they land;
+- a kept entry no rule proves is visible as such, which nothing showed before;
+- an entry that was left out is a change waiting to be asked for.
+
+Not built: the history and undo, showing a feature without rules, and offering what was left out. Until Build
+exists the Studio still shows the planned change as a read-only card, without the list of choices.
+
+Measured (one contract each, the middle model at low effort, 24 to 53 s): of 34 rules on a game, a booking page
+and a portfolio, 33 named an entry exactly as listed and one reworded it, which files it in a group of its own.
+The booking page had 3 to 5 of its 7 or 8 kept entries without a rule in three samples.
 
 ## What exists today
 Read on 2026-10-12, before any of this was built.
@@ -121,14 +140,15 @@ A thin slice first, because the planner's prompt is the part most likely to be w
 3. One shape of rule: `unless` and example rows on `Rule`; the deck and the builders' specs read out of the stored
    contract; `RuleCard`, `TestSpec` and the requirements flow removed.
 4. The checks of decision 10, and anchors.
-5. Versions: the three stores together, a changelog entry in plain words, undo.
+5. Versions: the three stores together, a changelog entry in plain words, undo. Moved up beside step 2: with no
+   card to review, undo is what makes a wrong build cheap.
 6. The Studio: the text box in the live workspace, the card, the pre-kickstart view removed.
    Done ahead of step 2, so the planner can be judged on real apps: the text box under the live workspace and the
    card, read only (`POST /api/tickets/plan`, `backend/service_layer/change_tickets.py`,
-   `frontend/src/components/tickets/`). The card shows the title, what was understood as one sentence, what was
-   decided as short lines, each new rule with its Given, When and Then on lines of their own
-   (`rule_deck.clauses_of`, as the rule deck's cards), what else is added behind "Advanced", and how many rules will be checked. Build is shown unavailable
-   with the reason. The pre-kickstart view is removed: the live workspace is the one page, and with nothing built
+   `frontend/src/components/tickets/`). The card shows the title, what was understood as one sentence, each new
+   rule under its feature with its Given, When and Then on lines of their own (`rule_deck.clauses_of`, as the rule
+   deck's cards), what else is added behind "Advanced", and how many rules will be checked. Build is shown
+   unavailable with the reason. The card is a stand-in until Build exists (see "What the person sees"). The pre-kickstart view is removed: the live workspace is the one page, and with nothing built
    its text box asks for the app and starts the kickstart. Left: editing a rule on the card, forks, estimates and
    Build.
 7. The kickstart as a ticket; forks; a large request split into follow-up tickets; estimates.

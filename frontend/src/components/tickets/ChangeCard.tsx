@@ -28,8 +28,8 @@ const RuleClauses: React.FC<{ rule: PlannedRule }> = ({ rule }) => {
   );
 };
 
-/** A planned change before it is built: what was understood in one sentence, what was decided for the person, the
- *  rules it would add, and what else is checked. Every piece is short and stands on a line of its own. */
+/** A planned change before it is built: what was understood in one sentence, the rules it would add, each under
+ *  the feature of the app it belongs to, and what else is checked. Every piece is short and on a line of its own. */
 export const ChangeCard: React.FC<{ card: ChangeCardDTO; onDiscard: () => void }> = ({ card, onDiscard }) => (
   <article className="change-card" aria-label="Planned change">
     <header className="change-card-head">
@@ -39,19 +39,12 @@ export const ChangeCard: React.FC<{ card: ChangeCardDTO; onDiscard: () => void }
       </button>
     </header>
     <p className="change-card-understood">{card.understood}</p>
-    {card.decided.length > 0 && (
-      <section className="change-card-section">
-        <h5 className="change-card-label">Decided for you</h5>
-        <ul className="change-card-decided">
-          {card.decided.map(line => <li key={line}>{line}</li>)}
-        </ul>
-      </section>
-    )}
     <section className="change-card-section">
       <h5 className="change-card-label">{card.rules.length === 1 ? '1 new rule' : `${card.rules.length} new rules`}</h5>
       <ul className="change-card-rules">
         {card.rules.map(rule => (
           <li key={rule.title}>
+            <span className="change-card-label">{rule.feature}</span>
             <span className="change-card-rule-title">{rule.title}</span>
             <RuleClauses rule={rule} />
           </li>

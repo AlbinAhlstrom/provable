@@ -120,6 +120,8 @@ class BusinessSpec(BaseModel):
     plain: str = ""
     situation: str = ""
     action: str = ""
+    # The feature of the product the rule proves, as the contract's `has` names it: what the rule deck groups by
+    chapter: str = "General"
 
 
 class DomainBehaviorInboxSchema(BaseModel):

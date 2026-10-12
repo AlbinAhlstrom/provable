@@ -84,9 +84,19 @@ CONTRACT_SCHEMA: Dict[str, Any] = _object(
     read_out=_TEXTS,
     situations=_TEXTS,
     refusals=_list(_object(name=_TEXT, action=_TEXT, raised_when=_TEXT, sentence=_TEXT, appears=_TEXT)),
-    rules=_list(_object(kind=_one_of(API_RULE, PAGE_RULE), title=_TEXT, action=_TEXT, given=_TEXT, when=_TEXT,
+    # A rule's kind is not written: a rule with an action is one the records obey, one without is of the page alone.
+    # The schema is at its limit, so `feature` stands where `kind` stood.
+    rules=_list(_object(feature=_TEXT, title=_TEXT, action=_TEXT, given=_TEXT, when=_TEXT,
                         then=_TEXT, sees=_TEXT, plain=_TEXT)),
 )
+KEPT = "(kept)"
+NO_FEATURE = "General"   # the chapter of a rule that names no feature (a contract stored before rules named one)
+
+
+def feature_name(entry: str) -> str:
+    """An entry of what the product offers without the mark it ends in, or a rule's feature as it is filed."""
+    entry = str(entry or "").strip()
+    return entry[:-len(KEPT)].strip() if entry.lower().endswith(KEPT) else entry
 
 
 class ContractError(RuntimeError):
@@ -206,14 +216,19 @@ class Refusal:
 
 @dataclass
 class Rule:
-    kind: str
     title: str
+    kind: str = ""       # `api` or `page`; read from the action where the rule does not say (it no longer does)
+    feature: str = ""    # the entry of the product's `has` the rule proves: what its card is filed under
     action: str = ""
     given: str = ""      # opens with the name of one of the contract's situations
     when: str = ""
     then: str = ""
     sees: str = ""       # which parts then read what, in the names of `read_out`
     plain: str = ""      # the rule as a person who uses the product says it: what a card shows
+
+    def __post_init__(self) -> None:
+        if not self.kind:
+            self.kind = API_RULE if str(self.action or "").strip() else PAGE_RULE
 
 
 @dataclass
@@ -285,6 +300,17 @@ class ProductContract:
                        attributes=[f.attribute() for f in record.fields if f.name != "id"])
             for record in self.records])
 
+    def features(self) -> List[str]:
+        """What the product offers and was built with, by name: the kept entries of `has`, in its order."""
+        return [feature_name(entry) for entry in self.product.has if str(entry).strip().lower().endswith(KEPT)]
+
+    def _chapter_of(self, rule: Rule) -> str:
+        """The feature a rule is filed under, as the product's list names it; a feature the list lacks is filed
+        under its own name, and a rule that names none under `NO_FEATURE`."""
+        named = feature_name(rule.feature)
+        listed = {feature.lower(): feature for feature in self.features()}
+        return listed.get(named.lower(), named) or NO_FEATURE
+
     def specs(self) -> List[BusinessSpec]:
         """The rule deck: a rule the records obey is proved by the domain's test loop, a rule of the page alone is not."""
         specs = []
@@ -296,6 +322,7 @@ class ProductContract:
                 description=rule.sees if page_only else f"What the person sees: {rule.sees}",
                 given_when_then=f"Given {rule.given}, When {rule.when}, Then {outcome}",
                 plain=rule.plain, situation=self._situation_of(rule.given), action=rule.action,
+                chapter=self._chapter_of(rule),
                 target_aggregate=self._record_of(rule.action) if rule.action else self._worked_on().name,
                 kind=(SpecKind.PRESENTATION if page_only else SpecKind.BEHAVIOR).value))
         return specs

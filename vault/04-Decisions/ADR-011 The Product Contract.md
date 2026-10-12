@@ -34,6 +34,9 @@ comparable product elsewhere. The timeline of that run:
    action cannot be written. The provider refuses a schema whose properties and lists together count more than about 65
    (measured; `SCHEMA_WEIGHT_LIMIT`, guarded by a test), so what is read as words is a text or a list of texts, and
    what one part of a list holds is a field of the same list (`part_of`) rather than an object nested inside it.
+   The schema is at that count, so a rule no longer writes its kind: a rule with an action is one the records
+   obey, one without is of the page alone (`Rule.__post_init__`), and the key it freed holds the rule's `feature`,
+   the kept entry of `has` it proves ([[ADR-014 Change Tickets]], "What the person sees").
 5. **A rule is of the records or of the page.** A rule the records obey names exactly one action and goes through
    the domain's test loop; a rule of the page alone (no action is sent) does not. Both are proved on the running
    page as ADR-010 says. The spec kinds `behavior` and `presentation` carry this distinction and nothing else.
