@@ -32,6 +32,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[Page Rebuild]]: Writes a generated app's page again (UX plan, page, QA, visual review) against the domain it already has; about a tenth of a kickstart's tokens, for changes that only concern the page.
 - [[Step Analysis]]: One step's prompt run alone on Opus, Sonnet and Haiku for three kinds of pitch, to find what the prompt leaves to judgement and rewrite it; speed, cost and quality before and after (`step-analysis` skill).
 - [[Run Recorder]]: One folder per pipeline run (`logs/runs/`): commit and model, per-stage outcome, full step and LLM trace, generated-app snapshot; `scripts/trace_report.py` reads and compares runs.
+- [[Struggle Corpus]]: Where recorded runs got stuck (rejected tests, failed page tests, unrepaired problems, failed stages), grouped by step and verdict with their rate; `scripts/struggle_corpus.py` builds and lists it.
 
 
 ### 3. 🧪 Testing & Quality Assurance
