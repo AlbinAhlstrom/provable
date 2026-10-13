@@ -50,6 +50,7 @@ When the page works on one record at a time (a session in progress, an attempt, 
 ## API clients (already written; do NOT write them)
 {clients_block}
 {gestures_block}
+{opening_block}
 
 Every function throws an `Error` carrying the server's message when the request fails. Import from these clients; never re-implement fetch calls and never fabricate data when a request fails: show the error. Load the lists the page needs together (`Promise.all`) and let a rejected request reach the page's error state, so that an empty list on screen always means the server answered with no records. All entities above expose the same five endpoints as the master (`GET /api/<plural>`, `POST /api/<plural>`, `GET /api/<plural>/{id}`, `POST /api/<plural>/{id}/action`, `POST /api/<plural>/action`).
 

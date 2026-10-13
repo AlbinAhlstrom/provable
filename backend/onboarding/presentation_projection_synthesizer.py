@@ -10,7 +10,7 @@ import re
 import json
 import time
 from typing import List, Dict, Any, Optional
-from onboarding import page_gestures
+from onboarding import page_gestures, page_opening
 from onboarding.action_protocol import format_action_protocol
 from onboarding.intent import ProductIntent, intent_block
 from onboarding.page_parts import parts_block
@@ -230,6 +230,7 @@ Answer with four blocks, each introduced by its marker alone on a line:
         "{clients_block}": _clients_block(structure.presented_entities() or ([master_entity] if master_entity else []), master_name,
                                           actions=(action_manifest or {}).get("actions")),
         "{gestures_block}": page_gestures.gestures_block(),
+        "{opening_block}": page_opening.opening_block(),
         "{bdd_section}": bdd_section,
         "{backend_state_model}": backend_state_model,
         "{action_protocol_block}": action_protocol_block,
@@ -269,6 +270,7 @@ Answer with four blocks, each introduced by its marker alone on a line:
                         generate_master_client(e, actions=(action_manifest or {}).get("actions"))
                     for e in (structure.presented_entities() or ([master_entity] if master_entity else []))}
     client_files[page_gestures.FILE_NAME] = page_gestures.GESTURES_TS
+    client_files[page_opening.FILE_NAME] = page_opening.OPENING_TS
     omitted = [name for name in SECTIONS if not is_component_file(payload.get(name))]
     view_code = payload.get("view_tsx")
     controls_code = payload.get("controls_tsx") if "controls_tsx" not in omitted else None
