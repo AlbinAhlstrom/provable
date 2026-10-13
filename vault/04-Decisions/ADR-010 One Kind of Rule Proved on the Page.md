@@ -47,7 +47,7 @@ name every control and state first (not built yet).
 Three things that used to be copied by a writer are now written by code, because each was copied wrong in a way no
 rule is about:
 
-- **The locator of a named part** (`page_parts.locators_module`, `tests/e2e/parts.py`): the plan's line
+- **The locator of a named part** (`page_parts.locators_module`, written beside the tests as a module named parts): the plan's line
   `part · role · "name"` becomes a function, `parts.<part>(page, <values>)`, that looks for exactly that role and
   that whole name. A test calls it and writes no locator of its own for such a part. A test had looked for a status
   by its text where the plan gives it a name, and reported a rule the app kept as not held.
