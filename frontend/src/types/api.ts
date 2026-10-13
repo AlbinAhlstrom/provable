@@ -27,6 +27,23 @@ export interface PageTestDTO {
   source?: string | null;
   evidence?: string | null;
   ran_at?: string | null;
+  cause?: RuleCauseDTO | null;  // what a fix found when it left the rule red
+}
+
+/** Where a fix found the fault of a red rule: on the page, in what the app does, in rules that cannot hold
+ *  together (named by title), or in the test. */
+export interface RuleCauseDTO {
+  fault: 'page' | 'logic' | 'rules' | 'test';
+  why: string;      // one sentence in everyday words
+  rules: string[];
+}
+
+/** What a fix answered (backend/service_layer/rule_tests.py). */
+export interface RuleFixDTO extends Partial<RuleCauseDTO> {
+  success: boolean;
+  status: string;
+  reason?: string | null;
+  files?: string[];
 }
 
 /** The outcome of a rule's page test: never run, every assertion held, the test could not judge, or one did not hold. */

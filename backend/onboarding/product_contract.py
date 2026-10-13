@@ -321,13 +321,13 @@ class ProductContract:
                 spec_id=f"SPEC-{number:03d}", title=rule.title,
                 description=rule.sees if page_only else f"What the person sees: {rule.sees}",
                 given_when_then=f"Given {rule.given}, When {rule.when}, Then {outcome}",
-                plain=rule.plain, situation=self._situation_of(rule.given), action=rule.action,
+                plain=rule.plain, situation=self.situation_of(rule.given), action=rule.action,
                 chapter=self._chapter_of(rule),
                 target_aggregate=self._record_of(rule.action) if rule.action else self._worked_on().name,
                 kind=(SpecKind.PRESENTATION if page_only else SpecKind.BEHAVIOR).value))
         return specs
 
-    def _situation_of(self, given: str) -> str:
+    def situation_of(self, given: str) -> str:
         """The situation a Given names, as `name`: what it holds; empty when it names none. The longest name found
         is the one meant, so a situation named after another (`order_sent`, `order_sent_twice`) is not mistaken."""
         named = {name.strip(): holds.strip() for name, _, holds in (entry.partition("=") for entry in self.situations)}

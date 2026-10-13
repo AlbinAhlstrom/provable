@@ -6,6 +6,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { RuleCardDTO } from '../../types/api';
 import { SpecStatusLight, testStatusLabel } from './SpecStatusLight';
+import { SpecCause } from './SpecCause';
 
 export interface SpecDetailProps {
   card: RuleCardDTO | null;
@@ -15,7 +16,7 @@ export interface SpecDetailProps {
   onDelete: (card: RuleCardDTO) => void;
   onRunTest: (card: RuleCardDTO) => void;
   onRewriteTest: (card: RuleCardDTO) => void;  // the stored test is itself wrong: write a new one and run it
-  onFix: (card: RuleCardDTO) => void;  // the test is right and the app is wrong: change the page until the test passes
+  onFix: (card: RuleCardDTO) => void;  // find where the fault lies and change that part until the test passes
 }
 
 const CLAUSES: { key: 'given_clause' | 'when_clause' | 'then_clause' | 'unless_clause'; label: string }[] = [
@@ -25,7 +26,8 @@ const CLAUSES: { key: 'given_clause' | 'when_clause' | 'then_clause' | 'unless_c
   { key: 'unless_clause', label: 'Unless' },
 ];
 
-/** One specification: its test light, why the last run did not pass, its behaviour, its test, and the actions on it. */
+/** One specification: its test light, why the last run did not pass, what a fix found, its behaviour, its test,
+ *  and the actions on it. */
 export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ card, running, testing = false, onEdit, onDelete, onRunTest, onRewriteTest, onFix }, ref) => {
   if (!card) {
     return <div className="spec-detail" ref={ref}><p className="spec-empty">Select a specification.</p></div>;
@@ -56,6 +58,8 @@ export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ c
           </button>
         </div>
       </div>
+
+      {didNotPass && card.page_test?.cause && <SpecCause cause={card.page_test.cause} />}
 
       <span className="spec-section-label">Behaviour</span>
       {clauses.length > 0 ? (
@@ -88,7 +92,7 @@ export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ c
           </button>
         )}
         {card.test_status === 'fail' && (
-          <button className="tool-btn" onClick={() => onFix(card)} disabled={running} title="Change the page until this test passes; the change is kept only if every passing specification still passes">
+          <button className="tool-btn" onClick={() => onFix(card)} disabled={running} title="Find where the fault lies and change that part until this test passes; the change is kept only if every passing specification still passes">
             <BuildOutlinedIcon fontSize="inherit" /> Fix
           </button>
         )}

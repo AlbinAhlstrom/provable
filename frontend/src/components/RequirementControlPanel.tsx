@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import PlaylistPlayIcon from '@mui/icons-material/PlaylistPlay';
-import { LivingDeckDTO, RuleCardDTO } from '../types/api';
+import { LivingDeckDTO, RuleCardDTO, RuleFixDTO } from '../types/api';
 import { StatusMessage, StudioMessage } from './StatusMessage';
+import { CAUSE_LABELS } from './specs/SpecCause';
 import { SpecDetail } from './specs/SpecDetail';
 import { SpecFormModal, SpecFormValues } from './specs/SpecFormModal';
 import { SpecTree } from './specs/SpecTree';
@@ -139,7 +140,8 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
     }
   };
 
-  // A fix changes the page and is kept only when the rule's test passes and no passing rule turned red
+  // A fix finds where the fault lies and changes that part; it is kept only when the rule's test passes and no
+  // passing rule turned red. What it found stays on the specification (SpecCause)
   const fixRule = async (card: RuleCardDTO) => {
     setRunningId(card.id);
     try {
@@ -147,10 +149,11 @@ export const RequirementControlPanel: React.FC<RequirementControlPanelProps> = (
       if (!res.ok) {
         notify({ severity: 'error', text: `Could not fix: ${await errorOf(res)}` });
       } else {
-        const result = await res.json();
+        const result: RuleFixDTO = await res.json();
+        const found = result.fault ? `${CAUSE_LABELS[result.fault]}. ` : '';
         notify(result.success
           ? { severity: 'success', text: `Fixed: ${(result.files || []).join(', ')}` }
-          : { severity: 'warning', text: `Not fixed, the page is as it was: ${result.reason || 'no reason given'}` });
+          : { severity: 'warning', text: `Not fixed, the app is as it was. ${found}${result.reason || 'No reason given.'}` });
       }
       await changed();
     } catch (err) {

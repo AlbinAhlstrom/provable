@@ -126,3 +126,26 @@ def test_a_regression_run_that_does_not_finish_is_not_a_verdict_and_is_not_retri
     assert result["rolled_back"] is True
     assert "class Widget" in (tmp_path / "src" / "domain" / "widget.py").read_text(encoding="utf-8")
     assert "id: str = ''" not in (tmp_path / "src" / "domain" / "widget.py").read_text(encoding="utf-8")
+
+
+def test_a_change_that_breaks_other_tests_twice_names_them(scripted, tmp_path, monkeypatch):
+    """Verify a spec that ends on the regression gate says which tests its change broke, as data.
+
+    id: TST-RP-BROKE
+    Given: A GREEN gate that approves, and a regression run over tests/unit in which another spec's test fails
+    When: The loop runs to its dead end
+    Then: The result names the broken test files, beside the reason in words
+    """
+    scripted([True, True])
+    failing = {"tests": [{"nodeid": "tests/unit/test_spec_004.py::test_other", "outcome": "failed"}]}
+
+    def run(path, cwd=None, timeout_seconds=5):
+        if os.path.isdir(path):
+            return {"exit_code": 1, "stderr": "", "report": failing}
+        return {"exit_code": 1, "stderr": "pytest-output", "report": None}
+
+    monkeypatch.setattr(tdd_machine, "run_isolated_pytest", run)
+    result = tdd_machine.execute_spec_tdd_loop(_spec(), str(tmp_path))
+
+    assert result["success"] is False and "test_spec_004.py" in result["error"]
+    assert result["broke"] == ["test_spec_004.py"]

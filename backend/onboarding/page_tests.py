@@ -11,6 +11,7 @@ Page tests: a rule is proved by a test that drives the running app in a browser 
 """
 
 import ast
+import json
 import os
 import re
 from dataclasses import dataclass
@@ -24,6 +25,7 @@ _TEMPLATE = os.path.join(os.path.dirname(__file__), "templates", "page_test_conf
 RUN_TIMEOUT_S = 90
 PASS, FAIL, BROKEN = "pass", "fail", "broken"
 _EVIDENCE_LIMIT = 3000
+_SEEN_LIMIT = 6000
 _PAGE_FILES = (".tsx", ".jsx")
 # The exceptions that are a verdict on the rule. Anything else that ends a test means the test could not judge.
 _NOT_HELD = "AssertionError"
@@ -40,6 +42,7 @@ class Verdict:
     reason: Optional[str] = None
     evidence: str = ""
     control_not_found: bool = False  # the test waited for a control the page never offered: the test may be wrong
+    seen: str = ""  # what the page had sent the app and what the app held when the test ended (a test that did not pass)
 
     @property
     def could_not_judge(self) -> bool:
@@ -102,6 +105,26 @@ def _raised(test: Dict[str, Any]) -> Optional[str]:
     return str(raised) if raised else None
 
 
+def _seen(test: Dict[str, Any]) -> str:
+    """What the harness noted when a test did not pass (`App.seen`), as text: each thing the page asked the app to
+    change with the app's answer, and the test's records as the app held them at the end."""
+    seen = (test.get("metadata") or {}).get("seen")
+    if not isinstance(seen, dict):
+        return ""
+
+    def text(value: Any) -> str:
+        return json.dumps(value, ensure_ascii=False)
+
+    calls = [f"{call.get('method')} {call.get('path')} {text(call.get('sent'))}\n"
+             f"  answered {call.get('status')}: {text(call.get('answered'))}" for call in seen.get("calls") or []]
+    held = [f"{collection}: {text(records)}" for collection, records in (seen.get("records") or {}).items()]
+    return "\n".join(
+        ["What the page asked the app to change, and what the app answered:"]
+        + (calls or ["(the page asked the app to change nothing)"])
+        + ["", "The records of the test as the app held them when the test ended:"]
+        + (held or ["(the test arranged no record)"]))[:_SEEN_LIMIT]
+
+
 def judge(result: Dict[str, Any]) -> Verdict:
     """What a pytest run of one rule's test says about the rule (pure)."""
     if result.get("timed_out"):
@@ -129,9 +152,11 @@ def judge(result: Dict[str, Any]) -> Verdict:
         evidence = (f"in {case}:\n" + condense(message or str(stage.get("longrepr") or "")))[:_EVIDENCE_LIMIT]
         raised = _raised(test) or ""
         if raised in (f"call:{_NOT_HELD}", f"call:{_NO_CONTROL}"):
-            not_held.append(Verdict(FAIL, _one_line(message) or raised, evidence, raised.endswith(_NO_CONTROL)))
+            not_held.append(Verdict(FAIL, _one_line(message) or raised, evidence, raised.endswith(_NO_CONTROL),
+                                    seen=_seen(test)))
         else:
-            return Verdict(BROKEN, _one_line(message) or raised or f"the test ended as {test.get('outcome')}", evidence)
+            return Verdict(BROKEN, _one_line(message) or raised or f"the test ended as {test.get('outcome')}", evidence,
+                           seen=_seen(test))
     if not not_held:
         return Verdict(PASS)
     # An assertion that did not hold says more than a control that was not found
@@ -166,8 +191,8 @@ def _stored_test_still_fits(rule: Dict[str, Any], stored: Optional[Dict[str, Any
 
 
 def _outcome(rule: Dict[str, Any], verdict: Verdict, source: Optional[str], written: int) -> Dict[str, Any]:
-    return {"status": verdict.status, "reason": verdict.reason, "evidence": verdict.evidence, "source": source,
-            "written_for": rule_text(rule), "written": written}
+    return {"status": verdict.status, "reason": verdict.reason, "evidence": verdict.evidence, "seen": verdict.seen,
+            "source": source, "written_for": rule_text(rule), "written": written}
 
 
 def prove(rule: Dict[str, Any], write: Callable[[Dict[str, Any], str], str], run: Callable[[str], Verdict],

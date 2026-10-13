@@ -196,3 +196,19 @@ def test_what_the_page_sends_as_it_is_left_reaches_the_tests_own_api(small_app):
     workspace, page_url = small_app
     verdict = run_test(workspace, "SPEC-001", LEAVING, page_url)
     assert (verdict.status, verdict.reason) == ("pass", None), verdict.evidence
+
+
+def test_a_failed_test_says_what_the_page_sent_and_what_the_app_holds(small_app):
+    """
+    Given: The same app
+    When: A test clicks on the page and then expects wording the page never shows
+    Then: The verdict carries what the page sent to the app, what the app answered, and the arranged records as
+          the app held them when the test ended; a test that passes carries none of it
+    """
+    workspace, page_url = small_app
+    failed = run_test(workspace, "SPEC-001", FINISHING.replace("(done)", "(archived)"), page_url)
+    assert failed.status == "fail"
+    assert "POST /api/notes/n1/action" in failed.seen and '"action_type": "finish"' in failed.seen
+    assert "answered 200" in failed.seen
+    assert 'notes: [{"id": "n1", "text": "Water the plants", "done": true}]' in failed.seen
+    assert run_test(workspace, "SPEC-001", FINISHING, page_url).seen == ""

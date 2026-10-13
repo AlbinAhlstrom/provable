@@ -72,12 +72,39 @@ name every control and state first (not built yet).
 7. A run with and without the domain tests, then a decision.
 
 ## Fixing a red rule
-`POST /api/specs/rules/{id}/fix` (`backend/onboarding/rule_fix.py`, the Fix button on a red specification).
+`POST /api/specs/rules/{id}/fix` (`service_layer/rule_tests.py`, the Fix button on a red specification).
 - It starts from a test that ran and failed. A rule that never ran, passed or has a broken test is not touched.
+- **The cause is found before anything is changed** (`backend/onboarding/rule_diagnosis.py`, one call, stage
+  `rule_diagnosis`). A fix that could only change the page spent two attempts on a fault that was in the record's
+  class, and behind that in two rules that could not both hold. The answer is one of four:
+  - `page`: the page is changed (`rule_fix.py`, below).
+  - `logic`: the record's class is changed (`logic_fix.py`, below).
+  - `rules`: specifications disagree with what the plan says the action does. Nothing is changed; they are named.
+  - `test`: the test checks something the rule does not state. Nothing is changed.
+- What the diagnosis reads beyond the rule and its test:
+  - What the page asked the app to change, what the app answered, and the test's records as the app held them when
+    the test ended. The harness notes these on a failed test (`App.seen()` in the page-test harness template). A red
+    rule from before this is run once more first.
+  - The action's method with the helpers it calls, and what the plan says the action does.
+  - The rule's unit test and whether it passes, and the other rules about the same action.
+- The answer first works each rule through against the plan (`checked`: how many of what closes the whole are left,
+  what the action leaves, whether the rule holds), and a rule that does not hold makes the fault `rules` by code.
+  Asked for the verdict alone, the standard models named the class for a fault that was two rules disagreeing.
+- A rule left red keeps what was found (`page_test.cause`), shown under the specification in the Studio.
+
+### The page
 - The writer is shown the rule, the test, what the test saw, the API and the page, and answers with whole page files.
-  A file outside the page is refused. Only the page is changed here; the domain class changes through the
-  test-first loop.
+  A file outside the page is refused.
 - A change is kept only when the page builds, the rule's test passes and every rule that was green still is. A
   rejected change goes back once with what the check said; after a second rejection the page is as it was.
 - The writer is told to correct the cause for every case that shares it. Told only to change as little as possible,
   it special-cased the one action the test used and left six rules with the same cause red.
+
+### What the app does
+- The class changes where every change of a class is made, in the test-first loop. The rule's unit test was green,
+  so it arranged something the page test did not: the test writer is shown the page test and what the app held, and
+  writes the unit test again for those records.
+- The loop keeps its gates (red first, then green, every other rule's unit test still green). Then the same check as
+  for the page decides. A change that is not kept leaves the class and the rule's unit test as they were.
+- A change taken back because it broke other rules' unit tests names those rules by title: this rule and those
+  cannot be kept together, which is for a person to settle.

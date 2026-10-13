@@ -457,8 +457,14 @@ def generate_red_test(
     if not raw or not raw.strip():
         reason = agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response"
         raise RuntimeError(f"RED test generation failed: {reason}")
-    match = re.search(r"```(?:python)?\s*\n(.*?)```", raw, re.DOTALL)
-    return (match.group(1) if match else raw).strip() + "\n"
+    return _code_of(raw)
+
+
+def _code_of(answer: str) -> str:
+    """The code of an answer: what its fenced block holds when it has one, whatever words stand around it;
+    otherwise the answer itself."""
+    match = re.search(r"```(?:python)?\s*\n(.*?)```", answer, re.DOTALL)
+    return (match.group(1) if match else answer).strip() + "\n"
 
 
 @traced("tdd.green_synthesize")
@@ -511,10 +517,9 @@ def synthesize_green_class_implementation(
     raw_response = agent_orchestrator.call_gemini(prompt, stage="green_code_repair")
 
     if raw_response and raw_response.strip():
-        clean_code = re.sub(r"^```(?:python)?\s*", "", raw_response.strip(), flags=re.MULTILINE)
-        clean_code = re.sub(r"^```\s*$", "", clean_code.strip(), flags=re.MULTILINE).strip()
+        clean_code = _code_of(raw_response)
         if f"class {target_class_name}" in clean_code:
-            return clean_code + "\n"
+            return clean_code
 
     if raw_response and raw_response.strip():
         raise NoClassInAnswer(target_class_name, raw_response)
@@ -786,7 +791,8 @@ class {target_class}:
                         green_eval = {
                             "status": "REJECTED_REGRESSION",
                             "approved": False,
-                            "reason": f"Regression: your change makes earlier tests fail again: {', '.join(broken)}. Keep every existing behavior."
+                            "reason": f"Regression: your change makes earlier tests fail again: {', '.join(broken)}. Keep every existing behavior.",
+                            "broke": _failed_test_files(regression)
                         }
             attempts.append({"attempt": state.attempt, "approved": green_eval["approved"], "reason": green_eval.get("reason")})
 
@@ -821,7 +827,9 @@ class {target_class}:
                     "attempts": attempts,
                     "error_log": list(state.error_log),
                     "rolled_back": True,
-                    "pending_test": pending
+                    "pending_test": pending,
+                    # the tests of other specs the last change broke: this spec and those could not be kept together
+                    "broke": list(green_eval.get("broke") or [])
                 }
 
             failure_msg = (

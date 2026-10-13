@@ -6,6 +6,7 @@ stored on the rule: on its card in the deck, or with the spec when the rule is o
 is read from there (`onboarding/spec_test_status.py`).
 """
 
+import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -46,10 +47,11 @@ def _rule(card: Optional[Dict[str, Any]], spec: Optional[Dict[str, Any]], spec_i
     return rule
 
 
-def record_page_test(spec_id: str, outcome: Dict[str, Any], uow: AbstractUnitOfWork) -> None:
-    """Stores a page test's outcome on the rule, with the time it ran."""
+def record_page_test(spec_id: str, outcome: Dict[str, Any], uow: AbstractUnitOfWork, ran_at: Optional[str] = None) -> None:
+    """Stores a page test's outcome on the rule, with the time it ran (now, unless `ran_at` says the run is an
+    earlier one that only gains something, such as the cause a diagnosis found)."""
     stored = {**{k: v for k, v in outcome.items() if k != "written"},
-              "ran_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+              "ran_at": ran_at or datetime.now(timezone.utc).isoformat(timespec="seconds")}
     with uow:
         state = uow.kickstart.get()
         card, spec = _find(state, spec_id)
@@ -81,14 +83,26 @@ def run_rule_test(spec_id: str, uow: AbstractUnitOfWork, workspace_dir: Optional
     return {"success": outcome["status"] == page_tests.PASS, "spec_id": spec_id, **outcome}
 
 
+def _not_changed(status: str, reason: str) -> Dict[str, Any]:
+    return {"status": status, "reason": reason, "files": [], "attempts": []}
+
+
 @recorded("rule_fix", label="spec_id")
 def fix_rule_test(spec_id: str, uow: AbstractUnitOfWork, workspace_dir: Optional[str] = None, page_url: Optional[str] = None,
-                  fixer: Optional[Callable[..., Dict[str, Any]]] = None, prove: Optional[Prove] = None) -> Dict[str, Any]:
-    """Has the page changed so that a red rule's test turns green (`onboarding/rule_fix.py`). The rules that are
-    green guard the change: it is kept only when they all still are. A kept change is followed by a run of the
-    rule's test, so the light that turns green is one that was seen."""
-    from onboarding import rule_fix
-    fixer = fixer or rule_fix.fix_rule
+                  fixer: Optional[Callable[..., Dict[str, Any]]] = None, prove: Optional[Prove] = None,
+                  diagnose: Optional[Callable[..., Any]] = None, logic_fixer: Optional[Callable[..., Dict[str, Any]]] = None,
+                  see: Optional[Callable[..., page_tests.Verdict]] = None) -> Dict[str, Any]:
+    """Has the app changed so that a red rule's test turns green. Where the fault lies is found first
+    (`onboarding/rule_diagnosis.py`), and that decides what is changed: the page (`rule_fix.py`), the record's class
+    through the test-first loop (`logic_fix.py`), or nothing, when the rules disagree or the test is wrong. The
+    answer says which (`fault`, `why`, `rules`), and a rule left red keeps it as the `cause` beside its light.
+
+    Either change is guarded by the rules that are green: it is kept only when they all still are. A kept change is
+    followed by a run of the rule's test, so the light that turns green is one that was seen."""
+    from onboarding import logic_fix, rule_diagnosis, rule_fix
+    from onboarding.product_contract import stored_contract
+    fixer, logic_fixer = fixer or rule_fix.fix_rule, logic_fixer or logic_fix.fix_logic
+    diagnose, see = diagnose or rule_diagnosis.diagnose_rule, see or page_tests.run_test
     workspace_dir, page_url = workspace_dir or _workspace(), page_url or _page_url()
     with uow:
         state = uow.kickstart.get()
@@ -97,14 +111,56 @@ def fix_rule_test(spec_id: str, uow: AbstractUnitOfWork, workspace_dir: Optional
         green = {c["id"]: c["page_test"]["source"] for c in (state.rule_cards or [])
                  if c.get("id") != spec_id and c.get("is_active", True)
                  and (c.get("page_test") or {}).get("status") == page_tests.PASS and c["page_test"].get("source")}
+        contract, manifest = stored_contract(state), dict(state.action_manifest or {})
+        titles = {str(r.get("id") or r.get("spec_id")): str(r.get("title") or "")
+                  for r in [*(state.inbox_specs or []), *(state.rule_cards or [])]}
     if card is None and spec is None:
         return {"success": False, "status": "not_found", "reason": f"Rule {spec_id} not found."}
-    stored = (card or {}).get("page_test") or (spec or {}).get("page_test")
-    result = fixer(_rule(card, spec, spec_id), stored, workspace_dir, page_url, green)
-    fixed = result["status"] == rule_fix.FIXED
-    if fixed:
-        run_rule_test(spec_id, uow=uow, workspace_dir=workspace_dir, page_url=page_url, prove=prove)
-    return {"success": fixed, "spec_id": spec_id, **result}
+    rule = _rule(card, spec, spec_id)
+    stored = dict((card or {}).get("page_test") or (spec or {}).get("page_test") or {})
+
+    def answer(result: Dict[str, Any], diagnosis: Any = None) -> Dict[str, Any]:
+        cause = {"fault": diagnosis.fault, "why": diagnosis.why, "rules": list(diagnosis.rules)} if diagnosis else {}
+        fixed = result["status"] == rule_fix.FIXED
+        if fixed:
+            run_rule_test(spec_id, uow=uow, workspace_dir=workspace_dir, page_url=page_url, prove=prove)
+        elif cause:
+            record_page_test(spec_id, {**stored, "cause": cause}, uow=uow, ran_at=stored.get("ran_at"))
+        return {"success": fixed, "spec_id": spec_id, **cause, **result}
+
+    if stored.get("status") != page_tests.FAIL:
+        return answer(_not_changed(rule_fix.NOT_RED, "a fix starts from a rule whose test ran and failed"))
+    if str(rule.get("action") or "").strip() and not stored.get("seen"):
+        # the stored run is from before the app's side was noted: the test is run once more to see it
+        verdict = see(workspace_dir, spec_id, stored["source"], page_url)
+        stored.update(status=verdict.status, reason=verdict.reason, evidence=verdict.evidence, seen=verdict.seen)
+        record_page_test(spec_id, stored, uow=uow)
+        if verdict.status != page_tests.FAIL:
+            return answer(_not_changed(rule_fix.NOT_RED, f"the rule's test no longer fails: it ended as {verdict.status}"))
+    try:
+        diagnosis = diagnose(rule, stored, contract, workspace_dir)
+    except rule_diagnosis.NoDiagnosis as err:  # a provider or parse error: reported with its reason, never retried
+        return answer(_not_changed(rule_fix.NOT_FIXED, f"the cause was not found: {err}"))
+
+    if diagnosis.fault == rule_diagnosis.PAGE:
+        result = fixer(rule, stored, workspace_dir, page_url, green)
+    elif diagnosis.fault == rule_diagnosis.LOGIC:
+        result = dict(logic_fixer(rule, stored, workspace_dir, manifest,
+                                  check=lambda: rule_fix.check_app(workspace_dir, page_url, rule, stored, green)))
+        tdd = result.pop("tdd", None)
+        if tdd is not None:
+            from service_layer import services
+            services.record_tdd_result(spec_id, tdd, uow=uow)
+        # the rules whose own tests the change broke: this rule and those could not be kept together
+        broke = set(result.pop("broke", None) or [])
+        diagnosis.rules = [title for other, title in titles.items() if other != spec_id and title
+                           and os.path.basename(logic_fix.unit_test_path({"spec_id": other}, workspace_dir)) in broke]
+        if diagnosis.rules:
+            result["reason"] = ("a change that makes this rule hold breaks: "
+                                + ", ".join(f'"{title}"' for title in diagnosis.rules))
+    else:  # the rules disagree, or the test is wrong: no change of code is the right one
+        result = _not_changed(rule_fix.NOT_FIXED, diagnosis.why)
+    return answer(result, diagnosis)
 
 
 @recorded("rule_tests", label="label")

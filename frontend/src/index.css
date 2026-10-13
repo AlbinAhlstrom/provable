@@ -736,6 +736,10 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
 .spec-reason { margin: 0.3rem 0 0; font-size: 0.8rem; overflow-wrap: anywhere; }
 .spec-reason-fail { color: #fca5a5; }
 .spec-reason-broken { color: #fcd34d; }
+.spec-cause { margin-bottom: 0.9rem; padding: 0.55rem 0.7rem; border-left: 2px solid #fcd34d; background: rgba(252, 211, 77, 0.06); }
+.spec-cause p { margin: 0.2rem 0 0; font-size: 0.85rem; line-height: 1.45; overflow-wrap: anywhere; }
+.spec-cause .spec-cause-where { font-weight: 600; }
+.spec-cause-rules { margin: 0.25rem 0 0; padding-left: 1.1rem; font-size: 0.85rem; line-height: 1.5; }
 .spec-detail-actions { display: flex; flex-shrink: 0; gap: 0.35rem; }
 .spec-section-label {
   font-size: 0.72rem;

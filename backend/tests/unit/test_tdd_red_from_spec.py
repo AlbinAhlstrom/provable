@@ -304,3 +304,19 @@ def test_the_test_writer_is_given_the_situation_the_rule_starts_from(monkeypatch
 
     assert "- **Situation** `short_booking`: a booking of half an hour: start 10:00, end 10:30" in seen[0]
     assert "**Situation**" not in seen[1]
+
+
+def test_green_synthesis_takes_the_code_of_an_answer_that_opens_with_a_sentence(monkeypatch):
+    """Verify words around the fenced code of an answer do not cost the attempt.
+
+    id: TST-RFS-009
+    Given: A code writer that explains itself in a sentence, then gives the class in a fenced block, then adds a note
+    When: GREEN synthesis runs
+    Then: The fragment is the code of the block alone, as it is for an answer of code only
+    """
+    import agent_orchestrator
+    code = "@dataclass\nclass Booking:\n    booking_id: str = ''\n"
+    answer = f"The method must count what is left before it closes.\n\n```python\n{code}```\n\nThis keeps every test."
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda *a, **k: answer)
+
+    assert tm.synthesize_green_class_implementation(code, "Booking", _spec()) == code
