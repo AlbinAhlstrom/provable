@@ -21,14 +21,29 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit
 
 import pytest
-from playwright.sync_api import expect, sync_playwright
+from playwright.sync_api import Locator, Page, expect, sync_playwright
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PAGE_URL = os.environ.get("PAGE_URL", "http://localhost:5174")
 API_START_TIMEOUT_S = 30
 WAIT_MS = 5000  # how long the page gets to show what a test expects, or to offer a control it uses
 
+PRESS_MS = 200  # how long a click holds the button down, as a person's does
+
 expect.set_options(timeout=WAIT_MS)
+
+
+def _held(click):
+    """A click that lasts as long as a person's unless the test says how long. A click that is over in no time
+    reaches a control a person never could: one the page takes away while it is still being pressed."""
+    def pressed(self, *args, **kwargs):
+        kwargs.setdefault("delay", PRESS_MS)
+        return click(self, *args, **kwargs)
+    return pressed
+
+
+Locator.click = _held(Locator.click)
+Page.click = _held(Page.click)
 
 
 class Refused(RuntimeError):
