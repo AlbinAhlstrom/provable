@@ -63,6 +63,25 @@ def record_page_test(spec_id: str, outcome: Dict[str, Any], uow: AbstractUnitOfW
         uow.commit()
 
 
+def record_review(conflicts: List[Dict[str, Any]], uow: AbstractUnitOfWork) -> None:
+    """Keeps what the review of the rule deck found (`onboarding/spec_review.py`) with each rule it names: why, and
+    the titles of the other rules of the conflict. A rule named alone is one that contradicts the plan."""
+    if not conflicts:
+        return
+    with uow:
+        state = uow.kickstart.get()
+        found = {spec_id: _find(state, spec_id) for conflict in conflicts for spec_id in conflict.get("specs") or []}
+        holders = {spec_id: card if card is not None else spec for spec_id, (card, spec) in found.items()}
+        for conflict in conflicts:
+            named = [spec_id for spec_id in conflict.get("specs") or [] if holders.get(spec_id) is not None]
+            for spec_id in named:
+                holders[spec_id]["review"] = {
+                    "why": str(conflict.get("reason") or ""),
+                    "rules": [str(holders[other].get("title") or other) for other in named if other != spec_id]}
+        uow.kickstart.save(state)
+        uow.commit()
+
+
 @recorded("rule_test", label="spec_id")
 def run_rule_test(spec_id: str, uow: AbstractUnitOfWork, workspace_dir: Optional[str] = None,
                   page_url: Optional[str] = None, prove: Optional[Prove] = None, rewrite: bool = False) -> Dict[str, Any]:

@@ -6,7 +6,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { RuleCardDTO } from '../../types/api';
 import { SpecStatusLight, testStatusLabel } from './SpecStatusLight';
-import { SpecCause } from './SpecCause';
+import { SpecCause, reviewCause } from './SpecCause';
 
 export interface SpecDetailProps {
   card: RuleCardDTO | null;
@@ -34,6 +34,8 @@ export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ c
   }
   const clauses = CLAUSES.filter(c => card[c.key]);
   const didNotPass = card.test_status === 'fail' || card.test_status === 'broken';
+  // what a fix found on a red specification, else what the review found when the app was planned
+  const cause = (didNotPass && card.page_test?.cause) || (card.review ? reviewCause(card.review) : null);
 
   return (
     <div className="spec-detail" ref={ref}>
@@ -59,7 +61,7 @@ export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ c
         </div>
       </div>
 
-      {didNotPass && card.page_test?.cause && <SpecCause cause={card.page_test.cause} />}
+      {cause && <SpecCause cause={cause} />}
 
       <span className="spec-section-label">Behaviour</span>
       {clauses.length > 0 ? (

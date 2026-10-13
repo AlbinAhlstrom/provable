@@ -128,8 +128,7 @@ def case_of(rule: Dict[str, Any], stored: Dict[str, Any], contract: Optional[Pro
     from onboarding.cst_isolator import extract_class_cst
 
     name, owner = str(rule.get("action") or ""), str(rule.get("target_aggregate") or rule.get("target") or "")
-    planned = next((a for a in (contract.actions if contract else []) if a.name == name), None)
-    action = f"`{name}({', '.join(planned.params)})`: {planned.does}" if planned else f"`{name}`"
+    action = contract.action_text(name) if contract else f"`{name}`"
     others = [f"- {other.title}: Given {contract.situation_of(other.given) or other.given}, When {other.when}, "
               f"Then {other.then}"
               for other in (contract.rules if contract else [])

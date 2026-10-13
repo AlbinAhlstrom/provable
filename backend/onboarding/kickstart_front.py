@@ -33,8 +33,9 @@ class Front:
         """The synthesis stages the contract already answers (`run_synthesis_stages` keyword arguments)."""
         if self.contract is None:
             return {}
-        from onboarding.product_contract import contract_protocol, contract_ux
-        return {"protocol": contract_protocol(self.contract), "ux": contract_ux(self.contract)}
+        from onboarding.product_contract import contract_protocol, contract_review, contract_ux
+        return {"protocol": contract_protocol(self.contract), "ux": contract_ux(self.contract),
+                "review": contract_review(self.contract)}
 
 
 def front_kind(live: bool) -> str:

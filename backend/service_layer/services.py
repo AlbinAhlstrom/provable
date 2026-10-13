@@ -1982,6 +1982,8 @@ def kickstart_domain_and_scaffold(
                                                                        on_result=done),
                     on_rule=lambda spec, result: record_tdd_result(spec.spec_id, result, uow=type(uow)())))
             spec_conflicts = synthesis.spec_conflicts
+            from service_layer import rule_tests
+            rule_tests.record_review(spec_conflicts, uow=type(uow)())  # shown with each rule it names
             stage_failures.extend(synthesis.failures)
             timings.update(synthesis.timings)
             pres_res = synthesis.presentation

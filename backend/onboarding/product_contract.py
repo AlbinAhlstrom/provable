@@ -334,6 +334,11 @@ class ProductContract:
         found = [name for name in named if name and re.search(rf"(?<![\w]){re.escape(name)}(?![\w])", given)]
         return f"`{max(found, key=len)}`: {named[max(found, key=len)]}" if found else ""
 
+    def action_text(self, name: str) -> str:
+        """An action as the plan describes it, in one line: its name, what it is handed and what it does."""
+        planned = next((a for a in self.actions if a.name == name), None)
+        return f"`{name}({', '.join(planned.params)})`: {planned.does}" if planned else f"`{name}`"
+
     def _worked_on(self) -> Record:
         """The record the page is about: the first one a person or the page makes, else the first."""
         return next((r for r in self.records if r.origin != FROM_START), self.records[0])
@@ -464,6 +469,15 @@ def contract_ux(contract: ProductContract) -> Any:
     def ux(**_: Any) -> str:
         return contract.blueprint()
     return ux
+
+
+def contract_review(contract: ProductContract) -> Any:
+    """The review of the rule deck, shown what the contract says each action does (the stage's signature)."""
+    def review(specs: List[BusinessSpec], intent: Optional[ProductIntent] = None) -> Dict[str, Any]:
+        from onboarding import spec_review
+        return spec_review.review_spec_consistency(
+            specs, intent=intent, actions={action.name: contract.action_text(action.name) for action in contract.actions})
+    return review
 
 
 def stored_contract(state: Any) -> Optional[ProductContract]:

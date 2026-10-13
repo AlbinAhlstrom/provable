@@ -40,7 +40,12 @@ PROVIDERS: Dict[str, Provider] = {
                                         # Where the fault of a red rule lies decides what a fix may change. On one
                                         # recorded case the middle model named the rule that contradicts the plan in
                                         # 2 of 2 answers of 5 to 7 s; the small one in 3 of 4, of 10 to 15 s.
-                                        "rule_diagnosis": "claude-sonnet-5-5"},
+                                        "rule_diagnosis": "claude-sonnet-5-5",
+                                        # The rule deck is checked against the plan it was written with
+                                        # (onboarding/spec_review.py). On a contract with a rule that contradicts
+                                        # its action the middle model named it in 2 of 2 answers of 8 s; the small
+                                        # one missed it in 15 s. It runs beside the builders, so it adds no time.
+                                        "spec_consistency_review": "claude-sonnet-5-5"},
                           # The small model thinks by default. Writing the page from the contract and the plan, that
                           # was four fifths of the answer's tokens and of its time (67 s against 12 s, ADR-011). The
                           # first tests of a class are transcribed from the contract's rules, which state every value

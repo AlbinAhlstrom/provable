@@ -20,6 +20,7 @@ export interface RuleCardDTO {
   test_status: SpecTestStatus;
   test_reason?: string | null;  // one line saying why the last run did not pass
   page_test?: PageTestDTO | null;
+  review?: RuleReviewDTO | null;  // what the review of the rules found when the app was planned
 }
 
 /** The last run of a rule's page test: the test itself, what it showed when it did not pass, and when it ran. */
@@ -30,10 +31,17 @@ export interface PageTestDTO {
   cause?: RuleCauseDTO | null;  // what a fix found when it left the rule red
 }
 
-/** Where a fix found the fault of a red rule: on the page, in what the app does, in rules that cannot hold
- *  together (named by title), or in the test. */
+/** What the review of the rules found about one of them: why it cannot hold, and the rules it cannot hold together
+ *  with, by title. With no other rule named, it contradicts what the plan says the app does. */
+export interface RuleReviewDTO {
+  why: string;
+  rules: string[];
+}
+
+/** Where the fault of a rule lies: on the page, in what the app does, in rules that cannot hold together (named by
+ *  title), in the test, or in the rule itself, which contradicts the plan. */
 export interface RuleCauseDTO {
-  fault: 'page' | 'logic' | 'rules' | 'test';
+  fault: 'page' | 'logic' | 'rules' | 'test' | 'plan';
   why: string;      // one sentence in everyday words
   rules: string[];
 }

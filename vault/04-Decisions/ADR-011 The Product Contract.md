@@ -187,6 +187,27 @@ hour and a party larger than the table, and took the booking after the first was
 Open: no kickstart has run with it, so the page's use of `sendKindAction` is unproved. The ids of records that
 exist from the start are still chosen by the seed step, not by the contract.
 
+## The rules are checked against the plan
+A contract can hold a rule that contradicts its own action: the rule starts from a situation in which the action, done
+as the plan describes it, ends somewhere else than the rule's Then (a rule kept a whole open after the step that
+completes it). Read as text the rule looks fine, it gets a green test of the class alone, and it surfaces only when a
+page test of another rule fails and no fix can keep both.
+
+- The review of the rule deck (`backend/onboarding/spec_review.py`, one call beside the builders) is handed the
+  contract's actions (`contract_review`): under each action as the plan describes it stand its rules, each with the
+  situation it starts from.
+- The answer works every such rule through first (`checked`: what closes the whole counted, what the action leaves,
+  whether the rule holds), then names the conflicts. One rule alone is reported only when its check says it does not
+  hold and a conflict names it.
+- It reports and changes nothing. What it found is kept with each rule it names (`review` on the rule's card) and
+  shown under the specification in the Studio; the kickstart result still lists it as `spec_conflicts`.
+- Measured on seven contracts (six of one game, one of a booking page), on the middle model at low effort: 4 to 9 s
+  and about 0.2 SEK a review. The rule that had cost a failed fix was named in 3 of 3 answers; the small model missed
+  it. Of nine findings seven were real on reading (a rule against its action, or a rule whose When does not fit its
+  situation), one named a rule whose Then was only silent, and one was a check marked wrong with no conflict written,
+  which the rule above now leaves out. The booking contract had none.
+- Not done: the contract is not sent back to be rewritten. A rule the review names is still built.
+
 ## Consequences
 - The front is one stage (`contract`) of some 25 to 40 s in place of five.
 - Later writers read the contract's brief where they read the expanded pitch. The stored specification also holds

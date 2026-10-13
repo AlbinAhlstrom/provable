@@ -66,3 +66,96 @@ def test_verification_models_say_whether_test_and_code_are_independent(monkeypat
     assert services.verification_models() == {"test": "m1", "code": "m1", "independent": False}
     monkeypatch.setenv("LLM_MODEL_RED_TEST_GENERATION", "m2")
     assert services.verification_models() == {"test": "m2", "code": "m1", "independent": True}
+
+
+ACTIONS = {"settle_line": "`settle_line(line: whole_number)`: settles the line; when every line is settled the order "
+                          "is settled"}
+
+
+def _rule(i, given, then, situation):
+    return BusinessSpec(spec_id=f"S{i}", title=f"T{i}", description="d", target_aggregate="Order", action="settle_line",
+                        given_when_then=f"Given {given}, When settle_line(line 2), Then {then}", situation=situation)
+
+
+PLANNED = [_rule(1, "one_line_open", "the order is settled", "`one_line_open`: an order of two lines, the first settled"),
+           _rule(2, "one_line_open", "the order stays open", "`one_line_open`: an order of two lines, the first settled"),
+           BusinessSpec(spec_id="S3", title="T3", description="d", target_aggregate="Order",
+                        given_when_then="Given an order, When the page opens, Then its lines are listed")]
+
+
+def _checked(*holds):
+    return [{"spec": f"S{i}", "closing": "0 lines left open: met", "leaves": "the order is settled", "holds": held}
+            for i, held in enumerate(holds, start=1)]
+
+
+def test_each_rule_is_read_with_what_the_plan_says_its_action_does(monkeypatch):
+    """Verify the review is shown the plan: an action as described, and the situation each of its rules starts from.
+
+    id: TST-REV-013
+    Given: Two rules about one action of the plan and a rule about none
+    When: The set is reviewed with the plan's actions
+    Then: One call held to the review's schema; its prompt gives the action as the plan describes it, each rule
+          under it with the situation it starts from, and the rule about no action apart
+    """
+    import json
+    from onboarding import spec_review
+    seen = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda p, stage="general", **k: seen.append((p, stage, k))
+                        or json.dumps({"checked": _checked(True, True), "conflicts": []}))
+
+    result = review_spec_consistency(PLANNED, actions=ACTIONS)
+
+    (prompt, stage, options), = seen
+    assert result == {"success": True, "conflicts": []}
+    assert stage == "spec_consistency_review" and options["json_schema"] is spec_review.REVIEW_SCHEMA
+    assert ACTIONS["settle_line"] in prompt and "an order of two lines, the first settled" in prompt
+    assert prompt.index(ACTIONS["settle_line"]) < prompt.index("- S1 [T1]") < prompt.index("- S2 [T2]")
+    assert prompt.index("- S2 [T2]") < prompt.index(spec_review.NO_ACTION) < prompt.index("- S3 [T3]")
+
+
+def test_a_check_marked_as_not_holding_that_no_conflict_names_is_not_reported(monkeypatch):
+    """Verify one rule is reported against the plan only when the worked check and the conclusion agree.
+
+    Measured on seven contracts: every rule that really contradicted its plan was named in a conflict too, and the
+    one check marked as not holding with no conflict written for it had worked out exactly what the rule states.
+
+    id: TST-REV-014
+    Given: A model whose check of one rule says it does not hold, and which reports no conflict
+    When: The set is reviewed
+    Then: Nothing is reported
+    """
+    import json
+    _llm(monkeypatch, json.dumps({"checked": _checked(True, False), "conflicts": []}))
+
+    assert review_spec_consistency(PLANNED, actions=ACTIONS) == {"success": True, "conflicts": []}
+
+
+def test_the_reason_the_model_gave_for_a_rule_that_does_not_hold_is_kept(monkeypatch):
+    """Verify a conflict the model wrote about the rule is the one reported, once.
+
+    id: TST-REV-015
+    Given: A check that says one rule does not hold, a conflict naming it with a reason in everyday words, and a
+           conflict naming one rule that does hold
+    When: The set is reviewed
+    Then: The first is reported as written and nothing is added; the second is not a conflict
+    """
+    import json
+    said = [{"specs": ["S2"], "reason": "Settling the last line settles the order, and this rule keeps it open."},
+            {"specs": ["S1"], "reason": "nothing"}]
+    _llm(monkeypatch, json.dumps({"checked": _checked(True, False), "conflicts": said}))
+
+    assert review_spec_consistency(PLANNED, actions=ACTIONS)["conflicts"] == said[:1]
+
+
+def test_one_rule_is_still_reviewed_against_the_plan(monkeypatch):
+    """Verify a single rule skips the review only when there is no plan to check it against.
+
+    id: TST-REV-016
+    Given: One rule and the plan's actions
+    When: It is reviewed
+    Then: The call is made
+    """
+    import json
+    calls = _llm(monkeypatch, json.dumps({"checked": _checked(True), "conflicts": []}))
+
+    assert review_spec_consistency(PLANNED[:1], actions=ACTIONS)["success"] is True and len(calls) == 1

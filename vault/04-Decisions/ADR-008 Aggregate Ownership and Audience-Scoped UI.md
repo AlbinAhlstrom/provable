@@ -19,7 +19,7 @@ Merging the one-shot UI/domain synthesizer with the spec-by-spec TDD loop expose
 
 - **The master API client is generated, not written by the model** (`skeleton_builder.generate_master_client`): list/get/create/action, errors thrown with the server's message, no `default` record, no fabricated fallback data. The presentation prompt states the real endpoints. A model App that does not wire the master view is a failed stage (no substitute shell), and kickstart reports `stage_failures`.
 - **The action protocol is persisted and checked against the code.** The TDD loop's RED prompt lists the methods the interface was promised for the target class (`format_interface_contract`); `GET /api/specs/action-contract` reports manifest actions that have no method on their aggregate.
-- **Spec conflicts are reported up front** (`onboarding/spec_review.py`, one call, report only) as `spec_conflicts` in the kickstart result. The Studio states whether the test and the code were written by the same model.
+- **Spec conflicts are reported up front** (`onboarding/spec_review.py`, one call, report only) as `spec_conflicts` in the kickstart result. Since ADR-011 it also checks each rule against the plan's actions. The Studio states whether the test and the code were written by the same model.
 
 ## Known gaps (not fixed yet)
 - A presentation spec is proved only by a successful build; nothing checks the rendered page shows what the spec says.

@@ -387,3 +387,23 @@ def test_a_change_that_breaks_other_rules_names_them_by_title():
     assert (result["success"], result["fault"]) == (False, "logic") and "broke" not in result
     assert result["rules"] == [CARD["title"]] and CARD["title"] in result["reason"]
     assert _page_test(uow)["cause"] == {"fault": "logic", "why": "The order stays open.", "rules": [CARD["title"]]}
+
+
+def test_what_the_review_found_is_kept_with_each_rule_it_names():
+    """
+    Given: A deck of three rules, and a review that found one against the plan and two that cannot both hold
+    When: What the review found is recorded
+    Then: The first keeps the reason and names no other rule; each of the pair keeps the reason and the title of the
+          other; a rule the review named in nothing keeps nothing; a rule that is not in the deck is passed over
+    """
+    cards = [{**CARD, "id": spec_id, "title": f"Rule {spec_id}"} for spec_id in ("SPEC-001", "SPEC-002", "SPEC-003", "SPEC-004")]
+    uow = _deck(*cards)
+
+    rule_tests.record_review([{"specs": ["SPEC-001"], "reason": "It keeps the order open."},
+                              {"specs": ["SPEC-002", "SPEC-003", "SPEC-999"], "reason": "Accepted and refused."}], uow=uow)
+
+    kept = {card["id"]: card.get("review") for card in services.get_living_deck(uow=uow)}
+    assert kept["SPEC-001"] == {"why": "It keeps the order open.", "rules": []}
+    assert kept["SPEC-002"] == {"why": "Accepted and refused.", "rules": ["Rule SPEC-003"]}
+    assert kept["SPEC-003"] == {"why": "Accepted and refused.", "rules": ["Rule SPEC-002"]}
+    assert kept["SPEC-004"] is None
