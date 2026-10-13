@@ -10,13 +10,14 @@ can be compared on the same pitch.
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from onboarding.intent import ProductIntent
 from onboarding.router_engine import BusinessSpec, DomainStructureSchema
 from run_recorder import stage_begin
 
 CONTRACT, STAGES = "contract", "stages"
+PLAN_REVIEW, PLAN_REWORK = "plan_review", "plan_rework"
 
 
 @dataclass
@@ -27,6 +28,7 @@ class Front:
     inbox_specs: List[BusinessSpec]
     stored_pitch: str = ""                # what is kept as the product's specification (a page rebuild plans from it)
     contract: Optional[Any] = None        # the ProductContract, when the front was one
+    review: Optional[Dict[str, Any]] = None  # what the review of the contract's rules found, when it still stands
     timings: Dict[str, float] = field(default_factory=dict)
 
     def stage_overrides(self) -> Dict[str, Any]:
@@ -34,16 +36,53 @@ class Front:
         if self.contract is None:
             return {}
         from onboarding.product_contract import contract_protocol, contract_review, contract_ux
-        return {"protocol": contract_protocol(self.contract), "ux": contract_ux(self.contract),
-                "review": contract_review(self.contract)}
+        # The rules were reviewed before the build (`reviewed_plan`). What was found is the review stage's answer,
+        # with no second call; rules that were written again since are read anew.
+        review = contract_review(self.contract) if self.review is None else (lambda specs, intent=None: self.review)
+        return {"protocol": contract_protocol(self.contract), "ux": contract_ux(self.contract), "review": review}
 
 
 def front_kind(live: bool) -> str:
     return CONTRACT if live and (os.environ.get("KICKSTART_FRONT") or CONTRACT).strip().lower() != STAGES else STAGES
 
 
-def contract_front(pitch: str) -> Front:
-    """The front as one stage: the product contract and everything read out of it."""
+def reviewed_plan(contract: Any, review: Optional[Callable[..., Dict[str, Any]]] = None,
+                  rework: Optional[Callable[..., Any]] = None) -> Tuple[Any, Optional[Dict[str, Any]]]:
+    """The contract the build starts from, and what its review found where that still stands.
+
+    The rules are reviewed against the plan before anything is built (`spec_review.py`). Rules the review names are
+    sent back once to be written again (`plan_rework.py`), and the corrected plan is what is built; its review is
+    then the build's own review stage's to make, so the second value is None. A review or a rework that fails is
+    not tried again: the plan is built as written and what was found, or why the review failed, stays reported."""
+    from onboarding import plan_rework
+    from onboarding.product_contract import contract_review
+    st = stage_begin(PLAN_REVIEW)
+    found = (review or contract_review(contract))(contract.specs(), intent=contract.intent())
+    again = stage_begin(PLAN_REWORK)
+    if not found.get("success"):
+        st.fail(str(found.get("error")))
+        again.skip("the plan was not reviewed")
+        return contract, found
+    conflicts = found.get("conflicts") or []
+    st.note("conflicts", len(conflicts))
+    st.ok()
+    if not conflicts:
+        again.skip("the review found nothing")
+        return contract, found
+    try:
+        reworked = (rework or plan_rework.rework_rules)(contract, conflicts)
+    except Exception as exc:  # reported with its reason, never retried
+        again.fail(f"{type(exc).__name__}: {exc}")
+        return contract, found
+    again.note("rules", sorted(plan_rework.named_rules(contract, conflicts)))
+    again.ok()
+    return reworked, None
+
+
+def contract_front(pitch: str, review: Optional[Callable[..., Dict[str, Any]]] = None,
+                   rework: Optional[Callable[..., Any]] = None) -> Front:
+    """The front as one stage: the product contract and everything read out of it, once its rules were reviewed
+    against it and the ones that could not hold were written again (`reviewed_plan`)."""
     from onboarding.product_contract import write_product_contract
     started = time.time()
     st = stage_begin(CONTRACT)
@@ -58,8 +97,10 @@ def contract_front(pitch: str) -> Front:
     st.note("rules", {"api": sum(1 for r in contract.rules if r.kind == "api"),
                       "page": sum(1 for r in contract.rules if r.kind == "page")})
     st.ok()
-    brief = contract.brief()
+    contract, found = reviewed_plan(contract, review=review, rework=rework)
+    structure, specs, brief = contract.structure(), contract.specs(), contract.brief()
     return Front(intent=contract.intent(), pitch_text=brief, structure=structure, inbox_specs=specs, contract=contract,
+                 review=found,
                  stored_pitch=brief + "\n\n## The page\n" + contract.blueprint(),
                  timings={"0_contract": round(time.time() - started, 2)})
 

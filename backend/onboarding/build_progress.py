@@ -43,6 +43,8 @@ from onboarding.stage_timing import average_durations, expected_durations, stage
 # What each stage is doing, as a step someone waiting for their app reads at a glance
 STAGE_LABELS = {
     "contract": "Planning the product",
+    "plan_review": "Checking the plan",
+    "plan_rework": "Correcting the plan",
     "intent": "Reading the prompt",
     "expansion": "Writing the specification",
     "decomposition": "Defining the data model",
@@ -74,7 +76,8 @@ STAGE_PHASES: Dict[str, List[Tuple[str, float]]] = {
 PHASES_DONE_BY = 0.7   # the share of the stage's usual time by which every phase but the last is over
 PHASE_JITTER = 0.35    # how far a phase's length may be from its given one, either way, in one build
 PHASE_SECONDS = 5.0    # a phase's mean length when no recorded build says how long its stage takes
-FRONTS = (("contract",), ("intent", "expansion", "decomposition"))  # a build opens with one of these
+# a build opens with one of these
+FRONTS = (("contract", "plan_review", "plan_rework"), ("intent", "expansion", "decomposition"))
 DRAFT_STAGE = "skeleton"
 PAGE_STAGE = "presentation"
 RULES_STAGE = "behaviour_specs"

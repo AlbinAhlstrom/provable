@@ -45,7 +45,10 @@ PROVIDERS: Dict[str, Provider] = {
                                         # (onboarding/spec_review.py). On a contract with a rule that contradicts
                                         # its action the middle model named it in 2 of 2 answers of 8 s; the small
                                         # one missed it in 15 s. It runs beside the builders, so it adds no time.
-                                        "spec_consistency_review": "claude-sonnet-5-5"},
+                                        "spec_consistency_review": "claude-sonnet-5-5",
+                                        # The rules that review names are written again by the writer of the plan
+                                        # (onboarding/plan_rework.py); not measured on the small model.
+                                        "plan_rework": "claude-sonnet-5-5"},
                           # The small model thinks by default. Writing the page from the contract and the plan, that
                           # was four fifths of the answer's tokens and of its time (67 s against 12 s, ADR-011). The
                           # first tests of a class are transcribed from the contract's rules, which state every value

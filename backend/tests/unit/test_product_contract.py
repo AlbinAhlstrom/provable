@@ -691,20 +691,19 @@ def test_the_review_of_a_contracts_rules_is_shown_what_its_actions_do(monkeypatc
     """Verify the rules of a contract are reviewed against the contract's own actions.
 
     id: TST-CONTRACT-REVIEW
-    Given: The front of a kickstart built from a contract
-    When: Its review stage is run on the rule deck
+    Given: A contract
+    When: The review of its rules is run on the rule deck (the front does so before the build, test_plan_rework.py)
     Then: The review receives the deck and each action as the plan describes it, by name
     """
-    from onboarding import kickstart_front as kf, spec_review
-    monkeypatch.delenv("KICKSTART_FRONT", raising=False)
-    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda prompt, stage="general", **k: json.dumps(CONTRACT))
-    front, seen = kf.build_front("A table booking page", live=True), {}
+    from onboarding import spec_review
+    contract, seen = pc.ProductContract.from_dict(copy.deepcopy(CONTRACT)), {}
+    specs = contract.specs()
     monkeypatch.setattr(spec_review, "review_spec_consistency",
                         lambda specs, intent=None, actions=None: seen.update(specs=specs, actions=actions) or {"success": True, "conflicts": []})
 
-    result = front.stage_overrides()["review"](front.inbox_specs, intent=front.intent)
+    result = pc.contract_review(contract)(specs, intent=contract.intent())
 
-    assert result == {"success": True, "conflicts": []} and seen["specs"] is front.inbox_specs
+    assert result == {"success": True, "conflicts": []} and seen["specs"] is specs
     assert list(seen["actions"]) == ["create_booking", "expire_hold", "mark_no_show"]
     assert seen["actions"]["create_booking"] == ("`create_booking(table_id: text, guests: whole_number)`: creates a "
                                                  "Booking with status confirmed")

@@ -206,7 +206,30 @@ page test of another rule fails and no fix can keep both.
   it. Of nine findings seven were real on reading (a rule against its action, or a rule whose When does not fit its
   situation), one named a rule whose Then was only silent, and one was a check marked wrong with no conflict written,
   which the rule above now leaves out. The booking contract had none.
-- Not done: the contract is not sent back to be rewritten. A rule the review names is still built.
+
+### A plan the review names rules in is sent back once
+Reporting was not enough: a named rule was still built, got its green test of the class alone, and stayed a red page
+test nobody could fix. So the review is made before the build, and its verdict buys one rework
+(`kickstart_front.reviewed_plan`, stages `plan_review` and `plan_rework`).
+
+- **Only the named rules are written again** (`backend/onboarding/plan_rework.py`, one call by the plan's writer),
+  with the situations they need added. The actions decide and stay; a situation other rules start from stays. The
+  plan is some 7,000 tokens and a rule under a hundred, so nothing else of the plan can drift and the call is a
+  tenth of writing the plan again.
+- What comes back is checked by code: only named rules, only new situations, and every rewritten rule the records
+  obey starts from a situation of the plan. Anything else fails by name and the plan is built as written, with what
+  the review found still reported.
+- Once. The reworked rules are reviewed by the build's review stage, beside the builders, which reports what is left.
+  When the first review found nothing, that stage answers with it and makes no second call.
+- A review or rework that fails (provider, parse) is not tried again.
+- Cost: every kickstart waits for the review before it builds, 4 to 9 s where the review used to run beside the
+  builders. A plan with named rules adds the rework, 4 to 9 s and about 0.25 SEK, and a second review, which adds
+  about 0.2 SEK and no time.
+- Measured on two plans. A game's plan with three named rules: reworked in 8.9 s, each given a larger situation of
+  its own, and the review of the result found nothing. A booking plan with one rule set against its action by hand:
+  reworked in 4.2 s, clean afterwards.
+- Seen: a rework makes a rule true by stating what the action really leaves, which can turn a rule about one step
+  into a second rule about finishing. It holds, but it proves less than the rule was meant to.
 
 ## Consequences
 - The front is one stage (`contract`) of some 25 to 40 s in place of five.
