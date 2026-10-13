@@ -127,3 +127,30 @@ def test_the_functions_are_written_beside_the_tests_before_a_rule_is_proved(tmp_
 
     assert with_plan == locators_module(parts_of(PLAN))
     assert held["there"] is None
+
+
+def test_the_functions_are_written_when_the_plan_comes_with_the_described_app(tmp_path):
+    """Verify a run of every rule, which hands over the app described once and no plan of its own, has the functions.
+
+    id: TST-LOCATOR-005
+    Given: An app described once with its page's plan, and a rule with a stored test that imports the functions
+    When: The rule is proved with that description and no plan beside it
+    Then: tests/e2e/parts.py holds the functions of the description's plan before the test runs
+    """
+    held = {}
+    path = os.path.join(str(tmp_path), "tests", "e2e", "parts.py")
+
+    def run(workspace_dir, spec_id, source, page_url):
+        held["there"] = open(path, encoding="utf-8").read() if os.path.exists(path) else None
+        return page_tests.Verdict(page_tests.PASS)
+
+    original, page_tests.run_test = page_tests.run_test, run
+    try:
+        rule = {"spec_id": "SPEC-001", "title": "t", "given_when_then": "Given a When b Then c"}
+        stored = {"source": "import parts\n", "status": "pass", "written_for": page_tests.rule_text(rule)}
+        page_tests.prove_rule(rule, str(tmp_path), "http://page", stored=stored,
+                              app=page_tests.AppDescription(api="API", page="PAGE", plan=PLAN))
+    finally:
+        page_tests.run_test = original
+
+    assert held["there"] == locators_module(parts_of(PLAN))

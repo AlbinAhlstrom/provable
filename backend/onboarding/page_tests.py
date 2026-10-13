@@ -422,7 +422,8 @@ def prove_rule(rule: Dict[str, Any], workspace_dir: str, page_url: str, stored: 
                app: Optional[AppDescription] = None, plan: str = "") -> Dict[str, Any]:
     """`prove` with the model writing and a browser running."""
     described: List[AppDescription] = [app] if app else []
-    ensure_parts(workspace_dir, plan)  # a stored test finds the plan's parts through them as well
+    # a stored test finds the plan's parts through them as well; a run of every rule hands the plan over with the app
+    ensure_parts(workspace_dir, plan or (app.plan if app else ""))
 
     def write(the_rule: Dict[str, Any], feedback: str) -> str:
         if not described:  # only read when a test has to be written
