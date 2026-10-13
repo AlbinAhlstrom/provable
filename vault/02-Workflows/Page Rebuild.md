@@ -23,6 +23,10 @@ the rules every time and also changed them every time, so two runs could not be 
 - The stages are the kickstart's own: `run_ux_plan_stage` and `run_presentation_stage` from
   `backend/onboarding/synthesis_stages.py`, then `run_page_gates` from `backend/onboarding/page_gates.py` (QA with
   one rework, then one visual review). A kickstart ends in the same gates.
+- A product built from a contract ([[ADR-011 The Product Contract]]) is rebuilt from the contract's own page plan
+  (`PageBrief.plan`), and no model is asked for another: the plan names each part by the role and name the page
+  tests find it by, and a second plan does not. Until this was so, a rebuilt page was written with an empty parts
+  list and never checked for its parts. A product built without a contract still has its plan written.
 - The domain, its tests, the seed records and the action protocol are not touched.
 - It records itself like any run (`logs/runs/<id>_page_...`), so `scripts/trace_report.py` and `--compare` work.
 

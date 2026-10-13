@@ -195,3 +195,41 @@ def test_a_review_that_could_not_look_fails_the_build(tmp_path):
                         review={"verdict": "error", "problems": [], "edits": [], "not_repaired": [], "claims": [],
                                 "attempts": 1, "error": "quota exceeded"})
     assert outcome.failures == [{"stage": "visual_review", "error": "quota exceeded"}]
+
+
+
+def test_a_rebuild_writes_the_page_from_the_plan_the_product_was_built_from(tmp_path, monkeypatch):
+    """Verify a rebuilt page has the parts the product's plan names, the ones its tests look for, and that no
+    model is asked for another plan.
+
+    id: TST-PAGE-PLAN
+    Given: A build state that kept the contract the product was built from, and a planner that must not be asked
+    When: The brief is read and the page is rebuilt
+    Then: The brief carries the contract's page plan, and the page writer and the gates are handed exactly it
+    """
+    from onboarding import product_contract, ux_planner
+
+    class Kept:
+        def blueprint(self):
+            return PLAN
+
+    def never(**_):
+        raise AssertionError("a product built from a contract has its page plan: none is written again")
+
+    monkeypatch.setattr(product_contract, "stored_contract", lambda state: Kept() if state.contract else None)
+    monkeypatch.setattr(ux_planner, "plan_ux_blueprint", never)
+    handed = []
+
+    def presentation(**kw):
+        handed.append(kw["ux_blueprint"])
+        return {"success": True, "files": ["src/App.tsx"]}
+
+    def gates(**kw):
+        handed.append(kw["ux_blueprint"])
+        return PageGates(qa={"passed": True, "verdict": "passed"})
+
+    brief = PageBrief.from_state(_state(contract={"product": {}}))
+    result = rebuild_page(brief, _workspace(tmp_path), presentation=presentation, gates=gates)
+
+    assert brief.plan == PLAN and PageBrief.from_state(_state()).plan == ""
+    assert handed == [PLAN, PLAN] and result["success"]

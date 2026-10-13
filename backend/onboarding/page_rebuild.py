@@ -7,6 +7,10 @@ how pages are planned, written, audited or reviewed needs none of that redone:
     kickstart      pitch -> decomposition -> skeleton -> actions -> rules -> UX plan -> page -> QA -> visual review
     page rebuild                                                             UX plan -> page -> QA -> visual review
 
+A product built from a contract (ADR-011) has its page plan already: the contract's, which names every part of the
+page by the role and name its tests find it by. The rebuild writes the page from that plan and asks no model for
+another, since a second plan names other parts than the tests look for.
+
 The rebuild reads what the kickstart decided (`PageBrief`, from the kickstart state) and leaves the domain, its tests,
 the seed records and the action protocol exactly as they are. The stages and gates are the kickstart's own
 (`synthesis_stages.py`, `page_gates.py`), so a rebuilt page is planned, written and judged the same way.
@@ -39,6 +43,7 @@ class PageBrief:
     inbox_specs: List[BusinessSpec] = field(default_factory=list)
     action_manifest: Dict[str, Any] = field(default_factory=dict)
     intent: Optional[ProductIntent] = None
+    plan: str = ""  # the page plan of the contract the product was built from; empty for a product built without one
 
     @classmethod
     def from_state(cls, state: Any) -> "PageBrief":
@@ -48,7 +53,10 @@ class PageBrief:
                                  "(a build from before the decomposition was kept cannot be rebuilt)")
         if not (state.action_manifest or {}).get("actions"):
             raise PageBriefError("there is no action protocol to write the page against: the kickstart did not get that far")
-        return cls(pitch=state.business_pitch,
+        from onboarding import product_contract
+        contract = product_contract.stored_contract(state)
+        return cls(plan=contract.blueprint() if contract is not None else "",
+                   pitch=state.business_pitch,
                    structure=DomainStructureSchema.model_validate(state.structure),
                    inbox_specs=[BusinessSpec.model_validate(spec) for spec in state.inbox_specs],
                    action_manifest=dict(state.action_manifest),
@@ -72,8 +80,11 @@ def rebuild_page(
     if not _has_domain_code(workspace_dir):
         raise PageBriefError(f"there is no domain code in {workspace_dir} to write the page against: "
                              "the workspace was reset since the kickstart")
+    if ux is None and brief.plan:
+        ux = lambda **_: brief.plan
     if ux is None:
-        from onboarding.ux_planner import plan_ux_blueprint as ux
+        from onboarding import ux_planner
+        ux = ux_planner.plan_ux_blueprint
     if presentation is None:
         from onboarding.presentation_projection_synthesizer import synthesize_and_write_presentation_projection as presentation
     if gates is None:
