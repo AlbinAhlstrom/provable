@@ -159,6 +159,7 @@ class Field:
                                  item_attributes=[part.attribute() for part in self.part_fields])
         start = self.starting_value()
         return AttributeSpec(name=self.name, type=FIELD_TYPES.get(self.type, "string"), required=False, default_value=start,
+                             values=[entry["value"] for entry in self.vocabulary()],
                              description="; ".join(words for words in (self.holds, FORMS.get(self.type, "")) if words))
 
     def starts_by_default(self) -> bool:

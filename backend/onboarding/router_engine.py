@@ -40,6 +40,7 @@ class AttributeSpec(BaseModel):
     description: str = ""                                       # what it holds, in words, for whoever writes against the class
     item_name: str = ""                                         # set when the attribute is a list of an owned part
     item_attributes: List["AttributeSpec"] = Field(default_factory=list)  # what one item of that list holds
+    values: List[str] = Field(default_factory=list)             # the values it takes, when it has a fixed set of them
 
     def describe(self) -> str:
         """The attribute as prompts state it: `name: type`, and for a list of parts what one item holds."""

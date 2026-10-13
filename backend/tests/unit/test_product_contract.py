@@ -707,3 +707,29 @@ def test_the_review_of_a_contracts_rules_is_shown_what_its_actions_do(monkeypatc
     assert list(seen["actions"]) == ["create_booking", "expire_hold", "mark_no_show"]
     assert seen["actions"]["create_booking"] == ("`create_booking(table_id: text, guests: whole_number)`: creates a "
                                                  "Booking with status confirmed")
+
+
+def test_the_values_of_a_fixed_set_reach_the_class_that_is_built():
+    """
+    id: TST-CONTRACT-FIXED-VALUES
+    Given: A contract whose record has a field with a fixed set of values and fields without one
+    When: Its domain structure is read
+    Then: The field's attribute carries the values, without their meanings, and the others carry none
+    """
+    fields = {a.name: a for a in _contract().structure().entities[0].attributes}
+
+    assert fields["status"].values == ["confirmed", "cancelled"]
+    assert fields["guests"].values == [] and fields["courses"].values == []
+
+
+def test_the_values_of_a_fixed_set_reach_the_class_that_is_built():
+    """
+    id: TST-CONTRACT-FIXED-VALUES
+    Given: A contract whose record has a field with a fixed set of values and fields without one
+    When: Its domain structure is read
+    Then: The field's attribute carries the values, without their meanings, and the others carry none
+    """
+    fields = {a.name: a for a in _contract().structure().entities[0].attributes}
+
+    assert fields["status"].values == ["confirmed", "cancelled"]
+    assert fields["guests"].values == [] and fields["courses"].values == []

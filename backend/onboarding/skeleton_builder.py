@@ -441,6 +441,9 @@ def generate_router_module(entity: EntitySpec) -> str:
     """Generates a FastAPI CRUD router for an aggregate root."""
     slug = _to_snake_case(entity.name)
     plural_slug = _pluralize(slug)
+    fixed = {a.name: a.values for a in entity.attributes if a.values}
+    part_fixed = {a.name: {part.name: part.values for part in a.item_attributes if part.values}
+                  for a in entity.attributes if any(part.values for part in a.item_attributes)}
 
     return f'''"""
 FastAPI Router for {entity.name} (Auto-projected from domain model).
@@ -473,6 +476,27 @@ _uow = FakeUnitOfWork()
 # The domain decides: a record it rejects is reported loudly and left out, the API stays up.
 _SEED_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "seed_data.json")
 _seed_state = {{"mtime": None, "loaded": False}}
+
+
+# The values a field takes when the product gives it a fixed set, and the same for what one item of a list holds
+_FIXED: Dict[str, List[str]] = {json.dumps(fixed)}
+_PART_FIXED: Dict[str, Dict[str, List[str]]] = {json.dumps(part_fixed)}
+
+
+def _outside_fixed(data: Dict[str, Any]) -> str:
+    """Says which value of a record to be created is none of the values its field takes; empty when all are."""
+    def said(values: List[str], value: Any) -> str:
+        return f"is one of {{', '.join(json.dumps(v) for v in values)}}; {{json.dumps(value)}} is none of them."
+
+    for name, values in _FIXED.items():
+        if data.get(name) is not None and data[name] not in values:
+            return f"{entity.name}.{{name}} {{said(values, data[name])}}"
+    for name, parts in _PART_FIXED.items():
+        for position, item in enumerate(data.get(name) or [], start=1):
+            for part, values in parts.items():
+                if isinstance(item, dict) and item.get(part) is not None and item[part] not in values:
+                    return f"{entity.name}.{{name}}: {{part}} of item {{position}} {{said(values, item[part])}}"
+    return ""
 
 
 def _add_records(records: List[Dict[str, Any]], source: str) -> None:
@@ -531,6 +555,9 @@ def create_{slug}(payload: {entity.name}CreateSchema):
     unknown = sorted(set(data) - set(inspect.signature({entity.name}).parameters))
     if unknown:  # refused by name: a field dropped without a word leaves a record that is not the one asked for
         raise HTTPException(status_code=422, detail=f"{entity.name} has no field named {{', '.join(unknown)}}.")
+    outside = _outside_fixed(data)
+    if outside:  # refused by name: a record in a state the product does not have is one no rule covers
+        raise HTTPException(status_code=422, detail=outside)
     item = {entity.name}(**data)
     with _uow:
         getattr(_uow, "{plural_slug}").add(item)
