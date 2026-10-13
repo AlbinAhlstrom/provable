@@ -5,6 +5,7 @@ and FastAPI Routers to make OpenAPI /openapi.json available from second zero.
 """
 
 from pipeline_trace import traced
+import json
 import os
 import re
 import shutil
@@ -891,10 +892,46 @@ def _ts_interface_fields(entity: EntitySpec) -> List[str]:
     return lines
 
 
-def generate_master_client(master: EntitySpec) -> str:
+def actions_export(name: str) -> str:
+    """The name a class's client exports its action functions under."""
+    return name[:1].lower() + name[1:] + "Actions"
+
+
+def action_call(act: Dict[str, Any]) -> str:
+    """An action as the page calls it: with the record's id unless it is done to no one record, and with params
+    only when it has them."""
+    args = ([] if act.get("on_kind") else ["id"]) + (["params"] if act.get("params") else [])
+    return f"{actions_export(str(act['aggregate']))}.{_ts_key(str(act['name']))}({', '.join(args)})"
+
+
+def _ts_key(name: str) -> str:
+    return name if re.fullmatch(r"[A-Za-z_$][A-Za-z0-9_$]*", name) else json.dumps(name)
+
+
+def _action_functions(name: str, actions: Optional[List[Dict[str, Any]]]) -> str:
+    """One function per action of the class, under the action's own name. Where an action is sent (to one record
+    or to the kind) is the plan's decision, written here once, so no page writer works it out again."""
+    own = [a for a in actions or [] if isinstance(a, dict) and a.get("name") and a.get("aggregate") == name]
+    if not own:
+        return ""
+    lines = []
+    for act in own:
+        keys = "; ".join(f"{_ts_key(str(p))}: unknown" for p in act.get("params") or [])
+        takes = ([] if act.get("on_kind") else ["id: string"]) + ([f"params: {{ {keys} }}"] if keys else [])
+        sent = ([] if act.get("on_kind") else ["id"]) + [f"'{act['name']}'"] + (["params"] if keys else [])
+        answer, sender = (("KindActionResponse", "sendKindAction") if act.get("on_kind") else ("ActionResponse", "sendAction"))
+        lines.append(f"  {_ts_key(str(act['name']))}: ({', '.join(takes)}): Promise<{answer}> =>\n"
+                     f"    {sender}({', '.join(sent)}),")
+    return (f"\n/** Each action of {name}, sent the way the product sends it: one taking an `id` is done to that record, "
+            f"one taking none is done to no one record. */\nexport const {actions_export(name)} = {{\n"
+            + "\n".join(lines) + "\n};\n")
+
+
+def generate_master_client(master: EntitySpec, actions: Optional[List[Dict[str, Any]]] = None) -> str:
     """The master aggregate's API client (`src/api/<slug>Client.ts`), written deterministically from the entity so it can
-    never drift from the router: list/get/create plus the action endpoint. Errors are thrown with the server's message;
-    nothing is fabricated when a request fails."""
+    never drift from the router: list/get/create plus the action endpoint, and one function per action of the class
+    when the plan's actions are given. Errors are thrown with the server's message; nothing is fabricated when a
+    request fails."""
     name, plural = master.name, _pluralize(_to_snake_case(master.name))
     fields = "\n".join(_ts_interface_fields(master)) or "  id: string;"
     # Two callers in one tick (an effect run twice) share the request, so one opening makes one record
@@ -992,7 +1029,7 @@ export async function sendKindAction(
   if (!res.ok) throw await failure(res, 'The action');
   return res.json();
 }}
-'''
+''' + _action_functions(name, actions)
 
 
 def generate_frontend_api_client(entities: List[EntitySpec]) -> str:

@@ -86,17 +86,23 @@ _ROLE_TEXT = {
 }
 
 
-def _clients_block(presented: List[Any], master_name: str) -> str:
+def _clients_block(presented: List[Any], master_name: str, actions: Optional[List[Dict[str, Any]]] = None) -> str:
     """Describes every generated client the presentation may import, with each entity's role."""
+    from onboarding.skeleton_builder import actions_export
     lines = []
     for ent in presented:
         n = _sanitize_name(ent.name)
         role = _ROLE_TEXT.get(getattr(ent.audience_role, "value", ent.audience_role), "internal").replace("{n}", n)
         if n == master_name:
             role = "the master: " + role if getattr(ent.audience_role, "value", None) == "created_by_audience" else "the master"
-        kind_action = (f", and `sendKindAction(actionType: string, params?: Record<string, unknown>): Promise<{{ success: "
-                       f"boolean; created: {n}State | null; records: {n}State[]; message?: string }}>` for an action "
-                       f"done to no one `{n}`")
+        # The page sends an action through its own function and is told of no other way (skeleton_builder)
+        own = any(isinstance(a, dict) and a.get("aggregate") == n for a in actions or [])
+        sending = (f" and `{actions_export(n)}` (one function per action of `{n}`, each called exactly as the action "
+                   f"protocol above lists it; an action done to one record answers `Promise<{{ success: boolean; state: "
+                   f"{n}State; created: {n}State | null; message?: string }}>`, `state` being that record afterwards; an "
+                   f"action done to no one record answers `Promise<{{ success: boolean; created: {n}State | null; "
+                   f"records: {n}State[]; message?: string }}>`, `created` being the record it made and `records` every "
+                   f"stored `{n}` afterwards)") if own else ""
         needed = [a.name for a in ent.attributes if a.required and a.default_value is None and a.name != "id"]
         create_note = (f" (the server assigns `id`; the data must carry: {', '.join(f'`{a}`' for a in needed)}, with a "
                        f"value the form works out itself for any the visitor does not enter)") if needed else " (the server assigns `id`)"
@@ -107,12 +113,10 @@ def _clients_block(presented: List[Any], master_name: str) -> str:
                 f"`open{n}(): Promise<{n}State>` (the record the page works on: the newest one, or a new one in its "
                 f"starting state when none exists; the page calls it once when the page opens and shows what it returns, "
                 f"so the page never lists or creates a `{n}` itself to get going), `list{n}(): Promise<{n}State[]>`, "
-                f"`get{n}(id: string)`, `create{n}(data: Partial<{n}State>)` (the server assigns `id`) and "
-                f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; created: {n}State | null; message?: string }}>`{kind_action}.")
+                f"`get{n}(id: string)`, `create{n}(data: Partial<{n}State>)` (the server assigns `id`){sending}.")
             continue
         lines.append(f"- `src/api/{_to_snake_case(n)}Client.ts` ({role}) exports exactly: `{n}State` (the type of one record), "
-                     f"`list{n}(): Promise<{n}State[]>`, `get{n}(id: string)`, `create{n}(data: Partial<{n}State>)`{create_note} and "
-                     f"`sendAction(id: string, actionType: string, params?: Record<string, unknown>): Promise<{{ success: boolean; state: {n}State; created: {n}State | null; message?: string }}>`{kind_action}.")
+                     f"`list{n}(): Promise<{n}State[]>`, `get{n}(id: string)`, `create{n}(data: Partial<{n}State>)`{create_note}{sending}.")
     return "\n".join(lines)
 
 
@@ -223,7 +227,8 @@ Answer with four blocks, each introduced by its marker alone on a line:
         "{master_plural}": _pluralize(master_slug),   # the route the skeleton mounts the router on
         "{rel_workspace}": rel_ws,
         "{entities_block}": entities_block,
-        "{clients_block}": _clients_block(structure.presented_entities() or ([master_entity] if master_entity else []), master_name),
+        "{clients_block}": _clients_block(structure.presented_entities() or ([master_entity] if master_entity else []), master_name,
+                                          actions=(action_manifest or {}).get("actions")),
         "{gestures_block}": page_gestures.gestures_block(),
         "{bdd_section}": bdd_section,
         "{backend_state_model}": backend_state_model,
@@ -260,7 +265,8 @@ Answer with four blocks, each introduced by its marker alone on a line:
 
     # The API clients are deterministic (skeleton_builder.generate_master_client, one per presented entity); the model only writes the UI
     from onboarding.skeleton_builder import generate_master_client
-    client_files = {f"{_to_snake_case(_sanitize_name(e.name))}Client.ts": generate_master_client(e)
+    client_files = {f"{_to_snake_case(_sanitize_name(e.name))}Client.ts":
+                        generate_master_client(e, actions=(action_manifest or {}).get("actions"))
                     for e in (structure.presented_entities() or ([master_entity] if master_entity else []))}
     client_files[page_gestures.FILE_NAME] = page_gestures.GESTURES_TS
     omitted = [name for name in SECTIONS if not is_component_file(payload.get(name))]

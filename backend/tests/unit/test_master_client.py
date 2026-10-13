@@ -238,3 +238,64 @@ def test_the_client_sends_an_action_to_the_kind():
     assert "export async function sendKindAction(" in client
     assert "fetch(`${BASE_URL}/action`" in client
     assert "created: OrderState | null;" in client and "records: OrderState[];" in client
+
+
+ORDER = EntitySpec(name="Order", is_aggregate_root=True, attributes=[AttributeSpec(name="id", type="str", required=True)])
+ORDER_ACTIONS = [
+    {"name": "place_order", "aggregate": "Order", "params": ["dish_id", "quantity"], "on_kind": True},
+    {"name": "clear_served", "aggregate": "Order", "params": [], "on_kind": True},
+    {"name": "add_line", "aggregate": "Order", "params": ["dish_id"]},
+    {"name": "cancel_order", "aggregate": "Order", "params": []},
+    {"name": "restock", "aggregate": "Dish", "params": []}]
+
+
+def test_the_client_has_one_function_per_action_sent_the_way_the_plan_says():
+    """Verify how an action is sent is written by the generator, so that no page writer has to work it out.
+
+    id: TST-CLIENT-ACTIONS
+    Given: A class with an action done to no one record and an action done to one, with and without params,
+           and an action of another class
+    When: Its client is generated with the plan's actions
+    Then: It exports one function per action of the class under the action's own name: the first kind takes no id
+          and goes to the kind, the second takes the record's id; each takes exactly the action's params; the other
+          class's action is not there
+    """
+    client = generate_master_client(ORDER, actions=ORDER_ACTIONS)
+
+    assert "export const orderActions = {" in client
+    assert ("  place_order: (params: { dish_id: unknown; quantity: unknown }): Promise<KindActionResponse> =>\n"
+            "    sendKindAction('place_order', params),") in client
+    assert "  clear_served: (): Promise<KindActionResponse> =>\n    sendKindAction('clear_served')," in client
+    assert ("  add_line: (id: string, params: { dish_id: unknown }): Promise<ActionResponse> =>\n"
+            "    sendAction(id, 'add_line', params),") in client
+    assert "  cancel_order: (id: string): Promise<ActionResponse> =>\n    sendAction(id, 'cancel_order')," in client
+    assert "restock" not in client
+
+
+def test_a_client_of_a_class_without_actions_has_no_action_functions():
+    """
+    id: TST-CLIENT-ACTIONS-NONE
+    Given: A class none of the plan's actions belongs to
+    When: Its client is generated with the plan's actions
+    Then: It is the client the class has without them
+    """
+    assert generate_master_client(ENTITY, actions=ORDER_ACTIONS) == generate_master_client(ENTITY)
+    assert "Actions = {" not in generate_master_client(ENTITY)
+
+
+def test_the_page_is_told_of_the_action_functions_and_of_no_other_way_to_send():
+    """Verify the page is given one way to send each action.
+
+    id: TST-CLIENT-ACTIONS-TOLD
+    Given: A class with actions and a class with none
+    When: The prompt's description of their clients is written
+    Then: The first is described with its action functions and what each kind answers; neither description offers
+          a sender that takes the action's name as text
+    """
+    from onboarding.presentation_projection_synthesizer import _clients_block
+    told = _clients_block([ORDER, ENTITY], "Order", actions=ORDER_ACTIONS)
+    order, inquiry = told.splitlines()
+
+    assert "`orderActions`" in order and "records: OrderState[]" in order and "state: OrderState" in order
+    assert "Actions`" not in inquiry
+    assert "sendAction" not in told and "sendKindAction" not in told

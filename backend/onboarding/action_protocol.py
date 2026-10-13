@@ -16,11 +16,11 @@ def _line(act: Dict[str, Any], with_client: bool = False) -> str:
     desc = f" — {act['description']}" if act.get("description") else ""
     owner = ""
     if with_client and act.get("aggregate"):
-        from onboarding.skeleton_builder import to_snake_case
+        from onboarding.skeleton_builder import action_call, to_snake_case
         client = f"`src/api/{to_snake_case(str(act['aggregate']))}Client.ts`"
-        owner = (f" on `{act['aggregate']}` (`sendKindAction` of {client}: it is done to no one {act['aggregate']}, so "
-                 f"it takes no id)" if act.get("on_kind") else
-                 f" on `{act['aggregate']}` (`sendAction` of {client}, with the id of that {act['aggregate']})")
+        owner = (f" on `{act['aggregate']}` (`{action_call(act)}` of {client}: it is done to no one "
+                 f"{act['aggregate']}, so it takes no id)" if act.get("on_kind") else
+                 f" on `{act['aggregate']}` (`{action_call(act)}` of {client}, with the id of that {act['aggregate']})")
     return f"- Action `{act.get('name', 'action')}`{owner}: params [{params}]{desc}"
 
 

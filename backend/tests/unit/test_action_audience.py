@@ -212,7 +212,8 @@ def test_the_page_is_told_which_actions_are_sent_to_the_kind():
     id: TST-AUD-KIND-ACTION
     Given: A manifest with an action sent to the kind and one sent to a record
     When: The action protocol is written out for the page
-    Then: The first names `sendKindAction` and no id, the second `sendAction` with the record's id
+    Then: Each is listed as the call of its own function of the client: the first takes no id, the second the
+          record's id, and params only where the action has them
     """
     from onboarding.action_protocol import format_action_protocol
     text = format_action_protocol({"actions": [
@@ -220,5 +221,6 @@ def test_the_page_is_told_which_actions_are_sent_to_the_kind():
         {"name": "cancel_order", "aggregate": "Order", "params": []}]})
     place, cancel = (next(l for l in text.splitlines() if f"`{n}`" in l) for n in ("place_order", "cancel_order"))
 
-    assert "`sendKindAction` of `src/api/orderClient.ts`" in place and "no id" in place
-    assert "`sendAction` of `src/api/orderClient.ts`" in cancel and "with the id of that Order" in cancel
+    assert "`orderActions.place_order(params)` of `src/api/orderClient.ts`" in place and "no id" in place
+    assert "`orderActions.cancel_order(id)` of `src/api/orderClient.ts`" in cancel and "the id of that Order" in cancel
+    assert "sendAction" not in text and "sendKindAction" not in text

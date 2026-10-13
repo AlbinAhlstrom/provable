@@ -169,8 +169,12 @@ and taken hour as module constants.
 - **The API does it** (`skeleton_builder.generate_router_module`): `POST /api/<plural>/action` runs a static or
   class method, `POST /api/<plural>/{id}/action` a method of one record. Either hands the method the stored records
   of every collection its signature names and stores each list as the method left it; a refusal stores nothing.
-  The page reaches the first through `sendKindAction` of the kind's client, and makes a record through the action
-  and not through `create`.
+- **The page calls it** (`skeleton_builder.generate_master_client`): the client of a class carries one function
+  per action of that class, under the action's own name (`orderActions.place_order(params)`,
+  `orderActions.cancel_order(id)`). Which endpoint an action goes to is written there once, from `sent_to`; the
+  page is listed each action as that call and is told of no sender that takes an action's name as text. A record
+  is made through the action and not through `create`. Refreshing an app's wiring writes the same functions from
+  the actions its kickstart kept.
 
 Measured, one live domain round per contract, no test sent back and one code answer unless said:
 
@@ -184,8 +188,12 @@ Measured, one live domain round per contract, no test sent back and one code ans
 The restaurant class of that round, behind a newly generated API, refused a second booking of the same table and
 hour and a party larger than the table, and took the booking after the first was cancelled.
 
-Open: no kickstart has run with it, so the page's use of `sendKindAction` is unproved. The ids of records that
-exist from the start are still chosen by the seed step, not by the contract.
+The first kickstart with an action sent to the kind showed why the page is not left to choose the endpoint: it was
+given two senders and told which action takes which, and sent a record-making action to the record on screen, which
+answered 404 and left 5 of 18 rules red. With the functions above, the same app and the same page tests went from
+11 to 15 rules passing after a page rebuild (59 s, 0.10 SEK).
+
+Open: the ids of records that exist from the start are still chosen by the seed step, not by the contract.
 
 ## The rules are checked against the plan
 A contract can hold a rule that contradicts its own action: the rule starts from a situation in which the action, done

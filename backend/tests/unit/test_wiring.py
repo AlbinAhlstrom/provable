@@ -91,3 +91,28 @@ def test_an_app_without_a_kept_decomposition_says_so(tmp_path):
     """
     result = app_wiring.refresh_app_wiring(uow=FakeUnitOfWork(), workspace_dir=str(tmp_path))
     assert result["success"] is False and "decomposition" in result["error"]
+
+
+def test_a_refreshed_client_keeps_the_action_functions_the_page_calls(tmp_path):
+    """
+    id: TST-WIRING-ACTIONS
+    Given: A kickstart state that kept its decomposition and its actions, and an app with an older client
+    When: The use case is run
+    Then: The client is the one the generator writes for the class with those actions
+    """
+    root = str(tmp_path)
+    build_and_write_skeleton(STRUCTURE, target_dir=root)
+    _write(root, CLIENT, "// an older client\n")
+    actions = [{"name": "polish", "aggregate": "Widget", "params": []}]
+    uow = FakeUnitOfWork()
+    with uow:
+        state = uow.kickstart.get()
+        state.structure, state.action_manifest = STRUCTURE.model_dump(), {"actions": actions}
+        uow.kickstart.save(state)
+        uow.commit()
+
+    result = app_wiring.refresh_app_wiring(uow=uow, workspace_dir=root)
+
+    assert result == {"success": True, "rewritten": [CLIENT.replace(os.sep, "/")]}
+    assert _read(root, CLIENT) == generate_master_client(WIDGET, actions=actions)
+    assert "polish: (id: string)" in _read(root, CLIENT)
