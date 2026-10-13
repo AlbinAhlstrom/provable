@@ -4,21 +4,24 @@ The plan's read-out list (`ProductContract.blueprint`, section 3) has one line p
 
     - <what it is> · <role> · "<the name it is read out by>"
 
-That list is the page's extent. It is read here once and used twice:
+That list is the page's extent. It is read here once, and every use of it is written from it by code:
 
-    parts_block    the page's writer is shown it as the parts of the page, and answers where it writes each one
-                   before it writes the files (prompts/presentation_projection_synthesis.md)
-    missing_parts  the written page is looked through for every part; one that is not there is a QA defect, so it
-                   goes through the single rework QA allows (page_gates.py)
+    props_module   the page gets a part's role and name by spreading a call on its element (`src/api/parts.ts`),
+                   so neither is copied into the page by its writer
+    parts_block    the page's writer is shown the parts of the page, each with its call, and answers where it
+                   writes each one before it writes the files (prompts/presentation_projection_synthesis.md)
+    missing_parts  the written page is looked through for the call of every part; one that is not there is a QA
+                   defect, so it goes through the single rework QA allows (page_gates.py)
     present_parts  the page as opened in a browser is looked through the same way: none of its parts on screen is
                    a page that never gets going (qa_opening_check.py)
     locators_module  a page test finds a part through a function written from its line (`tests/e2e/parts.py`), so
                    the role and the name are copied into a test by code and not by the test's writer
 
-The look-through reads source, not a rendered page: a dialog or the items of a menu are not on screen until a step
-brings them up, and they are the parts a hurried page leaves out. It is a presence check and claims no more: a part
-is there when the page has its role (the attribute, or an element that carries the role natively) and the fixed
-words of its name, in any case. Whether the part works is what the page tests are for.
+The look-through of the written page reads source, not a rendered page: a dialog or the items of a menu are not on
+screen until a step brings them up, and they are the parts a hurried page leaves out. A part is there when its call
+is: an element that only looks like the part (a role of its own choosing, a name no line gives) is found by no test.
+The opened page is looked through by role and the fixed words of a name, in any case, which is what the calls put
+there. Both are presence checks and claim no more: whether the part works is what the page tests are for.
 """
 import json
 import keyword
@@ -31,6 +34,8 @@ _SLOT = re.compile(r"\{[^{}]*\}")       # the part of a name a field's value fil
 _WORDS = re.compile(r"\w[\w .'-]*\w|\w")
 
 # Elements that carry a role without the attribute
+FILE_NAME = "parts.ts"  # beside the API clients, as the page imports it
+
 _NATIVE = {
     "button": r"<button\b",
     "textbox": r"<(?:input|textarea)\b",
@@ -65,10 +70,11 @@ def parts_of(plan: str) -> List[Part]:
 
 def parts_block(plan: str) -> str:
     """The parts as the page's writer is shown them."""
-    parts = parts_of(plan)
-    if not parts:
+    functions = part_functions(parts_of(plan))
+    if not functions:
         return "The blueprint names no parts by role and name: the parts are the ones its sections describe."
-    return f"The page has these parts ({len(parts)}):\n" + "\n".join(f"- {part.line()}" for part in parts)
+    return (f"The page has these parts ({len(functions)}):\n"
+            + "\n".join(f"- {f.part.line()} · `{f.spread()}`" for f in functions))
 
 
 # ── a part as a page test finds it ───────────────────────────────────────────
@@ -93,6 +99,26 @@ class PartFunction:
 
     def call(self) -> str:
         return f"parts.{self.name}(page{''.join(f', {slot}=...' for slot in self.slots)})"
+
+    @property
+    def page_name(self) -> str:
+        """The name of the call the page spreads: the same words, joined the way the page's language joins them."""
+        first, *rest = self.name.split("_")
+        return first + "".join(word[:1].upper() + word[1:] for word in rest) + ("_" if self.name.endswith("_") else "")
+
+    def spread(self) -> str:
+        values = "{ " + ", ".join(self.slots) + " }" if self.slots else ""
+        return "{..." + f"parts.{self.page_name}({values})" + "}"
+
+    def props(self) -> str:
+        """The call as `src/api/parts.ts` defines it."""
+        pieces = _SLOT_NAME.split(self.part.name)
+        terms = [json.dumps(piece) if at % 2 == 0 else f"String(v.{_identifier(piece, 'value')})"
+                 for at, piece in enumerate(pieces) if piece or at % 2]
+        takes = "v: { " + "; ".join(f"{slot}: Value" for slot in self.slots) + " }" if self.slots else ""
+        return (f"  /** {self.part.what}: {self.part.role} \"{self.part.name}\" */\n"
+                f"  {self.page_name}: ({takes}) => "
+                f"({{ role: {json.dumps(self.part.role)}, 'aria-label': {' + '.join(terms) or json.dumps('')} }}),\n")
 
     def _name_expression(self) -> str:
         pieces = _SLOT_NAME.split(self.part.name)  # fixed words and slot names, in turn
@@ -122,6 +148,14 @@ def part_functions(parts: Iterable[Part]) -> List[PartFunction]:
         slots = list(dict.fromkeys(_identifier(slot, "value") for slot in _SLOT_NAME.findall(part.name)))
         functions.append(PartFunction(name, part, slots))
     return functions
+
+
+def props_module(parts: Iterable[Part]) -> str:
+    """`src/api/parts.ts`: every part of the plan as a call whose result gives an element its role and its name."""
+    return ("/** Generated from the page's plan: the role and the name each part of the page is read out by.\n"
+            " *  Spread a part's call on the element that is that part. */\n\n"
+            "type Value = string | number;\n\n"
+            "export const parts = {\n" + "".join(function.props() for function in part_functions(parts)) + "};\n")
 
 
 def locators_module(parts: Iterable[Part]) -> str:
@@ -168,9 +202,10 @@ def present_parts(parts: Iterable[Part], sources: Iterable[str]) -> List[Part]:
 
 
 def missing_parts(parts: Iterable[Part], sources: Iterable[str]) -> List[str]:
-    """One defect for each part the page's files do not have."""
-    parts = list(parts)
-    found = present_parts(parts, sources)
-    return [f'{MISSING}The plan names "{part.what}" ({part.role}, read out as "{part.name}") and the page does not '
-            f'have it. Write it as the plan describes it, with the step that brings it up.'
-            for part in parts if part not in found]
+    """One defect for each part whose call no element of the page's files carries."""
+    source = "\n".join(sources)
+    return [f'{MISSING}The plan names "{f.part.what}" ({f.part.role}, read out as "{f.part.name}") and no element '
+            f'of the page carries `{f.spread()}`. Write the part as the plan describes it, with the step that '
+            f'brings it up, and spread that call on its element in place of a role or a name of your own.'
+            for f in part_functions(parts)
+            if not re.search(r"\bparts\." + re.escape(f.page_name) + r"\s*\(", source)]

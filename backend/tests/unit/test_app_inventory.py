@@ -80,6 +80,23 @@ def test_scaffold_the_page_no_longer_reaches_is_removed(tmp_path):
     assert inventory_frontend(str(tmp_path)).unreachable() == []
 
 
+def test_the_parts_of_the_plan_stay_when_the_page_did_not_import_them(tmp_path):
+    """Verify a page that spread none of its parts can still be reworked: the rework is told to spread them.
+
+    id: TST-INV-REMOVE-PARTS
+    Given: An app whose page imports nothing from the parts the plan names, beside a scaffold client nothing imports
+    When: Unreachable frontend files are removed
+    Then: The scaffold client is gone and the parts are still there
+    """
+    _write(tmp_path, "src/main.tsx", "import App from './App';\n")
+    _write(tmp_path, "src/App.tsx", "export default null;\n")
+    _write(tmp_path, "src/api/client.ts", "export const fetchAll = () => [];\n")
+    _write(tmp_path, "src/api/parts.ts", "export const parts = {};\n")
+
+    assert remove_unreachable(str(tmp_path)) == ["src/api/client.ts"]
+    assert (tmp_path / "src/api/parts.ts").exists()
+
+
 def test_nothing_is_removed_when_the_entry_is_missing(tmp_path):
     """Verify a workspace whose entry cannot be found is left alone: without it nothing counts as reachable.
 

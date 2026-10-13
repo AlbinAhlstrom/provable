@@ -58,7 +58,14 @@ rule is about:
   name, so a test that arranges a misspelt state could not judge and is written again once, instead of reporting
   the rule as not held.
 
-On the page's side, a part that opens over the page and closes again is kept open and closed by a generated hook
+The page gets a part's role and name the same way (`page_parts.props_module`, written beside the API clients as a
+module named parts): the line becomes a call whose result the page's writer spreads on the part's element, and the
+written page is looked through for that call, not for something that looks like the part. Left to copy the line, a
+page gave a field for a day the role of a date input, a choice the role of a list's item and a message no name:
+every part was there for a person, none was found by its line, and every rule of the product was reported as not
+held.
+
+Also on the page's side, a part that opens over the page and closes again is kept open and closed by a generated hook
 (`page_opening.py`, `src/api/opening.ts`), for the same reason as gestures are recognised by generated code.
 
 ## What a run can say

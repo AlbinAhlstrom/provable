@@ -7,7 +7,9 @@ inventory makes that visible in every run's summary.
 
 The skeleton's scaffold (a table view per entity and one shared client) is what the app shows until the presentation
 stage writes the real page. Once that page is written, the scaffold it no longer imports is removed
-(`remove_unreachable`), so every file left under `src/` is one the page renders.
+(`remove_unreachable`), so every file left under `src/` is one the page renders. The one file that stays without
+being reached is the parts of the page's plan (`page_parts.py`): a page that spread none of them is sent back to
+spread them, and has to find them there.
 """
 
 import os
@@ -16,6 +18,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 ENTRY = "src/main.tsx"
+KEPT = ("src/api/parts.ts",)  # page_parts.FILE_NAME, beside the API clients
 _SOURCE_EXTENSIONS = (".tsx", ".ts", ".jsx", ".js", ".css")
 _RESOLVE_SUFFIXES = ("", ".tsx", ".ts", ".jsx", ".js", "/index.tsx", "/index.ts")
 _SKIP_DIRS = {"node_modules", "__pycache__", "dist"}
@@ -103,6 +106,8 @@ def remove_unreachable(workspace_dir: str, entry: str = ENTRY) -> List[str]:
         return []
     removed = []
     for source in inventory.unreachable():
+        if source.path in KEPT:
+            continue
         os.remove(os.path.join(workspace_dir, source.path))
         removed.append(source.path)
     return removed

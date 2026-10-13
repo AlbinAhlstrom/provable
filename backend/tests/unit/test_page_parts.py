@@ -4,12 +4,20 @@ A page written without hidden thinking came back a fifth of its planned size: th
 and a menu, a dialog and two effects the plan named were not. QA measures layout and forms, so it passed. The plan
 already names every part by role and name; code reads that list out, the writer is shown it as the page's parts and
 says where it writes each before the files, and the same list is what the written page is checked against.
+
+A part's role and name were then copied from its line by the page's writer, and by a test's writer on the other
+side. The page gave a field for a day the role of a date input, a choice the role of a list's item and a message no
+name at all: each was there for a person, and none was found by the role and name of its line. So the line is
+turned into code for the page as well (`src/api/parts.ts`): the writer spreads a part's call on its element, and
+the call is what the page is looked through for.
 """
+import json
 import os
+import subprocess
 
 from onboarding import code_verifier
 from onboarding.page_gates import run_page_gates
-from onboarding.page_parts import Part, missing_parts, parts_block, parts_of
+from onboarding.page_parts import Part, missing_parts, parts_block, parts_of, props_module
 from onboarding.presentation_projection_synthesizer import SECTIONS, parse_file_blocks
 
 PLAN = '''### 2. Where each action is done
@@ -27,24 +35,52 @@ PLAN = '''### 2. Where each action is done
 - shown value: amount = the sum of the lines
 '''
 
-WHOLE = '''export const BasketView = () => (
+WHOLE = '''import { parts } from '../api/parts';
+export const BasketView = () => (
   <main>
-    <ul aria-label="Basket">{lines.map(l => <li key={l.id}>{`${l.quantity} x ${l.dish}`}</li>)}</ul>
-    <output aria-label={`Total ${amount}`} />
-    <button onClick={() => setAsking(true)}>Order</button>
-    {asking && <div role="dialog" aria-label="Delivery address"><input aria-label="Street" /></div>}
+    <ul {...parts.basket()}>{lines.map(l => <li key={l.id} {...parts.line({ quantity: l.quantity, dish: l.dish })}>{l.dish}</li>)}</ul>
+    <output {...parts.total({ amount })} />
+    <button {...parts.order()} onClick={() => setAsking(true)}>Order</button>
+    {asking && <div {...parts.addressDialog()}><input {...parts.street()} /></div>}
   </main>
 );
 '''
 # The same page as a writer in a hurry leaves it: the button is there, what it opens is not
-SHORT = '''export const BasketView = () => (
+SHORT = '''import { parts } from '../api/parts';
+export const BasketView = () => (
   <main>
-    <ul aria-label="Basket">{lines.map(l => <li key={l.id}>{`${l.quantity} x ${l.dish}`}</li>)}</ul>
-    <output aria-label={`Total ${amount}`} />
-    <button onClick={place}>Order</button>
+    <ul {...parts.basket()}>{lines.map(l => <li key={l.id} {...parts.line({ quantity: l.quantity, dish: l.dish })}>{l.dish}</li>)}</ul>
+    <output {...parts.total({ amount })} />
+    <button {...parts.order()} onClick={place}>Order</button>
   </main>
 );
 '''
+# The parts as a writer gives them a role and a name of its own: there for a person, found by no line of the plan
+OWN = '''export const BasketView = () => (
+  <main>
+    <div role="list">{lines.map(l => <button key={l.id} role="listitem" aria-label={`${l.quantity} x ${l.dish}`} />)}</div>
+    <p role="status">Total {amount}</p>
+    <button onClick={() => setAsking(true)}>Order</button>
+    {asking && <div role="dialog" aria-label="Delivery address"><input type="date" aria-label="Street" /></div>}
+  </main>
+);
+'''
+REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+TYPESCRIPT = os.path.join(REPO, "frontend", "node_modules", "typescript", "lib", "typescript.js")
+RUNNER = r"""
+const ts = require(process.argv[1]);
+const source = require('fs').readFileSync(0, 'utf8');
+const compiled = ts.transpileModule(source, { compilerOptions: { module: 'commonjs', target: 'es2019' } }).outputText;
+const mod = { exports: {} };
+new Function('module', 'exports', compiled)(mod, mod.exports);
+const parts = mod.exports.parts;
+console.log(JSON.stringify({
+  names: Object.keys(parts),
+  order: parts.order(),
+  line: parts.line({ quantity: 2, dish: 'soup' }),
+  total: parts.total({ amount: '12.50' }),
+}));
+"""
 
 
 def test_the_parts_are_read_out_of_the_plan():
@@ -63,11 +99,44 @@ def test_the_parts_are_read_out_of_the_plan():
 def test_a_page_with_every_part_has_none_missing():
     """
     id: TST-PARTS-002
-    Given: A page that writes every part of the plan, native elements for some roles and patterns filled in for names
+    Given: A page that spreads the call of every part of the plan on an element
     When: It is checked against the plan's parts
     Then: Nothing is missing
     """
     assert missing_parts(parts_of(PLAN), [WHOLE]) == []
+
+
+def test_a_part_given_a_role_and_a_name_by_hand_is_not_the_part_of_the_plan():
+    """Verify the page is held to the call, not to something that looks like the part.
+
+    id: TST-PARTS-010
+    Given: A page that writes every part with a role and a name of its own and spreads no call
+    When: It is checked against the plan's parts
+    Then: Every part is missing, and each defect names the call to spread on the part's element
+    """
+    missing = missing_parts(parts_of(PLAN), [OWN])
+
+    assert len(missing) == 6
+    assert "{...parts.line({ quantity, dish })}" in missing[1] and "{...parts.addressDialog()}" in missing[3]
+
+
+def test_a_call_gives_an_element_the_role_and_the_name_of_its_line():
+    """
+    id: TST-PARTS-011
+    Given: The module written for the page from the plan
+    When: It is run, and the calls of a part without values and of two parts with values are made
+    Then: Each part has a call, and a call returns the role of its line and the name of its line with the values
+          filled in, as the attributes an element is read out by
+    """
+    ran = subprocess.run(["node", "-e", RUNNER, TYPESCRIPT], input=props_module(parts_of(PLAN)),
+                         capture_output=True, text=True, encoding="utf-8", timeout=60)
+    assert ran.returncode == 0, ran.stderr
+    seen = json.loads(ran.stdout)
+
+    assert seen["names"] == ["basket", "line", "order", "addressDialog", "street", "total"]
+    assert seen["order"] == {"role": "button", "aria-label": "Order"}
+    assert seen["line"] == {"role": "listitem", "aria-label": "2 x soup"}
+    assert seen["total"] == {"role": "status", "aria-label": "Total 12.50"}
 
 
 def test_a_part_the_page_left_out_is_named_as_a_defect():
@@ -91,7 +160,7 @@ def test_a_part_spread_over_the_page_files_is_found():
     When: The files are checked together
     Then: Nothing is missing
     """
-    dialog = 'export const Ask = () => <dialog aria-label="Delivery address"><textarea aria-label="Street" /></dialog>;'
+    dialog = 'export const Ask = () => <dialog {...parts.addressDialog()}><textarea {...parts.street()} /></dialog>;'
     assert missing_parts(parts_of(PLAN), [SHORT, dialog]) == []
 
 
@@ -105,12 +174,16 @@ def test_the_writer_is_shown_the_parts_and_says_where_each_is_written_first():
     """
     path = os.path.join(os.path.dirname(code_verifier.__file__), "..", "prompts", "presentation_projection_synthesis.md")
     prompt = open(path, encoding="utf-8").read()
-    assert "{page_parts}" in prompt
+    assert "{page_parts}" in prompt and "`src/api/parts.ts` exports exactly `parts`" in prompt
+    synthesizer = open(os.path.join(os.path.dirname(code_verifier.__file__), "presentation_projection_synthesizer.py"),
+                       encoding="utf-8").read()
+    assert "client_files[page_parts.FILE_NAME] = page_parts.props_module(planned)" in synthesizer
     form = prompt[prompt.rindex("Answer with"):]
     assert form.index("<<<parts>>>") < form.index(f"<<<{SECTIONS[0]}>>>") and form.rstrip().endswith("<<<end>>>")
 
     block = parts_block(PLAN)
-    assert '- Address dialog · dialog · "Delivery address"' in block and "(6)" in block
+    assert '- Address dialog · dialog · "Delivery address" · `{...parts.addressDialog()}`' in block and "(6)" in block
+    assert '- Line · listitem · "{quantity} x {dish}" · `{...parts.line({ quantity, dish })}`' in block
     assert "names no parts" in parts_block("### 1. Opening\nA calm page.")
 
 
