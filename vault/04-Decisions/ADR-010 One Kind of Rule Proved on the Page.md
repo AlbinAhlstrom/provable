@@ -44,6 +44,23 @@ few and the forms their names take) and the page's source for what is not open y
 alone were the most common reason a first test was wrong. For a new app, where tests and page are written side by side, the UX plan will
 name every control and state first (not built yet).
 
+Three things that used to be copied by a writer are now written by code, because each was copied wrong in a way no
+rule is about:
+
+- **The locator of a named part** (`page_parts.locators_module`, `tests/e2e/parts.py`): the plan's line
+  `part · role · "name"` becomes a function, `parts.<part>(page, <values>)`, that looks for exactly that role and
+  that whole name. A test calls it and writes no locator of its own for such a part. A test had looked for a status
+  by its text where the plan gives it a name, and reported a rule the app kept as not held.
+- **How long a click lasts** (the harness, `PRESS_MS`): 200 ms, as a person's. A page closed its menu 150 ms after
+  a press on one of its items began; a test's click was over before that, so every rule about the menu passed
+  while a person chose from it about one time in three.
+- **What a record may hold** (the generated create endpoint): a value outside a field's fixed set is refused by
+  name, so a test that arranges a misspelt state could not judge and is written again once, instead of reporting
+  the rule as not held.
+
+On the page's side, a part that opens over the page and closes again is kept open and closed by a generated hook
+(`page_opening.py`, `src/api/opening.ts`), for the same reason as gestures are recognised by generated code.
+
 ## What a run can say
 - **pass:** every assertion held.
 - **fail:** an assertion did not hold, or the page had no control the test could use.
