@@ -461,10 +461,11 @@ def generate_red_test(
 
 
 def _code_of(answer: str) -> str:
-    """The code of an answer: what its fenced block holds when it has one, whatever words stand around it;
-    otherwise the answer itself."""
-    match = re.search(r"```(?:python)?\s*\n(.*?)```", answer, re.DOTALL)
-    return (match.group(1) if match else answer).strip() + "\n"
+    """The code of an answer: what its fenced blocks hold, in the order given, whatever words stand around
+    them; otherwise the answer itself. A writer that hands over a class's helpers in one block and the class in
+    the next has answered with all of it."""
+    blocks = re.findall(r"```(?:python)?\s*\n(.*?)```", answer, re.DOTALL)
+    return "\n\n\n".join(block.strip() for block in blocks or [answer]) + "\n"
 
 
 @traced("tdd.green_synthesize")

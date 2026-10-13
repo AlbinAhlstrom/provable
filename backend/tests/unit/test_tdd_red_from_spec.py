@@ -320,3 +320,20 @@ def test_green_synthesis_takes_the_code_of_an_answer_that_opens_with_a_sentence(
     monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda *a, **k: answer)
 
     assert tm.synthesize_green_class_implementation(code, "Booking", _spec()) == code
+
+
+def test_green_synthesis_reads_an_answer_given_in_two_blocks_as_one(monkeypatch):
+    """Verify code handed over in two fenced blocks is all read, not only the first of them.
+
+    id: TST-RFS-010
+    Given: A code writer that gives the exceptions the class raises in one fenced block and the class in the next
+    When: GREEN synthesis runs
+    Then: The fragment holds both, in the order they were given, so the class is found and its exceptions with it
+    """
+    import agent_orchestrator
+    helpers = "class TableTakenError(Exception):\n    pass\n"
+    code = "@dataclass\nclass Booking:\n    booking_id: str = ''\n"
+    answer = f"```python\n{helpers}```\n\n```python\n{code}```\n"
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda *a, **k: answer)
+
+    assert tm.synthesize_green_class_implementation(code, "Booking", _spec()) == helpers + "\n\n" + code
