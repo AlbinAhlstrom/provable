@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
 
 WORKDIR /app
 COPY backend/requirements.txt backend/requirements.txt
-RUN pip install --no-cache-dir -r backend/requirements.txt uvicorn pytest pytest-timeout playwright \
+RUN pip install --no-cache-dir -r backend/requirements.txt uvicorn playwright \
     && playwright install --with-deps chromium
 
 COPY . .

@@ -12,3 +12,7 @@ libcst
 selenium
 networkx
 pyjwt[crypto]>=2.8
+# The TDD loop runs pytest with these plugins (service_layer/tdd_machine.py run_isolated_pytest)
+pytest
+pytest-timeout
+pytest-json-report

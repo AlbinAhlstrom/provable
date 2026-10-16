@@ -123,10 +123,12 @@ def evaluate_red_gate_result(
             "reason": "Test fails because the specified behavior is missing or wrong (assertion, missing raise, missing method or signature mismatch)."
         }
 
+    said = [ln.strip() for ln in stderr.splitlines() if "error:" in ln.lower()]  # e.g. pytest's usage error
+    why = f": {said[-1][:240]}" if said else ""
     return {
         "status": "REJECTED_SYNTAX_OR_EXEC",
         "approved": False,
-        "reason": f"Unexpected exit code {exit_code} in RED phase."
+        "reason": f"Unexpected exit code {exit_code} in RED phase{why}."
     }
 
 

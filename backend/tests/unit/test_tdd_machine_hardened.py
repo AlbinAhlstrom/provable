@@ -132,3 +132,15 @@ class Pallet:
     assert "class Pallet" in result
     assert "```" not in result
 
+
+def test_evaluate_red_gate_names_pytest_usage_error():
+    # A pytest that cannot run the test (a missing plugin, a bad option) says why on stderr; the verdict carries it
+    stderr = (
+        "ERROR: usage: python -m pytest [options] [file_or_dir] [file_or_dir] [...]\n"
+        "python -m pytest: error: unrecognized arguments: --json-report\n"
+        "  inifile: None\n"
+        "  rootdir: /data/workspace\n"
+    )
+    result = evaluate_red_gate_result(exit_code=4, report_json={}, stderr=stderr)
+    assert result["approved"] is False
+    assert "unrecognized arguments: --json-report" in result["reason"]

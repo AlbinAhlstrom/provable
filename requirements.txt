@@ -8,10 +8,5 @@ langgraph>=0.2.0
 sqlalchemy
 aiosqlite
 
-# Tests
-pytest
-pytest-timeout
-pytest-json-report
-
 # Optional: screenshot fallback when Selenium cannot start a browser (see .claude/skills/take_ui_screenshot)
 playwright==1.56.0  # matches the chromium build preinstalled in cloud sessions (/opt/pw-browsers)
