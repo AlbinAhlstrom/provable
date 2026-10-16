@@ -66,7 +66,7 @@ every part was there for a person, none was found by its line, and every rule of
 held.
 
 Also on the page's side, a part that opens over the page and closes again is kept open and closed by a generated hook
-(`page_opening.py`, `src/api/opening.ts`), for the same reason as gestures are recognised by generated code.
+(`page_opening.py`, written into the generated app as src/api/opening.ts), for the same reason as gestures are recognised by generated code.
 
 ## What a run can say
 - **pass:** every assertion held.
