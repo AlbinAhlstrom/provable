@@ -20,3 +20,12 @@ def test_engine_runtime_requirements_include_the_pytest_plugins_the_tdd_loop_use
 def test_docker_image_installs_the_engine_runtime_requirements():
     with open(os.path.join(ROOT, "Dockerfile"), encoding="utf-8") as f:
         assert "-r backend/requirements.txt" in f.read()
+
+
+def test_container_starts_the_generated_apps_api_the_preview_proxies_to():
+    # The preview's /api calls go through Vite's proxy to the generated domain API on :8001 (skeleton_builder.py);
+    # a container that never starts it answers every one of them with a 500
+    with open(os.path.join(ROOT, "deploy", "start.sh"), encoding="utf-8") as f:
+        script = f.read()
+    assert "src.app:app" in script and "--port 8001" in script
+    assert "src/app.py" in script  # a workspace without the domain API gets the scaffold
