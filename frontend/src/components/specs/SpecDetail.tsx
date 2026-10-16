@@ -5,7 +5,7 @@ import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { RuleCardDTO } from '../../types/api';
-import { SpecStatusLight, testStatusLabel } from './SpecStatusLight';
+import { SpecStatusLight, testStatusLabel, testStatusSummary } from './SpecStatusLight';
 import { SpecCause, reviewCause } from './SpecCause';
 
 export interface SpecDetailProps {
@@ -47,7 +47,7 @@ export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ c
           </h4>
           {didNotPass && (
             <p className={`spec-reason spec-reason-${card.test_status}`}>
-              {testStatusLabel(card.test_status)}{card.test_reason ? `: ${card.test_reason}` : ''}
+              {testStatusSummary(card.test_status)}
             </p>
           )}
         </div>
@@ -79,11 +79,14 @@ export const SpecDetail = React.forwardRef<HTMLDivElement, SpecDetailProps>(({ c
         <p className="spec-empty">No behaviour written yet. Use Edit to add it.</p>
       )}
 
-      {card.page_test?.source && (
+      {(card.page_test?.source || (didNotPass && card.test_reason)) && (
         <details className="spec-test">
           <summary className="spec-section-label">Page test</summary>
-          {didNotPass && card.page_test.evidence && <pre className="spec-test-evidence">{card.page_test.evidence}</pre>}
-          <pre className="spec-test-source">{card.page_test.source}</pre>
+          {didNotPass && card.test_reason && (
+            <pre className="spec-test-evidence">{testStatusLabel(card.test_status)}: {card.test_reason}</pre>
+          )}
+          {didNotPass && card.page_test?.evidence && <pre className="spec-test-evidence">{card.page_test.evidence}</pre>}
+          {card.page_test?.source && <pre className="spec-test-source">{card.page_test.source}</pre>}
         </details>
       )}
 
