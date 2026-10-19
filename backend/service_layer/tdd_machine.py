@@ -414,6 +414,9 @@ CAREFUL_TIMEOUT_S = 180.0
 # Seconds a first draft may take. The one test of a whole class of actions is among the largest answers of a build:
 # 31 s for eight actions on a quick day, cut off at the 60 s of an ordinary call on a slow one.
 RED_TIMEOUT_S = 180.0
+# Seconds the code of a class may take. One answer holds every action of the class: 13,000 tokens took 55 s in one
+# build, and the retry with the failures, which is longer still, was cut off at the 60 s of an ordinary call.
+GREEN_TIMEOUT_S = 180.0
 
 
 @traced("tdd.red_generate")
@@ -517,7 +520,7 @@ def synthesize_green_class_implementation(
         "target_class_name": target_class_name
     })
 
-    raw_response = agent_orchestrator.call_gemini(prompt, stage="green_code_repair")
+    raw_response = agent_orchestrator.call_gemini(prompt, stage="green_code_repair", timeout_s=GREEN_TIMEOUT_S)
 
     if raw_response and raw_response.strip():
         clean_code = _code_of(raw_response)

@@ -196,3 +196,23 @@ def test_a_first_draft_of_a_test_is_given_the_time_a_whole_class_of_actions_take
 
     assert seen[0]["timeout_s"] == tdd_machine.RED_TIMEOUT_S > agent_orchestrator.DEFAULT_TIMEOUT_S
     assert not seen[0].get("reasoning_effort")
+
+
+def test_the_code_of_a_whole_class_is_given_the_time_its_answer_takes(monkeypatch):
+    """Verify the code of a class may take longer than an ordinary call: one answer holds every action of the class
+    (13,000 tokens took 55 s in one build, and the retry with the failures was cut off at the 60 s of an ordinary
+    call, so no action was built and every rule stayed red).
+
+    id: TST-GREEN-TIME
+    Given: The code writer
+    When: It is asked for a class
+    Then: The call is given more time than an ordinary call, at the default effort
+    """
+    import agent_orchestrator
+    seen = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda p, stage="general", **k: seen.append(k) or
+                        "```python\nclass Invoice:\n    pass\n```")
+    tdd_machine.synthesize_green_class_implementation("class Invoice:\n    pass\n", "Invoice", _spec())
+
+    assert seen[0]["timeout_s"] == tdd_machine.GREEN_TIMEOUT_S > agent_orchestrator.DEFAULT_TIMEOUT_S
+    assert not seen[0].get("reasoning_effort")

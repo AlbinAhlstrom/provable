@@ -105,7 +105,7 @@ class Pallet:
         """Validates that pallet weight does not exceed capacity."""
         return self.weight <= 1000.0
 ```'''
-    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda prompt, stage: mock_llm_response)
+    monkeypatch.setattr(agent_orchestrator, "call_gemini", lambda prompt, stage, **options: mock_llm_response)
 
     spec = BusinessSpec(
         spec_id="SPEC-002",
