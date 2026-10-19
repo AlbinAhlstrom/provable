@@ -5,6 +5,7 @@ import os
 
 import pytest
 
+import llm_replay
 import pipeline_trace
 import run_recorder
 from pipeline_trace import traced, traced_llm
@@ -217,6 +218,27 @@ def test_old_runs_are_pruned(monkeypatch, runs_root, workspace):
         with run_recorder.recorded_run("kickstart", f"p{i}", workspace_dir=str(workspace)):
             pass
     assert len([p for p in runs_root.iterdir() if p.is_dir()]) == 2
+
+
+def test_a_run_that_a_kept_run_replays_is_kept(monkeypatch, runs_root, workspace):
+    """Verify resampling a stage never deletes the run it replays: each sample is a newer run, so the recorded run
+    the samples answer from used to fall out of the newest few and the next sample had nothing to replay.
+
+    id: TST-RR-009b
+    Given: Retention of 2, a run, and three later runs that replay it
+    When: The last ends
+    Then: The replayed run is still there, beside the two newest
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_KEEP", "2")
+    with run_recorder.recorded_run("kickstart", "base", workspace_dir=str(workspace)) as base:
+        pass
+    with llm_replay.replaying([]):
+        llm_replay._active = [base.id]
+        for i in range(3):
+            with run_recorder.recorded_run("kickstart", f"sample{i}", workspace_dir=str(workspace)):
+                pass
+    kept = sorted(p.name for p in runs_root.iterdir() if p.is_dir())
+    assert base.id in kept and len(kept) == 3
 
 
 def test_a_kickstart_records_its_stages_in_a_run_folder(runs_root, tmp_path):

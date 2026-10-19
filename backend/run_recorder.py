@@ -10,7 +10,7 @@ A recorded run (a kickstart, or one spec execution) writes to `logs/runs/<timest
     workspace/      a copy of the generated `src/` and `tests/` plus QA screenshots, kept after the next run overwrites them
 
 `logs/runs/LATEST` names the newest run. Recording is on by default; PROVABLE_RUNS_DIR moves the folder,
-PROVABLE_RUNS_KEEP (default 30) bounds how many runs are kept and PROVABLE_RECORD_RUNS=0 switches it off.
+PROVABLE_RUNS_KEEP (default 30) bounds how many runs are kept (a run a kept run replays stays too) and PROVABLE_RECORD_RUNS=0 switches it off.
 Nothing here ever changes pipeline behaviour: failures to write are printed and swallowed, pipeline errors propagate.
 """
 
@@ -377,8 +377,19 @@ def _prune() -> None:
     keep = int(os.environ.get("PROVABLE_RUNS_KEEP", "30") or 30)
     root = runs_root()
     runs = sorted(d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d)))
+    kept = runs[-keep:] if keep > 0 else runs
+    replayed = {name for run in kept for name in _replayed_by(os.path.join(root, run))}  # resampling still needs them
     for old in runs[:-keep] if keep > 0 else []:
-        shutil.rmtree(os.path.join(root, old), ignore_errors=True)
+        if old not in replayed:
+            shutil.rmtree(os.path.join(root, old), ignore_errors=True)
+
+
+def _replayed_by(run_dir: str) -> List[str]:
+    try:
+        with open(os.path.join(run_dir, "run.json"), encoding="utf-8") as f:
+            return list((json.load(f).get("llm") or {}).get("replay") or [])
+    except (OSError, ValueError):
+        return []
 
 
 def _summarise(result: Any) -> Dict[str, Any]:
