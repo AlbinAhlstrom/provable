@@ -18,7 +18,7 @@ import subprocess
 from onboarding import code_verifier
 from onboarding.page_gates import run_page_gates
 from onboarding.page_parts import (Part, field_wordings, locators_block, missing_parts, parts_block, parts_of,
-                                   props_module, shown_values, value_forms)
+                                   props_module, shown_values, State, value_forms)
 from onboarding.presentation_projection_synthesizer import SECTIONS, parse_file_blocks
 
 PLAN = '''### 2. Where each action is done
@@ -462,3 +462,69 @@ def test_the_writers_hand_in_the_number_and_are_told_the_call_writes_it():
         square = next(i for i, line in enumerate(lines) if "parts.square" in line)
         assert lines[square + 1].strip() == ("`cell_wording` is handed in as the person is shown it: \"flag\" when "
                                              "flagged, else \"hidden\"")
+
+
+STATED = '''### 3. How each part is read out (role and name, used as written)
+- Week view · button · "Week" · pressed when the calendar's view is week
+- Line done · checkbox · "Done {title}" · checked when the line is done; disabled when the order is sent
+- Undo · button · "Undo"
+'''
+
+
+def test_a_parts_state_is_read_out_of_its_line():
+    """Verify a state a rule tells a part apart by is read from its line, apart from its name: a contract that had
+    nowhere to say which level was chosen wrote "Beginner {level state}" with a value it defined nowhere, and a
+    page and its tests guessed it each their own way.
+
+    id: TST-PARTS-STATE-READ
+    Given: A plan whose parts say a state after the name, one with two, one with none
+    When: The parts are read out of it
+    Then: The names are as written, and each state is read with when it holds
+    """
+    week, done, undo = parts_of(STATED)
+
+    assert (week.name, week.states) == ("Week", (State("pressed", "the calendar's view is week"),))
+    assert (done.name, done.states) == ("Done {title}", (State("checked", "the line is done"),
+                                                          State("disabled", "the order is sent")))
+    assert undo.states == ()
+
+
+def test_a_parts_state_is_given_to_its_element_by_the_call():
+    """
+    id: TST-PARTS-STATE-CALL
+    Given: The same plan
+    When: The page's module is run and the calls are handed each state as true or false
+    Then: The element gets the state as the attribute a screen reader and a test read it by, beside role and name
+    """
+    runner = RUNNER.replace("""  order: parts.order(),
+  line: parts.line({ quantity: 2, dish: 'soup' }),
+  total: parts.total({ amount: '12.50' }),""", """  week: parts.weekView({ pressed: true }),
+  done: parts.lineDone({ title: 'Soup', checked: false, disabled: true }),
+  undo: parts.undo(),""")
+    ran = subprocess.run(["node", "-e", runner, TYPESCRIPT], input=props_module(parts_of(STATED)),
+                         capture_output=True, text=True, encoding="utf-8", timeout=60)
+    assert ran.returncode == 0, ran.stderr
+    seen = json.loads(ran.stdout)
+
+    assert seen["week"] == {"role": "button", "aria-label": "Week", "aria-pressed": True}
+    assert seen["done"] == {"role": "checkbox", "aria-label": "Done Soup", "aria-checked": False,
+                            "aria-disabled": True}
+    assert seen["undo"] == {"role": "button", "aria-label": "Undo"}
+
+
+def test_the_writers_hand_in_each_state_and_are_told_when_it_holds():
+    """
+    id: TST-PARTS-STATE-BESIDE
+    Given: The same plan
+    When: The page's writer and a page test's writer are shown the parts
+    Then: A part's call takes each of its states, and under the part stands when each holds
+    """
+    page, tests = parts_block(STATED), locators_block(parts_of(STATED))
+
+    assert "`{...parts.weekView({ pressed })}`" in page
+    assert "`parts.week_view(page, pressed=...)`" in tests
+    for block in (page, tests):
+        lines = block.splitlines()
+        done = next(i for i, line in enumerate(lines) if "lineDone" in line or "line_done(" in line)
+        assert lines[done + 1].strip() == "`checked` is handed in as true when the line is done, else false"
+        assert lines[done + 2].strip() == "`disabled` is handed in as true when the order is sent, else false"

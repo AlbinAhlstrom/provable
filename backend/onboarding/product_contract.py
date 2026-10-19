@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional
 
 import agent_orchestrator
 from onboarding.intent import PRODUCT_TYPES, ProductIntent
+from onboarding.page_parts import identifier, part_of_entry
 from onboarding.router_engine import (AttributeSpec, AudienceRole, BusinessSpec, DomainStructureSchema, EntitySpec,
                                       SpecKind)
 from pipeline_trace import traced
@@ -296,7 +297,7 @@ class ProductContract:
         one of its parts), the `shown as` wording of a field (`<field> wording`), an entry of `shown`, or a refusal's
         `sentence`. Such a value is filled by each builder with a guess of its own, or left empty."""
         def key(name: str) -> str:
-            return re.sub(r"\W+", "_", name.strip().lower()).strip("_")
+            return identifier(name, "value")
 
         defined = {key("sentence")} if self.refusals else set()
         for record in self.records:
@@ -310,6 +311,15 @@ class ProductContract:
             defined.update(key(entry.split("=", 1)[0]) for entry in record.shown)
         return [f"{entry} holds {{{slot}}}" for entry in self.read_out
                 for slot in re.findall(r"\{([^{}]*)\}", entry) if key(slot) not in defined]
+
+    def misread_parts(self) -> List[str]:
+        """Each entry of `read_out` that names no part (`part · role · "name"`), and each state of a part that no
+        role has or that its role lacks: the element would be given it and a test would look for it in vain."""
+        misread = []
+        for entry in self.read_out:
+            part = part_of_entry(entry)
+            misread += part.state_errors() if part else [f"{entry} is not `part · role · \"name\"`"]
+        return misread
 
     # --- what the later stages are given -------------------------------------------------------------------------
 
@@ -477,6 +487,9 @@ def write_product_contract(pitch: str) -> ProductContract:
     if unnamed:
         raise ContractError("A part's name holds a value the contract defines nowhere (a field, a field's wording, an "
                             "entry of `shown` or a refusal's sentence): " + "; ".join(unnamed))
+    misread = contract.misread_parts()
+    if misread:
+        raise ContractError("A part of `read_out` cannot be found as written: " + "; ".join(misread))
     return contract
 
 

@@ -2,7 +2,10 @@
 
 The plan's read-out list (`ProductContract.blueprint`, section 3) has one line per part a person meets:
 
-    - <what it is> · <role> · "<the name it is read out by>"
+    - <what it is> · <role> · "<the name it is read out by>"[ · <state> when <condition>[; ...]]
+
+A state (`STATES`: pressed, checked, selected, expanded, disabled) is given to the element by the page's call, handed
+true or false, as the attribute a screen reader reads it by, and a test hands it in to find the part in it.
 
 That list is the page's extent. It is read here once, and every use of it is written from it by code:
 
@@ -30,9 +33,11 @@ import json
 import keyword
 import re
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Tuple
 
-_LINE = re.compile(r'^- (?P<what>.+?) · (?P<role>[\w-]+) · "(?P<name>.*)"[ \t]*$', re.MULTILINE)
+_LINE = re.compile(r'^- (?P<what>.+?) · (?P<role>[\w-]+) · "(?P<name>.*?)"(?: · (?P<states>[a-z]+ when .+?))?[ \t]*$',
+                   re.MULTILINE)
+_STATE = re.compile(r"(?P<word>[a-z]+) when (?P<when>.+?)\s*(?:;\s*(?=[a-z]+ when )|$)")
 _SLOT = re.compile(r"\{[^{}]*\}")       # the part of a name a field's value fills
 _WORDS = re.compile(r"\w[\w .'-]*\w|\w")
 
@@ -55,20 +60,55 @@ _NATIVE = {
 
 MISSING = "[Missing part] "
 
+# The states a part can be told apart by, each with the attribute that gives it to an element and the roles that
+# have it: what a screen reader reads out, and what a test finds a part in that state by (prompts/product_contract.md)
+STATES = {
+    "pressed": ("aria-pressed", ("button",)),
+    "checked": ("aria-checked", ("checkbox", "menuitemcheckbox", "menuitemradio")),
+    "selected": ("aria-selected", ("gridcell",)),
+    "expanded": ("aria-expanded", ("button", "menuitem")),
+    "disabled": ("aria-disabled", ("button", "textbox", "checkbox", "menuitem", "menuitemcheckbox", "menuitemradio",
+                                   "gridcell")),
+}
+
+
+@dataclass(frozen=True)
+class State:
+    word: str  # one of STATES
+    when: str  # when it holds, in the plan's words
+
 
 @dataclass(frozen=True)
 class Part:
     what: str
     role: str
     name: str  # as the plan writes it; `{field}` stands for a value
+    states: Tuple[State, ...] = ()
 
     def line(self) -> str:
-        return f'{self.what} · {self.role} · "{self.name}"'
+        return f'{self.what} · {self.role} · "{self.name}"' + "".join(
+            f"{' · ' if at == 0 else '; '}{state.word} when {state.when}" for at, state in enumerate(self.states))
+
+    def state_errors(self) -> List[str]:
+        """Each state of the part that no role has, or that its role lacks."""
+        return [f"{self.line()}: `{state.word}` is not a state of a {self.role} ("
+                + ", ".join(word for word, (_, roles) in STATES.items() if self.role in roles) + ")"
+                if state.word in STATES else
+                f"{self.line()}: `{state.word}` is no state (" + ", ".join(STATES) + ")"
+                for state in self.states if self.role not in STATES.get(state.word, ("", ()))[1]]
 
 
 def parts_of(plan: str) -> List[Part]:
     """The parts the plan names, in its order."""
-    return [Part(found["what"].strip(), found["role"], found["name"]) for found in _LINE.finditer(plan or "")]
+    return [Part(found["what"].strip(), found["role"], found["name"],
+                 tuple(State(s["word"], s["when"]) for s in _STATE.finditer(found["states"] or "")))
+            for found in _LINE.finditer(plan or "")]
+
+
+def part_of_entry(entry: str) -> Optional[Part]:
+    """The part an entry of the contract's `read_out` names, or None for an entry that names no part."""
+    found = parts_of(f"- {entry}")
+    return found[0] if found else None
 
 
 _SHOWN = re.compile(r"^- shown value: (?P<name>\w[\w ]*?) = (?P<how>.+?)[ \t]*$", re.MULTILINE)
@@ -103,7 +143,7 @@ def value_forms(plan: str) -> Dict[str, Form]:
     for found in _SHOWN.finditer(plan or ""):
         form = _FORM.search(found["how"])
         if form:
-            forms[_identifier(found["name"], "value")] = Form(form["kind"], int(form["count"]))
+            forms[identifier(found["name"], "value")] = Form(form["kind"], int(form["count"]))
     return forms
 
 
@@ -148,7 +188,7 @@ def shown_values(plan: str) -> Dict[str, str]:
     values = {slot: "; ".join(f"the wording of `{field}`: " + Wording(field, table).listed()
                               for field, table in fields.items())
               for slot, fields in _wording_tables(plan).items()}
-    return {**values, **{_identifier(found["name"], "value"): _FORM.sub("", found["how"]).strip()
+    return {**values, **{identifier(found["name"], "value"): _FORM.sub("", found["how"]).strip()
                          for found in _SHOWN.finditer(plan or "")}}
 
 
@@ -167,6 +207,7 @@ def _how_shown(function: "PartFunction", shown: Dict[str, str]) -> str:
                          + (f": {shown[slot]}" if slot in shown else ""))
         elif slot in shown:
             lines.append(f"\n  `{slot}` is handed in as the person is shown it: {shown[slot]}")
+    lines += [f"\n  `{state.word}` is handed in as true when {state.when}, else false" for state in function.part.states]
     return "".join(lines)
 
 
@@ -184,7 +225,7 @@ def parts_block(plan: str) -> str:
 _SLOT_NAME = re.compile(r"\{([^{}]*)\}")
 
 
-def _identifier(words: str, fallback: str) -> str:
+def identifier(words: str, fallback: str) -> str:
     """Words as a name Python accepts: lower case, joined by underscores, never one of Python's own words."""
     text = re.sub(r"\W+", "_", words.strip().lower()).strip("_") or fallback
     if text[0].isdigit():
@@ -209,8 +250,12 @@ class PartFunction:
         """What the call is handed: each slot, or for a field's wording the field's value."""
         return [worded.argument if (worded := self._worded(slot)) else slot for slot in self.slots]
 
+    @property
+    def states(self) -> List[str]:
+        return [state.word for state in self.part.states]
+
     def call(self) -> str:
-        return f"parts.{self.name}(page{''.join(f', {argument}=...' for argument in self.arguments)})"
+        return f"parts.{self.name}(page{''.join(f', {argument}=...' for argument in self.arguments + self.states)})"
 
     @property
     def page_name(self) -> str:
@@ -219,23 +264,26 @@ class PartFunction:
         return first + "".join(word[:1].upper() + word[1:] for word in rest) + ("_" if self.name.endswith("_") else "")
 
     def spread(self) -> str:
-        values = "{ " + ", ".join(self.arguments) + " }" if self.slots else ""
+        handed = self.arguments + self.states
+        values = "{ " + ", ".join(handed) + " }" if handed else ""
         return "{..." + f"parts.{self.page_name}({values})" + "}"
 
     def props(self) -> str:
         """The call as `src/api/parts.ts` defines it."""
         pieces = _SLOT_NAME.split(self.part.name)
-        terms = [json.dumps(piece) if at % 2 == 0 else self._term(_identifier(piece, "value"), "String(v.{})",
+        terms = [json.dumps(piece) if at % 2 == 0 else self._term(identifier(piece, "value"), "String(v.{})",
                                                                      "worded({}, v.{})", "{}(v.{}, {})")
                  for at, piece in enumerate(pieces) if piece or at % 2]
-        takes = "v: { " + "; ".join(f"{argument}: Value" for argument in self.arguments) + " }" if self.slots else ""
+        handed = [f"{argument}: Value" for argument in self.arguments] + [f"{word}: boolean" for word in self.states]
+        takes = "v: { " + "; ".join(handed) + " }" if handed else ""
+        states = "".join(f", '{STATES[word][0]}': v.{word}" for word in self.states)
         return (f"  /** {self.part.what}: {self.part.role} \"{self.part.name}\" */\n"
                 f"  {self.page_name}: ({takes}) => "
-                f"({{ role: {json.dumps(self.part.role)}, 'aria-label': {' + '.join(terms) or json.dumps('')} }}),\n")
+                f"({{ role: {json.dumps(self.part.role)}, 'aria-label': {' + '.join(terms) or json.dumps('')}{states} }}),\n")
 
     def _name_expression(self) -> str:
         pieces = _SLOT_NAME.split(self.part.name)  # fixed words and slot names, in turn
-        terms = [json.dumps(piece) if at % 2 == 0 else self._term(_identifier(piece, "value"), "str({})",
+        terms = [json.dumps(piece) if at % 2 == 0 else self._term(identifier(piece, "value"), "str({})",
                                                                      "_worded({}, {})", "_{}({}, {})")
                  for at, piece in enumerate(pieces) if piece or at % 2]
         return " + ".join(terms) or '""'
@@ -249,10 +297,13 @@ class PartFunction:
         return formed.format(form.kind, slot, form.count) if form else plain.format(slot)
 
     def source(self) -> str:
-        takes = "page" + (", *, " + ", ".join(self.arguments) if self.slots else "")
-        return (f"# {self.part.what}: {self.part.role} \"{self.part.name}\"\n"
+        handed = self.arguments + [f"{word}=None" for word in self.states]
+        takes = "page" + (", *, " + ", ".join(handed) if handed else "")
+        states = (", **_in_states(" + ", ".join(f"{word}={word}" for word in self.states) + ")") if self.states else ""
+        return (f"# {self.part.line()}\n"
                 f"def {self.name}({takes}):\n"
-                f"    return page.get_by_role({json.dumps(self.part.role)}, name={self._name_expression()}, exact=True)\n")
+                f"    return page.get_by_role({json.dumps(self.part.role)}, name={self._name_expression()}, exact=True"
+                f"{states})\n")
 
 
 def part_functions(parts: Iterable[Part], wordings: Optional[Dict[str, Wording]] = None,
@@ -262,14 +313,14 @@ def part_functions(parts: Iterable[Part], wordings: Optional[Dict[str, Wording]]
     functions: List[PartFunction] = []
     taken = set()
     for part in parts:
-        name = _identifier(part.what, "part")
+        name = identifier(part.what, "part")
         if name in taken:
-            name = f"{name}_{_identifier(part.role, 'part')}"
+            name = f"{name}_{identifier(part.role, 'part')}"
         count = 2
         while name in taken:
             name, count = f"{name.rstrip('0123456789_')}_{count}", count + 1
         taken.add(name)
-        slots = list(dict.fromkeys(_identifier(slot, "value") for slot in _SLOT_NAME.findall(part.name)))
+        slots = list(dict.fromkeys(identifier(slot, "value") for slot in _SLOT_NAME.findall(part.name)))
         worded = {slot: w for slot, w in (wordings or {}).items() if slot in slots and w.argument not in slots}
         functions.append(PartFunction(name, part, slots, worded,
                                       {slot: form for slot, form in (forms or {}).items() if slot in slots}))
@@ -313,6 +364,9 @@ def locators_module(parts: Iterable[Part], wordings: Optional[Dict[str, Wording]
             "def _decimals(value, count):\n"
             '    """A number with `count` digits after the point: 5 as "5.00"."""\n'
             '    return f"{float(value):.{count}f}"\n\n\n'
+            "def _in_states(**states):\n"
+            '    """The states a part is looked for in: each one handed in; one left out may be either way."""\n'
+            "    return {word: value for word, value in states.items() if value is not None}\n\n\n"
             + "\n\n".join(function.source() for function in part_functions(parts, wordings, forms)))
 
 
@@ -327,7 +381,8 @@ def locators_block(parts: Iterable[Part], shown: Optional[Dict[str, str]] = None
                        for f in functions)
     return ("## The parts of the page\n`import parts` gives one function for each part the page's plan names by "
             "role and name. It returns the locator of that part, found by exactly that role and that whole name, "
-            "with each value in braces handed in as the argument named after it:\n\n" + listed + "\n\n"
+            "with each value in braces handed in as the argument named after it, and a state the part is looked for in "
+            "as true or false (left out, the part is found in either):\n\n" + listed + "\n\n"
             "The first argument is the page, or a locator to look inside. A part listed here is found through its "
             "function, with the values the records you arranged give it, and by no locator of your own. What is "
             "said above about finding a control holds for everything else: a message, a text, every control of one "

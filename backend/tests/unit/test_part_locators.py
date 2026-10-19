@@ -231,3 +231,22 @@ def test_a_test_hands_in_a_number_and_the_function_writes_it_in_the_plans_form(t
     assert scope["mines_left"](page, mines_left=7) == ("status", {"name": "Mines left 007", "exact": True})
     assert scope["mines_left"](page, mines_left=-3) == ("status", {"name": "Mines left -03", "exact": True})
     assert scope["total"](page, amount=5) == ("status", {"name": "Total 5.00", "exact": True})
+
+
+def test_a_test_finds_a_part_in_a_state_by_handing_the_state_in(tmp_path):
+    """
+    id: TST-LOCATOR-STATE
+    Given: A plan whose part says when it is pressed
+    When: The functions are written beside the tests and the part is looked for with and without the state
+    Then: Handed the state, the part is looked for in it; without, in any state
+    """
+    plan = ('### 3. How each part is read out (role and name, used as written)\n'
+            '- Week view · button · "Week" · pressed when the calendar\'s view is week\n')
+    path = page_tests.ensure_parts(str(tmp_path), plan)
+    scope = {}
+    exec(compile(open(path, encoding="utf-8").read(), "parts.py", "exec"), scope)
+    page = Page()
+
+    assert scope["week_view"](page, pressed=True) == ("button", {"name": "Week", "exact": True, "pressed": True})
+    assert scope["week_view"](page, pressed=False) == ("button", {"name": "Week", "exact": True, "pressed": False})
+    assert scope["week_view"](page) == ("button", {"name": "Week", "exact": True})

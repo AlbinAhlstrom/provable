@@ -795,3 +795,48 @@ def test_the_contract_writer_is_told_the_forms_a_value_is_written_in():
     prompt = agent_orchestrator.load_prompt("product_contract.md", {"pitch": "p"})
     assert "; written as N digits" in prompt and "; written as N decimals" in prompt
     assert "`{sentence}`" in prompt
+
+
+def test_a_parts_state_is_one_its_role_has_or_the_contract_is_refused(monkeypatch):
+    """Verify a part's state is one a test can find it by: a state no role has (`chosen`) or one its role lacks (a
+    button that is `selected`) would be given to the element and looked for in vain.
+
+    id: TST-CONTRACT-STATES
+    Given: A contract whose button is pressed and whose cell is selected, and contracts with a state of no role, a
+           state of another role, and an entry that is no part
+    When: Each is written
+    Then: The first is the contract; each other fails by the entry, and nothing is retried
+    """
+    stated = copy.deepcopy(CONTRACT)
+    stated["read_out"] += ["Week · button · \"Week\" · pressed when the view is week",
+                           "Seat · gridcell · \"Seat {number}\" · selected when the table is chosen; disabled when "
+                           "the table is taken"]
+    calls = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini",
+                        lambda prompt, stage="general", **k: calls.append(1) or json.dumps(stated))
+    assert pc.write_product_contract("A table booking page").read_out == stated["read_out"]
+
+    for entry, why in (("Week · button · \"Week\" · chosen when the view is week", r"chosen"),
+                       ("Week · button · \"Week\" · selected when the view is week", r"selected.*button"),
+                       ("Week · button · Week", r"Week · button · Week")):
+        wrong = copy.deepcopy(CONTRACT)
+        wrong["read_out"].append(entry)
+        monkeypatch.setattr(agent_orchestrator, "call_gemini",
+                            lambda prompt, stage="general", w=wrong, **k: calls.append(1) or json.dumps(w))
+        with pytest.raises(pc.ContractError, match=why):
+            pc.write_product_contract("A table booking page")
+    assert len(calls) == 4
+
+
+def test_the_contract_writer_is_told_the_states_a_part_can_be_in():
+    """
+    id: TST-CONTRACT-STATES-PROMPT
+    Given: The contract's prompt
+    When: It is read
+    Then: It gives the states a part says after its name, and `sees` gives a state by the same word
+    """
+    prompt = agent_orchestrator.load_prompt("product_contract.md", {"pitch": "p"})
+    assert "`part · role · \"name\" · <state> when <condition>`" in prompt
+    for word in ("pressed", "checked", "selected", "expanded", "disabled"):
+        assert f"`{word}`" in prompt
+    assert "`\"name\" disabled`" in prompt and "unavailable`" not in prompt
