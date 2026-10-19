@@ -72,11 +72,13 @@ def _git_info() -> Dict[str, Any]:
 
 def _llm_settings() -> Dict[str, Any]:
     import llm_provider
+    import llm_replay
     connection = llm_provider.connection()
     base = connection.base_url
     return {"model": connection.model, "provider": os.environ.get("LLM_PROVIDER") or None,
             "stage_models": llm_provider.stage_models(),
             "reasoning_effort": os.environ.get("LLM_REASONING_EFFORT", "low"),
+            "replay": llm_replay.active(),
             "base_url_host": re.sub(r"^https?://([^/]+).*", r"\1", base) if base else None}
 
 
@@ -319,7 +321,7 @@ def llm_totals(trace_dir: str) -> Dict[str, Any]:
     counters = ("prompt_tokens", "cached_tokens", "completion_tokens", "reasoning_tokens")
 
     def empty() -> Dict[str, Any]:
-        return {"calls": 0, "errors": 0, **{c: 0 for c in counters}, "total_s": 0.0, "cost_usd": 0.0}
+        return {"calls": 0, "errors": 0, "replayed": 0, **{c: 0 for c in counters}, "total_s": 0.0, "cost_usd": 0.0}
 
     totals, by_stage, unpriced, rate = empty(), {}, set(), llm_cost.usd_to_sek()
     for name in sorted(os.listdir(trace_dir)):
@@ -339,6 +341,7 @@ def llm_totals(trace_dir: str) -> Dict[str, Any]:
         for target in (totals, by_stage.setdefault(stage_name, empty())):
             target["calls"] += 1
             target["errors"] += 1 if (meta.get("error") or entry.get("error")) else 0
+            target["replayed"] += 1 if meta.get("replayed_from") else 0  # answered from a recorded run (llm_replay.py)
             for counter in counters:
                 target[counter] += meta.get(counter) or 0
             target["total_s"] = round(target["total_s"] + (entry.get("duration_s") or 0), 3)

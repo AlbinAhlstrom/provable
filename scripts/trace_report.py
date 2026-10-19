@@ -59,7 +59,8 @@ def list_runs():
         path = os.path.join(RUNS, name, "summary.json")
         if os.path.exists(path):
             s = _load(path)
-            print(f"{s['status']:9} {s['duration_s']:7.1f}s  {s['llm']['calls']:3d} LLM calls  {_sek(s['llm']):>12}  {name}")
+            replayed = f"  ({s['llm']['replayed']} replayed)" if s["llm"].get("replayed") else ""
+            print(f"{s['status']:9} {s['duration_s']:7.1f}s  {s['llm']['calls']:3d} LLM calls  {_sek(s['llm']):>12}  {name}{replayed}")
         else:
             print(f"{'(open)':9} {'':8}  {'':14}  {'':12}  {name}")
 
@@ -115,7 +116,9 @@ def show_run(folder, trace_dir):
             print(f"  spec conflict: {conflict}")
         show_inventory(result.get("app_inventory"))
         llm = summary["llm"]
-        print(f"\nLLM  {llm['calls']} calls, {llm['errors']} errors, {llm['prompt_tokens']} prompt + "
+        print(f"\nLLM  {llm['calls']} calls, {llm['errors']} errors, "
+              + (f"{llm['replayed']} replayed from {', '.join((meta.get('llm') or {}).get('replay') or [])}, "
+                 if llm.get("replayed") else "") + f"{llm['prompt_tokens']} prompt + "
               f"{llm['completion_tokens']} completion tokens"
               + (f" + {llm['reasoning_tokens']} hidden reasoning" if llm.get("reasoning_tokens") else "")
               + f", {llm['total_s']}s summed over calls (calls overlap, so this can exceed the wall time)")
@@ -128,7 +131,8 @@ def show_run(folder, trace_dir):
             speed = f"{b['completion_tokens'] / b['total_s']:>5.0f} tok/s" if b["total_s"] else ""
             print(f"  {stage_name:<34} {b['calls']:2d} calls {b['total_s']:>7.1f}s {b['prompt_tokens']:>7} in {b['completion_tokens']:>6} out"
                   + (f" {b['reasoning_tokens']:>6} reasoning" if b.get("reasoning_tokens") else "") + f" {speed} {_sek(b):>10}"
-                  + (f"  {b['errors']} ERRORS" if b["errors"] else ""))
+                  + (f"  {b['errors']} ERRORS" if b["errors"] else "")
+                  + (f"  {b['replayed']} replayed" if b.get("replayed") else ""))
     print("\nTRACE")
     show_trace(traces(trace_dir))
     print(f"\nFolder: {folder}   (--full N prints one step; the generated app is in workspace/)")

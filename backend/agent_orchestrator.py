@@ -39,6 +39,7 @@ from openai import OpenAI
 import db.store as store
 import llm_anthropic
 import llm_provider
+import llm_replay
 from config_loader import get_workspace_base, get_project_settings
 
 # Load environment variables from root .env file if present
@@ -200,13 +201,20 @@ def call_gemini(prompt: str, stage: str = "general", json_mode: bool = False, re
     connection = llm_provider.connection(stage)
     api_key, base_url, model_name = connection.api_key, connection.base_url, connection.model
 
+    effort = reasoning_effort if reasoning_effort is not None else os.environ.get("LLM_REASONING_EFFORT", "low")
+    replayed = llm_replay.answer(stage, prompt, json_mode, json_schema, images, model_name, effort)
+    if replayed is not None:  # a recorded run asked exactly this (llm_replay.py)
+        print(f"[LLM] Replayed stage '{stage}' from a recorded run (model: {model_name})", flush=True)
+        record_llm_meta(model=model_name, json_mode=json_mode, reasoning_effort=effort or None,
+                        finish_reason="replayed", replayed_from=llm_replay.active())
+        return replayed
+
     if not api_key:
         _llm_error.value = f"No LLM API key configured ({connection.key_hint})."
         print(f"[Warning] {_llm_error.value}", flush=True)
         record_llm_meta(model=model_name, error=_llm_error.value)
         return ""
 
-    effort = reasoning_effort if reasoning_effort is not None else os.environ.get("LLM_REASONING_EFFORT", "low")
     timeout = timeout_s if timeout_s is not None else EFFORT_TIMEOUT_S.get(effort, DEFAULT_TIMEOUT_S)
     t0 = time.time()
     try:

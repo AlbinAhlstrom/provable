@@ -5,7 +5,9 @@ Delegates 100% of business logic to DDD Service Layer & Unit of Work.
 
 from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Any, Dict, List, Optional
+
+import llm_replay
 from service_layer.unit_of_work import SqliteUnitOfWork
 from service_layer import app_wiring, rule_tests, services
 
@@ -16,6 +18,12 @@ class KickstartRequest(BaseModel):
     pitch: Optional[str] = None
     business_pitch: Optional[str] = None
     mode: Optional[str] = "fast"
+    replay: Optional[List[str]] = None   # recorded runs whose answers are given back to the same questions (llm_replay.py)
+
+
+def _replaying(run_ids: Optional[List[str]], task, **kwargs) -> Any:
+    with llm_replay.replaying(run_ids):
+        return task(**kwargs)
 
 
 @router.post("/kickstart")
@@ -25,11 +33,12 @@ def kickstart_endpoint(req: KickstartRequest, background: BackgroundTasks):
     uow = SqliteUnitOfWork()
     pitch = req.pitch or req.business_pitch or "An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
     try:
-        result = services.kickstart_domain_and_scaffold(
-            pitch=pitch,
-            uow=uow,
-            mode=req.mode or "fast"
-        )
+        with llm_replay.replaying(req.replay):
+            result = services.kickstart_domain_and_scaffold(
+                pitch=pitch,
+                uow=uow,
+                mode=req.mode or "fast"
+            )
     except Exception as e:
         return {
             "success": False,
@@ -37,7 +46,8 @@ def kickstart_endpoint(req: KickstartRequest, background: BackgroundTasks):
             "detail": str(e)
         }
     if result.get("success") and result.get("qa") is not None:
-        background.add_task(rule_tests.run_all_rule_tests, uow=SqliteUnitOfWork(), label="after kickstart")
+        background.add_task(_replaying, req.replay, rule_tests.run_all_rule_tests, uow=SqliteUnitOfWork(),
+                            label="after kickstart")
     return result
 
 

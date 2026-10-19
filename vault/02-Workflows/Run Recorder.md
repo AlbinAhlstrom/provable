@@ -75,3 +75,19 @@ exchange rate used (`usd_to_sek`), the date of the price list (`prices_as_of`) a
 - A model the table does not hold has no price. Its run shows "cost unknown" and names the model, so a missing price never reads as a cheap run. Add the model to the table and run `--backfill-costs`.
 - `PROVABLE_USD_SEK` sets the exchange rate (default 10.0).
 - The cost is computed from the trace, so `--backfill-costs` can price any older run. It only fills summaries that hold no cost; it does not reprice a run after a price change.
+
+## Replaying a recorded run
+
+Working on one stage need not pay for all the others. A kickstart request that names recorded runs is answered from
+them wherever it asks exactly what they asked (`backend/llm_replay.py`):
+
+```json
+{"pitch": "Minesweeper", "replay": ["<kickstart run id>", "<its rule tests run id>"]}
+```
+
+- A question is the same when the stage, prompt, schema or JSON mode, model and effort all are. Change one stage's prompt and that call goes to the model; any later stage whose input changed with it does too.
+- A question asked several times gets its recorded answers in order; once they are used up, the model answers.
+- Never replayed: calls with screenshots (the trace keeps paths, not pictures) and calls that failed.
+- A replayed call costs nothing and is counted as `replayed` in the summary, in total and per stage; `run.json` names the runs replayed (`llm.replay`). `trace_report.py` shows both.
+- The page tests that follow the kickstart replay the same runs.
+- Replay repeats one run of the model. It says nothing about how often a stage answers well: measure that with live calls.
