@@ -75,6 +75,16 @@ class Connection:
     thinking: bool = True  # False: the call asks the model to answer without its hidden thinking
 
 
+def stage_models() -> Dict[str, str]:
+    """The stages that run on another model than the default one, by the provider or a setting, with that model."""
+    name = (os.environ.get("LLM_PROVIDER") or "").strip().lower()
+    models = dict(PROVIDERS[name].stage_models) if name in PROVIDERS else {}
+    prefix = "LLM_MODEL_"
+    models.update({key[len(prefix):].lower(): value for key, value in os.environ.items()
+                   if key.startswith(prefix) and value})
+    return models
+
+
 def connection(stage: str = "general") -> Connection:
     """The endpoint, key and model the given stage's call uses."""
     stage_model = os.environ.get(f"LLM_MODEL_{stage.upper()}")

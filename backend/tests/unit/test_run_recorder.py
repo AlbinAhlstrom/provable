@@ -354,3 +354,26 @@ def test_the_summary_accounts_for_the_whole_wall_time(runs_root, workspace):
     timeline = summary["timeline"]
     assert timeline["in_stages_s"] >= 0 and timeline["outside_stages_s"] >= 0
     assert abs(timeline["in_stages_s"] + timeline["outside_stages_s"] - summary["duration_s"]) < 0.05
+
+
+def test_a_run_names_the_model_of_each_stage_that_has_its_own(runs_root, workspace, monkeypatch):
+    """Verify the record of a run names every stage that runs on another model than the run's own, whether the
+    provider gives it one or a setting moves it: a run recorded the small model alone while its contract was written
+    by the middle one, and the report pointed at the wrong model.
+
+    id: TST-RR-STAGE-MODELS
+    Given: The Anthropic provider, which gives some stages a model of their own, and a setting moving one more
+    When: A run is recorded
+    Then: run.json names the run's model, and each such stage with its model
+    """
+    import llm_provider
+    monkeypatch.setenv("LLM_PROVIDER", "anthropic")
+    monkeypatch.delenv("LLM_MODEL_PRODUCT_CONTRACT", raising=False)
+    monkeypatch.setenv("LLM_MODEL_FIRST_TESTS", "m-moved")
+    with run_recorder.recorded_run("kickstart", "pitch", workspace_dir=str(workspace)):
+        _step(1)
+
+    llm = json.loads((_only_run(runs_root) / "run.json").read_text(encoding="utf-8"))["llm"]
+    provider = llm_provider.PROVIDERS["anthropic"]
+    assert llm["model"] == provider.model
+    assert llm["stage_models"] == {**provider.stage_models, "first_tests": "m-moved"}

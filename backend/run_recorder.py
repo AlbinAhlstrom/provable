@@ -75,7 +75,7 @@ def _llm_settings() -> Dict[str, Any]:
     connection = llm_provider.connection()
     base = connection.base_url
     return {"model": connection.model, "provider": os.environ.get("LLM_PROVIDER") or None,
-            "stage_model_overrides": {k: v for k, v in os.environ.items() if k.startswith("LLM_MODEL_")},
+            "stage_models": llm_provider.stage_models(),
             "reasoning_effort": os.environ.get("LLM_REASONING_EFFORT", "low"),
             "base_url_host": re.sub(r"^https?://([^/]+).*", r"\1", base) if base else None}
 

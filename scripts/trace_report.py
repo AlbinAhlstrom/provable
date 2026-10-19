@@ -72,7 +72,7 @@ def show_run(folder, trace_dir):
     print(f"RUN {meta['id']}")
     print(f"  pitch/label : {meta['label'][:100]}")
     print(f"  code        : {git.get('branch')} {str(git.get('commit'))[:9]}{' (uncommitted changes: ' + ', '.join(git['dirty_files'][:5]) + ')' if git.get('dirty') else ''}")
-    print(f"  model       : {meta['llm']['model']}  effort={meta['llm']['reasoning_effort']}  {meta['llm'].get('stage_model_overrides') or ''}")
+    print(f"  model       : {meta['llm']['model']}  effort={meta['llm']['reasoning_effort']}  {meta['llm'].get('stage_models') or meta['llm'].get('stage_model_overrides') or ''}")
     if not summary:
         print("  (no summary.json: the run did not finish, e.g. the backend was stopped mid-run)")
     else:
