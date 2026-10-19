@@ -132,7 +132,8 @@ def start(root, commit):
     """Starts the checks of `commit` in a process of their own and returns at once."""
     write(root, {"commit": commit, "status": "running", "started_at": time.time()})
     log = os.path.join(root, "logs", "tests", f"{commit}.log")
-    options = ({"creationflags": subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP}
+    # A hidden console, not none: without one, every program the checks start opens a console window of its own
+    options = ({"creationflags": subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP}
                if os.name == "nt" else {"start_new_session": True})
     with open(log, "w", encoding="utf-8") as out:
         subprocess.Popen([sys.executable, os.path.abspath(__file__), "run", root, commit], cwd=root,
