@@ -79,6 +79,7 @@ def _llm_settings() -> Dict[str, Any]:
             "stage_models": llm_provider.stage_models(),
             "reasoning_effort": os.environ.get("LLM_REASONING_EFFORT", "low"),
             "replay": llm_replay.active(),
+            "replay_live": llm_replay.live(),
             "base_url_host": re.sub(r"^https?://([^/]+).*", r"\1", base) if base else None}
 
 

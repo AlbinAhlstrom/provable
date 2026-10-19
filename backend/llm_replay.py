@@ -16,6 +16,10 @@ asks for with `replay` (`entrypoints/routers/onboarding.py`).
 - A replayed call is in the trace like any other, marked with the run it came from and at no cost
   (`run_recorder.llm_totals` counts them), so a replayed run can be replayed in turn.
 
+- A stage named live (`replaying(runs, live=[...])`) is always asked of the model, while the rest is replayed: the
+  stage is sampled again on the same recorded input, so the variance that is its own shows apart from what came
+  before it.
+
 Replay answers what one run of the model said. It says nothing about how often a stage answers well: measure that
 with live calls.
 """
@@ -29,6 +33,7 @@ from typing import Any, Dict, Iterator, List, Optional, Sequence
 
 _lock = threading.Lock()
 _active: List[str] = []
+_live: List[str] = []   # stages asked of the model though recorded
 _answers: Dict[str, List[str]] = {}   # question key -> recorded answers not yet given, in the order they were given
 
 
@@ -65,11 +70,16 @@ def active() -> List[str]:
     return list(_active)
 
 
+def live() -> List[str]:
+    """The stages asked of the model while the rest is replayed."""
+    return list(_live)
+
+
 @contextlib.contextmanager
-def replaying(run_ids: Optional[Sequence[str]]) -> Iterator[None]:
-    """Answers the questions inside the block from `run_ids` (none: nothing is replayed). Raises ValueError, before
-    anything is asked, when a run is not recorded."""
-    global _active, _answers
+def replaying(run_ids: Optional[Sequence[str]], live: Optional[Sequence[str]] = None) -> Iterator[None]:
+    """Answers the questions inside the block from `run_ids` (none: nothing is replayed), except those of the `live`
+    stages. Raises ValueError, before anything is asked, when a run is not recorded."""
+    global _active, _answers, _live
     run_ids = [run_id for run_id in (run_ids or []) if run_id]
     if not run_ids:
         yield
@@ -79,19 +89,19 @@ def replaying(run_ids: Optional[Sequence[str]]) -> Iterator[None]:
         for question, answers in _load(run_id).items():
             loaded.setdefault(question, []).extend(answers)
     with _lock:
-        before = (_active, _answers)
-        _active, _answers = list(run_ids), loaded
+        before = (_active, _answers, _live)
+        _active, _answers, _live = list(run_ids), loaded, list(live or [])
     try:
         yield
     finally:
         with _lock:
-            _active, _answers = before
+            _active, _answers, _live = before
 
 
 def answer(stage: str, prompt: str, json_mode: bool, json_schema: Optional[Dict[str, Any]],
            images: Optional[List[str]], model: str, effort: Optional[str]) -> Optional[str]:
     """The recorded answer to this question, or None when the model is to be asked."""
-    if images or not _active:
+    if images or not _active or stage in _live:
         return None
     with _lock:
         recorded = _answers.get(key(stage, prompt, json_mode, json_schema, model, effort))

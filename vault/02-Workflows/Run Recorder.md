@@ -90,4 +90,5 @@ them wherever it asks exactly what they asked (`backend/llm_replay.py`):
 - Never replayed: calls with screenshots (the trace keeps paths, not pictures) and calls that failed.
 - A replayed call costs nothing and is counted as `replayed` in the summary, in total and per stage; `run.json` names the runs replayed (`llm.replay`). `trace_report.py` shows both.
 - The page tests that follow the kickstart replay the same runs.
+- `"replay_live": ["<stage>", ...]` asks those stages of the model all the same while the rest is replayed (`llm.replay_live` in `run.json`). Sampling one stage several times on the same recorded input shows how much of a run's variance is that stage's own; a stage after it whose input changed is asked live too.
 - Replay repeats one run of the model. It says nothing about how often a stage answers well: measure that with live calls.

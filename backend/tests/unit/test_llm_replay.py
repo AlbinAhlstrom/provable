@@ -211,3 +211,47 @@ def test_a_kickstart_names_the_runs_it_replays_and_its_page_tests_replay_them_to
 
     assert seen == {"kickstart": ["k1", "t1"], "page_tests": ["k1", "t1"]}
     assert llm_replay.active() == []
+
+
+def test_a_stage_named_live_is_asked_of_the_model_while_the_rest_is_replayed(provider, tmp_path):
+    """Verify one stage can be sampled again on the same recorded input: how much of a run's variance is its own.
+
+    id: TST-REPLAY-009
+    Given: A recorded run that asked two stages
+    When: A run replays it with one of them named live
+    Then: That stage is asked of the model, the other is answered from the record, and the run says which was live
+    """
+    recorded, _ = _record(tmp_path, [("p", {"stage": "contract"}), ("q", {"stage": "page"})])
+
+    with llm_replay.replaying([recorded], live=["page"]):
+        again, answers = _record(tmp_path, [("p", {"stage": "contract"}), ("q", {"stage": "page"})])
+
+    assert answers == ["answer-1", "answer-3"]
+    with open(f"{run_recorder.runs_root()}/{again}/run.json", encoding="utf-8") as f:
+        assert json.load(f)["llm"]["replay_live"] == ["page"]
+
+
+def test_a_kickstart_names_the_stages_to_ask_live_and_its_page_tests_keep_them(monkeypatch):
+    """
+    id: TST-REPLAY-010
+    Given: A kickstart request that names a recorded run and a stage to ask live
+    When: The kickstart runs and its page tests follow
+    Then: Both run with that stage live
+    """
+    from fastapi import BackgroundTasks
+    from entrypoints.routers import onboarding
+    from service_layer import rule_tests, services
+    seen = {}
+    monkeypatch.setattr(llm_replay, "_load", lambda run_id: {})
+    monkeypatch.setattr(services, "kickstart_domain_and_scaffold",
+                        lambda **kwargs: seen.update(kickstart=llm_replay.live()) or {"success": True, "qa": {}})
+    monkeypatch.setattr(rule_tests, "run_all_rule_tests", lambda **kwargs: seen.update(page_tests=llm_replay.live()))
+    background = BackgroundTasks()
+
+    onboarding.kickstart_endpoint(
+        onboarding.KickstartRequest(pitch="p", replay=["k1"], replay_live=["page_test_generation"]), background)
+    for task in background.tasks:
+        task.func(*task.args, **task.kwargs)
+
+    assert seen == {"kickstart": ["page_test_generation"], "page_tests": ["page_test_generation"]}
+    assert llm_replay.live() == []
