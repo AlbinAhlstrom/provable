@@ -16,7 +16,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, ContextManager, Dict, List, Optional
 
-from onboarding.page_parts import missing_parts, parts_of
+from onboarding.page_parts import field_wordings, missing_parts, parts_of
 from run_recorder import stage_begin
 
 @dataclass
@@ -86,7 +86,8 @@ def _judge(*, workspace_dir: str, pitch: str, presentation: Dict[str, Any], ux_b
             last_audit["report"] = run_responsive_qa_audit(url=looked_at.url, save_screenshots=True,
                                                           workspace_dir=workspace_dir, api_ready_url=looked_at.api_ready_url,
                                                           parts=parts_of(ux_blueprint))
-        absent = missing_parts(parts_of(ux_blueprint), _sources(presentation.get("files", [])))
+        absent = missing_parts(parts_of(ux_blueprint), _sources(presentation.get("files", [])),
+                               field_wordings(ux_blueprint))
         if absent:  # a part the plan names and the page lacks is a defect like any other the audit finds
             report = last_audit["report"]
             report["defects"] = list(report.get("defects") or []) + absent

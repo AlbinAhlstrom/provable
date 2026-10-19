@@ -341,6 +341,18 @@ def test_the_writers_hand_in_the_value_the_record_holds():
         assert block.count("Being written") == 1
 
 
+def test_a_missing_part_is_named_by_the_call_the_writer_was_shown():
+    """
+    id: TST-PARTS-MISSING-WORDED-CALL
+    Given: A plan whose part's name holds `{status wording}`, and a page that spreads none of its parts
+    When: QA names the parts the page lacks
+    Then: The defect names the call as the writer was shown it and `parts.ts` defines it, `parts.orderState({ status })`
+    """
+    missing = missing_parts(parts_of(WORDED), [""], field_wordings(WORDED))
+    state = next(defect for defect in missing if "orderState" in defect)
+    assert "`{...parts.orderState({ status })}`" in state
+
+
 def test_a_wording_two_fields_give_differently_is_left_to_the_writer_with_both():
     """
     id: TST-PARTS-FIELD-WORDING-TWO

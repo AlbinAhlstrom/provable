@@ -112,8 +112,8 @@ class PresentationRepair:
         fixes = []
         for mark, following in zip(marks, marks[1:] + [None]):
             path = mark.group(1).strip()
-            if path == "end":
-                break
+            if path == "end":  # closes the block before it; a model may close every block, not only the last
+                continue
             code = raw[mark.end():following.start() if following else len(raw)].strip()
             if not code:
                 raise ValueError(f"the block for {path} is empty")

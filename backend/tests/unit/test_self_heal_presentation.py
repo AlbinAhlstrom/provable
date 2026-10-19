@@ -46,6 +46,20 @@ def test_contract_parses_file_blocks_carrying_code_verbatim():
     assert repair.fixes == [FileFix(path="src/App.tsx", code=code), FileFix(path="src/views/BoardView.tsx", code="x")]
 
 
+def test_an_end_marker_after_each_file_keeps_every_file():
+    """Verify a rework that closes each file with the end marker loses none of them.
+
+    id: TST-HEAL-BLOCKS-EACH-END
+    Given: An answer that writes `<<<end>>>` after every file block, as a live rework did, with prose after the last
+    When: It is parsed
+    Then: Every file is read, each exactly as written; what follows an end marker outside a block is dropped
+    """
+    answer = ("Both files fixed.\n\n<<<src/App.tsx>>>\nAPP\n<<<end>>>\n\n"
+              "<<<src/views/BoardView.tsx>>>\nBOARD\n<<<end>>>\n\n<<<end>>>\n")
+    repair = PresentationRepair.from_response(answer)
+    assert repair.fixes == [FileFix(path="src/App.tsx", code="APP"), FileFix(path="src/views/BoardView.tsx", code="BOARD")]
+
+
 def test_contract_rejects_malformed_answer():
     for bad in ("just prose", "<<<src/App.tsx>>>\n\n<<<end>>>"):
         with pytest.raises(ValueError):

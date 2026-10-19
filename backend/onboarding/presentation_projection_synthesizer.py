@@ -39,7 +39,8 @@ PAGE_TIMEOUT_S = 300.0
 
 SECTIONS = ("view_tsx", "controls_tsx", "history_tsx", "app_tsx")
 PARTS = "parts"  # opens the answer: where the writer puts each part of the page (page_parts.py); a plan, not a file
-END = "end"  # closes the answer: without a way to say "done" the model invents one, and it lands in the last file
+END = "end"  # closes a block: without a way to say "done" the model invents one, and it lands in the last file. A
+# model may close every block with it, so it never ends the answer: what follows it outside a block is dropped.
 _MARKER = re.compile(r"^<<<(\w+)>>>[ \t]*$", re.MULTILINE)
 
 
@@ -60,7 +61,7 @@ def parse_file_blocks(raw: str) -> Dict[str, str]:
     for mark, following in zip(marks, marks[1:] + [None]):
         name = mark.group(1)
         if name == END:
-            break
+            continue
         if name == PARTS:
             continue
         if name not in SECTIONS:

@@ -295,11 +295,13 @@ def present_parts(parts: Iterable[Part], sources: Iterable[str]) -> List[Part]:
     return [part for part in parts if _has_role(part.role, source) and _has_name(part.name, source)]
 
 
-def missing_parts(parts: Iterable[Part], sources: Iterable[str]) -> List[str]:
-    """One defect for each part whose call no element of the page's files carries."""
+def missing_parts(parts: Iterable[Part], sources: Iterable[str],
+                  wordings: Optional[Dict[str, Wording]] = None) -> List[str]:
+    """One defect for each part whose call no element of the page's files carries, named by the call as the writer
+    was shown it (`wordings`: the plan's field wordings, so a worded slot is handed in as its field's value)."""
     source = "\n".join(sources)
     return [f'{MISSING}The plan names "{f.part.what}" ({f.part.role}, read out as "{f.part.name}") and no element '
             f'of the page carries `{f.spread()}`. Write the part as the plan describes it, with the step that '
             f'brings it up, and spread that call on its element in place of a role or a name of your own.'
-            for f in part_functions(parts)
+            for f in part_functions(parts, wordings)
             if not re.search(r"\bparts\." + re.escape(f.page_name) + r"\s*\(", source)]

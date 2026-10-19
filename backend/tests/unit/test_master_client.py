@@ -111,7 +111,8 @@ def test_file_blocks_carry_code_verbatim_and_malformed_answers_say_what_is_wrong
     Given: Block answers: one with awkward code, one fenced, and malformed ones
     When: They are parsed
     Then: Code is verbatim (a fence around a block is unwrapped); a missing marker, an unknown or a repeated section raises;
-          the answer ends at its end marker, and the prompt asks for that marker and types lists as their client does
+          an end marker closes the block before it (text after it
+          outside a block is dropped), and the prompt asks for that marker and types lists as their client does
     """
     import pytest
     from onboarding.presentation_projection_synthesizer import parse_file_blocks
@@ -122,6 +123,8 @@ def test_file_blocks_carry_code_verbatim_and_malformed_answers_say_what_is_wrong
     assert parse_file_blocks(fenced) == {"app_tsx": "export const App = 1"}
     closed = "<<<app_tsx>>>\nexport const App = 1\n<<<end>>>\nThat is the whole page.\n"
     assert parse_file_blocks(closed) == {"app_tsx": "export const App = 1"}
+    each_closed = "<<<view_tsx>>>\nexport const V = 1\n<<<end>>>\n\n<<<app_tsx>>>\nexport const App = 1\n<<<end>>>\n"
+    assert parse_file_blocks(each_closed) == {"view_tsx": "export const V = 1", "app_tsx": "export const App = 1"}
     import os
     import agent_orchestrator
     prompt = open(os.path.join(os.path.dirname(agent_orchestrator.__file__), "prompts",
