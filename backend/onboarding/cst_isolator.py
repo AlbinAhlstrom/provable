@@ -345,6 +345,38 @@ def _merge_class_members(original: cst.ClassDef, fragment: cst.ClassDef) -> cst.
     return original.with_changes(body=original.body.with_changes(body=new_body))
 
 
+FIXED_HELPERS = "CONTRACT_REFUSALS"  # the module constant naming the helpers code wrote, which no answer replaces
+
+
+def _fixed_helpers(module: cst.Module) -> Set[str]:
+    """The helpers a module says code wrote for it (its `FIXED_HELPERS` tuple), with the tuple itself."""
+    for stmt in module.body:
+        if _module_name_of(stmt) == FIXED_HELPERS and isinstance(stmt, cst.SimpleStatementLine):
+            try:
+                names = ast.literal_eval(module.code_for_node(stmt.body[0].value))
+            except (ValueError, SyntaxError):
+                return {FIXED_HELPERS}
+            return {FIXED_HELPERS, *(str(name) for name in names)}
+    return set()
+
+
+def place_helpers(original_source: str, target_class: str, helpers: str) -> str:
+    """Puts module-level helpers (classes, functions, constants) before the target class, each replacing the one of
+    its name already there: what code writes beside a class, so writing it again changes nothing."""
+    frag = cst.parse_module(helpers.strip() + "\n")
+    orig = cst.parse_module(original_source)
+    body = list(orig.body)
+    for stmt in frag.body:
+        name = _module_name_of(stmt)
+        idx = next((i for i, s in enumerate(body) if name is not None and _module_name_of(s) == name), None)
+        if idx is not None:
+            body[idx] = stmt
+        else:
+            target_idx = next((i for i, s in enumerate(body) if _module_name_of(s) == target_class), len(body))
+            body.insert(target_idx, stmt)
+    return orig.with_changes(body=body).code
+
+
 @traced("tdd.cst_merge")
 def merge_module_fragment(original_source: str, target_class: str, fragment: str) -> str:
     """Merges an LLM-produced module fragment into a module.
@@ -352,7 +384,8 @@ def merge_module_fragment(original_source: str, target_class: str, fragment: str
     The fragment may contain import statements, helpers (classes such as domain exceptions, functions, and
     constants assigned to one name) and the target class. Missing imports are added after the existing ones,
     helpers are inserted before the target (or replaced when one of that name already exists), and the target
-    class is merged member by member (members the fragment does not mention are kept). Anything else at
+    class is merged member by member (members the fragment does not mention are kept). A helper the module lists
+    as written by code (`FIXED_HELPERS`) is kept as it is: the answer uses it and does not define it. Anything else at
     module level (code that runs at import, an assignment to several names) is refused, as is unparseable
     output: this raises FragmentError instead of silently returning the original source.
     """
@@ -380,6 +413,8 @@ def merge_module_fragment(original_source: str, target_class: str, fragment: str
 
     orig = cst.parse_module(original_source)
     body = list(orig.body)
+    fixed = _fixed_helpers(orig)  # written from the contract (a refusal and its sentence): the answer only uses them
+    classes = [c for c in classes if _module_name_of(c) not in fixed]
 
     present = {orig.code_for_node(s).strip() for s in body if _is_import_line(s)}
     new_imports = [s for s in imports if frag.code_for_node(s).strip() not in present]

@@ -367,8 +367,8 @@ class ProductContract:
                                  "held_by_defaults": all(f.starts_by_default() for f in r.fields)} for r in self.records],
             "vocabulary": [{"aggregate": r.name, "field": f.name, "values": f.vocabulary()}
                            for r in self.records for f in r.fields if f.values],
-            "rejections": [{"aggregate": self._record_of(r.action), "error": r.name,
-                            "raised_when": f'{r.raised_when}; it is raised with exactly this message: "{r.sentence}"'}
+            "rejections": [{"aggregate": self._record_of(r.action), "error": r.name, "raised_when": r.raised_when,
+                            "sentence": r.sentence}  # its class is written with the sentence (write_refusals)
                            for r in self.refusals],
         }
 

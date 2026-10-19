@@ -161,7 +161,7 @@ def test_the_actions_of_the_contract_are_the_action_manifest():
     assert [v["value"] for v in vocabulary["values"]] == ["confirmed", "cancelled"]
     assert vocabulary["values"][0]["meaning"].startswith("the table is held")
     refusal = manifest["rejections"][0]
-    assert refusal["error"] == "TooManyGuestsError" and "We seat at most 8 at one table." in refusal["raised_when"]
+    assert refusal["error"] == "TooManyGuestsError" and refusal["sentence"] == "We seat at most 8 at one table."
     assert refusal["aggregate"] == "Booking"
     start = next(s for s in manifest["starting_states"] if s["aggregate"] == "Booking")["description"]
     assert "guests 2" in start and "status confirmed" in start and "courses" in start

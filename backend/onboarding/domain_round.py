@@ -14,6 +14,8 @@ changes, and the deck holds every rule, before either pass starts. So they are o
   rule, and one per action that no rule is about. They share one builder for each situation the contract wrote,
   so no two arrange the same situation differently.
 - Each class gets one code answer for all of it, judged test by test, with the loop's one retry.
+- A class's refusals are written by code before anything else, each with the contract's sentence fixed inside it
+  (`action_protocol.write_refusals`): the code raises them and the page shows the sentence as the contract wrote it.
 - Afterwards the code is compared with the action protocol (`check_action_contract`): an action still without a
   method fails by name. Nothing is stubbed.
 
@@ -32,7 +34,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
 from onboarding.action_behaviour import ActionBehaviour, specs_of_actions
-from onboarding.action_protocol import check_action_contract
+from onboarding.action_protocol import check_action_contract, write_refusals
 from onboarding.router_engine import BusinessSpec
 from onboarding.skeleton_builder import forget_saved_records
 from onboarding.spec_runner import RuleProgress, SpecRun, behaviour_rules, run_behaviour_specs
@@ -84,6 +86,7 @@ def run_domain_round(manifest: Optional[Dict[str, Any]], deck: List[BusinessSpec
 
 def _round(manifest: Optional[Dict[str, Any]], deck: List[BusinessSpec], workspace_dir: str, execute: Execute,
            report: Optional[Callable[[RuleProgress], None]], on_rule: Optional[Settle]) -> DomainRound:
+    write_refusals(manifest, workspace_dir)  # the contract's refusals, each with its sentence, before any test or code
     proved = {(spec.target_aggregate, spec.action) for spec in behaviour_rules(deck) if spec.action}
     actions, runs = specs_of_actions(manifest, workspace_dir, proved=proved)
     run_of = {run["spec_id"]: run for run in runs if run["spec_id"]}

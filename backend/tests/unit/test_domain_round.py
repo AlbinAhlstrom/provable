@@ -272,3 +272,27 @@ def test_a_round_that_crashes_still_forgets_the_records_of_a_class_it_changed(tm
 
     assert "quota exceeded" in done.specs.error
     assert os.listdir(store) == []
+
+
+def test_the_refusals_are_written_before_the_loop_starts(tmp_path):
+    """Verify a class's refusals are in its module when its tests and code are written.
+
+    id: TST-ROUND-REFUSALS
+    Given: A manifest whose Appointment has a refusal with a sentence
+    When: The domain round runs
+    Then: When the loop is called, Appointment's module already raises that refusal with its sentence
+    """
+    seen = {}
+    execute = _loop(methods=[("Appointment", "confirm_booking"), ("Stylist", "set_availability")])
+    execute.workspace = _workspace(tmp_path)
+    path = os.path.join(execute.workspace, "src", "domain", "appointment.py")
+
+    def looking(specs, settle):
+        seen["source"] = open(path, encoding="utf-8").read()
+        return execute(specs, settle)
+
+    manifest = {**MANIFEST, "rejections": [{"aggregate": "Appointment", "error": "SlotTakenError",
+                                            "raised_when": "the slot is taken", "sentence": "That time is taken."}]}
+    run_domain_round(manifest, [_rule("SPEC-001")], execute.workspace, looking)
+
+    assert "class SlotTakenError" in seen["source"] and "'That time is taken.'" in seen["source"]

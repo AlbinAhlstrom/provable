@@ -71,6 +71,48 @@ def starts_whole(manifest: Optional[Dict[str, Any]], aggregate: str) -> bool:
                for entry in (manifest or {}).get("starting_states") or [])
 
 
+from onboarding.cst_isolator import FIXED_HELPERS as WRITTEN_FROM_CONTRACT, place_helpers
+
+
+def _refusals(manifest: Optional[Dict[str, Any]], aggregate: str) -> list:
+    """This class's refusals that the contract gives a sentence: their classes are written by code."""
+    return [entry for entry in (manifest or {}).get("rejections") or []
+            if isinstance(entry, dict) and entry.get("aggregate") == aggregate
+            and str(entry.get("error") or "").isidentifier() and str(entry.get("sentence") or "").strip()]
+
+
+def refusal_classes(manifest: Optional[Dict[str, Any]], aggregate: str) -> str:
+    """The class of each refusal of `aggregate`, its sentence fixed inside it, and the tuple that names them (which
+    keeps a code answer from writing them again, `cst_isolator.merge_module_fragment`). A person reads the sentence
+    as the contract wrote it: written by code, it is the same in the class, in every test and on the page."""
+    refusals = _refusals(manifest, aggregate)
+    if not refusals:
+        return ""
+    names = tuple(str(entry["error"]) for entry in refusals)
+    blocks = [f"{WRITTEN_FROM_CONTRACT} = {names!r}  # written from the contract; raised, never written again"]
+    for entry in refusals:
+        blocks.append(f'class {entry["error"]}(Exception):\n'
+                      f'    """A refusal of the contract. Raise it with no arguments: its message is fixed."""\n\n'
+                      f'    def __init__(self) -> None:\n'
+                      f'        super().__init__({str(entry["sentence"]).strip()!r})')
+    return "\n\n\n".join(blocks) + "\n"
+
+
+def write_refusals(manifest: Optional[Dict[str, Any]], workspace_dir: str) -> None:
+    """Writes each class's refusals into its module, before the class, before anything is written for the class."""
+    from onboarding.skeleton_builder import to_snake_case
+    for aggregate in dict.fromkeys(str(e.get("aggregate")) for e in (manifest or {}).get("rejections") or []
+                                   if isinstance(e, dict)):
+        code = refusal_classes(manifest, aggregate)
+        path = os.path.join(workspace_dir, "src", "domain", f"{to_snake_case(aggregate)}.py")
+        if not code or not os.path.exists(path):
+            continue
+        with open(path, encoding="utf-8") as f:
+            source = f.read()
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(place_helpers(source, aggregate, code))
+
+
 def shared_words(manifest: Optional[Dict[str, Any]], aggregate: str) -> list:
     """The words every writer of this class uses alike: the values its fixed-set fields take and the names of its
     refusals, as lines. Tests for a class's rules are written side by side; without these, each invents its own."""
@@ -82,7 +124,12 @@ def shared_words(manifest: Optional[Dict[str, Any]], aggregate: str) -> list:
                 lines.append(f"- Field `{entry['field']}` holds exactly one of: {values}")
     for entry in (manifest or {}).get("rejections") or []:
         if isinstance(entry, dict) and entry.get("aggregate") == aggregate and entry.get("error"):
-            lines.append(f"- A refusal raises `{entry['error']}` when {entry.get('raised_when') or 'the request is not allowed'}")
+            when = entry.get("raised_when") or "the request is not allowed"
+            if str(entry.get("sentence") or "").strip():
+                lines.append(f"- A refusal raises `{entry['error']}()` when {when}: with no arguments, as it is "
+                             f"defined beside the class with its sentence (\"{str(entry['sentence']).strip()}\")")
+            else:
+                lines.append(f"- A refusal raises `{entry['error']}` when {when}")
     return lines
 
 

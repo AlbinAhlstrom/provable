@@ -12,7 +12,7 @@ One or more pytest unit tests have failed in the RED phase. Your task is to upda
 {module_imports}
 ```
 
-## Helpers the module already has beside the class (use them; to change one, give its complete new definition under the same name):
+## Helpers the module already has beside the class (use them; to change one, give its complete new definition under the same name; the classes named in `CONTRACT_REFUSALS` are fixed: raise them with no arguments):
 ```python
 {module_helpers}
 ```
