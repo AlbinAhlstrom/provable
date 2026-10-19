@@ -10,7 +10,7 @@ A recorded run (a kickstart, or one spec execution) writes to `logs/runs/<timest
     workspace/      a copy of the generated `src/` and `tests/` plus QA screenshots, kept after the next run overwrites them
 
 `logs/runs/LATEST` names the newest run. Recording is on by default; PROVABLE_RUNS_DIR moves the folder,
-PROVABLE_RUNS_KEEP (default 30) bounds how many runs are kept (a run a kept run replays stays too) and PROVABLE_RECORD_RUNS=0 switches it off.
+PROVABLE_RUNS_KEEP (default 30, 0 keeps all) bounds how many of the newest runs are kept (the newest run of each kind per commit and any run a kept run replays stay too) and PROVABLE_RECORD_RUNS=0 switches it off.
 Nothing here ever changes pipeline behaviour: failures to write are printed and swallowed, pipeline errors propagate.
 """
 
@@ -374,22 +374,28 @@ def backfill_costs() -> List[str]:
 
 
 def _prune() -> None:
-    keep = int(os.environ.get("PROVABLE_RUNS_KEEP", "30") or 30)
+    """Keeps the newest PROVABLE_RUNS_KEEP runs (0: all), the newest run of each kind for every commit, so each code
+    version has a run to compare against, and every run a kept run replays, so resampling never loses its base."""
+    keep = int(os.environ.get("PROVABLE_RUNS_KEEP") or 30)
     root = runs_root()
     runs = sorted(d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d)))
-    kept = runs[-keep:] if keep > 0 else runs
-    replayed = {name for run in kept for name in _replayed_by(os.path.join(root, run))}  # resampling still needs them
-    for old in runs[:-keep] if keep > 0 else []:
-        if old not in replayed:
+    if keep <= 0 or len(runs) <= keep:
+        return
+    records = {run: _run_record(os.path.join(root, run)) for run in runs}
+    newest_per_commit = {((r.get("git") or {}).get("commit"), r.get("kind")): run for run, r in records.items()}
+    kept = set(runs[-keep:]) | {run for (commit, _), run in newest_per_commit.items() if commit}
+    kept |= {name for run in kept for name in (records[run].get("llm") or {}).get("replay") or []}
+    for old in runs:
+        if old not in kept:
             shutil.rmtree(os.path.join(root, old), ignore_errors=True)
 
 
-def _replayed_by(run_dir: str) -> List[str]:
+def _run_record(run_dir: str) -> Dict[str, Any]:
     try:
         with open(os.path.join(run_dir, "run.json"), encoding="utf-8") as f:
-            return list((json.load(f).get("llm") or {}).get("replay") or [])
+            return json.load(f)
     except (OSError, ValueError):
-        return []
+        return {}
 
 
 def _summarise(result: Any) -> Dict[str, Any]:

@@ -232,13 +232,45 @@ def test_a_run_that_a_kept_run_replays_is_kept(monkeypatch, runs_root, workspace
     monkeypatch.setenv("PROVABLE_RUNS_KEEP", "2")
     with run_recorder.recorded_run("kickstart", "base", workspace_dir=str(workspace)) as base:
         pass
-    with llm_replay.replaying([]):
-        llm_replay._active = [base.id]
-        for i in range(3):
-            with run_recorder.recorded_run("kickstart", f"sample{i}", workspace_dir=str(workspace)):
-                pass
+    monkeypatch.setattr(llm_replay, "_active", [base.id])
+    for i in range(3):
+        with run_recorder.recorded_run("kickstart", f"sample{i}", workspace_dir=str(workspace)):
+            pass
     kept = sorted(p.name for p in runs_root.iterdir() if p.is_dir())
     assert base.id in kept and len(kept) == 3
+
+
+def test_the_newest_run_of_each_kind_is_kept_for_every_commit(monkeypatch, runs_root, workspace):
+    """Verify every code version keeps a run to compare against: the newest few runs alone lost the run before a
+    change as soon as the runs after it were many.
+
+    id: TST-RR-009c
+    Given: Retention of 1; on commit a two kickstarts and their rule tests, then one kickstart on commit b
+    When: The last ends
+    Then: Commit a's newest kickstart and newest rule tests remain beside commit b's kickstart; the older ones are gone
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_KEEP", "1")
+    made = []
+    for commit, kind in (("a", "kickstart"), ("a", "rule_tests"), ("a", "kickstart"), ("a", "rule_tests"),
+                         ("b", "kickstart")):
+        monkeypatch.setattr(run_recorder, "_git_info", lambda commit=commit: {"commit": commit})
+        with run_recorder.recorded_run(kind, f"p{len(made)}", workspace_dir=str(workspace)) as run:
+            made.append(run.id)
+    assert sorted(p.name for p in runs_root.iterdir() if p.is_dir()) == sorted(made[2:])
+
+
+def test_a_retention_of_zero_keeps_every_run(monkeypatch, runs_root, workspace):
+    """
+    id: TST-RR-009d
+    Given: PROVABLE_RUNS_KEEP=0 and more runs of one kind on one commit than the default keeps
+    When: The last ends
+    Then: All remain
+    """
+    monkeypatch.setenv("PROVABLE_RUNS_KEEP", "0")
+    for i in range(31):
+        with run_recorder.recorded_run("kickstart", f"p{i}", workspace_dir=str(workspace)):
+            pass
+    assert len([p for p in runs_root.iterdir() if p.is_dir()]) == 31
 
 
 def test_a_kickstart_records_its_stages_in_a_run_folder(runs_root, tmp_path):

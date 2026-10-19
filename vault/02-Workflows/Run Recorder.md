@@ -14,7 +14,7 @@ in `backend/pipeline_trace.py`; read it with `scripts/trace_report.py`.
 | `workspace/` | A copy of the generated `src/` and `tests/` and the QA screenshots, kept after the next run overwrites `workspace/`. Per device there is the first screen at device density (`qa_<device>_<w>x<h>.png`) and the whole page at one image pixel per CSS pixel (`qa_<device>_full.png`). |
 
 `logs/runs/LATEST` names the newest run. Recording is always on. `PROVABLE_RUNS_DIR` moves the folder,
-`PROVABLE_RUNS_KEEP` (default 30) bounds how many runs are kept (a run that a kept run replays is kept too, so resampling never deletes its base), `PROVABLE_RECORD_RUNS=0` switches it off.
+`PROVABLE_RUNS_KEEP` (default 30, `0` keeps all) bounds how many of the newest runs are kept. Beyond those, the newest run of each kind (kickstart, rule tests, ...) is kept for every commit, so each code version has a run to compare against, and a run that a kept run replays is kept, so resampling never deletes its base; `PROVABLE_RECORD_RUNS=0` switches it off.
 The test suite points it at a throwaway directory.
 
 ## Stages and failure
