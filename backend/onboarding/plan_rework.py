@@ -31,7 +31,7 @@ REWORK_SCHEMA: Dict[str, Any] = {
     "type": "object",
     "properties": {
         "situations": {"type": "array", "items": _TEXT},
-        "rules": {"type": "array", "items": {
+        "rules": {"type": "array", "minItems": 1, "items": {   # a review named at least one; an empty list builds them unchanged
             "type": "object", "properties": {key: _TEXT for key in ("title", *CLAUSES)},
             "required": ["title", *CLAUSES]}},
     },

@@ -80,6 +80,20 @@ def test_a_rework_that_was_not_delivered_fails_with_the_reason(monkeypatch, answ
     assert len(calls) == 1
 
 
+def test_the_writer_is_held_to_write_at_least_one_rule():
+    """Verify the provider is held to write a rule back: once, the answer added the situations the named rules needed
+    and closed the list of rules empty, and the plan was built with the rules the review had found could not hold.
+
+    id: TST-REWORK-SCHEMA-NONEMPTY
+    Given: The schema the rework is answered in
+    When: Its lists are read
+    Then: The rules hold at least one entry; the situations may be none
+    """
+    lists = pr.REWORK_SCHEMA["properties"]
+    assert lists["rules"].get("minItems") == 1
+    assert lists["situations"].get("minItems") is None
+
+
 def _front(monkeypatch, review, rework):
     monkeypatch.setattr(pc, "write_product_contract", lambda pitch: _contract())
     return kf.contract_front("A table booking page", review=review, rework=rework)
