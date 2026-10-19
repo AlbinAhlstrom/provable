@@ -77,15 +77,43 @@ _FIELD_WORDING = re.compile(r'^- `(?P<field>\w+\.(?P<name>\w+))` (?P<value>[^:\n
                             re.MULTILINE)
 
 
+def _wording_tables(plan: str) -> Dict[str, Dict[str, Dict[str, str]]]:
+    """`<field>_wording` -> `Record.field` -> value -> wording, for every field the plan words."""
+    tables: Dict[str, Dict[str, Dict[str, str]]] = {}
+    for found in _FIELD_WORDING.finditer(plan or ""):
+        table = tables.setdefault(f"{found['name']}_wording", {}).setdefault(found["field"], {})
+        table[found["value"].strip()] = found["wording"]
+    return tables
+
+
+@dataclass(frozen=True)
+class Wording:
+    """A field's wordings, put into a part's name by its call: the call is handed the value the record holds."""
+    field: str                 # `Record.field`
+    table: Dict[str, str]      # value -> how the person is shown it
+
+    @property
+    def argument(self) -> str:
+        return self.field.split(".", 1)[1]
+
+    def listed(self) -> str:
+        return ", ".join(f'{value} "{wording}"' for value, wording in self.table.items())
+
+
+def field_wordings(plan: str) -> Dict[str, Wording]:
+    """The `{field wording}` slots (`<field>_wording`) whose wordings are one list: a field of one record, or fields
+    of several that word their values alike. Where they differ, which record a part shows is the writer's to say."""
+    return {slot: Wording(next(iter(fields)), next(iter(fields.values())))
+            for slot, fields in _wording_tables(plan).items()
+            if all(table == next(iter(fields.values())) for table in fields.values())}
+
+
 def shown_values(plan: str) -> Dict[str, str]:
     """The values the plan writes a way of its own, by the name a part's name gives them: each `- shown value:
     <name> = <how>`, and for a field with `shown as` wordings, `<field>_wording` (the contract's `{field wording}`)."""
-    wordings: Dict[str, Dict[str, List[str]]] = {}
-    for found in _FIELD_WORDING.finditer(plan or ""):
-        entries = wordings.setdefault(f"{found['name']}_wording", {}).setdefault(found["field"], [])
-        entries.append(f'{found["value"].strip()} "{found["wording"]}"')
-    values = {slot: "; ".join(f"the wording of `{field}`: " + ", ".join(entries) for field, entries in fields.items())
-              for slot, fields in wordings.items()}
+    values = {slot: "; ".join(f"the wording of `{field}`: " + Wording(field, table).listed()
+                              for field, table in fields.items())
+              for slot, fields in _wording_tables(plan).items()}
     return {**values, **{found["name"]: found["how"] for found in _SHOWN.finditer(plan or "")}}
 
 
@@ -93,13 +121,20 @@ def _how_shown(function: "PartFunction", shown: Dict[str, str]) -> str:
     """Under a part, how each value its name is built from is written: the page puts it into the name and a test
     looks for it as the person is shown it, both from this one definition. A name and its definition stood far
     apart in the plan, and the page wrote a bare number into a name the plan writes with three digits."""
-    return "".join(f"\n  `{slot}` is handed in as the person is shown it: {shown[slot]}"
-                   for slot in function.slots if slot in shown)
+    lines = []
+    for slot in function.slots:
+        worded = function.wordings.get(slot)
+        if worded:
+            lines.append(f"\n  `{worded.argument}` is handed in as `{worded.field}` holds it, and the call puts in its "
+                         f"wording: {worded.listed()}")
+        elif slot in shown:
+            lines.append(f"\n  `{slot}` is handed in as the person is shown it: {shown[slot]}")
+    return "".join(lines)
 
 
 def parts_block(plan: str) -> str:
     """The parts as the page's writer is shown them."""
-    functions, shown = part_functions(parts_of(plan)), shown_values(plan)
+    functions, shown = part_functions(parts_of(plan), field_wordings(plan)), shown_values(plan)
     if not functions:
         return "The blueprint names no parts by role and name: the parts are the ones its sections describe."
     return (f"The page has these parts ({len(functions)}):\n"
@@ -124,10 +159,19 @@ class PartFunction:
     """The function a page test finds a part through."""
     name: str
     part: Part
-    slots: List[str]  # the values the part's name is built from, as the function's arguments
+    slots: List[str]  # the values the part's name is built from
+    wordings: Optional[Dict[str, Wording]] = None  # slot -> the field whose wording the call puts in for it
+
+    def _worded(self, slot: str) -> Optional[Wording]:
+        return (self.wordings or {}).get(slot)
+
+    @property
+    def arguments(self) -> List[str]:
+        """What the call is handed: each slot, or for a field's wording the field's value."""
+        return [worded.argument if (worded := self._worded(slot)) else slot for slot in self.slots]
 
     def call(self) -> str:
-        return f"parts.{self.name}(page{''.join(f', {slot}=...' for slot in self.slots)})"
+        return f"parts.{self.name}(page{''.join(f', {argument}=...' for argument in self.arguments)})"
 
     @property
     def page_name(self) -> str:
@@ -136,34 +180,43 @@ class PartFunction:
         return first + "".join(word[:1].upper() + word[1:] for word in rest) + ("_" if self.name.endswith("_") else "")
 
     def spread(self) -> str:
-        values = "{ " + ", ".join(self.slots) + " }" if self.slots else ""
+        values = "{ " + ", ".join(self.arguments) + " }" if self.slots else ""
         return "{..." + f"parts.{self.page_name}({values})" + "}"
 
     def props(self) -> str:
         """The call as `src/api/parts.ts` defines it."""
         pieces = _SLOT_NAME.split(self.part.name)
-        terms = [json.dumps(piece) if at % 2 == 0 else f"String(v.{_identifier(piece, 'value')})"
+        terms = [json.dumps(piece) if at % 2 == 0 else self._term(_identifier(piece, "value"), "String(v.{})",
+                                                                     "worded({}, v.{})")
                  for at, piece in enumerate(pieces) if piece or at % 2]
-        takes = "v: { " + "; ".join(f"{slot}: Value" for slot in self.slots) + " }" if self.slots else ""
+        takes = "v: { " + "; ".join(f"{argument}: Value" for argument in self.arguments) + " }" if self.slots else ""
         return (f"  /** {self.part.what}: {self.part.role} \"{self.part.name}\" */\n"
                 f"  {self.page_name}: ({takes}) => "
                 f"({{ role: {json.dumps(self.part.role)}, 'aria-label': {' + '.join(terms) or json.dumps('')} }}),\n")
 
     def _name_expression(self) -> str:
         pieces = _SLOT_NAME.split(self.part.name)  # fixed words and slot names, in turn
-        terms = [json.dumps(piece) if at % 2 == 0 else f"str({_identifier(piece, 'value')})"
+        terms = [json.dumps(piece) if at % 2 == 0 else self._term(_identifier(piece, "value"), "str({})",
+                                                                     "_worded({}, {})")
                  for at, piece in enumerate(pieces) if piece or at % 2]
         return " + ".join(terms) or '""'
 
+    def _term(self, slot: str, plain: str, worded: str) -> str:
+        """A value of the name: as handed in, or for a field's wording the wording the plan gives the value."""
+        wording = self._worded(slot)
+        return (worded.format(json.dumps(wording.table, ensure_ascii=False), wording.argument) if wording
+                else plain.format(slot))
+
     def source(self) -> str:
-        takes = "page" + (", *, " + ", ".join(self.slots) if self.slots else "")
+        takes = "page" + (", *, " + ", ".join(self.arguments) if self.slots else "")
         return (f"# {self.part.what}: {self.part.role} \"{self.part.name}\"\n"
                 f"def {self.name}({takes}):\n"
                 f"    return page.get_by_role({json.dumps(self.part.role)}, name={self._name_expression()}, exact=True)\n")
 
 
-def part_functions(parts: Iterable[Part]) -> List[PartFunction]:
-    """One function per part, named after what the part is; two parts called the same are told apart by role."""
+def part_functions(parts: Iterable[Part], wordings: Optional[Dict[str, Wording]] = None) -> List[PartFunction]:
+    """One function per part, named after what the part is; two parts called the same are told apart by role. A
+    `{field wording}` of `wordings` is handed the field's value, unless the name holds that field's value as well."""
     functions: List[PartFunction] = []
     taken = set()
     for part in parts:
@@ -175,30 +228,40 @@ def part_functions(parts: Iterable[Part]) -> List[PartFunction]:
             name, count = f"{name.rstrip('0123456789_')}_{count}", count + 1
         taken.add(name)
         slots = list(dict.fromkeys(_identifier(slot, "value") for slot in _SLOT_NAME.findall(part.name)))
-        functions.append(PartFunction(name, part, slots))
+        worded = {slot: w for slot, w in (wordings or {}).items() if slot in slots and w.argument not in slots}
+        functions.append(PartFunction(name, part, slots, worded))
     return functions
 
 
-def props_module(parts: Iterable[Part]) -> str:
+def props_module(parts: Iterable[Part], wordings: Optional[Dict[str, Wording]] = None) -> str:
     """`src/api/parts.ts`: every part of the plan as a call whose result gives an element its role and its name."""
     return ("/** Generated from the page's plan: the role and the name each part of the page is read out by.\n"
             " *  Spread a part's call on the element that is that part. */\n\n"
             "type Value = string | number;\n\n"
-            "export const parts = {\n" + "".join(function.props() for function in part_functions(parts)) + "};\n")
+            "/** A value as the plan words it; a value it words nowhere is shown as it is. */\n"
+            "const worded = (wordings: Record<string, string>, value: Value): string =>\n"
+            "  wordings[String(value)] ?? String(value);\n\n"
+            "export const parts = {\n" + "".join(f.props() for f in part_functions(parts, wordings)) + "};\n")
 
 
-def locators_module(parts: Iterable[Part]) -> str:
+def locators_module(parts: Iterable[Part], wordings: Optional[Dict[str, Wording]] = None) -> str:
     """`tests/e2e/parts.py`: every part of the plan as a function that returns its locator."""
     return ('"""The parts of the page, each found by the role and the whole name the page\'s plan gives it.\n\n'
             "Written by the engine from the plan (onboarding/page_parts.py); a change made here is overwritten.\n"
             '`page` is the page, or a locator to look inside.\n"""\n\n\n'
-            + "\n\n".join(function.source() for function in part_functions(parts)))
+            "def _worded(wordings, value):\n"
+            '    """A value as the plan words it."""\n'
+            "    if str(value) not in wordings:\n"
+            '        raise ValueError(f"{value!r} has no wording in the plan; it words {sorted(wordings)}")\n'
+            "    return wordings[str(value)]\n\n\n"
+            + "\n\n".join(function.source() for function in part_functions(parts, wordings)))
 
 
-def locators_block(parts: Iterable[Part], shown: Optional[Dict[str, str]] = None) -> str:
+def locators_block(parts: Iterable[Part], shown: Optional[Dict[str, str]] = None,
+                   wordings: Optional[Dict[str, Wording]] = None) -> str:
     """What a page test's writer is told of the functions, with how each shown value is written; empty when the
     plan names no part."""
-    functions = part_functions(parts)
+    functions = part_functions(parts, wordings)
     if not functions:
         return ""
     listed = "\n".join(f'- `{f.call()}`: {f.part.role} "{f.part.name}"' + _how_shown(f, shown or {})

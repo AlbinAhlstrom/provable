@@ -99,14 +99,14 @@ def ensure_harness(workspace_dir: str) -> str:
 def ensure_parts(workspace_dir: str, plan: str) -> Optional[str]:
     """Writes the functions a test finds the plan's parts through beside the tests and returns their path; None
     when the plan names no part."""
-    from onboarding.page_parts import locators_module, parts_of
+    from onboarding.page_parts import field_wordings, locators_module, parts_of
     parts = parts_of(plan)
     if not parts:
         return None
     path = os.path.join(workspace_dir, PARTS)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
-        f.write(locators_module(parts))
+        f.write(locators_module(parts, field_wordings(plan)))
     return path
 
 
@@ -388,9 +388,9 @@ def _extract_python(raw: str) -> Optional[str]:
 def write_test(rule: Dict[str, Any], app: AppDescription, feedback: str = "") -> str:
     """Has the model write the rule's page test."""
     import agent_orchestrator
-    from onboarding.page_parts import locators_block, parts_of, shown_values
+    from onboarding.page_parts import field_wordings, locators_block, parts_of, shown_values
     prompt = agent_orchestrator.load_prompt("page_test_generation.md", {
-        "parts_block": locators_block(parts_of(app.plan), shown_values(app.plan)),
+        "parts_block": locators_block(parts_of(app.plan), shown_values(app.plan), field_wordings(app.plan)),
         "title": rule.get("title", ""), "description": rule.get("description", ""), "rule": rule_text(rule),
         "api": app.api, "page_block": _page_block(app), "rendered": app.rendered, "feedback_block": feedback,
         "situation_block": f"\n- **Situation** {rule['situation']}" if rule.get("situation") else "",

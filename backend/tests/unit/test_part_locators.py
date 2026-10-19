@@ -178,3 +178,35 @@ def test_a_test_writer_is_shown_how_a_value_in_a_name_is_written(monkeypatch):
     total = next(i for i, line in enumerate(lines) if "`parts.total(page, amount=...)`" in line)
     assert lines[total + 1].strip() == ("`amount` is handed in as the person is shown it: the sum of the lines, "
                                         "with two decimals as in \"5.00\"")
+
+
+WORDED = PLAN + '''
+### 4. Wordings
+- `Table.status` free: nobody sits there; shown as "Free"
+- `Table.status` taken: guests sit there; shown as "Taken"
+'''
+
+
+def test_a_function_puts_a_fields_wording_into_the_name_and_the_tests_get_it(tmp_path):
+    """Verify a test looks for the wording the plan gives a value, handed the value its records hold: page and test
+    each wrote a wording of their own, so a rule the app kept was reported as not held.
+
+    id: TST-LOCATOR-WORDING
+    Given: A plan whose part's name holds `{status wording}`, with the wordings of `Table.status`
+    When: The functions are written beside the tests and a part is looked for with each value, and with a value the
+          plan words nowhere
+    Then: Each is looked for by the value's wording; a value without a wording is an error that names it
+    """
+    path = page_tests.ensure_parts(str(tmp_path), WORDED)
+    scope = {}
+    exec(compile(open(path, encoding="utf-8").read(), "parts.py", "exec"), scope)
+    page = Page()
+
+    assert scope["table"](page, number=4, status="free") == ("button", {"name": "Table 4, Free", "exact": True})
+    assert scope["table"](page, number=4, status="taken") == ("button", {"name": "Table 4, Taken", "exact": True})
+    try:
+        scope["table"](page, number=4, status="closed")
+    except ValueError as err:
+        assert "closed" in str(err)
+    else:
+        raise AssertionError("a value the plan words nowhere was looked for under a name of its own")

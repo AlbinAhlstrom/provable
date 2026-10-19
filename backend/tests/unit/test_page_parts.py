@@ -17,7 +17,8 @@ import subprocess
 
 from onboarding import code_verifier
 from onboarding.page_gates import run_page_gates
-from onboarding.page_parts import Part, locators_block, missing_parts, parts_block, parts_of, props_module, shown_values
+from onboarding.page_parts import (Part, field_wordings, locators_block, missing_parts, parts_block, parts_of,
+                                   props_module, shown_values)
 from onboarding.presentation_projection_synthesizer import SECTIONS, parse_file_blocks
 
 PLAN = '''### 2. Where each action is done
@@ -177,7 +178,8 @@ def test_the_writer_is_shown_the_parts_and_says_where_each_is_written_first():
     assert "{page_parts}" in prompt and "`src/api/parts.ts` exports exactly `parts`" in prompt
     synthesizer = open(os.path.join(os.path.dirname(code_verifier.__file__), "presentation_projection_synthesizer.py"),
                        encoding="utf-8").read()
-    assert "client_files[page_parts.FILE_NAME] = page_parts.props_module(planned)" in synthesizer
+    assert ("client_files[page_parts.FILE_NAME] = page_parts.props_module(planned, page_parts.field_wordings(ux_blueprint))"
+            in synthesizer)
     form = prompt[prompt.rindex("Answer with"):]
     assert form.index("<<<parts>>>") < form.index(f"<<<{SECTIONS[0]}>>>") and form.rstrip().endswith("<<<end>>>")
 
@@ -288,17 +290,7 @@ def test_a_value_written_a_way_of_its_own_is_shown_beside_the_part_whose_name_it
     assert block.count("the sum of the lines") == 1
 
 
-def test_a_fields_wording_is_shown_beside_the_part_whose_name_holds_it():
-    """Verify a name built from a field's `shown as` wording gets that wording: the writer handed a status's bare
-    value into a button's name ("New game, lost") where every rule expected its wording ("New game, dead"). The
-    contract writes `{status wording}` for the wording of the field `status`, which stood only in the wordings.
-
-    id: TST-PARTS-FIELD-WORDING-BESIDE
-    Given: A plan whose part's name holds `{status wording}`, and the wordings of `Order.status`
-    When: The page's writer and a page test's writer are shown the parts
-    Then: Under that part stands each value of `Order.status` with its wording, and under no other part
-    """
-    plan = '''### 3. How each part is read out (role and name, used as written)
+WORDED = '''### 3. How each part is read out (role and name, used as written)
 - Order state · status · "Order {status wording}"
 - Send · button · "Send"
 
@@ -306,12 +298,61 @@ def test_a_fields_wording_is_shown_beside_the_part_whose_name_holds_it():
 - `Order.status` draft: not sent yet; shown as "Being written"
 - `Order.status` sent: on its way; shown as "Sent"
 '''
-    for block in (parts_block(plan), locators_block(parts_of(plan), shown_values(plan))):
+
+
+def test_a_fields_wording_is_put_into_the_name_by_the_call():
+    """Verify a name built from a field's `shown as` wording gets that wording whoever writes the page: the writer
+    handed a status's bare value into a button's name ("New game, lost") where every rule expected its wording
+    ("New game, dead"), and in another run wrote the wording of a value nobody defined. The plan lists every wording,
+    so the call is written from that list by code and is handed the value the record holds.
+
+    id: TST-PARTS-FIELD-WORDING-CALL
+    Given: A plan whose part's name holds `{status wording}`, and the wordings of `Order.status`
+    When: The page's module is run and the part's call is made with each value of the field
+    Then: The call takes `status` and the name holds that value's wording
+    """
+    runner = RUNNER.replace("""  order: parts.order(),
+  line: parts.line({ quantity: 2, dish: 'soup' }),
+  total: parts.total({ amount: '12.50' }),""", """  draft: parts.orderState({ status: 'draft' }),
+  sent: parts.orderState({ status: 'sent' }),""")
+    ran = subprocess.run(["node", "-e", runner, TYPESCRIPT], input=props_module(parts_of(WORDED), field_wordings(WORDED)),
+                         capture_output=True, text=True, encoding="utf-8", timeout=60)
+    assert ran.returncode == 0, ran.stderr
+    seen = json.loads(ran.stdout)
+
+    assert seen["draft"] == {"role": "status", "aria-label": "Order Being written"}
+    assert seen["sent"] == {"role": "status", "aria-label": "Order Sent"}
+
+
+def test_the_writers_hand_in_the_value_the_record_holds():
+    """
+    id: TST-PARTS-FIELD-WORDING-BESIDE
+    Given: A plan whose part's name holds `{status wording}`, and the wordings of `Order.status`
+    When: The page's writer and a page test's writer are shown the parts
+    Then: The part's call takes `status`, and under it stands that it is the value `Order.status` holds, with the
+          wording the call puts in for each, under no other part
+    """
+    for block in (parts_block(WORDED), locators_block(parts_of(WORDED), shown_values(WORDED), field_wordings(WORDED))):
         lines = block.splitlines()
         state = next(i for i, line in enumerate(lines) if "orderState" in line or "order_state" in line)
-        assert lines[state + 1].strip() == ('`status_wording` is handed in as the person is shown it: '
-                                            'the wording of `Order.status`: draft "Being written", sent "Sent"')
+        assert "parts.orderState({ status })" in lines[state] or "parts.order_state(page, status=...)" in lines[state]
+        assert lines[state + 1].strip() == ('`status` is handed in as `Order.status` holds it, and the call puts in its '
+                                            'wording: draft "Being written", sent "Sent"')
         assert block.count("Being written") == 1
+
+
+def test_a_wording_two_fields_give_differently_is_left_to_the_writer_with_both():
+    """
+    id: TST-PARTS-FIELD-WORDING-TWO
+    Given: A part's `{status wording}`, where `Order.status` and `Table.status` word their values differently
+    When: The writers are shown the parts
+    Then: The call takes `status_wording` as written, and under it stand both fields' wordings
+    """
+    plan = WORDED + '- `Table.status` free: nobody sits there; shown as "Free"\n'
+    assert field_wordings(plan) == {}
+    block = parts_block(plan)
+    assert "parts.orderState({ status_wording })" in block
+    assert 'the wording of `Order.status`: draft "Being written", sent "Sent"; the wording of `Table.status`: free "Free"' in block
 
 
 def test_the_writer_places_each_part_in_one_of_the_files_its_answer_has():
