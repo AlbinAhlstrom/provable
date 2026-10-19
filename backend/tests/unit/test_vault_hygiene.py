@@ -39,7 +39,8 @@ def _read(path):
 def _repo_basenames():
     names = set()
     for dirpath, dirnames, filenames in os.walk(REPO):
-        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS and d != "vault"]
+        # The generated app is not the repository's source: what it holds changes with every build.
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS and d not in ("vault", "workspace")]
         names.update(filenames)
     return names
 
