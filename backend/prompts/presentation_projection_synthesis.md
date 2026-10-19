@@ -130,7 +130,7 @@ Write a marker only for a file you actually write: when the audience has no acti
 controls or history marker out of the answer altogether.
 
 <<<parts>>>
-(one line for every part listed under "The parts of this page", in the same order: `<part> -> <the file you write it in>, <what brings it up or what it does>`. It is your plan for the files, and the files then make every line of it true)
+(one line for every part listed under "The parts of this page", in the same order: `<part> -> <the marker of the file you write it in: view_tsx, controls_tsx, history_tsx or app_tsx>, <what brings it up or what it does>`. These four are the only files of the page: a part that needs a component of its own (a menu, a dialog, a list of items) has it written inside one of them, and every import between them is of a file whose block follows. It is your plan for the files, and the files then make every line of it true)
 <<<view_tsx>>>
 (complete React TSX code for src/views/{master_name}View.tsx)
 <<<controls_tsx>>>

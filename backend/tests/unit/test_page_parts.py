@@ -286,3 +286,23 @@ def test_a_value_written_a_way_of_its_own_is_shown_beside_the_part_whose_name_it
     total = next(i for i, line in enumerate(lines) if "parts.total(" in line)
     assert lines[total + 1].strip() == "`amount` is handed in as the person is shown it: the sum of the lines"
     assert block.count("the sum of the lines") == 1
+
+
+def test_the_writer_places_each_part_in_one_of_the_files_its_answer_has():
+    """Verify the plan of the files names only files the answer can hold: a writer planned a menu in a component file
+    of its own, imported it from the app and wrote no block for it, so the page failed to start, and the repair, which
+    may change only files that exist, could not add it.
+
+    id: TST-PARTS-ANSWER-FILES
+    Given: The page prompt
+    When: Its parts block is read
+    Then: Each part is placed by the marker of one of the answer's files, every marker is named there, and these are
+          said to be all the files the page has
+    """
+    path = os.path.join(os.path.dirname(code_verifier.__file__), "..", "prompts", "presentation_projection_synthesis.md")
+    prompt = open(path, encoding="utf-8").read()
+    form = prompt[prompt.rindex("<<<parts>>>"):]
+    plan_line = form.splitlines()[1]
+    assert "<the marker of the file you write it in" in plan_line
+    assert all(section in plan_line for section in SECTIONS)
+    assert "the only files of the page" in plan_line
