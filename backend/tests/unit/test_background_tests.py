@@ -241,13 +241,13 @@ def test_the_checks_start_without_a_window_of_their_own(bt, repo, monkeypatch):
     When: The process is started
     Then: It gets a hidden console of its own, not none, in a group of its own
     """
-    started = {}
+    sha, started = _git(repo, "rev-parse", "HEAD"), {}
     monkeypatch.setattr(bt.os, "name", "nt")
     for flag, value in (("CREATE_NO_WINDOW", 0x08000000), ("DETACHED_PROCESS", 0x8), ("CREATE_NEW_PROCESS_GROUP", 0x200)):
         monkeypatch.setattr(bt.subprocess, flag, value, raising=False)
     monkeypatch.setattr(bt.subprocess, "Popen", lambda *a, **k: started.update(k))
 
-    bt.start(str(repo), _git(repo, "rev-parse", "HEAD"))
+    bt.start(str(repo), sha)
 
     flags = started["creationflags"]
     assert flags & 0x08000000 and flags & 0x200 and not flags & 0x8
