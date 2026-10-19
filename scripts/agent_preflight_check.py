@@ -70,7 +70,7 @@ def check_frontend_build():
 def check_backend_tests():
     log("▶ Phase 2: Executing full backend pytest test suite (python -m pytest backend/tests/)...")
     res = subprocess.run(
-        [sys.executable, "-m", "pytest", "backend/tests/"],
+        [sys.executable, "-m", "pytest", "backend/tests/", "-n", "auto", "--dist", "worksteal"],
         cwd=ROOT,
         capture_output=True,
         text=True

@@ -9,6 +9,7 @@
 Exit code 2 blocks the tool call and feeds stderr back to Claude.
 """
 import json
+import importlib.util
 import os
 import re
 import shutil
@@ -79,7 +80,11 @@ def _staged_for(cmd, root):
 
 
 def _run_backend_tests(root):
-    res = subprocess.run([sys.executable, "-m", "pytest", "backend/tests/", "-q"],
+    # In parallel (pytest-xdist): about 50 s instead of 4 min on one core. Work stealing keeps a worker that drew the
+    # slow browser tests from holding up the others.
+    if importlib.util.find_spec("xdist") is None:
+        return 1, "pytest-xdist is not installed; the guard runs the suite in parallel: pip install -r requirements.txt"
+    res = subprocess.run([sys.executable, "-m", "pytest", "backend/tests/", "-q", "-n", "auto", "--dist", "worksteal"],
                          cwd=root, capture_output=True, text=True)
     return res.returncode, res.stdout[-3000:] + res.stderr[-1000:]
 
