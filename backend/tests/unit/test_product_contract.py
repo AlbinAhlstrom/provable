@@ -840,3 +840,22 @@ def test_the_contract_writer_is_told_the_states_a_part_can_be_in():
     for word in ("pressed", "checked", "selected", "expanded", "disabled"):
         assert f"`{word}`" in prompt
     assert "`\"name\" disabled`" in prompt and "unavailable`" not in prompt
+
+
+def test_a_shown_value_with_a_form_none_of_the_forms_is_refused(monkeypatch):
+    """Verify a form the contract's words nearly give is not lost: "written as three digits" matched neither form,
+    so the value would be shown as it is, the "Mines left 10" a test looking for "010" never finds.
+
+    id: TST-CONTRACT-FORM-MISSED
+    Given: A contract whose shown value ends "; written as three digits"
+    When: The contract is written
+    Then: It fails by the entry, and nothing is retried
+    """
+    wrong = copy.deepcopy(CONTRACT)
+    wrong["records"][0]["shown"] = ["seats_left = seats minus the taken seats; written as three digits"]
+    calls = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini",
+                        lambda prompt, stage="general", **k: calls.append(1) or json.dumps(wrong))
+    with pytest.raises(pc.ContractError, match=r"seats_left.*written as three digits"):
+        pc.write_product_contract("A table booking page")
+    assert len(calls) == 1

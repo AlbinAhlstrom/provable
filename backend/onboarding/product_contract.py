@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional
 
 import agent_orchestrator
 from onboarding.intent import PRODUCT_TYPES, ProductIntent
-from onboarding.page_parts import identifier, part_of_entry
+from onboarding.page_parts import identifier, misformed, part_of_entry
 from onboarding.router_engine import (AttributeSpec, AudienceRole, BusinessSpec, DomainStructureSchema, EntitySpec,
                                       SpecKind)
 from pipeline_trace import traced
@@ -321,6 +321,11 @@ class ProductContract:
             misread += part.state_errors() if part else [f"{entry} is not `part · role · \"name\"`"]
         return misread
 
+    def misformed_values(self) -> List[str]:
+        """Each entry of `shown` that says it is written in a form other than the two (prompts/product_contract.md):
+        it would be shown as it is, where the rules read it in the form."""
+        return [entry for record in self.records for entry in record.shown if misformed(entry)]
+
     # --- what the later stages are given -------------------------------------------------------------------------
 
     def structure(self) -> DomainStructureSchema:
@@ -490,6 +495,10 @@ def write_product_contract(pitch: str) -> ProductContract:
     misread = contract.misread_parts()
     if misread:
         raise ContractError("A part of `read_out` cannot be found as written: " + "; ".join(misread))
+    misformed_entries = contract.misformed_values()
+    if misformed_entries:
+        raise ContractError("A shown value is written in a form that is neither `; written as N digits` nor "
+                            "`; written as N decimals`: " + "; ".join(misformed_entries))
     return contract
 
 

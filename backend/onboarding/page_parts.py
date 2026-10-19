@@ -60,6 +60,18 @@ _NATIVE = {
 
 MISSING = "[Missing part] "
 
+# How a number is written in each form, in Python: the tests' module holds this source and `Form.write` runs it
+_FORMS_PY = (
+    "def _digits(value, count):\n"
+    '    """A whole number in `count` characters, zeros filled after its sign: 7 as "007", -3 as "-03"."""\n'
+    "    number = int(value)\n"
+    '    return ("-" if number < 0 else "") + str(abs(number)).zfill(count - 1 if number < 0 else count)\n\n\n'
+    "def _decimals(value, count):\n"
+    '    """A number with `count` digits after the point: 5 as "5.00"."""\n'
+    '    return f"{float(value):.{count}f}"\n\n\n')
+_FORM_HELPERS: Dict[str, object] = {}
+exec(_FORMS_PY, _FORM_HELPERS)
+
 # The states a part can be told apart by, each with the attribute that gives it to an element and the roles that
 # have it: what a screen reader reads out, and what a test finds a part in that state by (prompts/product_contract.md)
 STATES = {
@@ -126,15 +138,17 @@ class Form:
     count: int
 
     def write(self, value: float) -> str:
-        """The value in this form, as the generated helpers write it."""
-        if self.kind == "decimals":
-            return f"{float(value):.{self.count}f}"
-        number = int(value)
-        return ("-" if number < 0 else "") + str(abs(number)).zfill(self.count - 1 if number < 0 else self.count)
+        """The value in this form, by the helper the tests' module runs."""
+        return _FORM_HELPERS[f"_{self.kind}"](value, self.count)
 
     def said(self) -> str:
         examples = (7, -3) if self.kind == "digits" else (5,)
         return f"with {self.count} {self.kind} (" + ", ".join(f'{n} as "{self.write(n)}"' for n in examples) + ")"
+
+
+def misformed(how: str) -> bool:
+    """Whether a shown value's definition says it is written in a form that is neither of the forms."""
+    return "written as" in how and not _FORM.search(how)
 
 
 def value_forms(plan: str) -> Dict[str, Form]:
@@ -357,13 +371,7 @@ def locators_module(parts: Iterable[Part], wordings: Optional[Dict[str, Wording]
             "    if str(value) not in wordings:\n"
             '        raise ValueError(f"{value!r} has no wording in the plan; it words {sorted(wordings)}")\n'
             "    return wordings[str(value)]\n\n\n"
-            "def _digits(value, count):\n"
-            '    """A whole number in `count` characters, zeros filled after its sign: 7 as "007", -3 as "-03"."""\n'
-            "    number = int(value)\n"
-            '    return ("-" if number < 0 else "") + str(abs(number)).zfill(count - 1 if number < 0 else count)\n\n\n'
-            "def _decimals(value, count):\n"
-            '    """A number with `count` digits after the point: 5 as "5.00"."""\n'
-            '    return f"{float(value):.{count}f}"\n\n\n'
+            + _FORMS_PY +
             "def _in_states(**states):\n"
             '    """The states a part is looked for in: each one handed in; one left out may be either way."""\n'
             "    return {word: value for word, value in states.items() if value is not None}\n\n\n"

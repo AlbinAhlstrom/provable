@@ -354,8 +354,8 @@ def _fixed_helpers(module: cst.Module) -> Set[str]:
         if _module_name_of(stmt) == FIXED_HELPERS and isinstance(stmt, cst.SimpleStatementLine):
             try:
                 names = ast.literal_eval(module.code_for_node(stmt.body[0].value))
-            except (ValueError, SyntaxError):
-                return {FIXED_HELPERS}
+            except (ValueError, SyntaxError) as exc:
+                raise FragmentError(f"The module's {FIXED_HELPERS} is not a tuple of names: {exc}") from exc
             return {FIXED_HELPERS, *(str(name) for name in names)}
     return set()
 
@@ -367,14 +367,22 @@ def place_helpers(original_source: str, target_class: str, helpers: str) -> str:
     orig = cst.parse_module(original_source)
     body = list(orig.body)
     for stmt in frag.body:
-        name = _module_name_of(stmt)
-        idx = next((i for i, s in enumerate(body) if name is not None and _module_name_of(s) == name), None)
-        if idx is not None:
-            body[idx] = stmt
-        else:
-            target_idx = next((i for i, s in enumerate(body) if _module_name_of(s) == target_class), len(body))
-            body.insert(target_idx, stmt)
+        _place(body, stmt, target_class)
     return orig.with_changes(body=body).code
+
+
+def _place(body: List[cst.CSTNode], stmt: cst.CSTNode, target_class: str) -> None:
+    """Puts a named module-level statement in place of the one of its name, or else before the target class (at the
+    end when there is none)."""
+    def index_of(name: Optional[str]) -> Optional[int]:
+        return next((i for i, s in enumerate(body) if name is not None and _module_name_of(s) == name), None)
+
+    idx = index_of(_module_name_of(stmt))
+    if idx is not None:
+        body[idx] = stmt
+    else:
+        target_idx = index_of(target_class)
+        body.insert(target_idx if target_idx is not None else len(body), stmt)
 
 
 @traced("tdd.cst_merge")
@@ -425,21 +433,12 @@ def merge_module_fragment(original_source: str, target_class: str, fragment: str
         pos = 1 if body and _is_docstring_line(body[0]) else 0
     body[pos:pos] = new_imports
 
-    def index_of(name: str) -> Optional[int]:
-        return next((i for i, s in enumerate(body) if _module_name_of(s) == name), None)
-
     for cls in classes:
-        name = _module_name_of(cls)
-        idx = index_of(name)
-        if idx is not None and name == target_class:
+        idx = next((i for i, s in enumerate(body) if _module_name_of(s) == target_class), None)
+        if _module_name_of(cls) == target_class and idx is not None:
             body[idx] = _merge_class_members(body[idx], cls)
-        elif idx is not None:
-            body[idx] = cls
-        elif name == target_class:
-            body.append(cls)
         else:
-            target_idx = index_of(target_class)
-            body.insert(target_idx if target_idx is not None else len(body), cls)
+            _place(body, cls, target_class)
     return orig.with_changes(body=body).code
 
 def sanitize_dataclass_field_ordering(source_code: str) -> str:

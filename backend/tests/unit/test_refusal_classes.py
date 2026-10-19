@@ -10,7 +10,7 @@ import os
 import pytest
 
 from onboarding.action_protocol import WRITTEN_FROM_CONTRACT, refusal_classes, shared_words, write_refusals
-from onboarding.cst_isolator import merge_module_fragment
+from onboarding.cst_isolator import FragmentError, merge_module_fragment
 from onboarding.router_engine import DomainStructureSchema, EntitySpec
 from onboarding.skeleton_builder import build_and_write_skeleton
 
@@ -117,3 +117,15 @@ def test_the_writers_are_told_to_raise_a_refusal_with_no_message():
     """
     lines = "\n".join(shared_words(MANIFEST, "Booking"))
     assert "`TooManyGuestsError()`" in lines and "no arguments" in lines
+
+
+def test_a_module_whose_list_of_written_helpers_cannot_be_read_refuses_the_answer(tmp_path):
+    """
+    id: TST-REFUSAL-UNREAD
+    Given: Booking's module whose list of helpers written from the contract is not a literal
+    When: A code answer is merged into it
+    Then: The merge fails by naming the list, instead of letting the answer replace the helpers
+    """
+    source = f"{WRITTEN_FROM_CONTRACT} = tuple(NAMES)\n\n\nclass Booking:\n    pass\n"
+    with pytest.raises(FragmentError, match=WRITTEN_FROM_CONTRACT):
+        merge_module_fragment(source, "Booking", "class Booking:\n    def go(self):\n        return 1\n")
