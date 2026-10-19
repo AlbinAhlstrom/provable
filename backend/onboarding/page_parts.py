@@ -73,9 +73,20 @@ def parts_of(plan: str) -> List[Part]:
 _SHOWN = re.compile(r"^- shown value: (?P<name>\w+) = (?P<how>.+?)[ \t]*$", re.MULTILINE)
 
 
+_FIELD_WORDING = re.compile(r'^- `(?P<field>\w+\.(?P<name>\w+))` (?P<value>[^:\n]+?):[^\n]*?shown as "(?P<wording>[^"]*)"',
+                            re.MULTILINE)
+
+
 def shown_values(plan: str) -> Dict[str, str]:
-    """The values the plan writes a way of its own (its wordings, `- shown value: <name> = <how>`), by name."""
-    return {found["name"]: found["how"] for found in _SHOWN.finditer(plan or "")}
+    """The values the plan writes a way of its own, by the name a part's name gives them: each `- shown value:
+    <name> = <how>`, and for a field with `shown as` wordings, `<field>_wording` (the contract's `{field wording}`)."""
+    wordings: Dict[str, Dict[str, List[str]]] = {}
+    for found in _FIELD_WORDING.finditer(plan or ""):
+        entries = wordings.setdefault(f"{found['name']}_wording", {}).setdefault(found["field"], [])
+        entries.append(f'{found["value"].strip()} "{found["wording"]}"')
+    values = {slot: "; ".join(f"the wording of `{field}`: " + ", ".join(entries) for field, entries in fields.items())
+              for slot, fields in wordings.items()}
+    return {**values, **{found["name"]: found["how"] for found in _SHOWN.finditer(plan or "")}}
 
 
 def _how_shown(function: "PartFunction", shown: Dict[str, str]) -> str:

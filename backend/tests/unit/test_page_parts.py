@@ -17,7 +17,7 @@ import subprocess
 
 from onboarding import code_verifier
 from onboarding.page_gates import run_page_gates
-from onboarding.page_parts import Part, missing_parts, parts_block, parts_of, props_module
+from onboarding.page_parts import Part, locators_block, missing_parts, parts_block, parts_of, props_module, shown_values
 from onboarding.presentation_projection_synthesizer import SECTIONS, parse_file_blocks
 
 PLAN = '''### 2. Where each action is done
@@ -286,6 +286,32 @@ def test_a_value_written_a_way_of_its_own_is_shown_beside_the_part_whose_name_it
     total = next(i for i, line in enumerate(lines) if "parts.total(" in line)
     assert lines[total + 1].strip() == "`amount` is handed in as the person is shown it: the sum of the lines"
     assert block.count("the sum of the lines") == 1
+
+
+def test_a_fields_wording_is_shown_beside_the_part_whose_name_holds_it():
+    """Verify a name built from a field's `shown as` wording gets that wording: the writer handed a status's bare
+    value into a button's name ("New game, lost") where every rule expected its wording ("New game, dead"). The
+    contract writes `{status wording}` for the wording of the field `status`, which stood only in the wordings.
+
+    id: TST-PARTS-FIELD-WORDING-BESIDE
+    Given: A plan whose part's name holds `{status wording}`, and the wordings of `Order.status`
+    When: The page's writer and a page test's writer are shown the parts
+    Then: Under that part stands each value of `Order.status` with its wording, and under no other part
+    """
+    plan = '''### 3. How each part is read out (role and name, used as written)
+- Order state · status · "Order {status wording}"
+- Send · button · "Send"
+
+### 4. Wordings
+- `Order.status` draft: not sent yet; shown as "Being written"
+- `Order.status` sent: on its way; shown as "Sent"
+'''
+    for block in (parts_block(plan), locators_block(parts_of(plan), shown_values(plan))):
+        lines = block.splitlines()
+        state = next(i for i, line in enumerate(lines) if "orderState" in line or "order_state" in line)
+        assert lines[state + 1].strip() == ('`status_wording` is handed in as the person is shown it: '
+                                            'the wording of `Order.status`: draft "Being written", sent "Sent"')
+        assert block.count("Being written") == 1
 
 
 def test_the_writer_places_each_part_in_one_of_the_files_its_answer_has():
