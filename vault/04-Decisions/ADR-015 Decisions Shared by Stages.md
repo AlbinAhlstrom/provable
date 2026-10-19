@@ -1,7 +1,8 @@
 # ADR-015: A decision several stages depend on is made once, upstream
 
-Status: accepted (2026-10-19). Implemented: the present moment. Open: wordings in read-out names that the contract
-leaves undefined, and situations whose outcomes the contract works out by hand.
+Status: accepted (2026-10-19). Implemented: the present moment; a rule whose test the TDD loop corrected is
+corrected with it (2026-10-20). Open: wordings in read-out names that the contract leaves undefined, and
+situations whose outcomes the contract works out by hand.
 Builds on [[ADR-011 The Product Contract]].
 
 ## Problem
@@ -27,7 +28,12 @@ moment they waited for.
      `tests/conftest.py` lets it go after each test.
    - Page tests call `app.at(moment)`, which holds the moment for the test's API (`PUT /test/clock`, offered
      only when the page tests start the API with `APP_CLOCK_SETTABLE=1`) and for the browser (Playwright's clock).
-3. **Policy is per category, never per app.** The clock is written into every app, whether or not it has a rule
+3. **A corrected outcome has one owner too.** When the TDD loop finds that a rule's first test expected the
+   wrong thing and its writer corrects it (`tdd_batch.reconsider_test`), the writer states the outcome the rule
+   truly has, and that replaces the rule's Then in its text and on its card (`rule_tests.correct_outcome`). The
+   page's test is written later from that text: left as it was, it asserted the outcome the unit test had been
+   corrected away from (a live run failed two rules this way).
+4. **Policy is per category, never per app.** The clock is written into every app, whether or not it has a rule
    about time.
 
 ## Consequences

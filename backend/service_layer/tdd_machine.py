@@ -14,7 +14,7 @@ import stat
 import subprocess
 import json
 import hashlib
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from onboarding.action_protocol import format_interface_contract
 from dataclasses import dataclass, field
 from onboarding.router_engine import BusinessSpec
@@ -420,7 +420,7 @@ GREEN_TIMEOUT_S = 180.0
 
 
 @traced("tdd.red_generate")
-def generate_red_test(
+def _ask_red_test(
     spec: BusinessSpec,
     class_source: str,
     module_name: str,
@@ -431,7 +431,7 @@ def generate_red_test(
     careful: bool = False,
     other_rules: str = "",
 ) -> str:
-    """Asks the LLM for a behavioral pytest module that encodes the spec's Given/When/Then.
+    """Asks the LLM for a behavioral pytest module that encodes the spec's Given/When/Then; returns its answer.
 
     The prompt shows the class's real constructor/method API so the test cannot invent arguments, and
     on the single retry it carries the gate's or linter's rejection reason. `careful` is for a test that has
@@ -462,7 +462,30 @@ def generate_red_test(
     if not raw or not raw.strip():
         reason = agent_orchestrator.LAST_LLM_ERROR or "the LLM returned an empty response"
         raise RuntimeError(f"RED test generation failed: {reason}")
-    return _code_of(raw)
+    return raw
+
+
+STATE_THE_OUTCOME = """
+If you correct the expectation, the rule's own text states the wrong outcome too, and the page's test is written from
+that text. After the code, write one line `Then: <the outcome>`: what is true after the rule's When in its situation,
+in the words of the rule's Then. If the test was right, write no such line."""
+_OUTCOME_LINE = re.compile(r"^Then:[ \t]*(.+?)[ \t]*$", re.MULTILINE)
+
+
+def generate_red_test(spec: BusinessSpec, class_source: str, module_name: str, class_name: str, **kwargs: Any) -> str:
+    """Asks the LLM for a behavioral pytest module that encodes the spec's Given/When/Then (`_ask_red_test`)."""
+    return _code_of(_ask_red_test(spec, class_source, module_name, class_name, **kwargs))
+
+
+def reconsider_red_test(spec: BusinessSpec, class_source: str, module_name: str, class_name: str,
+                        rejection_feedback: str, **kwargs: Any) -> Tuple[str, str]:
+    """The writer's second look at a test no code answer could meet, thought through carefully: the test, and the
+    outcome the rule truly has when the writer corrected its expectation ("" when it stands by the test)."""
+    raw = _ask_red_test(spec, class_source, module_name, class_name,
+                        rejection_feedback=rejection_feedback + "\n" + STATE_THE_OUTCOME, careful=True, **kwargs)
+    outside_code = re.sub(r"```.*?```", "", raw, flags=re.DOTALL)
+    stated = _OUTCOME_LINE.search(outside_code)
+    return _code_of(raw), stated.group(1) if stated else ""
 
 
 def _code_of(answer: str) -> str:

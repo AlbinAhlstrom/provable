@@ -332,8 +332,9 @@ def test_a_paid_invoice_takes_no_more_lines():
 asked_carefully = []
 
 
-def _writer(monkeypatch, first, second):
-    """A test writer whose first test for SPEC-003 is `first` and whose reconsidered one is `second`."""
+def _writer(monkeypatch, first, second, outcome="a paid invoice takes no line"):
+    """A test writer whose first test for SPEC-003 is `first` and whose reconsidered one is `second`, stating
+    `outcome` when it changed the test."""
     asked_carefully.clear()
     asked = []
     careful = asked_carefully
@@ -349,8 +350,14 @@ def _writer(monkeypatch, first, second):
         asked.append(rejection_feedback)
         careful.append(bool(kwargs.get("careful")))
         return second
+
+    def reconsider(spec, class_source, module_name, class_name, rejection_feedback, **kwargs):
+        asked.append(rejection_feedback)
+        careful.append(True)
+        return second, ("" if second == first else outcome)
     monkeypatch.setattr(first_tests, "write_first_tests", write_all)
     monkeypatch.setattr(tdd_machine, "generate_red_test", write_test)
+    monkeypatch.setattr(tdd_machine, "reconsider_red_test", reconsider)
     return asked
 
 
@@ -362,7 +369,8 @@ def test_a_test_no_code_answer_could_meet_is_reconsidered_once_by_its_writer(tmp
            code answers that both enforce the rule correctly
     When: The specs are executed together, and the writer, shown its test and the failure, corrects it
     Then: Two code calls and no third; the writer was shown the failing output and its own test; the spec is
-          fulfilled by the corrected test, which is the one kept in tests/unit; nothing is left in tests/pending
+          fulfilled by the corrected test, which is the one kept in tests/unit, with the outcome its writer stated;
+          nothing is left in tests/pending
     """
     workspace = _workspace(tmp_path)
     calls = _models(monkeypatch, [_fragment(PAY, ADD_LINE), _fragment(PAY, ADD_LINE)])
@@ -375,6 +383,7 @@ def test_a_test_no_code_answer_could_meet_is_reconsidered_once_by_its_writer(tmp
     assert "def add_line(self, amount: int) -> None:" in asked[1]  # the implementation it is asked to trace
     fulfilled = results["SPEC-003"]
     assert fulfilled["success"] and fulfilled["reconsidered"] and len(fulfilled["red_attempts"]) == 2
+    assert fulfilled["corrected_then"] == "a paid invoice takes no line"  # the rule's text is corrected with it
     assert (tmp_path / "tests" / "unit" / "test_spec_003.py").read_text(encoding="utf-8") == TESTS["SPEC-003"]
     assert not (tmp_path / "tests" / "pending" / "test_spec_003.py").exists()
     assert results["SPEC-001"]["success"] and results["SPEC-002"]["success"]

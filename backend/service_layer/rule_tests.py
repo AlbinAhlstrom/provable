@@ -7,6 +7,7 @@ is read from there (`onboarding/spec_test_status.py`).
 """
 
 import os
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -36,6 +37,29 @@ def _find(state: Any, spec_id: str) -> Tuple[Optional[Dict[str, Any]], Optional[
     card = next((c for c in (state.rule_cards or []) if c.get("id") == spec_id), None)
     spec = next((s for s in (state.inbox_specs or []) if s.get("spec_id") == spec_id), None)
     return card, spec
+
+
+_THEN = re.compile(r"(\bThen\s+)(.*?)(?=,?\s+Unless\b|$)", re.DOTALL)
+
+
+def correct_outcome(spec_id: str, then: str, uow: AbstractUnitOfWork) -> str:
+    """Puts the outcome a corrected test stands for in place of the rule's Then, in its text (which the page's test
+    is written from) and on its card (which a person reads). Returns the outcome the rule stated before."""
+    with uow:
+        state = uow.kickstart.get()
+        card, spec = _find(state, spec_id)
+        before = (card or {}).get("then_clause", "")
+        if spec is not None and spec.get("given_when_then"):
+            stated = _THEN.search(spec["given_when_then"])
+            if stated:
+                before = before or stated.group(2).strip()
+                spec["given_when_then"] = (spec["given_when_then"][:stated.start(2)] + then
+                                           + spec["given_when_then"][stated.end(2):])
+        if card is not None:
+            card["then_clause"] = then
+        uow.kickstart.save(state)
+        uow.commit()
+    return before
 
 
 def _rule(card: Optional[Dict[str, Any]], spec: Optional[Dict[str, Any]], spec_id: str) -> Dict[str, Any]:

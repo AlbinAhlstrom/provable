@@ -1776,6 +1776,9 @@ def record_tdd_result(spec_id: str, tdd_result: Dict[str, Any], uow: AbstractUni
         "rolled_back": bool(tdd_result.get("rolled_back")),
         "models": verification_models(),
     }
+    if tdd_result.get("corrected_then"):  # the test was corrected, so the rule's outcome is too (tdd_batch.py)
+        from service_layer.rule_tests import correct_outcome
+        summary["corrected_from"] = correct_outcome(spec_id, tdd_result["corrected_then"], uow=uow)
     update_spec_status(spec_id, final_status, uow=uow, tdd=summary)
 
 

@@ -29,8 +29,9 @@ What is kept afterwards:
 - The hash lock holds for every test of the batch: the code writer cannot have changed any of them.
 - A test that neither code answer could meet goes back to its writer once (`reconsider_test`), with the failure and
   its own test: a test can expect the wrong thing (a check that is not one), and then a correct class fails it.
-  The writer either corrects the expectation or returns the test unchanged. A corrected test must pass on the class
-  as kept and fail on the hollow class (`hollow_check.py`); it then stands as the rule's test. This is the test
+  The writer either corrects the expectation, stating the outcome the rule truly has, or returns the test unchanged.
+  A corrected test must pass on the class as kept and fail on the hollow class (`hollow_check.py`); it then stands
+  as the rule's test, and the outcome it states replaces the rule's Then, which the page's test is written from. This is the test
   writer's one regeneration: a test the RED gate already sent back is not reconsidered, and no code is written
   after it.
 
@@ -256,12 +257,12 @@ def reconsider_test(spec: BusinessSpec, red: RedOutcome, failed: Dict[str, Any],
     with open(target.domain_file, "r", encoding="utf-8") as f:
         implementation = f.read()
     current_class = extract_class_cst(implementation, target.class_name) or ""
-    test_code = tdd_machine.generate_red_test(
+    test_code, outcome = tdd_machine.reconsider_red_test(
         spec, current_class, target.module_name, target.class_name,
-        rejection_feedback=RECONSIDER.format(test=red.test_code.strip(), implementation=implementation.strip(),
-                                             evidence=failed.get("failure_evidence") or failed["error"]),
+        RECONSIDER.format(test=red.test_code.strip(), implementation=implementation.strip(),
+                          evidence=failed.get("failure_evidence") or failed["error"]),
         existing_tests=existing_tests,
-        interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name), careful=True,
+        interface_contract=tdd_machine.format_interface_contract(action_manifest, target.class_name),
         other_rules=rules)
     if test_code.strip() == red.test_code.strip():
         return stays("Its writer, shown the failure, stands by the test.")
@@ -283,7 +284,8 @@ def reconsider_test(spec: BusinessSpec, red: RedOutcome, failed: Dict[str, Any],
         return {"success": True, "status": "FULFILLED", "phase": "COMMITTED", "spec_id": spec.spec_id,
                 "test_file": red.test_file_path, "red_eval": evaluation, "test_source": test_code,
                 "red_attempts": red.attempts + [{"attempt": 2, "approved": True, "reason": evaluation["reason"]}],
-                "attempts": failed.get("attempts", []), "already_satisfied": True, "reconsidered": True}
+                "attempts": failed.get("attempts", []), "already_satisfied": True, "reconsidered": True,
+                "corrected_then": outcome}  # the rule's text is corrected with its test (services.record_tdd_result)
     os.remove(red.test_file_path)
     reason = ("The reconsidered test fails too." if run["exit_code"] != 0
               else "The reconsidered test passes even when the class's methods do nothing, so it asserts no behaviour.")
