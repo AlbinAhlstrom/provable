@@ -11,6 +11,7 @@ Fixing a red rule (ADR-010): the page is changed so that the rule's own page tes
 - Only the page is changed here. A rule the domain class breaks is changed through the test-first loop, not here.
 """
 
+import run_options
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
@@ -67,7 +68,7 @@ def fix(rule: Dict[str, Any], stored: Optional[Dict[str, Any]], pages: Dict[str,
         return _result(NOT_RED, [], reason="a fix starts from a rule whose test ran and failed")
     attempts: List[Dict[str, Any]] = []
     feedback, reason = "", None
-    for number in range(1, MAX_ATTEMPTS + 1):
+    for number in range(1, run_options.attempts(MAX_ATTEMPTS) + 1):
         try:
             change = write(feedback)
         except NoFix as err:

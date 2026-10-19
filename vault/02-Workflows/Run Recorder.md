@@ -76,6 +76,12 @@ exchange rate used (`usd_to_sek`), the date of the price list (`prices_as_of`) a
 - `PROVABLE_USD_SEK` sets the exchange rate (default 10.0).
 - The cost is computed from the trace, so `--backfill-costs` can price any older run. It only fills summaries that hold no cost; it does not reprice a run after a price change.
 
+## Run options
+A kickstart body can ask for a run that differs from the settings (`backend/run_options.py`); `run.json` records it under `options` and `trace_report.py --list` tags the run.
+- `"strict": true`: no second attempt anywhere. Each step answers once and its answer stands, so a failure shows at the step that made it, and the run spends no time on repairs.
+- `"model": "<id>"`: every stage on that one model, whatever the provider gives each stage. A strict run on a stronger model is the baseline: a step that fails on the usual models and holds there needs a clearer prompt or input; a step that fails on both needs a better plan.
+Both hold for the rule tests that follow the kickstart.
+
 ## Goal score
 
 The goal of a run is a fully working app from one kickstart and the rule tests after it, at 1 SEK in 120 s: that is 100%. An app whose rules do not all pass scores 0%, whatever it cost. Over the goal the score falls in proportion (`100% x min(1, 1 SEK / cost) x min(1, 120 s / wall time)`): twice the cost halves it, and so does twice the time.

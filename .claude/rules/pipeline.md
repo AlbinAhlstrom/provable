@@ -44,7 +44,8 @@ Stages exchange dataclasses, not loose dicts. Entities carry an `audience_role` 
 
 ## Retry policy (retries mask errors)
 
-- At most ONE retry, ever, and only when a verifying step rejects what a generating step produced. The verdict and its failing evidence are fed back for exactly one more attempt. The model case is the TDD GREEN phase (`TddExecutionState.max_attempts = 2`: first attempt plus one feedback retry, then `REQUIRES_HUMAN_INTERVENTION`).
+- At most ONE retry, ever, and only when a verifying step rejects what a generating step produced. The verdict and its failing evidence are fed back for exactly one more attempt. The model case is the TDD GREEN phase (`TddExecutionState.max_attempts`, two: first attempt plus one feedback retry, then `REQUIRES_HUMAN_INTERVENTION`).
+- A strict run (`"strict": true` in a kickstart body, `backend/run_options.py`) makes no second attempt anywhere: every step answers once and its answer stands. Use it to measure where a step fails first time; a step whose first answer holds on strict runs no longer needs its retry.
 - Never retry provider, network or quota errors, parse failures, test tampering, or anything that is not a gate verdict. They fail loudly with the real reason (`agent_orchestrator.LAST_LLM_ERROR`).
 - No hidden retries: no retry loops, fallbacks-on-error or SDK auto-retries (the OpenAI client is built with `max_retries=0`). Every attempt is visible in the result (`attempts`) and in the trace.
 - Changing this policy needs an explicit decision from the user.

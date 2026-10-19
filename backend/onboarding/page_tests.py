@@ -14,6 +14,7 @@ import ast
 import json
 import os
 import re
+import run_options
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
@@ -219,7 +220,7 @@ def prove(rule: Dict[str, Any], write: Callable[[Dict[str, Any], str], str], run
         return _outcome(rule, run(source), source, 0)
 
     feedback, source, verdict = "", None, Verdict(BROKEN, "no test was written")
-    for written in (1, 2):
+    for written in range(1, run_options.attempts(2) + 1):
         previous = source
         try:
             source = write(rule, feedback)

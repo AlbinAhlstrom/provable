@@ -385,3 +385,21 @@ def test_the_writer_places_each_part_in_one_of_the_files_its_answer_has():
     assert "<the marker of the file you write it in" in plan_line
     assert all(section in plan_line for section in SECTIONS)
     assert "the only files of the page" in plan_line
+
+
+def test_a_strict_run_sends_qa_defects_to_no_rework(tmp_path):
+    """
+    id: TST-PARTS-STRICT
+    Given: A strict run, and a page that lacks parts of its plan
+    When: The gates run
+    Then: Nothing is sent to rework; QA reports the missing parts as defects that remain
+    """
+    import run_options
+    page = _page(tmp_path, SHORT)
+    calls = []
+    with run_options.running_with(run_options.RunOptions(strict=True)):
+        outcome = run_page_gates(
+            workspace_dir=str(tmp_path), pitch="p", presentation={"files": [page]}, ux_blueprint=PLAN,
+            audit=lambda: {"passed": True, "defects": [], "console_errors": []},
+            rework=lambda defects, errors: calls.append(1) or True)
+    assert calls == [] and outcome.qa["verdict"] == "defects_remain" and outcome.qa["attempts"] == 0

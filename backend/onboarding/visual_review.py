@@ -21,6 +21,7 @@ is listed in the result and `unresolved()` puts it in words. The gates keep it a
 import os
 import re
 import time
+import run_options
 from dataclasses import asdict, dataclass
 from typing import Any, Callable, Dict, List, Optional, Tuple, Sequence
 
@@ -243,7 +244,7 @@ def review_and_repair(
     # The one retry: repairs the applier refused go back to the reviewer with the reason, once
     refused = [o for o in outcomes if not o.applied]
     retry_error = ""
-    if refused:
+    if refused and not run_options.strict():
         attempts = 2
         feedback = "\n".join(f"- {o.problem}\n  file: {o.file}\n  find: {o.find}\n  replace: {o.replace}\n  refused: {o.reason}"
                              for o in refused)

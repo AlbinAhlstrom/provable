@@ -13,6 +13,7 @@ the hand-over between the gates are testable without a browser or an LLM.
 import contextlib
 import os
 import time
+import run_options
 from dataclasses import dataclass, field
 from typing import Any, Callable, ContextManager, Dict, List, Optional
 
@@ -110,7 +111,8 @@ def _judge(*, workspace_dir: str, pitch: str, presentation: Dict[str, Any], ux_b
     started = time.time()
     st = stage_begin("qa")
     try:
-        outcome.qa = gate(audit=run_audit, rework=run_rework)
+        outcome.qa = gate(audit=run_audit, rework=run_rework,
+                          **({"max_rework_attempts": 0} if run_options.strict() else {}))
         st.note("verdict", outcome.qa["verdict"])
         st.note("rework_attempts", outcome.qa["attempts"])
         for warning in outcome.qa.get("warnings") or []:

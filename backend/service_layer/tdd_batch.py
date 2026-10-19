@@ -44,6 +44,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import pipeline_trace
+import run_options
 from onboarding import first_tests
 from onboarding.action_protocol import actions_in_full
 from onboarding.cst_isolator import (
@@ -155,7 +156,7 @@ def implement_together(batch: List[Approved], target: DomainTarget, workspace_di
             f.write(source)
 
     try:
-        for attempt in (1, 2):
+        for attempt in range(1, run_options.attempts(2) + 1):
             with open(target.domain_file, "r", encoding="utf-8") as f:
                 domain_source = f.read()
             try:
@@ -392,7 +393,7 @@ def execute_specs_together(
         everyone = sorted(batch + peers, key=lambda pair: order[pair[0].spec_id])
         # A test neither answer could meet, and never sent back before, goes to its writer once
         doubted = [(spec, red) for spec, red in everyone
-                   if "failure_evidence" in done[spec.spec_id] and len(red.attempts) == 1]
+                   if "failure_evidence" in done[spec.spec_id] and len(red.attempts) == 1 and not run_options.strict()]
 
         def reconsider(pair: Approved) -> Dict[str, Any]:
             spec, red = pair

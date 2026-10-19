@@ -516,3 +516,43 @@ def test_a_class_whose_actions_say_nothing_is_written_from_its_rules_alone():
     spec = tdd_batch.rules_spec("Invoice", [_spec("SPEC-001")])
 
     assert spec.given_when_then == "(1) Rule SPEC-001: Given a When b Then c"
+
+
+def test_a_strict_run_asks_each_writer_once(tmp_path, monkeypatch):
+    """Verify a strict run makes no second attempt in the TDD loop.
+
+    id: TST-BATCH-STRICT
+    Given: A strict run; a test for SPEC-003 with a wrong expectation, and code that enforces the rule correctly
+    When: The specs are executed together
+    Then: One code call and no second; the test is not reconsidered; SPEC-003 is unfulfilled with its test pending
+    """
+    import run_options
+    workspace = _workspace(tmp_path)
+    calls = _models(monkeypatch, [_fragment(PAY, ADD_LINE), _fragment(PAY, ADD_LINE)])
+    asked = _writer(monkeypatch, WRONG_003, TESTS["SPEC-003"])
+
+    with run_options.running_with(run_options.RunOptions(strict=True)):
+        results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert len(calls) == 1 and len(asked) == 1 and not results["SPEC-003"]["success"]
+    assert (tmp_path / "tests" / "pending" / "test_spec_003.py").exists()
+
+
+def test_a_strict_run_writes_a_refused_test_no_second_time(tmp_path, monkeypatch):
+    """Verify a test the RED gate refuses is not written again in a strict run.
+
+    id: TST-BATCH-STRICT-RED
+    Given: A strict run, and a first test for SPEC-003 that asserts nothing about behaviour
+    When: The specs are executed together
+    Then: The writer is not asked again; SPEC-003 is refused at the RED gate
+    """
+    import run_options
+    workspace = _workspace(tmp_path)
+    _models(monkeypatch, [_fragment(PAY, ADD_LINE)])
+    nothing = "from src.domain.invoice import Invoice\n\n\ndef test_starts_open():\n    assert Invoice(id='i1').status == 'open'\n"
+    asked = _writer(monkeypatch, nothing, TESTS["SPEC-003"])
+
+    with run_options.running_with(run_options.RunOptions(strict=True)):
+        results = tdd_batch.execute_specs_together([_spec(i) for i in TESTS], workspace)
+
+    assert len(asked) == 1 and results["SPEC-003"]["phase"] == "RED_GATE"

@@ -24,6 +24,7 @@ The stage functions are injected so the ordering policy is testable without an L
 import os
 import threading
 import time
+import run_options
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
 from typing import Any, Callable, Dict, List, Optional
@@ -128,6 +129,8 @@ def run_page_revisit_stage(presentation: Callable[..., Dict[str, Any]], outcome:
             return handle.skip("the classes hold the fields the page was written for")
         outcome.page_revisit = [change.describe() for change in changes]
         handle.note("changed", outcome.page_revisit)
+        if run_options.strict():
+            return handle.skip("a strict run writes the page once")
         started = time.time()
         rewritten = presentation(
             pitch=pitch, structure=structure, inbox_specs=inbox_specs, workspace_dir=workspace_dir,

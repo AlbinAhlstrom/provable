@@ -482,3 +482,33 @@ def test_nothing_is_written_for_the_domain_when_there_is_no_action_protocol(tmp_
 
     outcome = _run(tmp_path, protocol=lambda **kw: {"success": False, "error": "not valid JSON", "files": []}, domain=domain)
     assert [f["stage"] for f in outcome.failures] == ["action_protocol"]
+
+
+def test_a_strict_run_writes_the_page_once_when_a_class_changed(tmp_path, monkeypatch):
+    """
+    id: TST-SYN-REVISIT-STRICT
+    Given: A strict, recorded run, and a class to which the behaviour stage adds a field
+    When: The stages run
+    Then: The page is written once; the revisit is skipped because the run is strict, naming what changed
+    """
+    import run_options
+    monkeypatch.setenv("PROVABLE_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.delenv("PROVABLE_RECORD_RUNS", raising=False)
+    workspace = tmp_path / "ws"
+    domain_class = _domain_class(workspace)
+    pages = []
+
+    def behaviour(manifest, deck, report):
+        domain_class.write_text(CLASS + "    answered_by: str = ''\n", encoding="utf-8")
+        return DomainRound(behaviour=ActionBehaviour(implemented=["submit"]))
+
+    def presentation(**kw):
+        pages.append(1)
+        return {"success": True, "files": ["Page1.tsx"]}
+
+    with run_options.running_with(run_options.RunOptions(strict=True)):
+        with run_recorder.recorded_run("kickstart", "p", workspace_dir=str(workspace)):
+            outcome = _run(workspace, domain=behaviour, presentation=presentation)
+    assert len(pages) == 1 and outcome.page_revisit == ["Inquiry now also holds answered_by"]
+    revisit = _stage_records(tmp_path)["page_revisit"]
+    assert revisit["status"] == "skipped" and "strict" in revisit["error"]

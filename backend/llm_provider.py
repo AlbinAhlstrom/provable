@@ -87,7 +87,9 @@ def stage_models() -> Dict[str, str]:
 
 def connection(stage: str = "general") -> Connection:
     """The endpoint, key and model the given stage's call uses."""
-    stage_model = os.environ.get(f"LLM_MODEL_{stage.upper()}")
+    import run_options
+    # A run held on one model asks it of every stage, as a stage moved by a setting is (run_options.py)
+    stage_model = run_options.current().model or os.environ.get(f"LLM_MODEL_{stage.upper()}")
     name = (os.environ.get("LLM_PROVIDER") or "").strip().lower()
     if name:
         if name not in PROVIDERS:

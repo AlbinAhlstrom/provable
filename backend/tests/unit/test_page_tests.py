@@ -431,3 +431,17 @@ def test_a_test_is_written_from_the_pages_plan_and_not_from_its_source(monkeypat
     assert "## The page's plan" in asked[0] and '- Table · button · "Table 1, free"' in asked[0]
     assert "className='raised'" not in asked[0] and "## The page's source" not in asked[0]
     assert "## The page's source" in asked[1] and "className='raised'" in asked[1] and "## The page's plan" not in asked[1]
+
+
+def test_a_strict_run_writes_a_page_test_once():
+    """
+    id: TST-PAGE-STRICT
+    Given: A strict run, and a new test whose assertion did not hold
+    When: The rule is proved
+    Then: The test is written once, and its verdict stands
+    """
+    import run_options
+    bench = _Bench([GOOD_TEST, GOOD_TEST + "# corrected\n"], [Verdict("fail", "AssertionError: expected 3", "e"), Verdict("pass")])
+    with run_options.running_with(run_options.RunOptions(strict=True)):
+        result = _prove(bench)
+    assert (result["status"], result["written"], len(bench.feedback)) == ("fail", 1, 1)

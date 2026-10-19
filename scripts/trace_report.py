@@ -62,13 +62,22 @@ def traces(trace_dir):
     return [_load(f) for f in sorted(glob.glob(os.path.join(trace_dir, "*.json")))]
 
 
+def _options(run_dir):
+    """How a run was asked beyond the settings (backend/run_options.py): strict, one model throughout."""
+    path = os.path.join(run_dir, "run.json")
+    options = (_load(path).get("options") or {}) if os.path.exists(path) else {}
+    said = (["strict"] if options.get("strict") else []) + ([f"all on {options['model']}"] if options.get("model") else [])
+    return f"  [{', '.join(said)}]" if said else ""
+
+
 def list_runs():
     for name in sorted(d for d in os.listdir(RUNS) if os.path.isdir(os.path.join(RUNS, d))) if os.path.isdir(RUNS) else []:
         path = os.path.join(RUNS, name, "summary.json")
         if os.path.exists(path):
             s = _load(path)
             replayed = f"  ({s['llm']['replayed']} replayed)" if s["llm"].get("replayed") else ""
-            print(f"{s['status']:9} {s['duration_s']:7.1f}s  {s['llm']['calls']:3d} LLM calls  {_sek(s['llm']):>12}  {name}{replayed}")
+            print(f"{s['status']:9} {s['duration_s']:7.1f}s  {s['llm']['calls']:3d} LLM calls  {_sek(s['llm']):>12}  "
+                  f"{name}{replayed}{_options(os.path.join(RUNS, name))}")
             if s.get("goal"):
                 print(f"{'':9} {_goal(s['goal'])}")
         else:

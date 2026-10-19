@@ -12,6 +12,7 @@ means "the changed view compiles", never "a file was written".
 
 import os
 import re
+import run_options
 from typing import Any, Dict, List, Optional, Tuple
 
 import agent_orchestrator
@@ -97,7 +98,7 @@ def execute_presentation_spec(spec: Dict[str, Any], workspace_dir: str) -> Dict[
 
     attempts: List[Dict[str, Any]] = []
     feedback = ""
-    for number in range(1, MAX_ATTEMPTS + 1):
+    for number in range(1, run_options.attempts(MAX_ATTEMPTS) + 1):
         prompt = agent_orchestrator.load_prompt("presentation_spec_evolution.md", {
             "title": spec.get("title", ""), "given_when_then": gwt, "file_path": shown,
             "current_code": original, "feedback_block": feedback,

@@ -4,6 +4,7 @@ Enforces programmatic test evaluation, OS test-file locking, pytest timeouts,
 LibCST micro-context splicing, and automated dead-end git rollback handling.
 """
 
+import run_options
 from pipeline_trace import traced
 from service_layer.hollow_check import fails_without_behaviour
 import os
@@ -202,7 +203,7 @@ class TddExecutionState:
     spec: BusinessSpec
     phase: str = "INIT"  # "INIT" | "RED_GEN" | "RED_GATE" | "GREEN_GEN" | "GREEN_GATE" | "COMMITTED" | "DEAD_END"
     attempt: int = 0
-    max_attempts: int = 2  # first GREEN attempt + exactly one feedback retry
+    max_attempts: int = field(default_factory=lambda: run_options.attempts(2))  # first GREEN attempt + one feedback retry
     status: str = "PENDING"  # "PENDING" | "IN_PROGRESS" | "FULFILLED" | "REQUIRES_HUMAN_INTERVENTION"
     error_log: List[str] = field(default_factory=list)
 
@@ -655,7 +656,7 @@ def run_red_phase(spec: BusinessSpec, target: DomainTarget, workspace_dir: str, 
     red_eval: Dict[str, Any] = {}
     red_attempts: List[Dict[str, Any]] = []
     test_code = ""
-    for red_attempt in (1, 2):
+    for red_attempt in range(1, run_options.attempts(2) + 1):
         test_code = first_test if red_attempt == 1 and first_test is not None else generate_red_test(
             spec, current_class, target.module_name, target.class_name,
             rejection_feedback=red_feedback, existing_tests=existing_tests,

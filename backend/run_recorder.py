@@ -31,6 +31,7 @@ from typing import Any, Callable, Dict, List, Optional
 import llm_cost
 import pipeline_trace
 import run_goal
+import run_options
 
 _BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
 _REPO_ROOT = os.path.abspath(os.path.join(_BACKEND_DIR, ".."))
@@ -250,7 +251,7 @@ class Run:
         _write_json(os.path.join(self.dir, "run.json"), {
             "id": self.id, "kind": self.kind, "label": self.label,
             "started_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self.started)),
-            "git": _git_info(), "llm": _llm_settings(), "python": platform.python_version(),
+            "git": _git_info(), "llm": _llm_settings(), "options": run_options.recorded(), "python": platform.python_version(),
             "workspace_dir": self.workspace_dir})
         pipeline_trace.set_trace_dir(self.trace_dir)
         print(f"[Run] recording {self.id} -> {self.dir}", flush=True)

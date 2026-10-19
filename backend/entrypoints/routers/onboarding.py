@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from typing import Any, Dict, List, Optional
 
 import llm_replay
+import run_options
 from service_layer.unit_of_work import SqliteUnitOfWork
 from service_layer import app_wiring, rule_tests, services
 
@@ -20,10 +21,17 @@ class KickstartRequest(BaseModel):
     mode: Optional[str] = "fast"
     replay: Optional[List[str]] = None   # recorded runs whose answers are given back to the same questions (llm_replay.py)
     replay_live: Optional[List[str]] = None   # stages asked of the model all the same, to sample them again
+    strict: bool = False   # no second attempt anywhere (run_options.py)
+    model: Optional[str] = None   # every stage on this one model
 
 
-def _replaying(run_ids: Optional[List[str]], live: Optional[List[str]], task, **kwargs) -> Any:
-    with llm_replay.replaying(run_ids, live):
+def _options(req: KickstartRequest) -> run_options.RunOptions:
+    return run_options.RunOptions(strict=req.strict, model=req.model or None)
+
+
+def _replaying(run_ids: Optional[List[str]], live: Optional[List[str]], task,
+               options: run_options.RunOptions = run_options.RunOptions(), **kwargs) -> Any:
+    with llm_replay.replaying(run_ids, live), run_options.running_with(options):
         return task(**kwargs)
 
 
@@ -34,7 +42,7 @@ def kickstart_endpoint(req: KickstartRequest, background: BackgroundTasks):
     uow = SqliteUnitOfWork()
     pitch = req.pitch or req.business_pitch or "An industrial warehouse management system tracking Pallets, storage Zones, and forklift Operators."
     try:
-        with llm_replay.replaying(req.replay, req.replay_live):
+        with llm_replay.replaying(req.replay, req.replay_live), run_options.running_with(_options(req)):
             result = services.kickstart_domain_and_scaffold(
                 pitch=pitch,
                 uow=uow,
@@ -47,8 +55,8 @@ def kickstart_endpoint(req: KickstartRequest, background: BackgroundTasks):
             "detail": str(e)
         }
     if result.get("success") and result.get("qa") is not None:
-        background.add_task(_replaying, req.replay, req.replay_live, rule_tests.run_all_rule_tests, uow=SqliteUnitOfWork(),
-                            label="after kickstart")
+        background.add_task(_replaying, req.replay, req.replay_live, rule_tests.run_all_rule_tests, _options(req),
+                            uow=SqliteUnitOfWork(), label="after kickstart")
     return result
 
 

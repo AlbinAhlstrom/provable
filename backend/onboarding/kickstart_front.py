@@ -54,6 +54,7 @@ def reviewed_plan(contract: Any, review: Optional[Callable[..., Dict[str, Any]]]
     sent back once to be written again (`plan_rework.py`), and the corrected plan is what is built; its review is
     then the build's own review stage's to make, so the second value is None. A review or a rework that fails is
     not tried again: the plan is built as written and what was found, or why the review failed, stays reported."""
+    import run_options
     from onboarding import plan_rework
     from onboarding.product_contract import contract_review
     st = stage_begin(PLAN_REVIEW)
@@ -68,6 +69,9 @@ def reviewed_plan(contract: Any, review: Optional[Callable[..., Dict[str, Any]]]
     st.ok()
     if not conflicts:
         again.skip("the review found nothing")
+        return contract, found
+    if run_options.strict():
+        again.skip("a strict run builds the plan as written")
         return contract, found
     try:
         reworked = (rework or plan_rework.rework_rules)(contract, conflicts)

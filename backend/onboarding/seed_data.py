@@ -16,6 +16,7 @@ import os
 import subprocess
 import sys
 import time
+import run_options
 from datetime import date
 from typing import Any, Dict, List, Optional
 
@@ -111,7 +112,7 @@ def synthesize_seed_data(
         return {"success": False, "error": reason, "files": [], "attempts": attempts,
                 "elapsed_seconds": round(time.time() - start, 2)}
 
-    for number in range(1, MAX_ATTEMPTS + 1):
+    for number in range(1, run_options.attempts(MAX_ATTEMPTS) + 1):
         prompt = agent_orchestrator.load_prompt("seed_data.md", {
             "pitch": pitch, "intent_block": intent_block(intent), "entities_block": _entity_block(structure),
             "rules_block": _rules_block(structure, inbox_specs), "feedback_block": feedback,
