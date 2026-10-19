@@ -291,6 +291,26 @@ class ProductContract:
         except (KeyError, TypeError) as exc:
             raise ContractError(f"The contract is not in the agreed form: {type(exc).__name__}: {exc}") from exc
 
+    def unnamed_slots(self) -> List[str]:
+        """Each value in braces in a part's name that the contract defines nowhere: not a field (of a record or of
+        one of its parts), the `shown as` wording of a field (`<field> wording`), an entry of `shown`, or a refusal's
+        `sentence`. Such a value is filled by each builder with a guess of its own, or left empty."""
+        def key(name: str) -> str:
+            return re.sub(r"\W+", "_", name.strip().lower()).strip("_")
+
+        defined = {key("sentence")} if self.refusals else set()
+        for record in self.records:
+            fields = list(record.fields)
+            while fields:
+                f = fields.pop()
+                defined.add(key(f.name))
+                if f.values:
+                    defined.add(key(f"{f.name} wording"))
+                fields.extend(f.part_fields)
+            defined.update(key(entry.split("=", 1)[0]) for entry in record.shown)
+        return [f"{entry} holds {{{slot}}}" for entry in self.read_out
+                for slot in re.findall(r"\{([^{}]*)\}", entry) if key(slot) not in defined]
+
     # --- what the later stages are given -------------------------------------------------------------------------
 
     def structure(self) -> DomainStructureSchema:
@@ -452,7 +472,12 @@ def write_product_contract(pitch: str) -> ProductContract:
         data = agent_orchestrator.extract_json_object(raw)
     except Exception as exc:
         raise ContractError(f"The product contract is not valid JSON: {exc}") from exc
-    return ProductContract.from_dict(data)
+    contract = ProductContract.from_dict(data)
+    unnamed = contract.unnamed_slots()
+    if unnamed:
+        raise ContractError("A part's name holds a value the contract defines nowhere (a field, a field's wording, an "
+                            "entry of `shown` or a refusal's sentence): " + "; ".join(unnamed))
+    return contract
 
 
 def contract_protocol(contract: ProductContract) -> Any:

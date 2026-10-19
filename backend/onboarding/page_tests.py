@@ -101,14 +101,14 @@ def ensure_harness(workspace_dir: str) -> str:
 def ensure_parts(workspace_dir: str, plan: str) -> Optional[str]:
     """Writes the functions a test finds the plan's parts through beside the tests and returns their path; None
     when the plan names no part."""
-    from onboarding.page_parts import field_wordings, locators_module, parts_of
+    from onboarding.page_parts import field_wordings, locators_module, parts_of, value_forms
     parts = parts_of(plan)
     if not parts:
         return None
     path = os.path.join(workspace_dir, PARTS)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
-        f.write(locators_module(parts, field_wordings(plan)))
+        f.write(locators_module(parts, field_wordings(plan), value_forms(plan)))
     # the steps a test does a gesture to a part with, as the page's helper answers them
     with open(os.path.join(os.path.dirname(path), page_gestures.TEST_FILE), "w", encoding="utf-8", newline="\n") as f:
         f.write(page_gestures.GESTURES_PY)
@@ -393,9 +393,10 @@ def _extract_python(raw: str) -> Optional[str]:
 def write_test(rule: Dict[str, Any], app: AppDescription, feedback: str = "") -> str:
     """Has the model write the rule's page test."""
     import agent_orchestrator
-    from onboarding.page_parts import field_wordings, locators_block, parts_of, shown_values
+    from onboarding.page_parts import field_wordings, locators_block, parts_of, shown_values, value_forms
     prompt = agent_orchestrator.load_prompt("page_test_generation.md", {
-        "parts_block": locators_block(parts_of(app.plan), shown_values(app.plan), field_wordings(app.plan))
+        "parts_block": locators_block(parts_of(app.plan), shown_values(app.plan), field_wordings(app.plan),
+                                      value_forms(app.plan))
         + "\n" + page_gestures.gestures_test_block(),
         "title": rule.get("title", ""), "description": rule.get("description", ""), "rule": rule_text(rule),
         "api": app.api, "page_block": _page_block(app), "rendered": app.rendered, "feedback_block": feedback,

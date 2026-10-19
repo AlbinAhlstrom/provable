@@ -275,7 +275,8 @@ Answer with four blocks, each introduced by its marker alone on a line:
     client_files[page_opening.FILE_NAME] = page_opening.OPENING_TS
     planned = page_parts.parts_of(ux_blueprint or "")
     if planned:  # the role and name of each part of the plan, for the page to spread (page_parts.py)
-        client_files[page_parts.FILE_NAME] = page_parts.props_module(planned, page_parts.field_wordings(ux_blueprint))
+        client_files[page_parts.FILE_NAME] = page_parts.props_module(planned, page_parts.field_wordings(ux_blueprint),
+                                                                     page_parts.value_forms(ux_blueprint))
     omitted = [name for name in SECTIONS if not is_component_file(payload.get(name))]
     view_code = payload.get("view_tsx")
     controls_code = payload.get("controls_tsx") if "controls_tsx" not in omitted else None

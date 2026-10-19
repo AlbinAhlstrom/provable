@@ -210,3 +210,24 @@ def test_a_function_puts_a_fields_wording_into_the_name_and_the_tests_get_it(tmp
         assert "closed" in str(err)
     else:
         raise AssertionError("a value the plan words nowhere was looked for under a name of its own")
+
+
+def test_a_test_hands_in_a_number_and_the_function_writes_it_in_the_plans_form(tmp_path):
+    """
+    id: TST-LOCATOR-FORM
+    Given: A plan whose names hold a value written as 3 digits and one written as 2 decimals
+    When: The functions are written beside the tests and the parts are looked for with plain numbers
+    Then: Each is looked for by the number in its form, as the page writes it
+    """
+    plan = ('### 3. How each part is read out (role and name, used as written)\n'
+            '- Mines left · status · "Mines left {mines_left}"\n- Total · status · "Total {amount}"\n\n'
+            '### 4. Wordings\n- shown value: mines_left = mines minus the flagged squares; written as 3 digits\n'
+            '- shown value: amount = the sum of the lines; written as 2 decimals\n')
+    path = page_tests.ensure_parts(str(tmp_path), plan)
+    scope = {}
+    exec(compile(open(path, encoding="utf-8").read(), "parts.py", "exec"), scope)
+    page = Page()
+
+    assert scope["mines_left"](page, mines_left=7) == ("status", {"name": "Mines left 007", "exact": True})
+    assert scope["mines_left"](page, mines_left=-3) == ("status", {"name": "Mines left -03", "exact": True})
+    assert scope["total"](page, amount=5) == ("status", {"name": "Total 5.00", "exact": True})

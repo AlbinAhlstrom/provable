@@ -18,7 +18,7 @@ import subprocess
 from onboarding import code_verifier
 from onboarding.page_gates import run_page_gates
 from onboarding.page_parts import (Part, field_wordings, locators_block, missing_parts, parts_block, parts_of,
-                                   props_module, shown_values)
+                                   props_module, shown_values, value_forms)
 from onboarding.presentation_projection_synthesizer import SECTIONS, parse_file_blocks
 
 PLAN = '''### 2. Where each action is done
@@ -178,7 +178,8 @@ def test_the_writer_is_shown_the_parts_and_says_where_each_is_written_first():
     assert "{page_parts}" in prompt and "`src/api/parts.ts` exports exactly `parts`" in prompt
     synthesizer = open(os.path.join(os.path.dirname(code_verifier.__file__), "presentation_projection_synthesizer.py"),
                        encoding="utf-8").read()
-    assert ("client_files[page_parts.FILE_NAME] = page_parts.props_module(planned, page_parts.field_wordings(ux_blueprint))"
+    assert ("client_files[page_parts.FILE_NAME] = page_parts.props_module(planned, page_parts.field_wordings(ux_blueprint),\n"
+            "                                                                     page_parts.value_forms(ux_blueprint))"
             in synthesizer)
     form = prompt[prompt.rindex("Answer with"):]
     assert form.index("<<<parts>>>") < form.index(f"<<<{SECTIONS[0]}>>>") and form.rstrip().endswith("<<<end>>>")
@@ -403,3 +404,61 @@ def test_a_strict_run_sends_qa_defects_to_no_rework(tmp_path):
             audit=lambda: {"passed": True, "defects": [], "console_errors": []},
             rework=lambda defects, errors: calls.append(1) or True)
     assert calls == [] and outcome.qa["verdict"] == "defects_remain" and outcome.qa["attempts"] == 0
+
+
+FORMED = '''### 3. How each part is read out (role and name, used as written)
+- Mines left · status · "Mines left {mines_left}"
+- Total · status · "Total {amount}"
+- Square · gridcell · "Square {cell wording}"
+
+### 4. Wordings
+- shown value: mines_left = mines minus the flagged squares; written as 3 digits
+- shown value: amount = the sum of the lines; written as 2 decimals
+- shown value: cell wording = "flag" when flagged, else "hidden"
+'''
+
+
+def test_a_value_the_plan_writes_in_a_fixed_form_is_written_by_the_call():
+    """Verify a number in a name is written in the plan's form by code, for the page and the tests alike: with the
+    form told to both writers beside the part, a page wrote "Mines left 10" where the tests looked for "010", in
+    run after run.
+
+    id: TST-PARTS-FORM-CALL
+    Given: A plan whose names hold a value written as 3 digits and one written as 2 decimals
+    When: The page's module is run and the calls are handed plain numbers
+    Then: Each name holds the number in its form: zeros filled after the sign, and the digits after the point
+    """
+    runner = RUNNER.replace("""  order: parts.order(),
+  line: parts.line({ quantity: 2, dish: 'soup' }),
+  total: parts.total({ amount: '12.50' }),""", """  seven: parts.minesLeft({ mines_left: 7 }),
+  below: parts.minesLeft({ mines_left: -3 }),
+  wide: parts.minesLeft({ mines_left: 1234 }),
+  total: parts.total({ amount: 5 }),""")
+    ran = subprocess.run(["node", "-e", runner, TYPESCRIPT], input=props_module(parts_of(FORMED), {},
+                                                                                value_forms(FORMED)),
+                         capture_output=True, text=True, encoding="utf-8", timeout=60)
+    assert ran.returncode == 0, ran.stderr
+    seen = json.loads(ran.stdout)
+
+    assert seen["seven"]["aria-label"] == "Mines left 007"
+    assert seen["below"]["aria-label"] == "Mines left -03"
+    assert seen["wide"]["aria-label"] == "Mines left 1234"
+    assert seen["total"]["aria-label"] == "Total 5.00"
+
+
+def test_the_writers_hand_in_the_number_and_are_told_the_call_writes_it():
+    """
+    id: TST-PARTS-FORM-BESIDE
+    Given: The same plan, one of whose shown values is named in two words
+    When: The page's writer and a page test's writer are shown the parts
+    Then: Under a formed value stands that it is handed in as a number and the call writes it in its form, with how
+          it is worked out; the value named in two words has its definition under its part too
+    """
+    for block in (parts_block(FORMED), locators_block(parts_of(FORMED), shown_values(FORMED), {}, value_forms(FORMED))):
+        lines = block.splitlines()
+        mines = next(i for i, line in enumerate(lines) if "minesLeft" in line or "mines_left(" in line)
+        assert lines[mines + 1].strip() == ("`mines_left` is handed in as a number, and the call writes it with 3 "
+                                            "digits (7 as \"007\", -3 as \"-03\"): mines minus the flagged squares")
+        square = next(i for i, line in enumerate(lines) if "parts.square" in line)
+        assert lines[square + 1].strip() == ("`cell_wording` is handed in as the person is shown it: \"flag\" when "
+                                             "flagged, else \"hidden\"")

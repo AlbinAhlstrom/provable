@@ -51,7 +51,9 @@ CONTRACT = {
          ]},
         {"name": "Table", "origin": "exists_from_start", "shown": [],
          "starting_records": "Table 1, 2 seats; Table 2, 4 seats",
-         "fields": [{"name": "seats", "part_of": "", "type": "whole_number", "starts_as": "", "holds": "how many fit",
+         "fields": [{"name": "number", "part_of": "", "type": "whole_number", "starts_as": "",
+                     "holds": "the number on the table", "values": [], "part_name": ""},
+                    {"name": "seats", "part_of": "", "type": "whole_number", "starts_as": "", "holds": "how many fit",
                      "values": [], "part_name": ""}]},
     ],
     "fixed": "max_guests = 8; stay_minutes = 90",
@@ -596,7 +598,7 @@ def test_an_action_says_which_stored_records_it_is_handed():
     assert by_name["expire_hold"]["params"] == []
     assert by_name["mark_no_show"]["given"] == ["Booking"] and by_name["mark_no_show"]["on_kind"] is False
     assert "sent_to" in pc.CONTRACT_SCHEMA["properties"]["actions"]["items"]["properties"]
-    assert {"aggregate": "Table", "fields": ["id", "seats"]} in manifest["records"]
+    assert {"aggregate": "Table", "fields": ["id", "number", "seats"]} in manifest["records"]
     assert "works_with" in pc.CONTRACT_SCHEMA["properties"]["actions"]["items"]["properties"]
     path = os.path.join(os.path.dirname(pc.__file__), "..", "prompts", "product_contract.md")
     assert "`works_with`" in open(path, encoding="utf-8").read()
@@ -753,3 +755,43 @@ def test_the_values_of_a_fixed_set_reach_the_class_that_is_built():
 
     assert fields["status"].values == ["confirmed", "cancelled"]
     assert fields["guests"].values == [] and fields["courses"].values == []
+
+
+def test_a_name_whose_value_the_contract_never_defines_is_a_contract_error(monkeypatch):
+    """Verify a value in a part's name is one the contract defines, before any builder starts: a menu item read out as
+    "Beginner {checked wording}" named no field, wording or shown value, so the page left it empty ("Beginner ") and
+    each test filled it with a word of its own. Seven contracts of one pitch did this.
+
+    id: TST-CONTRACT-SLOTS
+    Given: A contract whose names hold a field, a part's field, a field's wording, a shown value and a refusal's
+           sentence, and the same contract with a name holding a value it defines nowhere
+    When: The contract is written
+    Then: The first is the contract; the second fails by the part and the value, and nothing is retried
+    """
+    defined = copy.deepcopy(CONTRACT)
+    defined["read_out"] += ["Course · listitem · \"{dish}, {price}\"", "Ends · status · \"Ends {ends_at}\"",
+                            "Message · status · \"{sentence}\""]
+    calls = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini",
+                        lambda prompt, stage="general", **k: calls.append(1) or json.dumps(defined))
+    assert pc.write_product_contract("A table booking page").read_out == defined["read_out"]
+
+    undefined = copy.deepcopy(CONTRACT)
+    undefined["read_out"].append("Seat · menuitem · \"Seat {chosen wording}\"")
+    monkeypatch.setattr(agent_orchestrator, "call_gemini",
+                        lambda prompt, stage="general", **k: calls.append(1) or json.dumps(undefined))
+    with pytest.raises(pc.ContractError, match=r"Seat · menuitem.*\{chosen wording\}"):
+        pc.write_product_contract("A table booking page")
+    assert len(calls) == 2
+
+
+def test_the_contract_writer_is_told_the_forms_a_value_is_written_in():
+    """
+    id: TST-CONTRACT-FORMS-PROMPT
+    Given: The contract's prompt
+    When: It is read
+    Then: It gives the fixed forms of a shown value and names a refusal's sentence as a value a name may hold
+    """
+    prompt = agent_orchestrator.load_prompt("product_contract.md", {"pitch": "p"})
+    assert "; written as N digits" in prompt and "; written as N decimals" in prompt
+    assert "`{sentence}`" in prompt
