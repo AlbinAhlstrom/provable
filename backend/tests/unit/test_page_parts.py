@@ -269,3 +269,20 @@ def test_the_rework_is_shown_the_plan_a_missing_part_comes_from(tmp_path, monkey
         component_files=[page], plan=PLAN, compile_check=lambda ws, code: (True, ""))
 
     assert healed and "### 3. How each part is read out" in seen["prompt"] and "[Missing part]" in seen["prompt"]
+
+
+def test_a_value_written_a_way_of_its_own_is_shown_beside_the_part_whose_name_it_fills():
+    """Verify the page and the plan agree on a name built from a shown value: the writer handed a counter's bare
+    number into its name while the plan writes that value with three digits, so the page read out "Mines left 10"
+    where every rule expected the plan's "010". How the value is written stood in the wordings, far from the part.
+
+    id: TST-PARTS-SHOWN-BESIDE
+    Given: A plan whose part's name is built from a shown value with a written form of its own
+    When: The page's writer is shown the parts
+    Then: The value's definition stands right under that part's call, and not under a part that does not use it
+    """
+    block = parts_block(PLAN)
+    lines = block.splitlines()
+    total = next(i for i, line in enumerate(lines) if "parts.total(" in line)
+    assert lines[total + 1].strip() == "`amount` is handed in as the person is shown it: the sum of the lines"
+    assert block.count("the sum of the lines") == 1

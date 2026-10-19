@@ -154,3 +154,27 @@ def test_the_functions_are_written_when_the_plan_comes_with_the_described_app(tm
         page_tests.run_test = original
 
     assert held["there"] == locators_module(parts_of(PLAN))
+
+
+def test_a_test_writer_is_shown_how_a_value_in_a_name_is_written(monkeypatch):
+    """Verify a test looks for a name built from a shown value the way the page writes it: from the same
+    definition the page's writer is shown beside the part.
+
+    id: TST-LOCATORS-SHOWN-BESIDE
+    Given: A plan whose part's name is built from a shown value
+    When: A page test is written
+    Then: The value's definition stands under that part's function
+    """
+    import agent_orchestrator
+    asked = []
+    monkeypatch.setattr(agent_orchestrator, "call_gemini",
+                        lambda prompt, stage="general", **k: asked.append(prompt) or "```python\ndef test_x(app):\n    pass\n```")
+    plan = PLAN + "\n### 4. Wordings\n- shown value: amount = the sum of the lines, with two decimals as in \"5.00\"\n"
+
+    page_tests.write_test({"title": "t", "given_when_then": "g"},
+                          page_tests.AppDescription(api="API", page="PAGE", plan=plan))
+
+    lines = asked[0].splitlines()
+    total = next(i for i, line in enumerate(lines) if "`parts.total(page, amount=...)`" in line)
+    assert lines[total + 1].strip() == ("`amount` is handed in as the person is shown it: the sum of the lines, "
+                                        "with two decimals as in \"5.00\"")

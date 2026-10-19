@@ -9,7 +9,9 @@ That list is the page's extent. It is read here once, and every use of it is wri
     props_module   the page gets a part's role and name by spreading a call on its element (`src/api/parts.ts`),
                    so neither is copied into the page by its writer
     parts_block    the page's writer is shown the parts of the page, each with its call, and answers where it
-                   writes each one before it writes the files (prompts/presentation_projection_synthesis.md)
+                   writes each one before it writes the files (prompts/presentation_projection_synthesis.md); under a
+                   part whose name holds a value the plan writes a way of its own (`shown value`), how it is written,
+                   which a page test's writer is shown the same way
     missing_parts  the written page is looked through for the call of every part; one that is not there is a QA
                    defect, so it goes through the single rework QA allows (page_gates.py)
     present_parts  the page as opened in a browser is looked through the same way: none of its parts on screen is
@@ -27,7 +29,7 @@ import json
 import keyword
 import re
 from dataclasses import dataclass
-from typing import Iterable, List
+from typing import Dict, Iterable, List, Optional
 
 _LINE = re.compile(r'^- (?P<what>.+?) · (?P<role>[\w-]+) · "(?P<name>.*)"[ \t]*$', re.MULTILINE)
 _SLOT = re.compile(r"\{[^{}]*\}")       # the part of a name a field's value fills
@@ -68,13 +70,29 @@ def parts_of(plan: str) -> List[Part]:
     return [Part(found["what"].strip(), found["role"], found["name"]) for found in _LINE.finditer(plan or "")]
 
 
+_SHOWN = re.compile(r"^- shown value: (?P<name>\w+) = (?P<how>.+?)[ \t]*$", re.MULTILINE)
+
+
+def shown_values(plan: str) -> Dict[str, str]:
+    """The values the plan writes a way of its own (its wordings, `- shown value: <name> = <how>`), by name."""
+    return {found["name"]: found["how"] for found in _SHOWN.finditer(plan or "")}
+
+
+def _how_shown(function: "PartFunction", shown: Dict[str, str]) -> str:
+    """Under a part, how each value its name is built from is written: the page puts it into the name and a test
+    looks for it as the person is shown it, both from this one definition. A name and its definition stood far
+    apart in the plan, and the page wrote a bare number into a name the plan writes with three digits."""
+    return "".join(f"\n  `{slot}` is handed in as the person is shown it: {shown[slot]}"
+                   for slot in function.slots if slot in shown)
+
+
 def parts_block(plan: str) -> str:
     """The parts as the page's writer is shown them."""
-    functions = part_functions(parts_of(plan))
+    functions, shown = part_functions(parts_of(plan)), shown_values(plan)
     if not functions:
         return "The blueprint names no parts by role and name: the parts are the ones its sections describe."
     return (f"The page has these parts ({len(functions)}):\n"
-            + "\n".join(f"- {f.part.line()} · `{f.spread()}`" for f in functions))
+            + "\n".join(f"- {f.part.line()} · `{f.spread()}`" + _how_shown(f, shown) for f in functions))
 
 
 # ── a part as a page test finds it ───────────────────────────────────────────
@@ -166,12 +184,14 @@ def locators_module(parts: Iterable[Part]) -> str:
             + "\n\n".join(function.source() for function in part_functions(parts)))
 
 
-def locators_block(parts: Iterable[Part]) -> str:
-    """What a page test's writer is told of the functions; empty when the plan names no part."""
+def locators_block(parts: Iterable[Part], shown: Optional[Dict[str, str]] = None) -> str:
+    """What a page test's writer is told of the functions, with how each shown value is written; empty when the
+    plan names no part."""
     functions = part_functions(parts)
     if not functions:
         return ""
-    listed = "\n".join(f'- `{f.call()}`: {f.part.role} "{f.part.name}"' for f in functions)
+    listed = "\n".join(f'- `{f.call()}`: {f.part.role} "{f.part.name}"' + _how_shown(f, shown or {})
+                       for f in functions)
     return ("## The parts of the page\n`import parts` gives one function for each part the page's plan names by "
             "role and name. It returns the locator of that part, found by exactly that role and that whole name, "
             "with each value in braces handed in as the argument named after it:\n\n" + listed + "\n\n"

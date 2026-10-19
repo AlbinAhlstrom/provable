@@ -388,9 +388,9 @@ def _extract_python(raw: str) -> Optional[str]:
 def write_test(rule: Dict[str, Any], app: AppDescription, feedback: str = "") -> str:
     """Has the model write the rule's page test."""
     import agent_orchestrator
-    from onboarding.page_parts import locators_block, parts_of
+    from onboarding.page_parts import locators_block, parts_of, shown_values
     prompt = agent_orchestrator.load_prompt("page_test_generation.md", {
-        "parts_block": locators_block(parts_of(app.plan)),
+        "parts_block": locators_block(parts_of(app.plan), shown_values(app.plan)),
         "title": rule.get("title", ""), "description": rule.get("description", ""), "rule": rule_text(rule),
         "api": app.api, "page_block": _page_block(app), "rendered": app.rendered, "feedback_block": feedback,
         "situation_block": f"\n- **Situation** {rule['situation']}" if rule.get("situation") else "",
