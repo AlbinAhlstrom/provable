@@ -18,6 +18,7 @@ import run_options
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
+from onboarding import page_gestures
 from onboarding.app_inventory import inventory_frontend
 from pipeline_trace import traced
 
@@ -108,6 +109,9 @@ def ensure_parts(workspace_dir: str, plan: str) -> Optional[str]:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(locators_module(parts, field_wordings(plan)))
+    # the steps a test does a gesture to a part with, as the page's helper answers them
+    with open(os.path.join(os.path.dirname(path), page_gestures.TEST_FILE), "w", encoding="utf-8", newline="\n") as f:
+        f.write(page_gestures.GESTURES_PY)
     return path
 
 
@@ -391,7 +395,8 @@ def write_test(rule: Dict[str, Any], app: AppDescription, feedback: str = "") ->
     import agent_orchestrator
     from onboarding.page_parts import field_wordings, locators_block, parts_of, shown_values
     prompt = agent_orchestrator.load_prompt("page_test_generation.md", {
-        "parts_block": locators_block(parts_of(app.plan), shown_values(app.plan), field_wordings(app.plan)),
+        "parts_block": locators_block(parts_of(app.plan), shown_values(app.plan), field_wordings(app.plan))
+        + "\n" + page_gestures.gestures_test_block(),
         "title": rule.get("title", ""), "description": rule.get("description", ""), "rule": rule_text(rule),
         "api": app.api, "page_block": _page_block(app), "rendered": app.rendered, "feedback_block": feedback,
         "situation_block": f"\n- **Situation** {rule['situation']}" if rule.get("situation") else "",

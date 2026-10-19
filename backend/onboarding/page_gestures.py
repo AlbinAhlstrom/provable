@@ -95,6 +95,72 @@ export function gestures(on: Gestures) {{
 '''
 
 
+# How a page test does each gesture: exactly the events `GESTURES_TS` answers, written beside the parts a test finds
+# (`tests/e2e/gestures.py`). A test's writer left to do it chose its own: a middle click for "both buttons", which
+# nothing on the page answers.
+TEST_FILE = "gestures.py"
+
+GESTURES_PY = '''"""How a page test does a gesture to a part: exactly what the page's gesture helper (src/api/gestures.ts) answers.
+
+Written by the engine (onboarding/page_gestures.py); a change made here is overwritten.
+`part` is a locator, as `parts` returns it.
+"""
+
+
+def _centre(part):
+    part.scroll_into_view_if_needed()
+    box = part.bounding_box()
+    part.page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+    return part.page.mouse
+
+
+def click(part):
+    """A left click, or a tap."""
+    part.click()
+
+
+def right_click(part):
+    """A right click, or a finger held down."""
+    part.click(button="right")
+
+
+def double_click(part):
+    """A double click, or a double tap."""
+    part.dblclick()
+
+
+def both_buttons(part):
+    """The left and the right button pressed together on the part, then let go."""
+    mouse = _centre(part)
+    mouse.down(button="left")
+    mouse.down(button="right")
+    mouse.up(button="right")
+    mouse.up(button="left")
+
+
+def press(part):
+    """A press on the part, held until `release`: for what the page shows while a part is held down."""
+    _centre(part).down(button="left")
+
+
+def release(part):
+    """Lets go of the press `press` began; where it ends over the part, that is a click as well."""
+    part.page.mouse.up(button="left")
+'''
+
+
+def gestures_test_block() -> str:
+    """What a page test's writer is told of the steps."""
+    return (
+        "## Gestures\n`import gestures` does a gesture to a part the way the page answers it, `part` being a locator "
+        "from `parts`: `gestures.click(part)` (a click or a tap), `gestures.right_click(part)` (a right click or a "
+        "long press), `gestures.double_click(part)` (a double click or a double tap), `gestures.both_buttons(part)` "
+        "(the left and the right button together), and `gestures.press(part)` with `gestures.release(part)` around "
+        "what the page shows while a part is held down. Do every gesture of the rule's When through these steps. A "
+        "gesture that is not among them (a middle click, a click with a key held) is answered by nothing on the page: "
+        "where the rule names one, use the step it stands beside in the plan's gestures.\n")
+
+
 def gestures_block() -> str:
     """What the page's writer is told of the helper."""
     return (
