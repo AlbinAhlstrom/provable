@@ -9,6 +9,8 @@ This document outlines workspace boundary rules, headless browser execution flag
 The `workspace/` directory contains the target application being built by autonomous developer agents:
 The authoritative rule is `.claude/rules/architecture.md` ("`workspace/` is off-limits"): never edit or commit inside `workspace/`; fix the generator in `backend/` instead. Reading `workspace/` and running `git log/status/diff` there is fine. The `PreToolUse` hook `.claude/hooks/guard.py` enforces this for Claude Code.
 
+A commit waits for no test. The `PostToolUse` hook `.claude/hooks/background_tests.py` starts a new commit's checks (the backend suite in parallel, and the frontend build when `frontend/` changed) on a checkout of that commit, in the background, and tells the agent at its next tool call when they failed. Only a deploy waits: `guard.py` refuses a push to `main` unless the shipped commit's checks passed. `dev` is never deployed, so a failure there is fixed in the next commit.
+
 ---
 
 ## 🖥️ Headless Chrome & Selenium Execution Flags

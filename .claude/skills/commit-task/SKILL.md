@@ -5,7 +5,7 @@ description: Commit a finished task following the project's standing policy (sco
 
 # Commit a finished task
 
-Run this as the last step of every task, so work never piles up into one large commit. The commit guard runs the full test suite (and the frontend build when `frontend/` is staged), so do not run them by hand first.
+Run this as the last step of every task, so work never piles up into one large commit. After the commit its checks (the full test suite, and the frontend build when `frontend/` changed) run in the background; a failure is reported at your next tool call, and you fix it in a new commit. Do not run them by hand first.
 
 1. `git status --porcelain` and `git diff --stat`. The tree may hold unrelated uncommitted work; list which files this task touched.
 2. Stage only those files with `git add -- <paths>`. Never `git add -A` or `git add .`. Never stage `.env`, anything under `workspace/`, or logs.

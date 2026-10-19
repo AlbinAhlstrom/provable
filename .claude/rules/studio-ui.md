@@ -18,6 +18,6 @@ PM Studio is a domain-agnostic projection. It knows nothing about any particular
 
 ## Verifying UI changes
 
-1. `npm run build` in `frontend/` has zero TypeScript or Vite errors (the commit guard also runs it when `frontend/` is staged).
+1. `npm run build` in `frontend/` has zero TypeScript or Vite errors (it also runs in the background after a commit that changes `frontend/`).
 2. Look at the rendered result: the `take_ui_screenshot` skill, or `logs/latest_ui_render.png` from `python scripts/agent_preflight_check.py` when Studio is up on :5173. Check readable dark-mode contrast for inputs, labels and borders; no dead gray rectangles, clipped overflow or horizontal scroll; the Swagger iframe renders cleanly.
 3. If no screenshot could be captured, say plainly that the UI was not visually verified.

@@ -16,4 +16,4 @@ Problem to fix: $ARGUMENTS
 5. **Fix upstream.** Change the prompt, schema or contract. Make the failing test pass; confirm the targeted file, then `python -m pytest backend/tests/unit`.
 6. **Review.** Run `architecture-verifier` and `code-smell-verifier` on the diff.
 7. **Regenerate and compare.** Run the smallest live run that shows the fix (`POST /api/onboarding/page` when only the page is affected, else a kickstart of the same pitch), in the background, and compare the new `workspace/` output with what was wrong. Report wall time, cost in SEK, model and effort. Without an LLM key, say the fix was not verified live.
-8. **Commit** with the `commit-task` skill; the commit guard runs the full suite.
+8. **Commit** with the `commit-task` skill; its checks run in the background after it.

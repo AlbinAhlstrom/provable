@@ -1,8 +1,8 @@
 """
 The PreToolUse guard (.claude/hooks/guard.py) enforces the workspace airgap and the launcher rule.
 
-`static_violation` is the pure decision; the commit gate (full suite, frontend build) is exercised by
-`commit_gates` with injected runners so no subprocess is started here.
+`static_violation` is the pure decision. The checks of a commit run after it, in the background, and the deploy
+gate waits for them (test_background_tests.py).
 """
 import importlib.util
 import os
@@ -76,37 +76,3 @@ def test_launcher_allowed_with_explicit_override(guard):
 def test_text_mentioning_the_launcher_is_not_a_launch(guard):
     assert not bash(guard, "echo 'never use python run.py by hand' > notes.txt")
     assert not bash(guard, "grep -n 'python run.py' CLAUDE.md")
-
-
-def test_commit_gate_runs_frontend_build_only_when_frontend_is_staged(guard):
-    calls = []
-
-    def runner(label):
-        def run():
-            calls.append(label)
-            return 0, ""
-        return run
-
-    guard.commit_gates(staged=["backend/app.py"], backend_tests=runner("tests"), frontend_build=runner("build"))
-    assert calls == ["tests"]
-
-    calls.clear()
-    guard.commit_gates(staged=["frontend/src/App.tsx"], backend_tests=runner("tests"), frontend_build=runner("build"))
-    assert calls == ["tests", "build"]
-
-
-def test_commit_gate_reports_the_first_failure(guard):
-    message = guard.commit_gates(
-        staged=["frontend/src/App.tsx"],
-        backend_tests=lambda: (1, "2 failed"),
-        frontend_build=lambda: (0, ""),
-    )
-    assert "2 failed" in message
-
-    message = guard.commit_gates(
-        staged=["frontend/src/App.tsx"],
-        backend_tests=lambda: (0, ""),
-        frontend_build=lambda: (2, "TS2304"),
-    )
-    assert "TS2304" in message
-    assert guard.commit_gates(staged=[], backend_tests=lambda: (0, ""), frontend_build=lambda: (0, "")) is None

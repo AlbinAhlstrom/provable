@@ -38,7 +38,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard.py"
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard.py",
+            "timeout": 900
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/background_tests.py after-tool"
           }
         ]
       }
