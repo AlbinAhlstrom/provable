@@ -528,3 +528,22 @@ def test_the_writers_hand_in_each_state_and_are_told_when_it_holds():
         done = next(i for i, line in enumerate(lines) if "lineDone" in line or "line_done(" in line)
         assert lines[done + 1].strip() == "`checked` is handed in as true when the line is done, else false"
         assert lines[done + 2].strip() == "`disabled` is handed in as true when the order is sent, else false"
+
+
+def test_a_part_whose_call_the_page_picks_by_a_value_is_not_missing():
+    """Verify a call the page chooses among by a value counts as there: a page gave three menu entries their parts
+    through `const Part = lv === 'beginner' ? parts.beginner : ...; <button {...Part({ checked })}>`, and the look
+    for a literal `parts.beginner(` named all three missing, which failed QA on a strict run.
+
+    id: TST-PARTS-PICKED
+    Given: A plan of three parts, and a page that picks the call of each by a value and spreads it
+    When: The page is looked through for its parts
+    Then: None is missing, while a part the page never names still is
+    """
+    plan = ('### 3. How each part is read out (role and name, used as written)\n'
+            '- Small · button · "Small"\n- Large · button · "Large"\n- Newest · button · "Newest"\n')
+    page = ("{(['small', 'large'] as const).map((size) => {\n"
+            "  const Part = size === 'small' ? parts.small : parts.large;\n"
+            "  return <button key={size} {...Part()} />;\n})}\n<button {...parts.newer()} />\n")
+
+    assert [d.split('"')[1] for d in missing_parts(parts_of(plan), [page])] == ["Newest"]
