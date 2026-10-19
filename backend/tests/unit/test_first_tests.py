@@ -161,3 +161,19 @@ def test_a_situation_of_several_records_is_built_as_the_lists_an_action_is_hande
     path = os.path.join(os.path.dirname(first_tests.__file__), "..", "prompts", "first_tests.md")
     text = open(path, encoding="utf-8").read()
     assert "a dict of those lists by their keyword" in text and "passes each list by its keyword" in text
+
+
+def test_the_writer_asserts_the_then_whatever_the_class_holds_today():
+    """Verify a Then is asserted as stated while the class cannot meet it yet: the writer, shown a class whose list of
+    parts starts empty, wrote `assert x.parts is None or len(x.parts) == 81`, which passes on the empty class. The
+    RED gate rejected it as asserting nothing, twice a run, and the test was written again.
+
+    id: TST-FIRST-007
+    Given: The first_tests prompt
+    When: It is read
+    Then: It says the tests are written before the class's code, so the class may not hold the Then's values yet,
+          and each value is asserted outright, a test that fails on today's class being the test working
+    """
+    path = os.path.join(os.path.dirname(first_tests.__file__), "..", "prompts", "first_tests.md")
+    text = open(path, encoding="utf-8").read()
+    assert "written before the class's code" in text and "asserted outright" in text
