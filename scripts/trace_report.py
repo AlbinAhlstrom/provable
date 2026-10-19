@@ -50,6 +50,14 @@ def _sek(llm):
     return "cost unknown" if llm["cost_sek"] is None else f"{llm['cost_sek']:.2f} SEK"
 
 
+def _goal(goal):
+    """The goal score of a kickstart and its rule tests as one line (see backend/run_goal.py)."""
+    pct = "unknown" if goal["score_pct"] is None else f"{goal['score_pct']:.1f}%"
+    cost = "cost unknown" if goal["cost_sek"] is None else f"{goal['cost_sek']:.2f} SEK"
+    return (f"goal {pct}: {'app valid' if goal['valid'] else 'app not valid'}, {cost}, {goal['wall_s']:.0f}s "
+            f"with kickstart {goal['kickstart']}" + (" (replayed: not a live score)" if goal.get("replayed") else ""))
+
+
 def traces(trace_dir):
     return [_load(f) for f in sorted(glob.glob(os.path.join(trace_dir, "*.json")))]
 
@@ -61,6 +69,8 @@ def list_runs():
             s = _load(path)
             replayed = f"  ({s['llm']['replayed']} replayed)" if s["llm"].get("replayed") else ""
             print(f"{s['status']:9} {s['duration_s']:7.1f}s  {s['llm']['calls']:3d} LLM calls  {_sek(s['llm']):>12}  {name}{replayed}")
+            if s.get("goal"):
+                print(f"{'':9} {_goal(s['goal'])}")
         else:
             print(f"{'(open)':9} {'':8}  {'':14}  {'':12}  {name}")
 

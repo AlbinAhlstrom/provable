@@ -6,7 +6,8 @@ A recorded run (a kickstart, or one spec execution) writes to `logs/runs/<timest
     trace/          one JSON per traced step and LLM call (input, output, duration, model, tokens), see pipeline_trace.py
     summary.json    the verdict: status (ok | degraded | error), every stage with its outcome, when it started and
                     the files it changed (with their line counts), a file -> last-writing-stage provenance map, how
-                    much of the wall time the stages cover, LLM totals, and the run's result
+                    much of the wall time the stages cover, LLM totals, and the run's result; the rule tests after
+                    a kickstart add the goal score of both (`goal`, see run_goal.py)
     workspace/      a copy of the generated `src/` and `tests/` plus QA screenshots, kept after the next run overwrites them
 
 `logs/runs/LATEST` names the newest run. Recording is on by default; PROVABLE_RUNS_DIR moves the folder,
@@ -29,6 +30,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 import llm_cost
 import pipeline_trace
+import run_goal
 
 _BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
 _REPO_ROOT = os.path.abspath(os.path.join(_BACKEND_DIR, ".."))
@@ -281,6 +283,17 @@ class Run:
                     last[change["path"]] = handle.record["name"]
         return last
 
+    def _kickstart_before(self) -> Optional[Dict[str, Any]]:
+        """The summary of the newest finished kickstart recorded before this run, which these rule tests follow."""
+        root = runs_root()
+        for name in sorted((d for d in os.listdir(root) if "_kickstart_" in d and d < self.id), reverse=True):
+            try:
+                with open(os.path.join(root, name, "summary.json"), encoding="utf-8") as f:
+                    return json.load(f)
+            except (OSError, ValueError):
+                continue
+        return None
+
     def finish(self) -> None:
         pipeline_trace.set_trace_dir("")
         for handle in self.stages:  # a stage still open when the run ends is the one the exception interrupted
@@ -302,6 +315,10 @@ class Run:
             "stages": records, "failed_stages": sorted(set(failed) | {s for s in result_failures if s}),
             "provenance": self._provenance(), "llm": llm_totals(self.trace_dir), "result": self.result,
         }
+        after_kickstart = self.kind == "rule_tests" and self.label == run_goal.AFTER_KICKSTART
+        kickstart = self._kickstart_before() if after_kickstart else None
+        if kickstart:
+            summary["goal"] = run_goal.goal(kickstart, summary)
         try:
             self._snapshot()
         except Exception as err:

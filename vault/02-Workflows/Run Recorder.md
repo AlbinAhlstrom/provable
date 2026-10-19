@@ -76,6 +76,14 @@ exchange rate used (`usd_to_sek`), the date of the price list (`prices_as_of`) a
 - `PROVABLE_USD_SEK` sets the exchange rate (default 10.0).
 - The cost is computed from the trace, so `--backfill-costs` can price any older run. It only fills summaries that hold no cost; it does not reprice a run after a price change.
 
+## Goal score
+
+The goal of a run is a fully working app from one kickstart and the rule tests after it, at 1 SEK in 120 s: that is 100%. An app whose rules do not all pass scores 0%, whatever it cost. Over the goal the score falls in proportion (`100% x min(1, 1 SEK / cost) x min(1, 120 s / wall time)`): twice the cost halves it, and so does twice the time.
+
+- The rule tests a kickstart starts by itself (label `after kickstart`) record it as `goal` in their `summary.json`: the kickstart they follow, whether the app is valid (both runs `ok`), the cost and wall time of both added up, and `score_pct`. `trace_report.py --list` prints it under the run.
+- A run that replayed recorded answers paid nothing for them, so its score is marked `replayed` and is not a live score.
+- The goal and the formula live in `backend/run_goal.py`.
+
 ## Replaying a recorded run
 
 Working on one stage need not pay for all the others. A kickstart request that names recorded runs is answered from
