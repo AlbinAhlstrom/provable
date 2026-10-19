@@ -11,6 +11,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[System Architecture]]: Overview of PM Studio frontend (`KickstartStudio`, `AppPreview`, `RequirementControlPanel`), FastAPI backend engine, SQLite DataStore, and TDD state machine.
 - [[Full-LLM-Free-Form-Orchestration-Graph]]: Full-LLM synthesis pipeline featuring Domain Storming, Backend DDD/TDD, Skeleton Builder, and Verification Gates.
 - [[PM-Studio-UX-Architecture-And-Direction]]: Breakdown of PM Studio 3-Pillar UX Architecture (Pages Bar, Executable Test Specs / Behavior Inbox, Domain Entities Inspector) and Mobile-First responsive design system invariants.
+- [[Shared Decisions Inventory]]: Every decision the plan, the page and the page tests share, what each failure traced to, and the order to make each reach the builders as code.
 - [[Audience Roles and Seed Data]]: Which entity the interface is organised around (what the audience creates), clients for shown content, and the validated starter records that fill it.
 - [[Universal-Dynamic-Domain-AST-Generator]]: Dynamic domain generator scaffolding pure DDD domain aggregates (`Pallet`, `Zone`, `Operator`), Pydantic DTOs, Unit of Work, and FastAPI routers.
 - [[Database Schema]]: Comprehensive documentation of SQLite tables (`requirements`, `test_cases`, `agent_runs`, `kickstart_state`, `projects`), schema triggers, JSON columns, and DataStore sync mechanisms.

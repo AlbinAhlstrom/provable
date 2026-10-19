@@ -3,7 +3,7 @@
 Status: accepted (2026-10-19). Implemented: the present moment; a rule whose test the TDD loop corrected is
 corrected with it (2026-10-20). Open: wordings in read-out names that the contract leaves undefined, and
 situations whose outcomes the contract works out by hand.
-Builds on [[ADR-011 The Product Contract]].
+Builds on [[ADR-011 The Product Contract]]. The full list of shared decisions and their state: [[Shared Decisions Inventory]].
 
 ## Problem
 Four builders start from the product contract at once and cannot ask each other anything: the class's code, its
