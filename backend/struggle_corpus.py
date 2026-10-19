@@ -73,7 +73,9 @@ def _qa_gate(output: Dict[str, Any]) -> List[Verdict]:
 
 def _visual_review(output: Dict[str, Any]) -> List[Verdict]:
     could_not_look = [("error", output["error"])] if output.get("error") else []
-    return could_not_look + [("not_repaired", problem) for problem in output.get("not_repaired") or []]
+    not_repaired = output.get("not_repaired") or []
+    repaired = [("repaired", problem) for problem in output.get("problems") or [] if problem not in not_repaired]
+    return could_not_look + repaired + [("not_repaired", problem) for problem in not_repaired]
 
 
 def _spec_review(output: Dict[str, Any]) -> List[Verdict]:
@@ -156,6 +158,11 @@ def read_run(folder: str) -> RunStruggles:
         if record.get("kind") == "llm":
             answers.append(record)
 
+    # A class's code is one answer; a second answer is the retry with the tests the first left failing.
+    retries = sum(1 for _, record in records if record["step"] == "tdd.green_synthesize"
+                  and "tdd.green_together" in (record.get("caller_chain") or [])) - checks["tdd.green_together"]
+    struggles += [Struggle("tdd.green_together", "retried", "", "llm.green_code_repair", "")] * max(retries, 0)
+
     for stage in summary.get("stages") or []:
         if stage.get("status") == "skipped":
             continue
@@ -223,4 +230,22 @@ def report_lines(corpus: Dict[str, Any]) -> List[str]:
         lines.append(f"{entry['occurrences']:4d} of {corpus['checks'].get(entry['step'], 0):<4d} {entry_id:44} "
                      f"runs={len(entry['runs']):<3d} last={entry['last_seen'][:13]}  nearest_llm={nearest}  "
                      f"[{entry['review']['status']}]")
+    return lines
+
+
+def run_score_lines(runs_root: str, label: str) -> List[str]:
+    """One line per finished run whose folder name holds `label`, oldest first: how many fix-ups it took (every
+    struggle is one: a rejection sent back, a retry, a repair, a failed stage) and at which steps, most first.
+    A run with none is clean: right the first time."""
+    names = sorted(os.listdir(runs_root)) if os.path.isdir(runs_root) else []
+    lines = []
+    for name in names:
+        folder = os.path.join(runs_root, name)
+        if label.lower() not in name.lower() or not os.path.exists(os.path.join(folder, "summary.json")):
+            continue
+        run = read_run(folder)
+        by_kind = collections.Counter(f"{s.step}/{s.signal}" for s in run.struggles)
+        detail = "  ".join(f"{kind}={count}" for kind, count in sorted(by_kind.items(), key=lambda i: (-i[1], i[0])))
+        lines.append(f"{name:52} {len(run.struggles):3d} fix-ups  {detail}" if run.struggles
+                     else f"{name:52}   0 fix-ups  clean")
     return lines

@@ -234,3 +234,72 @@ def test_the_report_lists_the_most_frequent_struggle_first_with_its_rate(tmp_pat
     assert "1 run" in lines[0]
     assert lines[1].split()[:4] == ["2", "of", "4", "tdd.red_gate/REJECTED_TAUTOLOGY"]
     assert lines[2].split()[:4] == ["1", "of", "1", "visual.review/not_repaired"]
+
+
+def test_a_code_answer_that_needed_its_retry_is_a_struggle(tmp_path):
+    """Verify a retry is counted though nothing raised: the second code answer of a class is a fix-up.
+
+    id: TST-STRUGGLE-GREEN-RETRY
+    Given: Two classes written by one code answer each, one of them asked a second time
+    When: The run is read
+    Then: One struggle of the class's code writing, and none for the class written at once
+    """
+    together = ("domain.round", "tdd.execute_together", "tdd.green_together")
+    folder = _write_run(tmp_path, "20300131-093000_kickstart_a", [
+        _record(1, "tdd.green_together", thread="green_0", output={}),
+        _record(2, "tdd.green_together", thread="green_1", output={}),
+        _record(3, "tdd.green_synthesize", thread="green_0", chain=together, output="class A"),
+        _record(4, "tdd.green_synthesize", thread="green_1", chain=together, output="class B"),
+        _record(5, "tdd.green_synthesize", thread="green_1", chain=together, output="class B again"),
+    ])
+
+    run = struggle_corpus.read_run(str(folder))
+
+    assert [(s.step, s.signal) for s in run.struggles] == [("tdd.green_together", "retried")]
+
+
+def test_a_problem_the_visual_review_repaired_is_a_fix_up_too(tmp_path):
+    """
+    id: TST-STRUGGLE-VISUAL-REPAIRED
+    Given: A visual review that found two problems and repaired one
+    When: The run is read
+    Then: One repaired and one not repaired
+    """
+    folder = _write_run(tmp_path, "20300131-093000_kickstart_a", [
+        _record(1, "visual.review", output={"verdict": "unrepaired", "error": None,
+                                            "problems": ["The heading is cut off.", "The list is empty."],
+                                            "not_repaired": ["The list is empty."]}),
+    ])
+
+    run = struggle_corpus.read_run(str(folder))
+
+    assert sorted((s.signal, s.reason) for s in run.struggles) == [
+        ("not_repaired", "The list is empty."), ("repaired", "The heading is cut off.")]
+
+
+def test_each_run_is_scored_by_its_fix_ups_and_a_run_without_any_is_clean(tmp_path):
+    """Verify the counter that says how far a run was from a first-pass success, run by run.
+
+    id: TST-STRUGGLE-RUN-SCORE
+    Given: Two finished runs of one pitch, one with two fix-ups at one step and one at another, one without any,
+           and a run of another pitch
+    When: The runs of that pitch are scored
+    Then: One line each, oldest first: the fix-ups in all and by step, most first; the run without any is clean
+    """
+    _write_run(tmp_path, "20300131-093000_kickstart_minesweeper", [
+        _record(1, "tdd.red_gate", output=_REJECTED),
+        _record(2, "tdd.red_gate", output=_REJECTED),
+        _record(3, "engine.spec_review", output={"conflicts": [{"reason": "Both set the status."}]}),
+    ], label="Minesweeper")
+    _write_run(tmp_path, "20300131-100000_kickstart_minesweeper", [
+        _record(1, "tdd.red_gate", output=_APPROVED)], label="Minesweeper")
+    _write_run(tmp_path, "20300131-110000_kickstart_bakery", [
+        _record(1, "tdd.red_gate", output=_REJECTED)], label="Bakery")
+
+    lines = struggle_corpus.run_score_lines(str(tmp_path), "minesweeper")
+
+    assert len(lines) == 2
+    assert lines[0].startswith("20300131-093000_kickstart_minesweeper")
+    assert "3 fix-ups" in lines[0]
+    assert lines[0].index("tdd.red_gate/REJECTED_TAUTOLOGY=2") < lines[0].index("engine.spec_review/conflict=1")
+    assert "clean" in lines[1]

@@ -5,6 +5,8 @@ Usage:
     python scripts/struggle_corpus.py              add the finished runs not yet counted, then list every kind of
                                                    struggle, the most frequent first
     python scripts/struggle_corpus.py --show ID    one entry in full: runs, models, examples and its review
+    python scripts/struggle_corpus.py --runs PITCH each run of a pitch (its folder name holds PITCH) scored by its
+                                                   fix-ups, at which steps; a run with none is clean
 
 A line reads "<times it happened> of <times the step ran>  <step>/<verdict>". `nearest_llm` is the LLM call that most
 often came just before it in the call tree: the prompt to read first, not a verdict on which prompt is at fault.
@@ -21,6 +23,10 @@ import struggle_corpus  # noqa: E402
 
 
 def main():
+    if "--runs" in sys.argv:
+        label = (sys.argv[sys.argv.index("--runs") + 1:] or [""])[0]
+        print("\n".join(struggle_corpus.run_score_lines(run_recorder.runs_root(), label)))
+        return
     path = struggle_corpus.corpus_path()
     corpus = struggle_corpus.build(run_recorder.runs_root(), path)
     if "--show" in sys.argv:

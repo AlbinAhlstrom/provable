@@ -10,7 +10,8 @@ A moment a run's own record says something went wrong. Nothing is read out of pr
 
 | Source | Struggle |
 | :--- | :--- |
-| A verifying step's recorded output | The RED gate rejected a test, a page test failed or could not find its control, QA did not pass or needed rework, the visual review could not repair a problem, the spec review found a conflict, a first test was reconsidered, a rule fix did not hold. |
+| A verifying step's recorded output | The RED gate rejected a test, a page test failed or could not find its control, QA did not pass or needed rework, the visual review found a problem (repaired or not), the spec review found a conflict, a first test was reconsidered, a rule fix did not hold. |
+| A second code answer for a class | The code writer needed its retry (`tdd.green_together/retried`). |
 | A traced step's `error` | The step raised. An exception is recorded by every step it leaves; it is counted at the one that raised it. |
 | A stage in `summary.json` | The stage failed. A skipped stage is not a struggle. |
 
@@ -36,7 +37,14 @@ folders, so a run is counted once and its counts stay after its folder is gone. 
 ```
 python scripts/struggle_corpus.py             # add the runs not yet counted, list every kind of struggle
 python scripts/struggle_corpus.py --show ID   # one entry in full
+python scripts/struggle_corpus.py --runs minesweeper   # each run of a pitch scored by its fix-ups
 ```
+
+## Fix-ups per run
+
+Every struggle is a fix-up: work sent back, retried or repaired, which costs time. `--runs PITCH` lists each
+finished run whose folder name holds PITCH with its fix-ups in all and by step; a run with none is clean, right
+the first time. Comparing runs of one pitch shows which step varies most.
 
 ## What it is for
 
