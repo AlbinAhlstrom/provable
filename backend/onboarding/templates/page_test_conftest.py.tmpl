@@ -2,8 +2,8 @@
 
 Written by the engine (onboarding/page_tests.py); a change made here is overwritten.
 
-A test asks for `app`. It arranges what the rule starts from through the API (`app.given`, `app.act`), opens the page
-(`app.open`) and does there what a person would do. The API is started for the one test with nothing saved, and the
+A test asks for `app`. It arranges what the rule starts from through the API (`app.given`, `app.act`, and `app.at`
+for the present moment), opens the page (`app.open`) and does there what a person would do. The API is started for the one test with nothing saved, and the
 test's browser reaches the app through an address of its own where every `/api/` call goes to that API, so nothing
 a person did in the running app is read or changed.
 """
@@ -127,6 +127,12 @@ class App:
                 held[collection] = f"could not be read: {err}"
         return {"calls": [_brief(call) for call in self._sent[-CALLS_SHOWN:]], "records": held}
 
+    def at(self, moment: str) -> None:
+        """Holds the present moment at `moment` (text like "2030-01-31T09:30:00+00:00") for the app's API and for the
+        page, so a rule that depends on the time meets the same moment on every run. Call it before `open`."""
+        self._call("PUT", "/test/clock", {"now": moment})
+        self._context.clock.set_fixed_time(moment)
+
     def open(self, width: int = 1280, height: int = 800):
         """Opens the app in a browser window of this size and returns the page."""
         page = self._context.new_page()
@@ -148,7 +154,7 @@ def api_url(tmp_path):
     log = open(tmp_path / "api.log", "w", encoding="utf-8")
     server = subprocess.Popen(
         [sys.executable, "-m", "uvicorn", "src.app:app", "--host", "127.0.0.1", "--port", str(port), "--log-level", "warning"],
-        cwd=ROOT, env={**os.environ, "APP_DATA_DIR": ""}, stdout=log, stderr=subprocess.STDOUT)
+        cwd=ROOT, env={**os.environ, "APP_DATA_DIR": "", "APP_CLOCK_SETTABLE": "1"}, stdout=log, stderr=subprocess.STDOUT)
     url = f"http://127.0.0.1:{port}"
     deadline = time.time() + API_START_TIMEOUT_S
     try:

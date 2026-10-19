@@ -9,6 +9,7 @@ app.act(collection, record_id, action, **params) -> dict   # performs an action 
 app.act_on_kind(collection, action, **params) -> dict | None   # performs an action done to no one record; returns the record it made
 app.records(collection) -> list[dict]              # every record of a collection, as the API returns them
 app.record(collection, record_id) -> dict
+app.at(moment)                                     # holds the present moment for the app and the page, as text like "2030-01-31T09:30:10+00:00"
 page = app.open(width=1280, height=800)            # opens the app in a browser; a Playwright sync Page
 ```
 
@@ -41,7 +42,7 @@ What a browser read out when the page opened on an app holding only the records 
 2. Prove the rule in the simplest situation that shows it, in which nothing but this rule decides the outcome. A When that also finishes the whole (the last free place is taken, the last open item is dealt with, an order's only line is removed) brings the rules about finishing into play, so arrange enough that the whole is still unfinished afterwards, unless finishing is what the rule is about. Assert what the rule's Then states and stop there: a field, a counter or a log the rule does not name belongs to another rule. Above each assertion, write a short comment that says why the expected result follows from the records you arranged. Where it follows by counting or calculating (how many items are left, which positions touch another, a sum, a limit worked out from two sizes), have the test work it out from those records in code and use the result, in the names it looks for as well as in what it expects.
 3. When the rule says something is refused, not possible or not offered, assert what the person then sees (the control is disabled or absent, a message appears, the record shown is unchanged), and that the record did not change.
 4. When the rule states a number or a limit, test both sides of it: one case exactly at the limit and one just beyond it, as two test functions.
-5. Use fixed, explicit values. Where the rule depends on a time, write the times into the records you arrange instead of waiting for the clock.
+5. Use fixed, explicit values. Where the rule depends on the present moment, its situation states that moment as `now`: hold it with `app.at("2030-01-31T09:30:10+00:00")` (the moment the situation states) before `app.open()`, and write the times of the records as the situation gives them. The app and the page then meet that moment on every run, and nothing waits for the clock to move.
 6. Import nothing from the app's own code, and send no request of your own: the app is known only through `app` and the page.
 7. Output ONLY the Python module inside a single ```python block, with no commentary.
 

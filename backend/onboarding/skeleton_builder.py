@@ -321,11 +321,51 @@ def _put_in_place(written: str, path: str) -> None:
     os.replace(written, path)
 '''
 
-TESTS_CONFTEST = '''"""Tests run on records of their own: nothing the running app saved is read, and nothing a test creates is saved."""
+TESTS_CONFTEST = '''"""Tests run on records of their own: nothing the running app saved is read, and nothing a test creates is saved.
+A moment one test sets on the clock is not the next test's."""
 import os
 
 os.environ["APP_DATA_DIR"] = ""
+
+import pytest  # noqa: E402
+
+from src.domain import clock  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _real_time_again():
+    yield
+    clock.set_now(None)
 '''
+
+CLOCK_MODULE = '''"""The present moment, as every rule of the app reads it: `clock.now()`.
+
+The running app reads the real time. A test holds the moment its rule happens at with `clock.set_now(...)`, so a
+rule that depends on the time (what is due, how long something took) has the same outcome on every run.
+"""
+from datetime import datetime, timezone
+from typing import Optional, Union
+
+_moment: Optional[datetime] = None
+
+
+def now() -> datetime:
+    """The present moment, with its UTC offset."""
+    return _moment if _moment is not None else datetime.now(timezone.utc)
+
+
+def set_now(moment: Union[str, datetime, None]) -> None:
+    """Holds the present moment at `moment` (a datetime, or text like "2030-01-31T09:30:00+00:00") until it is set
+    again; None lets the real time run again."""
+    global _moment
+    if isinstance(moment, str):
+        moment = datetime.fromisoformat(moment)
+    if moment is not None and moment.tzinfo is None:
+        moment = moment.replace(tzinfo=timezone.utc)
+    _moment = moment
+'''
+
+CLOCK_SETTABLE = "APP_CLOCK_SETTABLE"  # set by the page tests' API only: the running app's clock cannot be set
 
 
 def forget_saved_records(workspace_dir: str, module_name: str) -> bool:
@@ -733,8 +773,11 @@ def generate_app_module(entities: List[EntitySpec]) -> str:
 FastAPI Main Application Entrypoint — Instant OpenAPI Generator.
 """
 
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from src.domain import clock
 {imports_code}
 
 app = FastAPI(
@@ -756,6 +799,14 @@ app.add_middleware(
 @app.get("/health")
 def health_check():
     return {{"status": "healthy", "service": "domain-api"}}
+
+
+if os.environ.get("{CLOCK_SETTABLE}") == "1":
+    @app.put("/test/clock")
+    def hold_the_present_moment(moment: dict):
+        """Holds the app's present moment where a page test says (`{{"now": ...}}`); null lets real time run."""
+        clock.set_now(moment.get("now"))
+        return {{"now": clock.now().isoformat()}}
 '''
 
 
@@ -1329,6 +1380,7 @@ def generate_fullstack_skeleton_files(structure: DomainStructureSchema, base_pat
         files[os.path.join(base_path, "src", "domain", f"{slug}.py")] = generate_domain_module(vo)
 
     files[os.path.join(base_path, "src", "domain", "__init__.py")] = '"""Domain Layer Package"""\n'
+    files[os.path.join(base_path, "src", "domain", "clock.py")] = CLOCK_MODULE
     files[os.path.join(base_path, "src", "domain", "exceptions.py")] = '''"""
 Domain Layer Exceptions.
 Pure domain exceptions representing business rule violations and concurrency conflicts.

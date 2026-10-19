@@ -212,3 +212,65 @@ def test_a_failed_test_says_what_the_page_sent_and_what_the_app_holds(small_app)
     assert "answered 200" in failed.seen
     assert 'notes: [{"id": "n1", "text": "Water the plants", "done": true}]' in failed.seen
     assert run_test(workspace, "SPEC-001", FINISHING, page_url).seen == ""
+
+
+TIMED_PAGE = b"""<!doctype html><html><body><p id="api"></p><p id="page"></p>
+<script>
+fetch('/api/now').then(function (r) { return r.json(); }).then(function (answer) {
+  document.getElementById('api').textContent = 'API says ' + answer.now;
+});
+document.getElementById('page').textContent = 'Page says ' + new Date().toISOString();
+</script></body></html>"""
+
+AT_A_MOMENT = '''from playwright.sync_api import expect
+
+
+def test_the_app_and_the_page_meet_the_moment_the_test_set(app):
+    app.at("2030-01-31T09:30:10+00:00")
+    page = app.open()
+    expect(page.get_by_text("API says 2030-01-31T09:30:10+00:00")).to_be_visible()
+    expect(page.get_by_text("Page says 2030-01-31T09:30:10.000Z")).to_be_visible()
+'''
+
+
+@pytest.fixture
+def timed_app(tmp_path):
+    """A generated app's API and clock, with one route that says what time it is, and a page that shows it beside
+    its own time."""
+    from onboarding import skeleton_builder
+    os.makedirs(tmp_path / "src" / "domain")
+    (tmp_path / "src" / "__init__.py").write_text("")
+    (tmp_path / "src" / "domain" / "__init__.py").write_text("")
+    (tmp_path / "src" / "domain" / "clock.py").write_text(skeleton_builder.CLOCK_MODULE, encoding="utf-8")
+    (tmp_path / "src" / "app.py").write_text(skeleton_builder.generate_app_module([]) + (
+        "\n\n@app.get('/api/now')\ndef what_time_it_is():\n    return {'now': clock.now().isoformat()}\n"),
+        encoding="utf-8")
+
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.send_header("Content-Length", str(len(TIMED_PAGE)))
+            self.end_headers()
+            self.wfile.write(TIMED_PAGE)
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    yield str(tmp_path), f"http://127.0.0.1:{server.server_address[1]}"
+    server.shutdown()
+    server.server_close()
+
+
+def test_a_test_holds_the_present_moment_for_the_api_and_the_page(timed_app):
+    """
+    id: TST-NOW-HARNESS
+    Given: A generated app whose API and page each say what time it is
+    When: A test holds the present moment with `app.at` and opens the page
+    Then: The run passes: the API and the page both meet that moment
+    """
+    workspace, page_url = timed_app
+    verdict = run_test(workspace, "SPEC-001", AT_A_MOMENT, page_url)
+    assert (verdict.status, verdict.reason) == ("pass", None), verdict.evidence

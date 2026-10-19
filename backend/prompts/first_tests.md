@@ -34,6 +34,6 @@ Each line gives the name its test function starts with, the rule's title, and th
 5. A Then that names a refusal: make the call inside `with pytest.raises(Exception) as exc_info:` and assert `type(exc_info.value).__name__ == "<Name>"` with the name the interface above gives that refusal, and assert the fields the rule is about are as they were.
 6. A rule marked "states a limit" gets two test functions, both starting with the rule's name: one exactly at the limit (accepted, and the resulting state asserted) and one just beyond it (refused).
 7. Where the Then states an outcome that chance has a part in (ten of the items now hold something, none of them beside the one chosen), assert what it states as a count or a condition over the object's fields, and nothing about which items they are.
-8. Use fixed, explicit values (fixed ISO datetimes, plain numbers). Never call `datetime.now()` and never depend on the clock.
+8. Use fixed, explicit values (fixed ISO datetimes, plain numbers). Where a rule depends on the present moment, its situation states that moment as `now`: hold the clock there before the call with `clock.set_now("2030-01-31T09:30:10+00:00")` (the moment the situation states), after `from src.domain import clock`. The class reads the time from that clock and from nothing else.
 9. Forbidden: `hasattr`, `getattr`, `inspect`, mocking the class under test, and `assert True`.
 10. Output ONLY the Python module inside a single ```python block, with no commentary.
