@@ -28,11 +28,16 @@ def _object(**properties: Any) -> Dict[str, Any]:
     return {"type": "object", "properties": properties, "required": list(properties)}
 
 
+def _added(part: str) -> Dict[str, Any]:
+    """A list of the contract's own entries; a change may add none, where a whole product holds some."""
+    return {"type": "array", "items": _CONTRACT[part]["items"]}
+
+
 TICKET_SCHEMA: Dict[str, Any] = _object(
     title=_TEXT, understood=_TEXT,
     fields={"type": "array", "items": _object(record=_TEXT, **_FIELD)},
-    actions=_CONTRACT["actions"], situations=_CONTRACT["situations"], refusals=_CONTRACT["refusals"],
-    read_out=_CONTRACT["read_out"], rules=_CONTRACT["rules"],
+    actions=_added("actions"), situations=_added("situations"), refusals=_added("refusals"),
+    read_out=_added("read_out"), rules=_added("rules"),
 )
 
 

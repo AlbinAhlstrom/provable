@@ -71,7 +71,8 @@ def test_a_ticket_is_written_in_the_form_of_the_contract():
     """
     ticket, contract = tp.TICKET_SCHEMA["properties"], pc.CONTRACT_SCHEMA["properties"]
     for part in ("actions", "refusals", "rules", "situations", "read_out"):
-        assert ticket[part] is contract[part]
+        assert ticket[part]["items"] is contract[part]["items"]
+        assert "minItems" not in ticket[part]  # a change may add no action, where a whole product has some
     field_of_contract = contract["records"]["items"]["properties"]["fields"]["items"]["properties"]
     assert ticket["fields"]["items"]["properties"] == {"record": {"type": "string"}, **field_of_contract}
 

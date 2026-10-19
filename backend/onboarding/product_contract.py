@@ -52,8 +52,9 @@ def _object(**properties: Any) -> Dict[str, Any]:
     return {"type": "object", "properties": properties, "required": list(properties)}
 
 
-def _list(item: Dict[str, Any]) -> Dict[str, Any]:
-    return {"type": "array", "items": item}
+def _list(item: Dict[str, Any], at_least_one: bool = False) -> Dict[str, Any]:
+    """A list; one the contract is refused without holds at least one entry, so the provider cannot close it empty."""
+    return {"type": "array", "items": item, **({"minItems": 1} if at_least_one else {})}
 
 
 def _one_of(*values: str) -> Dict[str, Any]:
@@ -76,18 +77,18 @@ CONTRACT_SCHEMA: Dict[str, Any] = _object(
     look=_object(summary=_TEXT, tokens=_TEXT, palette=_TEXT, parts=_TEXTS, narrow=_TEXT, grid=_TEXT),
     opening=_TEXT,
     records=_list(_object(name=_TEXT, origin=_one_of(CREATED, OPENED, FROM_START), fields=_list(_FIELD), shown=_TEXTS,
-                          starting_records=_TEXT)),
+                          starting_records=_TEXT), at_least_one=True),
     fixed=_TEXT,
     actions=_list(_object(name=_TEXT, record=_TEXT, sent_to=_one_of(ONE_RECORD, THE_KIND),
                           performed_by=_one_of(AUDIENCE, AUTOMATIC, OTHER), params=_TEXT, trigger=_TEXT, does=_TEXT,
-                          works_with=_TEXT)),
+                          works_with=_TEXT), at_least_one=True),
     read_out=_TEXTS,
     situations=_TEXTS,
     refusals=_list(_object(name=_TEXT, action=_TEXT, raised_when=_TEXT, sentence=_TEXT, appears=_TEXT)),
     # A rule's kind is not written: a rule with an action is one the records obey, one without is of the page alone.
     # The schema is at its limit, so `feature` stands where `kind` stood.
     rules=_list(_object(feature=_TEXT, title=_TEXT, action=_TEXT, given=_TEXT, when=_TEXT,
-                        then=_TEXT, sees=_TEXT, plain=_TEXT)),
+                        then=_TEXT, sees=_TEXT, plain=_TEXT), at_least_one=True),
 )
 KEPT = "(kept)"
 NO_FEATURE = "General"   # the chapter of a rule that names no feature (a contract stored before rules named one)

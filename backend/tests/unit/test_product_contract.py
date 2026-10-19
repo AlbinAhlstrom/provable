@@ -302,6 +302,26 @@ def test_the_schema_is_one_the_provider_compiles():
     assert weight(pc.CONTRACT_SCHEMA) <= pc.SCHEMA_WEIGHT_LIMIT == 65
 
 
+def test_a_list_the_contract_cannot_do_without_holds_at_least_one_entry():
+    """Verify the provider is held to write the lists a contract is refused without: once, on a pitch that had been
+    answered in full before, the answer closed every list after the records empty and nothing could be built.
+
+    id: TST-CONTRACT-SCHEMA-NONEMPTY
+    Given: The contract's schema and the parts a contract is refused without
+    When: The lists among those parts are read
+    Then: Each holds at least one entry, and no other list is held to that
+    """
+    schema = pc.CONTRACT_SCHEMA["properties"]
+    needed = {key for key in ("product", "look", "opening", "records", "actions", "rules")
+              if schema[key]["type"] == "array"}
+    assert needed == {"records", "actions", "rules"}
+    for key, node in schema.items():
+        if node["type"] == "array":
+            assert node.get("minItems") == (1 if key in needed else None), key
+    with pytest.raises(pc.ContractError, match="actions"):
+        pc.ProductContract.from_dict({**copy.deepcopy(CONTRACT), "actions": []})
+
+
 def test_a_part_and_what_it_holds_are_fields_of_the_same_list():
     """Verify what one part of a list holds is read from the fields that name the list as theirs.
 
