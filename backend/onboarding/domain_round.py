@@ -19,7 +19,14 @@ changes, and the deck holds every rule, before either pass starts. So they are o
 
 Only the deck's rules are counted as rules (the progress a person watches) and stored as rules (`on_rule`); the
 actions' specs are the round's own.
+
+The running app keeps the records made while the app was built (`skeleton_builder.forget_saved_records`): the preview
+opens during the build and makes its first record with the class the skeleton wrote, which knows nothing of the
+starting state the round gives it. What was saved under a class the round changed is removed when the round ends, and
+the class's file is marked changed after that, so the running API restarts without what it held in memory.
 """
+
+import os
 
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
@@ -27,6 +34,7 @@ from typing import Any, Callable, Dict, List, Optional
 from onboarding.action_behaviour import ActionBehaviour, specs_of_actions
 from onboarding.action_protocol import check_action_contract
 from onboarding.router_engine import BusinessSpec
+from onboarding.skeleton_builder import forget_saved_records
 from onboarding.spec_runner import RuleProgress, SpecRun, behaviour_rules, run_behaviour_specs
 from pipeline_trace import traced
 
@@ -41,6 +49,25 @@ class DomainRound:
     specs: SpecRun = field(default_factory=SpecRun)
 
 
+def _class_sources(workspace_dir: str) -> Dict[str, str]:
+    folder = os.path.join(workspace_dir, "src", "domain")
+    if not os.path.isdir(folder):
+        return {}
+    sources = {}
+    for name in os.listdir(folder):
+        if name.endswith(".py"):
+            with open(os.path.join(folder, name), encoding="utf-8") as f:
+                sources[name] = f.read()
+    return sources
+
+
+def _forget_records_of_changed_classes(workspace_dir: str, before: Dict[str, str]) -> None:
+    folder = os.path.join(workspace_dir, "src", "domain")
+    for name, source in _class_sources(workspace_dir).items():
+        if before.get(name) != source and forget_saved_records(workspace_dir, name[:-len(".py")]):
+            os.utime(os.path.join(folder, name))  # the running API restarts and reads nothing saved
+
+
 @traced("domain.round")
 def run_domain_round(manifest: Optional[Dict[str, Any]], deck: List[BusinessSpec], workspace_dir: str, execute: Execute,
                      report: Optional[Callable[[RuleProgress], None]] = None,
@@ -48,6 +75,15 @@ def run_domain_round(manifest: Optional[Dict[str, Any]], deck: List[BusinessSpec
     """Hands the actions' specs and the deck's behaviour rules to `execute` (the TDD batch) as one batch. `execute`
     tells its second argument each spec's result as it is settled. `report` is told how far the rules have come;
     `on_rule` is told each rule's result (the caller owns where it is stored)."""
+    before = _class_sources(workspace_dir)
+    try:
+        return _round(manifest, deck, workspace_dir, execute, report, on_rule)
+    finally:
+        _forget_records_of_changed_classes(workspace_dir, before)
+
+
+def _round(manifest: Optional[Dict[str, Any]], deck: List[BusinessSpec], workspace_dir: str, execute: Execute,
+           report: Optional[Callable[[RuleProgress], None]], on_rule: Optional[Settle]) -> DomainRound:
     proved = {(spec.target_aggregate, spec.action) for spec in behaviour_rules(deck) if spec.action}
     actions, runs = specs_of_actions(manifest, workspace_dir, proved=proved)
     run_of = {run["spec_id"]: run for run in runs if run["spec_id"]}

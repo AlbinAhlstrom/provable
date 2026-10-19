@@ -215,3 +215,60 @@ def test_actions_that_rules_prove_are_still_checked_against_the_code(tmp_path):
     assert execute.batches == [["SPEC-001"]]
     assert done.behaviour.skipped == "" and [m["action"] for m in done.behaviour.missing] == ["confirm_booking"]
     assert not done.behaviour.success
+
+
+def _saved(workspace, *collections):
+    from onboarding.skeleton_builder import DATA_DIR
+    store = os.path.join(workspace, DATA_DIR)
+    os.makedirs(store, exist_ok=True)
+    for collection in collections:
+        with open(os.path.join(store, f"{collection}.json"), "w", encoding="utf-8") as f:
+            f.write('{"seed_mtime": null, "records": [{"id": "made-mid-build"}]}')
+    return store
+
+
+def test_the_records_saved_under_a_class_the_round_changed_are_forgotten(tmp_path):
+    """Verify a person meets the app as the round left it: the preview once opened on a record the skeleton's class
+    had saved mid-build (a board without squares), and stayed on it until the person started a new one.
+
+    id: TST-ROUND-FORGETS-SAVED
+    Given: Saved records of two classes, and a loop that changes the code of only one of them
+    When: The domain round runs
+    Then: The changed class's saved records are gone, the other's are kept, and the changed class's file is marked
+          changed after that, so the running API restarts and forgets what it held in memory
+    """
+    execute = _loop(methods=[("Appointment", "confirm_booking")])
+    execute.workspace = _workspace(tmp_path)
+    store = _saved(execute.workspace, "appointments", "stylists")
+    domain_file = os.path.join(execute.workspace, "src", "domain", "appointment.py")
+
+    def changed_long_ago(batch, done):
+        execute(batch, done)
+        os.utime(domain_file, (1000, 1000))
+
+    run_domain_round(MANIFEST, [_rule("SPEC-001")], execute.workspace, changed_long_ago)
+
+    assert sorted(os.listdir(store)) == ["stylists.json"]
+    assert os.path.getmtime(domain_file) > 1000
+
+
+def test_a_round_that_crashes_still_forgets_the_records_of_a_class_it_changed(tmp_path):
+    """Verify a class rewritten before the loop crashed does not meet records its earlier code saved.
+
+    id: TST-ROUND-FORGETS-SAVED-CRASH
+    Given: Saved records of a class, and a loop that changes that class and then raises
+    When: The domain round runs
+    Then: The error is reported and the class's saved records are gone
+    """
+    execute = _loop(methods=[("Appointment", "confirm_booking")])
+    execute.workspace = _workspace(tmp_path)
+    store = _saved(execute.workspace, "appointments")
+
+    def crashes(batch, done):
+        execute(batch, lambda spec, result: None)
+        raise RuntimeError("quota exceeded")
+
+    done = run_domain_round(MANIFEST, [_rule("SPEC-001")], execute.workspace, crashes)
+
+    assert "quota exceeded" in done.specs.error
+    assert os.listdir(store) == []

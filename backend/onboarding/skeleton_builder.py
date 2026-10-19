@@ -328,6 +328,16 @@ os.environ["APP_DATA_DIR"] = ""
 '''
 
 
+def forget_saved_records(workspace_dir: str, module_name: str) -> bool:
+    """Removes what the running app saved for the class in `src/domain/<module_name>.py`, whose router keeps the
+    collection named after it. Says whether there was anything to remove."""
+    path = os.path.join(workspace_dir, DATA_DIR, f"{_pluralize(module_name)}.json")
+    if not os.path.exists(path):
+        return False
+    os.remove(path)
+    return True
+
+
 def generate_record_store_module() -> str:
     """Generates the file store that keeps the app's records across restarts of its API."""
     return _RECORD_STORE.replace("__DATA_DIR__", DATA_DIR)
