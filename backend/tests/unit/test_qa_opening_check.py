@@ -4,11 +4,14 @@ A page listed its records, found none and showed its loading text for good. Its 
 so QA passed it. What makes the first record is now the contract's and the client's (the `origin` of a record);
 this check is for whatever else leaves a person in front of an empty page.
 """
+
+import contextlib
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from onboarding import code_verifier, page_gates
+from onboarding.fresh_page import FreshPage
 from onboarding.page_parts import parts_of
 from onboarding.qa_opening_check import EMPTY, OpeningCheck, check_opening
 from onboarding.qa_auditor import run_responsive_qa_audit
@@ -94,7 +97,8 @@ def test_the_gates_hand_the_audit_the_plans_parts(tmp_path, monkeypatch):
         return {"passed": True, "defects": [], "console_errors": []}
     monkeypatch.setattr("onboarding.qa_auditor.run_responsive_qa_audit", audit)
 
-    page_gates.run_page_gates(workspace_dir=str(tmp_path), pitch="p", presentation={"files": []}, ux_blueprint=PLAN)
+    page_gates.run_page_gates(workspace_dir=str(tmp_path), pitch="p", presentation={"files": []}, ux_blueprint=PLAN,
+                              page=lambda workspace_dir: contextlib.nullcontext(FreshPage("http://door", "http://api")))
 
     assert [part.what for part in given["parts"]] == ["Basket", "Order", "Total"]
 

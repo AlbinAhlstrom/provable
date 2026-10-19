@@ -6,21 +6,18 @@ The gates a written page goes through: QA, then one visual review.
     visual review one look at QA's screenshots, repairs as class changes; only for a page that passed QA
 
 Both a kickstart and a page rebuild (`page_rebuild.py`) end here, so a page is judged the same way however it came to
-be written. Each gate keeps its own stage record and failure reason. The collaborators are injected so the order and
+be written. It is judged as a new visitor meets it, through an API started afresh with nothing saved (fresh_page.py). Each gate keeps its own stage record and failure reason. The collaborators are injected so the order and
 the hand-over between the gates are testable without a browser or an LLM.
 """
 
+import contextlib
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, ContextManager, Dict, List, Optional
 
 from onboarding.page_parts import missing_parts, parts_of
 from run_recorder import stage_begin
-
-PREVIEW_URL = "http://localhost:5174"
-API_READY_URL = "http://localhost:8001/openapi.json"
-
 
 @dataclass
 class PageGates:
@@ -51,24 +48,43 @@ def run_page_gates(
     rework: Optional[Callable[[List[str], List[str]], bool]] = None,
     gate: Optional[Callable[..., Dict[str, Any]]] = None,
     review: Optional[Callable[..., Dict[str, Any]]] = None,
+    page: Optional[Callable[[str], ContextManager[Any]]] = None,
 ) -> PageGates:
     """Audits the page the presentation stage wrote (`presentation` is that stage's result), has its defects reworked
     once, and has a page that passed looked at once. `audit` renders and measures the page, `rework` is handed the
-    defects, `gate` is the QA loop and `review` the visual review."""
+    defects, `gate` is the QA loop and `review` the visual review. Without `audit`, the page is rendered through `page`
+    (fresh_page.fresh_page), opened at the first audit and kept for both gates."""
+    with contextlib.ExitStack() as stack:
+        return _judge(workspace_dir=workspace_dir, pitch=pitch, presentation=presentation, ux_blueprint=ux_blueprint,
+                      audit=audit, rework=rework, gate=gate, review=review, page=page, stack=stack)
+
+
+def _judge(*, workspace_dir: str, pitch: str, presentation: Dict[str, Any], ux_blueprint: str,
+           audit: Optional[Callable[[], Dict[str, Any]]], rework: Optional[Callable[[List[str], List[str]], bool]],
+           gate: Optional[Callable[..., Dict[str, Any]]], review: Optional[Callable[..., Dict[str, Any]]],
+           page: Optional[Callable[[str], ContextManager[Any]]], stack: contextlib.ExitStack) -> PageGates:
     if gate is None:
         from onboarding.qa_gate import run_qa_gate as gate
     if review is None:
         from onboarding.visual_review import review_and_repair as review
     outcome = PageGates()
     last_audit: Dict[str, Any] = {}
+    opened: Dict[str, Any] = {}
+
+    def fresh() -> Any:
+        if "page" not in opened:
+            from onboarding.fresh_page import fresh_page
+            opened["page"] = stack.enter_context((page or fresh_page)(workspace_dir))
+        return opened["page"]
 
     def run_audit() -> Dict[str, Any]:
         if audit is not None:
             last_audit["report"] = audit()
         else:
             from onboarding.qa_auditor import run_responsive_qa_audit
-            last_audit["report"] = run_responsive_qa_audit(url=PREVIEW_URL, save_screenshots=True,
-                                                          workspace_dir=workspace_dir, api_ready_url=API_READY_URL,
+            looked_at = fresh()
+            last_audit["report"] = run_responsive_qa_audit(url=looked_at.url, save_screenshots=True,
+                                                          workspace_dir=workspace_dir, api_ready_url=looked_at.api_ready_url,
                                                           parts=parts_of(ux_blueprint))
         absent = missing_parts(parts_of(ux_blueprint), _sources(presentation.get("files", [])))
         if absent:  # a part the plan names and the page lacks is a defect like any other the audit finds
