@@ -341,6 +341,14 @@ p { color: var(--text-secondary); margin-bottom: 1rem; }
   border-color: var(--accent-primary);
 }
 
+.llm-key-note {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.modal-input + .modal-input { margin-top: 0.5rem; }
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;

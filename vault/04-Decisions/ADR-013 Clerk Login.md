@@ -13,4 +13,4 @@ Studio and engine are public (Vercel and Fly). Generation costs money, so every 
 - Fly (engine): `CLERK_ISSUER`, the Clerk Frontend API URL (`https://<name>.clerk.accounts.dev`).
 
 ## Not yet done
-Every user still shares one workspace. Per-user workspaces and the prepaid balance (Stripe top-ups, a ledger, $1 per proved app) come next.
+Hosted builds run on the user's own LLM key ([[ADR-016 Users Bring Their Own LLM Key]]). Every user still shares one workspace. Per-user workspaces and the prepaid balance (Stripe top-ups, a ledger, $1 per proved app) come next.

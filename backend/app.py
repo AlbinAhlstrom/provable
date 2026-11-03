@@ -76,6 +76,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Provable Backend Platform API", lifespan=lifespan)
 
+# Added before CORS, so that CORS wraps it and a refused request still reaches the Studio readably
+from entrypoints.llm_lease import LlmKeyLease
+from service_layer.llm_keys import key_store
+app.add_middleware(LlmKeyLease, store=key_store)
+
 # Allow CORS for local dev
 app.add_middleware(
     CORSMiddleware,
@@ -94,6 +99,8 @@ from entrypoints.routers.components import router as components_router
 from entrypoints.routers.specs import router as specs_router
 from entrypoints.routers.onboarding import router as onboarding_router
 from entrypoints.routers.tickets import router as tickets_router
+from entrypoints.routers.llm_key import router as llm_key_router
+app.include_router(llm_key_router, dependencies=[Depends(require_user)])
 app.include_router(projects_router, dependencies=[Depends(require_user)])
 app.include_router(requirements_router, dependencies=[Depends(require_user)])
 app.include_router(testing_router, dependencies=[Depends(require_user)])
@@ -102,5 +109,9 @@ app.include_router(components_router, dependencies=[Depends(require_user)])
 app.include_router(specs_router, dependencies=[Depends(require_user)])
 app.include_router(onboarding_router, dependencies=[Depends(require_user)])
 app.include_router(tickets_router, dependencies=[Depends(require_user)])
+
+# Last, once every module that reads the .env has done so: from here on no subprocess inherits a secret
+import llm_credentials
+llm_credentials.seal_environment()
 
 

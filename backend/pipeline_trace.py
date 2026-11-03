@@ -12,7 +12,7 @@ Every entry holds `t_offset_s` (seconds since the trace began) and its thread, s
 laid out on one timeline. The caller chain is per thread: hand work to a thread pool through bind_context(fn) and the
 worker's steps stay attached to the step that started them.
 
-API keys found in the environment are scrubbed from everything that is written.
+API keys, the engine's and the held user's (llm_credentials.py), are scrubbed from everything that is written.
 """
 
 import dataclasses
@@ -24,12 +24,11 @@ import threading
 import time
 from typing import Any, Callable
 
+import llm_credentials
+
 _lock = threading.Lock()
 _seq = 0
 _local = threading.local()
-
-_SECRET_ENV_NAMES = ("LLM_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY")
-
 
 _active_dir = ""  # set by run_recorder for the duration of a recorded run
 _epoch = time.time()  # what t_offset_s counts from; restarted with every recorded run
@@ -94,10 +93,8 @@ def _jsonable(obj: Any) -> Any:
 
 
 def _scrub(text: str) -> str:
-    for name in _SECRET_ENV_NAMES:
-        secret = os.environ.get(name)
-        if secret and len(secret) > 8:
-            text = text.replace(secret, "[REDACTED]")
+    for secret in llm_credentials.secret_values():
+        text = text.replace(secret, "[REDACTED]")
     return text
 
 

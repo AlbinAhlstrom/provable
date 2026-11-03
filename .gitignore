@@ -39,3 +39,6 @@ test_out.png
 
 # Preflight output (UI screenshot)
 /logs/
+
+# Users' encrypted LLM keys (hosted engine)
+provable-keys.db

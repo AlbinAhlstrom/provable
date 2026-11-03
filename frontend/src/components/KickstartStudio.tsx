@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AppPreview } from './AppPreview';
 import { BuildOpening } from './BuildOpening';
 import { BuildProgress, BuildProgressBanner } from './BuildProgressPanel';
+import { LLM_KEY_CHANGED } from './LlmKeyButton';
 import { StudioMessage } from './StatusMessage';
 
 const PROGRESS_POLL_MS = 1500;       // while a build runs
@@ -19,6 +20,7 @@ export const KickstartStudio: React.FC = () => {
   const [message, setMessage] = useState<StudioMessage | null>(null);
   const [synthesized, setSynthesized] = useState<boolean>(false);
   const [llmConfigured, setLlmConfigured] = useState<boolean>(true);
+  const [keyManaged, setKeyManaged] = useState<boolean>(false);  // a hosted engine: each user brings their own key
   const [progress, setProgress] = useState<BuildProgress | null>(null);
   const [reloadToken, setReloadToken] = useState<number>(0);
   const followedBuild = useRef<boolean>(false);  // the running build has been seen at least once
@@ -32,6 +34,11 @@ export const KickstartStudio: React.FC = () => {
         if (state.business_pitch) setPitch(state.business_pitch);
         if (typeof state.synthesized === 'boolean') setSynthesized(state.synthesized);
         if (typeof state.llm_configured === 'boolean') setLlmConfigured(state.llm_configured);
+        setKeyManaged(Boolean(state.llm_key_managed));
+        if (state.llm_key_managed) {
+          const key = await (await fetch('/api/llm-key')).json();
+          setLlmConfigured(Boolean(key.configured));
+        }
       }
     } catch (err) {
       console.error("Failed to fetch kickstart state:", err);
@@ -40,6 +47,9 @@ export const KickstartStudio: React.FC = () => {
 
   useEffect(() => {
     checkState();
+    const again = () => { checkState(); };
+    window.addEventListener(LLM_KEY_CHANGED, again);
+    return () => window.removeEventListener(LLM_KEY_CHANGED, again);
   }, []);
 
   // Ask what the running build has delivered so far. A build this
@@ -151,7 +161,10 @@ export const KickstartStudio: React.FC = () => {
 
   // The live workspace: the app beside its specifications, or the place to ask for one when nothing is built
   const built = synthesized || building;
-  const noKey: StudioMessage = { severity: 'warning', text: 'No LLM API key is configured. Set GEMINI_API_KEY, OPENAI_API_KEY or LLM_API_KEY in .env to build.' };
+  const noKey: StudioMessage = {
+    severity: 'warning',
+    text: keyManaged ? 'Add your LLM key to build.' : 'No LLM API key is configured. Set GEMINI_API_KEY, OPENAI_API_KEY or LLM_API_KEY in .env to build.',
+  };
   return (
     <AppPreview
       built={built}

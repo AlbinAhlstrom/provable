@@ -928,7 +928,8 @@ def get_kickstart_state(uow: AbstractUnitOfWork) -> Dict[str, Any]:
     with uow:
         state = uow.kickstart.get()
         d = state.to_dict()
-        import llm_provider
+        import llm_credentials, llm_provider
+        d["llm_key_managed"] = llm_credentials.enforced()  # a hosted engine: the user's own key, asked at /api/llm-key
         d["llm_configured"] = bool(llm_provider.connection().api_key)
         return d
 

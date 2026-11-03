@@ -3,12 +3,15 @@
 LLM_PROVIDER names one of PROVIDERS, and that provider then supplies the endpoint, the key (from its own setting, so
 the keys of several providers can sit side by side) and the default model. A provider may give a stage a model of its own (stage_models); LLM_MODEL_<STAGE> moves any stage to
 another model of the same provider. Without LLM_PROVIDER the single settings decide, as before: LLM_API_KEY /
-OPENAI_API_KEY / GEMINI_API_KEY, OPENAI_BASE_URL and LLM_MODEL, defaulting to Gemini.
+OPENAI_API_KEY / GEMINI_API_KEY, OPENAI_BASE_URL and LLM_MODEL, defaulting to Gemini. On a hosted engine a user's own
+key (llm_credentials.py) decides instead, and the operator's key is never a fallback.
 """
 
 import os
 from dataclasses import dataclass, field
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
+
+import llm_credentials
 
 
 @dataclass(frozen=True)
@@ -75,10 +78,28 @@ class Connection:
     thinking: bool = True  # False: the call asks the model to answer without its hidden thinking
 
 
+def _users_own() -> Optional[llm_credentials.Credential]:
+    """The held user's own key, which brings its provider along and leaves the operator's model settings out."""
+    held = llm_credentials.current()
+    return held if held and held.api_key else None
+
+
+def _operators_settings_apply() -> bool:
+    held = llm_credentials.current()
+    return not llm_credentials.enforced() or bool(held and held.house)
+
+
+def _provider_name() -> str:
+    own = _users_own()
+    return own.provider if own else (os.environ.get("LLM_PROVIDER") or "").strip().lower()
+
+
 def stage_models() -> Dict[str, str]:
     """The stages that run on another model than the default one, by the provider or a setting, with that model."""
-    name = (os.environ.get("LLM_PROVIDER") or "").strip().lower()
+    name = _provider_name()
     models = dict(PROVIDERS[name].stage_models) if name in PROVIDERS else {}
+    if _users_own():
+        return models
     prefix = "LLM_MODEL_"
     models.update({key[len(prefix):].lower(): value for key, value in os.environ.items()
                    if key.startswith(prefix) and value})
@@ -88,9 +109,12 @@ def stage_models() -> Dict[str, str]:
 def connection(stage: str = "general") -> Connection:
     """The endpoint, key and model the given stage's call uses."""
     import run_options
+    own = _users_own()
     # A run held on one model asks it of every stage, as a stage moved by a setting is (run_options.py)
-    stage_model = run_options.current().model or os.environ.get(f"LLM_MODEL_{stage.upper()}")
-    name = (os.environ.get("LLM_PROVIDER") or "").strip().lower()
+    stage_model = run_options.current().model or (None if own else os.environ.get(f"LLM_MODEL_{stage.upper()}"))
+    operators = _operators_settings_apply()
+    bring_your_own = "add your own key in the Studio"
+    name = _provider_name()
     if name:
         if name not in PROVIDERS:
             raise ValueError(f"LLM_PROVIDER={name!r} is not a known provider (known: {', '.join(sorted(PROVIDERS))}).")
@@ -98,10 +122,12 @@ def connection(stage: str = "general") -> Connection:
         model = stage_model or provider.stage_models.get(stage) or provider.model
         # A stage moved to another model by a setting was not measured there, so that model is left as it is.
         thinking = bool(stage_model) or stage not in provider.unthinking_stages
-        return Connection(provider.base_url, os.environ.get(provider.key_env) or "", model,
-                          f"set {provider.key_env}", provider.accepts_temperature, provider.api, thinking)
+        api_key = own.api_key if own else llm_credentials.setting(provider.key_env) if operators else ""
+        return Connection(provider.base_url, api_key, model, f"set {provider.key_env}" if operators else bring_your_own,
+                          provider.accepts_temperature, provider.api, thinking)
     default = PROVIDERS["gemini"]
-    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
-    return Connection(os.environ.get("OPENAI_BASE_URL") or default.base_url, api_key or "",
+    api_key = (llm_credentials.setting("LLM_API_KEY") or llm_credentials.setting("OPENAI_API_KEY")
+               or llm_credentials.setting("GEMINI_API_KEY")) if operators else ""
+    return Connection(os.environ.get("OPENAI_BASE_URL") or default.base_url, api_key,
                       stage_model or os.environ.get("LLM_MODEL") or default.model,
-                      "set GEMINI_API_KEY, LLM_API_KEY or OPENAI_API_KEY")
+                      "set GEMINI_API_KEY, LLM_API_KEY or OPENAI_API_KEY" if operators else bring_your_own)

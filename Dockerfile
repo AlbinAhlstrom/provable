@@ -5,13 +5,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+RUN useradd --create-home --uid 10001 provable
+
 WORKDIR /app
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 COPY backend/requirements.txt backend/requirements.txt
 RUN pip install --no-cache-dir -r backend/requirements.txt uvicorn playwright \
     && playwright install --with-deps chromium
 
 COPY . .
-RUN chmod +x deploy/start.sh
+# The engine runs as `provable`: it can write its logs and /data, not its own code.
+RUN chmod +x deploy/start.sh && mkdir -p logs backend/logs && chown -R provable:provable logs backend/logs
 
 ENV PROVABLE_WORKSPACE=/data/workspace \
     PYTHONPATH=/app/backend \

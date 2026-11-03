@@ -57,6 +57,7 @@ Welcome to the Provable Project Obsidian Vault! This is the centralized knowledg
 - [[ADR-014 Change Tickets]]: Every change to a generated app, the kickstart included, is a ticket: a delta of the stored product contract, built only where its rules live and proved by the new rules going green while all others stay green.
 - [[ADR-011 The Product Contract]]: A live kickstart opens with one call that names the product, its look, records, actions, refusals, read-out names and rules; the structure, rule deck, action manifest, intent and page plan are read out of it by code.
 - [[ADR-015 Decisions Shared by Stages]]: A decision several stages depend on is made once upstream; the present moment of every generated app has one settable source, the clock module in the generated domain (clock.py).
+- [[ADR-016 Users Bring Their Own LLM Key]]: A hosted engine spends the signed-in user's own encrypted LLM key, one user at a time, and generated code gets no secrets.
 
 
 ### 5. 📜 Agent Rules & Governance
