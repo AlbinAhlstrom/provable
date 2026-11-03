@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AppPreview } from './AppPreview';
 import { BuildOpening } from './BuildOpening';
 import { BuildProgress, BuildProgressBanner } from './BuildProgressPanel';
-import { LLM_KEY_CHANGED } from './LlmKeyButton';
+import { LLM_KEY_CHANGED, LLM_KEY_NEEDED } from './LlmKeyButton';
 import { StudioMessage } from './StatusMessage';
 
 const PROGRESS_POLL_MS = 1500;       // while a build runs
@@ -97,6 +97,10 @@ export const KickstartStudio: React.FC = () => {
   const triggerSynthesis = async (asked: string) => {
     if (!asked.trim()) return;
     setPitch(asked.trim());
+    if (keyManaged && !llmConfigured) {  // the pitch stays in the box for after the key is added
+      window.dispatchEvent(new Event(LLM_KEY_NEEDED));
+      return;
+    }
     followedBuild.current = false;
     shownReady.current = false;
     setBuilding(true);
