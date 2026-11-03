@@ -145,7 +145,7 @@ provable/
 │   ├── onboarding/           # Domain router engine, skeleton builder, LibCST isolator
 │   ├── prompts/              # System prompt templates for LLM agents
 │   ├── service_layer/        # Unit of Work, message bus, and TDD state machine
-│   └── tests/                # Unit, integration, and E2E test suites (124+ tests)
+│   └── tests/                # Unit, integration, and E2E test suites (850+ tests)
 ├── frontend/                 # PM Studio React 18 + Vite frontend
 │   ├── src/                  # React TypeScript source
 │   │   ├── components/       # KickstartStudio, AppPreview, RequirementControlPanel, specs/
